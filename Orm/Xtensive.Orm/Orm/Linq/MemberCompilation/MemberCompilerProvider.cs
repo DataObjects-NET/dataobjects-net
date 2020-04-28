@@ -338,8 +338,11 @@ namespace Xtensive.Orm.Linq.MemberCompilation
         targetType = targetType.GetGenericTypeDefinition();
         if (canonicalMember is FieldInfo)
           canonicalMember = targetType.GetField(canonicalMember.Name);
-        else if (canonicalMember is MethodInfo)
-          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
+        else if (canonicalMember is MethodInfo methodInfo) {
+          const BindingFlags methodBindingFlags =
+            BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
+          canonicalMember = GetCanonicalMethod(methodInfo, targetType.GetMethods(methodBindingFlags));
+        }
         else if (canonicalMember is ConstructorInfo)
           canonicalMember = GetCanonicalMethod((ConstructorInfo) canonicalMember, targetType.GetConstructors());
         else
