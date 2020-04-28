@@ -1,8 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Denis Krjuchkov
-// Created:    2020.14.02
+// Licensed to the Xtensive LLC under one or more agreements.
+// The Xtensive LLC licenses this file to you under the MIT license.
+// See the LICENSE file in the project root for more information.
 
 using System;
 using System.Linq.Expressions;
