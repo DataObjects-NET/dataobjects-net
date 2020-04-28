@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -22,9 +21,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 
@@ -45,7 +42,7 @@ namespace Xtensive.Orm
     private bool isDisposed;
     private Session singleConnectionOwner;
 
-    private bool IsDebugEventLoggingEnabled { get; set; }
+    private readonly bool isDebugEventLoggingEnabled;
 
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -242,7 +239,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
 
-      if (IsDebugEventLoggingEnabled) {
+      if (isDebugEventLoggingEnabled) {
         OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
       }
 
@@ -383,7 +380,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
 
-      if (IsDebugEventLoggingEnabled) {
+      if (isDebugEventLoggingEnabled) {
         OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
       }
 
@@ -456,7 +453,7 @@ namespace Xtensive.Orm
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
-      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
+      isDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
     }
 
     /// <inheritdoc/>
@@ -467,7 +464,7 @@ namespace Xtensive.Orm
           return;
         isDisposed = true;
 
-        if (IsDebugEventLoggingEnabled) {
+        if (isDebugEventLoggingEnabled) {
           OrmLog.Debug(Strings.LogDomainIsDisposing);
         }
 
