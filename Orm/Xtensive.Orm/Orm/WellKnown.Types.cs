@@ -1,4 +1,7 @@
 using System;
+using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Orm.Linq;
 
 namespace Xtensive.Orm
 {
@@ -6,45 +9,54 @@ namespace Xtensive.Orm
   {
     public static class Types
     {
-      public static readonly Type ByteType = typeof(byte);
-      public static readonly Type NullableByteType = typeof(byte?);
-      public static readonly Type SByteType = typeof(sbyte);
-      public static readonly Type NullableSByteType = typeof(sbyte?);
-      public static readonly Type Int16Type = typeof(short);
-      public static readonly Type NullableInt16Type = typeof(short?);
-      public static readonly Type UInt16Type = typeof(ushort);
-      public static readonly Type NullableUInt16Type = typeof(ushort?);
-      public static readonly Type Int32Type = typeof(int);
-      public static readonly Type NullableInt32Type = typeof(int?);
-      public static readonly Type UInt32Type = typeof(uint);
-      public static readonly Type NullableUInt32Type = typeof(uint?);
-      public static readonly Type Int64Type = typeof(long);
-      public static readonly Type NullableInt64Type = typeof(long?);
-      public static readonly Type UInt64Type = typeof(ulong);
-      public static readonly Type NullableUInt64Type = typeof(ulong?);
+      public static readonly Type Byte = typeof(byte);
+      public static readonly Type NullableByte = typeof(byte?);
+      public static readonly Type SByte = typeof(sbyte);
+      public static readonly Type NullableSByte = typeof(sbyte?);
+      public static readonly Type Int16 = typeof(short);
+      public static readonly Type NullableInt16 = typeof(short?);
+      public static readonly Type UInt16 = typeof(ushort);
+      public static readonly Type NullableUInt16 = typeof(ushort?);
+      public static readonly Type Int32 = typeof(int);
+      public static readonly Type NullableInt32 = typeof(int?);
+      public static readonly Type UInt32 = typeof(uint);
+      public static readonly Type NullableUInt32 = typeof(uint?);
+      public static readonly Type Int64 = typeof(long);
+      public static readonly Type NullableInt64 = typeof(long?);
+      public static readonly Type UInt64 = typeof(ulong);
+      public static readonly Type NullableUInt64 = typeof(ulong?);
 
-      public static readonly Type CharType = typeof(char);
-      public static readonly Type NullableCharType = typeof(char?);
+      public static readonly Type Char = typeof(char);
+      public static readonly Type NullableChar = typeof(char?);
 
-      public static readonly Type DecimalType = typeof(decimal);
-      public static readonly Type NullableDecimalType = typeof(decimal?);
-      public static readonly Type FloatType = typeof(float);
-      public static readonly Type NullableFloatType = typeof(float?);
-      public static readonly Type DoubleType = typeof(double);
-      public static readonly Type NullableDoubleType = typeof(double?);
+      public static readonly Type Decimal = typeof(decimal);
+      public static readonly Type NullableDecimal = typeof(decimal?);
+      public static readonly Type Float = typeof(float);
+      public static readonly Type NullableFloat = typeof(float?);
+      public static readonly Type Double = typeof(double);
+      public static readonly Type NullableDouble = typeof(double?);
 
-      public static readonly Type StringType = typeof(string);
+      public static readonly Type String = typeof(string);
 
-      public static readonly Type TimeSpanType = typeof(TimeSpan);
-      public static readonly Type NullableTimeSpanType = typeof(TimeSpan?);
-      public static readonly Type DateTimeType = typeof(DateTime);
-      public static readonly Type NullableDateTimeType = typeof(DateTime?);
-      public static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
-      public static readonly Type NullableDateTimeOffsetType = typeof(DateTimeOffset?);
-      public static readonly Type GuidType = typeof(Guid);
-      public static readonly Type NullableGuidType = typeof(Guid?);
+      public static readonly Type TimeSpan = typeof(TimeSpan);
+      public static readonly Type NullableTimeSpan = typeof(TimeSpan?);
+      public static readonly Type DateTime = typeof(DateTime);
+      public static readonly Type NullableDateTime = typeof(DateTime?);
+      public static readonly Type DateTimeOffset = typeof(DateTimeOffset);
+      public static readonly Type NullableDateTimeOffset = typeof(DateTimeOffset?);
+      public static readonly Type Guid = typeof(Guid);
+      public static readonly Type NullableGuid = typeof(Guid?);
 
-      public static readonly Type NullableType = typeof(Nullable<>);
+      public static readonly Type NullableOfT = typeof(Nullable<>);
+
+      public static readonly Type QueryableOfT = typeof(Queryable<>);
+    }
+
+    public static class Interfaces
+    {
+      public static readonly Type QueryableOfT = typeof(IQueryable<>);
+      public static readonly Type EnumerableOfT = typeof(IEnumerable<>);
+      public static readonly Type AsyncEnumerableOfT = typeof(IAsyncEnumerable<>);
     }
   }
 }
