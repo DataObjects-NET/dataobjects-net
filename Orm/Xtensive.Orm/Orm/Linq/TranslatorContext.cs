@@ -14,7 +14,6 @@ using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -29,27 +28,29 @@ namespace Xtensive.Orm.Linq
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
 
-    public CompilerConfiguration RseCompilerConfiguration { get; private set; }
+    public CompilerConfiguration RseCompilerConfiguration { get; }
 
-    public ProviderInfo ProviderInfo { get; private set; }
+    public ProviderInfo ProviderInfo { get; }
 
-    public Expression Query { get; private set; }
+    public Expression Query { get; }
 
-    public Domain Domain { get; private set; }
+    public bool IsAsync { get; }
 
-    public DomainModel Model { get; private set; }
+    public Domain Domain { get; }
 
-    public TypeIdRegistry TypeIdRegistry { get; private set; }
+    public DomainModel Model { get; }
 
-    public IMemberCompilerProvider<Expression> CustomCompilerProvider { get; private set; }
+    public TypeIdRegistry TypeIdRegistry { get; }
 
-    public Translator Translator { get; private set; }
+    public IMemberCompilerProvider<Expression> CustomCompilerProvider { get; }
 
-    public ExpressionEvaluator Evaluator { get; private set; }
+    public Translator Translator { get; }
 
-    public ParameterExtractor ParameterExtractor { get; private set; }
+    public ExpressionEvaluator Evaluator { get; }
 
-    public LinqBindingCollection Bindings { get; private set; }
+    public ParameterExtractor ParameterExtractor { get; }
+
+    public LinqBindingCollection Bindings { get; }
 
     public bool IsRoot(Expression expression)
     {
@@ -122,11 +123,12 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query)
+    public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
+      bool isAsync)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, "rseCompilerConfiguration");
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
+      ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, nameof(rseCompilerConfiguration));
+      ArgumentValidator.EnsureArgumentNotNull(query, nameof(query));
 
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;
@@ -144,6 +146,8 @@ namespace Xtensive.Orm.Linq
       Evaluator = new ExpressionEvaluator(query);
       query = PersistentIndexerRewriter.Rewrite(query, this);
       Query = query;
+
+      IsAsync = isAsync;
 
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});

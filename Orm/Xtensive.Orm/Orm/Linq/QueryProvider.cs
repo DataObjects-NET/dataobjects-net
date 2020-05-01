@@ -96,10 +96,17 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public async Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken token)
+    public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken token) =>
+      ExecuteAsync<TResult>(expression, token, false);
+
+    public Task<IAsyncEnumerable<T>> ExecuteForEnumerationAsync<T>(Expression expression, CancellationToken token) =>
+      ExecuteAsync<IAsyncEnumerable<T>>(expression, token, true);
+
+    private async Task<TResult> ExecuteAsync<TResult>(
+      Expression expression, CancellationToken token, bool isAsyncEnumerable)
     {
       expression = session.Events.NotifyQueryExecuting(expression);
-      var query = Translate<TResult>(expression);
+      var query = Translate<TResult>(expression, isAsyncEnumerable);
       var cachingScope = QueryCachingScope.Current;
       TResult result;
       if (cachingScope != null && !cachingScope.Execute) {
@@ -119,21 +126,16 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Task<IAsyncEnumerable<T>> ExecuteForEnumerationAsync<T>(Expression expression, CancellationToken token)
-    {
-      return ExecuteAsync<IAsyncEnumerable<T>>(expression, token);
-    }
-
     #region Private / internal methods
 
-    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression) =>
-      Translate<TResult>(expression, session.CompilationService.CreateConfiguration(session));
+    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, bool isAsync = false) =>
+      Translate<TResult>(expression, session.CompilationService.CreateConfiguration(session), isAsync);
 
     internal TranslatedQuery<TResult> Translate<TResult>(Expression expression,
-      CompilerConfiguration compilerConfiguration)
+      CompilerConfiguration compilerConfiguration, bool isAsync = false)
     {
       try {
-        var context = new TranslatorContext(session, compilerConfiguration, expression);
+        var context = new TranslatorContext(session, compilerConfiguration, expression, isAsync);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
