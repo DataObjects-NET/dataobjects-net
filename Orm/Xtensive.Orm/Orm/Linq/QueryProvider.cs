@@ -5,6 +5,7 @@
 // Created:    2008.11.26
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -116,6 +117,11 @@ namespace Xtensive.Orm.Linq
 
       session.Events.NotifyQueryExecuted(expression);
       return result;
+    }
+
+    public Task<IAsyncEnumerable<T>> ExecuteForEnumerationAsync<T>(Expression expression, CancellationToken token)
+    {
+      return ExecuteAsync<IAsyncEnumerable<T>>(expression, token);
     }
 
     #region Private / internal methods
