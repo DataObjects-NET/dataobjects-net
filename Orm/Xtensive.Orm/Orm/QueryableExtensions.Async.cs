@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -655,6 +656,33 @@ namespace Xtensive.Orm
       return ExecuteAsync<TSource, decimal?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableDecimalType],
         source, selector, cancellationToken);
+    }
+
+    // Collection methods
+
+    public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source,
+      CancellationToken cancellationToken = default)
+    {
+      var list = new List<TSource>();
+      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+        list.Add(element);
+      }
+
+      return list;
+    }
+
+    public static async Task<TSource[]> ToArrayAsync<TSource>(this IQueryable<TSource> source,
+      CancellationToken cancellationToken = default) => (await source.ToListAsync(cancellationToken)).ToArray();
+
+    public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+
+      if (source is IAsyncEnumerable<TSource> asyncEnumerable) {
+        return asyncEnumerable;
+      }
+
+      throw new InvalidOperationException("Query can't be executed asynchronously.");
     }
 
     // Private methods
