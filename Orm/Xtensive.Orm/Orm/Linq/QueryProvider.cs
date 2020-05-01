@@ -5,7 +5,6 @@
 // Created:    2008.11.26
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -36,7 +35,7 @@ namespace Xtensive.Orm.Linq
     {
       var elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable) typeof(Queryable<>).Activate(new[] {elementType}, this, expression);
+        var query = (IQueryable) WellKnown.Types.QueryableOfT.Activate(new[] {elementType}, this, expression);
         return query;
       }
       catch (TargetInvocationException e) {
@@ -55,8 +54,9 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      var resultType = expression.Type.IsOfGenericInterface(typeof(IEnumerable<>))
-        ? typeof(IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
+      var iEnumerableOfT = WellKnown.Interfaces.EnumerableOfT;
+      var resultType = expression.Type.IsOfGenericInterface(iEnumerableOfT)
+        ? iEnumerableOfT.MakeGenericType(expression.Type.GetGenericArguments())
         : expression.Type;
       try {
         var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
