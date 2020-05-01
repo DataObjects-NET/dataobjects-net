@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Linq
   internal sealed partial class Translator
   {
     public static readonly MethodInfo TranslateMethod;
-    public static readonly MethodInfo VisitLocalCollectionSequenceMethod;
+    private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
 
     public TranslatedQuery<TResult> Translate<TResult>()
     {
@@ -33,7 +33,8 @@ namespace Xtensive.Orm.Linq
       return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
     }
 
-    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameterBindings)
+    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection,
+      IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
       var result = new ProjectionExpression(
@@ -215,15 +216,15 @@ namespace Xtensive.Orm.Linq
 
     static Translator()
     {
-      TranslateMethod = typeof (Translator)
-        .GetMethod(
-          "Translate", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TResult"},
-          new[] {typeof (ProjectionExpression), typeof (IEnumerable<Parameter<Tuple>>)});
+      TranslateMethod = typeof(Translator).GetMethod(nameof(Translate),
+        BindingFlags.NonPublic | BindingFlags.Instance,
+        new[] {"TResult"},
+        new object[] {typeof(ProjectionExpression), typeof(IEnumerable<Parameter<Tuple>>)});
 
-      VisitLocalCollectionSequenceMethod = typeof (Translator)
-        .GetMethod(
-          "VisitLocalCollectionSequence", BindingFlags.NonPublic | BindingFlags.Instance, new[] {"TItem"},
-          new[] {typeof (Expression)});
+      VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
+        BindingFlags.NonPublic | BindingFlags.Instance,
+        new[] {"TItem"},
+        new object[] {typeof(Expression)});
     }
   }
 }
