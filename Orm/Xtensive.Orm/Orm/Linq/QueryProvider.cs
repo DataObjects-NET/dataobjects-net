@@ -40,7 +40,11 @@ namespace Xtensive.Orm.Linq
         return query;
       }
       catch (TargetInvocationException e) {
-        throw e.InnerException;
+        if (e.InnerException != null) {
+          ExceptionDispatchInfo.Throw(e.InnerException);
+        }
+
+        throw;
       }
     }
 
@@ -59,8 +63,12 @@ namespace Xtensive.Orm.Linq
         var result = executeMethod.Invoke(this, new object[] {expression});
         return result;
       }
-      catch(TargetInvocationException te) {
-        throw te.InnerException;
+      catch (TargetInvocationException e) {
+        if (e.InnerException != null) {
+          ExceptionDispatchInfo.Throw(e.InnerException);
+        }
+
+        throw;
       }
     }
 
