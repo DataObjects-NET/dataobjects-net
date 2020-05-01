@@ -681,6 +681,51 @@ namespace Xtensive.Orm
     public static async Task<TSource[]> ToArrayAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default) => (await source.ToListAsync(cancellationToken)).ToArray();
 
+    public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TKey, TSource>(
+      this IQueryable<TSource> source, Func<TSource, TKey> keySelector, CancellationToken cancellationToken = default)
+    {
+      var dictionary = new Dictionary<TKey, TSource>();
+      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+        dictionary.Add(keySelector(element), element);
+      }
+
+      return dictionary;
+    }
+
+    public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue, TSource>(
+      this IQueryable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector,
+      CancellationToken cancellationToken = default)
+    {
+      var dictionary = new Dictionary<TKey, TValue>();
+      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+        dictionary.Add(keySelector(element), valueSelector(element));
+      }
+
+      return dictionary;
+    }
+
+    public static async Task<HashSet<TSource>> ToHashSetAsync<TSource>(this IQueryable<TSource> source,
+      CancellationToken cancellationToken = default)
+    {
+      var hashSet = new HashSet<TSource>();
+      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+        hashSet.Add(element);
+      }
+
+      return hashSet;
+    }
+
+    public static async Task<HashSet<TElement>> ToHashSetAsync<TElement, TSource>(this IQueryable<TSource> source,
+      Func<TSource, TElement> elementSelector, CancellationToken cancellationToken = default)
+    {
+      var hashSet = new HashSet<TElement>();
+      await foreach (var item in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+        hashSet.Add(elementSelector(item));
+      }
+
+      return hashSet;
+    }
+
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
