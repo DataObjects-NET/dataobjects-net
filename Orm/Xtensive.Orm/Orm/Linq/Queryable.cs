@@ -17,21 +17,19 @@ namespace Xtensive.Orm.Linq
   /// An implementation of <see cref="IQueryable{T}"/>.
   /// </summary>
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
-  public sealed class Queryable<T> : IOrderedQueryable<T> 
+  public sealed class Queryable<T> : IOrderedQueryable<T>
   {
     private readonly QueryProvider provider;
     private readonly Expression expression;
 
     /// <inheritdoc/>
-    public Expression Expression { get { return expression; } }
+    public Expression Expression => expression;
 
     /// <inheritdoc/>
-    public Type ElementType { get { return typeof (T); } }
+    public Type ElementType => typeof (T);
 
     /// <inheritdoc/>
-    IQueryProvider IQueryable.Provider { get { return provider; } }
-
-    #region IEnumerable<...> members
+    IQueryProvider IQueryable.Provider => provider;
 
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
@@ -41,28 +39,21 @@ namespace Xtensive.Orm.Linq
     }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    #endregion
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public override string ToString()
-    {
-      return expression.ToString();
-    }
-
+    public override string ToString() => expression.ToString();
 
     // Constructors
 
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="expression"/>  is out of range.</exception>
     public Queryable(QueryProvider provider, Expression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      if (!typeof (IQueryable<T>).IsAssignableFrom(expression.Type))
-        throw new ArgumentOutOfRangeException("expression");
+      ArgumentValidator.EnsureArgumentNotNull(expression, nameof(expression));
+      if (!typeof (IQueryable<T>).IsAssignableFrom(expression.Type)) {
+        throw new ArgumentOutOfRangeException(nameof(expression));
+      }
+
       this.provider = provider;
       this.expression = expression;
     }
