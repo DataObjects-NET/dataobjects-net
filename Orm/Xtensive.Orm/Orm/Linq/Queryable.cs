@@ -9,6 +9,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq
@@ -17,7 +20,7 @@ namespace Xtensive.Orm.Linq
   /// An implementation of <see cref="IQueryable{T}"/>.
   /// </summary>
   /// <typeparam name="T">The type of the content item of the data source.</typeparam>
-  public sealed class Queryable<T> : IOrderedQueryable<T>
+  public sealed class Queryable<T> : IOrderedQueryable<T>, IAsyncEnumerable<T>
   {
     private readonly QueryProvider provider;
     private readonly Expression expression;
@@ -40,6 +43,15 @@ namespace Xtensive.Orm.Linq
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public async IAsyncEnumerator<T> GetAsyncEnumerator(
+      [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    {
+      var result = await provider.ExecuteAsync<IAsyncEnumerable<T>>(expression, cancellationToken);
+      await foreach (var element in result.WithCancellation(cancellationToken)) {
+        yield return element;
+      }
+    }
 
     /// <inheritdoc/>
     public override string ToString() => expression.ToString();
