@@ -23,6 +23,7 @@ namespace Xtensive.Orm
 
       return ExecuteAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
     }
+
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -278,7 +279,8 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate, source, cancellationToken);
+      return ExecuteAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
+        source, predicate, cancellationToken);
     }
 
     // First / FirstOrDefault
@@ -297,7 +299,8 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstWithPredicate, source, cancellationToken);
+      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstWithPredicate,
+        source, predicate, cancellationToken);
     }
 
     public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
@@ -315,7 +318,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
       return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefaultWithPredicate,
-        source, cancellationToken);
+        source, predicate, cancellationToken);
     }
 
     // Last / LastOrDefault
@@ -334,7 +337,8 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate, source, cancellationToken);
+      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate,
+        source, predicate, cancellationToken);
     }
 
     public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
@@ -352,7 +356,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
       return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefaultWithPredicate,
-        source, cancellationToken);
+        source, predicate, cancellationToken);
     }
 
     // LongCount
@@ -371,7 +375,8 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, long>(WellKnownMembers.Queryable.LongCountWithPredicate, source, cancellationToken);
+      return ExecuteAsync<TSource, long>(WellKnownMembers.Queryable.LongCountWithPredicate,
+        source, predicate, cancellationToken);
     }
 
     // Max / Min
@@ -390,7 +395,8 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector, source, cancellationToken);
+      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
+        source, selector, cancellationToken);
     }
 
     public static Task<TSource> MinAsync<TSource>(this IQueryable<TSource> source,
@@ -407,7 +413,8 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector, source, cancellationToken);
+      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
+        source, selector, cancellationToken);
     }
 
     // Single / SingleOrDefault
