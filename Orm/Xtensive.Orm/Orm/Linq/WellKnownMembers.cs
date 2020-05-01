@@ -21,7 +21,7 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
-  internal static class WellKnownMembers
+  internal static partial class WellKnownMembers
   {
     public static class Query
     {
@@ -231,76 +231,6 @@ namespace Xtensive.Orm.Linq
         ExtensionContainsAll = GetMethod(collectionExType, nameof(CollectionExtensionsEx.ContainsAll), 1, 2);
         ExtensionContainsAny = GetMethod(collectionExType, nameof(CollectionExtensionsEx.ContainsAny), 1, 2);
         ExtensionContainsNone = GetMethod(collectionExType, nameof(CollectionExtensionsEx.ContainsNone), 1, 2);
-      }
-    }
-
-    public static class Queryable
-    {
-      // Queryable
-      public static readonly MethodInfo AsQueryable;
-      public static readonly MethodInfo DefaultIfEmpty;
-      public static readonly MethodInfo Take;
-      public static readonly MethodInfo Count;
-      public static readonly MethodInfo CountWithPredicate;
-      public static readonly MethodInfo LongCount;
-      public static readonly MethodInfo Where;
-      public static readonly MethodInfo Contains;
-      public static readonly MethodInfo Cast;
-      public static readonly MethodInfo Select;
-
-      // Querable extensions
-      public static readonly MethodInfo ExtensionCount;
-      public static readonly MethodInfo ExtensionLeftJoin;
-      public static readonly MethodInfo ExtensionLock;
-      public static readonly MethodInfo ExtensionTake;
-      public static readonly MethodInfo ExtensionSkip;
-      public static readonly MethodInfo ExtensionElementAt;
-      public static readonly MethodInfo ExtensionElementAtOrDefault;
-
-      static Queryable()
-      {
-        // Queryable
-        AsQueryable = GetQueryableMethod(Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
-        DefaultIfEmpty = GetQueryableMethod(Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
-        Count = GetQueryableMethod(Reflection.WellKnown.Queryable.Count, 1, 1);
-        CountWithPredicate = GetQueryableMethod(Reflection.WellKnown.Queryable.Count, 1, 2);
-        Take = GetQueryableMethod(Reflection.WellKnown.Queryable.Take, 1, 2);
-        Contains = GetQueryableMethod(Reflection.WellKnown.Queryable.Contains, 1, 2);
-        LongCount = GetQueryableMethod(Reflection.WellKnown.Queryable.LongCount, 1, 1);
-        Cast = GetQueryableMethod(Reflection.WellKnown.Queryable.Cast, 1, 1);
-        Where = typeof (System.Linq.Queryable)
-          .GetMethods()
-          .Where(m => {
-            var parameters = m.GetParameters();
-            return m.Name==Reflection.WellKnown.Queryable.Where
-              && m.IsGenericMethod
-              && parameters.Length==2
-              && parameters[1].ParameterType.IsGenericType
-              && parameters[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
-          })
-          .First();
-
-        Select = typeof (System.Linq.Queryable)
-          .GetMethods()
-          .Where(m => {
-            var parameters = m.GetParameters();
-            return m.Name==Reflection.WellKnown.Queryable.Select
-              && m.IsGenericMethod
-              && parameters.Length==2
-              && parameters[1].ParameterType.IsGenericType
-              && parameters[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
-          })
-          .Single();
-
-
-        // Querable extensions
-        ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
-        ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
-        ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
-        ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
-        ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
-        ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
-        ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
       }
     }
 

@@ -20,7 +20,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries. 
   /// </summary>
-  public static class QueryableExtensions
+  public static partial class QueryableExtensions
   {
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.

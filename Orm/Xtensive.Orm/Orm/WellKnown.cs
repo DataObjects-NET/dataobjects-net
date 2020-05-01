@@ -20,7 +20,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Various well-known constants related to this namespace.
   /// </summary>
-  public static class WellKnown
+  public static partial class WellKnown
   {
     private const string UseDomainStorageProviderInfoSupportedTypesInstead
       = "Use Domain.StorageProviderInfo.SupportedTypes instead.";
