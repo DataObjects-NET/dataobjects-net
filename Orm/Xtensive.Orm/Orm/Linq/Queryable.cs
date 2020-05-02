@@ -44,8 +44,7 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public async IAsyncEnumerator<T> GetAsyncEnumerator(
-      [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
       var result = await provider.ExecuteForEnumerationAsync<T>(expression, cancellationToken);
       await foreach (var element in result.WithCancellation(cancellationToken)) {
