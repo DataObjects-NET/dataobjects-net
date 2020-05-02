@@ -26,6 +26,7 @@ namespace Xtensive.Orm.Linq.Materialization
     private const int BatchMaxSize = 1024;
 
     public static readonly MethodInfo MaterializeMethodInfo;
+    public static readonly MethodInfo MaterializeAsyncMethodInfo;
     public static readonly MethodInfo GetDefaultMethodInfo;
     public static readonly MethodInfo CompileItemMaterializerMethodInfo;
     public static readonly MethodInfo IsNullMethodInfo;
@@ -123,6 +124,44 @@ namespace Xtensive.Orm.Linq.Materialization
         : SubqueryMaterialize(materializedSequence, parameterContext);
     }
 
+    public static async IAsyncEnumerable<TResult> MaterializeAsync<TResult>(
+      IAsyncEnumerable<Tuple> dataSource,
+      MaterializationContext context,
+      ParameterContext parameterContext,
+      Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
+      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+    {
+      var session = context.Session;
+      if (dataSource is RecordSet recordSet) {
+        var enumerationContext = (EnumerationContext) recordSet.Context;
+        enumerationContext.MaterializationContext = context;
+      }
+
+      using (parameterContext.Activate()) {
+        foreach (var (parameter, tuple) in tupleParameterBindings) {
+          parameter.Value = tuple;
+        }
+
+        Queue<Action> materializationQueue = null;
+        if (context.MaterializationQueue == null) {
+          context.MaterializationQueue = materializationQueue = new Queue<Action>();
+        }
+
+        await foreach (var tuple in dataSource) {
+          yield return itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session));
+        }
+
+        if (materializationQueue == null) {
+          yield break;
+        }
+
+        while (materializationQueue.Count > 0) {
+          var materializeSelf = materializationQueue.Dequeue();
+          materializeSelf.Invoke();
+        }
+      }
+    }
+
     private static IEnumerable<TResult> BatchMaterialize<TResult>(IEnumerable<TResult> materializedSequence,
       MaterializationContext context, ParameterContext parameterContext)
     {
@@ -169,6 +208,8 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       MaterializeMethodInfo = typeof (MaterializationHelper)
         .GetMethod(nameof(Materialize), BindingFlags.Public | BindingFlags.Static);
+      MaterializeAsyncMethodInfo = typeof (MaterializationHelper)
+        .GetMethod(nameof(MaterializeAsync), BindingFlags.Public | BindingFlags.Static);
       CompileItemMaterializerMethodInfo = typeof (MaterializationHelper)
         .GetMethod(nameof(CompileItemMaterializer), BindingFlags.Public | BindingFlags.Static);
       GetDefaultMethodInfo = typeof(MaterializationHelper)
