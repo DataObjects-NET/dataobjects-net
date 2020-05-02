@@ -93,18 +93,19 @@ namespace Xtensive.Orm.Linq.Materialization
     /// Materializes the specified data source.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="dataSource">The data source.</param>
+    /// <param name="objDataSource">The data source.</param>
     /// <param name="context">The context.</param>
     /// <param name="parameterContext">The parameter context.</param>
     /// <param name="itemMaterializer">The item materializer.</param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     public static IEnumerable<TResult> Materialize<TResult>(
-      IEnumerable<Tuple> dataSource,
+      object objDataSource,
       MaterializationContext context,
       ParameterContext parameterContext,
       Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
+      var dataSource = (IEnumerable<Tuple>) objDataSource;
       using (parameterContext.Activate()) {
         foreach (var (parameter, tuple) in tupleParameterBindings) {
           parameter.Value = tuple;
@@ -125,13 +126,14 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     public static async IAsyncEnumerable<TResult> MaterializeAsync<TResult>(
-      IAsyncEnumerable<Tuple> dataSource,
+      object objDataSource,
       MaterializationContext context,
       ParameterContext parameterContext,
       Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
       var session = context.Session;
+      var dataSource = (IAsyncEnumerable<Tuple>) objDataSource;
       if (dataSource is RecordSet recordSet) {
         var enumerationContext = (EnumerationContext) recordSet.Context;
         enumerationContext.MaterializationContext = context;

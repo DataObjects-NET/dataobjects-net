@@ -9,7 +9,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
@@ -30,7 +29,7 @@ namespace Xtensive.Orm.Linq
     public TranslatedQuery<TResult> Translate<TResult>()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
-      return Translate<TResult>(projection, EnumerableUtils<Parameter<Tuple>>.Empty);
+      return Translate<TResult>(projection, Enumerable.Empty<Parameter<Tuple>>());
     }
 
     private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection,
@@ -102,7 +101,7 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(
+    private Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(
       ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof (IEnumerable<Tuple>), "rs");
@@ -113,12 +112,13 @@ namespace Xtensive.Orm.Linq
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
-      var materializeMethod = MaterializationHelper.MaterializeMethodInfo
-        .MakeGenericMethod(elementType);
+      var materializeMethodInfo = context.IsAsync
+        ? MaterializationHelper.MaterializeAsyncMethodInfo : MaterializationHelper.MaterializeMethodInfo;
+      var materializeMethod = materializeMethodInfo.MakeGenericMethod(elementType);
       var compileMaterializerMethod = MaterializationHelper.CompileItemMaterializerMethodInfo
         .MakeGenericMethod(elementType);
 
-      var itemMaterializer = compileMaterializerMethod.Invoke(null, new[] {materializationInfo.Expression});
+      var itemMaterializer = compileMaterializerMethod.Invoke(null, new object[] {materializationInfo.Expression});
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor = (s,n) => new MaterializationContext(s,n);
       var materializationContextExpression = materializationContextCtor
         .BindParameters(
@@ -134,6 +134,9 @@ namespace Xtensive.Orm.Linq
         tupleParameterBindings);
 
       if (projection.IsScalar) {
+        if (context.IsAsync) {
+          throw new NotSupportedException();
+        }
         var scalarMethodName = projection.ResultType.ToString();
         var enumerableMethod = typeof (Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -141,11 +144,13 @@ namespace Xtensive.Orm.Linq
           .MakeGenericMethod(elementType);
         body = Expression.Call(enumerableMethod, body);
       }
-      body = body.Type==typeof (TResult)
-        ? body
-        : Expression.Convert(body, typeof (TResult));
 
-      var projectorExpression = FastExpression.Lambda<Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(body, rs, session, tupleParameterBindings, parameterContext);
+      var resultType = typeof (TResult);
+      body = body.Type == resultType ? body : Expression.Convert(body, resultType);
+
+      var projectorExpression =
+        FastExpression.Lambda<Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(
+          body, rs, session, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
     }
 

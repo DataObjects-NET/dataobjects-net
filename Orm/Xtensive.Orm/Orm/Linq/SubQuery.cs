@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Linq
         projectionExpression.ResultType);
       var translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(
         query.DataSource,
-        (Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
+        (Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
       delayedSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);

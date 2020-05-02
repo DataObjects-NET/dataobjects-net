@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Materializer.
     /// </summary>
-    public readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> Materializer;
+    public readonly Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> Materializer;
 
     /// <summary>
     /// Gets the tuple parameter bindings.
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
-    public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer)
+    public TranslatedQuery(ExecutableProvider dataSource, Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer)
       : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), EnumerableUtils<Parameter<Tuple>>.Empty)
     {
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="materializer">The materializer.</param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     /// <param name="tupleParameters">The tuple parameters.</param>
-   public TranslatedQuery(ExecutableProvider dataSource, Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
+   public TranslatedQuery(ExecutableProvider dataSource, Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
       : base(dataSource)
     {
       Materializer = materializer;
