@@ -7,7 +7,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// Abstract base class for any query provider that can be directly executed.
   /// </summary>
   [Serializable]
-  public abstract class ExecutableProvider : Provider, IEnumerable<Tuple>
+  public abstract class ExecutableProvider : Provider, IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
   {
     /// <summary>
     /// Gets the provider this provider is compiled from.
@@ -61,6 +61,18 @@ namespace Xtensive.Orm.Rse.Providers
       //Default version is synchronous
       token.ThrowIfCancellationRequested();
       return Task.FromResult(OnEnumerate(context));
+    }
+
+    protected virtual async IAsyncEnumerable<Tuple> OnAsyncEnumerate(
+      EnumerationContext context, [EnumeratorCancellation] CancellationToken token)
+    {
+      //Default version is synchronous
+      foreach (var tuple in OnEnumerate(context)) {
+        token.ThrowIfCancellationRequested();
+        yield return tuple;
+      }
+
+      await Task.CompletedTask;
     }
 
     #endregion
@@ -136,6 +148,28 @@ namespace Xtensive.Orm.Rse.Providers
       }
     }
 
+    public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
+    {
+      const string enumerationMarker = "Enumerated";
+      var context = EnumerationScope.CurrentContext;
+      var enumerated = context.GetValue<bool>(this, enumerationMarker);
+      if (!enumerated) {
+        OnBeforeEnumerate(context);
+      }
+
+      try {
+        context.SetValue(this, enumerationMarker, true);
+        await foreach (var tuple in OnAsyncEnumerate(context, token)) {
+          yield return tuple;
+        }
+      }
+      finally {
+        if (!enumerated) {
+          OnAfterEnumerate(context);
+        }
+      }
+    }
+
     #endregion
 
     /// <exception cref="InvalidOperationException"><see cref="Origin"/> is <see langword="null" />.</exception>
@@ -155,8 +189,6 @@ namespace Xtensive.Orm.Rse.Providers
     protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
       : base(origin.Type, sources)
     {
-      if (origin==null)
-        throw new ArgumentNullException("origin");
       Origin = origin;
     }
   }

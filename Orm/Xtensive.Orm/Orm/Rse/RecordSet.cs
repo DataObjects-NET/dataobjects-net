@@ -7,8 +7,8 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Orm.Rse.Providers;
@@ -21,19 +21,24 @@ namespace Xtensive.Orm.Rse
   /// Provides access to a sequence of <see cref="Tuple"/>s
   /// exposed by its <see cref="Provider"/>.
   /// </summary>
-  public class RecordSet : IEnumerable<Tuple>
+  public class RecordSet : IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
   {
     public EnumerationContext Context { get; private set; }
     public ExecutableProvider Source { get; private set; }
     public RecordSetHeader Header { get { return Source.Header; } }
 
     /// <inheritdoc/>
-    public IEnumerator<Tuple> GetEnumerator()
-    {
-      if (Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator))
-        return GetGreedyEnumerator();
-      return GetBatchedEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    public IEnumerator<Tuple> GetEnumerator() =>
+      Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator) ? GetGreedyEnumerator() : GetBatchedEnumerator();
+
+    /// <inheritdoc/>
+    public IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken cancellationToken) =>
+      Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator)
+        ? GetAsyncGreedyEnumerator(cancellationToken)
+        : GetAsyncLazyEnumerator(cancellationToken);
 
     /// <summary>Returns an enumerator that iterates through the collection.</summary>
     /// <returns>An enumerator that can be used to iterate through the collection.</returns>
@@ -129,20 +134,46 @@ namespace Xtensive.Orm.Rse
     {
       try {
         foreach (var batch in enumerable)
-          foreach (var tuple in batch)
+          foreach (var tuple in batch) {
             yield return tuple;
+          }
       }
       finally {
         afterEnumerationAction.Invoke(parameterForAction);
       }
     }
 
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
+    private async IAsyncEnumerator<Tuple> GetAsyncGreedyEnumerator(CancellationToken token)
     {
-      return GetEnumerator();
+      using var cs = Context.BeginEnumeration();
+      var tuples = new List<Tuple>();
+
+      using (Context.Activate()) {
+        await foreach (var tuple in Source) {
+          token.ThrowIfCancellationRequested();
+          tuples.Add(tuple);
+        }
+      }
+
+      foreach (var tuple in tuples) {
+        yield return tuple;
+      }
+
+      cs?.Complete();
     }
 
+    private async IAsyncEnumerator<Tuple> GetAsyncLazyEnumerator(CancellationToken token)
+    {
+      using var cs = Context.BeginEnumeration();
+      using (Context.Activate()) {
+        await foreach (var tuple in Source) {
+          token.ThrowIfCancellationRequested();
+          yield return tuple;
+        }
+      }
+
+      cs?.Complete();
+    }
 
     // Constructors
 
