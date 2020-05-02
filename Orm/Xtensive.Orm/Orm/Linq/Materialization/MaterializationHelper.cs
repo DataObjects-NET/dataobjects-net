@@ -26,7 +26,6 @@ namespace Xtensive.Orm.Linq.Materialization
     private const int BatchMaxSize = 1024;
 
     public static readonly MethodInfo MaterializeMethodInfo;
-    public static readonly MethodInfo MaterializeAsyncMethodInfo;
     public static readonly MethodInfo GetDefaultMethodInfo;
     public static readonly MethodInfo CompileItemMaterializerMethodInfo;
     public static readonly MethodInfo IsNullMethodInfo;
@@ -210,8 +209,6 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       MaterializeMethodInfo = typeof (MaterializationHelper)
         .GetMethod(nameof(Materialize), BindingFlags.Public | BindingFlags.Static);
-      MaterializeAsyncMethodInfo = typeof (MaterializationHelper)
-        .GetMethod(nameof(MaterializeAsync), BindingFlags.Public | BindingFlags.Static);
       CompileItemMaterializerMethodInfo = typeof (MaterializationHelper)
         .GetMethod(nameof(CompileItemMaterializer), BindingFlags.Public | BindingFlags.Static);
       GetDefaultMethodInfo = typeof(MaterializationHelper)

@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Internals
     {
       CacheItem cacheItem;
       var recordPartCount = header.ColumnGroups.Count;
-      var context = new MaterializationContext(session, recordPartCount);
+      var context = new MaterializationContext(session, recordPartCount, false);
       lock (_lock) {
         if (!cache.TryGetItem(header, false, out cacheItem)) {
           var typeIdColumnName = Domain.Handlers.NameBuilder.TypeIdColumnName;

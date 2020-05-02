@@ -43,6 +43,8 @@ namespace Xtensive.Orm.Linq.Materialization
     /// </summary>
     public int EntitiesInRow { get; private set; }
 
+    public bool IsAsync { get; }
+
     /// <summary>
     /// Gets <see cref="StorageNode">node</see> specific type identifiers registry of current node.
     /// </summary>
@@ -112,11 +114,12 @@ namespace Xtensive.Orm.Linq.Materialization
     
     // Constructors
 
-    public MaterializationContext(Session session, int entityCount)
+    public MaterializationContext(Session session, int entityCount, bool isAsync)
     {
       Session = session;
       Model = session.Domain.Model;
       EntitiesInRow = entityCount;
+      IsAsync = isAsync;
 
       entityMappings = new EntityMappingCache[entityCount];
 

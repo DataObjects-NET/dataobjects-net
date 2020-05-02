@@ -101,42 +101,37 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> BuildMaterializer<TResult>(
-      ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, TResult>
+      BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof (IEnumerable<Tuple>), "rs");
       var session = Expression.Parameter(typeof (Session), "session");
+      var isAsync = Expression.Parameter(typeof (bool), "isAsync");
       var tupleParameterBindings = Expression.Parameter(typeof (Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var parameterContext = Expression.Parameter(typeof (ParameterContext), "parameterContext");
       
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
-      var materializeMethodInfo = context.IsAsync
-        ? MaterializationHelper.MaterializeAsyncMethodInfo : MaterializationHelper.MaterializeMethodInfo;
-      var materializeMethod = materializeMethodInfo.MakeGenericMethod(elementType);
+      var materializeMethod = MaterializationHelper.MaterializeMethodInfo.MakeGenericMethod(elementType);
       var compileMaterializerMethod = MaterializationHelper.CompileItemMaterializerMethodInfo
         .MakeGenericMethod(elementType);
 
       var itemMaterializer = compileMaterializerMethod.Invoke(null, new object[] {materializationInfo.Expression});
-      Expression<Func<Session, int, MaterializationContext>> materializationContextCtor = (s,n) => new MaterializationContext(s,n);
+      Expression<Func<Session, int, bool, MaterializationContext>> materializationContextCtor =
+        (s, entityCount, isAsync) => new MaterializationContext(s, entityCount, isAsync);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(
-          session,
-          Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow), isAsync);
 
       Expression body = Expression.Call(
         materializeMethod,
         rs,
         materializationContextExpression,
-        parameterContext,        
+        parameterContext,
         Expression.Constant(itemMaterializer),
         tupleParameterBindings);
 
       if (projection.IsScalar) {
-        if (context.IsAsync) {
-          throw new NotSupportedException();
-        }
         var scalarMethodName = projection.ResultType.ToString();
         var enumerableMethod = typeof (Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
@@ -148,9 +143,9 @@ namespace Xtensive.Orm.Linq
       var resultType = typeof (TResult);
       body = body.Type == resultType ? body : Expression.Convert(body, resultType);
 
-      var projectorExpression =
-        FastExpression.Lambda<Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult>>(
-          body, rs, session, tupleParameterBindings, parameterContext);
+      var projectorExpression = FastExpression
+        .Lambda<Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, TResult>>(
+          body, rs, session, tupleParameterBindings, parameterContext, isAsync);
       return projectorExpression.CachingCompile();
     }
 

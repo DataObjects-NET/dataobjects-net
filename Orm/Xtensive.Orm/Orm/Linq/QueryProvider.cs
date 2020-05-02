@@ -103,10 +103,10 @@ namespace Xtensive.Orm.Linq
       ExecuteAsync<IAsyncEnumerable<T>>(expression, token, true);
 
     private async Task<TResult> ExecuteAsync<TResult>(
-      Expression expression, CancellationToken token, bool isAsyncEnumerable)
+      Expression expression, CancellationToken token, bool isAsyncEnumeration)
     {
       expression = session.Events.NotifyQueryExecuting(expression);
-      var query = Translate<TResult>(expression, isAsyncEnumerable);
+      var query = Translate<TResult>(expression, isAsyncEnumeration);
       var cachingScope = QueryCachingScope.Current;
       TResult result;
       if (cachingScope != null && !cachingScope.Execute) {
@@ -114,7 +114,9 @@ namespace Xtensive.Orm.Linq
       }
       else {
         try {
-          result = await query.ExecuteAsync(session, new ParameterContext(), token).ConfigureAwait(false);
+          result = await query
+            .ExecuteAsync(session, new ParameterContext(), isAsyncEnumeration, token)
+            .ConfigureAwait(false);
         }
         catch (Exception exception) {
           session.Events.NotifyQueryExecuted(expression, exception);

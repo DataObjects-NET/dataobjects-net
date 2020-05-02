@@ -20,7 +20,9 @@ namespace Xtensive.Orm.Internals
   public abstract class DelayedQueryResult<TResult>
   {
     private readonly ParameterContext parameterContext;
-    private readonly Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, TResult> materializer;
+    private readonly
+      Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, TResult>
+        materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
     /// <summary>
@@ -49,7 +51,7 @@ namespace Xtensive.Orm.Internals
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       if (Task.Result==null)
         session.ExecuteUserDefinedDelayedQueries(false);
-      return materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext);
+      return materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext, false);
     }
 
 
