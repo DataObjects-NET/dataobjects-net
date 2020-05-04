@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Linq
     private Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, TResult>
       BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var rs = Expression.Parameter(typeof (IEnumerable<Tuple>), "rs");
+      var rs = Expression.Parameter(typeof (object), "rs");
       var session = Expression.Parameter(typeof (Session), "session");
       var isAsync = Expression.Parameter(typeof (bool), "isAsync");
       var tupleParameterBindings = Expression.Parameter(typeof (Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
@@ -132,12 +132,13 @@ namespace Xtensive.Orm.Linq
         tupleParameterBindings);
 
       if (projection.IsScalar) {
+        var materializerResultType = typeof(IEnumerable<>).MakeGenericType(elementType);
         var scalarMethodName = projection.ResultType.ToString();
         var enumerableMethod = typeof (Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name==scalarMethodName && m.GetParameters().Length==1)
           .MakeGenericMethod(elementType);
-        body = Expression.Call(enumerableMethod, body);
+        body = Expression.Call(enumerableMethod, Expression.Convert(body, materializerResultType));
       }
 
       var resultType = typeof (TResult);

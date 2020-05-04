@@ -75,12 +75,12 @@ namespace Xtensive.Orm.Linq.Materialization
 
     // Constructors
 
-    public ItemMaterializationContext(MaterializationContext materializationContext, Session session)
+    public ItemMaterializationContext(MaterializationContext materializationContext)
     {
       MaterializationContext = materializationContext;
-      Session = session;
+      Session = materializationContext.Session;
 
-      typeIdRegistry = session.StorageNode.TypeIdRegistry;
+      typeIdRegistry = Session.StorageNode.TypeIdRegistry;
       entities = new Entity[materializationContext.EntitiesInRow];
     }
 

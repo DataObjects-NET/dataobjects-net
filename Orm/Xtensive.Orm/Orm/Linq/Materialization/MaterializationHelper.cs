@@ -92,64 +92,59 @@ namespace Xtensive.Orm.Linq.Materialization
     /// Materializes the specified data source.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="objDataSource">The data source.</param>
+    /// <param name="dataSource">The data source.</param>
     /// <param name="context">The context.</param>
     /// <param name="parameterContext">The parameter context.</param>
     /// <param name="itemMaterializer">The item materializer.</param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
-    public static IEnumerable<TResult> Materialize<TResult>(
-      object objDataSource,
+    public static object Materialize<TResult>(
+      object dataSource,
       MaterializationContext context,
       ParameterContext parameterContext,
       Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
-      var dataSource = (IEnumerable<Tuple>) objDataSource;
       using (parameterContext.Activate()) {
         foreach (var (parameter, tuple) in tupleParameterBindings) {
           parameter.Value = tuple;
         }
       }
 
-      var session = context.Session;
       if (dataSource is RecordSet recordSet) {
         var enumerationContext = (EnumerationContext) recordSet.Context;
         enumerationContext.MaterializationContext = context;
       }
 
+      if (context.IsAsync) {
+        return EnumerateDataSourceAsync((IAsyncEnumerable<Tuple>) dataSource, context, parameterContext,
+          itemMaterializer);
+      }
+
+      return EnumerateDataSource((IEnumerable<Tuple>) dataSource, context, parameterContext, itemMaterializer);
+    }
+
+    private static object EnumerateDataSource<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context,
+      ParameterContext parameterContext, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer)
+    {
       var materializedSequence = dataSource
-        .Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session)));
-      return context.MaterializationQueue == null 
-        ? BatchMaterialize(materializedSequence, context, parameterContext) 
+        .Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context)));
+      return context.MaterializationQueue == null
+        ? BatchMaterialize(materializedSequence, context, parameterContext)
         : SubqueryMaterialize(materializedSequence, parameterContext);
     }
 
-    public static async IAsyncEnumerable<TResult> MaterializeAsync<TResult>(
-      object objDataSource,
+    private static async IAsyncEnumerable<TResult> EnumerateDataSourceAsync<TResult>(
+      IAsyncEnumerable<Tuple> dataSource,
       MaterializationContext context,
       ParameterContext parameterContext,
-      Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+      Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer)
     {
-      var session = context.Session;
-      var dataSource = (IAsyncEnumerable<Tuple>) objDataSource;
-      if (dataSource is RecordSet recordSet) {
-        var enumerationContext = (EnumerationContext) recordSet.Context;
-        enumerationContext.MaterializationContext = context;
-      }
-
       using (parameterContext.Activate()) {
-        foreach (var (parameter, tuple) in tupleParameterBindings) {
-          parameter.Value = tuple;
-        }
-
         Queue<Action> materializationQueue = null;
-        if (context.MaterializationQueue == null) {
-          context.MaterializationQueue = materializationQueue = new Queue<Action>();
-        }
+        context.MaterializationQueue ??= materializationQueue = new Queue<Action>();
 
         await foreach (var tuple in dataSource) {
-          yield return itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session));
+          yield return itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context));
         }
 
         if (materializationQueue == null) {
