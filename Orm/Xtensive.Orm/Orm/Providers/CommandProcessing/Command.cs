@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -73,14 +74,6 @@ namespace Xtensive.Orm.Providers
       reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
     }
 
-    public IEnumerator<Tuple> AsReaderOfAsync(QueryRequest request, CancellationToken token)
-    {
-      var accessor = request.GetAccessor();
-      using (this)
-        while (NextRow())
-          yield return ReadTupleWith(accessor);
-    }
-
     public bool NextResult()
     {
       try {
@@ -91,10 +84,30 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    public async Task<bool> NextResultAsync()
+    {
+      try {
+        return await reader.NextResultAsync();
+      }
+      catch(Exception exception) {
+        throw TranslateException(exception);
+      }
+    }
+
     public bool NextRow()
     {
       try {
         return reader.Read();
+      }
+      catch (Exception exception) {
+        throw TranslateException(exception);
+      }
+    }
+
+    public async Task<bool> NextRowAsync()
+    {
+      try {
+        return await reader.ReadAsync();
       }
       catch (Exception exception) {
         throw TranslateException(exception);
@@ -112,6 +125,18 @@ namespace Xtensive.Orm.Providers
       using (this)
         while (NextRow())
           yield return ReadTupleWith(accessor);
+    }
+
+    public async IAsyncEnumerable<Tuple> AsAsyncReaderOf(
+      QueryRequest request, [EnumeratorCancellation] CancellationToken token)
+    {
+      var accessor = request.GetAccessor();
+      using (this) {
+        while (await NextRowAsync()) {
+          token.ThrowIfCancellationRequested();
+          yield return ReadTupleWith(accessor);
+        }
+      }
     }
 
     public DbCommand Prepare()

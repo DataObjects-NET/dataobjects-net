@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -92,10 +93,8 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
-            var enumerator = context.ActiveCommand.AsReaderOf(loadTask.Request);
-            using (enumerator) {
-              while (enumerator.MoveNext())
-                loadTask.Output.Add(enumerator.Current);
+            await foreach (var record in context.ActiveCommand.AsAsyncReaderOf(loadTask.Request, token)) {
+              loadTask.Output.Add(record);
             }
             context.ActiveTasks.Clear();
           }
@@ -137,6 +136,27 @@ namespace Xtensive.Orm.Providers
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token);
       return lastRequestCommand.AsReaderOf(lastRequest);
+    }
+
+    public override async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest lastRequest,
+      CommandProcessorContext context, [EnumeratorCancellation] CancellationToken token)
+    {
+      var oldValue = context.AllowPartialExecution;
+      context.AllowPartialExecution = false;
+
+      token.ThrowIfCancellationRequested();
+
+      await ExecuteTasksAsync(context, token);
+      context.AllowPartialExecution = oldValue;
+
+      var lastRequestCommand = Factory.CreateCommand();
+      var commandPart = Factory.CreateQueryPart(lastRequest);
+      lastRequestCommand.AddPart(commandPart);
+      token.ThrowIfCancellationRequested();
+      await lastRequestCommand.ExecuteReaderAsync(token);
+      await foreach (var tuple in lastRequestCommand.AsAsyncReaderOf(lastRequest, token)) {
+        yield return tuple;
+      }
     }
 
     // Constructors

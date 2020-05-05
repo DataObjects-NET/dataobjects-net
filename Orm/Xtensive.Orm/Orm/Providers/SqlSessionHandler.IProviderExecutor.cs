@@ -5,6 +5,7 @@
 // Created:    2010.02.09
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -33,6 +34,17 @@ namespace Xtensive.Orm.Providers
       Prepare();
       using (var context = new CommandProcessorContext())
         return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
+    }
+
+    async IAsyncEnumerable<Tuple> IProviderExecutor.ExecuteAsyncTupleReaderAsync(
+      QueryRequest request, [EnumeratorCancellation] CancellationToken token)
+    {
+      Prepare();
+      using (var context = new CommandProcessorContext()) {
+        await foreach (var tuple in commandProcessor.ExecuteTasksWithAsyncReaderAsync(request, context, token)) {
+          yield return tuple;
+        }
+      }
     }
 
     /// <inheritdoc/>

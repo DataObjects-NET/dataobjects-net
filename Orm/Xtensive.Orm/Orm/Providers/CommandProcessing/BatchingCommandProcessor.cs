@@ -4,9 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -89,6 +88,24 @@ namespace Xtensive.Orm.Providers
         await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
 
       return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false)).AsReaderOf(request);
+    }
+
+    public override async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest request,
+      CommandProcessorContext context,
+      [EnumeratorCancellation] CancellationToken token)
+    {
+      context.ProcessingTasks = new Queue<SqlTask>(tasks);
+      tasks.Clear();
+
+      while (context.ProcessingTasks.Count >= batchSize) {
+        await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+      }
+
+      var batchResult =
+        await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false);
+      await foreach (var tuple in batchResult.AsAsyncReaderOf(request, token)) {
+        yield return tuple;
+      }
     }
 
     #region Private / internal methods
@@ -219,7 +236,7 @@ namespace Xtensive.Orm.Providers
     {
       if (context.AllowPartialExecution) {
         context.ProcessingTasks = new Queue<SqlTask>();
-        var batchesCount = (int)tasks.Count / batchSize;
+        var batchesCount = tasks.Count / batchSize;
         if (batchesCount==0)
           return;
         context.ProcessingTasks = new Queue<SqlTask>();
@@ -244,7 +261,7 @@ namespace Xtensive.Orm.Providers
     public BatchingCommandProcessor(CommandFactory factory, int batchSize)
       : base(factory)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, nameof(batchSize));
       this.batchSize = batchSize;
       tasks = new Queue<SqlTask>();
     }

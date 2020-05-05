@@ -32,6 +32,14 @@ namespace Xtensive.Orm.Providers
     Task<IEnumerator<Tuple>> ExecuteTupleReaderAsync(QueryRequest request, CancellationToken token);
 
     /// <summary>
+    /// Asynchronously executes the specified request.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing the operation.</returns>
+    IAsyncEnumerable<Tuple> ExecuteAsyncTupleReaderAsync(QueryRequest request, CancellationToken token);
+
+    /// <summary>
     /// Stores the specified tuples in specified table.
     /// </summary>
     /// <param name="descriptor">Persist descriptor.</param>

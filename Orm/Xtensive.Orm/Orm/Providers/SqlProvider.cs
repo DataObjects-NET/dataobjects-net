@@ -74,6 +74,13 @@ namespace Xtensive.Orm.Providers
       return enumerator.ToEnumerable();
     }
 
+    protected override IAsyncEnumerable<Tuple> OnAsyncEnumerate(Rse.Providers.EnumerationContext context, CancellationToken token)
+    {
+      var storageContext = (EnumerationContext)context;
+      var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
+      return executor.ExecuteAsyncTupleReaderAsync(Request, token);
+    }
+
     #region ToString related methods
 
     /// <inheritdoc/>

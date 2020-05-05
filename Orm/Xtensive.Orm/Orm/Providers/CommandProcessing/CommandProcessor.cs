@@ -5,6 +5,7 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -57,6 +58,18 @@ namespace Xtensive.Orm.Providers
     {
       token.ThrowIfCancellationRequested();
       return Task.FromResult(ExecuteTasksWithReader(request, context));
+    }
+
+    public virtual async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest request,
+      CommandProcessorContext context, [EnumeratorCancellation] CancellationToken token)
+    {
+      using var enumerator = await ExecuteTasksWithReaderAsync(request, context, token);
+      while (enumerator.MoveNext()) {
+        token.ThrowIfCancellationRequested();
+        yield return enumerator.Current;
+      }
+
+      await Task.CompletedTask;
     }
 
     /// <summary>
