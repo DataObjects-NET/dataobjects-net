@@ -419,4 +419,313 @@ namespace Xtensive.Orm.Tests.Storage
 
     #endregion
   }
+
+  public class PersistWithAsyncEnumerationTest : AutoBuildTest
+  {
+    private const int TestEntityCount = 25;
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
+    }
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        for (int i = 0; i < TestEntityCount; i++)
+          new TestEntity(session) {Value = i};
+        transaction.Complete();
+      }
+    }
+
+    [Test]
+    public async Task AsyncButFullySequential()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var readyToRockQuery = session.Query.All<TestEntity>().AsAsyncEnumerable();
+        var anotherAsyncQuery = session.Query.All<TestEntity>().AsAsyncEnumerable();
+
+        int count = 0;
+        await foreach (var testEntity in readyToRockQuery) {
+          count++;
+        }
+
+        Assert.That(count, Is.EqualTo(TestEntityCount));
+
+        count = 0;
+        await foreach (var testEntity in anotherAsyncQuery) {
+          count++;
+        }
+
+        Assert.That(count, Is.EqualTo(TestEntityCount));
+      }
+    }
+
+    [Test]
+    public async Task AsyncEnumerateInParallel()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()){
+        var readyToRockQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        var anotherAsyncQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+
+        var enumerators = new[] {readyToRockQueryEnumerator, anotherAsyncQueryEnumerator};
+
+        int count = 0;
+        while (true) {
+          var index = count % 2;
+          var enumerator = enumerators[index];
+          if (await enumerator.MoveNextAsync()) {
+            count++;
+            var testEntity = enumerator.Current;
+          }
+          else if (index==1) {
+            break;
+          }
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount * 2));
+      }
+    }
+
+    [Test]
+    public async Task ProperPersistSequenceTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        var readyToRockQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        await readyToRockQueryEnumerator.MoveNextAsync(); // trigger query execution
+
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        var anotherAsyncQuery = session.Query.All<TestEntity>().AsAsyncEnumerable();
+
+        int count = 1;
+        await using (readyToRockQueryEnumerator) {
+          while (await readyToRockQueryEnumerator.MoveNextAsync()) {
+            count++;
+          }
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+
+        count = 0;
+        await foreach (var testEntity in anotherAsyncQuery) {
+          count++;
+        }
+
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+      }
+    }
+
+    [Test]
+    public async Task PersistBeforeFirstAsyncQueryAwaitTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        var readyToRockQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        await readyToRockQueryEnumerator.MoveNextAsync(); // trigger query execution
+
+        var anotherAsyncQuery = session.Query.All<TestEntity>().AsAsyncEnumerable();
+
+        var count = 1;
+        await using (readyToRockQueryEnumerator) {
+          while (await readyToRockQueryEnumerator.MoveNextAsync()) {
+            count++;
+          }
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+
+        count = 0;
+        await foreach (var testEntity in anotherAsyncQuery) {
+          count++;
+        }
+
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+      }
+    }
+
+    [Test]
+    public async Task PersistBeforeSecondAsyncQueryAwaitTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var readyToRockQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        await readyToRockQueryEnumerator.MoveNextAsync(); // trigger query execution
+
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        var anotherAsyncQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        await anotherAsyncQueryEnumerator.MoveNextAsync(); // trigger query execution
+
+        var count = 1;
+        await using (readyToRockQueryEnumerator) {
+          while (await readyToRockQueryEnumerator.MoveNextAsync()) {
+            count++;
+          }
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount));
+
+        count = 1;
+        await using (anotherAsyncQueryEnumerator) {
+          while (await anotherAsyncQueryEnumerator.MoveNextAsync()) {
+            count++;
+          }
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+      }
+    }
+
+    #region Manual persist
+
+    [Test]
+    public async Task ProperManualSavingChanges()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        var count = 0;
+        await foreach (var entity in session.Query.All<TestEntity>().AsAsyncEnumerable()) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        session.SaveChanges();
+
+        count = 0;
+        await foreach (var entity in session.Query.All<TestEntity>().AsAsyncEnumerable()) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+      }
+    }
+
+    [Test]
+    public async Task AwaitingQueryBeforeManualSavingChanges()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        var readyToRockQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        await readyToRockQueryEnumerator.MoveNextAsync(); // trigger query execution
+
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+
+        var count = 1;
+        await using (readyToRockQueryEnumerator) {
+          while (await readyToRockQueryEnumerator.MoveNextAsync()) {
+            count++;
+          }
+        }
+
+        session.SaveChanges();
+
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+        count = 0;
+        await foreach (var entity in session.Query.All<TestEntity>().AsAsyncEnumerable()) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+      }
+    }
+
+    [Test]
+    public async Task ManualSavingDuringAsyncQueryExecution()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        var readyToRockQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        await readyToRockQueryEnumerator.MoveNextAsync(); // trigger query execution
+
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        session.SaveChanges();
+
+        var count = 1;
+        await using (readyToRockQueryEnumerator) {
+          while (await readyToRockQueryEnumerator.MoveNextAsync()) {
+            count++;
+          }
+        }
+
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+        count = 0;
+        await foreach (var entity in session.Query.All<TestEntity>().AsAsyncEnumerable()) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+      }
+    }
+
+    [Test]
+    public async Task ManualSavingDuringEnumeration()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var readyToRockQueryEnumerator = session.Query.All<TestEntity>().AsAsyncEnumerable().GetAsyncEnumerator();
+        await readyToRockQueryEnumerator.MoveNextAsync(); // trigger query execution
+
+        new TestEntity(session);
+        new TestEntity(session);
+        new TestEntity(session);
+
+        bool shouldPersist = true;
+
+        var count = 1;
+        await using (readyToRockQueryEnumerator) {
+          while (await readyToRockQueryEnumerator.MoveNextAsync()) {
+            if (count > 10 && shouldPersist) {
+              session.SaveChanges();
+              shouldPersist = false;
+            }
+            count++;
+          }
+        }
+
+        Assert.That(count, Is.EqualTo(TestEntityCount));
+        count = 0;
+        await foreach (var entity in session.Query.All<TestEntity>().AsAsyncEnumerable()) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+      }
+    }
+
+    #endregion
+  }
+
 }
