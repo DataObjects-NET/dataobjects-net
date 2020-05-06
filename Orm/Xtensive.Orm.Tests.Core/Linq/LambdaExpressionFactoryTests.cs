@@ -1,6 +1,6 @@
-// Licensed to the Xtensive LLC under one or more agreements.
-// The Xtensive LLC licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+// Copyright (C) 2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Linq.Expressions;
