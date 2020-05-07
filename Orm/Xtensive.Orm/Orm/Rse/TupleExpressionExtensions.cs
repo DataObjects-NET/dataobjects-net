@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse
@@ -144,7 +145,7 @@ namespace Xtensive.Orm.Rse
     {
       if (expression.NodeType==ExpressionType.Constant)
         return (T) ((ConstantExpression) expression).Value;
-      return Expression.Lambda<Func<T>>(expression).CachingCompile().Invoke();
+      return FastExpression.Lambda<Func<T>>(expression).CachingCompile().Invoke();
     }
   }
 }

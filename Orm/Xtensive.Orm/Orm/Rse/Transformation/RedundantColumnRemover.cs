@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -46,7 +47,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
       var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
-      return (Expression<Func<IEnumerable<Tuple>>>)Expression.Lambda(newExpression);
+      return (Expression<Func<IEnumerable<Tuple>>>)FastExpression.Lambda(newExpression);
     }
 
     // Constructors

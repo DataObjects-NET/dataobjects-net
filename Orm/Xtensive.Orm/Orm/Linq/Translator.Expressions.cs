@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Linq
 
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          Func<IQueryable> lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          Func<IQueryable> lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           IQueryable rootPoint = lambda();
           if (rootPoint!=null)
             return base.Visit(rootPoint.Expression);
@@ -288,7 +288,7 @@ namespace Xtensive.Orm.Linq
       }
       if (ma.Expression==null) {
         if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
           if (rootPoint!=null)
             return VisitSequence(rootPoint.Expression);
@@ -297,7 +297,7 @@ namespace Xtensive.Orm.Linq
       else if (ma.Expression.NodeType==ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
         if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
-          var lambda = Expression.Lambda<Func<IQueryable>>(ma).CachingCompile();
+          var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
           if (rootPoint!=null)
             return VisitSequence(rootPoint.Expression);
@@ -519,7 +519,7 @@ namespace Xtensive.Orm.Linq
       var func = ((Expression<Func<ConditionEndpoint, IOperand>>) rawSearchCriteria).Compile();
       var conditionCompiler = context.Domain.Handler.GetSearchConditionCompiler();
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
-      var preparedSearchCriteria = Expression.Lambda<Func<string>>(Expression.Constant(conditionCompiler.CurrentOutput));
+      var preparedSearchCriteria = FastExpression.Lambda<Func<string>>(Expression.Constant(conditionCompiler.CurrentOutput));
 
       if (QueryCachingScope.Current==null)
         compiledParameter = ((Expression<Func<string>>) preparedSearchCriteria).CachingCompile();

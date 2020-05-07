@@ -7,6 +7,7 @@ using Xtensive.Orm.Services;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
+using Xtensive.Linq;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -139,7 +140,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       SqlTableColumn column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
       SqlExpression value;
-      object constant = Expression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
+      object constant = FastExpression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
       if (constant==null)
         value = SqlDml.Null;
       else {
@@ -199,7 +200,7 @@ namespace Xtensive.Orm.BulkOperations
             i++;
             ParameterExpression p = Expression.Parameter(info.UnderlyingType);
             LambdaExpression lambda =
-              Expression.Lambda(
+              FastExpression.Lambda(
                 typeof (Func<,>).MakeGenericType(info.UnderlyingType, field.ValueType),
                 Expression.MakeMemberAccess(p, field.UnderlyingProperty),
                 p);
@@ -215,7 +216,7 @@ namespace Xtensive.Orm.BulkOperations
         }
       }
       i = -1;
-      var entity = (IEntity) Expression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
+      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
       foreach (ColumnInfo column in addContext.Field.Columns) {
         i++;
         SqlExpression value;
@@ -238,7 +239,7 @@ namespace Xtensive.Orm.BulkOperations
         var addContext = new AddValueContext {
           Descriptor = descriptor,
           Lambda =
-            Expression.Lambda(
+            FastExpression.Lambda(
               typeof (Func<,>).MakeGenericType(typeof (T), descriptor.Expression.Type),
               descriptor.Expression,
               descriptor.Parameter),

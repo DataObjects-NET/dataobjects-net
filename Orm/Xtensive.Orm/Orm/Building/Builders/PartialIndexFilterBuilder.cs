@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm;
 using Xtensive.Reflection;
 using Xtensive.Orm.Linq;
@@ -37,7 +38,7 @@ namespace Xtensive.Orm.Building.Builders
       var builder = new PartialIndexFilterBuilder(index, parameter);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
-        Expression = Expression.Lambda(body, parameter),
+        Expression = FastExpression.Lambda(body, parameter),
         Fields = builder.usedFields,
       };
       index.Filter = filter;

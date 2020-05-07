@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -26,7 +27,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var newParameter = newPredicate.Parameters[0];
       var result = (Expression<Func<Tuple, bool>>) parameterRewriter
         .Replace(oldPredicate, oldParameter, newParameter);
-      return (Expression<Func<Tuple, bool>>) Expression.Lambda(Expression
+      return (Expression<Func<Tuple, bool>>) FastExpression.Lambda(Expression
         .AndAlso(result.Body, newPredicate.Body),newParameter);
     }
 
@@ -41,7 +42,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var newParameter1 = newPredicate.Parameters[1];
       result = (Expression<Func<Tuple, Tuple, bool>>) parameterRewriter
         .Replace(result, oldParameter1, newParameter1);
-      return (Expression<Func<Tuple, Tuple, bool>>) Expression.Lambda(Expression
+      return (Expression<Func<Tuple, Tuple, bool>>) FastExpression.Lambda(Expression
         .AndAlso(result.Body, newPredicate.Body), newParameter0, newParameter1);
     }
 

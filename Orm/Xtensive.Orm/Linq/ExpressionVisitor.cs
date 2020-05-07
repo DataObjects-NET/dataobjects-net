@@ -150,7 +150,7 @@ namespace Xtensive.Linq
     {
       Expression body = Visit(l.Body);
       if (body!=l.Body)
-        return Expression.Lambda(l.Type, body, l.Parameters);
+        return FastExpression.Lambda(l.Type, body, l.Parameters);
       return l;
     }
 

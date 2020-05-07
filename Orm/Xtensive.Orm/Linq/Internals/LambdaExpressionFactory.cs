@@ -13,15 +13,33 @@ using Xtensive.Collections;
 using Xtensive.Reflection;
 
 using Factory = System.Func<
-  System.Linq.Expressions.Expression,
-  System.Collections.Generic.IEnumerable<System.Linq.Expressions.ParameterExpression>,
-  System.Linq.Expressions.LambdaExpression
+    System.Linq.Expressions.Expression,
+    System.Linq.Expressions.ParameterExpression[],
+    System.Linq.Expressions.LambdaExpression
+  >;
+
+using SlowFactory = System.Func<
+    System.Linq.Expressions.Expression,
+    System.Collections.Generic.IEnumerable<System.Linq.Expressions.ParameterExpression>,
+    System.Linq.Expressions.LambdaExpression
+  >;
+
+using FastFactory = System.Func<
+    System.Linq.Expressions.Expression,
+    string,
+    bool,
+    System.Collections.Generic.IReadOnlyList<System.Linq.Expressions.ParameterExpression>,
+    System.Linq.Expressions.LambdaExpression
   >;
 
 namespace Xtensive.Linq
 {
   internal sealed class LambdaExpressionFactory
   {
+    private static readonly Type[] internalFactorySignature = new[] {
+      typeof(Expression), typeof(string), typeof(bool), typeof(IReadOnlyList<ParameterExpression>)
+    };
+
     private static readonly object _lock = new object();
     private static volatile LambdaExpressionFactory instance;
 
@@ -32,16 +50,17 @@ namespace Xtensive.Linq
         return instance;
       }
     }
-    
-    private readonly MethodInfo factoryMethod;
+
     private readonly ThreadSafeDictionary<Type, Factory> cache;
+    private readonly Func<Type, Factory> createHandler;
+    private readonly MethodInfo slowFactoryMethod;
 
     public LambdaExpression CreateLambda(Type delegateType, Expression body, ParameterExpression[] parameters)
     {
-      var factory = cache.GetValue(delegateType, (_delegateType, _this) => _this.CreateFactory(_delegateType), this);
+      var factory = cache.GetValue(delegateType, createHandler);
       return factory.Invoke(body, parameters);
     }
-  
+
     public LambdaExpression CreateLambda(Expression body, ParameterExpression[] parameters)
     {
       var delegateType = DelegateHelper.MakeDelegateType(body.Type, parameters.Select(p => p.Type));
@@ -49,10 +68,36 @@ namespace Xtensive.Linq
     }
 
     #region Private / internal methods
-    
-    private Factory CreateFactory(Type delegateType)
+
+    internal Factory CreateFactorySlow(Type delegateType)
     {
-      return (Factory) Delegate.CreateDelegate(typeof (Factory), factoryMethod.MakeGenericMethod(delegateType));
+      var factory = (SlowFactory) Delegate.CreateDelegate(
+        typeof(SlowFactory), slowFactoryMethod.MakeGenericMethod(delegateType));
+
+      return (body, parameters) => factory.Invoke(body, parameters);
+    }
+
+    internal static Factory CreateFactoryFast(Type delegateType)
+    {
+      var method = typeof(Expression<>).MakeGenericType(delegateType).GetMethod(
+        "Create", BindingFlags.Static | BindingFlags.NonPublic, null, internalFactorySignature, null);
+
+      if (method == null) {
+        return null;
+      }
+
+      var factory = (FastFactory) Delegate.CreateDelegate(typeof(FastFactory), null, method);
+      return (body, parameters) => factory.Invoke(body, null, false, parameters);
+    }
+
+    internal static bool CanUseFastFactory()
+    {
+      try {
+        return CreateFactoryFast(typeof(Func<int>)) != null;
+      }
+      catch {
+        return false;
+      }
     }
 
     #endregion
@@ -62,11 +107,13 @@ namespace Xtensive.Linq
     private LambdaExpressionFactory()
     {
       cache = ThreadSafeDictionary<Type, Factory>.Create(new object());
-      factoryMethod = typeof (Expression).GetMethods()
-        .Where(m => m.IsGenericMethod
-          && m.Name == "Lambda"
-            && m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>))
-        .Single();
+
+      slowFactoryMethod = typeof(Expression).GetMethods().Single(m =>
+        m.IsGenericMethod &&
+        m.Name == "Lambda" &&
+        m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>));
+
+      createHandler = CanUseFastFactory() ? (Func<Type, Factory>) CreateFactoryFast : CreateFactorySlow;
     }
   }
 }
