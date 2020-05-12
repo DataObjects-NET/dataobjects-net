@@ -38,12 +38,7 @@ namespace Xtensive.Orm.Internals
   
     // Constructors
 
-    public QueryCachingScope(Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer)
-      : this(queryParameter, queryParameterReplacer, true)
-    {
-    }
-
-    public QueryCachingScope(Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer, bool execute)
+    public QueryCachingScope(Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer, bool execute = true)
     {
       QueryParameter = queryParameter;
       QueryParameterReplacer = queryParameterReplacer;

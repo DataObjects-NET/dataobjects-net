@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Linq
       CompilerConfiguration compilerConfiguration, bool isAsync = false)
     {
       try {
-        var context = new TranslatorContext(session, compilerConfiguration, expression, isAsync);
+        var context = new TranslatorContext(session, compilerConfiguration, expression, QueryCachingScope.Current, isAsync);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {

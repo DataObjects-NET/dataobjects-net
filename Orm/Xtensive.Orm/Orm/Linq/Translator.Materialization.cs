@@ -23,6 +23,7 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private readonly QueryCachingScope queryCachingScope;
     public static readonly MethodInfo TranslateMethod;
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
 
@@ -44,9 +45,8 @@ namespace Xtensive.Orm.Linq
       var optimized = Optimize(result);
 
       // Prepare cached query, if required
-      var cachingScope = QueryCachingScope.Current;
-      var prepared = cachingScope!=null
-        ? PrepareCachedQuery(optimized, cachingScope)
+      var prepared = queryCachingScope!=null
+        ? PrepareCachedQuery(optimized, queryCachingScope)
         : optimized;
 
       // Compilation
@@ -58,11 +58,11 @@ namespace Xtensive.Orm.Linq
       var translatedQuery = new TranslatedQuery<TResult>(compiled, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
-      if (cachingScope != null && translatedQuery.TupleParameters.Count == 0) {
+      if (queryCachingScope != null && translatedQuery.TupleParameters.Count == 0) {
         var parameterizedQuery = new ParameterizedQuery<TResult>(
           translatedQuery,
-          cachingScope.QueryParameter);
-        cachingScope.ParameterizedQuery = parameterizedQuery;
+          queryCachingScope.QueryParameter);
+        queryCachingScope.ParameterizedQuery = parameterizedQuery;
         return parameterizedQuery;
       }
 
@@ -209,8 +209,9 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    internal Translator(TranslatorContext context)
+    internal Translator(TranslatorContext context, QueryCachingScope queryCachingScope)
     {
+      this.queryCachingScope = queryCachingScope;
       this.context = context;
       state = new TranslatorState(this);
     }

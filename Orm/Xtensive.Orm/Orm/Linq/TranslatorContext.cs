@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Linq.Rewriters;
@@ -124,6 +125,7 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
+      QueryCachingScope queryCachingScope,
       bool isAsync)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
@@ -139,7 +141,7 @@ namespace Xtensive.Orm.Linq
 
       // Built-in preprocessors
       query = AggregateOptimizer.Rewrite(query);
-      query = ClosureAccessRewriter.Rewrite(query);
+      query = ClosureAccessRewriter.Rewrite(query, queryCachingScope);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);
       query = SubqueryDefaultResultRewriter.Rewrite(query);
@@ -155,7 +157,7 @@ namespace Xtensive.Orm.Linq
       Model = Domain.Model;
       TypeIdRegistry = session.StorageNode.TypeIdRegistry;
       ProviderInfo = Domain.Handlers.ProviderInfo;
-      Translator = new Translator(this);
+      Translator = new Translator(this, queryCachingScope);
       ParameterExtractor = new ParameterExtractor(Evaluator);
       Bindings = new LinqBindingCollection();
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();

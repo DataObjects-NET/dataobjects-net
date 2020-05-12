@@ -16,6 +16,8 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal class ClosureAccessRewriter : ExpressionVisitor
   {
+    private readonly QueryCachingScope queryCachingScope;
+
     protected override Expression VisitUnknown(Expression e)
     {
       return e;
@@ -31,7 +33,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         && memberExpression.Member.MemberType==MemberTypes.Field) {
         var fieldInfo = (FieldInfo) memberExpression.Member;
         if (!fieldInfo.FieldType.IsOfGenericType(typeof (EntitySet<>))) {
-          if (QueryCachingScope.Current!=null)
+          if (queryCachingScope!=null)
             throw new InvalidOperationException(String.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
           var queryable = (IQueryable) fieldInfo.GetValue(constantValue);
@@ -43,15 +45,16 @@ namespace Xtensive.Orm.Linq.Rewriters
       return base.VisitMemberAccess(memberExpression);
     }
 
-    public static Expression Rewrite(Expression e)
+    public static Expression Rewrite(Expression e, QueryCachingScope queryCachingScope)
     {
-      return new ClosureAccessRewriter().Visit(e);
+      return new ClosureAccessRewriter(queryCachingScope).Visit(e);
     }
 
     // Constructors
 
-    private ClosureAccessRewriter()
+    private ClosureAccessRewriter(QueryCachingScope queryCachingScope)
     {
+      this.queryCachingScope = queryCachingScope;
     }
   }
 }

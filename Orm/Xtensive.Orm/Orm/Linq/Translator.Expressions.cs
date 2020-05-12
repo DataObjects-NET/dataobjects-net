@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Linq
       if (fullTextIndex==null)
         throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
       var searchCriteria = expressions[0];
-      if (QueryCachingScope.Current!=null
+      if (queryCachingScope!=null
           && searchCriteria.NodeType==ExpressionType.Constant
           && searchCriteria.Type==typeof (string))
         throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
@@ -456,10 +456,10 @@ namespace Xtensive.Orm.Linq
       if (searchCriteria.NodeType==ExpressionType.Quote)
         searchCriteria = searchCriteria.StripQuotes();
       if (searchCriteria.Type==typeof (Func<string>)) {
-        if (QueryCachingScope.Current==null)
+        if (queryCachingScope==null)
           compiledParameter = ((Expression<Func<string>>) searchCriteria).CachingCompile();
         else {
-          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var replacer = queryCachingScope.QueryParameterReplacer;
           var newSearchCriteria = replacer.Replace(searchCriteria);
           compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
         }
@@ -521,10 +521,10 @@ namespace Xtensive.Orm.Linq
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
       var preparedSearchCriteria = FastExpression.Lambda<Func<string>>(Expression.Constant(conditionCompiler.CurrentOutput));
 
-      if (QueryCachingScope.Current==null)
+      if (queryCachingScope==null)
         compiledParameter = ((Expression<Func<string>>) preparedSearchCriteria).CachingCompile();
       else {
-        var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+        var replacer = queryCachingScope.QueryParameterReplacer;
         var newSearchCriteria = replacer.Replace(preparedSearchCriteria);
         compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
       }

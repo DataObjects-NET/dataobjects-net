@@ -417,7 +417,7 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitElementAt(Expression source, Expression index, bool isRoot, Type returnType, bool allowDefault)
     {
-      if (QueryCachingScope.Current!=null
+      if (queryCachingScope!=null
         && index.NodeType==ExpressionType.Constant
           && index.Type==typeof (int)) {
         var errorString = allowDefault
@@ -433,11 +433,11 @@ namespace Xtensive.Orm.Linq
       CompilableProvider rs;
       if (index.Type==typeof (Func<int>)) {
         Expression<Func<int>> elementAtIndex;
-        if (QueryCachingScope.Current==null) {
+        if (queryCachingScope==null) {
           elementAtIndex = (Expression<Func<int>>) index;
         }
         else {
-          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var replacer = queryCachingScope.QueryParameterReplacer;
           elementAtIndex = (Expression<Func<int>>) replacer.Replace(index);
         }
         compiledParameter = elementAtIndex.CachingCompile();
@@ -487,7 +487,7 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
     {
-      if (QueryCachingScope.Current!=null
+      if (queryCachingScope!=null
         && take.NodeType==ExpressionType.Constant
           && take.Type==typeof (int))
         throw new InvalidOperationException(String.Format(Strings.ExTakeNotSupportedInCompiledQueries, ((ConstantExpression) take).Value));
@@ -496,10 +496,10 @@ namespace Xtensive.Orm.Linq
       if (take.NodeType==ExpressionType.Quote)
         take = take.StripQuotes();
       if (take.Type==typeof (Func<int>)) {
-        if (QueryCachingScope.Current==null)
+        if (queryCachingScope==null)
           compiledParameter = ((Expression<Func<int>>) take).CachingCompile();
         else {
-          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var replacer = queryCachingScope.QueryParameterReplacer;
           var newTake = replacer.Replace(take);
           compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
         }
@@ -515,7 +515,7 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression VisitSkip(Expression source, Expression skip)
     {
-      if (QueryCachingScope.Current!=null
+      if (queryCachingScope!=null
         && skip.NodeType==ExpressionType.Constant
           && skip.Type==typeof (int))
         throw new InvalidOperationException(String.Format(Strings.ExSkipNotSupportedInCompiledQueries, ((ConstantExpression) skip).Value));
@@ -524,10 +524,10 @@ namespace Xtensive.Orm.Linq
       if (skip.NodeType==ExpressionType.Quote)
         skip = skip.StripQuotes();
       if (skip.Type==typeof (Func<int>)) {
-        if (QueryCachingScope.Current==null)
+        if (queryCachingScope==null)
           compiledParameter = ((Expression<Func<int>>) skip).CachingCompile();
         else {
-          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
+          var replacer = queryCachingScope.QueryParameterReplacer;
           var newTake = replacer.Replace(skip);
           compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
         }
@@ -1451,7 +1451,7 @@ namespace Xtensive.Orm.Linq
     {
       var sequence = sequenceExpression.StripCasts();
 
-      if (QueryCachingScope.Current!=null && QueryHelper.IsDirectEntitySetQuery(sequence))
+      if (queryCachingScope!=null && QueryHelper.IsDirectEntitySetQuery(sequence))
         throw new NotSupportedException(Strings.ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead);
 
       if (sequence.GetMemberType()==MemberType.EntitySet) {
@@ -1513,9 +1513,9 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
     {
       Func<IEnumerable<TItem>> collectionGetter;
-      if (QueryCachingScope.Current!=null) {
-        var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-        var queryParameter = QueryCachingScope.Current.QueryParameter;
+      if (queryCachingScope!=null) {
+        var replacer = queryCachingScope.QueryParameterReplacer;
+        var queryParameter = queryCachingScope.QueryParameter;
         var replace = replacer.Replace(sequence);
         Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(replace);
         collectionGetter = parameter.CachingCompile();
