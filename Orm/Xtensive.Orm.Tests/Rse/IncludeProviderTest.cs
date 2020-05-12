@@ -29,8 +29,11 @@ namespace Xtensive.Orm.Tests.Rse
       var inRs = trackRs.Include(() => ids, "columnName", new[] {0});
       var inIndex = inRs.Header.Columns.Count-1;
       var whereRs = inRs.Filter(tuple => tuple.GetValueOrDefault<bool>(inIndex));
-      var result = whereRs.GetRecordSet(Session.Current, new ParameterContext()).ToList();
-      Assert.AreEqual(0, whereRs.GetRecordSet(Session.Current, new ParameterContext()).Select(t => t.GetValue<int>(0)).Except(tracks.Select(s => s.TrackId)).Count());
+      var parameterContext = new ParameterContext();
+      using (parameterContext.Activate()) {
+        var result = whereRs.GetRecordSet(Session.Current, parameterContext).ToList();
+        Assert.AreEqual(0, whereRs.GetRecordSet(Session.Current, parameterContext).Select(t => t.GetValue<int>(0)).Except(tracks.Select(s => s.TrackId)).Count());
+      }
     }
   }
 }

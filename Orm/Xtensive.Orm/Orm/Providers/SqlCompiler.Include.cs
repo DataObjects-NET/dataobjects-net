@@ -103,7 +103,9 @@ namespace Xtensive.Orm.Providers
       if (!takeFromContext)
         return () => filterDataSource.Invoke().ToList();
 
-      return () => throw new NotImplementedException();
+      return () => ParameterContext.Current.TryGetValue(SqlIncludeProvider.rowFilterParameter, out var filterData)
+        ? filterData
+        : null;
     }
   }
 }

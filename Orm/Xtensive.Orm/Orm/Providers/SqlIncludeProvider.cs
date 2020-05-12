@@ -7,12 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
-
-using Xtensive.Orm;
-using Xtensive.Tuples;
+using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
@@ -22,8 +18,8 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class SqlIncludeProvider : SqlTemporaryDataProvider
   {
-    public const string RowFilterDataName = "RowFilterData";
-    
+    internal static readonly Parameter<List<Tuple>> rowFilterParameter = new Parameter<List<Tuple>>("RowFilterData");
+
     private readonly Func<IEnumerable<Tuple>> filterDataSource;
 
     private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
@@ -35,10 +31,14 @@ namespace Xtensive.Orm.Providers
       switch (Origin.Algorithm) {
       case IncludeAlgorithm.Auto:
         var filterData = filterDataSource.Invoke().ToList();
-        if (filterData.Count > WellKnown.MaxNumberOfConditions)
+        if (filterData.Count > WellKnown.MaxNumberOfConditions) {
           LockAndStore(context, filterData);
-        else
-          context.SetValue(filterDataSource, RowFilterDataName, filterData);
+        }
+        else {
+          var parameterContext = ((EnumerationContext) context).ParameterContext;
+          parameterContext.SetValue(rowFilterParameter, filterData);
+        }
+
         break;
       case IncludeAlgorithm.ComplexCondition:
         // nothing

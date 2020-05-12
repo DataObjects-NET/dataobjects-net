@@ -50,6 +50,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    private readonly ParameterContext parameterContext;
     private readonly EnumerationContextOptions options;
 
     /// <summary>
@@ -62,6 +63,8 @@ namespace Xtensive.Orm.Providers
     protected override EnumerationContextOptions Options { get { return options; } }
 
     internal MaterializationContext MaterializationContext { get; set; }
+
+    public ParameterContext ParameterContext => parameterContext;
 
     /// <inheritdoc/>
     public override ICompletableScope BeginEnumeration()
@@ -76,16 +79,12 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    internal EnumerationContext(Session session, ParameterContext parameterContext, EnumerationContextOptions options)
+    internal EnumerationContext(Session session, ParameterContext parameterContext, EnumerationContextOptions options = default)
     {
       Session = session;
 
+      this.parameterContext = parameterContext;
       this.options = options;
-    }
-
-    internal EnumerationContext(Session session, ParameterContext parameterContext)
-    {
-      Session = session;
     }
   }
 }
