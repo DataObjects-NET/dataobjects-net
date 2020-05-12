@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Linq
     /// <returns>Query execution result.</returns>
     public TResult Execute(Session session, ParameterContext parameterContext)
     {
-      return Materializer(DataSource.GetRecordSet(session), session, TupleParameterBindings, parameterContext, false);
+      return Materializer(DataSource.GetRecordSet(session, parameterContext), session, TupleParameterBindings, parameterContext, false);
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Linq
     public async Task<TResult> ExecuteAsync(
       Session session, ParameterContext parameterContext, bool isAsyncEnumeration, CancellationToken token)
     {
-      var recordSet = await DataSource.GetRecordSetForAsyncQuery(session, token).ConfigureAwait(false);
+      var recordSet = await DataSource.GetRecordSetForAsyncQuery(session, parameterContext, token).ConfigureAwait(false);
       if (isAsyncEnumeration) {
         return Materializer(recordSet, session, TupleParameterBindings, parameterContext, true);
       }

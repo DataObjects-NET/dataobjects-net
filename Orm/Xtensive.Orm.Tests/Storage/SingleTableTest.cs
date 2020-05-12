@@ -6,6 +6,7 @@
 
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
         new DerivedNode() {Description = "Node"};
 
         var primaryIndex = Domain.Model.Types[typeof (Base)].Indexes.PrimaryIndex;
-        var rs = primaryIndex.GetQuery().GetRecordSet(session);
+        var rs = primaryIndex.GetQuery().GetRecordSet(session, new ParameterContext());
         var result = rs.ToEntities(0).ToList();
         t.Complete();
       }

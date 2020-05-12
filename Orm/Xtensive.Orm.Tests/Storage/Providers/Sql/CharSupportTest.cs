@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -63,9 +64,10 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var rs = GetRseQuery<MyEntity>();
+        var parameterContext = new ParameterContext();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
-          .GetRecordSet(Session.Current)
+          .GetRecordSet(Session.Current, parameterContext)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(3, result.Count);
@@ -83,10 +85,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       using (var transaction = session.OpenTransaction()) {
         var y = 'Y';
         var rs = GetRseQuery<MyEntity>();
+        var parameterContext = new ParameterContext();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0) == y)
-          .GetRecordSet(Session.Current)
+          .GetRecordSet(Session.Current, parameterContext)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);
@@ -101,10 +104,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var rs = GetRseQuery<MyEntity>();
+        var parameterContext = new ParameterContext();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
-          .GetRecordSet(Session.Current)
+          .GetRecordSet(Session.Current, parameterContext)
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);

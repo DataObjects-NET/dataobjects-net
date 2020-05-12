@@ -45,9 +45,10 @@ namespace Xtensive.Orm.Tests.Rse
           Assert.IsNull(state);
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
+          var parameterContext = new ParameterContext();
           // Select *
           CompilableProvider rsMain = ii.GetQuery();
-          UpdateCache(session, rsMain.GetRecordSet(session));
+          UpdateCache(session, rsMain.GetRecordSet(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -56,7 +57,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select Id, TypeId, Title
           CompilableProvider rsTitle = rsMain.Select(0, 1, 2);
-          UpdateCache(session, rsTitle.GetRecordSet(session));
+          UpdateCache(session, rsTitle.GetRecordSet(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -65,7 +66,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select Id, TypeId, Text
           CompilableProvider rsText = rsMain.Select(0, 1, 3);
-          UpdateCache(session, rsText.GetRecordSet(session));
+          UpdateCache(session, rsText.GetRecordSet(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
@@ -74,7 +75,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
-          UpdateCache(session, rsJoin.GetRecordSet(session));
+          UpdateCache(session, rsJoin.GetRecordSet(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());

@@ -239,19 +239,19 @@ namespace Xtensive.Orm
       disposableSet.Add(new SessionScope(this));
     }
 
-    internal EnumerationContext CreateEnumerationContext()
+    internal EnumerationContext CreateEnumerationContext(ParameterContext parameterContext)
     {
       Persist(PersistReason.Query);
       ProcessUserDefinedDelayedQueries(true);
-      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+      return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
-    internal async Task<EnumerationContext> CreateEnumerationContextForAsyncQuery(CancellationToken token)
+    internal async Task<EnumerationContext> CreateEnumerationContextForAsyncQuery(ParameterContext parameterContext, CancellationToken token)
     {
       Persist(PersistReason.Other);
       token.ThrowIfCancellationRequested();
       await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
-      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+      return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
     private EnumerationContextOptions GetEnumerationContextOptions()

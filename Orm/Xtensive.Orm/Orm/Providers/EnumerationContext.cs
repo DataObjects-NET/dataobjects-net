@@ -76,14 +76,14 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    internal EnumerationContext(Session session, EnumerationContextOptions options)
+    internal EnumerationContext(Session session, ParameterContext parameterContext, EnumerationContextOptions options)
     {
       Session = session;
 
       this.options = options;
     }
 
-    internal EnumerationContext(Session session)
+    internal EnumerationContext(Session session, ParameterContext parameterContext)
     {
       Session = session;
     }

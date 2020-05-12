@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Providers
 
       foreach (var task in nonBatchedTasks) {
         using (task.ParameterContext.ActivateSafely())
-          task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session)).ToList();
+          task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session, task.ParameterContext)).ToList();
       }
     }
 
@@ -237,7 +237,7 @@ namespace Xtensive.Orm.Providers
 
       foreach (var task in nonBatchedTasks) {
         using (task.ParameterContext.ActivateSafely())
-          task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session)).ToList();
+          task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session, task.ParameterContext)).ToList();
       }
     }
 

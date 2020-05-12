@@ -841,11 +841,12 @@ namespace Xtensive.Orm
         return false;
 
       bool foundInDatabase;
-      using (new ParameterContext().Activate()) {
+      var parameterContext = new ParameterContext();
+      using (parameterContext.Activate()) {
         var entitySetTypeState = GetEntitySetTypeState();
         keyParameter.Value = entitySetTypeState.SeekTransform
           .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session).FirstOrDefault()!=null;
+        foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session, parameterContext).FirstOrDefault()!=null;
       }
       if (foundInDatabase)
         State.Register(key);

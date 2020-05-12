@@ -24,12 +24,12 @@ namespace Xtensive.Orm.Rse
     /// <param name="provider">The provider.</param>
     /// <param name="session">The session.</param>
     /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
-    public static RecordSet GetRecordSet(this CompilableProvider provider, Session session)
+    public static RecordSet GetRecordSet(this CompilableProvider provider, Session session, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       var compiled = session.Compile(provider);
-      return new RecordSet(session.CreateEnumerationContext(), compiled);
+      return new RecordSet(session.CreateEnumerationContext(parameterContext), compiled);
     }
 
     /// <summary>
@@ -38,11 +38,11 @@ namespace Xtensive.Orm.Rse
     /// <param name="provider">Provider to get <see cref="RecordSet"/> for.</param>
     /// <param name="session">Session to bind.</param>
     /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
-    public static RecordSet GetRecordSet(this ExecutableProvider provider, Session session)
+    public static RecordSet GetRecordSet(this ExecutableProvider provider, Session session, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return new RecordSet(session.CreateEnumerationContext(), provider);
+      return new RecordSet(session.CreateEnumerationContext(parameterContext), provider);
     }
 
     /// <summary>
@@ -52,11 +52,11 @@ namespace Xtensive.Orm.Rse
     /// <param name="session">Session to bind.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing this operation.</returns>
-    public static async Task<RecordSet> GetRecordSetForAsyncQuery(this ExecutableProvider provider, Session session, CancellationToken token)
+    public static async Task<RecordSet> GetRecordSetForAsyncQuery(this ExecutableProvider provider, Session session, ParameterContext parameterContext, CancellationToken token)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      return new RecordSet(await session.CreateEnumerationContextForAsyncQuery(token).ConfigureAwait(false), provider);
+      return new RecordSet(await session.CreateEnumerationContextForAsyncQuery(parameterContext, token).ConfigureAwait(false), provider);
     }
 
     /// <summary>
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Rse
     {
       return provider
         .Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count))
-        .GetRecordSet(session)
+        .GetRecordSet(session, new ParameterContext())
         .First()
         .GetValue<long>(0);
     }

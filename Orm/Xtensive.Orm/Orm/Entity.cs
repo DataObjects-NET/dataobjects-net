@@ -265,7 +265,8 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public void Lock(LockMode lockMode, LockBehavior lockBehavior)
     {
-      using (new ParameterContext().Activate()) {
+      var parameterContext = new ParameterContext();
+      using (parameterContext.Activate()) {
         keyParameter.Value = Key.Value;
         object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
         Func<object, object> generator = tripletObj => {
@@ -278,7 +279,7 @@ namespace Xtensive.Orm
           return Session.Compile(query);
         };
         var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-        var recordSet = source.GetRecordSet(Session);
+        var recordSet = source.GetRecordSet(Session, parameterContext);
         recordSet.FirstOrDefault();
       }
     }
