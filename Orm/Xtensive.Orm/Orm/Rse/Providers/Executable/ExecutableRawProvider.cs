@@ -20,24 +20,19 @@ namespace Xtensive.Orm.Rse.Providers
 
     private const string CachedSourceName = "CachedSource";
 
-    private IEnumerable<Tuple> CachedSource {
-      get { return GetValue<IEnumerable<Tuple>>(EnumerationContext.Current, CachedSourceName); }
-      set { SetValue(EnumerationContext.Current, CachedSourceName, value); }
-    }
-
     #endregion
 
     /// <inheritdoc/>
     protected override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      CachedSource = Origin.CompiledSource.Invoke();
+      SetValue(context, CachedSourceName, Origin.CompiledSource.Invoke());
     }
 
     /// <inheritdoc/>
     protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
     {
-      return CachedSource;
+      return GetValue<IEnumerable<Tuple>>(context, CachedSourceName);
     }
 
 

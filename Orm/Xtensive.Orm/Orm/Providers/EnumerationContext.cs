@@ -74,13 +74,6 @@ namespace Xtensive.Orm.Providers
       return tx;
     }
 
-    /// <inheritdoc/>
-    protected override Rse.Providers.EnumerationScope CreateActiveScope()
-    {
-      return new EnumerationScope(this);
-    }
-
-
     // Constructors
 
     internal EnumerationContext(Session session, EnumerationContextOptions options)

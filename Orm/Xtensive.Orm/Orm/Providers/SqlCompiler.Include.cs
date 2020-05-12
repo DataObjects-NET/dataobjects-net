@@ -103,8 +103,7 @@ namespace Xtensive.Orm.Providers
       if (!takeFromContext)
         return () => filterDataSource.Invoke().ToList();
 
-      return () => EnumerationContext.Current
-        .GetValue<List<Tuple>>(filterDataSource, SqlIncludeProvider.RowFilterDataName);
+      return () => throw new NotImplementedException();
     }
   }
 }

@@ -57,8 +57,7 @@ namespace Xtensive.Orm.Rse
       using (var cs = Context.BeginEnumeration()) {
         List<Tuple> items;
 
-        using (Context.Activate())
-          items = Source.ToList();
+        items = Source.ToEnumerable(Context).ToList();
 
         foreach (var tuple in items)
           yield return tuple;
@@ -73,10 +72,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     private IEnumerator<Tuple> GetBatchedEnumerator()
     {
-      EnumerationScope currentScope = null;
-      var batched = Source.Batch(2).ApplyBeforeAndAfter(
-        () => currentScope = Context.Activate(),
-        () => currentScope.DisposeSafely());
+      var batched = Source.ToEnumerable(Context).Batch(2);
       using (var cs = Context.BeginEnumeration()) {
         foreach (var batch in batched)
           foreach (var tuple in batch)
@@ -102,10 +98,8 @@ namespace Xtensive.Orm.Rse
           completableScope.Dispose();
         };
 
-      using (Context.Activate()) {
-        var enumerator = await Source.GetEnumeratorAsync(Context, token).ConfigureAwait(false);
-        items = enumerator.ToEnumerable().ToList();
-      }
+      var enumerator = await Source.GetEnumeratorAsync(Context, token).ConfigureAwait(false);
+      items = enumerator.ToEnumerable().ToList();
 
       return items.ToEnumerator(afterEnumrationAction, cs);
     }
@@ -148,11 +142,9 @@ namespace Xtensive.Orm.Rse
       using var cs = Context.BeginEnumeration();
       var tuples = new List<Tuple>();
 
-      using (Context.Activate()) {
-        await foreach (var tuple in Source) {
-          token.ThrowIfCancellationRequested();
-          tuples.Add(tuple);
-        }
+      await foreach (var tuple in Source.ToAsyncEnumerable(Context).WithCancellation(token)) {
+        token.ThrowIfCancellationRequested();
+        tuples.Add(tuple);
       }
 
       foreach (var tuple in tuples) {
@@ -165,11 +157,9 @@ namespace Xtensive.Orm.Rse
     private async IAsyncEnumerator<Tuple> GetAsyncLazyEnumerator(CancellationToken token)
     {
       using var cs = Context.BeginEnumeration();
-      using (Context.Activate()) {
-        await foreach (var tuple in Source) {
-          token.ThrowIfCancellationRequested();
-          yield return tuple;
-        }
+      await foreach (var tuple in Source.ToAsyncEnumerable(Context).WithCancellation(token)) {
+        token.ThrowIfCancellationRequested();
+        yield return tuple;
       }
 
       cs?.Complete();

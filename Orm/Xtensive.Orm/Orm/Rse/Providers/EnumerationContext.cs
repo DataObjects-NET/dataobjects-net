@@ -18,14 +18,8 @@ namespace Xtensive.Orm.Rse.Providers
   /// The single enumeration attempt context for the <see cref="ExecutableProvider"/>.
   /// </summary>
   [Serializable]
-  public abstract class EnumerationContext : Context<EnumerationScope>
+  public abstract class EnumerationContext
   {
-    /// <summary>
-    /// Gets the current <see cref="EnumerationContext"/>.
-    /// </summary>
-    public static EnumerationContext Current {
-      get { return EnumerationScope.CurrentContext; }
-    }
 
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
 
@@ -82,30 +76,6 @@ namespace Xtensive.Orm.Rse.Providers
     {
       return (Options & requiredOptions)==requiredOptions;
     }
-
-    #region IContext<...> methods
-
-    /// <inheritdoc/>
-    public override bool IsActive
-    {
-      get { return EnumerationScope.CurrentContext==this; }
-    }
-
-    #endregion
-
-    #region EnsureXxx methods
-
-    /// <summary>
-    /// Ensures the context is active.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Context is not active.</exception>
-    public void EnsureIsActive()
-    {
-      if (EnumerationScope.CurrentContext!=this)
-        throw new InvalidOperationException(string.Format(Strings.ExXMustBeActive, GetType().GetShortName()));
-    }
-
-    #endregion
 
 
     // Constructors
