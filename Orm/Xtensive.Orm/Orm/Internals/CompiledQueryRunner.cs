@@ -111,18 +111,18 @@ namespace Xtensive.Orm.Internals
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
       AllocateParameterAndReplacer();
-      using (var scope = new QueryCachingScope(queryParameter, queryParameterReplacer, executeAsSideEffect)) {
-        using (new ParameterContext().Activate()) {
-          if (queryParameter!=null)
-            queryParameter.Value = queryTarget;
-          result = query.Invoke(endpoint);
-        }
-        var parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
-        if (parameterizedQuery==null && queryTarget!=null)
-          throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
-        PutCachedQuery(parameterizedQuery);
-        return parameterizedQuery;
+      var scope = new QueryCachingScope(endpoint, queryParameter, queryParameterReplacer, executeAsSideEffect);
+      using (scope)
+      using (new ParameterContext().Activate()) {
+        if (queryParameter!=null)
+          queryParameter.Value = queryTarget;
+        result = query.Invoke(endpoint);
       }
+      var parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
+      if (parameterizedQuery==null && queryTarget!=null)
+        throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
+      PutCachedQuery(parameterizedQuery);
+      return parameterizedQuery;
     }
 
     private ParameterizedQuery<IEnumerable<TElement>> GetSequenceQuery<TElement>(
@@ -133,12 +133,14 @@ namespace Xtensive.Orm.Internals
         return parameterizedQuery;
 
       AllocateParameterAndReplacer();
-      using (new QueryCachingScope(queryParameter, queryParameterReplacer)) {
+      var scope = new QueryCachingScope(endpoint, queryParameter, queryParameterReplacer);
+      using (scope) {
         var result = query.Invoke(endpoint);
         var translatedQuery = endpoint.Provider.Translate<IEnumerable<TElement>>(result.Expression);
         parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
-        PutCachedQuery(parameterizedQuery);
       }
+
+      PutCachedQuery(parameterizedQuery);
       return parameterizedQuery;
     }
 

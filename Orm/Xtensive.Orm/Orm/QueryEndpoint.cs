@@ -36,7 +36,7 @@ namespace Xtensive.Orm
     /// Gets <see cref="IQueryProvider"/> implementation
     /// for this session.
     /// </summary>
-    public QueryProvider Provider { get; private set; }
+    public QueryProvider Provider { get; }
 
     /// <summary>
     /// Gets <see cref="IQueryRootBuilder"/> associated with this instance.

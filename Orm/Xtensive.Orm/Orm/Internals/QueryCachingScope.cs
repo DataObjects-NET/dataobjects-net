@@ -11,38 +11,41 @@ using Xtensive.Orm.Linq.Expressions.Visitors;
 
 namespace Xtensive.Orm.Internals
 {
-  internal sealed class QueryCachingScope : SimpleScope<QueryCachingScope.Variator>
+  internal sealed class QueryCachingScope : IDisposable
   {
-    internal abstract class Variator {}
-
+    private readonly QueryEndpoint endpoint;
     private TranslatedQuery parameterizedQuery;
+    private readonly QueryCachingScope oldScope;
 
-    public static new QueryCachingScope Current {
-      get { return (QueryCachingScope) SimpleScope<Variator>.Current; }
-    }
-
-    public Parameter QueryParameter { get; private set; }
-    public ExtendedExpressionReplacer QueryParameterReplacer { get; private set; }
-    public bool Execute { get; private set; }
+    public Parameter QueryParameter { get; }
+    public ExtendedExpressionReplacer QueryParameterReplacer { get; }
+    public bool Execute { get; }
 
     /// <exception cref="NotSupportedException">Second attempt to set this property.</exception>
     public TranslatedQuery ParameterizedQuery {
-      get { return parameterizedQuery; }
+      get => parameterizedQuery;
       set {
-        if (parameterizedQuery != null)
+        if (parameterizedQuery != null) {
           throw Exceptions.AlreadyInitialized("ParameterizedQuery");
+        }
+
         parameterizedQuery = value;
       }
     }
 
-  
+    public void Dispose() => endpoint.Provider.QueryCachingScope = oldScope;
+
+
     // Constructors
 
-    public QueryCachingScope(Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer, bool execute = true)
+    public QueryCachingScope(QueryEndpoint endpoint, Parameter queryParameter, ExtendedExpressionReplacer queryParameterReplacer, bool execute = true)
     {
+      this.endpoint = endpoint;
       QueryParameter = queryParameter;
       QueryParameterReplacer = queryParameterReplacer;
       Execute = execute;
+      oldScope = endpoint.Provider.QueryCachingScope;
+      endpoint.Provider.QueryCachingScope = this;
     }
   }
 }

@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Linq
   public sealed class QueryProvider : IQueryProvider
   {
     private readonly Session session;
+    internal QueryCachingScope QueryCachingScope;
 
     /// <summary>
     /// Gets <see cref="Session"/> this provider is attached to.
@@ -78,9 +79,8 @@ namespace Xtensive.Orm.Linq
     {
       expression = session.Events.NotifyQueryExecuting(expression);
       var query = Translate<TResult>(expression);
-      var cachingScope = QueryCachingScope.Current;
       TResult result;
-      if (cachingScope != null && !cachingScope.Execute) {
+      if (QueryCachingScope != null && !QueryCachingScope.Execute) {
         result = default;
       }
       else {
@@ -107,9 +107,8 @@ namespace Xtensive.Orm.Linq
     {
       expression = session.Events.NotifyQueryExecuting(expression);
       var query = Translate<TResult>(expression, isAsyncEnumeration);
-      var cachingScope = QueryCachingScope.Current;
       TResult result;
-      if (cachingScope != null && !cachingScope.Execute) {
+      if (QueryCachingScope != null && !QueryCachingScope.Execute) {
         result = default;
       }
       else {
@@ -137,7 +136,7 @@ namespace Xtensive.Orm.Linq
       CompilerConfiguration compilerConfiguration, bool isAsync = false)
     {
       try {
-        var context = new TranslatorContext(session, compilerConfiguration, expression, QueryCachingScope.Current, isAsync);
+        var context = new TranslatorContext(session, compilerConfiguration, expression, QueryCachingScope, isAsync);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {
@@ -151,9 +150,10 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    internal QueryProvider(Session session)
+    internal QueryProvider(Session session, QueryCachingScope queryCachingScope = null)
     {
       this.session = session;
+      this.QueryCachingScope = queryCachingScope;
     }
   }
 }
