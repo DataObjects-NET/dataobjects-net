@@ -1,12 +1,13 @@
-// Licensed to the Xtensive LLC under one or more agreements.
-// The Xtensive LLC licenses this file to you under the MIT license.
-// See the LICENSE file in the project root for more information.
+// Copyright (C) 2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests.Issues.MaterializationMethodTestsModel;
 
 namespace Xtensive.Orm.Tests.Issues
 {
@@ -24,51 +25,50 @@ namespace Xtensive.Orm.Tests.Issues
       public string Name { get; set; }
     }
 
- }
+    public class PersonModel
+    {
+      public int Id { get; set; }
+      public string Name { get; set; }
+    }
 
-  public class PersonModel
-  {
-    public int Id { get; set; }
-    public string Name { get; set; }
+    public abstract class ServiceBase<TEntity, TModel> where TModel : class, new() where TEntity : class, IEntity
+    {
+      public IList<TModel> GetAllViaPrivate(Session session) =>
+        session.Query.All<TEntity>().Select(i => PrivateSelect(i)).ToList();
+
+      public IList<TModel> GetAllViaPublic(Session session) =>
+        session.Query.All<TEntity>().Select(i => PublicSelect(i)).ToList();
+
+      public IList<TModel> GetAllViaProtected(Session session) =>
+        session.Query.All<TEntity>().Select(i => ProtectedSelect(i)).ToList();
+
+      public IList<TModel> GetAllViaInternal(Session session) =>
+        session.Query.All<TEntity>().Select(i => InternalSelect(i)).ToList();
+
+      public IList<TModel> GetAllViaProtectedInternal(Session session) =>
+        session.Query.All<TEntity>().Select(i => ProtectedInternalSelect(i)).ToList();
+
+      private TModel PrivateSelect(TEntity entity) => ProtectedSelect(entity);
+      public TModel PublicSelect(TEntity entity) => ProtectedSelect(entity);
+      internal TModel InternalSelect(TEntity entity) => ProtectedSelect(entity);
+      protected internal TModel ProtectedInternalSelect(TEntity entity) => ProtectedSelect(entity);
+
+      protected abstract TModel ProtectedSelect(TEntity entity);
+    }
+
+    public class PersonService : ServiceBase<Person, PersonModel>
+    {
+      protected override PersonModel ProtectedSelect(Person entity) =>
+        new PersonModel { Id = entity.Id, Name = entity.Name };
+    }
   }
 
-  public abstract class ServiceBase<TEntity, TModel> where TModel: class, new() where TEntity: class, IEntity
-  {
-    public IList<TModel> GetAllViaPrivate(Session session) =>
-      session.Query.All<TEntity>().Select(i => PrivateSelect(i)).ToList();
-
-    public IList<TModel> GetAllViaPublic(Session session) =>
-      session.Query.All<TEntity>().Select(i => PublicSelect(i)).ToList();
-
-    public IList<TModel> GetAllViaProtected(Session session) =>
-      session.Query.All<TEntity>().Select(i => ProtectedSelect(i)).ToList();
-
-    public IList<TModel> GetAllViaInternal(Session session) =>
-      session.Query.All<TEntity>().Select(i => InternalSelect(i)).ToList();
-
-    public IList<TModel> GetAllViaProtectedInternal(Session session) =>
-      session.Query.All<TEntity>().Select(i => ProtectedInternalSelect(i)).ToList();
-
-    private TModel PrivateSelect(TEntity entity) => ProtectedSelect(entity);
-    public TModel PublicSelect(TEntity entity) => ProtectedSelect(entity);
-    internal TModel InternalSelect(TEntity entity) => ProtectedSelect(entity);
-    protected internal TModel ProtectedInternalSelect(TEntity entity) => ProtectedSelect(entity);
-
-    protected abstract TModel ProtectedSelect(TEntity entity);
-  }
-
-  public class PersonService : ServiceBase<MaterializationMethodTestsModel.Person, PersonModel>
-  {
-    protected override PersonModel ProtectedSelect(MaterializationMethodTestsModel.Person entity) =>
-      new PersonModel { Id = entity.Id, Name = entity.Name };
-  }
-
-  public class ServiceMaterializationMethodTests : AutoBuildTest
+  public class MaterializationMethodTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      var personType = typeof(MaterializationMethodTestsModel.Person);
+      var personType = typeof(Person);
       configuration.Types.Register(personType.Assembly, personType.Namespace);
       return configuration;
     }
@@ -85,6 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
           (service, session) => service.GetAllViaProtectedInternal(session));
     }
 
+    [Test]
     [TestCaseSource(nameof(DataExtractorMethods))]
     public void MaterializationByMethodOfBaseService(
       (string name, Func<PersonService, Session, IList<PersonModel>> getPeopleMethod) testCase)
