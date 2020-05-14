@@ -156,21 +156,21 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
-      Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
     {
       return new IncludeProvider(
         source, IncludeAlgorithm.Auto, false, filterDataSource, resultColumnName, filteredColumns);
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
-      IncludeAlgorithm algorithm, Expression<Func<IEnumerable<Tuple>>> filterDataSource,
+      IncludeAlgorithm algorithm, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
       string resultColumnName, int[] filteredColumns)
     {
       return new IncludeProvider(source, algorithm, false, filterDataSource, resultColumnName, filteredColumns);
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
-      IncludeAlgorithm algorithm, bool isInlined, Expression<Func<IEnumerable<Tuple>>> filterDataSource,
+      IncludeAlgorithm algorithm, bool isInlined, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
       string resultColumnName, int[] filteredColumns)
     {
       return new IncludeProvider(source, algorithm, isInlined, filterDataSource, resultColumnName, filteredColumns);

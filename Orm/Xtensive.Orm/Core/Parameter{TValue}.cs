@@ -20,28 +20,15 @@ namespace Xtensive.Core
 
     /// <summary>
     /// Gets or sets the parameter value.
-    /// </summary>    
+    /// </summary>
     /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>
     /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
     public new TValue Value {
       [DebuggerStepThrough]
       get {
-        return (TValue) GetValue();
-      }
-      [DebuggerStepThrough]
-      set {
-        SetValue(value);
+        return (TValue) base.Value;
       }
     }
-
-    internal override void OnScopeDisposed(object parameterScopeValue)
-    {
-      if (onOutOfScope != null) {
-        var value = (TValue)parameterScopeValue;
-        onOutOfScope(value);
-      }
-    }
-
 
     // Constructors
 
@@ -55,7 +42,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public Parameter(string name)
-      : this(name, null)
+      : this(name, default)
     {}
 
     /// <summary>
@@ -64,7 +51,7 @@ namespace Xtensive.Core
     /// <param name="expectedValue">The expected value of this parameter.</param>
     [DebuggerStepThrough]
     public Parameter(TValue expectedValue)
-      : this(string.Empty, null, expectedValue)
+      : this(string.Empty, expectedValue)
     {}
 
     /// <inheritdoc/>
@@ -72,50 +59,5 @@ namespace Xtensive.Core
     public Parameter(string name, TValue expectedValue)
       : base(name, expectedValue)
     {}
-
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="onOutOfScope">Out of scope action. 
-    /// Action argument is parameter's value within disposed scope.</param>
-    public Parameter(Action<TValue> onOutOfScope)
-      : this(string.Empty, onOutOfScope)
-    {}
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="onOutOfScope">Out of scope action. 
-    /// Action argument is parameter's value within disposed scope.</param>
-    /// <param name="expectedValue">The expected value of this parameter.</param>
-    public Parameter(Action<TValue> onOutOfScope, TValue expectedValue)
-      : this(string.Empty, onOutOfScope, expectedValue)
-    {}
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
-    /// <param name="onOutOfScope">Out of scope action. 
-    /// Action argument is parameter's value within disposed scope.</param>
-    public Parameter(string name, Action<TValue> onOutOfScope)
-      : base(name)
-    {
-      this.onOutOfScope = onOutOfScope;
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="name">The <see cref="Parameter.Name"/> property value.</param>
-    /// <param name="onOutOfScope">Out of scope action. 
-    /// Action argument is parameter's value within disposed scope.</param>
-    /// <param name="expectedValue">The expected value of this parameter.</param>
-    public Parameter(string name, Action<TValue> onOutOfScope, TValue expectedValue)
-      : base(name, expectedValue)
-    {
-      this.onOutOfScope = onOutOfScope;
-    }
   }
 }

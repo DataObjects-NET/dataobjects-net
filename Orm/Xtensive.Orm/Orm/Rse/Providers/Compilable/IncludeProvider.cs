@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets filter data.
     /// </summary>
-    public Expression<Func<IEnumerable<Tuple>>> FilterDataSource { get; private set; }
+    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> FilterDataSource { get; private set; }
 
     public MapTransform FilteredColumnsExtractionTransform { get; private set; }
 
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="resultColumnName">A value for <see cref="ResultColumnName"/>.</param>
     /// <param name="filteredColumns">A value for <see cref="FilteredColumns"/>.</param>
     public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool isInlined,
-      Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<int> filteredColumns)
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<int> filteredColumns)
       : base(ProviderType.Include, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(filterDataSource, "filterDataSource");

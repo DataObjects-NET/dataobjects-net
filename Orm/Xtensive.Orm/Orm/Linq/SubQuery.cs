@@ -79,16 +79,15 @@ namespace Xtensive.Orm.Linq
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
       var currentTranslatedQuery = ((TranslatedQuery<IEnumerable<TElement>>) query);
 
-      // Gather Parameter<Tuple> values from current ParameterScope for future use. 
-      parameter.Value = tuple;
+      var outerParameterContext = context.ParameterContext;
+      var parameterContext = new ParameterContext(outerParameterContext);
+      // Gather Parameter<Tuple> values from current ParameterScope for future use.
+      outerParameterContext.SetValue(parameter, tuple);
       foreach (var tupleParameter in currentTranslatedQuery.TupleParameters) {
-        var value = tupleParameter.Value;
+        var value = outerParameterContext.GetValue(tupleParameter);
         tupleParameterBindings[tupleParameter] = value;
+        parameterContext.SetValue(tupleParameter, value);
       }
-      var parameterContext = new ParameterContext();
-      using (parameterContext.Activate())
-      foreach (var tupleParameter in currentTranslatedQuery.TupleParameters)
-        tupleParameter.Value = tupleParameter.Value;
 
       this.projectionExpression = new ProjectionExpression(
         projectionExpression.Type, 

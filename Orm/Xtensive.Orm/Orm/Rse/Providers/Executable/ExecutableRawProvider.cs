@@ -26,7 +26,8 @@ namespace Xtensive.Orm.Rse.Providers
     protected override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      SetValue(context, CachedSourceName, Origin.CompiledSource.Invoke());
+      var parameterContext = ((Xtensive.Orm.Providers.EnumerationContext) context).ParameterContext;
+      SetValue(context, CachedSourceName, Origin.CompiledSource.Invoke(parameterContext));
     }
 
     /// <inheritdoc/>

@@ -149,15 +149,13 @@ namespace Xtensive.Orm.Internals.Prefetch
     private QueryTask CreateQueryTask(List<Tuple> currentKeySet)
     {
       var parameterContext = new ParameterContext();
-      using (parameterContext.Activate()) {
-        includeParameter.Value = currentKeySet;
-        object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
-        Func<object, object> generator = CreateRecordSet;
-        var session = manager.Owner.Session;
-        Provider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-        var executableProvider = session.Compile(Provider);
-        return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
-      }
+      parameterContext.SetValue(includeParameter, currentKeySet);
+      object key = new Pair<object, CacheKey>(recordSetCachingRegion, cacheKey);
+      Func<object, object> generator = CreateRecordSet;
+      var session = manager.Owner.Session;
+      Provider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      var executableProvider = session.Compile(Provider);
+      return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }
 
     private static CompilableProvider CreateRecordSet(object cachingKey)
@@ -171,7 +169,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
       var columnCollectionLength = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
       return pair.Second.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
-        true, () => includeParameter.Value, $"includeColumnName-{Guid.NewGuid()}",
+        true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     }
 

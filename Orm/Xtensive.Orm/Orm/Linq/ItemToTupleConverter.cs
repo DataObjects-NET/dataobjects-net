@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -19,7 +20,7 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal abstract class ItemToTupleConverter
   {
-    public abstract Expression<Func<IEnumerable<Tuple>>> GetEnumerable();
+    public abstract Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable();
 
     public TupleDescriptor TupleDescriptor { get; protected set; }
 

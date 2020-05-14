@@ -24,6 +24,7 @@ namespace Xtensive.Orm.Internals
     private readonly QueryEndpoint endpoint;
     private readonly object queryKey;
     private readonly object queryTarget;
+    private readonly ParameterContext outerContext;
 
     private Parameter queryParameter;
     private ExtendedExpressionReplacer queryParameterReplacer;
@@ -112,12 +113,13 @@ namespace Xtensive.Orm.Internals
     {
       AllocateParameterAndReplacer();
       var scope = new QueryCachingScope(endpoint, queryParameter, queryParameterReplacer, executeAsSideEffect);
-      using (scope)
-      using (new ParameterContext().Activate()) {
-        if (queryParameter!=null)
-          queryParameter.Value = queryTarget;
+      using (scope) {
+        var parameterContext = new ParameterContext(outerContext);
+        parameterContext.SetValue(queryParameter, queryTarget);
+        // TODO: Deliver parameter context to QueryProvider
         result = query.Invoke(endpoint);
       }
+
       var parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
       if (parameterizedQuery==null && queryTarget!=null)
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
@@ -209,14 +211,15 @@ namespace Xtensive.Orm.Internals
 
     private ParameterContext CreateParameterContext<TResult>(ParameterizedQuery<TResult> query)
     {
-      var parameterContext = new ParameterContext();
-      if (query.QueryParameter!=null)
-        using (parameterContext.Activate())
-          query.QueryParameter.Value = queryTarget;
+      var parameterContext = new ParameterContext(outerContext);
+      if (query.QueryParameter!=null) {
+        parameterContext.SetValue(query.QueryParameter, queryTarget);
+      }
+
       return parameterContext;
     }
 
-    public CompiledQueryRunner(QueryEndpoint endpoint, object queryKey, object queryTarget)
+    public CompiledQueryRunner(QueryEndpoint endpoint, object queryKey, object queryTarget, ParameterContext outerContext = null)
     {
       session = endpoint.Provider.Session;
       domain = session.Domain;
@@ -224,6 +227,7 @@ namespace Xtensive.Orm.Internals
       this.endpoint = endpoint;
       this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
+      this.outerContext = outerContext;
     }
   }
 }

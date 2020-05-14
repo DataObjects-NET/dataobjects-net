@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
   {
     internal static readonly Parameter<List<Tuple>> rowFilterParameter = new Parameter<List<Tuple>>("RowFilterData");
 
-    private readonly Func<IEnumerable<Tuple>> filterDataSource;
+    private readonly Func<ParameterContext, IEnumerable<Tuple>> filterDataSource;
 
     private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
 
@@ -28,14 +28,14 @@ namespace Xtensive.Orm.Providers
     protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
+      var parameterContext = ((EnumerationContext) context).ParameterContext;
       switch (Origin.Algorithm) {
       case IncludeAlgorithm.Auto:
-        var filterData = filterDataSource.Invoke().ToList();
+        var filterData = filterDataSource.Invoke(parameterContext).ToList();
         if (filterData.Count > WellKnown.MaxNumberOfConditions) {
           LockAndStore(context, filterData);
         }
         else {
-          var parameterContext = ((EnumerationContext) context).ParameterContext;
           parameterContext.SetValue(rowFilterParameter, filterData);
         }
 
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Providers
         // nothing
         break;
       case IncludeAlgorithm.TemporaryTable:
-        LockAndStore(context, filterDataSource.Invoke());
+        LockAndStore(context, filterDataSource.Invoke(parameterContext));
         break;
       default:
         throw new ArgumentOutOfRangeException("Origin.Algorithm");
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="source">The source.</param>
     public SqlIncludeProvider(
       HandlerAccessor handlers, QueryRequest request,
-      TemporaryTableDescriptor tableDescriptor, Func<IEnumerable<Tuple>> filterDataSource,
+      TemporaryTableDescriptor tableDescriptor, Func<ParameterContext, IEnumerable<Tuple>> filterDataSource,
       IncludeProvider origin, ExecutableProvider source)
       : base(handlers, request, tableDescriptor, origin, new []{source})
     {

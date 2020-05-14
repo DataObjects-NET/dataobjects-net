@@ -473,20 +473,20 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         );
     }
 
-    [Test]
-    public void ConfusingParameterTest()
-    {
-      var parameter = new Parameter<Tuple>();
-      using (new ParameterContext().Activate()) {
-        parameter.Value = Tuple.Create(false);
-        TestQuery(
-          () =>
-            from o in Session.Demand().Query.All<MyEntity>()
-            where o.HasStupidName==parameter.Value.GetValueOrDefault<bool>(0)
-            select o
-          );
-      }
-    }
+    // [Test]
+    // public void ConfusingParameterTest()
+    // {
+    //   var parameter = new Parameter<Tuple>();
+    //   using (new ParameterContext().Activate()) {
+    //     parameter.Value = Tuple.Create(false);
+    //     TestQuery(
+    //       () =>
+    //         from o in Session.Demand().Query.All<MyEntity>()
+    //         where o.HasStupidName==parameter.Value.GetValueOrDefault<bool>(0)
+    //         select o
+    //       );
+    //   }
+    // }
 
     [Test]
     public void CastToObjectAndBackTest()

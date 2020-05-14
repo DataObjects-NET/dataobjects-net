@@ -501,6 +501,11 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
 
+    public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query, ParameterContext parameterContext)
+    {
+      return new CompiledQueryRunner(this, key, query.Target, parameterContext).ExecuteCompiled(query);
+    }
+
     /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)

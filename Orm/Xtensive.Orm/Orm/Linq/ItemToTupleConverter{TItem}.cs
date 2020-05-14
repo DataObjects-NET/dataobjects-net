@@ -51,19 +51,20 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private readonly Func<IEnumerable<TItem>> enumerableFunc;
+    private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
     private Func<TItem, Tuple> converter;
     private readonly Expression sourceExpression;
     private readonly Type entityTypestoredInKey;
     private readonly bool isKeyConverter;
 
-    public override Expression<Func<IEnumerable<Tuple>>> GetEnumerable()
+    public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method);
-      MethodInfo selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), typeof (Tuple));
+      var paramContext = Expression.Parameter(typeof(ParameterContext), "context");
+      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, paramContext);
+      var selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), typeof (Tuple));
       var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
-      return FastExpression.Lambda<Func<IEnumerable<Tuple>>>(select);
+      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, paramContext);
     }
 
 
@@ -261,7 +262,7 @@ namespace Xtensive.Orm.Linq
       };
     }
 
-    public ItemToTupleConverter(Func<IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression, Type storedEntityType)
+    public ItemToTupleConverter(Func<ParameterContext, IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression, Type storedEntityType)
     {
       this.model = model;
       this.enumerableFunc = enumerableFunc;

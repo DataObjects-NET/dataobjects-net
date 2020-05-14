@@ -800,13 +800,15 @@ namespace Xtensive.Orm
 
     private void EnsureCountIsLoaded()
     {
-      if (State.TotalItemCount!=null)
+      if (State.TotalItemCount!=null) {
         return;
-      using (new ParameterContext().Activate()) {
-        ownerParameter.Value = owner;
-        var cachedState = GetEntitySetTypeState();
-        State.TotalItemCount = Session.Query.Execute(cachedState, cachedState.ItemCountQuery);
       }
+
+      var parameterContext = new ParameterContext();
+      parameterContext.SetValue(ownerParameter, owner);
+
+      var cachedState = GetEntitySetTypeState();
+      State.TotalItemCount = Session.Query.Execute(cachedState, cachedState.ItemCountQuery, parameterContext);
     }
 
     private bool Contains(Key key, Entity item)
@@ -841,13 +843,13 @@ namespace Xtensive.Orm
         return false;
 
       bool foundInDatabase;
+      var entitySetTypeState = GetEntitySetTypeState();
+
       var parameterContext = new ParameterContext();
-      using (parameterContext.Activate()) {
-        var entitySetTypeState = GetEntitySetTypeState();
-        keyParameter.Value = entitySetTypeState.SeekTransform
-          .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session, parameterContext).FirstOrDefault()!=null;
-      }
+      parameterContext.SetValue(keyParameter, entitySetTypeState.SeekTransform
+        .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value));
+      foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session, parameterContext).FirstOrDefault()!=null;
+
       if (foundInDatabase)
         State.Register(key);
       return foundInDatabase;

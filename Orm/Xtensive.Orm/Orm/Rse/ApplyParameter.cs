@@ -39,8 +39,6 @@ namespace Xtensive.Orm.Rse
     public Tuple Value {
       [DebuggerStepThrough]
       get { return parameter.Value; }
-      [DebuggerStepThrough]
-      set { parameter.Value = value; }
     }
 
     public void GetObjectData(SerializationInfo info, StreamingContext context)

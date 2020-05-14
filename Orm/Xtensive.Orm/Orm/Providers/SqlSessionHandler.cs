@@ -208,8 +208,7 @@ namespace Xtensive.Orm.Providers
         commandProcessor.ExecuteTasks(context);
 
       foreach (var task in nonBatchedTasks) {
-        using (task.ParameterContext.ActivateSafely())
-          task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session, task.ParameterContext)).ToList();
+        task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session, task.ParameterContext)).ToList();
       }
     }
 
@@ -236,8 +235,7 @@ namespace Xtensive.Orm.Providers
         await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
 
       foreach (var task in nonBatchedTasks) {
-        using (task.ParameterContext.ActivateSafely())
-          task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session, task.ParameterContext)).ToList();
+        task.Result = task.DataSource.ToEnumerable(new EnumerationContext(Session, task.ParameterContext)).ToList();
       }
     }
 

@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using Tuple = Xtensive.Tuples.Tuple;
 
 
 namespace Xtensive.Core
@@ -15,20 +14,22 @@ namespace Xtensive.Core
   /// <summary>
   /// Provides storing context-specific <see cref="Parameter{TValue}"/>'s values.
   /// </summary>
-  public sealed class ParameterContext : Context<ParameterScope>
+  public sealed class ParameterContext// : Context<ParameterScope>
   {
-    private readonly Dictionary<Parameter, object> values = 
+    private readonly ParameterContext outerContext;
+
+    private readonly Dictionary<Parameter, object> values =
       new Dictionary<Parameter, object>();
     private readonly bool isExpectedValuesContext;
     private static readonly ParameterContext expectedValues = new ParameterContext(true);
 
-    /// <summary>
-    /// Gets the current <see cref="ParameterContext"/>.
-    /// </summary>        
-    public static ParameterContext Current {
-      [DebuggerStepThrough]
-      get { return Scope<ParameterContext>.CurrentContext; }
-    }
+    // /// <summary>
+    // /// Gets the current <see cref="ParameterContext"/>.
+    // /// </summary>
+    // public static ParameterContext Current {
+    //   [DebuggerStepThrough]
+    //   get { return Scope<ParameterContext>.CurrentContext; }
+    // }
 
     /// <summary>
     /// Gets the special singleton <see cref="ParameterContext"/> instance 
@@ -40,22 +41,22 @@ namespace Xtensive.Core
       get { return expectedValues; }
     }
 
-    #region IContext<...> methods
-
-    /// <inheritdoc/>
-    public override bool IsActive {
-      [DebuggerStepThrough]
-      get { return Current == this; }
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    protected override ParameterScope CreateActiveScope()
-    {
-      return new ParameterScope(this);
-    }
-
-    #endregion
+    // #region IContext<...> methods
+    //
+    // /// <inheritdoc/>
+    // public override bool IsActive {
+    //   [DebuggerStepThrough]
+    //   get { return Current == this; }
+    // }
+    //
+    // /// <inheritdoc/>
+    // [DebuggerStepThrough]
+    // protected override ParameterScope CreateActiveScope()
+    // {
+    //   return new ParameterScope(this);
+    // }
+    //
+    // #endregion
 
     #region Private \ internal methods
 
@@ -98,8 +99,6 @@ namespace Xtensive.Core
     [DebuggerStepThrough]
     internal void NotifyParametersOnDisposing()
     {
-      foreach (var pair in values)
-        pair.Key.OnScopeDisposed(pair.Value);
     }
 
     /// <exception cref="InvalidOperationException">Context is <see cref="ExpectedValues"/> context.</exception>
@@ -119,8 +118,9 @@ namespace Xtensive.Core
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public ParameterContext()
+    public ParameterContext(ParameterContext outerContext = null)
     {
+      this.outerContext = outerContext;
     }
 
     private ParameterContext(bool isExpectedValuesContext)

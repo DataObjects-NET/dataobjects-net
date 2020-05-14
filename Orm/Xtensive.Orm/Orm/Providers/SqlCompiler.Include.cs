@@ -98,10 +98,11 @@ namespace Xtensive.Orm.Providers
     }
 
     protected static Func<ParameterContext, object> BuildRowFilterParameterAccessor(
-      Func<IEnumerable<Tuple>> filterDataSource, bool takeFromContext)
+      Func<ParameterContext, IEnumerable<Tuple>> filterDataSource, bool takeFromContext)
     {
-      if (!takeFromContext)
-        return context => filterDataSource.Invoke().ToList();
+      if (!takeFromContext) {
+        return context => filterDataSource.Invoke(context).ToList();
+      }
 
       return context => context.TryGetValue(SqlIncludeProvider.rowFilterParameter, out var filterData)
         ? filterData

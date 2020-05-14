@@ -35,11 +35,9 @@ namespace Xtensive.Orm.Providers
       var recordSet = pair.First;
       var parameter = pair.Second;
       var parameterContext = new ParameterContext();
-      ExecutableProvider executableProvider;
-      using (parameterContext.Activate()) {
-        parameter.Value = target.Key.Value;
-        executableProvider = Session.Compile(recordSet);
-      }
+      parameterContext.SetValue(parameter, target.Key.Value);
+      ExecutableProvider executableProvider = Session.Compile(recordSet);
+
       var queryTask = new QueryTask(executableProvider, Session.GetLifetimeToken(), parameterContext);
       Session.RegisterInternalDelayedQuery(queryTask);
 

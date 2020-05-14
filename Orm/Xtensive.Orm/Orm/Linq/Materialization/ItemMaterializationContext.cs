@@ -11,6 +11,7 @@ namespace Xtensive.Orm.Linq.Materialization
 {
   internal sealed class ItemMaterializationContext
   {
+    public ParameterContext ParameterContext { get; }
     public static MethodInfo IsMaterializedMethodInfo { get; private set; }
     public static MethodInfo GetEntityMethodInfo      { get; private set; }
     public static MethodInfo MaterializeMethodInfo    { get; private set; }
@@ -75,8 +76,9 @@ namespace Xtensive.Orm.Linq.Materialization
 
     // Constructors
 
-    public ItemMaterializationContext(MaterializationContext materializationContext)
+    public ItemMaterializationContext(MaterializationContext materializationContext, ParameterContext parameterContext)
     {
+      ParameterContext = parameterContext;
       MaterializationContext = materializationContext;
       Session = materializationContext.Session;
 

@@ -34,9 +34,7 @@ namespace Xtensive.Core
     /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
     public object Value {
       [DebuggerStepThrough]
-      get { return GetValue(); }
-      [DebuggerStepThrough]
-      set { SetValue(value); }
+      get { throw new NotSupportedException(); }
     }
 
     /// <summary>
@@ -48,47 +46,11 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Gets a value indicating whether this instance has value.
-    /// </summary>
-    public bool HasValue {
-      get { return GetCurrentScope().HasValue(this); }
-    }
-
-    /// <summary>
-    /// Gets the value of the parameter.
-    /// </summary>
-    /// <returns>Parameter value.</returns>
-    /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>
-    /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
-    public object GetValue()
-    {
-      return GetCurrentScope().GetValue(this);
-    }
-
-    /// <summary>
-    /// Sets the value of the parameter.
-    /// </summary>
-    /// <param name="value">The new value.</param>
-    /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>    
-    public void SetValue(object value)
-    {
-      GetCurrentScope().SetValue(this, value);
-    }
-
-    /// <summary>
     /// Clears parameter's value.
     /// </summary>
     public void Clear()
     {
       GetCurrentScope().Clear(this);
-    }
-
-    /// <summary>
-    /// Called on leaving the scope.
-    /// </summary>
-    /// <param name="parameterScopeValue">The parameter scope value.</param>
-    internal virtual void OnScopeDisposed(object parameterScopeValue)
-    {
     }
 
     /// <inheritdoc/>

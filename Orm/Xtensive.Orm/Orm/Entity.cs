@@ -266,22 +266,20 @@ namespace Xtensive.Orm
     public void Lock(LockMode lockMode, LockBehavior lockBehavior)
     {
       var parameterContext = new ParameterContext();
-      using (parameterContext.Activate()) {
-        keyParameter.Value = Key.Value;
-        object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
-        Func<object, object> generator = tripletObj => {
-          var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
-          IndexInfo index = triplet.First.Indexes.PrimaryIndex;
-          var query = index.GetQuery()
-            .Seek(context => context.GetValue(keyParameter))
-            .Lock(() => triplet.Second, () => triplet.Third)
-            .Select();
-          return Session.Compile(query);
-        };
-        var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-        var recordSet = source.GetRecordSet(Session, parameterContext);
-        recordSet.FirstOrDefault();
-      }
+      parameterContext.SetValue(keyParameter, Key.Value);
+      object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
+      Func<object, object> generator = tripletObj => {
+        var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
+        var index = triplet.First.Indexes.PrimaryIndex;
+        var query = index.GetQuery()
+          .Seek(context => context.GetValue(keyParameter))
+          .Lock(() => triplet.Second, () => triplet.Third)
+          .Select();
+        return Session.Compile(query);
+      };
+      var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      var recordSet = source.GetRecordSet(Session, parameterContext);
+      recordSet.FirstOrDefault();
     }
 
     /// <inheritdoc/>

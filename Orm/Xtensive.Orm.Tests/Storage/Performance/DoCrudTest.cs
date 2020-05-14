@@ -424,12 +424,10 @@ namespace Xtensive.Orm.Tests.Storage.Performance
               var pKey = new Parameter<Tuple>();
               var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(context => context.GetValue(pKey));
               var parameterContext = new ParameterContext();
-              using (parameterContext.Activate()) {
-                pKey.Value = Tuple.Create((long) (i%instanceCount));
-                var es = rs.GetRecordSet(session, parameterContext).ToEntities<Simplest>(0);
-                foreach (var o in es) {
-                  // Doing nothing, just enumerate
-                }
+              parameterContext.SetValue(pKey, Tuple.Create((long) (i%instanceCount)));
+              var es = rs.GetRecordSet(session, parameterContext).ToEntities<Simplest>(0);
+              foreach (var o in es) {
+                // Doing nothing, just enumerate
               }
             }
             ts.Complete();
@@ -447,18 +445,16 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         var pKey = new Parameter<Tuple>();
         var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(context => context.GetValue(pKey));
         var parameterContext = new ParameterContext();
-        using (parameterContext.Activate()) {
-          using (warmup ? null : new Measurement("Cached RSE query", count)) {
-            for (int i = 0; i < count; i++) {
-              pKey.Value = Tuple.Create((long) (i%instanceCount));
-              var es = rs.GetRecordSet(session, parameterContext).ToEntities<Simplest>(0);
-              foreach (var o in es) {
-                // Doing nothing, just enumerate
-              }
+        using (warmup ? null : new Measurement("Cached RSE query", count)) {
+          for (int i = 0; i < count; i++) {
+            parameterContext.SetValue(pKey, Tuple.Create((long) (i%instanceCount)));
+            var es = rs.GetRecordSet(session, parameterContext).ToEntities<Simplest>(0);
+            foreach (var o in es) {
+              // Doing nothing, just enumerate
             }
           }
-          ts.Complete();
         }
+        ts.Complete();
       }
     }
 

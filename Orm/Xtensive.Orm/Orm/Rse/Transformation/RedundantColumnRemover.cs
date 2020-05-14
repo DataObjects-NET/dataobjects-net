@@ -37,7 +37,8 @@ namespace Xtensive.Orm.Rse.Transformation
       return new RawProvider(provider.Header.Select(mapping), newExpression);
     }
 
-    private static Expression<Func<IEnumerable<Tuple>>> RemapRawProviderSource(Expression<Func<IEnumerable<Tuple>>> source, MapTransform mappingTransform)
+    private static Expression<Func<ParameterContext, IEnumerable<Tuple>>> RemapRawProviderSource(
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> source, MapTransform mappingTransform)
     {
       var selectMethodInfo = typeof(Enumerable)
         .GetMethods()
@@ -47,7 +48,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
       var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
-      return (Expression<Func<IEnumerable<Tuple>>>)FastExpression.Lambda(newExpression);
+      return (Expression<Func<ParameterContext, IEnumerable<Tuple>>>)FastExpression.Lambda(newExpression, source.Parameters[0]);
     }
 
     // Constructors

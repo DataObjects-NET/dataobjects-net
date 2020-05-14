@@ -188,14 +188,6 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void ParameterScopeTest()
-    {
-      using (new ParameterContext().Activate()) {
-        Session.Query.All<Customer>().ToList();
-      }
-    }
-
-    [Test]
     public void AsEnumerableSelectDistinctTest()
     {
       var result = Session.Query.All<Invoice>().ToList().Select(o => o.Customer).Distinct();

@@ -38,20 +38,15 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       private readonly Queue<Action> materializationQueue;
       private readonly ParameterContext parameterContext;
-      private ParameterScope scope;
 
-      public void Activate() => scope = parameterContext.Activate();
+      public void Activate() {}
 
       public void Deactivate()
       {
-        try {
-          while (materializationQueue.Count > 0) {
-            var materializeSelf = materializationQueue.Dequeue();
-            materializeSelf.Invoke();
-          }
-        }
-        finally {
-          scope.DisposeSafely();
+        while (materializationQueue.Count > 0) {
+          var materializeSelf = materializationQueue.Dequeue();
+          // TODO: Probably we need to pass parameter context into materializeSelf
+          materializeSelf.Invoke();
         }
       }
 
@@ -104,10 +99,8 @@ namespace Xtensive.Orm.Linq.Materialization
       Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
     {
-      using (parameterContext.Activate()) {
-        foreach (var (parameter, tuple) in tupleParameterBindings) {
-          parameter.Value = tuple;
-        }
+      foreach (var (parameter, tuple) in tupleParameterBindings) {
+        parameterContext.SetValue(parameter, tuple);
       }
 
       if (dataSource is RecordSet recordSet) {
@@ -127,7 +120,7 @@ namespace Xtensive.Orm.Linq.Materialization
       ParameterContext parameterContext, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer)
     {
       var materializedSequence = dataSource
-        .Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context)));
+        .Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, parameterContext)));
       return context.MaterializationQueue == null
         ? BatchMaterialize(materializedSequence, context, parameterContext)
         : SubqueryMaterialize(materializedSequence, parameterContext);
@@ -139,22 +132,21 @@ namespace Xtensive.Orm.Linq.Materialization
       ParameterContext parameterContext,
       Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer)
     {
-      using (parameterContext.Activate()) {
-        Queue<Action> materializationQueue = null;
-        context.MaterializationQueue ??= materializationQueue = new Queue<Action>();
+      Queue<Action> materializationQueue = null;
+      context.MaterializationQueue ??= materializationQueue = new Queue<Action>();
 
-        await foreach (var tuple in dataSource) {
-          yield return itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context));
-        }
+      await foreach (var tuple in dataSource) {
+        yield return itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, parameterContext));
+      }
 
-        if (materializationQueue == null) {
-          yield break;
-        }
+      if (materializationQueue == null) {
+        yield break;
+      }
 
-        while (materializationQueue.Count > 0) {
-          var materializeSelf = materializationQueue.Dequeue();
-          materializeSelf.Invoke();
-        }
+      while (materializationQueue.Count > 0) {
+        var materializeSelf = materializationQueue.Dequeue();
+        // TODO: Probably we need to pass ParameterContext into materializeSelf
+        materializeSelf.Invoke();
       }
     }
 
@@ -175,10 +167,7 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       ParameterScope scope = null;
       var batchSequence = materializedSequence
-        .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
-        .ApplyBeforeAndAfter(
-          () => scope = parameterContext.Activate(),
-          () => scope.DisposeSafely());
+        .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize);
       return batchSequence.SelectMany(batch => batch);
     }
 
