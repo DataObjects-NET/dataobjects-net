@@ -5,6 +5,7 @@
 // Created:    2010.01.21
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Transformation
 {
@@ -12,24 +13,24 @@ namespace Xtensive.Orm.Rse.Transformation
   {
     private readonly SkipTakeRewriter rewriter;
 
-    public Func<int> Skip { get; private set; }
-    public Func<int> Take { get; private set; }
+    public Func<ParameterContext, int> Skip { get; private set; }
+    public Func<ParameterContext, int> Take { get; private set; }
 
     public bool IsSkipTakeChain { get; set; }
 
-    public void AddSkip(Func<int> skip)
+    public void AddSkip(Func<ParameterContext, int> skip)
     {
       var value = PositiveSelector(skip);
       var oldSkip = Skip;
       var oldTake = Take;
       Skip = Skip == null
         ? value
-        : () => oldSkip() + value();
+        : context => oldSkip(context) + value(context);
       if (Take != null) 
-        Take = () => oldTake() - value();
+        Take = context => oldTake(context) - value(context);
     }
 
-    public void AddTake(Func<int> take)
+    public void AddTake(Func<ParameterContext, int> take)
     {
       var value = PositiveSelector(take);
       Take = Take == null
@@ -37,19 +38,19 @@ namespace Xtensive.Orm.Rse.Transformation
         : MinimumSelector(Take, value);
     }
 
-    private static Func<int> MinimumSelector(Func<int> takeSelector, Func<int> valueSelector)
+    private static Func<ParameterContext, int> MinimumSelector(Func<ParameterContext, int> takeSelector, Func<ParameterContext, int> valueSelector)
     {
-      return () => {
-        var take = takeSelector();
-        var value = valueSelector();
+      return context => {
+        var take = takeSelector(context);
+        var value = valueSelector(context);
         return value > take ? take : value;
       };
     }
 
-    private static Func<int> PositiveSelector(Func<int> valueSelector)
+    private static Func<ParameterContext, int> PositiveSelector(Func<ParameterContext, int> valueSelector)
     {
-      return () => {
-        var value = valueSelector();
+      return context => {
+        var value = valueSelector(context);
         return value > 0 ? value : 0;
       };
     }

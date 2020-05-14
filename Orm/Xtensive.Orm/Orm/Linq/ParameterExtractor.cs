@@ -6,6 +6,8 @@
 
 using System;
 using System.Linq.Expressions;
+using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Linq;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -35,18 +37,36 @@ namespace Xtensive.Orm.Linq
       return isParameter;
     }
 
+    private static readonly MethodInfo GetParameterValueMethod =
+      typeof(ParameterContext).GetMethod(nameof(ParameterContext.GetValue));
+
     /// <summary>
     /// Extracts the parameter.
     /// </summary>
     /// <param name="expression">The expression.</param>
-    public Expression<Func<T>> ExtractParameter<T>(Expression expression)
+    public static Expression<Func<ParameterContext, T>> ExtractParameter<T>(Expression expression)
     {
-      if (expression.NodeType==ExpressionType.Lambda)
-        return (Expression<Func<T>>) expression;
-      Type type = expression.Type;
-      if (type.IsValueType)
+      var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
+      if (expression.NodeType==ExpressionType.Lambda) {
+        var parameterLambda = (Expression<Func<T>>) expression;
+        return FastExpression.Lambda<Func<ParameterContext, T>>(parameterLambda.Body, contextParameter);
+      }
+      if (expression.NodeType==ExpressionType.MemberAccess) {
+        var memberExpression = (MemberExpression) expression;
+        var memberOwner = memberExpression.Expression;
+        if (typeof(Parameter).IsAssignableFrom(memberOwner.Type) && memberExpression.Member.Name == nameof(Parameter.Value)) {
+          var body = Expression.Call(contextParameter, GetParameterValueMethod.MakeGenericMethod(typeof(T)),
+            memberOwner);
+          return FastExpression.Lambda<Func<ParameterContext, T>>(body, contextParameter);
+        }
+      }
+
+      var type = expression.Type;
+      if (type.IsValueType) {
         expression = Expression.Convert(expression, typeof (T));
-      var lambda = FastExpression.Lambda<Func<T>>(expression);
+      }
+
+      var lambda = FastExpression.Lambda<Func<ParameterContext, T>>(expression, contextParameter);
       return lambda;
     }
 

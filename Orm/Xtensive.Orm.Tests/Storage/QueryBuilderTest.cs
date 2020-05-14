@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Storage
         var builder = session.Services.Get<QueryBuilder>();
         Assert.That(builder, Is.Not.Null);
 
-        var binding = builder.CreateParameterBinding(typeof (int), () => 43);
+        var binding = builder.CreateParameterBinding(typeof (int), context => 43);
         var select = SqlDml.Select(binding.ParameterReference);
 
         var compiled = builder.CompileQuery(select);

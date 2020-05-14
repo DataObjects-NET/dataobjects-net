@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Services
     /// <param name="valueType">Value type to use.</param>
     /// <param name="valueAccessor">Value accessor to use.</param>
     /// <returns>Created binding.</returns>
-    public QueryParameterBinding CreateParameterBinding(Type valueType, Func<object> valueAccessor)
+    public QueryParameterBinding CreateParameterBinding(Type valueType, Func<ParameterContext, object> valueAccessor)
     {
       ArgumentValidator.EnsureArgumentNotNull(valueType, "valueType");
       ArgumentValidator.EnsureArgumentNotNull(valueAccessor, "valueAccessor");

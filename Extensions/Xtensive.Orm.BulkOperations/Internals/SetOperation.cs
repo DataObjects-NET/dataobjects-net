@@ -144,7 +144,7 @@ namespace Xtensive.Orm.BulkOperations
       if (constant==null)
         value = SqlDml.Null;
       else {
-        QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(constant.GetType(), () => constant);
+        QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(constant.GetType(), context => constant);
         parent.Bindings.Add(binding);
         value = binding.ParameterReference;
       }
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.BulkOperations
               value = SqlDml.Null;
             else {
               object v = keys[i];
-              QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), () => v);
+              QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), context => v);
               parent.Bindings.Add(binding);
               value = binding.ParameterReference;
             }
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.BulkOperations
           value = SqlDml.Null;
         else {
           object v = entity.Key.Value.GetValue(i);
-          QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), () => v);
+          QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), context => v);
           parent.Bindings.Add(binding);
           value = binding.ParameterReference;
         }

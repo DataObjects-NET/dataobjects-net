@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using Tuple = Xtensive.Tuples.Tuple;
 
 
 namespace Xtensive.Core
@@ -69,6 +69,11 @@ namespace Xtensive.Core
       return values.TryGetValue(parameter, out value);
     }
     
+    public TValue GetValue<TValue>(Parameter<TValue> parameter)
+    {
+      throw new NotImplementedException();
+    }
+
     [DebuggerStepThrough]
     internal void SetValue(Parameter parameter, object value)
     {

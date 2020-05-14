@@ -5,6 +5,7 @@
 // Created:    2012.02.26
 
 using System;
+using Xtensive.Core;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Services
@@ -36,7 +37,7 @@ namespace Xtensive.Orm.Services
     /// to <see cref="ValueType"/>
     /// unless <see cref="ValueType"/> is null.
     /// </summary>
-    public Func<object> ValueAccessor
+    public Func<ParameterContext, object> ValueAccessor
     {
       get { return RealBinding.ValueAccessor; }
     }

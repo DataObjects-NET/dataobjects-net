@@ -24,9 +24,9 @@ namespace Xtensive.Orm.Rse.Providers
   {
     private readonly RecordSetHeader indexHeader;
 
-    public Func<string> SearchCriteria { get; private set; }
+    public Func<ParameterContext, string> SearchCriteria { get; private set; }
 
-    public Func<int> TopN { get; private set; }
+    public Func<ParameterContext, int> TopN { get; private set; }
 
     public IndexInfoRef PrimaryIndex { get; private set; }
 
@@ -37,12 +37,13 @@ namespace Xtensive.Orm.Rse.Providers
       return indexHeader;
     }
 
-    public FreeTextProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, bool fullFeatured)
+    public FreeTextProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, null, fullFeatured)
     {
     }
 
-    public FreeTextProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, Func<int> topN, bool fullFeatured)
+    public FreeTextProvider(
+      FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, Func<ParameterContext, int> topN, bool fullFeatured)
       : base(ProviderType.FreeText)
     {
       SearchCriteria = searchCriteria;

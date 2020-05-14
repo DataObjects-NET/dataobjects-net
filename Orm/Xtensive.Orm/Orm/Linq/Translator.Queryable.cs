@@ -427,23 +427,25 @@ namespace Xtensive.Orm.Linq
       }
 
       var projection = VisitSequence(source);
-      Func<int> compiledParameter;
+      Func<ParameterContext, int> compiledParameter;
       if (index.NodeType==ExpressionType.Quote)
         index = index.StripQuotes();
       CompilableProvider rs;
       if (index.Type==typeof (Func<int>)) {
-        Expression<Func<int>> elementAtIndex;
+        Expression<Func<ParameterContext, int>> elementAtIndex;
+        var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
         if (queryCachingScope==null) {
-          elementAtIndex = (Expression<Func<int>>) index;
+          var indexLambda = (Expression<Func<int>>) index;
+          elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, contextParameter);
         }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
-          elementAtIndex = (Expression<Func<int>>) replacer.Replace(index);
+          elementAtIndex = (Expression<Func<ParameterContext, int>>) replacer.Replace(index);
         }
         compiledParameter = elementAtIndex.CachingCompile();
         var skipComparison = Expression.LessThan(elementAtIndex.Body, Expression.Constant(0));
         var condition = Expression.Condition(skipComparison, Expression.Constant(0), Expression.Constant(1));
-        var takeParameter = FastExpression.Lambda<Func<int>>(condition);
+        var takeParameter = FastExpression.Lambda<Func<ParameterContext, int>>(condition, contextParameter);
         rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(takeParameter.CachingCompile());
       }
       else {
@@ -454,7 +456,7 @@ namespace Xtensive.Orm.Linq
             throw new ArgumentOutOfRangeException("index", index, Strings.ExElementAtIndexMustBeGreaterOrEqualToZero);
         }
         else {
-          Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(index);
+          var parameter = ParameterExtractor.ExtractParameter<int>(index);
           compiledParameter = parameter.CachingCompile();
           rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(1);
         }
@@ -492,20 +494,26 @@ namespace Xtensive.Orm.Linq
           && take.Type==typeof (int))
         throw new InvalidOperationException(String.Format(Strings.ExTakeNotSupportedInCompiledQueries, ((ConstantExpression) take).Value));
       var projection = VisitSequence(source);
-      Func<int> compiledParameter;
-      if (take.NodeType==ExpressionType.Quote)
+      Func<ParameterContext, int> compiledParameter;
+      if (take.NodeType==ExpressionType.Quote) {
         take = take.StripQuotes();
+      }
+
       if (take.Type==typeof (Func<int>)) {
-        if (queryCachingScope==null)
-          compiledParameter = ((Expression<Func<int>>) take).CachingCompile();
+        if (queryCachingScope==null) {
+          var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
+          var takeLambda = (Expression<Func<int>>) take;
+          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, contextParameter);
+          compiledParameter = newTakeLambda.CachingCompile();
+        }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
           var newTake = replacer.Replace(take);
-          compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
+          compiledParameter = ((Expression<Func<ParameterContext, int>>) newTake).CachingCompile();
         }
       }
       else {
-        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(take);
+        var parameter = ParameterExtractor.ExtractParameter<int>(take);
         compiledParameter = parameter.CachingCompile();
       }
       var rs = projection.ItemProjector.DataSource.Take(compiledParameter);
@@ -520,20 +528,24 @@ namespace Xtensive.Orm.Linq
           && skip.Type==typeof (int))
         throw new InvalidOperationException(String.Format(Strings.ExSkipNotSupportedInCompiledQueries, ((ConstantExpression) skip).Value));
       var projection = VisitSequence(source);
-      Func<int> compiledParameter;
+      Func<ParameterContext, int> compiledParameter;
       if (skip.NodeType==ExpressionType.Quote)
         skip = skip.StripQuotes();
       if (skip.Type==typeof (Func<int>)) {
-        if (queryCachingScope==null)
-          compiledParameter = ((Expression<Func<int>>) skip).CachingCompile();
+        if (queryCachingScope==null) {
+          var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
+          var skipLambda = (Expression<Func<int>>) skip;
+          var newSkipLambda = FastExpression.Lambda<Func<ParameterContext, int>>(skipLambda.Body, contextParameter);
+          compiledParameter = newSkipLambda.CachingCompile();
+        }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
           var newTake = replacer.Replace(skip);
-          compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
+          compiledParameter = ((Expression<Func<ParameterContext, int>>) newTake).CachingCompile();
         }
       }
       else {
-        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
+        var parameter = ParameterExtractor.ExtractParameter<int>(skip);
         compiledParameter = parameter.CachingCompile();
       }
       var rs = projection.ItemProjector.DataSource.Skip(compiledParameter);
@@ -1512,16 +1524,16 @@ namespace Xtensive.Orm.Linq
 // ReSharper disable UnusedMember.Local
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
     {
-      Func<IEnumerable<TItem>> collectionGetter;
+      Func<ParameterContext, IEnumerable<TItem>> collectionGetter;
       if (queryCachingScope!=null) {
         var replacer = queryCachingScope.QueryParameterReplacer;
         var queryParameter = queryCachingScope.QueryParameter;
         var replace = replacer.Replace(sequence);
-        Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(replace);
+        var parameter = ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(replace);
         collectionGetter = parameter.CachingCompile();
       }
       else {
-        Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(sequence);
+        var parameter = ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(sequence);
         collectionGetter = parameter.CachingCompile();
       }
       return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this, sequence);

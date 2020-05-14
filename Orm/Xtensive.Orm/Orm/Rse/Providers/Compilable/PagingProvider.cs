@@ -6,6 +6,7 @@
 
 using System;
 using System.Diagnostics;
+using Xtensive.Core;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -19,22 +20,22 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// From number function.
     /// </summary>
-    public Func<int> From { get; private set; }
+    public Func<ParameterContext, int> From { get; private set; }
 
     /// <summary>
     /// To number function.
     /// </summary>
-    public Func<int> To { get; private set; }
+    public Func<ParameterContext, int> To { get; private set; }
 
     /// <summary>
     /// Skip amount function.
     /// </summary>
-    public Func<int> Skip { get; private set; }
+    public Func<ParameterContext, int> Skip { get; private set; }
 
     /// <summary>
     /// Take amount function.
     /// </summary>
-    public Func<int> Take { get; private set; }
+    public Func<ParameterContext, int> Take { get; private set; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -51,13 +52,13 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="take">The <see cref="Take"/> property value.</param>
     /// <param name="skip">The <see cref="Skip"/> property value.</param>
-    public PagingProvider(CompilableProvider provider, Func<int> skip, Func<int> take)
+    public PagingProvider(CompilableProvider provider, Func<ParameterContext, int> skip, Func<ParameterContext, int> take)
       : base(ProviderType.Paging, provider)
     {
       Skip = skip;
       Take = take;
-      From = () => skip() + 1;
-      To = () => take() + skip();
+      From = context => skip(context) + 1;
+      To = context => take(context) + skip(context);
       Initialize();
     }
 
@@ -70,10 +71,10 @@ namespace Xtensive.Orm.Rse.Providers
     public PagingProvider(CompilableProvider provider, int skip, int take)
       : base(ProviderType.Paging, provider)
     {
-      Skip = () => skip;
-      Take = () => take;
-      From = () => skip + 1;
-      To = () => take + skip;
+      Skip = context => skip;
+      Take = context => take;
+      From = context => skip + 1;
+      To = context => take + skip;
       Initialize();
     }
 

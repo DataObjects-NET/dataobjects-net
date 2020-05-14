@@ -15,13 +15,13 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public class QueryParameterBinding : ParameterBinding
   {
-    public Func<object> ValueAccessor { get; private set; }
+    public Func<ParameterContext, object> ValueAccessor { get; private set; }
 
     public QueryParameterBindingType BindingType { get; private set; }
 
     // Constructors
 
-    private QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor,
+    private QueryParameterBinding(TypeMapping typeMapping, Func<ParameterContext, object> valueAccessor,
       ParameterTransmissionType transmissionType, QueryParameterBindingType bindingType)
       : base(typeMapping, transmissionType)
     {
@@ -38,17 +38,17 @@ namespace Xtensive.Orm.Providers
       BindingType = bindingType;
     }
 
-    public QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor, ParameterTransmissionType transmissionType)
+    public QueryParameterBinding(TypeMapping typeMapping, Func<ParameterContext, object> valueAccessor, ParameterTransmissionType transmissionType)
       : this(typeMapping, valueAccessor, transmissionType, QueryParameterBindingType.Regular)
     {
     }
 
-    public QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor, QueryParameterBindingType bindingType)
+    public QueryParameterBinding(TypeMapping typeMapping, Func<ParameterContext, object> valueAccessor, QueryParameterBindingType bindingType)
       : this(typeMapping, valueAccessor, ParameterTransmissionType.Regular, bindingType)
     {
     }
 
-    public QueryParameterBinding(TypeMapping typeMapping, Func<object> valueAccessor)
+    public QueryParameterBinding(TypeMapping typeMapping, Func<ParameterContext, object> valueAccessor)
       : this(typeMapping, valueAccessor, ParameterTransmissionType.Regular, QueryParameterBindingType.Regular)
     {
     }

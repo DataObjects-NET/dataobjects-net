@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Seek parameter.
     /// </summary>
-    public Func<Tuple> Key { get; private set; }
+    public Func<ParameterContext, Tuple> Key { get; private set; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="key">The <see cref="Key"/> property value.</param>
-    public SeekProvider(CompilableProvider source, Func<Tuple> key)
+    public SeekProvider(CompilableProvider source, Func<ParameterContext, Tuple> key)
       : base(ProviderType.Seek, source)
     {
       Key = key;
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse.Providers
     public SeekProvider(CompilableProvider source, Tuple key)
       : base(ProviderType.Seek, source)
     {
-      Key = () => key;
+      Key = context => key;
       Initialize();
     }
   }

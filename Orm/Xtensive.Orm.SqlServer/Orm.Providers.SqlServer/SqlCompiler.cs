@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers.SqlServer
       }
       else {
         var intTypeMapping = Driver.GetTypeMapping(typeof(int));
-        var topNBinding = new QueryParameterBinding(intTypeMapping, () => provider.TopN.Invoke(), QueryParameterBindingType.Regular);
+        var topNBinding = new QueryParameterBinding(intTypeMapping, context => provider.TopN.Invoke(context), QueryParameterBindingType.Regular);
         fromTable = SqlDml.FreeTextTable(table, criteriaBinding.ParameterReference, columns, topNBinding.ParameterReference);
         bindings = new[] { criteriaBinding, topNBinding };
       }
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers.SqlServer
       }
       else {
         var intTypeMapping = Driver.GetTypeMapping(typeof(int));
-        var topNBinding = new QueryParameterBinding(intTypeMapping, () => provider.TopN.Invoke(), QueryParameterBindingType.Regular);
+        var topNBinding = new QueryParameterBinding(intTypeMapping, context => provider.TopN.Invoke(context), QueryParameterBindingType.Regular);
         fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, targetColumnNames, topNBinding.ParameterReference);
         bindings = new[] { criteriaBinding, topNBinding };
       }

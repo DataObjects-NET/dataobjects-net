@@ -873,7 +873,7 @@ namespace Xtensive.Orm
     {
       var field = ((Pair<object, FieldInfo>) key).Second;
       var association = field.Associations.Last();
-      var query = association.UnderlyingIndex.GetQuery().Seek(() => keyParameter.Value);
+      var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
       var seek = entitySet.Session.Compile(query);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;

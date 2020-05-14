@@ -300,9 +300,9 @@ namespace Xtensive.Orm.Providers
       return CreateProvider(query, parameterBindings, provider, compiledSource);
     }
 
-    private static Func<object> GetSeekKeyElementAccessor(Func<Tuple> seekKeyAccessor, int index)
+    private static Func<ParameterContext, object> GetSeekKeyElementAccessor(Func<ParameterContext, Tuple> seekKeyAccessor, int index)
     {
-      return () => seekKeyAccessor.Invoke().GetValue(index);
+      return (context) => seekKeyAccessor.Invoke(context).GetValue(index);
     }
 
     /// <inheritdoc/>

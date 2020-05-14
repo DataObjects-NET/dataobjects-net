@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Rse
       return new SelectProvider(source, columnIndexes);
     }
 
-    public static CompilableProvider Seek(this CompilableProvider source, Func<Tuple> key)
+    public static CompilableProvider Seek(this CompilableProvider source, Func<ParameterContext, Tuple> key)
     {
       return new SeekProvider(source, key);
     }
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Rse
       return new AggregateProvider(recordQuery, groupIndexes, descriptors);
     }
 
-    public static CompilableProvider Skip(this CompilableProvider source, Func<int> count)
+    public static CompilableProvider Skip(this CompilableProvider source, Func<ParameterContext, int> count)
     {
       return new SkipProvider(source, count);
     }
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Rse
       return new SkipProvider(source, count);
     }
 
-    public static CompilableProvider Take(this CompilableProvider source, Func<int> count)
+    public static CompilableProvider Take(this CompilableProvider source, Func<ParameterContext, int> count)
     {
       return new TakeProvider(source, count);
     }

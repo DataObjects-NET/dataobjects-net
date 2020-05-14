@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Providers
 
       using (parameterContext.ActivateSafely()) {
         foreach (var binding in request.ParameterBindings) {
-          object parameterValue = GetParameterValue(binding);
+          object parameterValue = GetParameterValue(binding, parameterContext);
           switch (binding.BindingType) {
           case QueryParameterBindingType.Regular:
             break;
@@ -176,10 +176,10 @@ namespace Xtensive.Orm.Providers
       return parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty);
     }
 
-    private static object GetParameterValue(QueryParameterBinding binding)
+    private static object GetParameterValue(QueryParameterBinding binding, ParameterContext parameterContext)
     {
       try {
-        return binding.ValueAccessor.Invoke();
+        return binding.ValueAccessor.Invoke(parameterContext);
       }
       catch(Exception exception) {
         throw new TargetInvocationException(Strings.ExExceptionHasBeenThrownByTheParameterValueAccessor, exception);

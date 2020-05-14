@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
-      Expression<Func<object>> accessor, QueryParameterBindingType bindingType)
+      Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
       var expression = accessor.Body;
 
@@ -281,7 +281,7 @@ namespace Xtensive.Orm.Providers
       }
 
       // Check for parameterized closure
-      if (operand.NodeType==ExpressionType.MemberAccess) {
+      if (operand.NodeType==ExpressionType.Call) {
         memberAccess = (MemberExpression) operand;
         operand = memberAccess.Expression;
         var isParameter = operand!=null
@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private QueryParameterBinding RegisterParameterBinding(TypeMapping mapping,
-      Expression<Func<object>> accessor, QueryParameterBindingType bindingType)
+      Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
       QueryParameterBinding result;
       var identity = GetParameterIdentity(mapping, accessor, bindingType);

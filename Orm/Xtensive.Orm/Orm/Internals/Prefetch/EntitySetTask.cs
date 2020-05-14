@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         result = CreateQueryForAssociationViaAuxType(pair, primaryTargetIndex, resultColumns);
       result = result.Select(resultColumns.ToArray());
       if (pair.Second.ItemCountLimit != null)
-        result = result.Take(() => itemCountLimitParameter.Value);
+        result = result.Take(context => context.GetValue(itemCountLimitParameter));
       return result;
     }
 

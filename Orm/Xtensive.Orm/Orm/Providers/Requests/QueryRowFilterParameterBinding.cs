@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -23,7 +24,7 @@ namespace Xtensive.Orm.Providers
     public ReadOnlyList<TypeMapping> RowTypeMapping { get; private set; }
 
     public QueryRowFilterParameterBinding(IEnumerable<TypeMapping> rowTypeMapping, Func<object> valueAccessor)
-      : base(null, valueAccessor, QueryParameterBindingType.RowFilter)
+      : base(null, context => valueAccessor(), QueryParameterBindingType.RowFilter)
     {
       RowTypeMapping = new ReadOnlyList<TypeMapping>(rowTypeMapping.ToList());
     }

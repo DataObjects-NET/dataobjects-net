@@ -16,13 +16,13 @@ namespace Xtensive.Orm.Rse.Providers
   {
     private readonly RecordSetHeader indexHeader;
 
-    public Func<string> SearchCriteria { get; private set; }
+    public Func<ParameterContext, string> SearchCriteria { get; private set; }
 
     public IndexInfoRef PrimaryIndex { get; private set; }
 
     public bool FullFeatured { get; private set; }
 
-    public Func<int> TopN { get; private set; }
+    public Func<ParameterContext, int> TopN { get; private set; }
 
     public ReadOnlyList<FullTextColumnInfo> TargetColumns { get; private set; } 
 
@@ -31,18 +31,18 @@ namespace Xtensive.Orm.Rse.Providers
       return indexHeader;
     }
 
-    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, bool fullFeatured)
+    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, new List<ColumnInfo>(), null, fullFeatured)
     {
     }
 
-    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, bool fullFeatured)
+    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, targetColumns, null, fullFeatured)
     {
       
     }
 
-    public ContainsTableProvider(FullTextIndexInfo index, Func<string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, Func<int> topNByRank, bool fullFeatured)
+    public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, Func<ParameterContext, int> topNByRank, bool fullFeatured)
       : base(ProviderType.ContainsTable)
     {
       SearchCriteria = searchCriteria;

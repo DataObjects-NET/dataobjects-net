@@ -452,20 +452,25 @@ namespace Xtensive.Orm.Linq
         throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
 
       // Prepare parameter
-      Func<string> compiledParameter;
+      Func<ParameterContext, string> compiledParameter;
       if (searchCriteria.NodeType==ExpressionType.Quote)
         searchCriteria = searchCriteria.StripQuotes();
       if (searchCriteria.Type==typeof (Func<string>)) {
-        if (queryCachingScope==null)
-          compiledParameter = ((Expression<Func<string>>) searchCriteria).CachingCompile();
+        if (queryCachingScope==null) {
+          var parameterContextParam = Expression.Parameter(typeof(ParameterContext), "context");
+          var originalSearchCriteria = (Expression<Func<string>>) searchCriteria;
+          var body = originalSearchCriteria.Body;
+          var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, parameterContextParam);
+          compiledParameter = searchCriteriaLambda.CachingCompile();
+        }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
           var newSearchCriteria = replacer.Replace(searchCriteria);
-          compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
+          compiledParameter = ((Expression<Func<ParameterContext, string>>) newSearchCriteria).CachingCompile();
         }
       }
       else {
-        Expression<Func<string>> parameter = context.ParameterExtractor.ExtractParameter<string>(searchCriteria);
+        var parameter = ParameterExtractor.ExtractParameter<string>(searchCriteria);
         compiledParameter = parameter.CachingCompile();
       }
 
@@ -478,7 +483,7 @@ namespace Xtensive.Orm.Linq
 
       FreeTextProvider dataSource;
       if (expressions.Count > 1) {
-        var topNParameter = context.ParameterExtractor.ExtractParameter<int>(expressions[1]).CachingCompile();
+        var topNParameter = ParameterExtractor.ExtractParameter<int>(expressions[1]).CachingCompile();
         dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, topNParameter, fullFeatured);
       }
       else 
@@ -510,7 +515,7 @@ namespace Xtensive.Orm.Linq
         : new List<ColumnInfo>();
 
       // Prepare parameters
-      Func<string> compiledParameter;
+      Func<ParameterContext, string> compiledParameter;
       if (rawSearchCriteria.NodeType==ExpressionType.Quote)
         rawSearchCriteria = rawSearchCriteria.StripQuotes();
       if (rawSearchCriteria.Type!=typeof (Func<ConditionEndpoint, IOperand>))
@@ -519,14 +524,18 @@ namespace Xtensive.Orm.Linq
       var func = ((Expression<Func<ConditionEndpoint, IOperand>>) rawSearchCriteria).Compile();
       var conditionCompiler = context.Domain.Handler.GetSearchConditionCompiler();
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
-      var preparedSearchCriteria = FastExpression.Lambda<Func<string>>(Expression.Constant(conditionCompiler.CurrentOutput));
 
-      if (queryCachingScope==null)
-        compiledParameter = ((Expression<Func<string>>) preparedSearchCriteria).CachingCompile();
+      var parameterContextParam = Expression.Parameter(typeof(ParameterContext), "context");
+      var preparedSearchCriteria = FastExpression.Lambda<Func<ParameterContext, string>>(
+        Expression.Constant(conditionCompiler.CurrentOutput), parameterContextParam);
+
+      if (queryCachingScope==null) {
+        compiledParameter = preparedSearchCriteria.CachingCompile();
+      }
       else {
         var replacer = queryCachingScope.QueryParameterReplacer;
         var newSearchCriteria = replacer.Replace(preparedSearchCriteria);
-        compiledParameter = ((Expression<Func<string>>) newSearchCriteria).CachingCompile();
+        compiledParameter = ((Expression<Func<ParameterContext, string>>) newSearchCriteria).CachingCompile();
       }
 
       ColumnExpression rankExpression;
@@ -540,7 +549,7 @@ namespace Xtensive.Orm.Linq
 
       ContainsTableProvider dataSource;
       if (topNByRank!=null) {
-        var topNParameter = context.ParameterExtractor.ExtractParameter<int>(parameters[1]).CachingCompile();
+        var topNParameter = ParameterExtractor.ExtractParameter<int>(parameters[1]).CachingCompile();
         dataSource = new ContainsTableProvider(fullTextIndex, compiledParameter, rankColumnAlias, searchableColumns, topNParameter, fullFeatured);
       }
       else
