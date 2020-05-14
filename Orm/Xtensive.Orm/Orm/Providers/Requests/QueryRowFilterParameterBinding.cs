@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public ReadOnlyList<TypeMapping> RowTypeMapping { get; private set; }
 
-    public QueryRowFilterParameterBinding(IEnumerable<TypeMapping> rowTypeMapping, Func<object> valueAccessor)
-      : base(null, context => valueAccessor(), QueryParameterBindingType.RowFilter)
+    public QueryRowFilterParameterBinding(IEnumerable<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor)
+      : base(null, valueAccessor, QueryParameterBindingType.RowFilter)
     {
       RowTypeMapping = new ReadOnlyList<TypeMapping>(rowTypeMapping.ToList());
     }

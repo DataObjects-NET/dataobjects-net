@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Providers
     }
 
     protected SqlExpression CreateIncludeViaComplexConditionExpression(
-      IncludeProvider provider, Func<object> valueAccessor,
+      IncludeProvider provider, Func<ParameterContext, object> valueAccessor,
       IList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
@@ -97,13 +97,13 @@ namespace Xtensive.Orm.Providers
       return resultExpression;
     }
 
-    protected static Func<object> BuildRowFilterParameterAccessor(
+    protected static Func<ParameterContext, object> BuildRowFilterParameterAccessor(
       Func<IEnumerable<Tuple>> filterDataSource, bool takeFromContext)
     {
       if (!takeFromContext)
-        return () => filterDataSource.Invoke().ToList();
+        return context => filterDataSource.Invoke().ToList();
 
-      return () => ParameterContext.Current.TryGetValue(SqlIncludeProvider.rowFilterParameter, out var filterData)
+      return context => context.TryGetValue(SqlIncludeProvider.rowFilterParameter, out var filterData)
         ? filterData
         : null;
     }
