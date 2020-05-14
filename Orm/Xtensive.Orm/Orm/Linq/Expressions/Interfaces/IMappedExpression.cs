@@ -12,7 +12,6 @@ namespace Xtensive.Orm.Linq.Expressions
 {
   internal interface IMappedExpression
   {
-    Segment<int> Mapping { get; }
     Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions);

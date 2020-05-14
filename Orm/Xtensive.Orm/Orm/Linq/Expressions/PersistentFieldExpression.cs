@@ -15,9 +15,10 @@ namespace Xtensive.Orm.Linq.Expressions
   internal abstract class PersistentFieldExpression : ParameterizedExpression,
     IMappedExpression
   {
+    internal Segment<int> Mapping;
+
     public string Name { get; private set; }
     public PropertyInfo UnderlyingProperty { get; private set; }
-    public virtual Segment<int> Mapping { get; protected set; }
     public abstract Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     public abstract Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions);
@@ -35,7 +36,7 @@ namespace Xtensive.Orm.Linq.Expressions
       ExtendedExpressionType expressionType, 
       string name, 
       Type type, 
-      Segment<int> segment, 
+      in Segment<int> segment,
       PropertyInfo underlyingProperty,
       ParameterExpression parameterExpression,
       bool defaultIfEmpty)
