@@ -14,7 +14,7 @@ namespace Xtensive.Orm.BulkOperations
   internal abstract class QueryOperation<T> : Operation<T>
     where T : class, IEntity
   {
-    private static MethodInfo inMethod = GetInMethod();
+    private readonly static MethodInfo inMethod = GetInMethod();
     protected IQueryable<T> query;
 
     protected QueryOperation(QueryProvider queryProvider)
@@ -24,8 +24,7 @@ namespace Xtensive.Orm.BulkOperations
 
     private static MethodInfo GetInMethod()
     {
-      foreach (var method in typeof (QueryableExtensions).GetMethods().Where(a=>a.Name=="In"))
-      {
+      foreach (var method in typeof (QueryableExtensions).GetMethods().Where(a=>a.Name == "In")) {
         var parameters = method.GetParameters();
         if (parameters.Length == 3 && parameters[2].ParameterType.Name == "IEnumerable`1")
           return method;
@@ -37,30 +36,38 @@ namespace Xtensive.Orm.BulkOperations
     {
       Expression e = query.Expression.Visit((MethodCallExpression ex) =>
         {
-          if (ex.Method.DeclaringType == typeof (QueryableExtensions) && ex.Method.Name == "In" &&
-              ex.Arguments.Count > 1)
-          {
-            if (ex.Arguments[1].Type == typeof (IncludeAlgorithm))
-            {
-              var v = (IncludeAlgorithm) ex.Arguments[1].Invoke();
-              if (v == IncludeAlgorithm.TemporaryTable)
-              {
+          var methodInfo = ex.Method;
+          //rewrite localCollection.Contains(entity.SomeField) -> entity.SomeField.In(localCollection)
+          if (methodInfo.DeclaringType == typeof(Enumerable) &&
+              methodInfo.Name == "Contains" &&
+              ex.Arguments.Count == 2) {
+            var localCollection = ex.Arguments[0];//IEnumerable<T>
+            var valueToCheck = ex.Arguments[1];
+            var genericInMethod = inMethod.MakeGenericMethod(new[] { valueToCheck.Type });
+            ex = Expression.Call(genericInMethod, valueToCheck, Expression.Constant(IncludeAlgorithm.ComplexCondition), localCollection);
+            methodInfo = ex.Method;
+          }
+
+          if (methodInfo.DeclaringType == typeof(QueryableExtensions) &&
+              methodInfo.Name == "In" &&
+              ex.Arguments.Count > 1) {
+            if (ex.Arguments[1].Type == typeof(IncludeAlgorithm)) {
+              var algorithm = (IncludeAlgorithm) ex.Arguments[1].Invoke();
+              if (algorithm == IncludeAlgorithm.TemporaryTable) {
                 throw new NotSupportedException("IncludeAlgorithm.TemporaryTable is not supported");
               }
-              if (v == IncludeAlgorithm.Auto)
-              {
+              if (algorithm == IncludeAlgorithm.Auto) {
                 List<Expression> arguments = ex.Arguments.ToList();
                 arguments[1] = Expression.Constant(IncludeAlgorithm.ComplexCondition);
-                ex = Expression.Call(ex.Method, arguments);
+                ex = Expression.Call(methodInfo, arguments);
               }
             }
-            else
-            {
+            else {
               List<Expression> arguments = ex.Arguments.ToList();
               arguments.Insert(1, Expression.Constant(IncludeAlgorithm.ComplexCondition));
-              List<Type> types = ex.Method.GetParameters().Select(a => a.ParameterType).ToList();
-              types.Insert(1, typeof (IncludeAlgorithm));
-              ex = Expression.Call(inMethod.MakeGenericMethod(ex.Method.GetGenericArguments()),
+              List<Type> types = methodInfo.GetParameters().Select(a => a.ParameterType).ToList();
+              types.Insert(1, typeof(IncludeAlgorithm));
+              ex = Expression.Call(inMethod.MakeGenericMethod(methodInfo.GetGenericArguments()),
                                    arguments.ToArray());
             }
           }
