@@ -5,16 +5,44 @@
 // Created:    2010.01.21
 
 using System;
-using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorState
   {
+    [Flags]
+    private enum TranslatorStateFlags
+    {
+      JoinLocalCollectionEntity = 1,
+      AllowCalculableColumnCombine = 1 << 1,
+      IsBuildingProjection = 1 << 2,
+      CalculateExpressions = 1 << 3,
+      IsGroupingKey = 1 << 4,
+      IsTailMethod = 1 << 5,
+      ShouldOmitConvertToObject = 1 << 6,
+      RequestCalculateExpressions = 1 << 7,
+      RequestCalculateExpressionsOnce = 1 << 8
+    }
+
+    internal readonly ref struct TranslatorScope
+    {
+      private readonly TranslatorState previousState;
+      private readonly Translator translator;
+
+      public void Dispose() => translator.state = previousState;
+
+      public TranslatorScope(Translator translator, TranslatorState previousState)
+      {
+        this.translator = translator;
+        this.previousState = previousState;
+      }
+    }
+
     private readonly Translator translator;
+
+    private TranslatorStateFlags flags;
 
     public ParameterExpression[] Parameters { get; set; }
 
@@ -26,43 +54,96 @@ namespace Xtensive.Orm.Linq
 
     public Type TypeOfEntityStoredInKey { get; set; }
 
-    public bool JoinLocalCollectionEntity { get; set; }
-
-    public bool AllowCalculableColumnCombine { get; set; }
-
-    public bool BuildingProjection { get; set; }
-
-    public bool CalculateExpressions { get; set; }
-
-    public bool GroupingKey { get; set; }
-
-    public bool IsTailMethod { get; set; }
-
-    public bool ShouldOmmitConvertToObject { get; set; }
-
-    public bool RequestCalculateExpressions { get; set; }
-
-    public bool RequestCalculateExpressionsOnce { get; set; }
-
-    public IDisposable CreateScope()
+    public bool JoinLocalCollectionEntity
     {
-      var currentState = translator.state;
-      var newState = new TranslatorState(currentState);
-      translator.state = newState;
-      return new Disposable(_ => translator.state = currentState);
+      get => (flags & TranslatorStateFlags.JoinLocalCollectionEntity) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.JoinLocalCollectionEntity
+        : flags & ~TranslatorStateFlags.JoinLocalCollectionEntity;
     }
 
-    public IDisposable CreateLambdaScope(LambdaExpression le)
+    public bool AllowCalculableColumnCombine    {
+      get => (flags & TranslatorStateFlags.AllowCalculableColumnCombine) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.AllowCalculableColumnCombine
+        : flags & ~TranslatorStateFlags.AllowCalculableColumnCombine;
+    }
+
+    public bool BuildingProjection
+    {
+      get => (flags & TranslatorStateFlags.IsBuildingProjection) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.IsBuildingProjection
+        : flags & ~TranslatorStateFlags.IsBuildingProjection;
+    }
+
+    public bool CalculateExpressions
+    {
+      get => (flags & TranslatorStateFlags.CalculateExpressions) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.CalculateExpressions
+        : flags & ~TranslatorStateFlags.CalculateExpressions;
+    }
+
+    public bool GroupingKey
+    {
+      get => (flags & TranslatorStateFlags.IsGroupingKey) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.IsGroupingKey
+        : flags & ~TranslatorStateFlags.IsGroupingKey;
+    }
+
+    public bool IsTailMethod
+    {
+      get => (flags & TranslatorStateFlags.IsTailMethod) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.IsTailMethod
+        : flags & ~TranslatorStateFlags.IsTailMethod;
+    }
+
+    public bool ShouldOmitConvertToObject
+    {
+      get => (flags & TranslatorStateFlags.ShouldOmitConvertToObject) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.ShouldOmitConvertToObject
+        : flags & ~TranslatorStateFlags.ShouldOmitConvertToObject;
+    }
+
+    public bool RequestCalculateExpressions
+    {
+      get => (flags & TranslatorStateFlags.RequestCalculateExpressions) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.RequestCalculateExpressions
+        : flags & ~TranslatorStateFlags.RequestCalculateExpressions;
+    }
+
+    public bool RequestCalculateExpressionsOnce
+    {
+      get => (flags & TranslatorStateFlags.RequestCalculateExpressionsOnce) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.RequestCalculateExpressionsOnce
+        : flags & ~TranslatorStateFlags.RequestCalculateExpressionsOnce;
+    }
+
+    public TranslatorScope CreateScope()
+    {
+      var currentState = translator.state;
+      translator.state = new TranslatorState(currentState);
+      return new TranslatorScope(translator, currentState);
+    }
+
+    public TranslatorScope CreateLambdaScope(LambdaExpression le)
     {
       var currentState = translator.state;
       var newState = new TranslatorState(currentState);
-      newState.OuterParameters = newState.OuterParameters.Concat(newState.Parameters).ToArray();
-      newState.Parameters = Enumerable.ToArray(le.Parameters);
+      var newOuterParameters = new ParameterExpression[newState.OuterParameters.Length + newState.Parameters.Length];
+      newState.OuterParameters.CopyTo(newOuterParameters, 0);
+      newState.Parameters.CopyTo(newOuterParameters, newState.OuterParameters.Length);
+      newState.OuterParameters = newOuterParameters;
+      newState.Parameters = le.Parameters.ToArray(le.Parameters.Count);
       newState.CurrentLambda = le;
-      newState.IncludeAlgorithm = IncludeAlgorithm;
-      newState.IsTailMethod = IsTailMethod;
       translator.state = newState;
-      return new Disposable(_ => translator.state = currentState);
+      return new TranslatorScope(translator, currentState);
     }
 
 
@@ -71,30 +152,21 @@ namespace Xtensive.Orm.Linq
     public TranslatorState(Translator translator)
     {
       this.translator = translator;
+      flags = TranslatorStateFlags.IsBuildingProjection | TranslatorStateFlags.IsTailMethod;
+      OuterParameters = Parameters = Array.Empty<ParameterExpression>();
       IncludeAlgorithm = IncludeAlgorithm.Auto;
-      BuildingProjection = true;
-      IsTailMethod = true;
       TypeOfEntityStoredInKey = null;
-      OuterParameters = Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
     }
 
     private TranslatorState(TranslatorState currentState)
     {
       translator = currentState.translator;
+      flags = currentState.flags;
       Parameters = currentState.Parameters;
       OuterParameters = currentState.OuterParameters;
-      CalculateExpressions = currentState.CalculateExpressions;
-      BuildingProjection = currentState.BuildingProjection;
       CurrentLambda = currentState.CurrentLambda;
-      JoinLocalCollectionEntity = currentState.JoinLocalCollectionEntity;
-      AllowCalculableColumnCombine = currentState.AllowCalculableColumnCombine;
       IncludeAlgorithm = currentState.IncludeAlgorithm;
-      IsTailMethod = currentState.IsTailMethod;
-      GroupingKey = currentState.GroupingKey;
-      RequestCalculateExpressionsOnce = currentState.RequestCalculateExpressionsOnce;
-      RequestCalculateExpressions = currentState.RequestCalculateExpressions;
       TypeOfEntityStoredInKey = currentState.TypeOfEntityStoredInKey;
-      ShouldOmmitConvertToObject = currentState.ShouldOmmitConvertToObject;
     }
   }
 }

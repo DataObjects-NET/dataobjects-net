@@ -43,8 +43,8 @@ namespace Xtensive.Orm.Linq.Expressions
         return result;
       }
 
-      var mapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, mapping, OuterParameter, DefaultIfEmpty);
+      var newMapping = new Segment<int>(Mapping.Offset + offset, Mapping.Length);
+      result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
       if (owner == null) {
         return result;
       }
@@ -72,8 +72,8 @@ namespace Xtensive.Orm.Linq.Expressions
           Owner.Remap(map, processedExpressions);
         return null;
       }
-      var mapping = new Segment<int>(offset, Mapping.Length);
-      result = new FieldExpression(ExtendedExpressionType.Field, Field, mapping, OuterParameter, DefaultIfEmpty);
+      var newMapping = new Segment<int>(offset, Mapping.Length);
+      result = new FieldExpression(ExtendedExpressionType.Field, Field, newMapping, OuterParameter, DefaultIfEmpty);
       if (owner == null)
         return result;
 
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Linq.Expressions
     protected FieldExpression(
       ExtendedExpressionType expressionType, 
       FieldInfo field, 
-      Segment<int> mapping, 
+      in Segment<int> mapping,
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)
       : base(expressionType, field.Name, field.ValueType, mapping, field.UnderlyingProperty, parameterExpression, defaultIfEmpty)

@@ -21,11 +21,6 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public TypeInfo PersistentType { get; private set; }
 
-    public Segment<int> Mapping
-    {
-      get { throw new NotSupportedException(); }
-    }
-
     public KeyExpression Key { get; private set; }
 
     public List<PersistentFieldExpression> Fields

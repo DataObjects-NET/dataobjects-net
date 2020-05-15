@@ -29,11 +29,6 @@ namespace Xtensive.Orm.Linq
 
     public IEnumerable<Expression> ConstructorArguments { get; private set; }
 
-    public Segment<int> Mapping
-    {
-      get { throw new NotSupportedException(); }
-    }
-
     public Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<Expression, Expression> genericBinder =

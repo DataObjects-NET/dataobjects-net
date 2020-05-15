@@ -946,7 +946,7 @@ namespace Xtensive.Orm.Linq
         var sortParameter = sortExpression.Parameters[0];
         using (context.Bindings.Add(sortParameter, projection))
         using (state.CreateScope()) {
-          state.ShouldOmmitConvertToObject = true;
+          state.ShouldOmitConvertToObject = true;
           state.CalculateExpressions = true;
           var orderByProjector = (ItemProjectorExpression) VisitLambda(sortExpression);
           var columns = orderByProjector

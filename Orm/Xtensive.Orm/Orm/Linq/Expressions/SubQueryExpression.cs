@@ -23,12 +23,6 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public ApplyParameter ApplyParameter { get; private set; }
 
-    /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
-    public virtual Segment<int> Mapping
-    {
-      get { throw new NotSupportedException(); }
-    }
-
     public virtual Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
       return this;

@@ -29,7 +29,9 @@ namespace Xtensive.Orm
 
     internal void Invalidate()
     {
-      OrmLog.Debug(Strings.LogSessionXInvalidate, this);
+      if (IsDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogSessionXInvalidate, this);
+      }
 
       ClearChangeRegistry();
       InvalidateCachedEntities();
@@ -65,7 +67,10 @@ namespace Xtensive.Orm
           Persist(PersistReason.RemapEntityKeys);
           Invalidate();
         }
-        OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
+        if (IsDebugEventLoggingEnabled) {
+          OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
+        }
+
         foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.New)) {
           var key = entityState.Key;
           var remappedKey = keyMapping.TryRemapKey(key);
@@ -119,8 +124,9 @@ namespace Xtensive.Orm
       };
       EntityStateCache.Add(result);
 
-      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
-      return;
+      if (IsDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+      }
     }
 
     internal void InitializeEntity(Entity entity, bool materialize)
@@ -164,7 +170,10 @@ namespace Xtensive.Orm
         result.PersistenceState = PersistenceState.New;
       }
 
-      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+      if (IsDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+      }
+
       return result;
     }
 
@@ -212,7 +221,9 @@ namespace Xtensive.Orm
         }
         result.Update(tuple);
         result.IsStale = isStale;
-        OrmLog.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
+        if (IsDebugEventLoggingEnabled) {
+          OrmLog.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
+        }
       }
       return result;
     }
@@ -246,7 +257,10 @@ namespace Xtensive.Orm
         PersistenceState = PersistenceState.Synchronized
       };
       EntityStateCache.Add(result);
-      OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+      if (IsDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+      }
+
       return result;
     }
 

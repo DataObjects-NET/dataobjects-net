@@ -196,7 +196,7 @@ namespace Xtensive.Tuples
     /// <param name="tuple">The <see cref="Tuple"/> to get segment from.</param>
     /// <param name="segment">The <see cref="Segment{T}"/> to cut off.</param>
     /// <returns></returns>
-    public static Tuple GetSegment(this Tuple tuple, Segment<int> segment)
+    public static Tuple GetSegment(this Tuple tuple, in Segment<int> segment)
     {
       var length = segment.Length;
       var map = new int[length];

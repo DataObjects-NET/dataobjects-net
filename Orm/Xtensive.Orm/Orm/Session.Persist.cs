@@ -88,7 +88,9 @@ namespace Xtensive.Orm
         try {
           using (this.OpenSystemLogicOnlyRegion()) {
             DemandTransaction();
-            OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+            if (IsDebugEventLoggingEnabled) {
+              OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+            }
 
             EntityChangeRegistry itemsToPersist;
             if (performPinning) {
@@ -132,7 +134,9 @@ namespace Xtensive.Orm
                 EntitySetChangeRegistry.Clear();
                 NonPairedReferencesRegistry.Clear();
               }
-              OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
+              if (IsDebugEventLoggingEnabled) {
+                OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
+              }
             }
           }
           SystemEvents.NotifyPersisted();

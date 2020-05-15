@@ -312,7 +312,7 @@ namespace Xtensive.Core
     /// Gets the items from the segment.
     /// </summary>
     /// <param name="segment">The segment.</param>
-    public static IEnumerable<int> GetItems(this Segment<int> segment)
+    public static IEnumerable<int> GetItems(this in Segment<int> segment)
     {
       return Enumerable.Range(segment.Offset, segment.Length);
     }

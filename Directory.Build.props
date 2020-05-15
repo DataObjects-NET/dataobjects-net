@@ -22,6 +22,7 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <LangVersion>8.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$(MSBuildThisFileDirectory.TrimEnd('\').TrimEnd('/'))\</SolutionDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
