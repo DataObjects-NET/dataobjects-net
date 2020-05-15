@@ -27,7 +27,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public CommandProcessorContext ProvideContext(bool allowPartialExecution)
     {
-      var context = new CommandProcessorContext(allowPartialExecution);
+      var context = new CommandProcessorContext(null, allowPartialExecution);
       providedContexts.AddOrUpdate(context, (CommandProcessorContext) null, (processorContext, commandProcessorContext) => { return null; });
       context.Disposed += RemoveDesposedContext;
       return context;

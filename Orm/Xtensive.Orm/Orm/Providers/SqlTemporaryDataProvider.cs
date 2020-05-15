@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
         return;
       storageContext.SetValue(this, TemporaryTableLockName, tableLock);
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      executor.Store(tableDescriptor, data);
+      executor.Store(tableDescriptor, data, storageContext.ParameterContext);
     }
 
     protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
         return false;
       var storageContext = (EnumerationContext) context;
       using (tableLock)
-        storageContext.Session.Services.Demand<IProviderExecutor>().Clear(tableDescriptor);
+        storageContext.Session.Services.Demand<IProviderExecutor>().Clear(tableDescriptor, storageContext.ParameterContext);
       return true;
     }
 

@@ -16,8 +16,6 @@ namespace Xtensive.Core
   /// <typeparam name="TValue">The type of parameter value.</typeparam>
   public sealed class Parameter<TValue> : Parameter
   {
-    private readonly Action<TValue> onOutOfScope;
-
     /// <summary>
     /// Gets or sets the parameter value.
     /// </summary>

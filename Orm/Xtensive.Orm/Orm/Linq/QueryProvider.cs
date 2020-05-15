@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Linq
       }
       else {
         try {
-          result = query.Execute(session, new ParameterContext());
+          result = query.Execute(session, QueryCachingScope?.ParameterContext ?? new ParameterContext());
         }
         catch (Exception exception) {
           session.Events.NotifyQueryExecuted(expression, exception);
@@ -108,19 +108,14 @@ namespace Xtensive.Orm.Linq
       expression = session.Events.NotifyQueryExecuting(expression);
       var query = Translate<TResult>(expression, isAsyncEnumeration);
       TResult result;
-      if (QueryCachingScope != null && !QueryCachingScope.Execute) {
-        result = default;
+      try {
+        result = await query
+          .ExecuteAsync(session, new ParameterContext(), isAsyncEnumeration, token)
+          .ConfigureAwait(false);
       }
-      else {
-        try {
-          result = await query
-            .ExecuteAsync(session, new ParameterContext(), isAsyncEnumeration, token)
-            .ConfigureAwait(false);
-        }
-        catch (Exception exception) {
-          session.Events.NotifyQueryExecuted(expression, exception);
-          throw;
-        }
+      catch (Exception exception) {
+        session.Events.NotifyQueryExecuted(expression, exception);
+        throw;
       }
 
       session.Events.NotifyQueryExecuted(expression);
@@ -150,10 +145,9 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    internal QueryProvider(Session session, QueryCachingScope queryCachingScope = null)
+    internal QueryProvider(Session session)
     {
       this.session = session;
-      this.QueryCachingScope = queryCachingScope;
     }
   }
 }

@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Providers
           task.ProcessWith(this, context);
         }
         if (shouldReturnReader) {
-          var part = Factory.CreateQueryPart(lastRequest);
+          var part = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
           context.ActiveCommand.AddPart(part);
         }
         if (context.ActiveCommand.Count==0)
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Providers
           task.ProcessWith(this, context);
         }
         if (shouldReturnReader)
-          context.ActiveCommand.AddPart(Factory.CreateQueryPart(lastRequest));
+          context.ActiveCommand.AddPart(Factory.CreateQueryPart(lastRequest, context.ParameterContext));
         if (context.ActiveCommand.Count==0)
           return null;
         var hasQueryTasks = context.ActiveTasks.Count > 0;

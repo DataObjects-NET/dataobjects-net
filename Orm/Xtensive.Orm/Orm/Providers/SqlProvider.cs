@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Providers
     {
       var storageContext = (EnumerationContext) context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      var enumerator = executor.ExecuteTupleReader(Request);
+      var enumerator = executor.ExecuteTupleReader(Request, storageContext.ParameterContext);
       using (enumerator) {
         while (enumerator.MoveNext()) {
           yield return enumerator.Current;
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Providers
     {
       var storageContext = (EnumerationContext)context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      var enumerator = await executor.ExecuteTupleReaderAsync(Request, token).ConfigureAwait(false);
+      var enumerator = await executor.ExecuteTupleReaderAsync(Request, storageContext.ParameterContext, token).ConfigureAwait(false);
       return enumerator.ToEnumerable();
     }
 
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Providers
     {
       var storageContext = (EnumerationContext)context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      return executor.ExecuteAsyncTupleReaderAsync(Request, token);
+      return executor.ExecuteAsyncTupleReaderAsync(Request, storageContext.ParameterContext, token);
     }
 
     #region ToString related methods

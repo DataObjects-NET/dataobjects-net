@@ -112,11 +112,12 @@ namespace Xtensive.Orm.Internals
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
       AllocateParameterAndReplacer();
-      var scope = new QueryCachingScope(endpoint, queryParameter, queryParameterReplacer, executeAsSideEffect);
-      using (scope) {
-        var parameterContext = new ParameterContext(outerContext);
-        parameterContext.SetValue(queryParameter, queryTarget);
-        // TODO: Deliver parameter context to QueryProvider
+
+      var parameterContext = new ParameterContext(outerContext);
+      parameterContext.SetValue(queryParameter, queryTarget);
+      var scope = new QueryCachingScope(
+        endpoint, queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
+      using (scope.Enter()) {
         result = query.Invoke(endpoint);
       }
 
@@ -136,7 +137,7 @@ namespace Xtensive.Orm.Internals
 
       AllocateParameterAndReplacer();
       var scope = new QueryCachingScope(endpoint, queryParameter, queryParameterReplacer);
-      using (scope) {
+      using (scope.Enter()) {
         var result = query.Invoke(endpoint);
         var translatedQuery = endpoint.Provider.Translate<IEnumerable<TElement>>(result.Expression);
         parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
@@ -156,7 +157,7 @@ namespace Xtensive.Orm.Internals
 
       var closureType = queryTarget.GetType();
       var parameterType = typeof (Parameter<>).MakeGenericType(closureType);
-      var valueMemberInfo = parameterType.GetProperty("Value", closureType);
+      var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
         if (expression.NodeType==ExpressionType.Constant) {

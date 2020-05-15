@@ -165,7 +165,6 @@ namespace Xtensive.Orm.Linq.Materialization
     private static IEnumerable<TResult> SubqueryMaterialize<TResult>(
       IEnumerable<TResult> materializedSequence, ParameterContext parameterContext)
     {
-      ParameterScope scope = null;
       var batchSequence = materializedSequence
         .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize);
       return batchSequence.SelectMany(batch => batch);

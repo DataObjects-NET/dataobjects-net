@@ -67,12 +67,18 @@ namespace Xtensive.Core
         value = parameter.ExpectedValue;
         return true;
       }
-      return values.TryGetValue(parameter, out value);
+
+      return values.TryGetValue(parameter, out value)
+        || outerContext?.TryGetValue(parameter, out value) == true;
     }
     
     public TValue GetValue<TValue>(Parameter<TValue> parameter)
     {
-      throw new NotImplementedException();
+      if (TryGetValue(parameter, out var result)) {
+        return (TValue) result;
+      }
+
+      throw new InvalidOperationException(string.Format(Strings.ExValueForParameterXIsNotSet, parameter));
     }
 
     [DebuggerStepThrough]

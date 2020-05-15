@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Services
       ArgumentValidator.EnsureArgumentNotNull(request, "request");
 
       var command = commandFactory.CreateCommand();
-      command.AddPart(commandFactory.CreateQueryPart(request.RealRequest));
+      command.AddPart(commandFactory.CreateQueryPart(request.RealRequest, new ParameterContext()));
       return new QueryCommand(driver, Session, command.Prepare());
     }
 

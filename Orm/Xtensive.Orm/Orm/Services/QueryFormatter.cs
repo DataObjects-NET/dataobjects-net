@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Services
       if (sqlProvider==null)
         return null;
 
-      return commandFactory.CreateQueryPart(sqlProvider.Request);
+      return commandFactory.CreateQueryPart(sqlProvider.Request, null);
     }
 
 

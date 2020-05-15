@@ -83,14 +83,9 @@ namespace Xtensive.Orm.Providers
       return CreateQueryPart(task.Request, parameterNamePrefix, task.ParameterContext);
     }
 
-    public CommandPart CreateQueryPart(IQueryRequest request)
+    public CommandPart CreateQueryPart(IQueryRequest request, ParameterContext parameterContext)
     {
-      return CreateQueryPart(request, DefaultParameterNamePrefix, null);
-    }
-
-    public CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix)
-    {
-      return CreateQueryPart(request, parameterNamePrefix, null);
+      return CreateQueryPart(request, DefaultParameterNamePrefix, parameterContext);
     }
 
     public virtual CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)

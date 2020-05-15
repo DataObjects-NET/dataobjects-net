@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
@@ -14,6 +15,8 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class CommandProcessorContext : IDisposable
   {
+    public ParameterContext ParameterContext { get; }
+
     /// <summary>
     /// Gets the value indicating that partial execution is preferred if it is possible.
     /// </summary>
@@ -64,13 +67,9 @@ namespace Xtensive.Orm.Providers
         Disposed(this, EventArgs.Empty);
     }
 
-    internal CommandProcessorContext()
-      : this(false)
+    internal CommandProcessorContext(ParameterContext parameterContext, bool allowPartialExecution = false)
     {
-    }
-
-    internal CommandProcessorContext(bool allowPartialExecution)
-    {
+      ParameterContext = parameterContext;
       AllowPartialExecution = allowPartialExecution;
       ProcessingTasks = new Queue<SqlTask>();
       ActiveTasks = new List<SqlLoadTask>();

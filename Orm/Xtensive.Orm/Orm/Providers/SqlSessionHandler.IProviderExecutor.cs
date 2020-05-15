@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -17,10 +18,11 @@ namespace Xtensive.Orm.Providers
     // Implementation of IProviderExecutor
 
     /// <inheritdoc/>
-    IEnumerator<Tuple> IProviderExecutor.ExecuteTupleReader(QueryRequest request)
+    IEnumerator<Tuple> IProviderExecutor.ExecuteTupleReader(QueryRequest request,
+      ParameterContext parameterContext)
     {
       Prepare();
-      var context = new CommandProcessorContext();
+      var context = new CommandProcessorContext(parameterContext);
       var enumerator = commandProcessor.ExecuteTasksWithReader(request, context);
       context.Dispose();
       using (enumerator) {
@@ -29,18 +31,19 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    async Task<IEnumerator<Tuple>> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request, CancellationToken token)
+    async Task<IEnumerator<Tuple>> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
+      ParameterContext parameterContext, CancellationToken token)
     {
       Prepare();
-      using (var context = new CommandProcessorContext())
+      using (var context = new CommandProcessorContext(parameterContext))
         return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
     }
 
-    async IAsyncEnumerable<Tuple> IProviderExecutor.ExecuteAsyncTupleReaderAsync(
-      QueryRequest request, [EnumeratorCancellation] CancellationToken token)
+    async IAsyncEnumerable<Tuple> IProviderExecutor.ExecuteAsyncTupleReaderAsync(QueryRequest request,
+      ParameterContext parameterContext, [EnumeratorCancellation] CancellationToken token)
     {
       Prepare();
-      using (var context = new CommandProcessorContext()) {
+      using (var context = new CommandProcessorContext(parameterContext)) {
         await foreach (var tuple in commandProcessor.ExecuteTasksWithAsyncReaderAsync(request, context, token)) {
           yield return tuple;
         }
@@ -48,21 +51,22 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    void IProviderExecutor.Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
+    void IProviderExecutor.Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples,
+      ParameterContext parameterContext)
     {
       Prepare();
       foreach (var tuple in tuples)
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      using (var context = new CommandProcessorContext())
+      using (var context = new CommandProcessorContext(parameterContext))
         commandProcessor.ExecuteTasks(context);
     }
 
     /// <inheritdoc/>
-    void IProviderExecutor.Clear(IPersistDescriptor descriptor)
+    void IProviderExecutor.Clear(IPersistDescriptor descriptor, ParameterContext parameterContext)
     {
       Prepare();
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-      using (var context = new CommandProcessorContext())
+      using (var context = new CommandProcessorContext(parameterContext))
         commandProcessor.ExecuteTasks(context);
     }
 
@@ -73,7 +77,7 @@ namespace Xtensive.Orm.Providers
       commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
       foreach (var tuple in tuples)
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      using (var context = new CommandProcessorContext())
+      using (var context = new CommandProcessorContext(new ParameterContext()))
         commandProcessor.ExecuteTasks(context);
     }
   }

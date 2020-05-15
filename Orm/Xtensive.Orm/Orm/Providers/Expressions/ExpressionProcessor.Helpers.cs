@@ -255,11 +255,11 @@ namespace Xtensive.Orm.Providers
       return enumType.IsEnum && Enum.GetUnderlyingType(enumType)==numericType;
     }
 
-    private QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
+    private static QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
       Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
       var expression = accessor.Body;
-
+    
       // Strip cast to object
       if (expression.NodeType==ExpressionType.Convert)
         expression = ((UnaryExpression) expression).Operand;
@@ -278,20 +278,6 @@ namespace Xtensive.Orm.Providers
       if (operand.NodeType==ExpressionType.Constant) {
         var closureObject = ((ConstantExpression) operand).Value;
         return new QueryParameterIdentity(mapping, closureObject, fieldName, bindingType);
-      }
-
-      // Check for parameterized closure
-      if (operand.NodeType==ExpressionType.Call) {
-        memberAccess = (MemberExpression) operand;
-        operand = memberAccess.Expression;
-        var isParameter = operand!=null
-          && operand.NodeType==ExpressionType.Constant
-          && typeof (Parameter).IsAssignableFrom(operand.Type)
-          && memberAccess.Member.Name=="Value";
-        if (isParameter) {
-          var parameterObject = ((ConstantExpression) operand).Value;
-          return new QueryParameterIdentity(mapping, parameterObject, fieldName, bindingType);
-        }
       }
 
       return null;

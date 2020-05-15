@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Providers
       context.AllowPartialExecution = oldValue;
 
       var lastRequestCommand = Factory.CreateCommand();
-      var commandPart = Factory.CreateQueryPart(lastRequest);
+      var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
       lastRequestCommand.AddPart(commandPart);
       lastRequestCommand.ExecuteReader();
       return lastRequestCommand.AsReaderOf(lastRequest);
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Providers
       context.AllowPartialExecution = oldValue;
 
       var lastRequestCommand = Factory.CreateCommand();
-      var commandPart = Factory.CreateQueryPart(lastRequest);
+      var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token);
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Providers
       context.AllowPartialExecution = oldValue;
 
       var lastRequestCommand = Factory.CreateCommand();
-      var commandPart = Factory.CreateQueryPart(lastRequest);
+      var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token);

@@ -105,4 +105,50 @@ namespace Xtensive.Orm.Linq
       this.evaluator = evaluator;
     }
   }
+
+  internal static class ParameterAccessorFactory
+  {
+    private static readonly MethodInfo GetParameterValueMethod =
+      typeof(ParameterContext).GetMethod(nameof(ParameterContext.GetValue));
+
+    private class ParameterAccessorFactoryImpl<T>: ExpressionVisitor
+    {
+      private readonly ParameterExpression parameterContextArgument;
+
+      public Expression<Func<ParameterContext,T>> BindToParameterContext(Expression parameterExpression)
+      {
+        var body = Visit(parameterExpression);
+        if (typeof(T) != body.Type) {
+          body = Expression.Convert(body, typeof(T));
+        }
+        return FastExpression.Lambda<Func<ParameterContext, T>>(body, parameterContextArgument);
+      }
+
+      protected override Expression VisitMemberAccess(MemberExpression ma)
+      {
+        if (string.Equals(nameof(Parameter.Value), ma.Member.Name, StringComparison.Ordinal)
+          && typeof(Parameter).IsAssignableFrom(ma.Expression.Type)) {
+          var parameterType = ma.Expression.Type;
+          var parameterValueType = parameterType.IsGenericType
+            ? parameterType.GetGenericArguments()[0]
+            : typeof(object);
+          return Expression.Call(parameterContextArgument,
+            GetParameterValueMethod.MakeGenericMethod(parameterValueType), ma.Expression);
+        }
+
+        return base.VisitMemberAccess(ma);
+      }
+
+      public ParameterAccessorFactoryImpl(ParameterExpression parameterContextArgument)
+      {
+        this.parameterContextArgument = parameterContextArgument;
+      }
+    }
+
+    public static Expression<Func<ParameterContext, T>> CreateAccessorExpression<T>(Expression parameterExpression)
+    {
+      var parameterContextArgument = Expression.Parameter(typeof(ParameterContext), "context");
+      return new ParameterAccessorFactoryImpl<T>(parameterContextArgument).BindToParameterContext(parameterExpression);
+    }
+  }
 }

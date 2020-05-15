@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Providers
       bool optimizeBooleanParameter = type==typeof (bool);
       type = type.StripNullable();
       var typeMapping = driver.GetTypeMapping(type);
-      var expression = ParameterExtractor.ExtractParameter<object>(e);
+      var expression = ParameterAccessorFactory.CreateAccessorExpression<object>(e);
       var bindingType = optimizeBooleanParameter
         ? QueryParameterBindingType.BooleanConstant
         : (smartNull
