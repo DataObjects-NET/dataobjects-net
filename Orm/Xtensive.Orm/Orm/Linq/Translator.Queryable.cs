@@ -1527,13 +1527,12 @@ namespace Xtensive.Orm.Linq
       Func<ParameterContext, IEnumerable<TItem>> collectionGetter;
       if (queryCachingScope!=null) {
         var replacer = queryCachingScope.QueryParameterReplacer;
-        var queryParameter = queryCachingScope.QueryParameter;
         var replace = replacer.Replace(sequence);
-        var parameter = ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(replace);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
         collectionGetter = parameter.CachingCompile();
       }
       else {
-        var parameter = ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(sequence);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(sequence);
         collectionGetter = parameter.CachingCompile();
       }
       return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this, sequence);
