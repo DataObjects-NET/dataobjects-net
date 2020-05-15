@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -140,7 +140,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       SqlTableColumn column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
       SqlExpression value;
-      object constant = FastExpression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
+      object constant = FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
       if (constant==null)
         value = SqlDml.Null;
       else {
