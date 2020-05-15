@@ -27,6 +27,8 @@ namespace Xtensive.Orm.Linq.Materialization
   {
     private static readonly MethodInfo BuildPersistentTupleMethod;
     private static readonly MethodInfo GetTupleSegmentMethod;
+    private static readonly MethodInfo GetParameterValueMethod;
+    private static readonly PropertyInfo ParameterContextProperty;
 
     private readonly TranslatorContext context;
     private readonly ParameterExpression tupleParameter;
@@ -418,13 +420,26 @@ namespace Xtensive.Orm.Linq.Materialization
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
-      if (m.Expression!=null
-        && (ExtendedExpressionType) m.Expression.NodeType==ExtendedExpressionType.LocalCollection)
-        return Visit((Expression) ((LocalCollectionExpression) m.Expression).Fields[m.Member]);
+      if (m.Expression!=null) {
+        if ((ExtendedExpressionType) m.Expression.NodeType==ExtendedExpressionType.LocalCollection) {
+          return Visit((Expression) ((LocalCollectionExpression) m.Expression).Fields[m.Member]);
+        }
+        if (string.Equals(nameof(Parameter.Value), m.Member.Name, StringComparison.Ordinal)
+          && typeof(Parameter).IsAssignableFrom(m.Expression.Type)) {
+          var parameterType = m.Expression.Type;
+          var parameterValueType = parameterType.IsGenericType
+            ? parameterType.GetGenericArguments()[0]
+            : typeof(object);
+          return Expression.Call(
+            Expression.MakeMemberAccess(itemMaterializationContextParameter, ParameterContextProperty),
+              GetParameterValueMethod.MakeGenericMethod(parameterValueType), m.Expression);
+        }
+      }
 
-      Expression expression = Visit(m.Expression);
-      if (expression==m.Expression)
+      var expression = Visit(m.Expression);
+      if (expression==m.Expression) {
         return m;
+      }
 
       return Expression.MakeMemberAccess(expression, m.Member);
     }
@@ -521,6 +536,9 @@ namespace Xtensive.Orm.Linq.Materialization
 
     static ExpressionMaterializer()
     {
+      ParameterContextProperty =
+        typeof(ItemMaterializationContext).GetProperty(nameof(ItemMaterializationContext.ParameterContext));
+      GetParameterValueMethod = typeof(ParameterContext).GetMethod(nameof(ParameterContext.GetValue));
       BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);
       GetTupleSegmentMethod = typeof (ExpressionMaterializer).GetMethod("GetTupleSegment", BindingFlags.NonPublic | BindingFlags.Static);
     }
