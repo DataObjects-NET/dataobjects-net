@@ -476,16 +476,17 @@ namespace Xtensive.Orm.Tests.Storage
 
         var enumerators = new[] {readyToRockQueryEnumerator, anotherAsyncQueryEnumerator};
 
-        int count = 0;
-        while (true) {
+        var count = 0;
+        var activeEnumerators = enumerators.Length;
+        while (activeEnumerators > 0) {
           var index = count % 2;
           var enumerator = enumerators[index];
           if (await enumerator.MoveNextAsync()) {
             count++;
             var testEntity = enumerator.Current;
           }
-          else if (index==1) {
-            break;
+          else {
+            activeEnumerators--;
           }
         }
         Assert.That(count, Is.EqualTo(TestEntityCount * 2));
