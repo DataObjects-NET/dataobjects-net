@@ -465,8 +465,9 @@ namespace Xtensive.Orm.Linq
         }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
-          var newSearchCriteria = replacer.Replace(searchCriteria);
-          compiledParameter = ((Expression<Func<ParameterContext, string>>) newSearchCriteria).CachingCompile();
+          var newSearchCriteria = (Expression<Func<string>>) replacer.Replace(searchCriteria);
+          var searchCriteriaAccessor = ParameterAccessorFactory.CreateAccessorExpression<string>(newSearchCriteria.Body);
+          compiledParameter = searchCriteriaAccessor.CachingCompile();
         }
       }
       else {
