@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Linq.Materialization
     private static readonly MethodInfo GetTupleSegmentMethod;
     private static readonly MethodInfo GetParameterValueMethod;
     private static readonly PropertyInfo ParameterContextProperty;
+    private static readonly MethodInfo GetTupleParameterValueMethod;
 
     private readonly TranslatorContext context;
     private readonly ParameterExpression tupleParameter;
@@ -488,7 +489,9 @@ namespace Xtensive.Orm.Linq.Materialization
       var parameterOfTuple = context.GetTupleParameter(expression.OuterParameter);
       if (tupleParameters.Contains(parameterOfTuple)) {
         // Make access on Parameter<Tuple>
-        return Expression.MakeMemberAccess(Expression.Constant(parameterOfTuple), WellKnownMembers.ParameterOfTupleValue);
+        return Expression.Call(
+          Expression.MakeMemberAccess(itemMaterializationContextParameter, ParameterContextProperty),
+          GetTupleParameterValueMethod, Expression.Constant(parameterOfTuple));
       }
 
       // Use ApplyParameter for RecordSet predicates
@@ -539,6 +542,7 @@ namespace Xtensive.Orm.Linq.Materialization
       ParameterContextProperty =
         typeof(ItemMaterializationContext).GetProperty(nameof(ItemMaterializationContext.ParameterContext));
       GetParameterValueMethod = typeof(ParameterContext).GetMethod(nameof(ParameterContext.GetValue));
+      GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(typeof(Tuple));
       BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);
       GetTupleSegmentMethod = typeof (ExpressionMaterializer).GetMethod("GetTupleSegment", BindingFlags.NonPublic | BindingFlags.Static);
     }
