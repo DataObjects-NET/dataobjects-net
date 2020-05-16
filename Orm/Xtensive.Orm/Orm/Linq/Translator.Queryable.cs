@@ -433,14 +433,17 @@ namespace Xtensive.Orm.Linq
       CompilableProvider rs;
       if (index.Type==typeof (Func<int>)) {
         Expression<Func<ParameterContext, int>> elementAtIndex;
-        var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
+        ParameterExpression contextParameter;
         if (queryCachingScope==null) {
           var indexLambda = (Expression<Func<int>>) index;
+          contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
           elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, contextParameter);
         }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
-          elementAtIndex = (Expression<Func<ParameterContext, int>>) replacer.Replace(index);
+          var newIndex = (Expression<Func<int>>) replacer.Replace(index);
+          elementAtIndex = ParameterAccessorFactory.CreateAccessorExpression<int>(newIndex.Body);
+          contextParameter = elementAtIndex.Parameters[0];
         }
         compiledParameter = elementAtIndex.CachingCompile();
         var skipComparison = Expression.LessThan(elementAtIndex.Body, Expression.Constant(0));
@@ -508,8 +511,9 @@ namespace Xtensive.Orm.Linq
         }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
-          var newTake = replacer.Replace(take);
-          compiledParameter = ((Expression<Func<ParameterContext, int>>) newTake).CachingCompile();
+          var newTake = (Expression<Func<int>>) replacer.Replace(take);
+          var takeParameterAccessor = ParameterAccessorFactory.CreateAccessorExpression<int>(newTake.Body);
+          compiledParameter = takeParameterAccessor.CachingCompile();
         }
       }
       else {
@@ -540,8 +544,9 @@ namespace Xtensive.Orm.Linq
         }
         else {
           var replacer = queryCachingScope.QueryParameterReplacer;
-          var newTake = replacer.Replace(skip);
-          compiledParameter = ((Expression<Func<ParameterContext, int>>) newTake).CachingCompile();
+          var newSkip = (Expression<Func<int>>) replacer.Replace(skip);
+          var skipParameterAccessor = ParameterAccessorFactory.CreateAccessorExpression<int>(newSkip.Body);
+          compiledParameter = skipParameterAccessor.CachingCompile();
         }
       }
       else {
