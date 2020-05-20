@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -44,10 +44,11 @@ namespace Xtensive.Orm.Internals
     public TResult ExecuteCompiled<TResult>(Func<QueryEndpoint, TResult> query)
     {
       var parameterizedQuery = GetCachedQuery<TResult>();
-      if (parameterizedQuery!=null)
+      if (parameterizedQuery!=null) {
         return parameterizedQuery.Execute(session, CreateParameterContext(parameterizedQuery));
-      TResult result;
-      GetScalarQuery(query, true, out result);
+      }
+
+      GetScalarQuery(query, true, out var result);
       return result;
     }
 
@@ -74,10 +75,10 @@ namespace Xtensive.Orm.Internals
         token.ThrowIfCancellationRequested();
         return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), false, token);
       }
-      TResult result;
-      parameterizedQuery = GetScalarQuery(query, false, out result);
+
+      parameterizedQuery = GetScalarQuery(query, false, out _);
       token.ThrowIfCancellationRequested();
-      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), false, token); ;
+      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), false, token);
     }
 
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
@@ -91,8 +92,7 @@ namespace Xtensive.Orm.Internals
 
     public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint, TResult> query)
     {
-      TResult dummy;
-      var parameterizedQuery = GetCachedQuery<TResult>() ?? GetScalarQuery(query, false, out dummy);
+      var parameterizedQuery = GetCachedQuery<TResult>() ?? GetScalarQuery(query, false, out _);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
       session.RegisterUserDefinedDelayedQuery(result.Task);
@@ -122,8 +122,10 @@ namespace Xtensive.Orm.Internals
       }
 
       var parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
-      if (parameterizedQuery==null && queryTarget!=null)
+      if (parameterizedQuery==null && queryTarget!=null) {
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
+      }
+
       PutCachedQuery(parameterizedQuery);
       return parameterizedQuery;
     }
@@ -132,8 +134,9 @@ namespace Xtensive.Orm.Internals
       Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       var parameterizedQuery = GetCachedQuery<IEnumerable<TElement>>();
-      if (parameterizedQuery!=null)
+      if (parameterizedQuery!=null) {
         return parameterizedQuery;
+      }
 
       AllocateParameterAndReplacer();
       var scope = new QueryCachingScope(endpoint, queryParameter, queryParameterReplacer);
@@ -160,30 +163,38 @@ namespace Xtensive.Orm.Internals
       var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
-        if (expression.NodeType==ExpressionType.Constant) {
-          if (expression.Type.IsClosure())
-            if (expression.Type==closureType) 
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            else
-              throw new NotSupportedException(String.Format(
-                Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+        if (expression.NodeType != ExpressionType.Constant) {
+          return null;
+        }
 
-          if (closureType.DeclaringType==null) {
-            if (expression.Type==closureType)
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+        if (expression.Type.IsClosure()) {
+          if (expression.Type==closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
-          else {
-            if (expression.Type==closureType)
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type==closureType.DeclaringType) {
-              var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-              if (memberInfo!=null)
-                return Expression.MakeMemberAccess(
-                  Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                  memberInfo);
+
+          throw new NotSupportedException(string.Format(
+            Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+        }
+
+        if (closureType.DeclaringType==null) {
+          if (expression.Type==closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          }
+        }
+        else {
+          if (expression.Type==closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          }
+
+          if (expression.Type==closureType.DeclaringType) {
+            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+            if (memberInfo!=null) {
+              return Expression.MakeMemberAccess(
+                Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
+                memberInfo);
             }
-
           }
+
         }
         return null;
       });
@@ -193,8 +204,7 @@ namespace Xtensive.Orm.Internals
     {
       var cache = domain.QueryCache;
       lock (cache) {
-        Pair<object, TranslatedQuery> item;
-        return cache.TryGetItem(queryKey, true, out item)
+        return cache.TryGetItem(queryKey, true, out var item)
           ? (ParameterizedQuery<TResult>) item.Second
           : null;
       }
@@ -204,9 +214,9 @@ namespace Xtensive.Orm.Internals
     {
       var cache = domain.QueryCache;
       lock (cache) {
-        Pair<object, TranslatedQuery> item;
-        if (!cache.TryGetItem(queryKey, false, out item))
+        if (!cache.TryGetItem(queryKey, false, out _)) {
           cache.Add(new Pair<object, TranslatedQuery>(queryKey, parameterizedQuery));
+        }
       }
     }
 
