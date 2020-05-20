@@ -7864,6 +7864,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} nesting is not supported..
+        /// </summary>
+        internal static string ExXNestingIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExXNestingIsNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}.{1}&apos; field, which is declared as paired to &apos;{2}.{3}&apos; field, should be of type &apos;{4}&apos; but actually it is &apos;{5}&apos;..
         /// </summary>
         internal static string ExXYFieldPairedToZAFieldShouldBeBButCurrentIsC {

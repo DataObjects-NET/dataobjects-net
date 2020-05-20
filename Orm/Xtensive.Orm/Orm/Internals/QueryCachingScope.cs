@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.04.27
 
@@ -13,13 +13,34 @@ namespace Xtensive.Orm.Internals
 {
   internal sealed class QueryCachingScope
   {
-    private readonly QueryEndpoint endpoint;
     private TranslatedQuery parameterizedQuery;
 
     public Parameter QueryParameter { get; }
     public ExtendedExpressionReplacer QueryParameterReplacer { get; }
     public ParameterContext ParameterContext { get; }
     public bool Execute { get; }
+
+    [field: ThreadStatic]
+    internal static QueryCachingScope Current { get; private set; }
+
+    public readonly ref struct ThreadBindingToken
+    {
+      public void Dispose() => Current = null;
+
+      public ThreadBindingToken(QueryCachingScope scope)
+      {
+        if (Current != null) {
+          throw new InvalidOperationException(
+            string.Format(Strings.ExXNestingIsNotSupported, nameof(QueryCachingScope)));
+        }
+        Current = scope;
+      }
+    }
+
+    /// <summary>
+    /// Binds <see cref="QueryCachingScope"/> instance to a current thread.
+    /// </summary>
+    public ThreadBindingToken Enter() => new ThreadBindingToken(this);
 
     /// <exception cref="NotSupportedException">Second attempt to set this property.</exception>
     public TranslatedQuery ParameterizedQuery {
@@ -33,33 +54,11 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    public readonly ref struct ActivationScope
-    {
-      private readonly QueryProvider provider;
-      private readonly QueryCachingScope oldScope;
-
-      public void Dispose() => provider.QueryCachingScope = oldScope;
-
-      public ActivationScope(QueryProvider provider)
-      {
-        this.provider = provider;
-        oldScope = provider.QueryCachingScope;
-      }
-    }
-
-    public ActivationScope Enter()
-    {
-      var scope = new ActivationScope(endpoint.Provider);
-      endpoint.Provider.QueryCachingScope = this;
-      return scope;
-    }
-
     // Constructors
 
-    public QueryCachingScope(QueryEndpoint endpoint, Parameter queryParameter,
+    public QueryCachingScope(Parameter queryParameter,
       ExtendedExpressionReplacer queryParameterReplacer, ParameterContext parameterContext = null, bool execute = true)
     {
-      this.endpoint = endpoint;
       ParameterContext = parameterContext;
       QueryParameter = queryParameter;
       QueryParameterReplacer = queryParameterReplacer;

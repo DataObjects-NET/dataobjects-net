@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Xtensive LLC.
+﻿// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -115,8 +115,7 @@ namespace Xtensive.Orm.Internals
 
       var parameterContext = new ParameterContext(outerContext);
       parameterContext.SetValue(queryParameter, queryTarget);
-      var scope = new QueryCachingScope(
-        endpoint, queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
+      var scope = new QueryCachingScope(queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
       using (scope.Enter()) {
         result = query.Invoke(endpoint);
       }
@@ -139,7 +138,7 @@ namespace Xtensive.Orm.Internals
       }
 
       AllocateParameterAndReplacer();
-      var scope = new QueryCachingScope(endpoint, queryParameter, queryParameterReplacer);
+      var scope = new QueryCachingScope(queryParameter, queryParameterReplacer);
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
         var translatedQuery = endpoint.Provider.Translate<IEnumerable<TElement>>(result.Expression);

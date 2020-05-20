@@ -3424,4 +3424,7 @@ Error: {1}</value>
   <data name="ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete" xml:space="preserve">
     <value>Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited asyncronous queries before persisting any changes.</value>
   </data>
+  <data name="ExXNestingIsNotSupported" xml:space="preserve">
+    <value>{0} nesting is not supported.</value>
+  </data>
 </root>
