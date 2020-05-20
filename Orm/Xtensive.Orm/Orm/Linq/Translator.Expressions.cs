@@ -471,7 +471,7 @@ namespace Xtensive.Orm.Linq
         }
       }
       else {
-        var parameter = ParameterExtractor.ExtractParameter<string>(searchCriteria);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<string>(searchCriteria);
         compiledParameter = parameter.CachingCompile();
       }
 
@@ -484,7 +484,7 @@ namespace Xtensive.Orm.Linq
 
       FreeTextProvider dataSource;
       if (expressions.Count > 1) {
-        var topNParameter = ParameterExtractor.ExtractParameter<int>(expressions[1]).CachingCompile();
+        var topNParameter = ParameterAccessorFactory.CreateAccessorExpression<int>(expressions[1]).CachingCompile();
         dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, topNParameter, fullFeatured);
       }
       else 
@@ -550,7 +550,7 @@ namespace Xtensive.Orm.Linq
 
       ContainsTableProvider dataSource;
       if (topNByRank!=null) {
-        var topNParameter = ParameterExtractor.ExtractParameter<int>(parameters[1]).CachingCompile();
+        var topNParameter = ParameterAccessorFactory.CreateAccessorExpression<int>(parameters[1]).CachingCompile();
         dataSource = new ContainsTableProvider(fullTextIndex, compiledParameter, rankColumnAlias, searchableColumns, topNParameter, fullFeatured);
       }
       else

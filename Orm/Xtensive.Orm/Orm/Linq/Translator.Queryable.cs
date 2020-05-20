@@ -459,7 +459,7 @@ namespace Xtensive.Orm.Linq
             throw new ArgumentOutOfRangeException("index", index, Strings.ExElementAtIndexMustBeGreaterOrEqualToZero);
         }
         else {
-          var parameter = ParameterExtractor.ExtractParameter<int>(index);
+          var parameter = ParameterAccessorFactory.CreateAccessorExpression<int>(index);
           compiledParameter = parameter.CachingCompile();
           rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(1);
         }
@@ -517,7 +517,7 @@ namespace Xtensive.Orm.Linq
         }
       }
       else {
-        var parameter = ParameterExtractor.ExtractParameter<int>(take);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<int>(take);
         compiledParameter = parameter.CachingCompile();
       }
       var rs = projection.ItemProjector.DataSource.Take(compiledParameter);
@@ -550,7 +550,7 @@ namespace Xtensive.Orm.Linq
         }
       }
       else {
-        var parameter = ParameterExtractor.ExtractParameter<int>(skip);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<int>(skip);
         compiledParameter = parameter.CachingCompile();
       }
       var rs = projection.ItemProjector.DataSource.Skip(compiledParameter);

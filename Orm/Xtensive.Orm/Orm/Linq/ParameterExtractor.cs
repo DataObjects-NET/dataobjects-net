@@ -37,39 +37,6 @@ namespace Xtensive.Orm.Linq
       return isParameter;
     }
 
-    private static readonly MethodInfo GetParameterValueMethod =
-      typeof(ParameterContext).GetMethod(nameof(ParameterContext.GetValue));
-
-    /// <summary>
-    /// Extracts the parameter.
-    /// </summary>
-    /// <param name="expression">The expression.</param>
-    public static Expression<Func<ParameterContext, T>> ExtractParameter<T>(Expression expression)
-    {
-      var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
-      if (expression.NodeType==ExpressionType.Lambda) {
-        var parameterLambda = (Expression<Func<T>>) expression;
-        return FastExpression.Lambda<Func<ParameterContext, T>>(parameterLambda.Body, contextParameter);
-      }
-      if (expression.NodeType==ExpressionType.MemberAccess) {
-        var memberExpression = (MemberExpression) expression;
-        var memberOwner = memberExpression.Expression;
-        if (typeof(Parameter).IsAssignableFrom(memberOwner.Type) && memberExpression.Member.Name == nameof(Parameter.Value)) {
-          var body = Expression.Call(contextParameter, GetParameterValueMethod.MakeGenericMethod(typeof(T)),
-            memberOwner);
-          return FastExpression.Lambda<Func<ParameterContext, T>>(body, contextParameter);
-        }
-      }
-
-      var type = expression.Type;
-      if (type.IsValueType) {
-        expression = Expression.Convert(expression, typeof (T));
-      }
-
-      var lambda = FastExpression.Lambda<Func<ParameterContext, T>>(expression, contextParameter);
-      return lambda;
-    }
-
     /// <inheritdoc/>
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
@@ -78,10 +45,7 @@ namespace Xtensive.Orm.Linq
     }
 
     /// <inheritdoc/>
-    protected override Expression VisitUnknown(Expression e)
-    {
-      return e;
-    }
+    protected override Expression VisitUnknown(Expression e) => e;
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
