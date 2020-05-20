@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Linq
 
       protected override Expression VisitMemberAccess(MemberExpression ma)
       {
-        if (string.Equals(nameof(Parameter.Value), ma.Member.Name, StringComparison.Ordinal)
+        if (string.Equals(nameof(Parameter<T>.Value), ma.Member.Name, StringComparison.Ordinal)
           && typeof(Parameter).IsAssignableFrom(ma.Expression.Type)) {
           var parameterType = ma.Expression.Type;
           var parameterValueType = parameterType.IsGenericType

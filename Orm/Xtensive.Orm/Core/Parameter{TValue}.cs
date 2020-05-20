@@ -1,12 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.08.14
 
 using System;
 using System.Diagnostics;
-
 
 namespace Xtensive.Core
 {
@@ -17,45 +16,22 @@ namespace Xtensive.Core
   public sealed class Parameter<TValue> : Parameter
   {
     /// <summary>
-    /// Gets or sets the parameter value.
+    /// Always fails.
+    /// This property serves as a stub to build expression trees.
+    /// Use <see cref="ParameterContext.GetValue{TValue}"/> method instead.
     /// </summary>
-    /// <exception cref="InvalidOperationException"><see cref="ParameterContext"/> is not activated.</exception>
-    /// <exception cref="InvalidOperationException">Value for the parameter is not set.</exception>
-    public new TValue Value {
+    /// <exception cref="NotSupportedException"></exception>
+    public TValue Value {
       [DebuggerStepThrough]
-      get {
-        return (TValue) base.Value;
-      }
+      get => throw new NotSupportedException();
     }
 
     // Constructors
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public Parameter()
-      : this(string.Empty)
-    {
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
     public Parameter(string name)
-      : this(name, default)
-    {}
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="expectedValue">The expected value of this parameter.</param>
-    [DebuggerStepThrough]
-    public Parameter(TValue expectedValue)
-      : this(string.Empty, expectedValue)
-    {}
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public Parameter(string name, TValue expectedValue)
-      : base(name, expectedValue)
-    {}
+      : base(name)
+    { }
   }
 }

@@ -421,7 +421,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
-              var pKey = new Parameter<Tuple>();
+              var pKey = new Parameter<Tuple>("pKey");
               var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(context => context.GetValue(pKey));
               var parameterContext = new ParameterContext();
               parameterContext.SetValue(pKey, Tuple.Create((long) (i%instanceCount)));
@@ -442,7 +442,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       using (session.Activate())
       using (var ts = session.OpenTransaction()) {
         TestHelper.CollectGarbage();
-        var pKey = new Parameter<Tuple>();
+        var pKey = new Parameter<Tuple>("pKey");
         var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(context => context.GetValue(pKey));
         var parameterContext = new ParameterContext();
         using (warmup ? null : new Measurement("Cached RSE query", count)) {

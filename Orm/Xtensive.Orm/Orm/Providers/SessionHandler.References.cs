@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Providers
     private static Pair<CompilableProvider, Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
     {
       var provider = (CompilableProvider)null;
-      var parameter = new Parameter<Tuple>();
+      var parameter = new Parameter<Tuple>("pTuple");
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
         case Multiplicity.ManyToOne: {
