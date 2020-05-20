@@ -425,7 +425,8 @@ namespace Xtensive.Orm.Linq.Materialization
         if ((ExtendedExpressionType) m.Expression.NodeType==ExtendedExpressionType.LocalCollection) {
           return Visit((Expression) ((LocalCollectionExpression) m.Expression).Fields[m.Member]);
         }
-        if (string.Equals(nameof(Parameter.Value), m.Member.Name, StringComparison.Ordinal)
+        if (itemMaterializationContextParameter!=null
+          && string.Equals(nameof(Parameter.Value), m.Member.Name, StringComparison.Ordinal)
           && typeof(Parameter).IsAssignableFrom(m.Expression.Type)) {
           var parameterType = m.Expression.Type;
           var parameterValueType = parameterType.IsGenericType
