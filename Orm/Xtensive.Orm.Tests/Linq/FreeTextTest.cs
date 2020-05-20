@@ -260,7 +260,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
 
       /*[23.07.2010 13:56:17] Alexander Ustinov:         (from ftx in (
-                            from ft in Session.Query.FreeText<Data.Common.FullTextRecord>(() => "ìåãàïîëèñ òşìåíü öåíòğàëüíûé ãîğüêîãî êîğï")
+                            from ft in Session.Query.FreeText<Data.Common.FullTextRecord>(() => "Ğ¼ĞµĞ³Ğ°Ğ¿Ğ¾Ğ»Ğ¸Ñ Ñ‚ÑĞ¼ĞµĞ½ÑŒ Ñ†ĞµĞ½Ñ‚Ñ€Ğ°Ğ»ÑŒĞ½Ñ‹Ğ¹ Ğ³Ğ¾Ñ€ÑŒĞºĞ¾Ğ³Ğ¾ ĞºĞ¾Ñ€Ğ¿")
                             where ft.Entity.ObjectType==typeof (Data.Rng.Customer).FullName
                             select new {ft.Rank, ft.Entity}
                           )
@@ -477,11 +477,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void FreeTextTopNByRankOnFullTextStructureField()
     {
-      var keywords = "Rotenturmstraße Innere Stadt Woodstock Boulevard";
+      var keywords = "RotenturmstraÃŸe Innere Stadt Woodstock Boulevard";
       var result = Query.FreeText<Customer>(keywords, 2).ToList();
       var closestMatch = result.First().Entity;
       Assert.AreEqual(2, result.Count);
-      Assert.IsTrue(closestMatch.Address.StreetAddress=="Rotenturmstraße 4, 1010 Innere Stadt");
+      Assert.IsTrue(closestMatch.Address.StreetAddress=="RotenturmstraÃŸe 4, 1010 Innere Stadt");
     }
 
     [Test]
