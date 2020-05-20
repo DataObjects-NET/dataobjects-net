@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Linq
       if (fullTextIndex==null)
         throw new InvalidOperationException(String.Format(Strings.ExEntityDoesNotHaveFullTextIndex, elementType.FullName));
       var searchCriteria = expressions[0];
-      if (queryCachingScope!=null
+      if (compiledQueryScope!=null
           && searchCriteria.NodeType==ExpressionType.Constant
           && searchCriteria.Type==typeof (string))
         throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
@@ -456,7 +456,7 @@ namespace Xtensive.Orm.Linq
       if (searchCriteria.NodeType==ExpressionType.Quote)
         searchCriteria = searchCriteria.StripQuotes();
       if (searchCriteria.Type==typeof (Func<string>)) {
-        if (queryCachingScope==null) {
+        if (compiledQueryScope==null) {
           var parameterContextParam = Expression.Parameter(typeof(ParameterContext), "context");
           var originalSearchCriteria = (Expression<Func<string>>) searchCriteria;
           var body = originalSearchCriteria.Body;
@@ -464,7 +464,7 @@ namespace Xtensive.Orm.Linq
           compiledParameter = searchCriteriaLambda.CachingCompile();
         }
         else {
-          var replacer = queryCachingScope.QueryParameterReplacer;
+          var replacer = compiledQueryScope.QueryParameterReplacer;
           var newSearchCriteria = (Expression<Func<string>>) replacer.Replace(searchCriteria);
           var searchCriteriaAccessor = ParameterAccessorFactory.CreateAccessorExpression<string>(newSearchCriteria.Body);
           compiledParameter = searchCriteriaAccessor.CachingCompile();
@@ -530,11 +530,11 @@ namespace Xtensive.Orm.Linq
       var preparedSearchCriteria = FastExpression.Lambda<Func<ParameterContext, string>>(
         Expression.Constant(conditionCompiler.CurrentOutput), parameterContextParam);
 
-      if (queryCachingScope==null) {
+      if (compiledQueryScope==null) {
         compiledParameter = preparedSearchCriteria.CachingCompile();
       }
       else {
-        var replacer = queryCachingScope.QueryParameterReplacer;
+        var replacer = compiledQueryScope.QueryParameterReplacer;
         var newSearchCriteria = replacer.Replace(preparedSearchCriteria);
         compiledParameter = ((Expression<Func<ParameterContext, string>>) newSearchCriteria).CachingCompile();
       }

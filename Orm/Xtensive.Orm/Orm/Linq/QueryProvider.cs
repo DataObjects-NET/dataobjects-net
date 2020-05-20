@@ -79,13 +79,13 @@ namespace Xtensive.Orm.Linq
       expression = session.Events.NotifyQueryExecuting(expression);
       var query = Translate<TResult>(expression);
       TResult result;
-      var queryScope = QueryCachingScope.Current;
-      if (queryScope != null && !queryScope.Execute) {
+      var compiledQueryScope = CompiledQueryProcessingScope.Current;
+      if (compiledQueryScope != null && !compiledQueryScope.Execute) {
         result = default;
       }
       else {
         try {
-          result = query.Execute(session, queryScope?.ParameterContext ?? new ParameterContext());
+          result = query.Execute(session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
         }
         catch (Exception exception) {
           session.Events.NotifyQueryExecuted(expression, exception);
@@ -131,8 +131,8 @@ namespace Xtensive.Orm.Linq
       CompilerConfiguration compilerConfiguration, bool isAsync = false)
     {
       try {
-        var queryScope = QueryCachingScope.Current;
-        var context = new TranslatorContext(session, compilerConfiguration, expression, queryScope, isAsync);
+        var compiledQueryScope = CompiledQueryProcessingScope.Current;
+        var context = new TranslatorContext(session, compilerConfiguration, expression, compiledQueryScope, isAsync);
         return context.Translator.Translate<TResult>();
       }
       catch (Exception ex) {

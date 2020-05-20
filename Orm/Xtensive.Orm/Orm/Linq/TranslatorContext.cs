@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
-      QueryCachingScope queryCachingScope,
+      CompiledQueryProcessingScope compiledQueryScope,
       bool isAsync)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Linq
 
       // Built-in preprocessors
       query = AggregateOptimizer.Rewrite(query);
-      query = ClosureAccessRewriter.Rewrite(query, queryCachingScope);
+      query = ClosureAccessRewriter.Rewrite(query, compiledQueryScope);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);
       query = SubqueryDefaultResultRewriter.Rewrite(query);
@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Linq
       Model = Domain.Model;
       TypeIdRegistry = session.StorageNode.TypeIdRegistry;
       ProviderInfo = Domain.Handlers.ProviderInfo;
-      Translator = new Translator(this, queryCachingScope);
+      Translator = new Translator(this, compiledQueryScope);
       ParameterExtractor = new ParameterExtractor(Evaluator);
       Bindings = new LinqBindingCollection();
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();

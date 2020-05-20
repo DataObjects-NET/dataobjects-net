@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    private readonly QueryCachingScope queryCachingScope;
+    private readonly CompiledQueryProcessingScope compiledQueryScope;
     public static readonly MethodInfo TranslateMethod;
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
 
@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Linq
       var optimized = Optimize(result);
 
       // Prepare cached query, if required
-      var prepared = queryCachingScope!=null
-        ? PrepareCachedQuery(optimized, queryCachingScope)
+      var prepared = compiledQueryScope!=null
+        ? PrepareCachedQuery(optimized, compiledQueryScope)
         : optimized;
 
       // Compilation
@@ -58,11 +58,11 @@ namespace Xtensive.Orm.Linq
       var translatedQuery = new TranslatedQuery<TResult>(compiled, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
-      if (queryCachingScope != null && translatedQuery.TupleParameters.Count == 0) {
+      if (compiledQueryScope != null && translatedQuery.TupleParameters.Count == 0) {
         var parameterizedQuery = new ParameterizedQuery<TResult>(
           translatedQuery,
-          queryCachingScope.QueryParameter);
-        queryCachingScope.ParameterizedQuery = parameterizedQuery;
+          compiledQueryScope.QueryParameter);
+        compiledQueryScope.ParameterizedQuery = parameterizedQuery;
         return parameterizedQuery;
       }
 
@@ -92,10 +92,11 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private static ProjectionExpression PrepareCachedQuery(ProjectionExpression origin, QueryCachingScope cachingScope)
+    private static ProjectionExpression PrepareCachedQuery(
+      ProjectionExpression origin, CompiledQueryProcessingScope compiledQueryScope)
     {
-      if (cachingScope.QueryParameter!=null) {
-        var result = cachingScope.QueryParameterReplacer.Replace(origin);
+      if (compiledQueryScope.QueryParameter!=null) {
+        var result = compiledQueryScope.QueryParameterReplacer.Replace(origin);
         return (ProjectionExpression) result;
       }
       return origin;
@@ -209,9 +210,9 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    internal Translator(TranslatorContext context, QueryCachingScope queryCachingScope)
+    internal Translator(TranslatorContext context, CompiledQueryProcessingScope compiledQueryScope)
     {
-      this.queryCachingScope = queryCachingScope;
+      this.compiledQueryScope = compiledQueryScope;
       this.context = context;
       state = new TranslatorState(this);
     }

@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal class ClosureAccessRewriter : ExpressionVisitor
   {
-    private readonly QueryCachingScope queryCachingScope;
+    private readonly CompiledQueryProcessingScope compiledQueryScope;
 
     protected override Expression VisitUnknown(Expression e)
     {
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         && memberExpression.Member.MemberType==MemberTypes.Field) {
         var fieldInfo = (FieldInfo) memberExpression.Member;
         if (!fieldInfo.FieldType.IsOfGenericType(typeof (EntitySet<>))) {
-          if (queryCachingScope!=null)
+          if (compiledQueryScope!=null)
             throw new InvalidOperationException(String.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
           var queryable = (IQueryable) fieldInfo.GetValue(constantValue);
@@ -45,16 +45,16 @@ namespace Xtensive.Orm.Linq.Rewriters
       return base.VisitMemberAccess(memberExpression);
     }
 
-    public static Expression Rewrite(Expression e, QueryCachingScope queryCachingScope)
+    public static Expression Rewrite(Expression e, CompiledQueryProcessingScope compiledQueryScope)
     {
-      return new ClosureAccessRewriter(queryCachingScope).Visit(e);
+      return new ClosureAccessRewriter(compiledQueryScope).Visit(e);
     }
 
     // Constructors
 
-    private ClosureAccessRewriter(QueryCachingScope queryCachingScope)
+    private ClosureAccessRewriter(CompiledQueryProcessingScope compiledQueryScope)
     {
-      this.queryCachingScope = queryCachingScope;
+      this.compiledQueryScope = compiledQueryScope;
     }
   }
 }

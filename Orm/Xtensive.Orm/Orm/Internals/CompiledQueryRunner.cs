@@ -115,7 +115,8 @@ namespace Xtensive.Orm.Internals
 
       var parameterContext = new ParameterContext(outerContext);
       parameterContext.SetValue(queryParameter, queryTarget);
-      var scope = new QueryCachingScope(queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
+      var scope = new CompiledQueryProcessingScope(
+        queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
       using (scope.Enter()) {
         result = query.Invoke(endpoint);
       }
@@ -138,7 +139,7 @@ namespace Xtensive.Orm.Internals
       }
 
       AllocateParameterAndReplacer();
-      var scope = new QueryCachingScope(queryParameter, queryParameterReplacer);
+      var scope = new CompiledQueryProcessingScope(queryParameter, queryParameterReplacer);
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
         var translatedQuery = endpoint.Provider.Translate<IEnumerable<TElement>>(result.Expression);
