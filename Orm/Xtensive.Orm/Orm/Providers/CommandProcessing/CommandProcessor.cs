@@ -60,6 +60,15 @@ namespace Xtensive.Orm.Providers
       return Task.FromResult(ExecuteTasksWithReader(request, context));
     }
 
+    /// <summary>
+    /// Asynchronously executes all registered requests plus the specified one query.
+    /// Default implementation is synchronous and returns emulated async enumerable of <see cref="Tuple"/>s.
+    /// </summary>
+    /// <param name="request">The request to execute.</param>
+    /// <param name="context">A contextual information to be used while executing
+    /// the specified <paramref name="request"/>.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>A sequence of <see cref="Tuple"/>s that can be enumerated asynchronously.</returns>
     public virtual async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest request,
       CommandProcessorContext context, [EnumeratorCancellation] CancellationToken token)
     {
@@ -68,8 +77,6 @@ namespace Xtensive.Orm.Providers
         token.ThrowIfCancellationRequested();
         yield return enumerator.Current;
       }
-
-      await Task.CompletedTask;
     }
 
     /// <summary>

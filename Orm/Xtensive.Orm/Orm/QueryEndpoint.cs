@@ -501,6 +501,18 @@ namespace Xtensive.Orm
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
     }
 
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance holding explicitly set
+    /// values of query parameters.</param>
+    /// <returns>Query result.</returns>
     public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query, ParameterContext parameterContext)
     {
       return new CompiledQueryRunner(this, key, query.Target, parameterContext).ExecuteCompiled(query);

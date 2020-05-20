@@ -23,11 +23,13 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="session">The session.</param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
     public static RecordSet GetRecordSet(this CompilableProvider provider, Session session, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       var compiled = session.Compile(provider);
       return new RecordSet(session.CreateEnumerationContext(parameterContext), compiled);
     }
@@ -37,25 +39,29 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="provider">Provider to get <see cref="RecordSet"/> for.</param>
     /// <param name="session">Session to bind.</param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
     public static RecordSet GetRecordSet(this ExecutableProvider provider, Session session, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       return new RecordSet(session.CreateEnumerationContext(parameterContext), provider);
     }
 
     /// <summary>
-    /// Asynchrously gets <see cref="RecordSet"/> bound to the specified <paramref name="provider"/>.
+    /// Asynchronously gets <see cref="RecordSet"/> bound to the specified <paramref name="provider"/>.
     /// </summary>
     /// <param name="provider">Provider to get <see cref="RecordSet"/> for.</param>
     /// <param name="session">Session to bind.</param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing this operation.</returns>
     public static async Task<RecordSet> GetRecordSetForAsyncQuery(this ExecutableProvider provider, Session session, ParameterContext parameterContext, CancellationToken token)
     {
-      ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       return new RecordSet(await session.CreateEnumerationContextForAsyncQuery(parameterContext, token).ConfigureAwait(false), provider);
     }
 
@@ -66,6 +72,8 @@ namespace Xtensive.Orm.Rse
     /// <param name="session">The session.</param>
     public static long Count(this CompilableProvider provider, Session session)
     {
+      ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       return provider
         .Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count))
         .GetRecordSet(session, new ParameterContext())

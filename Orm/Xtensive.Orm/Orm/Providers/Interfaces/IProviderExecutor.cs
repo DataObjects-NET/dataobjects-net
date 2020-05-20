@@ -21,7 +21,8 @@ namespace Xtensive.Orm.Providers
     /// Executes the specified request.
     /// </summary>
     /// <param name="request">The request to execute.</param>
-    /// <param name="parameterContext"></param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     /// <returns><see cref="IEnumerator{Tuple}"/> that contains result of execution.</returns>
     IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request, ParameterContext parameterContext);
 
@@ -29,7 +30,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified request.
     /// </summary>
     /// <param name="request">The request to execute.</param>
-    /// <param name="parameterContext"></param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing the operation.</returns>
     Task<IEnumerator<Tuple>> ExecuteTupleReaderAsync(QueryRequest request,
@@ -39,7 +41,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified request.
     /// </summary>
     /// <param name="request">The request to execute.</param>
-    /// <param name="parameterContext"></param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing the operation.</returns>
     IAsyncEnumerable<Tuple> ExecuteAsyncTupleReaderAsync(QueryRequest request,
@@ -50,14 +53,16 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="descriptor">Persist descriptor.</param>
     /// <param name="tuples">The tuples to store.</param>
-    /// <param name="parameterContext"></param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples, ParameterContext parameterContext);
 
     /// <summary>
     /// Clears the specified table.
     /// </summary>
     /// <param name="descriptor">Persist descriptor.</param>
-    /// <param name="parameterContext"></param>
+    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
+    /// the values of query parameters.</param>
     void Clear(IPersistDescriptor descriptor, ParameterContext parameterContext);
 
     /// <summary>

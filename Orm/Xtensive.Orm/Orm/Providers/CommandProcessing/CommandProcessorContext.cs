@@ -15,6 +15,9 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class CommandProcessorContext : IDisposable
   {
+    /// <summary>
+    /// <see cref="ParameterContext"/> instance with the values of parameters of currently executing query.
+    /// </summary>
     public ParameterContext ParameterContext { get; }
 
     /// <summary>

@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse.Providers
   /// Abstract base class for any query provider that can be directly executed.
   /// </summary>
   [Serializable]
-  public abstract class ExecutableProvider : Provider//, IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
+  public abstract class ExecutableProvider : Provider
   {
     /// <summary>
     /// Gets the provider this provider is compiled from.

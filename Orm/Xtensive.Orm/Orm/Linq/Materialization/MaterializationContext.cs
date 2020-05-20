@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Linq.Materialization
     }
 
     #endregion
-    
+
     private readonly EntityMappingCache[] entityMappings;
 
     /// <summary>
@@ -43,6 +43,10 @@ namespace Xtensive.Orm.Linq.Materialization
     /// </summary>
     public int EntitiesInRow { get; private set; }
 
+    /// <summary>
+    /// Indicates whether materialization happens via an async enumeration.
+    /// See <see cref="IAsyncEnumerable{T}"/> for the reference.
+    /// </summary>
     public bool IsAsync { get; }
 
     /// <summary>
