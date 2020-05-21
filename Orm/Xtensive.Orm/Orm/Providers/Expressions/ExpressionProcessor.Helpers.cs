@@ -258,26 +258,48 @@ namespace Xtensive.Orm.Providers
     private static QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
       Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
+      Expression operand;
       var expression = accessor.Body;
     
       // Strip cast to object
-      if (expression.NodeType==ExpressionType.Convert)
+      if (expression.NodeType==ExpressionType.Convert) {
         expression = ((UnaryExpression) expression).Operand;
+      }
 
       // Check for closure member access
-      if (expression.NodeType!=ExpressionType.MemberAccess)
+      if (expression.NodeType!=ExpressionType.MemberAccess) {
         return null;
+      }
 
       var memberAccess = (MemberExpression) expression;
-      var operand = memberAccess.Expression;
-      if (operand==null || !operand.Type.IsClosure())
+      operand = memberAccess.Expression;
+      if (operand==null || !operand.Type.IsClosure()) {
         return null;
+      }
+
       var fieldName = memberAccess.Member.Name;
 
       // Check for raw closure
       if (operand.NodeType==ExpressionType.Constant) {
         var closureObject = ((ConstantExpression) operand).Value;
         return new QueryParameterIdentity(mapping, closureObject, fieldName, bindingType);
+      }
+
+      // Check for parameterized closure
+      if (operand.NodeType==ExpressionType.Call) {
+        var callExpression = (MethodCallExpression) operand;
+        if (string.Equals(callExpression.Method.Name, nameof(ParameterContext.GetValue), StringComparison.Ordinal)) {
+          operand = callExpression.Object;
+          if (operand!=null && typeof(ParameterContext) == operand.Type) {
+            operand = callExpression.Arguments[0];
+          }
+        }
+
+        var isParameter = operand != null && operand.NodeType == ExpressionType.Constant;
+        if (isParameter) {
+          var parameterObject = ((ConstantExpression) operand).Value;
+          return new QueryParameterIdentity(mapping, parameterObject, fieldName, bindingType);
+        }
       }
 
       return null;
