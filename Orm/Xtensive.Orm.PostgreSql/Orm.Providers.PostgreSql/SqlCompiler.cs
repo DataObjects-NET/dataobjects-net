@@ -24,22 +24,31 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var binding = new QueryParameterBinding(stringTypeMapping,
         provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
-      SqlSelect select = SqlDml.Select();
+      var select = SqlDml.Select();
       var realPrimaryIndex = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var index = realPrimaryIndex.ReflectedType.Indexes.PrimaryIndex;
       var query = BuildProviderQuery(index);
       var table = Mapping[realPrimaryIndex.ReflectedType];
-      var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference, table.Columns.Select(column => column.Name).AddOne(rankColumnName).ToList());
+      var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference,
+        table.Columns.Select(column => column.Name).AddOne(rankColumnName).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
-      foreach (var column in query.Columns)
+      foreach (var column in query.Columns) {
         select.Columns.Add(fromTableRef.Columns[column.Name] ?? column);
+      }
+
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[rankColumnName], SqlType.Double), rankColumnName);
       select.From = fromTableRef;
-      if (provider.TopN!=null) {
-        select.Limit = provider.TopN.Invoke(null);
-        select.OrderBy.Add(select.Columns[rankColumnName], false);  
+      if (provider.TopN == null) {
+        return CreateProvider(select, binding, provider);
       }
-      return CreateProvider(select, binding, provider);
+
+      var intTypeMapping = Driver.GetTypeMapping(typeof(int));
+      var topNBinding = new QueryParameterBinding(
+        intTypeMapping, context => provider.TopN.Invoke(context), QueryParameterBindingType.Regular);
+      select.Limit = topNBinding.ParameterReference;
+      select.OrderBy.Add(select.Columns[rankColumnName], false);
+      return CreateProvider(select, new[] {binding, topNBinding}, provider);
+
     }
 
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
