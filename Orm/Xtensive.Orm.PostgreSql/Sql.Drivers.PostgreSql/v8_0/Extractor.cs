@@ -993,7 +993,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return result;
     }
 
-    private int[] ReadIntArray(object value)
+    protected int[] ReadIntArray(object value)
     {
       var shortArray = value as short[];
       if (shortArray!=null) {
