@@ -528,7 +528,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
     }
@@ -544,7 +544,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
     }
@@ -559,7 +559,7 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
     }
@@ -575,7 +575,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
     }
@@ -590,7 +590,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
     }
@@ -606,7 +606,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
     {
       return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
     }
@@ -621,7 +621,7 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
     }
@@ -637,7 +637,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    public Task<IEnumerable<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
+    public QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
     }
