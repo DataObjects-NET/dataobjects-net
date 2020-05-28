@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -24,9 +24,9 @@ namespace Xtensive.Orm.BulkOperations
 
     private static MethodInfo GetInMethod()
     {
-      foreach (var method in typeof (QueryableExtensions).GetMethods().Where(a=>a.Name == "In")) {
+      foreach (var method in typeof (QueryableExtensions).GetMethods().Where(a => string.Equals(a.Name, "In", StringComparison.Ordinal))) {
         var parameters = method.GetParameters();
-        if (parameters.Length == 3 && parameters[2].ParameterType.Name == "IEnumerable`1")
+        if (parameters.Length == 3 && string.Equals(parameters[2].ParameterType.Name, "IEnumerable`1", StringComparison.Ordinal))
           return method;
       }
       return null;
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.BulkOperations
           var methodInfo = ex.Method;
           //rewrite localCollection.Contains(entity.SomeField) -> entity.SomeField.In(localCollection)
           if (methodInfo.DeclaringType == typeof(Enumerable) &&
-              methodInfo.Name == "Contains" &&
+              string.Equals(methodInfo.Name, "Contains", StringComparison.OrdinalIgnoreCase) &&
               ex.Arguments.Count == 2) {
             var localCollection = ex.Arguments[0];//IEnumerable<T>
             var valueToCheck = ex.Arguments[1];
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.BulkOperations
           }
 
           if (methodInfo.DeclaringType == typeof(QueryableExtensions) &&
-              methodInfo.Name == "In" &&
+              string.Equals(methodInfo.Name, "In", StringComparison.Ordinal) &&
               ex.Arguments.Count > 1) {
             if (ex.Arguments[1].Type == typeof(IncludeAlgorithm)) {
               var algorithm = (IncludeAlgorithm) ex.Arguments[1].Invoke();
