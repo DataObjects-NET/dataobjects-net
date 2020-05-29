@@ -39,7 +39,7 @@ namespace Xtensive.Orm.BulkOperations
           var methodInfo = ex.Method;
           //rewrite localCollection.Contains(entity.SomeField) -> entity.SomeField.In(localCollection)
           if (methodInfo.DeclaringType == typeof(Enumerable) &&
-              string.Equals(methodInfo.Name, "Contains", StringComparison.OrdinalIgnoreCase) &&
+              string.Equals(methodInfo.Name, "Contains", StringComparison.Ordinal) &&
               ex.Arguments.Count == 2) {
             var localCollection = ex.Arguments[0];//IEnumerable<T>
             var valueToCheck = ex.Arguments[1];
