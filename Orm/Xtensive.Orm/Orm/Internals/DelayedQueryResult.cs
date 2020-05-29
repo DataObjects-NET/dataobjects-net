@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Internals
   {
     private readonly ParameterContext parameterContext;
     private readonly
-      Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, TResult>
+      Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object>
         materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Internals
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       if (Task.Result==null)
         session.ExecuteUserDefinedDelayedQueries(false);
-      return materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext, false);
+      return (TResult) materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext, false);
     }
 
 
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="session"></param>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    internal DelayedQueryResult(Session session, TranslatedQuery<TResult> translatedQuery, ParameterContext parameterContext)
+    internal DelayedQueryResult(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, "session");
       ArgumentValidator.EnsureArgumentNotNull(translatedQuery, "translatedQuery");

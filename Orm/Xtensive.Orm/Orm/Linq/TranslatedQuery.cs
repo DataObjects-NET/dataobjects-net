@@ -6,8 +6,10 @@
 
 using System;
 using System.Collections.Generic;
-
-using Xtensive.Tuples;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Rse;
@@ -17,7 +19,7 @@ namespace Xtensive.Orm.Linq
   /// <summary>
   /// Abstract base class describing LINQ query translation result.
   /// </summary>
-  internal abstract class TranslatedQuery
+  internal class TranslatedQuery
   {
     /// <summary>
     /// The <see cref="ExecutableProvider"/> acting as source for further materialization.
@@ -25,20 +27,87 @@ namespace Xtensive.Orm.Linq
     public readonly ExecutableProvider DataSource;
 
     /// <summary>
+    /// Materializer.
+    /// </summary>
+    public readonly Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object> Materializer;
+
+    /// <summary>
+    /// Gets the tuple parameter bindings.
+    /// </summary>
+    public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
+
+    /// <summary>
+    /// Gets the tuple parameters.
+    /// </summary>
+    public List<Parameter<Tuple>> TupleParameters { get; private set; }
+
+    /// <summary>
     /// Gets the untyped materializer.
     /// </summary>
-    public abstract Delegate UntypedMaterializer { get; }
+    public Delegate UntypedMaterializer => Materializer;
+
+    /// <summary>
+    /// Executes the query in specified parameter context.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="parameterContext">The parameter context.</param>
+    /// <returns>Query execution result.</returns>
+    public TResult Execute<TResult>(Session session, ParameterContext parameterContext)
+    {
+      var recordSet = DataSource.GetRecordSet(session, parameterContext);
+      return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext, false);
+    }
+
+    /// <summary>
+    /// Asynchronously executes the query in specified parameter context.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="parameterContext">The parameter context.</param>
+    /// <param name="isAsyncEnumeration">Indicates if execution result is going to be enumerated asynchronously.</param>
+    /// <param name="token">The token to cancel this operation</param>
+    /// <returns><see cref="Task{TResult}"/> performing this operation.</returns>
+    public async Task<TResult> ExecuteAsync<TResult>(
+      Session session, ParameterContext parameterContext, bool isAsyncEnumeration, CancellationToken token)
+    {
+      var recordSet = await DataSource.GetRecordSetForAsyncQuery(session, parameterContext, token).ConfigureAwait(false);
+      if (isAsyncEnumeration) {
+        return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext, true);
+      }
+
+      var enumerable = (await recordSet.GetEnumeratorAsync(token).ConfigureAwait(false)).ToEnumerable();
+      enumerable.GetEnumerator().Dispose();
+      return (TResult) Materializer(enumerable, session, TupleParameterBindings, parameterContext, false);
+    }
 
 
     // Constructors
 
     /// <summary>
+    ///	Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="dataSource">The data source.</param>
+    /// <param name="materializer">The materializer.</param>
+    public TranslatedQuery(ExecutableProvider dataSource,
+      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object> materializer)
+      : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
+    {
+    }
+
+    /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="dataSource">The <see cref="DataSource"/> property value.</param>
-    protected TranslatedQuery(ExecutableProvider dataSource)
+    /// <param name="dataSource">The data source.</param>
+    /// <param name="materializer">The materializer.</param>
+    /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
+    /// <param name="tupleParameters">The tuple parameters.</param>
+   public TranslatedQuery(ExecutableProvider dataSource,
+      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object> materializer,
+        Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;
+      Materializer = materializer;
+      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
+      TupleParameters = tupleParameters.ToList();
     }
   }
 }

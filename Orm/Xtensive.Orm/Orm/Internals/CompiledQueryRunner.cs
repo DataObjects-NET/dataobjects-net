@@ -32,20 +32,20 @@ namespace Xtensive.Orm.Internals
     public IEnumerable<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
-      return parameterizedQuery.Execute(session, CreateParameterContext(parameterizedQuery));
+      return parameterizedQuery.Execute<IEnumerable<TElement>>(session, CreateParameterContext(parameterizedQuery));
     }
 
     public IEnumerable<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
-      return parameterizedQuery.Execute(session, CreateParameterContext(parameterizedQuery));
+      return parameterizedQuery.Execute<IEnumerable<TElement>>(session, CreateParameterContext(parameterizedQuery));
     }
 
     public TResult ExecuteCompiled<TResult>(Func<QueryEndpoint, TResult> query)
     {
-      var parameterizedQuery = GetCachedQuery<TResult>();
+      var parameterizedQuery = GetCachedQuery();
       if (parameterizedQuery!=null) {
-        return parameterizedQuery.Execute(session, CreateParameterContext(parameterizedQuery));
+        return parameterizedQuery.Execute<TResult>(session, CreateParameterContext(parameterizedQuery));
       }
 
       GetScalarQuery(query, true, out var result);
@@ -66,21 +66,22 @@ namespace Xtensive.Orm.Internals
       token.ThrowIfCancellationRequested();
       var parameterizedQuery = GetSequenceQuery(query);
       token.ThrowIfCancellationRequested();
-      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), false, token);
+      return parameterizedQuery.ExecuteAsync<IEnumerable<TElement>>(
+        session, CreateParameterContext(parameterizedQuery), false, token);
     }
 
 
     public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
     {
-      var parameterizedQuery = GetCachedQuery<TResult>();
+      var parameterizedQuery = GetCachedQuery();
       if (parameterizedQuery!=null) {
         token.ThrowIfCancellationRequested();
-        return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), false, token);
+        return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), false, token);
       }
 
       parameterizedQuery = GetScalarQuery(query, false, out _);
       token.ThrowIfCancellationRequested();
-      return parameterizedQuery.ExecuteAsync(session, CreateParameterContext(parameterizedQuery), false, token);
+      return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), false, token);
     }
 
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
@@ -94,7 +95,7 @@ namespace Xtensive.Orm.Internals
 
     public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint, TResult> query)
     {
-      var parameterizedQuery = GetCachedQuery<TResult>() ?? GetScalarQuery(query, false, out _);
+      var parameterizedQuery = GetCachedQuery() ?? GetScalarQuery(query, false, out _);
       var parameterContext = CreateParameterContext(parameterizedQuery);
       var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
       session.RegisterUserDefinedDelayedQuery(result.Task);
@@ -110,7 +111,7 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
-    private ParameterizedQuery<TResult> GetScalarQuery<TResult>(
+    private ParameterizedQuery GetScalarQuery<TResult>(
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
       AllocateParameterAndReplacer();
@@ -123,7 +124,7 @@ namespace Xtensive.Orm.Internals
         result = query.Invoke(endpoint);
       }
 
-      var parameterizedQuery = (ParameterizedQuery<TResult>) scope.ParameterizedQuery;
+      var parameterizedQuery = (ParameterizedQuery) scope.ParameterizedQuery;
       if (parameterizedQuery==null && queryTarget!=null) {
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
@@ -132,10 +133,10 @@ namespace Xtensive.Orm.Internals
       return parameterizedQuery;
     }
 
-    private ParameterizedQuery<IEnumerable<TElement>> GetSequenceQuery<TElement>(
+    private ParameterizedQuery GetSequenceQuery<TElement>(
       Func<QueryEndpoint, IQueryable<TElement>> query)
     {
-      var parameterizedQuery = GetCachedQuery<IEnumerable<TElement>>();
+      var parameterizedQuery = GetCachedQuery();
       if (parameterizedQuery!=null) {
         return parameterizedQuery;
       }
@@ -144,8 +145,8 @@ namespace Xtensive.Orm.Internals
       var scope = new CompiledQueryProcessingScope(queryParameter, queryParameterReplacer);
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
-        var translatedQuery = endpoint.Provider.Translate<IEnumerable<TElement>>(result.Expression);
-        parameterizedQuery = (ParameterizedQuery<IEnumerable<TElement>>) translatedQuery;
+        var translatedQuery = endpoint.Provider.Translate(result.Expression);
+        parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
       PutCachedQuery(parameterizedQuery);
@@ -202,17 +203,17 @@ namespace Xtensive.Orm.Internals
       });
     }
 
-    private ParameterizedQuery<TResult> GetCachedQuery<TResult>()
+    private ParameterizedQuery GetCachedQuery()
     {
       var cache = domain.QueryCache;
       lock (cache) {
         return cache.TryGetItem(queryKey, true, out var item)
-          ? (ParameterizedQuery<TResult>) item.Second
+          ? (ParameterizedQuery) item.Second
           : null;
       }
     }
 
-    private void PutCachedQuery<TResult>(ParameterizedQuery<TResult> parameterizedQuery)
+    private void PutCachedQuery(ParameterizedQuery parameterizedQuery)
     {
       var cache = domain.QueryCache;
       lock (cache) {
@@ -222,7 +223,7 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    private ParameterContext CreateParameterContext<TResult>(ParameterizedQuery<TResult> query)
+    private ParameterContext CreateParameterContext(ParameterizedQuery query)
     {
       var parameterContext = new ParameterContext(outerContext);
       if (query.QueryParameter!=null) {

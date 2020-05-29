@@ -10,11 +10,11 @@ using Xtensive.Core;
 namespace Xtensive.Orm.Linq
 {
   [Serializable]
-  internal sealed class ParameterizedQuery<TResult> : TranslatedQuery<TResult>
+  internal sealed class ParameterizedQuery : TranslatedQuery
   {
     public readonly Parameter QueryParameter;
 
-    public ParameterizedQuery(TranslatedQuery<TResult> translatedQuery, Parameter parameter)
+    public ParameterizedQuery(TranslatedQuery translatedQuery, Parameter parameter)
       : base(translatedQuery.DataSource, translatedQuery.Materializer)
     {
       QueryParameter = parameter;

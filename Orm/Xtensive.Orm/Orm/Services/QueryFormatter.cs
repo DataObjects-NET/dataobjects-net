@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Services
 
     private CommandPart GetCommandPart<T>(IQueryable<T> query)
     {
-      var translatedQuery = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression);
+      var translatedQuery = Session.Query.Provider.Translate(query.Expression);
       var sqlProvider = translatedQuery.DataSource as SqlProvider;
 
       if (sqlProvider==null)

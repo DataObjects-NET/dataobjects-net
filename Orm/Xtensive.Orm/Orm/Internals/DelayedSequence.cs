@@ -16,20 +16,14 @@ namespace Xtensive.Orm.Internals
   internal sealed class DelayedSequence<T> : DelayedQueryResult<IEnumerable<T>>,
     IEnumerable<T>
   {
-    public IEnumerator<T> GetEnumerator()
-    {
-      return Materialize(Session).GetEnumerator();
-    }
+    public IEnumerator<T> GetEnumerator() => Materialize(Session).GetEnumerator();
 
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
 
     // Constructors
 
-    public DelayedSequence(Session session, TranslatedQuery<IEnumerable<T>> translatedQuery, ParameterContext parameterContext) 
+    public DelayedSequence(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
       : base(session, translatedQuery, parameterContext)
     {
     }

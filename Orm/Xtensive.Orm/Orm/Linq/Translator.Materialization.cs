@@ -27,13 +27,13 @@ namespace Xtensive.Orm.Linq
     public static readonly MethodInfo TranslateMethod;
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
 
-    public TranslatedQuery<TResult> Translate<TResult>()
+    public TranslatedQuery Translate()
     {
       var projection = (ProjectionExpression) Visit(context.Query);
-      return Translate<TResult>(projection, Enumerable.Empty<Parameter<Tuple>>());
+      return Translate(projection, Enumerable.Empty<Parameter<Tuple>>());
     }
 
-    private TranslatedQuery<TResult> Translate<TResult>(ProjectionExpression projection,
+    private TranslatedQuery Translate(ProjectionExpression projection,
       IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
@@ -54,12 +54,12 @@ namespace Xtensive.Orm.Linq
       var compiled = context.Domain.Handler.CompilationService.Compile(dataSource, context.RseCompilerConfiguration);
 
       // Build materializer
-      var materializer = BuildMaterializer<TResult>(prepared, tupleParameterBindings);
-      var translatedQuery = new TranslatedQuery<TResult>(compiled, materializer, projection.TupleParameterBindings, tupleParameterBindings);
+      var materializer = BuildMaterializer(prepared, tupleParameterBindings);
+      var translatedQuery = new TranslatedQuery(compiled, materializer, projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
       if (compiledQueryScope != null && translatedQuery.TupleParameters.Count == 0) {
-        var parameterizedQuery = new ParameterizedQuery<TResult>(
+        var parameterizedQuery = new ParameterizedQuery(
           translatedQuery,
           compiledQueryScope.QueryParameter);
         compiledQueryScope.ParameterizedQuery = parameterizedQuery;
@@ -102,8 +102,8 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, TResult>
-      BuildMaterializer<TResult>(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
+    private Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object>
+      BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof (object), "rs");
       var session = Expression.Parameter(typeof (Session), "session");
@@ -142,11 +142,11 @@ namespace Xtensive.Orm.Linq
         body = Expression.Call(enumerableMethod, Expression.Convert(body, materializerResultType));
       }
 
-      var resultType = typeof (TResult);
+      var resultType = typeof (object);
       body = body.Type == resultType ? body : Expression.Convert(body, resultType);
 
       var projectorExpression = FastExpression
-        .Lambda<Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, TResult>>(
+        .Lambda<Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object>>(
           body, rs, session, tupleParameterBindings, parameterContext, isAsync);
       return projectorExpression.CachingCompile();
     }
@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Linq
     {
       TranslateMethod = typeof(Translator).GetMethod(nameof(Translate),
         BindingFlags.NonPublic | BindingFlags.Instance,
-        new[] {"TResult"},
+        Array.Empty<string>(),
         new object[] {typeof(ProjectionExpression), typeof(IEnumerable<Parameter<Tuple>>)});
 
       VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),

@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Services
 
       var configuration = Session.CompilationService.CreateConfiguration(Session);
       configuration.PrepareRequest = false;
-      var translated = queryProvider.Translate<TResult>(query.Expression, configuration);
+      var translated = queryProvider.Translate(query.Expression, configuration);
 
       var sqlProvider = translated.DataSource as SqlProvider;
       if (sqlProvider==null)

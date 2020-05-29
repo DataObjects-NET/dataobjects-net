@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Linq
     {
       this.provider = context.Session.Query.Provider;
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
-      var currentTranslatedQuery = ((TranslatedQuery<IEnumerable<TElement>>) query);
+      var currentTranslatedQuery = query;
 
       var outerParameterContext = context.ParameterContext;
       var parameterContext = new ParameterContext(outerParameterContext);
@@ -94,9 +94,9 @@ namespace Xtensive.Orm.Linq
         projectionExpression.ItemProjector, 
         tupleParameterBindings, 
         projectionExpression.ResultType);
-      var translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(
+      var translatedQuery = new TranslatedQuery(
         query.DataSource,
-        (Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, IEnumerable<TElement>>)
+        (Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object>)
           query.UntypedMaterializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);

@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Linq
     public TResult Execute<TResult>(Expression expression)
     {
       expression = session.Events.NotifyQueryExecuting(expression);
-      var query = Translate<TResult>(expression);
+      var query = Translate(expression);
       TResult result;
       var compiledQueryScope = CompiledQueryProcessingScope.Current;
       if (compiledQueryScope != null && !compiledQueryScope.Execute) {
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Linq
       }
       else {
         try {
-          result = query.Execute(session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
+          result = query.Execute<TResult>(session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
         }
         catch (Exception exception) {
           session.Events.NotifyQueryExecuted(expression, exception);
@@ -106,11 +106,11 @@ namespace Xtensive.Orm.Linq
       Expression expression, CancellationToken token, bool isAsyncEnumeration)
     {
       expression = session.Events.NotifyQueryExecuting(expression);
-      var query = Translate<TResult>(expression, isAsyncEnumeration);
+      var query = Translate(expression, isAsyncEnumeration);
       TResult result;
       try {
         result = await query
-          .ExecuteAsync(session, new ParameterContext(), isAsyncEnumeration, token)
+          .ExecuteAsync<TResult>(session, new ParameterContext(), isAsyncEnumeration, token)
           .ConfigureAwait(false);
       }
       catch (Exception exception) {
@@ -124,16 +124,16 @@ namespace Xtensive.Orm.Linq
 
     #region Private / internal methods
 
-    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, bool isAsync = false) =>
-      Translate<TResult>(expression, session.CompilationService.CreateConfiguration(session), isAsync);
+    internal TranslatedQuery Translate(Expression expression, bool isAsync = false) =>
+      Translate(expression, session.CompilationService.CreateConfiguration(session), isAsync);
 
-    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression,
+    internal TranslatedQuery Translate(Expression expression,
       CompilerConfiguration compilerConfiguration, bool isAsync = false)
     {
       try {
         var compiledQueryScope = CompiledQueryProcessingScope.Current;
         var context = new TranslatorContext(session, compilerConfiguration, expression, compiledQueryScope, isAsync);
-        return context.Translator.Translate<TResult>();
+        return context.Translator.Translate();
       }
       catch (Exception ex) {
         throw new QueryTranslationException(string.Format(
