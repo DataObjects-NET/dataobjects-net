@@ -4,7 +4,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Xtensive.Sql.Dml
 {
@@ -30,11 +29,13 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
+      if (context.NodeMapping.ContainsKey(this)) {
         return context.NodeMapping[this];
+      }
 
-      var clone = new SqlJoinedTable((SqlJoinExpression)joinExpression.Clone(context));
-      clone.AliasedColumns = new SqlColumnCollection(AliasedColumns);
+      var clone = new SqlJoinedTable((SqlJoinExpression) joinExpression.Clone(context)) {
+        AliasedColumns = new SqlColumnCollection(new List<SqlColumn>(AliasedColumns))
+      };
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -54,17 +55,25 @@ namespace Xtensive.Sql.Dml
     // Constructor
 
     internal SqlJoinedTable(SqlJoinExpression joinExpression)
+      : this(joinExpression, joinExpression.Left.Columns, joinExpression.Right.Columns)
     {
-      this.joinExpression = joinExpression;
-      var joinedColumns = joinExpression.Left.Columns.Concat(joinExpression.Right.Columns).ToList();
-      columns = new SqlTableColumnCollection(joinedColumns);
-      AliasedColumns = new SqlColumnCollection(columns.Cast<SqlColumn>().ToList());
     }
 
-    internal SqlJoinedTable(SqlJoinExpression joinExpression, IEnumerable<SqlColumn> leftColumns, IEnumerable<SqlColumn> rightColumns)
-      : this (joinExpression)
+    internal SqlJoinedTable(SqlJoinExpression joinExpression, IReadOnlyList<SqlColumn> leftColumns, IReadOnlyList<SqlColumn> rightColumns)
     {
-      AliasedColumns = new SqlColumnCollection(leftColumns.Concat(rightColumns).ToList());
+      this.joinExpression = joinExpression;
+      var allLeftColumns = joinExpression.Left.Columns;
+      var allRightColumns = joinExpression.Right.Columns;
+
+      var joinedColumns = new List<SqlTableColumn>(allLeftColumns.Count + allRightColumns.Count);
+      joinedColumns.AddRange(allLeftColumns);
+      joinedColumns.AddRange(allRightColumns);
+      columns = new SqlTableColumnCollection(joinedColumns);
+
+      var aliasedColumns = new List<SqlColumn>(leftColumns.Count + rightColumns.Count);
+      aliasedColumns.AddRange(leftColumns);
+      aliasedColumns.AddRange(rightColumns);
+      AliasedColumns = new SqlColumnCollection(aliasedColumns);
     }
   }
 }

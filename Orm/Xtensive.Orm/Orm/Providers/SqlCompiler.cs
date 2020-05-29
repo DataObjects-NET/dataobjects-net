@@ -129,10 +129,12 @@ namespace Xtensive.Orm.Providers
       if (!sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference()) {
         var queryRef = SqlDml.QueryRef(sourceSelect);
         query = SqlDml.Select(queryRef);
-        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+        query.Columns.AddRange(queryRef.Columns);
       }
-      else
+      else {
         query = sourceSelect.ShallowClone();
+      }
+
       query.Distinct = true;
       return CreateProvider(query, provider, source);
     }
@@ -173,7 +175,7 @@ namespace Xtensive.Orm.Providers
         ? left.PermanentReference
         : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) leftTable.Columns
         : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
         ? leftTable.Columns.Cast<SqlExpression>().ToList()
@@ -184,7 +186,7 @@ namespace Xtensive.Orm.Providers
         ? right.PermanentReference
         : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) rightTable.Columns
         : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
         ? rightTable.Columns.Cast<SqlExpression>().ToList()
@@ -205,8 +207,8 @@ namespace Xtensive.Orm.Providers
         joinType,
         leftTable,
         rightTable,
-        leftColumns.ToList(),
-        rightColumns.ToList(),
+        leftColumns,
+        rightColumns,
         joinExpression);
 
       var query = SqlDml.Select(joinedTable);
@@ -229,10 +231,10 @@ namespace Xtensive.Orm.Providers
         ? left.PermanentReference
         : left.Request.Statement.From;
       var leftColumns = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) leftTable.Columns
         : left.Request.Statement.Columns;
       var leftExpressions = leftShouldUseReference
-        ? leftTable.Columns.Cast<SqlExpression>().ToList()
+        ? (IReadOnlyList<SqlExpression>) leftTable.Columns
         : ExtractColumnExpressions(left.Request.Statement);
 
       var rightShouldUseReference = ShouldUseQueryReference(provider, right);
@@ -240,10 +242,10 @@ namespace Xtensive.Orm.Providers
         ? right.PermanentReference
         : right.Request.Statement.From;
       var rightColumns = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlColumn>()
+        ? (IReadOnlyList<SqlColumn>) rightTable.Columns
         : right.Request.Statement.Columns;
       var rightExpressions = rightShouldUseReference
-        ? rightTable.Columns.Cast<SqlExpression>().ToList()
+        ? (IReadOnlyList<SqlExpression>) rightTable.Columns
         : ExtractColumnExpressions(right.Request.Statement);
 
 
@@ -257,8 +259,8 @@ namespace Xtensive.Orm.Providers
         joinType,
         leftTable,
         rightTable,
-        leftColumns.ToList(),
-        rightColumns.ToList(),
+        leftColumns,
+        rightColumns,
         joinExpression);
 
       var query = SqlDml.Select(joinedTable);
@@ -308,10 +310,18 @@ namespace Xtensive.Orm.Providers
     {
       var compiledSource = Compile(provider.Source);
 
-      SqlSelect query = ExtractSqlSelect(provider, compiledSource);
-      var originalColumns = query.Columns.ToList();
-      query.Columns.Clear();
-      query.Columns.AddRange(provider.ColumnIndexes.Select(i => originalColumns[i]));
+      var query = ExtractSqlSelect(provider, compiledSource);
+      var queryColumns = query.Columns;
+      var columnIndexes = provider.ColumnIndexes;
+
+      var newIndex = 0;
+      var newColumns = new SqlColumn[columnIndexes.Count];
+      foreach (var index in columnIndexes) {
+        newColumns[newIndex++] = queryColumns[index];
+      }
+
+      queryColumns.Clear();
+      queryColumns.AddRange(newColumns);
 
       return CreateProvider(query, provider, compiledSource);
     }
@@ -407,7 +417,7 @@ namespace Xtensive.Orm.Providers
       var queryRef = SqlDml.QueryRef(result);
 
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }
@@ -431,7 +441,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.Except(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }
@@ -455,7 +465,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.UnionAll(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }
@@ -479,7 +489,7 @@ namespace Xtensive.Orm.Providers
       var result = SqlDml.Union(leftSelect, rightSelect);
       var queryRef = SqlDml.QueryRef(result);
       SqlSelect query = SqlDml.Select(queryRef);
-      query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+      query.Columns.AddRange(queryRef.Columns);
 
       return CreateProvider(query, provider, left, right);
     }

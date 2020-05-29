@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
     }
 
     protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le,
-      params List<SqlExpression>[] sourceColumns)
+      params IReadOnlyList<SqlExpression>[] sourceColumns)
     {
       var processor = new ExpressionProcessor(le, Handlers, this, sourceColumns);
       var result = new Pair<SqlExpression, IEnumerable<QueryParameterBinding>>(
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Providers
       if (ShouldUseQueryReference(origin, compiledSource)) {
         var queryRef = compiledSource.PermanentReference;
         var query = SqlDml.Select(queryRef);
-        query.Columns.AddRange(queryRef.Columns.Cast<SqlColumn>());
+        query.Columns.AddRange(queryRef.Columns);
         return query;
       }
       return sourceSelect.ShallowClone();

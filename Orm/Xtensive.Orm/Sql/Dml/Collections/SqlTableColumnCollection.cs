@@ -3,8 +3,9 @@
 // For conditions of distribution and use, see license.
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Sql.Dml
 {
@@ -12,36 +13,98 @@ namespace Xtensive.Sql.Dml
   /// Represents collection of <see cref="SqlColumn"/>s.
   /// </summary>
   [Serializable]
-  public class SqlTableColumnCollection
-    : ReadOnlyCollection<SqlTableColumn>
+  public class SqlTableColumnCollection : IReadOnlyList<SqlTableColumn>
   {
     private static readonly StringComparer Comparer = StringComparer.OrdinalIgnoreCase;
+    private readonly List<SqlTableColumn> columnList;
+    private Dictionary<string, SqlTableColumn> columnLookup;
 
     /// <summary>
-    /// An indexer that provides access to collection items by their names.
-    /// Returns <see langword="null"/> if there is no such item.
+    /// Gets the number of elements contained in the <see cref="SqlTableColumnCollection"/>.
+    /// </summary>
+    public int Count => columnList.Count;
+
+    /// <inheritdoc cref="IEnumerable.GetEnumerator"/>>
+    IEnumerator IEnumerable.GetEnumerator() => columnList.GetEnumerator();
+
+    /// <inheritdoc cref="IEnumerable{T}.GetEnumerator"/>>
+    IEnumerator<SqlTableColumn> IEnumerable<SqlTableColumn>.GetEnumerator() => columnList.GetEnumerator();
+
+    /// <summary>
+    /// Returns a <see cref="List{T}.Enumerator"/> that iterates through the <see cref="SqlTableColumnCollection"/>.
+    /// </summary>
+    public List<SqlTableColumn>.Enumerator GetEnumerator() => columnList.GetEnumerator();
+
+    /// <summary>
+    /// Gets the column at the specified <paramref name="index"/>.
+    /// </summary>
+    public SqlTableColumn this[int index] => columnList[index];
+
+    /// <summary>
+    /// Gets the column with the specified <paramref name="name"/>
+    /// or <see langword="null"/> if collection doesn't contain such a column.
     /// </summary>
     public SqlTableColumn this[string name]
     {
-      get
-      {
-        if (string.IsNullOrEmpty(name))
+      get {
+        if (string.IsNullOrEmpty(name)) {
           return null;
-        foreach (SqlTableColumn column in this)
-          if (Comparer.Equals(column.Name, name))
-            return column;
-        return null;
+        }
+
+        var count = columnList.Count;
+        return count <= 16 ? FindColumnInList(name) : FindColumnInDictionaryLookup(name, count);
       }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SqlTableColumn FindColumnInList(string name)
+    {
+      foreach (var column in columnList) {
+        if (Comparer.Equals(column.Name, name)) {
+          return column;
+        }
+      }
+
+      return null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SqlTableColumn FindColumnInDictionaryLookup(string name, int count)
+    {
+      if (columnLookup != null) {
+        return columnLookup.TryGetValue(name, out var column) ? column : null;
+      }
+
+      SqlTableColumn result = null;
+      columnLookup = new Dictionary<string, SqlTableColumn>(count, Comparer);
+      for (var index = count - 1; index >= 0; index--) {
+        var column = columnList[index];
+        var columnName = column.Name;
+        columnLookup[columnName] = column;
+        if (Comparer.Equals(columnName, name)) {
+          result = column;
+        }
+      }
+
+      return result;
     }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SqlTableColumnCollection"/> class.
     /// </summary>
-    /// <param name="list">The list to wrap.</param>
-    /// <exception cref="T:System.ArgumentNullException">list is null.</exception>
-    public SqlTableColumnCollection(IList<SqlTableColumn> list)
-      : base(list)
+    /// <param name="columns">A collection of <see cref="SqlTableColumn"/>s to be wrapped.</param>
+    public SqlTableColumnCollection(IEnumerable<SqlTableColumn> columns)
     {
+      columnList = new List<SqlTableColumn>(columns);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="SqlTableColumnCollection"/> class.
+    /// This is special version it uses provided list as is.
+    /// </summary>
+    internal SqlTableColumnCollection(List<SqlTableColumn> columns)
+    {
+      columnList = columns;
     }
   }
 }
