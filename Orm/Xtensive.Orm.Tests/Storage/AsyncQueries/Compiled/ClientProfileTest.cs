@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     {
       using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        Assert.IsInstanceOf<QueryAsyncResult<Discepline>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     {
       using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        Assert.IsInstanceOf<QueryAsyncResult<Discepline>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       Domain.SessionOpen += (sender, args) => sessionOpenedCount++;
       using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        Assert.IsInstanceOf<QueryAsyncResult<Discepline>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
