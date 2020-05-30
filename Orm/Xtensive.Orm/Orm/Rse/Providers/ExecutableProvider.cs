@@ -141,7 +141,8 @@ namespace Xtensive.Orm.Rse.Providers
 
         try {
           context.SetValue(this, enumerationMarker, true);
-          await foreach (var tuple in provider.OnAsyncEnumerate(context, token)) {
+          var asyncEnumerable = provider.OnAsyncEnumerate(context, token);
+          await foreach (var tuple in asyncEnumerable.WithCancellation(token)) {
             yield return tuple;
           }
         }

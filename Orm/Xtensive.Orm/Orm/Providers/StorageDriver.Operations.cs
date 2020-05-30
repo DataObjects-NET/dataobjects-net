@@ -104,6 +104,14 @@ namespace Xtensive.Orm.Providers
         OpenConnection(session, connection);
     }
 
+    public async Task EnsureConnectionIsOpenAsync(
+      Session session, SqlConnection connection, CancellationToken cancellationToken)
+    {
+      if (connection.State!=ConnectionState.Open) {
+        await OpenConnectionAsync(session, connection, cancellationToken);
+      }
+    }
+
     public void CloseConnection(Session session, SqlConnection connection)
     {
       if (connection.State!=ConnectionState.Open)

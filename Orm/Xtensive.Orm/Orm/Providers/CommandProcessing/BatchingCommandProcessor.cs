@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Providers
             var result = queryTask.Output;
             while (context.ActiveCommand.NextRow())
               result.Add(context.ActiveCommand.ReadTupleWith(accessor));
-            context.ActiveCommand.NextResult();
+            await context.ActiveCommand.NextResultAsync().ConfigureAwait(false);
             currentQueryTask++;
           }
         }

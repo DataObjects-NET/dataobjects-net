@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Providers
     async Task<IEnumerator<Tuple>> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {
-      Prepare();
+      await PrepareAsync(token);
       using (var context = new CommandProcessorContext(parameterContext))
         return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
     }
@@ -42,9 +42,10 @@ namespace Xtensive.Orm.Providers
     async IAsyncEnumerable<Tuple> IProviderExecutor.ExecuteAsyncTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, [EnumeratorCancellation] CancellationToken token)
     {
-      Prepare();
+      await PrepareAsync(token);
       using (var context = new CommandProcessorContext(parameterContext)) {
-        await foreach (var tuple in commandProcessor.ExecuteTasksWithAsyncReaderAsync(request, context, token)) {
+        var enumerable = commandProcessor.ExecuteTasksWithAsyncReaderAsync(request, context, token);
+        await foreach (var tuple in enumerable.WithCancellation(token)) {
           yield return tuple;
         }
       }
