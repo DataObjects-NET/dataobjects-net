@@ -5,9 +5,9 @@
 // Created:    2009.10.09
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -29,25 +29,29 @@ namespace Xtensive.Orm.Providers
     private DisposableSet resources;
     private DbDataReader reader;
 
-    public int Count { get { return statements.Count; } }
+    public int Count => statements.Count;
 
     public void AddPart(CommandPart part)
     {
-      if (prepared)
+      if (prepared) {
         throw new InvalidOperationException("Unable to change command: it is already prepared");
+      }
 
       statements.Add(part.Statement);
 
-      foreach (var parameter in part.Parameters)
+      foreach (var parameter in part.Parameters) {
         underlyingCommand.Parameters.Add(parameter);
+      }
 
-      if (part.Resources.Count==0)
+      if (part.Resources.Count==0) {
         return;
+      }
 
-      if (resources==null)
-        resources = new DisposableSet();
-      foreach (var resource in part.Resources)
+      resources ??= new DisposableSet();
+
+      foreach (var resource in part.Resources) {
         resources.Add(resource);
+      }
     }
 
     public int ExecuteNonQuery()
@@ -84,10 +88,10 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public async Task<bool> NextResultAsync()
+    public async Task<bool> NextResultAsync(CancellationToken token = default)
     {
       try {
-        return await reader.NextResultAsync();
+        return await reader.NextResultAsync(token);
       }
       catch(Exception exception) {
         throw TranslateException(exception);
@@ -104,57 +108,71 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public async Task<bool> NextRowAsync()
+    public async Task<bool> NextRowAsync(CancellationToken token = default)
     {
       try {
-        return await reader.ReadAsync();
+        return await reader.ReadAsync(token);
       }
       catch (Exception exception) {
         throw TranslateException(exception);
       }
     }
 
-    public Tuple ReadTupleWith(DbDataReaderAccessor accessor)
-    {
-      return accessor.Read(reader);
-    }
+    public Tuple ReadTupleWith(DbDataReaderAccessor accessor) => accessor.Read(reader);
 
-    public IEnumerator<Tuple> AsReaderOf(QueryRequest request)
+    public readonly struct TupleReader: IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
     {
-      var accessor = request.GetAccessor();
-      using (this)
-        while (NextRow())
-          yield return ReadTupleWith(accessor);
-    }
+      private readonly Command command;
+      private readonly QueryRequest request;
+      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public async IAsyncEnumerable<Tuple> AsAsyncReaderOf(
-      QueryRequest request, [EnumeratorCancellation] CancellationToken token)
-    {
-      var accessor = request.GetAccessor();
-      using (this) {
-        while (await NextRowAsync()) {
-          token.ThrowIfCancellationRequested();
-          yield return ReadTupleWith(accessor);
+      public IEnumerator<Tuple> GetEnumerator()
+      {
+        var accessor = request.GetAccessor();
+        using (command) {
+          while (command.NextRow()) {
+            yield return command.ReadTupleWith(accessor);
+          }
         }
+      }
+
+      public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
+      {
+        var accessor = request.GetAccessor();
+        using (command) {
+          while (await command.NextRowAsync(token)) {
+            token.ThrowIfCancellationRequested();
+            yield return command.ReadTupleWith(accessor);
+          }
+        }
+      }
+
+      public TupleReader(Command command, QueryRequest request)
+      {
+        this.command = command;
+        this.request = request;
       }
     }
 
+    public TupleReader AsReaderOf(QueryRequest request) => new TupleReader(this, request);
+
     public DbCommand Prepare()
     {
-      if (statements.Count==0)
+      if (statements.Count==0) {
         throw new InvalidOperationException("Unable to prepare command: no parts registered");
-      if (prepared)
+      }
+
+      if (prepared) {
         return underlyingCommand;
+      }
+
       prepared = true;
       underlyingCommand.CommandText = origin.Driver.BuildBatch(statements.ToArray());
       return underlyingCommand;
     }
 
-    private StorageException TranslateException(Exception exception)
-    {
-      return origin.Driver.ExceptionBuilder
-        .BuildException(exception, underlyingCommand.ToHumanReadableString());
-    }
+    private StorageException TranslateException(Exception exception) =>
+      origin.Driver.ExceptionBuilder.BuildException(exception, underlyingCommand.ToHumanReadableString());
 
     public void Dispose()
     {

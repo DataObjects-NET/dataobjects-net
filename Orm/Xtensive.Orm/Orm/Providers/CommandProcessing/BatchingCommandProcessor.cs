@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Providers
       while (context.ProcessingTasks.Count >= batchSize)
         ExecuteBatch(batchSize, null, context);
 
-      return ExecuteBatch(context.ProcessingTasks.Count, request, context).AsReaderOf(request);
+      return ExecuteBatch(context.ProcessingTasks.Count, request, context).AsReaderOf(request).GetEnumerator();
     }
 
     public override async Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
@@ -84,10 +84,12 @@ namespace Xtensive.Orm.Providers
       context.ProcessingTasks = new Queue<SqlTask>(tasks);
       tasks.Clear();
 
-      while (context.ProcessingTasks.Count >= batchSize)
+      while (context.ProcessingTasks.Count >= batchSize) {
         await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+      }
 
-      return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false)).AsReaderOf(request);
+      return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false))
+        .AsReaderOf(request).GetEnumerator();
     }
 
     public override async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest request,
@@ -103,7 +105,7 @@ namespace Xtensive.Orm.Providers
 
       var batchResult =
         await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false);
-      await foreach (var tuple in batchResult.AsAsyncReaderOf(request, token)) {
+      await foreach (var tuple in batchResult.AsReaderOf(request).WithCancellation(token)) {
         yield return tuple;
       }
     }

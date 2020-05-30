@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             context.ActiveCommand.ExecuteReader();
-            var enumerator = context.ActiveCommand.AsReaderOf(loadTask.Request);
+            var enumerator = context.ActiveCommand.AsReaderOf(loadTask.Request).GetEnumerator();
             using (enumerator)
               while (enumerator.MoveNext())
                 loadTask.Output.Add(enumerator.Current);
@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
-            await foreach (var record in context.ActiveCommand.AsAsyncReaderOf(loadTask.Request, token)) {
+            await foreach (var record in context.ActiveCommand.AsReaderOf(loadTask.Request).WithCancellation(token)) {
               loadTask.Output.Add(record);
             }
             context.ActiveTasks.Clear();
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Providers
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
       lastRequestCommand.AddPart(commandPart);
       lastRequestCommand.ExecuteReader();
-      return lastRequestCommand.AsReaderOf(lastRequest);
+      return lastRequestCommand.AsReaderOf(lastRequest).GetEnumerator();
     }
 
     public override async Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
@@ -135,7 +135,7 @@ namespace Xtensive.Orm.Providers
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token);
-      return lastRequestCommand.AsReaderOf(lastRequest);
+      return lastRequestCommand.AsReaderOf(lastRequest).GetEnumerator();
     }
 
     public override async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest lastRequest,
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Providers
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token);
-      await foreach (var tuple in lastRequestCommand.AsAsyncReaderOf(lastRequest, token)) {
+      await foreach (var tuple in lastRequestCommand.AsReaderOf(lastRequest).WithCancellation(token)) {
         yield return tuple;
       }
     }
