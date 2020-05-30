@@ -5,11 +5,9 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
@@ -42,7 +40,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="context">A contextual information to be used while executing
     /// the specified <paramref name="request"/>.</param>
     /// <returns>A <see cref="IEnumerator{Tuple}"/> for the specified request.</returns>
-    public abstract IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
+    public abstract TupleReader ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
 
     /// <summary>
     /// Asynchronously executes all registered requests plus the specified one query.
@@ -53,30 +51,11 @@ namespace Xtensive.Orm.Providers
     /// the specified <paramref name="request"/>.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>A task performing this operation.</returns>
-    public virtual Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest request,
+    public virtual Task<TupleReader> ExecuteTasksWithReaderAsync(QueryRequest request,
       CommandProcessorContext context, CancellationToken token)
     {
       token.ThrowIfCancellationRequested();
       return Task.FromResult(ExecuteTasksWithReader(request, context));
-    }
-
-    /// <summary>
-    /// Asynchronously executes all registered requests plus the specified one query.
-    /// Default implementation is synchronous and returns emulated async enumerable of <see cref="Tuple"/>s.
-    /// </summary>
-    /// <param name="request">The request to execute.</param>
-    /// <param name="context">A contextual information to be used while executing
-    /// the specified <paramref name="request"/>.</param>
-    /// <param name="token">Token to cancel operation.</param>
-    /// <returns>A sequence of <see cref="Tuple"/>s that can be enumerated asynchronously.</returns>
-    public virtual async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest request,
-      CommandProcessorContext context, [EnumeratorCancellation] CancellationToken token)
-    {
-      using var enumerator = await ExecuteTasksWithReaderAsync(request, context, token);
-      while (enumerator.MoveNext()) {
-        token.ThrowIfCancellationRequested();
-        yield return enumerator.Current;
-      }
     }
 
     /// <summary>

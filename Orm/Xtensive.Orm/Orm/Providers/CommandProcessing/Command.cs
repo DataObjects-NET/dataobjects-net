@@ -120,40 +120,6 @@ namespace Xtensive.Orm.Providers
 
     public Tuple ReadTupleWith(DbDataReaderAccessor accessor) => accessor.Read(reader);
 
-    public readonly struct TupleReader: IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
-    {
-      private readonly Command command;
-      private readonly QueryRequest request;
-      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-      public IEnumerator<Tuple> GetEnumerator()
-      {
-        var accessor = request.GetAccessor();
-        using (command) {
-          while (command.NextRow()) {
-            yield return command.ReadTupleWith(accessor);
-          }
-        }
-      }
-
-      public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
-      {
-        var accessor = request.GetAccessor();
-        using (command) {
-          while (await command.NextRowAsync(token)) {
-            token.ThrowIfCancellationRequested();
-            yield return command.ReadTupleWith(accessor);
-          }
-        }
-      }
-
-      public TupleReader(Command command, QueryRequest request)
-      {
-        this.command = command;
-        this.request = request;
-      }
-    }
-
     public TupleReader AsReaderOf(QueryRequest request) => new TupleReader(this, request);
 
     public DbCommand Prepare()
@@ -187,6 +153,60 @@ namespace Xtensive.Orm.Providers
     {
       this.origin = origin;
       this.underlyingCommand = underlyingCommand;
+    }
+  }
+
+  public readonly struct TupleReader: IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
+  {
+    private readonly object source;
+    private readonly QueryRequest request;
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public IEnumerator<Tuple> GetEnumerator()
+    {
+      if (source is Command command) {
+        var accessor = request.GetAccessor();
+        return EnumerateCommand(command, accessor);
+      }
+
+      var tuples = (IEnumerable<Tuple>)source;
+      return tuples.GetEnumerator();
+    }
+
+    private static IEnumerator<Tuple> EnumerateCommand(Command command, DbDataReaderAccessor accessor)
+    {
+      using (command) {
+        while (command.NextRow()) {
+          yield return command.ReadTupleWith(accessor);
+        }
+      }
+    }
+
+    public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
+    {
+      if (!(source is Command command)) {
+        throw new NotSupportedException("Async enumeration makes sense only for async source.");
+      }
+
+      var accessor = request.GetAccessor();
+      using (command) {
+        while (await command.NextRowAsync(token)) {
+          token.ThrowIfCancellationRequested();
+          yield return command.ReadTupleWith(accessor);
+        }
+      }
+    }
+
+    public TupleReader(IEnumerable<Tuple> tuples)
+    {
+      source = tuples;
+      request = null;
+    }
+
+    public TupleReader(Command command, QueryRequest request)
+    {
+      source = command;
+      this.request = request;
     }
   }
 }

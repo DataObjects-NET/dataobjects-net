@@ -54,31 +54,18 @@ namespace Xtensive.Orm.Providers
     protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
+    protected override TupleReader OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var storageContext = (EnumerationContext) context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      var enumerator = executor.ExecuteTupleReader(Request, storageContext.ParameterContext);
-      using (enumerator) {
-        while (enumerator.MoveNext()) {
-          yield return enumerator.Current;
-        }
-      }
+      return executor.ExecuteTupleReader(Request, storageContext.ParameterContext);
     }
 
-    protected async override Task<IEnumerable<Tuple>> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    protected async override Task<TupleReader> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
       var storageContext = (EnumerationContext)context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      var enumerator = await executor.ExecuteTupleReaderAsync(Request, storageContext.ParameterContext, token).ConfigureAwait(false);
-      return enumerator.ToEnumerable();
-    }
-
-    protected override IAsyncEnumerable<Tuple> OnAsyncEnumerate(Rse.Providers.EnumerationContext context, CancellationToken token)
-    {
-      var storageContext = (EnumerationContext)context;
-      var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      return executor.ExecuteAsyncTupleReaderAsync(Request, storageContext.ParameterContext, token);
+      return await executor.ExecuteTupleReaderAsync(Request, storageContext.ParameterContext, token).ConfigureAwait(false);
     }
 
     #region ToString related methods

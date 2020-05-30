@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>
     /// <returns><see cref="IEnumerator{Tuple}"/> that contains result of execution.</returns>
-    IEnumerator<Tuple> ExecuteTupleReader(QueryRequest request, ParameterContext parameterContext);
+    TupleReader ExecuteTupleReader(QueryRequest request, ParameterContext parameterContext);
 
     /// <summary>
     /// Asynchronously executes the specified request.
@@ -34,18 +34,7 @@ namespace Xtensive.Orm.Providers
     /// the values of query parameters.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing the operation.</returns>
-    Task<IEnumerator<Tuple>> ExecuteTupleReaderAsync(QueryRequest request,
-      ParameterContext parameterContext, CancellationToken token);
-
-    /// <summary>
-    /// Asynchronously executes the specified request.
-    /// </summary>
-    /// <param name="request">The request to execute.</param>
-    /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
-    /// the values of query parameters.</param>
-    /// <param name="token">Token to cancel operation.</param>
-    /// <returns>Task performing the operation.</returns>
-    IAsyncEnumerable<Tuple> ExecuteAsyncTupleReaderAsync(QueryRequest request,
+    Task<TupleReader> ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token);
 
     /// <summary>

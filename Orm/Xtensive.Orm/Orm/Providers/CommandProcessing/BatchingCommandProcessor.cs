@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers
         await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
     }
 
-    public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context)
+    public override TupleReader ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context)
     {
       context.AllowPartialExecution = false;
       PutTasksForExecution(context);
@@ -76,10 +76,10 @@ namespace Xtensive.Orm.Providers
       while (context.ProcessingTasks.Count >= batchSize)
         ExecuteBatch(batchSize, null, context);
 
-      return ExecuteBatch(context.ProcessingTasks.Count, request, context).AsReaderOf(request).GetEnumerator();
+      return ExecuteBatch(context.ProcessingTasks.Count, request, context).AsReaderOf(request);
     }
 
-    public override async Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
+    public override async Task<TupleReader> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
     {
       context.ProcessingTasks = new Queue<SqlTask>(tasks);
       tasks.Clear();
@@ -89,25 +89,7 @@ namespace Xtensive.Orm.Providers
       }
 
       return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false))
-        .AsReaderOf(request).GetEnumerator();
-    }
-
-    public override async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest request,
-      CommandProcessorContext context,
-      [EnumeratorCancellation] CancellationToken token)
-    {
-      context.ProcessingTasks = new Queue<SqlTask>(tasks);
-      tasks.Clear();
-
-      while (context.ProcessingTasks.Count >= batchSize) {
-        await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
-      }
-
-      var batchResult =
-        await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false);
-      await foreach (var tuple in batchResult.AsReaderOf(request).WithCancellation(token)) {
-        yield return tuple;
-      }
+        .AsReaderOf(request);
     }
 
     #region Private / internal methods

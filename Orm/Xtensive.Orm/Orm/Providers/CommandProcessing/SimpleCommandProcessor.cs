@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest lastRequest, CommandProcessorContext context)
+    public override TupleReader ExecuteTasksWithReader(QueryRequest lastRequest, CommandProcessorContext context)
     {
       var oldValue = context.AllowPartialExecution;
       context.AllowPartialExecution = false;
@@ -117,10 +117,10 @@ namespace Xtensive.Orm.Providers
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
       lastRequestCommand.AddPart(commandPart);
       lastRequestCommand.ExecuteReader();
-      return lastRequestCommand.AsReaderOf(lastRequest).GetEnumerator();
+      return lastRequestCommand.AsReaderOf(lastRequest);
     }
 
-    public override async Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
+    public override async Task<TupleReader> ExecuteTasksWithReaderAsync(QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
     {
       var oldValue = context.AllowPartialExecution;
       context.AllowPartialExecution = false;
@@ -135,28 +135,7 @@ namespace Xtensive.Orm.Providers
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token);
-      return lastRequestCommand.AsReaderOf(lastRequest).GetEnumerator();
-    }
-
-    public override async IAsyncEnumerable<Tuple> ExecuteTasksWithAsyncReaderAsync(QueryRequest lastRequest,
-      CommandProcessorContext context, [EnumeratorCancellation] CancellationToken token)
-    {
-      var oldValue = context.AllowPartialExecution;
-      context.AllowPartialExecution = false;
-
-      token.ThrowIfCancellationRequested();
-
-      await ExecuteTasksAsync(context, token);
-      context.AllowPartialExecution = oldValue;
-
-      var lastRequestCommand = Factory.CreateCommand();
-      var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
-      lastRequestCommand.AddPart(commandPart);
-      token.ThrowIfCancellationRequested();
-      await lastRequestCommand.ExecuteReaderAsync(token);
-      await foreach (var tuple in lastRequestCommand.AsReaderOf(lastRequest).WithCancellation(token)) {
-        yield return tuple;
-      }
+      return lastRequestCommand.AsReaderOf(lastRequest);
     }
 
     // Constructors

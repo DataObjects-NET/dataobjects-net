@@ -4,6 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
+using System;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -18,37 +19,20 @@ namespace Xtensive.Orm.Providers
     // Implementation of IProviderExecutor
 
     /// <inheritdoc/>
-    IEnumerator<Tuple> IProviderExecutor.ExecuteTupleReader(QueryRequest request,
+    TupleReader IProviderExecutor.ExecuteTupleReader(QueryRequest request,
       ParameterContext parameterContext)
     {
       Prepare();
-      var context = new CommandProcessorContext(parameterContext);
-      var enumerator = commandProcessor.ExecuteTasksWithReader(request, context);
-      context.Dispose();
-      using (enumerator) {
-        while (enumerator.MoveNext())
-          yield return enumerator.Current;
-      }
+      using var context = new CommandProcessorContext(parameterContext);
+      return commandProcessor.ExecuteTasksWithReader(request, context);
     }
 
-    async Task<IEnumerator<Tuple>> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
+    async Task<TupleReader> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {
       await PrepareAsync(token);
-      using (var context = new CommandProcessorContext(parameterContext))
-        return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
-    }
-
-    async IAsyncEnumerable<Tuple> IProviderExecutor.ExecuteAsyncTupleReaderAsync(QueryRequest request,
-      ParameterContext parameterContext, [EnumeratorCancellation] CancellationToken token)
-    {
-      await PrepareAsync(token);
-      using (var context = new CommandProcessorContext(parameterContext)) {
-        var enumerable = commandProcessor.ExecuteTasksWithAsyncReaderAsync(request, context, token);
-        await foreach (var tuple in enumerable.WithCancellation(token)) {
-          yield return tuple;
-        }
-      }
+      using var context = new CommandProcessorContext(parameterContext);
+      return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>

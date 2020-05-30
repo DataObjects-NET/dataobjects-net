@@ -11,6 +11,7 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -54,25 +55,13 @@ namespace Xtensive.Orm.Rse.Providers
       }
     }
 
-    protected abstract IEnumerable<Tuple> OnEnumerate(EnumerationContext context);
+    protected abstract TupleReader OnEnumerate(EnumerationContext context);
 
-    protected virtual Task<IEnumerable<Tuple>> OnEnumerateAsync(EnumerationContext context, CancellationToken token)
+    protected virtual Task<TupleReader> OnEnumerateAsync(EnumerationContext context, CancellationToken token)
     {
       //Default version is synchronous
       token.ThrowIfCancellationRequested();
       return Task.FromResult(OnEnumerate(context));
-    }
-
-    protected virtual async IAsyncEnumerable<Tuple> OnAsyncEnumerate(
-      EnumerationContext context, [EnumeratorCancellation] CancellationToken token)
-    {
-      //Default version is synchronous
-      foreach (var tuple in OnEnumerate(context)) {
-        token.ThrowIfCancellationRequested();
-        yield return tuple;
-      }
-
-      await Task.CompletedTask;
     }
 
     #endregion
@@ -141,7 +130,7 @@ namespace Xtensive.Orm.Rse.Providers
 
         try {
           context.SetValue(this, enumerationMarker, true);
-          var asyncEnumerable = provider.OnAsyncEnumerate(context, token);
+          var asyncEnumerable = await provider.OnEnumerateAsync(context, token);
           await foreach (var tuple in asyncEnumerable.WithCancellation(token)) {
             yield return tuple;
           }

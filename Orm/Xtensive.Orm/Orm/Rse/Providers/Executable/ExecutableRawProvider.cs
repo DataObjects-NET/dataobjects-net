@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -31,9 +32,9 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Tuple> OnEnumerate(EnumerationContext context)
+    protected override TupleReader OnEnumerate(EnumerationContext context)
     {
-      return GetValue<IEnumerable<Tuple>>(context, CachedSourceName);
+      return new TupleReader(GetValue<IEnumerable<Tuple>>(context, CachedSourceName));
     }
 
 
