@@ -70,45 +70,39 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0793_FieldValidationTriggersLazyLoa
     [NotNullOrEmptyConstraint(ValidateOnlyIfModified = true)]// should validate only if changed
     public string Description { get; set; }
   }
+
+  public class QueryCounter
+  {
+    public int Count { get; private set; }
+
+    public Disposable Attach(Session session)
+    {
+      session.Events.DbCommandExecuted += Encount;
+      return new Disposable((disposing) => session.Events.DbCommandExecuted -= Encount);
+    }
+
+    public void Reset() => Count = 0;
+
+    private void Encount(object sender, DbCommandEventArgs eventArgs) => Count++;
+
+    public QueryCounter()
+    {
+      Count = 0;
+    }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0793_FieldValidationTriggersLazyLoadFieldsFetch : AutoBuildTest
   {
-    private class QueryCounter
-    {
-      public int Count { get; private set; }
-
-      public Disposable Attach(Session session)
-      {
-        session.Events.DbCommandExecuted += Encount;
-        return new Disposable((disposing) => session.Events.DbCommandExecuted -= Encount);
-      }
-
-      public void Reset()
-      {
-        Count = 0;
-      }
-
-      private void Encount(object sender, DbCommandEventArgs eventArgs)
-      {
-        Count++;
-      }
-
-      public QueryCounter()
-      {
-        Count = 0;
-      }
-    }
-
     private Key oblomovKey;
     private Key goncharovKey;
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Book).Assembly, typeof (Book).Namespace);
+      configuration.Types.Register(typeof(Book).Assembly, typeof(Book).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -117,10 +111,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var author = new Author() { FirstName = "Ivan", LastName = "Goncharov", Biography = "Some biography of Ivan Alexandrovich" };
+        var author = new Author() {
+          FirstName = "Ivan",
+          LastName = "Goncharov",
+          Biography = "Some biography of Ivan Alexandrovich" };
         var book = new Book() {
           Title = "Oblomov",
-          Description = "A drama story of how human lazyness and absence of strenght within may cause his life.",
+          Description = "A drama about how human's lazyness and absence of strenght may affect his life.",
           BookFile = new byte[] { 3, 3, 3, 3, 3, 3, 3 },
           Author = author
         };
@@ -139,14 +136,13 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void LazyFieldHasNoConstraintTest()
     {
+      var counter = new QueryCounter();
       using (var session = Domain.OpenSession()) {
-        var counter = new QueryCounter();
-        using (counter.Attach(session)) {
-          using (var transaction = session.OpenTransaction()) {
-            var oblomov = session.Query.Single<Book>(oblomovKey);
-            oblomov.Title = "Oblomov by Goncharov";
-            transaction.Complete();
-          }
+        using (counter.Attach(session))
+        using (var transaction = session.OpenTransaction()) {
+          var oblomov = session.Query.Single<Book>(oblomovKey);
+          oblomov.Title = "Oblomov by Goncharov";
+          transaction.Complete();
         }
         Assert.That(counter.Count, Is.EqualTo(2));
         counter.Reset();
@@ -156,14 +152,13 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void LazyFieldHasCheckAlwaysConstraintTest()
     {
+      var counter = new QueryCounter();
       using (var session = Domain.OpenSession()) {
-        var counter = new QueryCounter();
-        using (counter.Attach(session)) {
-          using (var transaction = session.OpenTransaction()) {
-            var goncharov = session.Query.Single<Author>(goncharovKey);
-            goncharov.FirstName = goncharov.FirstName + "modified"; // should prefetch lazy load field
-            transaction.Complete();
-          }
+        using (counter.Attach(session))
+        using (var transaction = session.OpenTransaction()) {
+          var goncharov = session.Query.Single<Author>(goncharovKey);
+          goncharov.FirstName = goncharov.FirstName + "modified"; // should prefetch lazy load field
+          transaction.Complete();
         }
         Assert.That(counter.Count, Is.EqualTo(3));
         counter.Reset();
@@ -173,34 +168,31 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void LazyFieldHasCheckIfModifiedConstraintTest()
     {
+      var counter = new QueryCounter();
       using (var session = Domain.OpenSession()) {
-        var counter = new QueryCounter();
-        using (counter.Attach(session)) {
-          using (var transaction = session.OpenTransaction()) {
-            foreach (var chapter in session.Query.All<Chapter>()) {
-              chapter.Title = chapter.Title + " modified";
-            }
-            transaction.Complete();
+        using (counter.Attach(session))
+        using (var transaction = session.OpenTransaction()) {
+          foreach (var chapter in session.Query.All<Chapter>()) {
+            chapter.Title = chapter.Title + " modified";
           }
-          Assert.That(counter.Count, Is.EqualTo(2));
-          counter.Reset();
+          transaction.Complete();
         }
+        Assert.That(counter.Count, Is.EqualTo(2));
+        counter.Reset();
       }
 
       using (var session = Domain.OpenSession()) {
-        var counter = new QueryCounter();
-        using (counter.Attach(session)) {
-          int updatedItems = 0;
-          using (var transaction = session.OpenTransaction()) {
-            foreach(var chapter in session.Query.All<Chapter>()) {
-              chapter.Description = chapter.Description + " modified";
-              updatedItems++;
-            }
-            transaction.Complete();
+        int updatedItems = 0;
+        using (counter.Attach(session))
+        using (var transaction = session.OpenTransaction()) {
+          foreach(var chapter in session.Query.All<Chapter>()) {
+            chapter.Description = chapter.Description + " modified";
+            updatedItems++;
           }
-          Assert.That(counter.Count, Is.EqualTo(5)); // query + fetches + update
-          counter.Reset();
+          transaction.Complete();
         }
+        Assert.That(counter.Count, Is.EqualTo(5)); // query + fetches + update
+        counter.Reset();
       }
     }
   }
