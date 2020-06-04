@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Linq
       TResult result;
       try {
         result = await query
-          .ExecuteAsync<TResult>(session, new ParameterContext(), isAsyncEnumeration, token)
+          .ExecuteAsync<TResult>(session, new ParameterContext(), token)
           .ConfigureAwait(false);
       }
       catch (Exception exception) {

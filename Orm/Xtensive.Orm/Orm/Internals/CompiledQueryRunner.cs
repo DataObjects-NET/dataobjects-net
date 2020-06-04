@@ -72,12 +72,12 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetCachedQuery();
       if (parameterizedQuery!=null) {
         token.ThrowIfCancellationRequested();
-        return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), false, token);
+        return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
       }
 
       parameterizedQuery = GetScalarQuery(query, false, out _);
       token.ThrowIfCancellationRequested();
-      return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), false, token);
+      return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
     }
 
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)

@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Materializer.
     /// </summary>
-    public readonly Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object> Materializer;
+    public readonly Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> Materializer;
 
     /// <summary>
     /// Gets the tuple parameter bindings.
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Linq
     public TResult Execute<TResult>(Session session, ParameterContext parameterContext)
     {
       var recordSet = DataSource.GetRecordSet(session, parameterContext);
-      return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext, false);
+      return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext);
     }
 
     /// <summary>
@@ -63,20 +63,17 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     /// <param name="session">The session.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    /// <param name="isAsyncEnumeration">Indicates if execution result is going to be enumerated asynchronously.</param>
     /// <param name="token">The token to cancel this operation</param>
     /// <returns><see cref="Task{TResult}"/> performing this operation.</returns>
     public async Task<TResult> ExecuteAsync<TResult>(
-      Session session, ParameterContext parameterContext, bool isAsyncEnumeration, CancellationToken token)
+      Session session, ParameterContext parameterContext, CancellationToken token)
     {
-      var recordSet = await DataSource.GetRecordSetForAsyncQuery(session, parameterContext, token).ConfigureAwait(false);
-      if (isAsyncEnumeration) {
-        return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext, true);
-      }
+      var recordSet = await DataSource.GetRecordSetAsync(session, parameterContext, token).ConfigureAwait(false);
+      return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext);
 
-      var enumerable = (await recordSet.GetEnumeratorAsync(token).ConfigureAwait(false)).ToEnumerable();
-      enumerable.GetEnumerator().Dispose();
-      return (TResult) Materializer(enumerable, session, TupleParameterBindings, parameterContext, false);
+      // var enumerable = (await recordSet.GetEnumeratorAsync(token).ConfigureAwait(false)).ToEnumerable();
+      // enumerable.GetEnumerator().Dispose();
+      // return (TResult) Materializer(enumerable, session, TupleParameterBindings, parameterContext, false);
     }
 
 
@@ -88,7 +85,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
     public TranslatedQuery(ExecutableProvider dataSource,
-      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object> materializer)
+      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer)
       : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
     {
     }
@@ -101,7 +98,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     /// <param name="tupleParameters">The tuple parameters.</param>
    public TranslatedQuery(ExecutableProvider dataSource,
-      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object> materializer,
+      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer,
         Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;

@@ -26,12 +26,13 @@ namespace Xtensive.Orm.Rse
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>
     /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
-    public static RecordSet GetRecordSet(this CompilableProvider provider, Session session, ParameterContext parameterContext)
+    public static RecordSet GetRecordSet(
+      this CompilableProvider provider, Session session, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      var compiled = session.Compile(provider);
-      return new RecordSet(session.CreateEnumerationContext(parameterContext), compiled);
+      var enumerationContext = session.CreateEnumerationContext(parameterContext);
+      return RecordSet.Create(enumerationContext, session.Compile(provider));
     }
 
     /// <summary>
@@ -42,11 +43,13 @@ namespace Xtensive.Orm.Rse
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>
     /// <returns>New <see cref="RecordSet"/> bound to specified <paramref name="session"/>.</returns>
-    public static RecordSet GetRecordSet(this ExecutableProvider provider, Session session, ParameterContext parameterContext)
+    public static RecordSet GetRecordSet(
+      this ExecutableProvider provider, Session session, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      return new RecordSet(session.CreateEnumerationContext(parameterContext), provider);
+      var enumerationContext = session.CreateEnumerationContext(parameterContext);
+      return RecordSet.Create(enumerationContext, provider);
     }
 
     /// <summary>
@@ -58,11 +61,14 @@ namespace Xtensive.Orm.Rse
     /// the values of query parameters.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing this operation.</returns>
-    public static async Task<RecordSet> GetRecordSetForAsyncQuery(this ExecutableProvider provider, Session session, ParameterContext parameterContext, CancellationToken token)
+    public static async Task<RecordSet> GetRecordSetAsync(
+      this ExecutableProvider provider, Session session, ParameterContext parameterContext, CancellationToken token)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      return new RecordSet(await session.CreateEnumerationContextForAsyncQuery(parameterContext, token).ConfigureAwait(false), provider);
+      var enumerationContext =
+        await session.CreateEnumerationContextAsync(parameterContext, token).ConfigureAwait(false);
+      return await RecordSet.CreateAsync(enumerationContext, provider);
     }
 
     /// <summary>

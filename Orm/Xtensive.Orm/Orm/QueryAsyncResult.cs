@@ -16,13 +16,13 @@ namespace Xtensive.Orm
 
     public ValueTaskAwaiter<IEnumerable<TElement>> GetAwaiter() =>
       new ValueTask<IEnumerable<TElement>>(
-        parameterizedQuery.ExecuteAsync<IEnumerable<TElement>>(session, parameterContext, false, token)).GetAwaiter();
+        parameterizedQuery.ExecuteAsync<IEnumerable<TElement>>(session, parameterContext, token)).GetAwaiter();
 
     public async IAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
       using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, cancellationToken);
       var result = await parameterizedQuery.ExecuteAsync<IAsyncEnumerable<TElement>>(
-        session, parameterContext, true, linkedTokenSource.Token);
+        session, parameterContext, linkedTokenSource.Token);
       await foreach (var element in result.WithCancellation(linkedTokenSource.Token)) {
         yield return element;
       }

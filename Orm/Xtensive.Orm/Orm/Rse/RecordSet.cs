@@ -21,18 +21,19 @@ namespace Xtensive.Orm.Rse
   /// Provides access to a sequence of <see cref="Tuple"/>s
   /// exposed by its <see cref="Provider"/>.
   /// </summary>
-  public class RecordSet : IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
+  public readonly struct RecordSet : IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
   {
-    public EnumerationContext Context { get; private set; }
-    public ExecutableProvider Source { get; private set; }
-    public RecordSetHeader Header { get { return Source.Header; } }
+    private readonly ExecutableProvider source;
+    public readonly EnumerationContext Context;
+
+    public RecordSetHeader Header => source.Header;
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
     public IEnumerator<Tuple> GetEnumerator() =>
-      Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator) ? GetGreedyEnumerator() : GetBatchedEnumerator();
+      Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator) ? GetGreedyEnumerator() : GetLazyEnumerator();
 
     /// <inheritdoc/>
     public IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken cancellationToken) =>
@@ -40,101 +41,34 @@ namespace Xtensive.Orm.Rse
         ? GetAsyncGreedyEnumerator(cancellationToken)
         : GetAsyncLazyEnumerator(cancellationToken);
 
-    /// <summary>Returns an enumerator that iterates through the collection.</summary>
-    /// <returns>An enumerator that can be used to iterate through the collection.</returns>
-    public async Task<IEnumerator<Tuple>> GetEnumeratorAsync(CancellationToken token)
-    {
-      if (Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator))
-        return await GetGreedyEnumeratorAsync(token).ConfigureAwait(false);
-      return await GetBatchedEnumeratorAsync(token).ConfigureAwait(false);
-    }
-
     /// <summary>
     ///   Way 1: preloading all the data into memory and returning it inside this scope.
     /// </summary>
     private IEnumerator<Tuple> GetGreedyEnumerator()
     {
-      using (var cs = Context.BeginEnumeration()) {
-        List<Tuple> items;
+      using var cs = Context.BeginEnumeration();
 
-        items = Source.ToEnumerable(Context).ToList();
+      var items = source.GetReader(Context).ToList();
 
-        foreach (var tuple in items)
-          yield return tuple;
-
-        if (cs!=null)
-          cs.Complete();
+      foreach (var tuple in items) {
+        yield return tuple;
       }
+
+      cs?.Complete();
     }
 
     /// <summary>
     ///   Way 2: batched enumeration with periodical context activation
     /// </summary>
-    private IEnumerator<Tuple> GetBatchedEnumerator()
+    private IEnumerator<Tuple> GetLazyEnumerator()
     {
-      var batched = Source.ToEnumerable(Context).Batch(2);
-      using (var cs = Context.BeginEnumeration()) {
-        foreach (var batch in batched)
-          foreach (var tuple in batch)
-            yield return tuple;
-        if (cs!=null)
-          cs.Complete();
+      using var cs = Context.BeginEnumeration();
+
+      foreach (var tuple in source.GetReader(Context)) {
+        yield return tuple;
       }
-    }
 
-    /// <summary>
-    /// Way 1: asynchroniously preloading all the data into memory and returning it inside this scope.
-    /// </summary>
-    private async Task<IEnumerator<Tuple>> GetGreedyEnumeratorAsync(CancellationToken token)
-    {
-      var cs = Context.BeginEnumeration();
-      List<Tuple> items;
-      Action<object> afterEnumrationAction =
-        o => {
-          if (o==null)
-            return;
-          var completableScope = (ICompletableScope)o;
-          completableScope.Complete();
-          completableScope.Dispose();
-        };
-
-      var enumerator = await Source.GetEnumeratorAsync(Context, token).ConfigureAwait(false);
-      items = enumerator.ToEnumerable().ToList();
-
-      return items.ToEnumerator(afterEnumrationAction, cs);
-    }
-
-    /// <summary>
-    /// Way 2: batched async enumeration.
-    /// </summary>
-    private async Task<IEnumerator<Tuple>> GetBatchedEnumeratorAsync(CancellationToken token)
-    {
-      var enumerator = await Source.GetEnumeratorAsync(Context, token).ConfigureAwait(false);
-      var batched = enumerator.ToEnumerable().Batch(2);
-
-      var cs = Context.BeginEnumeration();
-      Action<object> afterEnumerationAction =
-        o => {
-          if (o==null)
-            return;
-          var completableScope = (ICompletableScope)o;
-          completableScope.Complete();
-          completableScope.Dispose();
-        };
-      return GetTwoLevelEnumerator(batched, afterEnumerationAction, cs);
-    }
-
-    private static IEnumerator<Tuple> GetTwoLevelEnumerator(IEnumerable<IEnumerable<Tuple>> enumerable, Action<object> afterEnumerationAction, object parameterForAction)
-    {
-      try {
-        foreach (var batch in enumerable)
-          foreach (var tuple in batch) {
-            yield return tuple;
-          }
-      }
-      finally {
-        afterEnumerationAction.Invoke(parameterForAction);
-      }
+      cs?.Complete();
     }
 
     private async IAsyncEnumerator<Tuple> GetAsyncGreedyEnumerator(CancellationToken token)
@@ -142,7 +76,7 @@ namespace Xtensive.Orm.Rse
       using var cs = Context.BeginEnumeration();
       var tuples = new List<Tuple>();
 
-      await foreach (var tuple in Source.ToAsyncEnumerable(Context).WithCancellation(token)) {
+      await foreach (var tuple in source.GetReader(Context).WithCancellation(token)) {
         token.ThrowIfCancellationRequested();
         tuples.Add(tuple);
       }
@@ -157,7 +91,7 @@ namespace Xtensive.Orm.Rse
     private async IAsyncEnumerator<Tuple> GetAsyncLazyEnumerator(CancellationToken token)
     {
       using var cs = Context.BeginEnumeration();
-      await foreach (var tuple in Source.ToAsyncEnumerable(Context).WithCancellation(token)) {
+      await foreach (var tuple in source.GetReader(Context).WithCancellation(token)) {
         token.ThrowIfCancellationRequested();
         yield return tuple;
       }
@@ -165,12 +99,22 @@ namespace Xtensive.Orm.Rse
       cs?.Complete();
     }
 
+    public static async Task<RecordSet> CreateAsync(EnumerationContext enumerationContext, ExecutableProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
+    public static RecordSet Create(EnumerationContext enumerationContext, ExecutableProvider provider)
+    {
+      throw new NotImplementedException();
+    }
+
     // Constructors
 
     public RecordSet(EnumerationContext context, ExecutableProvider source)
     {
       Context = context;
-      Source = source;
+      this.source = source;
     }
   }
 }

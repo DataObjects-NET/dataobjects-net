@@ -246,7 +246,7 @@ namespace Xtensive.Orm
       return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
-    internal async Task<EnumerationContext> CreateEnumerationContextForAsyncQuery(ParameterContext parameterContext, CancellationToken token)
+    internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext, CancellationToken token)
     {
       Persist(PersistReason.Other);
       token.ThrowIfCancellationRequested();

@@ -21,8 +21,7 @@ namespace Xtensive.Orm.Internals
   {
     private readonly ParameterContext parameterContext;
     private readonly
-      Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object>
-        materializer;
+      Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
     /// <summary>
@@ -51,7 +50,7 @@ namespace Xtensive.Orm.Internals
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       if (Task.Result==null)
         session.ExecuteUserDefinedDelayedQueries(false);
-      return (TResult) materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext, false);
+      return (TResult) materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext);
     }
 
 

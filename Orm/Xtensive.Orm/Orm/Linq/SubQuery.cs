@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Linq
         projectionExpression.ResultType);
       var translatedQuery = new TranslatedQuery(
         query.DataSource,
-        (Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, bool, object>)
+        (Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>)
           query.UntypedMaterializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
