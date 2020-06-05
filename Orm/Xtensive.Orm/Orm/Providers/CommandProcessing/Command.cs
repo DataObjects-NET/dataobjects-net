@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A command ready for execution.
   /// </summary>
-  public sealed class Command : IDisposable
+  public sealed class Command : IDisposable, IAsyncDisposable
   {
     private readonly CommandFactory origin;
     private readonly DbCommand underlyingCommand;
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public async Task<bool> NextRowAsync(CancellationToken token = default)
+    public async ValueTask<bool> NextRowAsync(CancellationToken token = default)
     {
       try {
         return await reader.ReadAsync(token);
@@ -120,7 +120,8 @@ namespace Xtensive.Orm.Providers
 
     public Tuple ReadTupleWith(DbDataReaderAccessor accessor) => accessor.Read(reader);
 
-    public TupleReader AsReaderOf(QueryRequest request) => new TupleReader(this, request);
+    public TupleEnumerator AsEnumeratorOf(QueryRequest request, CancellationToken token = default) =>
+      new TupleEnumerator(this, request, token);
 
     public DbCommand Prepare()
     {
@@ -147,6 +148,13 @@ namespace Xtensive.Orm.Providers
       underlyingCommand.DisposeSafely();
     }
 
+    public async ValueTask DisposeAsync()
+    {
+      reader.DisposeSafely();
+      resources.DisposeSafely();
+      await underlyingCommand.DisposeAsync();
+    }
+
     // Constructors
 
     internal Command(CommandFactory origin, DbCommand underlyingCommand)
@@ -156,57 +164,90 @@ namespace Xtensive.Orm.Providers
     }
   }
 
-  public readonly struct TupleReader: IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
+  public readonly struct TupleEnumerator: IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
   {
     private readonly object source;
-    private readonly QueryRequest request;
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    private readonly CancellationToken token;
+    private readonly DbDataReaderAccessor accessor;
 
-    public IEnumerator<Tuple> GetEnumerator()
+    public Tuple Current => source is Command command
+      ? command.ReadTupleWith(accessor)
+      : ((IEnumerator<Tuple>)source).Current;
+
+    object IEnumerator.Current => Current;
+
+    public bool MoveNext() => source is Command command
+      ? command.NextRow()
+      : ((IEnumerator<Tuple>) source).MoveNext();
+
+    public async ValueTask<bool> MoveNextAsync() => source is Command command
+      ? await command.NextRowAsync(token)
+      : ((IEnumerator<Tuple>) source).MoveNext();
+
+    void IEnumerator.Reset() => throw new NotSupportedException();
+
+    public void Dispose()
     {
       if (source is Command command) {
-        var accessor = request.GetAccessor();
-        return EnumerateCommand(command, accessor);
+        command.Dispose();
       }
-
-      var tuples = (IEnumerable<Tuple>)source;
-      return tuples.GetEnumerator();
     }
 
-    private static IEnumerator<Tuple> EnumerateCommand(Command command, DbDataReaderAccessor accessor)
+    public async ValueTask DisposeAsync()
     {
-      using (command) {
-        while (command.NextRow()) {
-          yield return command.ReadTupleWith(accessor);
-        }
+      if (source is Command command) {
+        await command.DisposeAsync();
       }
     }
 
-    public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
-    {
-      if (!(source is Command command)) {
-        throw new NotSupportedException("Async enumeration makes sense only for async source.");
-      }
+    // IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    //
+    // public IEnumerator<Tuple> GetEnumerator()
+    // {
+    //   if (source is Command command) {
+    //     var accessor = request.GetAccessor();
+    //     return EnumerateCommand(command, accessor);
+    //   }
+    //
+    //   var tuples = (IEnumerable<Tuple>)source;
+    //   return tuples.GetEnumerator();
+    // }
+    //
+    // private static IEnumerator<Tuple> EnumerateCommand(Command command, DbDataReaderAccessor accessor)
+    // {
+    //   using (command) {
+    //     while (command.NextRow()) {
+    //       yield return command.ReadTupleWith(accessor);
+    //     }
+    //   }
+    // }
+    //
+    // public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
+    // {
+    //   if (!(source is Command command)) {
+    //     throw new NotSupportedException("Async enumeration makes sense only for async source.");
+    //   }
+    //
+    //   var accessor = request.GetAccessor();
+    //   using (command) {
+    //     while (await command.NextRowAsync(token)) {
+    //       token.ThrowIfCancellationRequested();
+    //       yield return command.ReadTupleWith(accessor);
+    //     }
+    //   }
+    // }
 
-      var accessor = request.GetAccessor();
-      using (command) {
-        while (await command.NextRowAsync(token)) {
-          token.ThrowIfCancellationRequested();
-          yield return command.ReadTupleWith(accessor);
-        }
-      }
-    }
-
-    public TupleReader(IEnumerable<Tuple> tuples)
+    public TupleEnumerator(IEnumerable<Tuple> tuples)
     {
       source = tuples;
-      request = null;
+      accessor = null;
     }
 
-    public TupleReader(Command command, QueryRequest request)
+    public TupleEnumerator(Command command, QueryRequest request, CancellationToken token)
     {
       source = command;
-      this.request = request;
+      accessor = request.GetAccessor();
+      this.token = token;
     }
   }
 }

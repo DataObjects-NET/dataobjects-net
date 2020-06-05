@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Providers
     // Implementation of IProviderExecutor
 
     /// <inheritdoc/>
-    TupleReader IProviderExecutor.ExecuteTupleReader(QueryRequest request,
+    TupleEnumerator IProviderExecutor.ExecuteTupleReader(QueryRequest request,
       ParameterContext parameterContext)
     {
       Prepare();
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers
       return commandProcessor.ExecuteTasksWithReader(request, context);
     }
 
-    async Task<TupleReader> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
+    async Task<TupleEnumerator> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {
       await PrepareAsync(token);

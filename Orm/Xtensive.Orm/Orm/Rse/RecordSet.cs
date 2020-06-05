@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Rse
   /// </summary>
   public readonly struct RecordSet : IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
   {
-    private readonly ExecutableProvider source;
     public readonly EnumerationContext Context;
+    private readonly ExecutableProvider source;
 
     public RecordSetHeader Header => source.Header;
 
@@ -32,14 +32,146 @@ namespace Xtensive.Orm.Rse
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public IEnumerator<Tuple> GetEnumerator() =>
-      Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator) ? GetGreedyEnumerator() : GetLazyEnumerator();
+    IEnumerator<Tuple> IEnumerable<Tuple>.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken cancellationToken) =>
+    IAsyncEnumerator<Tuple> IAsyncEnumerable<Tuple>.GetAsyncEnumerator(CancellationToken cancellationToken) =>
+      GetAsyncEnumerator(cancellationToken);
+
+    public RecordSetEnumerator GetEnumerator() =>
       Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator)
-        ? GetAsyncGreedyEnumerator(cancellationToken)
-        : GetAsyncLazyEnumerator(cancellationToken);
+        ? (RecordSetEnumerator) new RecordSetGreedyEnumerator(this)
+        : new RecordSetLazyEnumerator(this);
+
+    public RecordSetEnumerator GetAsyncEnumerator(CancellationToken cancellationToken = default) =>
+      Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator)
+        ? (RecordSetEnumerator) new RecordSetGreedyEnumerator(this, cancellationToken)
+        : new RecordSetLazyEnumerator(this, cancellationToken);
+
+    public abstract class RecordSetEnumerator: IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
+    {
+      private bool hasValue;
+      public abstract Tuple Current { get; }
+
+      void IEnumerator.Reset() => throw new NotSupportedException();
+
+      object IEnumerator.Current => Current;
+
+      public bool MoveNext()
+      {
+        var result = hasValue;
+        if (hasValue) {
+          hasValue = MoveNextImpl();
+        }
+
+        return result;
+      }
+
+      protected abstract bool MoveNextImpl();
+
+      public async ValueTask<bool> MoveNextAsync()
+      {
+        var result = hasValue;
+        if (hasValue) {
+          hasValue = await MoveNextAsyncImpl();
+        }
+
+        return result;
+      }
+
+      internal void Initialize() => hasValue = MoveNextImpl();
+      internal async ValueTask InitializeAsync() => hasValue = await MoveNextAsyncImpl();
+
+      protected abstract ValueTask<bool> MoveNextAsyncImpl();
+
+      public abstract void Dispose();
+
+      public abstract ValueTask DisposeAsync();
+    }
+
+    private class RecordSetGreedyEnumerator: RecordSetEnumerator
+    {
+      private readonly RecordSet recordSet;
+      private readonly CancellationToken cancellationToken;
+
+      private List<Tuple>.Enumerator? underlyingEnumerator;
+
+      public override Tuple Current => underlyingEnumerator.HasValue
+        ? underlyingEnumerator.Value.Current
+        : throw new InvalidOperationException("Enumeration has not been started.");
+
+      protected override bool MoveNextImpl()
+      {
+        if (underlyingEnumerator.HasValue) {
+          return underlyingEnumerator.Value.MoveNext();
+        }
+
+        var tupleList = new List<Tuple>();
+        using var sourceEnumerator = recordSet.source.GetProviderEnumerator(recordSet.Context);
+        while (sourceEnumerator.MoveNext()) {
+          tupleList.Add(sourceEnumerator.Current);
+        }
+
+        underlyingEnumerator = tupleList.GetEnumerator();
+
+        return underlyingEnumerator.Value.MoveNext();
+      }
+
+      protected override async ValueTask<bool> MoveNextAsyncImpl()
+      {
+        if (underlyingEnumerator.HasValue) {
+          return underlyingEnumerator.Value.MoveNext();
+        }
+
+        var tupleList = new List<Tuple>();
+        await using var sourceEnumerator = recordSet.source.GetProviderEnumerator(recordSet.Context);
+        while (await sourceEnumerator.MoveNextAsync(cancellationToken)) {
+          tupleList.Add(sourceEnumerator.Current);
+        }
+
+        underlyingEnumerator = tupleList.GetEnumerator();
+
+        return underlyingEnumerator.Value.MoveNext();
+      }
+
+      public override void Dispose() => underlyingEnumerator?.Dispose();
+
+      public override ValueTask DisposeAsync()
+      {
+        underlyingEnumerator?.Dispose();
+        return default;
+      }
+
+      public RecordSetGreedyEnumerator(RecordSet recordSet, CancellationToken cancellationToken = default)
+      {
+        this.recordSet = recordSet;
+        this.cancellationToken = cancellationToken;
+      }
+    }
+
+    private class RecordSetLazyEnumerator: RecordSetEnumerator
+    {
+      private readonly RecordSet recordSet;
+      private readonly CancellationToken cancellationToken;
+      private readonly ExecutableProvider.ExecutableProviderEnumerator sourceEnumerator;
+
+      public override Tuple Current => sourceEnumerator.Current;
+
+      protected override bool MoveNextImpl() => sourceEnumerator.MoveNext();
+
+      protected override ValueTask<bool> MoveNextAsyncImpl() => sourceEnumerator.MoveNextAsync(cancellationToken);
+
+      public override void Dispose() => sourceEnumerator.Dispose();
+
+      public override ValueTask DisposeAsync() => sourceEnumerator.DisposeAsync();
+
+      public RecordSetLazyEnumerator(RecordSet recordSet, CancellationToken cancellationToken = default)
+      {
+        this.recordSet = recordSet;
+        sourceEnumerator = recordSet.source.GetProviderEnumerator(recordSet.Context);
+        this.cancellationToken = cancellationToken;
+      }
+    }
 
     /// <summary>
     ///   Way 1: preloading all the data into memory and returning it inside this scope.
@@ -101,7 +233,8 @@ namespace Xtensive.Orm.Rse
 
     public static async Task<RecordSet> CreateAsync(EnumerationContext enumerationContext, ExecutableProvider provider)
     {
-      throw new NotImplementedException();
+      var recordSet = new RecordSet(enumerationContext, provider);
+      await recordSet.Ini
     }
 
     public static RecordSet Create(EnumerationContext enumerationContext, ExecutableProvider provider)
@@ -111,7 +244,7 @@ namespace Xtensive.Orm.Rse
 
     // Constructors
 
-    public RecordSet(EnumerationContext context, ExecutableProvider source)
+    private RecordSet(EnumerationContext context, ExecutableProvider source)
     {
       Context = context;
       this.source = source;

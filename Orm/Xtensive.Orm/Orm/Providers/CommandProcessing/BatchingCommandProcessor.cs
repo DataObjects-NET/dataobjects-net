@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers
         await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
     }
 
-    public override TupleReader ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context)
+    public override TupleEnumerator ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context)
     {
       context.AllowPartialExecution = false;
       PutTasksForExecution(context);
@@ -76,10 +76,10 @@ namespace Xtensive.Orm.Providers
       while (context.ProcessingTasks.Count >= batchSize)
         ExecuteBatch(batchSize, null, context);
 
-      return ExecuteBatch(context.ProcessingTasks.Count, request, context).AsReaderOf(request);
+      return ExecuteBatch(context.ProcessingTasks.Count, request, context).AsEnumeratorOf(request);
     }
 
-    public override async Task<TupleReader> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
+    public override async Task<TupleEnumerator> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
     {
       context.ProcessingTasks = new Queue<SqlTask>(tasks);
       tasks.Clear();
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Providers
       }
 
       return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false))
-        .AsReaderOf(request);
+        .AsEnumeratorOf(request);
     }
 
     #region Private / internal methods

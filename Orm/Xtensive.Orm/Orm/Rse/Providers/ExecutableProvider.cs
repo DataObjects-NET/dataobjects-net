@@ -55,9 +55,9 @@ namespace Xtensive.Orm.Rse.Providers
       }
     }
 
-    protected abstract TupleReader OnEnumerate(EnumerationContext context);
+    protected abstract TupleEnumerator OnEnumerate(EnumerationContext context);
 
-    protected virtual Task<TupleReader> OnEnumerateAsync(EnumerationContext context, CancellationToken token)
+    protected virtual Task<TupleEnumerator> OnEnumerateAsync(EnumerationContext context, CancellationToken token)
     {
       //Default version is synchronous
       token.ThrowIfCancellationRequested();
@@ -84,69 +84,216 @@ namespace Xtensive.Orm.Rse.Providers
 
     #region IEnumerable<...> methods
 
-    public ExecutableProviderTupleReader GetReader(EnumerationContext context) =>
-      new ExecutableProviderTupleReader(context, this);
+    // public ExecutableProviderTupleReader GetReader(EnumerationContext context) =>
+    //   new ExecutableProviderTupleReader(context, this);
+    //
+    // public readonly struct ExecutableProviderTupleReader: IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
+    // {
+    //   private readonly EnumerationContext context;
+    //   private readonly ExecutableProvider provider;
+    //
+    //   /// <inheritdoc/>
+    //   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+    //
+    //   /// <inheritdoc/>
+    //   IEnumerator<Tuple> IEnumerable<Tuple>.GetEnumerator()
+    //   {
+    //     const string enumerationMarker = "Enumerated";
+    //     var enumerated = context.GetValue<bool>(this, enumerationMarker);
+    //     if (!enumerated) {
+    //       provider.OnBeforeEnumerate(context);
+    //     }
+    //
+    //     try {
+    //       context.SetValue(this, enumerationMarker, true);
+    //       var tupleReader = provider.OnEnumerate(context);
+    //       foreach (var tuple in tupleReader) {
+    //         yield return tuple;
+    //       }
+    //     }
+    //     finally {
+    //       if (!enumerated) {
+    //         provider.OnAfterEnumerate(context);
+    //       }
+    //     }
+    //   }
+    //
+    //   public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
+    //   {
+    //     const string enumerationMarker = "Enumerated";
+    //     var enumerated = context.GetValue<bool>(this, enumerationMarker);
+    //     if (!enumerated) {
+    //       provider.OnBeforeEnumerate(context);
+    //     }
+    //
+    //     try {
+    //       context.SetValue(this, enumerationMarker, true);
+    //       var tupleReader = await provider.OnEnumerateAsync(context, token);
+    //       await foreach (var tuple in tupleReader.WithCancellation(token)) {
+    //         yield return tuple;
+    //       }
+    //     }
+    //     finally {
+    //       if (!enumerated) {
+    //         provider.OnAfterEnumerate(context);
+    //       }
+    //     }
+    //   }
+    //
+    //   public ExecutableProviderTupleReader(EnumerationContext context, ExecutableProvider provider)
+    //   {
+    //     this.context = context;
+    //     this.provider = provider;
+    //   }
+    // }
 
-    public readonly struct ExecutableProviderTupleReader: IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
+    public ExecutableProviderEnumerator GetProviderEnumerator(EnumerationContext context) =>
+      new ExecutableProviderEnumerator(context, this);
+
+    public class ExecutableProviderEnumerator: IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
     {
+      private const string enumerationMarker = "Enumerated";
+      private enum State
+      {
+        New,
+        Initialized,
+        Finished
+      }
+
       private readonly EnumerationContext context;
       private readonly ExecutableProvider provider;
+      private State state = State.New;
+      private bool enumerated;
+      private TupleEnumerator tupleEnumerator;
 
-      /// <inheritdoc/>
-      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-      /// <inheritdoc/>
-      public IEnumerator<Tuple> GetEnumerator()
+      public bool MoveNext()
       {
-        const string enumerationMarker = "Enumerated";
-        var enumerated = context.GetValue<bool>(this, enumerationMarker);
-        if (!enumerated) {
-          provider.OnBeforeEnumerate(context);
-        }
+        switch (state) {
+          case State.New:
+            enumerated = context.GetValue<bool>(provider, enumerationMarker);
+            if (!enumerated) {
+              provider.OnBeforeEnumerate(context);
+              context.SetValue(provider, enumerationMarker, true);
+            }
 
-        try {
-          context.SetValue(this, enumerationMarker, true);
-          var tupleReader = provider.OnEnumerate(context);
-          foreach (var tuple in tupleReader) {
-            yield return tuple;
-          }
-        }
-        finally {
-          if (!enumerated) {
-            provider.OnAfterEnumerate(context);
-          }
+            try {
+              tupleEnumerator = provider.OnEnumerate(context);
+
+              state = State.Initialized;
+              goto case State.Initialized;
+            }
+            catch {
+              if (!enumerated) {
+                provider.OnAfterEnumerate(context);
+              }
+
+              throw;
+            }
+          case State.Initialized:
+            bool hasValue;
+            try {
+              hasValue = tupleEnumerator.MoveNext();
+            }
+            catch {
+              if (!enumerated) {
+                provider.OnAfterEnumerate(context);
+              }
+
+              throw;
+            }
+
+            if (!hasValue) {
+              state = State.Finished;
+              if (!enumerated) {
+                provider.OnAfterEnumerate(context);
+              }
+              goto case State.Finished;
+            }
+            return true;
+          case State.Finished:
+          default:
+            return false;
         }
       }
 
-      public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
-      {
-        const string enumerationMarker = "Enumerated";
-        var enumerated = context.GetValue<bool>(this, enumerationMarker);
-        if (!enumerated) {
-          provider.OnBeforeEnumerate(context);
-        }
+      public ValueTask<bool> MoveNextAsync() => MoveNextAsync(default);
 
-        try {
-          context.SetValue(this, enumerationMarker, true);
-          var tupleReader = await provider.OnEnumerateAsync(context, token);
-          await foreach (var tuple in tupleReader.WithCancellation(token)) {
-            yield return tuple;
-          }
-        }
-        finally {
-          if (!enumerated) {
-            provider.OnAfterEnumerate(context);
-          }
+      public async ValueTask<bool> MoveNextAsync(CancellationToken token)
+      {
+        switch (state) {
+          case State.New:
+            enumerated = context.GetValue<bool>(provider, enumerationMarker);
+            if (!enumerated) {
+              provider.OnBeforeEnumerate(context);
+              context.SetValue(provider, enumerationMarker, true);
+            }
+
+            try {
+              tupleEnumerator = await provider.OnEnumerateAsync(context, token);
+
+              state = State.Initialized;
+              goto case State.Initialized;
+            }
+            catch {
+              if (!enumerated) {
+                provider.OnAfterEnumerate(context);
+              }
+
+              throw;
+            }
+          case State.Initialized:
+            bool hasValue;
+            try {
+              hasValue = await tupleEnumerator.MoveNextAsync();
+            }
+            catch {
+              if (!enumerated) {
+                provider.OnAfterEnumerate(context);
+              }
+
+              throw;
+            }
+
+            if (!hasValue) {
+              state = State.Finished;
+              if (!enumerated) {
+                provider.OnAfterEnumerate(context);
+              }
+              goto case State.Finished;
+            }
+            return true;
+          case State.Finished:
+          default:
+            return false;
         }
       }
 
-      public ExecutableProviderTupleReader(EnumerationContext context, ExecutableProvider provider)
+      public Tuple Current => tupleEnumerator.Current;
+
+      object IEnumerator.Current => Current;
+
+      void IEnumerator.Reset() => throw new NotSupportedException();
+
+      public void Dispose()
+      {
+        if (state != State.New) {
+          tupleEnumerator.Dispose();
+        }
+      }
+
+      public async ValueTask DisposeAsync()
+      {
+        if (state != State.New) {
+          await tupleEnumerator.DisposeAsync();
+        }
+      }
+
+      public ExecutableProviderEnumerator(EnumerationContext context, ExecutableProvider provider)
       {
         this.context = context;
         this.provider = provider;
       }
     }
-
 
     // public async Task<IEnumerator<Tuple>> GetEnumeratorAsync(EnumerationContext context, CancellationToken token)
     // {

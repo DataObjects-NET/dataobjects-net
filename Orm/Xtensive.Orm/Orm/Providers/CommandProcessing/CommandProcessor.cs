@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="context">A contextual information to be used while executing
     /// the specified <paramref name="request"/>.</param>
     /// <returns>A <see cref="IEnumerator{Tuple}"/> for the specified request.</returns>
-    public abstract TupleReader ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
+    public abstract TupleEnumerator ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
 
     /// <summary>
     /// Asynchronously executes all registered requests plus the specified one query.
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Providers
     /// the specified <paramref name="request"/>.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>A task performing this operation.</returns>
-    public virtual Task<TupleReader> ExecuteTasksWithReaderAsync(QueryRequest request,
+    public virtual Task<TupleEnumerator> ExecuteTasksWithReaderAsync(QueryRequest request,
       CommandProcessorContext context, CancellationToken token)
     {
       token.ThrowIfCancellationRequested();
