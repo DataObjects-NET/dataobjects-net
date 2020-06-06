@@ -123,6 +123,7 @@ namespace Xtensive.Orm.Rse.Providers
 
       private readonly EnumerationContext context;
       private readonly ExecutableProvider provider;
+      private readonly CancellationToken token;
       private readonly bool isGreedy;
 
       private State state = State.New;
@@ -130,11 +131,21 @@ namespace Xtensive.Orm.Rse.Providers
       private TupleEnumerator tupleEnumerator;
       private ICompletableScope enumerationScope;
 
+      private void Prepare()
+      {
+        throw new NotImplementedException();
+      }
+
+      private async ValueTask PrepareAsync()
+      {
+        throw new NotImplementedException();
+      }
+
       public bool MoveNext()
       {
         switch (state) {
           case State.New:
-            _ = StartEnumeration(false, default);
+            _ = StartEnumeration(false);
 
             state = State.Initialized;
             goto case State.Initialized;
@@ -160,13 +171,11 @@ namespace Xtensive.Orm.Rse.Providers
         }
       }
 
-      public ValueTask<bool> MoveNextAsync() => MoveNextAsync(default);
-
-      public async ValueTask<bool> MoveNextAsync(CancellationToken token)
+      public async ValueTask<bool> MoveNextAsync()
       {
         switch (state) {
           case State.New:
-            await StartEnumeration(true, token);
+            await StartEnumeration(true);
 
             state = State.Initialized;
             goto case State.Initialized;
@@ -191,7 +200,7 @@ namespace Xtensive.Orm.Rse.Providers
         }
       }
 
-      private async ValueTask StartEnumeration(bool executeAsync, CancellationToken token)
+      private async ValueTask StartEnumeration(bool executeAsync)
       {
         enumerationScope = context.BeginEnumeration();
         enumerated = context.GetValue<bool>(provider, enumerationMarker);
@@ -252,6 +261,7 @@ namespace Xtensive.Orm.Rse.Providers
         if (state != State.New) {
           tupleEnumerator.Dispose();
         }
+        enumerationScope?.Dispose();
       }
 
       public async ValueTask DisposeAsync()
@@ -259,22 +269,30 @@ namespace Xtensive.Orm.Rse.Providers
         if (state != State.New) {
           await tupleEnumerator.DisposeAsync();
         }
+        enumerationScope?.Dispose();
       }
 
-      private RecordSet(EnumerationContext context, ExecutableProvider provider)
+      private RecordSet(EnumerationContext context, ExecutableProvider provider, CancellationToken token = default)
       {
         this.context = context;
         this.provider = provider;
+        this.token = token;
         isGreedy = context.CheckOptions(EnumerationContextOptions.GreedyEnumerator);
       }
 
-      public static RecordSet Create(EnumerationContext context, ExecutableProvider provider) =>
-        new RecordSet(context, provider);
+      public static RecordSet Create(EnumerationContext context, ExecutableProvider provider)
+      {
+        var recordSet = new RecordSet(context, provider);
+        recordSet.Prepare();
+        return recordSet;
+      }
 
       public static async ValueTask<RecordSet> CreateAsync(
         EnumerationContext context, ExecutableProvider provider, CancellationToken token)
       {
-        throw new NotImplementedException();
+        var recordSet = new RecordSet(context, provider, token);
+        await recordSet.PrepareAsync();
+        return recordSet;
       }
     }
 
