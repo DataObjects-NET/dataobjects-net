@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Rse.Providers
       private enum State
       {
         New,
-        Initialized,
+        Prepared,
         Finished
       }
 
@@ -130,28 +130,24 @@ namespace Xtensive.Orm.Rse.Providers
       private bool enumerated;
       private TupleEnumerator tupleEnumerator;
       private ICompletableScope enumerationScope;
+      private bool hasNextTuple;
 
-      private void Prepare()
-      {
-        throw new NotImplementedException();
-      }
+      public Tuple Current { get; private set; }
 
-      private async ValueTask PrepareAsync()
-      {
-        throw new NotImplementedException();
-      }
+      object IEnumerator.Current => Current;
+
+      void IEnumerator.Reset() => throw new NotSupportedException();
 
       public bool MoveNext()
       {
         switch (state) {
           case State.New:
-            _ = StartEnumeration(false);
-
-            state = State.Initialized;
-            goto case State.Initialized;
-          case State.Initialized:
+            throw new InvalidOperationException("RecordSet is not prepared.");
+          case State.Prepared:
             try {
-              if (tupleEnumerator.MoveNext()) {
+              if (hasNextTuple) {
+                Current = tupleEnumerator.Current;
+                hasNextTuple = tupleEnumerator.MoveNext();
                 return true;
               }
             }
@@ -175,13 +171,12 @@ namespace Xtensive.Orm.Rse.Providers
       {
         switch (state) {
           case State.New:
-            await StartEnumeration(true);
-
-            state = State.Initialized;
-            goto case State.Initialized;
-          case State.Initialized:
+            throw new InvalidOperationException("RecordSet is not prepared.");
+          case State.Prepared:
             try {
-              if (await tupleEnumerator.MoveNextAsync()) {
+              if (hasNextTuple) {
+                Current = tupleEnumerator.Current;
+                hasNextTuple = await tupleEnumerator.MoveNextAsync();
                 return true;
               }
             }
@@ -200,7 +195,7 @@ namespace Xtensive.Orm.Rse.Providers
         }
       }
 
-      private async ValueTask StartEnumeration(bool executeAsync)
+      private async ValueTask Prepare(bool executeAsync)
       {
         enumerationScope = context.BeginEnumeration();
         enumerated = context.GetValue<bool>(provider, enumerationMarker);
@@ -232,11 +227,14 @@ namespace Xtensive.Orm.Rse.Providers
             }
             tupleEnumerator = new TupleEnumerator(tuples);
           }
+
+          hasNextTuple = executeAsync ? await tupleEnumerator.MoveNextAsync() : tupleEnumerator.MoveNext();
         }
         catch {
           FinishEnumeration(true);
           throw;
         }
+        state = State.Prepared;
       }
 
       private void FinishEnumeration(bool isError)
@@ -249,12 +247,6 @@ namespace Xtensive.Orm.Rse.Providers
           enumerationScope?.Complete();
         }
       }
-
-      public Tuple Current => tupleEnumerator.Current;
-
-      object IEnumerator.Current => Current;
-
-      void IEnumerator.Reset() => throw new NotSupportedException();
 
       public void Dispose()
       {
@@ -283,7 +275,7 @@ namespace Xtensive.Orm.Rse.Providers
       public static RecordSet Create(EnumerationContext context, ExecutableProvider provider)
       {
         var recordSet = new RecordSet(context, provider);
-        recordSet.Prepare();
+        _ = recordSet.Prepare(false);
         return recordSet;
       }
 
@@ -291,7 +283,7 @@ namespace Xtensive.Orm.Rse.Providers
         EnumerationContext context, ExecutableProvider provider, CancellationToken token)
       {
         var recordSet = new RecordSet(context, provider, token);
-        await recordSet.PrepareAsync();
+        await recordSet.Prepare(true);
         return recordSet;
       }
     }
@@ -309,238 +301,4 @@ namespace Xtensive.Orm.Rse.Providers
       Origin = origin;
     }
   }
-
-  // /// <summary>
-  // /// Provides access to a sequence of <see cref="Tuple"/>s
-  // /// exposed by its <see cref="Provider"/>.
-  // /// </summary>
-  // public readonly struct RecordSet : IEnumerable<Tuple>, IAsyncEnumerable<Tuple>
-  // {
-  //   public readonly EnumerationContext Context;
-  //   private readonly ExecutableProvider source;
-  //
-  //   public RecordSetHeader Header => source.Header;
-  //
-  //   /// <inheritdoc/>
-  //   IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-  //
-  //   /// <inheritdoc/>
-  //   IEnumerator<Tuple> IEnumerable<Tuple>.GetEnumerator() => GetEnumerator();
-  //
-  //   /// <inheritdoc/>
-  //   IAsyncEnumerator<Tuple> IAsyncEnumerable<Tuple>.GetAsyncEnumerator(CancellationToken cancellationToken) =>
-  //     GetAsyncEnumerator(cancellationToken);
-  //
-  //   public RecordSetEnumerator GetEnumerator() =>
-  //     Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator)
-  //       ? (RecordSetEnumerator) new RecordSetGreedyEnumerator(this)
-  //       : new RecordSetLazyEnumerator(this);
-  //
-  //   public RecordSetEnumerator GetAsyncEnumerator(CancellationToken cancellationToken = default) =>
-  //     Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator)
-  //       ? (RecordSetEnumerator) new RecordSetGreedyEnumerator(this, cancellationToken)
-  //       : new RecordSetLazyEnumerator(this, cancellationToken);
-  //
-  //   public abstract class RecordSetEnumerator: IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
-  //   {
-  //     private bool hasValue;
-  //     public abstract Tuple Current { get; }
-  //
-  //     void IEnumerator.Reset() => throw new NotSupportedException();
-  //
-  //     object IEnumerator.Current => Current;
-  //
-  //     public bool MoveNext()
-  //     {
-  //       var result = hasValue;
-  //       if (hasValue) {
-  //         hasValue = MoveNextImpl();
-  //       }
-  //
-  //       return result;
-  //     }
-  //
-  //     protected abstract bool MoveNextImpl();
-  //
-  //     public async ValueTask<bool> MoveNextAsync()
-  //     {
-  //       var result = hasValue;
-  //       if (hasValue) {
-  //         hasValue = await MoveNextAsyncImpl();
-  //       }
-  //
-  //       return result;
-  //     }
-  //
-  //     internal void Initialize() => hasValue = MoveNextImpl();
-  //     internal async ValueTask InitializeAsync() => hasValue = await MoveNextAsyncImpl();
-  //
-  //     protected abstract ValueTask<bool> MoveNextAsyncImpl();
-  //
-  //     public abstract void Dispose();
-  //
-  //     public abstract ValueTask DisposeAsync();
-  //   }
-  //
-  //   private class RecordSetGreedyEnumerator: RecordSetEnumerator
-  //   {
-  //     private readonly RecordSet recordSet;
-  //     private readonly CancellationToken cancellationToken;
-  //
-  //     private List<Tuple>.Enumerator? underlyingEnumerator;
-  //
-  //     public override Tuple Current => underlyingEnumerator.HasValue
-  //       ? underlyingEnumerator.Value.Current
-  //       : throw new InvalidOperationException("Enumeration has not been started.");
-  //
-  //     protected override bool MoveNextImpl()
-  //     {
-  //       if (underlyingEnumerator.HasValue) {
-  //         return underlyingEnumerator.Value.MoveNext();
-  //       }
-  //
-  //       var tupleList = new List<Tuple>();
-  //       using var sourceEnumerator = recordSet.source.GetProviderEnumerator(recordSet.Context);
-  //       while (sourceEnumerator.MoveNext()) {
-  //         tupleList.Add(sourceEnumerator.Current);
-  //       }
-  //
-  //       underlyingEnumerator = tupleList.GetEnumerator();
-  //
-  //       return underlyingEnumerator.Value.MoveNext();
-  //     }
-  //
-  //     protected override async ValueTask<bool> MoveNextAsyncImpl()
-  //     {
-  //       if (underlyingEnumerator.HasValue) {
-  //         return underlyingEnumerator.Value.MoveNext();
-  //       }
-  //
-  //       var tupleList = new List<Tuple>();
-  //       await using var sourceEnumerator = recordSet.source.GetProviderEnumerator(recordSet.Context);
-  //       while (await sourceEnumerator.MoveNextAsync(cancellationToken)) {
-  //         tupleList.Add(sourceEnumerator.Current);
-  //       }
-  //
-  //       underlyingEnumerator = tupleList.GetEnumerator();
-  //
-  //       return underlyingEnumerator.Value.MoveNext();
-  //     }
-  //
-  //     public override void Dispose() => underlyingEnumerator?.Dispose();
-  //
-  //     public override ValueTask DisposeAsync()
-  //     {
-  //       underlyingEnumerator?.Dispose();
-  //       return default;
-  //     }
-  //
-  //     public RecordSetGreedyEnumerator(RecordSet recordSet, CancellationToken cancellationToken = default)
-  //     {
-  //       this.recordSet = recordSet;
-  //       this.cancellationToken = cancellationToken;
-  //     }
-  //   }
-  //
-  //   private class RecordSetLazyEnumerator: RecordSetEnumerator
-  //   {
-  //     private readonly RecordSet recordSet;
-  //     private readonly CancellationToken cancellationToken;
-  //     private readonly ExecutableProvider.ExecutableProviderEnumerator sourceEnumerator;
-  //
-  //     public override Tuple Current => sourceEnumerator.Current;
-  //
-  //     protected override bool MoveNextImpl() => sourceEnumerator.MoveNext();
-  //
-  //     protected override ValueTask<bool> MoveNextAsyncImpl() => sourceEnumerator.MoveNextAsync(cancellationToken);
-  //
-  //     public override void Dispose() => sourceEnumerator.Dispose();
-  //
-  //     public override ValueTask DisposeAsync() => sourceEnumerator.DisposeAsync();
-  //
-  //     public RecordSetLazyEnumerator(RecordSet recordSet, CancellationToken cancellationToken = default)
-  //     {
-  //       this.recordSet = recordSet;
-  //       sourceEnumerator = recordSet.source.GetProviderEnumerator(recordSet.Context);
-  //       this.cancellationToken = cancellationToken;
-  //     }
-  //   }
-  //
-  //   /// <summary>
-  //   ///   Way 1: preloading all the data into memory and returning it inside this scope.
-  //   /// </summary>
-  //   private IEnumerator<Tuple> GetGreedyEnumerator()
-  //   {
-  //     using var cs = Context.BeginEnumeration();
-  //
-  //     var items = source.GetReader(Context).ToList();
-  //
-  //     foreach (var tuple in items) {
-  //       yield return tuple;
-  //     }
-  //
-  //     cs?.Complete();
-  //   }
-  //
-  //   /// <summary>
-  //   ///   Way 2: batched enumeration with periodical context activation
-  //   /// </summary>
-  //   private IEnumerator<Tuple> GetLazyEnumerator()
-  //   {
-  //     using var cs = Context.BeginEnumeration();
-  //
-  //     foreach (var tuple in source.GetReader(Context)) {
-  //       yield return tuple;
-  //     }
-  //
-  //     cs?.Complete();
-  //   }
-  //
-  //   private async IAsyncEnumerator<Tuple> GetAsyncGreedyEnumerator(CancellationToken token)
-  //   {
-  //     using var cs = Context.BeginEnumeration();
-  //     var tuples = new List<Tuple>();
-  //
-  //     await foreach (var tuple in source.GetReader(Context).WithCancellation(token)) {
-  //       token.ThrowIfCancellationRequested();
-  //       tuples.Add(tuple);
-  //     }
-  //
-  //     foreach (var tuple in tuples) {
-  //       yield return tuple;
-  //     }
-  //
-  //     cs?.Complete();
-  //   }
-  //
-  //   private async IAsyncEnumerator<Tuple> GetAsyncLazyEnumerator(CancellationToken token)
-  //   {
-  //     using var cs = Context.BeginEnumeration();
-  //     await foreach (var tuple in source.GetReader(Context).WithCancellation(token)) {
-  //       token.ThrowIfCancellationRequested();
-  //       yield return tuple;
-  //     }
-  //
-  //     cs?.Complete();
-  //   }
-  //
-  //   public static async Task<RecordSet> CreateAsync(EnumerationContext enumerationContext, ExecutableProvider provider)
-  //   {
-  //     var recordSet = new RecordSet(enumerationContext, provider);
-  //     await recordSet.Ini
-  //   }
-  //
-  //   public static RecordSet Create(EnumerationContext enumerationContext, ExecutableProvider provider)
-  //   {
-  //     throw new NotImplementedException();
-  //   }
-  //
-  //   // Constructors
-  //
-  //   private RecordSet(EnumerationContext context, ExecutableProvider source)
-  //   {
-  //     Context = context;
-  //     this.source = source;
-  //   }
-  // }
 }
