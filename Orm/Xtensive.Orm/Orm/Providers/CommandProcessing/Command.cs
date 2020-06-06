@@ -170,6 +170,8 @@ namespace Xtensive.Orm.Providers
     private readonly CancellationToken token;
     private readonly DbDataReaderAccessor accessor;
 
+    public bool IsInMemory => !(source is Command);
+
     public Tuple Current => source is Command command
       ? command.ReadTupleWith(accessor)
       : ((IEnumerator<Tuple>)source).Current;
