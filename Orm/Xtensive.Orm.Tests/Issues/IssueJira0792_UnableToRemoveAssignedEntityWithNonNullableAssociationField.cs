@@ -21,7 +21,9 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0792_UnableToRemoveAssignedEntityWi
     public long Id { get; private set; }
 
     [Field]
-    [Association(PairTo = nameof (JobTechnology.ReqiredJob), OnTargetRemove = OnRemoveAction.Clear, OnOwnerRemove = OnRemoveAction.Cascade)]
+    [Association(PairTo = nameof (JobTechnology.ReqiredJob),
+      OnTargetRemove = OnRemoveAction.Clear,
+      OnOwnerRemove = OnRemoveAction.Cascade)]
     public JobTechnology Technology { get; set; }
 
     public Job(Session session)
@@ -54,7 +56,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Job).Assembly, typeof (Job).Namespace);
+      configuration.Types.Register(typeof(Job).Assembly, typeof(Job).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
