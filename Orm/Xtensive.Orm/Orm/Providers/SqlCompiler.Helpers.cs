@@ -187,6 +187,16 @@ namespace Xtensive.Orm.Providers
       return cRef?.SqlColumn is SqlColumnStub;
     }
 
+    private static bool IsTypeIdColumn(SqlColumn column)
+    {
+      if (column is SqlUserColumn)
+        return (StringComparer.OrdinalIgnoreCase.Compare(column.Name, "TypeId") == 0);
+      var cRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, cRef))
+        return (StringComparer.OrdinalIgnoreCase.Compare(column.Name, "TypeId") == 0);
+      return false;
+    }
+
     private static SqlColumnStub ExtractColumnStub(SqlColumn column)
     {
       switch (column) {
@@ -229,6 +239,10 @@ namespace Xtensive.Orm.Providers
         columnIndex++;
       }
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
+      var typeIdIsOnlyCalculatedColumn = (calculatedColumnIndexes.Count == 1)
+        ? IsTypeIdColumn(sourceSelect.Columns[calculatedColumnIndexes[0]])
+        : false;
+
       var pagingIsUsed = rowNumberIsUsed
         || !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
       var groupByIsUsed = sourceSelect.GroupBy.Count > 0;
@@ -311,7 +325,7 @@ namespace Xtensive.Orm.Providers
           return orderingOverCalculatedColumn;
         }
         default:
-          return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+          return (containsCalculatedColumns && !typeIdIsOnlyCalculatedColumn) || distinctIsUsed || pagingIsUsed || groupByIsUsed;
       }
     }
 

@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Internals
     {
       var nullIsEntity = owner as IHasNullEntity;
       var nullValue = nullIsEntity==null ? null : nullIsEntity.NullEntity;
-      if (nullValue!=null || association.OwnerField.IsNullable)
+      if (nullValue!=null || association.OwnerField.IsNullable || removalContext.Contains((Entity) owner))
         // If field is non-nullable & null value is real null, we should avoid assigning it,
         // since this will lead to an error on persist in almost any case;
         // but if we won't assign it, it will either fail with ref. constraint violation later,
