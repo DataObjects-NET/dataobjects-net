@@ -107,7 +107,6 @@ namespace Xtensive.Orm.Linq
     {
       var rs = Expression.Parameter(typeof (object), "rs");
       var session = Expression.Parameter(typeof (Session), "session");
-      var isAsync = Expression.Parameter(typeof (bool), "isAsync");
       var tupleParameterBindings = Expression.Parameter(typeof (Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var parameterContext = Expression.Parameter(typeof (ParameterContext), "parameterContext");
       
@@ -119,10 +118,10 @@ namespace Xtensive.Orm.Linq
         .MakeGenericMethod(elementType);
 
       var itemMaterializer = compileMaterializerMethod.Invoke(null, new object[] {materializationInfo.Expression});
-      Expression<Func<Session, int, bool, MaterializationContext>> materializationContextCtor =
-        (s, entityCount, isAsync) => new MaterializationContext(s, entityCount, isAsync);
+      Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
+        (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow), isAsync);
+        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
@@ -146,8 +145,8 @@ namespace Xtensive.Orm.Linq
       body = body.Type == resultType ? body : Expression.Convert(body, resultType);
 
       var projectorExpression = FastExpression
-        .Lambda<Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>>(
-          body, rs, session, tupleParameterBindings, parameterContext, isAsync);
+        .Lambda<Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>>(
+          body, rs, session, tupleParameterBindings, parameterContext);
       return projectorExpression.CachingCompile();
     }
 

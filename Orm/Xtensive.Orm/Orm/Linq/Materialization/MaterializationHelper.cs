@@ -11,10 +11,11 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
+using EnumerationContext = Xtensive.Orm.Providers.EnumerationContext;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
@@ -93,7 +94,7 @@ namespace Xtensive.Orm.Linq.Materialization
     /// <param name="itemMaterializer">The item materializer.</param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     public static object Materialize<TResult>(
-      object dataSource,
+      ExecutableProvider.RecordSet recordSet,
       MaterializationContext context,
       ParameterContext parameterContext,
       Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
@@ -103,8 +104,8 @@ namespace Xtensive.Orm.Linq.Materialization
         parameterContext.SetValue(parameter, tuple);
       }
 
-      if (dataSource is RecordSet recordSet) {
-        var enumerationContext = (EnumerationContext) recordSet.Context;
+      var enumerationContext = (EnumerationContext) recordSet.Context;
+      if (enumerationContext!=null) {
         enumerationContext.MaterializationContext = context;
       }
 

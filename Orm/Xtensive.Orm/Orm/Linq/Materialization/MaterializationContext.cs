@@ -44,12 +44,6 @@ namespace Xtensive.Orm.Linq.Materialization
     public int EntitiesInRow { get; private set; }
 
     /// <summary>
-    /// Indicates whether materialization happens via an async enumeration.
-    /// See <see cref="IAsyncEnumerable{T}"/> for the reference.
-    /// </summary>
-    public bool IsAsync { get; }
-
-    /// <summary>
     /// Gets <see cref="StorageNode">node</see> specific type identifiers registry of current node.
     /// </summary>
     public TypeIdRegistry TypeIdRegistry
@@ -118,12 +112,11 @@ namespace Xtensive.Orm.Linq.Materialization
     
     // Constructors
 
-    public MaterializationContext(Session session, int entityCount, bool isAsync)
+    public MaterializationContext(Session session, int entityCount)
     {
       Session = session;
       Model = session.Domain.Model;
       EntitiesInRow = entityCount;
-      IsAsync = isAsync;
 
       entityMappings = new EntityMappingCache[entityCount];
 
