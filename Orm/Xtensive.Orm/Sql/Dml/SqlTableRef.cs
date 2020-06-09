@@ -52,7 +52,6 @@ namespace Xtensive.Sql.Dml
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 
-    public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
     // Constructors
 
     private SqlTableRef()

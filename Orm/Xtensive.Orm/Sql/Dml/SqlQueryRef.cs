@@ -77,12 +77,12 @@ namespace Xtensive.Sql.Dml
           }
         }
 
-        if (queryExpression is SqlFreeTextTable freeTextTable ) {
+        if (queryExpression is SqlFreeTextTable freeTextTable) {
           queryColumns.AddRange(
             freeTextTable.Columns.Select(originalColumn => SqlDml.TableColumn(this, originalColumn.Name)));
         }
 
-        if (queryExpression is SqlContainsTable containsTable ) {
+        if (queryExpression is SqlContainsTable containsTable) {
           queryColumns.AddRange(
             containsTable.Columns.Select(originalColumn => SqlDml.TableColumn(this, originalColumn.Name)));
         }
