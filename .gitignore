@@ -26,3 +26,4 @@ _Build
 _Work
 .vs
 .idea
+User.Directory.Build.props
