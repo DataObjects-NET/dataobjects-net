@@ -4,26 +4,29 @@
 // Created by: Alexey Kochetov
 // Created:    2008.06.09
 
+using System;
 using System.Collections.Generic;
-using Xtensive.Orm.Providers;
 using System.Linq;
+using Xtensive.Core;
+using Xtensive.Orm.Rse.Providers;
+using EnumerationContext = Xtensive.Orm.Providers.EnumerationContext;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse
 {
   /// <summary>
-  /// <see cref="RecordSet"/> related extension methods.
+  /// <see cref="ExecutableProvider.RecordSet"/> related extension methods.
   /// </summary>
   public static class RecordSetExtensions
   {
     /// <summary>
-    /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
+    /// Converts the <see cref="ExecutableProvider.RecordSet"/> items to <see cref="Entity"/> instances.
     /// </summary>
     /// <typeparam name="T">The type of <see cref="Entity"/> instances to get.</typeparam>
-    /// <param name="source">The <see cref="RecordSet"/> to process.</param>
+    /// <param name="source">The <see cref="ExecutableProvider.RecordSet"/> to process.</param>
     /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<T> ToEntities<T>(this RecordSet source, int primaryKeyIndex)
+    public static IEnumerable<T> ToEntities<T>(this ExecutableProvider.RecordSet source, int primaryKeyIndex)
       where T : class, IEntity
     {
       return ToEntities(source, primaryKeyIndex).Cast<T>();
@@ -46,16 +49,16 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// Converts the <see cref="RecordSet"/> items to <see cref="Entity"/> instances.
+    /// Converts the <see cref="ExecutableProvider.RecordSet"/> items to <see cref="Entity"/> instances.
     /// </summary>
-    /// <param name="source">The <see cref="RecordSet"/> to process.</param>
+    /// <param name="source">The <see cref="ExecutableProvider.RecordSet"/> to process.</param>
     /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<Entity> ToEntities(this RecordSet source, int primaryKeyIndex)
+    public static IEnumerable<Entity> ToEntities(this ExecutableProvider.RecordSet source, int primaryKeyIndex)
     {
       var session = ((EnumerationContext) source.Context).Session;
       var reader = session.Domain.RecordSetReader;
-      foreach (var record in reader.Read(source, source.Header, session)) {
+      foreach (var record in reader.Read(source.ToEnumerable(), source.Header, session)) {
         var key = record.GetKey(primaryKeyIndex);
         if (key==null)
           continue;
@@ -91,5 +94,13 @@ namespace Xtensive.Orm.Rse
           yield return session.Query.SingleOrDefault(key);
       }
     }
+
+    public static Tuple First(this ExecutableProvider.RecordSet recordSet) =>
+      recordSet.MoveNext()
+        ? recordSet.Current
+        : throw new InvalidOperationException("Sequence contains no elements.");
+
+    public static Tuple FirstOrDefault(this ExecutableProvider.RecordSet recordSet) =>
+      recordSet.MoveNext() ? recordSet.Current : null;
   }
 }

@@ -135,6 +135,8 @@ namespace Xtensive.Orm.Rse.Providers
       public Tuple Current { get; private set; }
 
       object IEnumerator.Current => Current;
+      public EnumerationContext Context => context;
+      public RecordSetHeader Header => provider.Header;
 
       void IEnumerator.Reset() => throw new NotSupportedException();
 
