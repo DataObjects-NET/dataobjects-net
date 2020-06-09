@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
@@ -21,7 +22,7 @@ namespace Xtensive.Orm.Internals
   {
     private readonly ParameterContext parameterContext;
     private readonly
-      Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer;
+      Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer;
     private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
     /// <summary>
@@ -50,7 +51,8 @@ namespace Xtensive.Orm.Internals
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       if (Task.Result==null)
         session.ExecuteUserDefinedDelayedQueries(false);
-      return (TResult) materializer.Invoke(Task.Result, session, tupleParameterBindings, parameterContext);
+      return (TResult) materializer.Invoke(
+        ExecutableProvider.RecordSet.Create(Task.Result), session, tupleParameterBindings, parameterContext);
     }
 
 

@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>
+    private Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof (object), "rs");

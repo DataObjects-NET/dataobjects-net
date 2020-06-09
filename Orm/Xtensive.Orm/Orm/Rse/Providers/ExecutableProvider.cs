@@ -80,6 +80,14 @@ namespace Xtensive.Orm.Rse.Providers
 
     #endregion
 
+    public IEnumerable<Tuple> ToEnumerable(EnumerationContext context)
+    {
+      var recordSet = RecordSet.Create(context, this);
+      while (recordSet.MoveNext()) {
+        yield return recordSet.Current;
+      }
+    }
+
     /// <summary>
     /// Gets <see cref="RecordSet"/> bound to the specified <paramref name="provider"/>.
     /// </summary>
@@ -130,13 +138,12 @@ namespace Xtensive.Orm.Rse.Providers
       private bool enumerated;
       private TupleEnumerator tupleEnumerator;
       private ICompletableScope enumerationScope;
-      private bool hasNextTuple;
 
-      public Tuple Current { get; private set; }
+      public Tuple Current => tupleEnumerator.Current;
 
       object IEnumerator.Current => Current;
       public EnumerationContext Context => context;
-      public RecordSetHeader Header => provider.Header;
+      public RecordSetHeader Header => provider?.Header;
 
       void IEnumerator.Reset() => throw new NotSupportedException();
 
@@ -147,9 +154,7 @@ namespace Xtensive.Orm.Rse.Providers
             throw new InvalidOperationException("RecordSet is not prepared.");
           case State.Prepared:
             try {
-              if (hasNextTuple) {
-                Current = tupleEnumerator.Current;
-                hasNextTuple = tupleEnumerator.MoveNext();
+              if (tupleEnumerator.MoveNext()) {
                 return true;
               }
             }
@@ -176,9 +181,7 @@ namespace Xtensive.Orm.Rse.Providers
             throw new InvalidOperationException("RecordSet is not prepared.");
           case State.Prepared:
             try {
-              if (hasNextTuple) {
-                Current = tupleEnumerator.Current;
-                hasNextTuple = await tupleEnumerator.MoveNextAsync();
+              if (await tupleEnumerator.MoveNextAsync()) {
                 return true;
               }
             }
@@ -229,8 +232,6 @@ namespace Xtensive.Orm.Rse.Providers
             }
             tupleEnumerator = new TupleEnumerator(tuples);
           }
-
-          hasNextTuple = executeAsync ? await tupleEnumerator.MoveNextAsync() : tupleEnumerator.MoveNext();
         }
         catch {
           FinishEnumeration(true);
@@ -274,6 +275,12 @@ namespace Xtensive.Orm.Rse.Providers
         isGreedy = context.CheckOptions(EnumerationContextOptions.GreedyEnumerator);
       }
 
+      private RecordSet(TupleEnumerator tupleEnumerator)
+      {
+        this.tupleEnumerator = tupleEnumerator;
+        state = State.Prepared;
+      }
+
       public static RecordSet Create(EnumerationContext context, ExecutableProvider provider)
       {
         var recordSet = new RecordSet(context, provider);
@@ -288,6 +295,12 @@ namespace Xtensive.Orm.Rse.Providers
         await recordSet.Prepare(true);
         return recordSet;
       }
+
+      public static RecordSet Create(IEnumerable<Tuple> tuples)
+      {
+        return new RecordSet(new TupleEnumerator(tuples));
+      }
+
     }
 
     // Constructors

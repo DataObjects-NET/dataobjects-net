@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Materializer.
     /// </summary>
-    public readonly Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> Materializer;
+    public readonly Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> Materializer;
 
     /// <summary>
     /// Gets the tuple parameter bindings.
@@ -40,11 +40,6 @@ namespace Xtensive.Orm.Linq
     /// Gets the tuple parameters.
     /// </summary>
     public List<Parameter<Tuple>> TupleParameters { get; private set; }
-
-    /// <summary>
-    /// Gets the untyped materializer.
-    /// </summary>
-    public Delegate UntypedMaterializer => Materializer;
 
     /// <summary>
     /// Executes the query in specified parameter context.
@@ -85,7 +80,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
     public TranslatedQuery(ExecutableProvider dataSource,
-      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer)
+      Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer)
       : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
     {
     }
@@ -98,7 +93,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     /// <param name="tupleParameters">The tuple parameters.</param>
    public TranslatedQuery(ExecutableProvider dataSource,
-      Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer,
+      Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer,
         Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;

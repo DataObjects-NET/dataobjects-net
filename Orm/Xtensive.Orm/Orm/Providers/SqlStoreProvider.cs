@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Providers
     protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      LockAndStore(context, Source.GetReader(context));
+      LockAndStore(context, Source.ToEnumerable(context));
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)

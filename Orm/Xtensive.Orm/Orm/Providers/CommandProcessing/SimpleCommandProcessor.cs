@@ -67,10 +67,12 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             context.ActiveCommand.ExecuteReader();
-            var enumerator = context.ActiveCommand.AsEnumeratorOf(loadTask.Request).GetEnumerator();
-            using (enumerator)
-              while (enumerator.MoveNext())
+            var enumerator = context.ActiveCommand.AsEnumeratorOf(loadTask.Request);
+            using (enumerator) {
+              while (enumerator.MoveNext()) {
                 loadTask.Output.Add(enumerator.Current);
+              }
+            }
           }
         }
         finally {
@@ -93,8 +95,10 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
-            await foreach (var record in context.ActiveCommand.AsEnumeratorOf(loadTask.Request).WithCancellation(token)) {
-              loadTask.Output.Add(record);
+            await using (var enumerator = context.ActiveCommand.AsEnumeratorOf(loadTask.Request, token)) {
+              while (await enumerator.MoveNextAsync()) {
+                loadTask.Output.Add(enumerator.Current);
+              }
             }
             context.ActiveTasks.Clear();
           }

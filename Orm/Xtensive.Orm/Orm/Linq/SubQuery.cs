@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
@@ -96,8 +97,7 @@ namespace Xtensive.Orm.Linq
         projectionExpression.ResultType);
       var translatedQuery = new TranslatedQuery(
         query.DataSource,
-        (Func<object, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>)
-          query.UntypedMaterializer,
+        query.Materializer,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
       delayedSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);
