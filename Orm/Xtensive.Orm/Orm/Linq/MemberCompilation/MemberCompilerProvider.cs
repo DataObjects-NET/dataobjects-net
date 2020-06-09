@@ -338,21 +338,27 @@ namespace Xtensive.Orm.Linq.MemberCompilation
         targetType = targetType.GetGenericTypeDefinition();
         if (canonicalMember is FieldInfo)
           canonicalMember = targetType.GetField(canonicalMember.Name);
-        else if (canonicalMember is MethodInfo)
-          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
+        else if (canonicalMember is MethodInfo methodInfo) {
+          canonicalMember = GetCanonicalMethod(methodInfo, targetType.GetMethods());
+        }
         else if (canonicalMember is ConstructorInfo)
           canonicalMember = GetCanonicalMethod((ConstructorInfo) canonicalMember, targetType.GetConstructors());
         else
           canonicalMember = null;
       }
 
-      var declaratedType = canonicalMember.DeclaringType;
-      if (targetType.IsEnum)
-        if (targetType!=declaratedType)
-          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, declaratedType.GetMethods());
+      if (canonicalMember == null) {
+        return null;
+      }
+
+      if (targetType.IsEnum) {
+        var declaringType = canonicalMember.DeclaringType;
+        if (targetType != declaringType)
+          canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, declaringType.GetMethods());
         else
           canonicalMember = GetCanonicalMethod((MethodInfo) canonicalMember, targetType.GetMethods());
-      
+      }
+
       return canonicalMember;
     }
 

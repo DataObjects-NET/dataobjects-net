@@ -35,20 +35,24 @@ namespace Xtensive.Sql.Dml
         return context.NodeMapping[this];
       }
 
-      {
-        var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
-        context.NodeMapping[this] = clone;
-        var columnClones = new List<SqlTableColumn>(columns.Count);
-        columnClones.AddRange(columns.Select(column => (SqlTableColumn) column.Clone(context)));
+      return CreateClone(context);
+    }
 
-        clone.columns = new SqlTableColumnCollection(columnClones);
+    private SqlTableRef CreateClone(SqlNodeCloneContext context)
+    {
+      var clone = new SqlTableRef {Name = Name, DataTable = DataTable};
+      context.NodeMapping[this] = clone;
+      var columnClones = new List<SqlTableColumn>(columns.Count);
+      columnClones.AddRange(columns.Select(column => (SqlTableColumn) column.Clone(context)));
 
-        return clone;
-      }
+      clone.columns = new SqlTableColumnCollection(columnClones);
+
+      return clone;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 
+    public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
     // Constructors
 
     private SqlTableRef()
