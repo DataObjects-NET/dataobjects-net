@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Internals
     private static void OnClearReference(AssociationInfo association, IEntity owner, IEntity target, SyncContext syncContext, RemovalContext removalContext)
     {
       var nullIsEntity = owner as IHasNullEntity;
-      var nullValue = nullIsEntity==null ? null : nullIsEntity.NullEntity;
-      if (nullValue!=null || association.OwnerField.IsNullable || removalContext.Contains((Entity) owner))
+      var nullValue = nullIsEntity == null ? null : nullIsEntity.NullEntity;
+      if (nullValue != null || association.OwnerField.IsNullable || removalContext?.Contains((Entity) owner) == true)
         // If field is non-nullable & null value is real null, we should avoid assigning it,
         // since this will lead to an error on persist in almost any case;
         // but if we won't assign it, it will either fail with ref. constraint violation later,
