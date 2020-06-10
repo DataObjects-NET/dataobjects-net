@@ -51,7 +51,8 @@ namespace Xtensive.Orm.Tests.Storage
         var state1 = CreateDummyState(session, 100, null);
         state1.SetPersistenceState(PersistenceState.New);
         registry.Register(state1);
-        Assert.Throws<ArgumentOutOfRangeException>(() => registry.GetItems(PersistenceState.Synchronized).Run());
+        Assert.Throws<ArgumentOutOfRangeException>(
+          () => registry.GetItems(PersistenceState.Synchronized).Run());
       }
     }
 
@@ -74,25 +75,25 @@ namespace Xtensive.Orm.Tests.Storage
         state3.SetPersistenceState(PersistenceState.New);
 
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Any(i => i == state1));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         registry.Register(state2);
-        Assert.That(registry.Count, Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.New).All(i => i == state1 || i == state2));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(2));
 
         registry.Register(state3);
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).All(i => i == state1 || i == state2 || i == state3));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(3));
       }
     }
 
@@ -115,25 +116,25 @@ namespace Xtensive.Orm.Tests.Storage
         state3.SetPersistenceState(PersistenceState.Modified);
 
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(i => i == state1 ));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         registry.Register(state2);
-        Assert.That(registry.Count, Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state1 || i == state2));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(2));
 
         registry.Register(state3);
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state1 || i == state2 || i == state3));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(3));
       }
     }
 
@@ -156,25 +157,25 @@ namespace Xtensive.Orm.Tests.Storage
         state3.SetPersistenceState(PersistenceState.Removed);
 
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1));
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         registry.Register(state2);
-        Assert.That(registry.Count, Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1 || i == state2));
+        Assert.That(registry.Count, Is.EqualTo(2));
 
         registry.Register(state3);
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1 || i == state2 || i == state3));
+        Assert.That(registry.Count, Is.EqualTo(3));
       }
     }
 
@@ -194,20 +195,20 @@ namespace Xtensive.Orm.Tests.Storage
         registry.Register(state2);
         registry.Register(state3);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).All(i => i == state1 || i == state2 || i == state3));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(3));
 
         state1.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state1);
 
-        Assert.That(registry.Count, Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.New).All(i => i == state2 || i == state3));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(2));
 
         state2.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state2);
@@ -221,10 +222,11 @@ namespace Xtensive.Orm.Tests.Storage
         state3.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state3);
 
-        Assert.That(registry.Count, Is.EqualTo(0));
+        
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(0));
       }
     }
 
@@ -244,73 +246,39 @@ namespace Xtensive.Orm.Tests.Storage
         registry.Register(state2);
         registry.Register(state3);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state1 || i == state2 || i == state3));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(3));
 
         state1.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state1);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state2 || i == state3), Is.True);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1), Is.True);
+        Assert.That(registry.Count, Is.EqualTo(3));
 
         state2.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state2);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state3), Is.True);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(2));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1 || i==state2), Is.True);
+        Assert.That(registry.Count, Is.EqualTo(3));
 
         state3.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state3);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(0));
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1 || i == state2 || i == state3), Is.True);
-      }
-    }
-
-    [Test]
-    public void RemoveRemovedItemRegistrationTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var tx = session.OpenTransaction()) {
-        var registry = session.EntityChangeRegistry;
-        var state1 = CreateDummyState(session, 100, null);
-        var state2 = CreateDummyState(session, 101, null);
-        var state3 = CreateDummyState(session, 102, null);
-        state1.SetPersistenceState(PersistenceState.Removed);
-        state2.SetPersistenceState(PersistenceState.Removed);
-        state3.SetPersistenceState(PersistenceState.Removed);
-        registry.Register(state1);
-        registry.Register(state2);
-        registry.Register(state3);
-
         Assert.That(registry.Count, Is.EqualTo(3));
-        Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
-        Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
-        Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(3));
-        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1 || i == state2 || i == state3));
-
-        registry.Register(state1);
-        registry.Register(state2);
-        registry.Register(state3);
-
-        Assert.That(registry.Count, Is.EqualTo(3));
-        Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
-        Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
-        Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(3));
-        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1 || i == state2 || i == state3));
       }
     }
 
@@ -336,17 +304,17 @@ namespace Xtensive.Orm.Tests.Storage
         registry.Register(state2);
         registry.Register(state3);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(3));
 
         registry.Clear();
 
-        Assert.That(registry.Count, Is.EqualTo(0));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(0));
 
         var state4 = CreateDummyState(session, 100, null);
         var state5 = CreateDummyState(session, 101, null);
@@ -359,21 +327,22 @@ namespace Xtensive.Orm.Tests.Storage
         registry.Register(state5);
         registry.Register(state6);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(3));
 
         registry.Clear();
 
-        Assert.That(registry.Count, Is.EqualTo(0));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(0));
 
-        var state7 = new EntityState(session, Key.Create(Domain, typeof(DummyEntity), 100), null);
-        var state8 = new EntityState(session, Key.Create(Domain, typeof(DummyEntity), 101), null);
-        var state9 = new EntityState(session, Key.Create(Domain, typeof(DummyEntity), 102), null);
+        var state7 = CreateDummyState(session, 100, null);
+        var state8 = CreateDummyState(session, 101, null);
+        var state9 = CreateDummyState(session, 102, null);
+
         state7.SetPersistenceState(PersistenceState.Removed);
         state8.SetPersistenceState(PersistenceState.Removed);
         state9.SetPersistenceState(PersistenceState.Removed);
@@ -382,15 +351,15 @@ namespace Xtensive.Orm.Tests.Storage
         registry.Register(state8);
         registry.Register(state9);
 
-        Assert.That(registry.Count, Is.EqualTo(3));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(3));
+        Assert.That(registry.Count, Is.EqualTo(3));
       }
     }
 
     [Test]
-    public void MultipleAddsOfSameNewItem()
+    public void MultipleRegistersOfSameNewItemTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -403,30 +372,30 @@ namespace Xtensive.Orm.Tests.Storage
         var state1 = CreateDummyState(session, 100, null);
         state1.SetPersistenceState(PersistenceState.New);
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).All(i => i == state1));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).All(i => i == state1));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).All(i => i == state1));
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
       }
     }
 
     [Test]
-    public void MultipleAddsOfSameModifiedItems()
+    public void MultipleRegistersOfSameModifiedItemsTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -439,30 +408,30 @@ namespace Xtensive.Orm.Tests.Storage
         var state1 = CreateDummyState(session, 100, null);
         state1.SetPersistenceState(PersistenceState.Modified);
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state1));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state1));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state1));
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
       }
     }
 
     [Test]
-    public void MultipleAddsOfSameRemovedItem()
+    public void MultipleRegistersOfSameRemovedItemTest()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -472,28 +441,28 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
 
-        var state1 = new EntityState(session, Key.Create(Domain, typeof (DummyEntity), 100), null);
-        state1.SetPersistenceState(PersistenceState.Removed);
-        registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
+        var state = CreateDummyState(session, 100, null);
+        state.SetPersistenceState(PersistenceState.Removed);
+        registry.Register(state);
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(1));
-        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1));
+        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state));
+        Assert.That(registry.Count, Is.EqualTo(1));
 
-        registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
+        registry.Register(state);
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(1));
-        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1));
+        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state));
+        Assert.That(registry.Count, Is.EqualTo(1));
 
-        registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
+        registry.Register(state);
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(1));
-        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1));
+        Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state));
+        Assert.That(registry.Count, Is.EqualTo(1));
       }
     }
 
@@ -512,11 +481,12 @@ namespace Xtensive.Orm.Tests.Storage
         var state1 = CreateDummyState(session, 100, dTuple);
         state1.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
+
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1));
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         state1.SetPersistenceState(PersistenceState.New);
         registry.Register(state1);
@@ -545,20 +515,21 @@ namespace Xtensive.Orm.Tests.Storage
         var state1 = CreateDummyState(session, 100, dTuple);
         state1.SetPersistenceState(PersistenceState.Removed);
         registry.Register(state1);
-        Assert.That(registry.Count, Is.EqualTo(1));
+
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Removed).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Removed).All(i => i == state1));
+        Assert.That(registry.Count, Is.EqualTo(1));
 
         state1.SetPersistenceState(PersistenceState.New);
         registry.Register(state1);
         Assert.That(state1.PersistenceState, Is.EqualTo(PersistenceState.Modified));
-        Assert.That(registry.Count, Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.New).Any(), Is.False);
         Assert.That(registry.GetItems(PersistenceState.Modified).Count(), Is.EqualTo(1));
         Assert.That(registry.GetItems(PersistenceState.Modified).All(i => i == state1), Is.True);
         Assert.That(registry.GetItems(PersistenceState.Removed).Any(), Is.False);
+        Assert.That(registry.Count, Is.EqualTo(1));
       }
     }
 

@@ -244,7 +244,7 @@ namespace Xtensive.Orm.BulkOperations.Tests
     }
 
     [Test]
-    public void InWithCombinationWithFieldUsageinUpdate()
+    public void InWithCombinationWithFieldUsageUpdate()
     {
       using (Session session = Domain.OpenSession())
       using (TransactionScope trx = session.OpenTransaction()) {
