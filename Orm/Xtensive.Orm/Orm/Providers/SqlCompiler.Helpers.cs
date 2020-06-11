@@ -181,10 +181,10 @@ namespace Xtensive.Orm.Providers
     private static bool IsTypeIdColumn(SqlColumn column)
     {
       if (column is SqlUserColumn)
-        return (StringComparer.InvariantCultureIgnoreCase.Compare(column.Name, "TypeId") == 0);
+        return string.Equals(column.Name, "TypeId", StringComparison.OrdinalIgnoreCase);
       var cRef = column as SqlColumnRef;
       if (!ReferenceEquals(null, cRef))
-        return (StringComparer.InvariantCultureIgnoreCase.Compare(column.Name, "TypeId") == 0);
+        return string.Equals(cRef.Name, "TypeId", StringComparison.OrdinalIgnoreCase);
       return false;
     }
 
