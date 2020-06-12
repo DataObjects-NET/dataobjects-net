@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Rse.Providers
     private void FinishEnumeration(bool isError)
     {
       if (!enumerated) {
-        provider.OnAfterEnumerate(context);
+        provider?.OnAfterEnumerate(context);
       }
 
       if (!isError) {
