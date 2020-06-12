@@ -298,7 +298,8 @@ namespace Xtensive.Orm.Rse.Providers
     public static TupleReader Create(EnumerationContext context, ExecutableProvider provider)
     {
       var recordSet = new TupleReader(context, provider);
-      _ = recordSet.Prepare(false);
+      var task = recordSet.Prepare(false);
+      task.GetAwaiter().GetResult(); // Ensure exception, if any, is being thrown
       return recordSet;
     }
 
