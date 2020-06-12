@@ -21,7 +21,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
+      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
     }
 
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
@@ -29,7 +29,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
     }
 
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
@@ -38,7 +38,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, bool>(
+      return ExecuteScalarAsync<TSource, bool>(
         WellKnownMembers.Queryable.AnyWithPredicate, source, predicate, cancellationToken);
     }
 
@@ -49,7 +49,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<int, double>(
+      return ExecuteScalarAsync<int, double>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Int32], source, cancellationToken);
     }
 
@@ -58,7 +58,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<int?, double?>(
+      return ExecuteScalarAsync<int?, double?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableInt32], source, cancellationToken);
     }
 
@@ -68,7 +68,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double>(
+      return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Int32],
         source, selector, cancellationToken);
     }
@@ -79,7 +79,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double?>(
+      return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableInt32],
         source, selector, cancellationToken);
     }
@@ -91,7 +91,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<long, double>(
+      return ExecuteScalarAsync<long, double>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Int64], source, cancellationToken);
     }
 
@@ -100,7 +100,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<long?, double?>(
+      return ExecuteScalarAsync<long?, double?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableInt64], source, cancellationToken);
     }
 
@@ -110,7 +110,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double>(
+      return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Int64],
         source, selector, cancellationToken);
     }
@@ -121,7 +121,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double?>(
+      return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableInt64],
         source, selector, cancellationToken);
     }
@@ -133,7 +133,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<double, double>(
+      return ExecuteScalarAsync<double, double>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Double], source, cancellationToken);
     }
 
@@ -142,7 +142,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<double?, double?>(
+      return ExecuteScalarAsync<double?, double?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableDouble], source, cancellationToken);
     }
 
@@ -152,7 +152,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double>(
+      return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Double],
         source, selector, cancellationToken);
     }
@@ -163,7 +163,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double?>(
+      return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableDouble],
         source, selector, cancellationToken);
     }
@@ -175,7 +175,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<float, float>(
+      return ExecuteScalarAsync<float, float>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Float], source, cancellationToken);
     }
 
@@ -184,7 +184,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<float?, float?>(
+      return ExecuteScalarAsync<float?, float?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableFloat], source, cancellationToken);
     }
 
@@ -194,7 +194,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, float>(
+      return ExecuteScalarAsync<TSource, float>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Float],
         source, selector, cancellationToken);
     }
@@ -205,7 +205,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, float?>(
+      return ExecuteScalarAsync<TSource, float?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableFloat],
         source, selector, cancellationToken);
     }
@@ -217,7 +217,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<decimal, decimal>(
+      return ExecuteScalarAsync<decimal, decimal>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Decimal], source, cancellationToken);
     }
 
@@ -226,7 +226,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<decimal?, decimal?>(
+      return ExecuteScalarAsync<decimal?, decimal?>(
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableDecimal], source, cancellationToken);
     }
 
@@ -236,7 +236,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, decimal>(
+      return ExecuteScalarAsync<TSource, decimal>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Decimal],
         source, selector, cancellationToken);
     }
@@ -247,7 +247,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, decimal?>(
+      return ExecuteScalarAsync<TSource, decimal?>(
         WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableDecimal],
         source, selector, cancellationToken);
     }
@@ -259,7 +259,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, bool>(WellKnownMembers.Queryable.Contains,
+      return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Contains,
         source, Expression.Constant(item, typeof(TSource)), cancellationToken);
     }
 
@@ -270,7 +270,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
     }
 
     public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
@@ -279,7 +279,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
+      return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.CountWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -290,7 +290,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.First, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.First, source, cancellationToken);
     }
 
     public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
@@ -299,7 +299,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstWithPredicate,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -308,7 +308,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefault, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefault, source, cancellationToken);
     }
 
     public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
@@ -317,7 +317,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefaultWithPredicate,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefaultWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -328,7 +328,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.Last, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Last, source, cancellationToken);
     }
 
     public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
@@ -337,7 +337,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -346,7 +346,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefault, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefault, source, cancellationToken);
     }
 
     public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
@@ -355,7 +355,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefaultWithPredicate,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefaultWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -366,7 +366,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, long>(WellKnownMembers.Queryable.LongCount, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCount, source, cancellationToken);
     }
 
     public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source,
@@ -375,7 +375,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, long>(WellKnownMembers.Queryable.LongCountWithPredicate,
+      return ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCountWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -386,7 +386,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
     }
 
     public static Task<TSource> MaxAsync<TSource, TResult>(this IQueryable<TSource> source,
@@ -395,7 +395,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
         source, selector, cancellationToken);
     }
 
@@ -404,7 +404,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
     }
 
     public static Task<TSource> MinAsync<TSource, TResult>(this IQueryable<TSource> source,
@@ -413,7 +413,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
         source, selector, cancellationToken);
     }
 
@@ -424,7 +424,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.Single, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Single, source, cancellationToken);
     }
 
     public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
@@ -433,7 +433,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleWithPredicate,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -442,7 +442,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefault, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefault, source, cancellationToken);
     }
 
     public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
@@ -451,7 +451,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(predicate, nameof(predicate));
 
-      return ExecuteAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefaultWithPredicate,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefaultWithPredicate,
         source, predicate, cancellationToken);
     }
 
@@ -462,7 +462,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<int, int>(
+      return ExecuteScalarAsync<int, int>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Int32], source, cancellationToken);
     }
 
@@ -471,7 +471,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<int?, int?>(
+      return ExecuteScalarAsync<int?, int?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableInt32], source, cancellationToken);
     }
 
@@ -481,7 +481,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, int>(
+      return ExecuteScalarAsync<TSource, int>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Int32],
         source, selector, cancellationToken);
     }
@@ -492,7 +492,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, int?>(
+      return ExecuteScalarAsync<TSource, int?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableInt32],
         source, selector, cancellationToken);
     }
@@ -504,7 +504,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<long, long>(
+      return ExecuteScalarAsync<long, long>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Int64], source, cancellationToken);
     }
 
@@ -513,7 +513,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<long?, long?>(
+      return ExecuteScalarAsync<long?, long?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableInt64], source, cancellationToken);
     }
 
@@ -523,7 +523,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, long>(
+      return ExecuteScalarAsync<TSource, long>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Int64],
         source, selector, cancellationToken);
     }
@@ -534,7 +534,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, long?>(
+      return ExecuteScalarAsync<TSource, long?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableInt64],
         source, selector, cancellationToken);
     }
@@ -546,7 +546,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<double, double>(
+      return ExecuteScalarAsync<double, double>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Double], source, cancellationToken);
     }
 
@@ -555,7 +555,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<double?, double?>(
+      return ExecuteScalarAsync<double?, double?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableDouble], source, cancellationToken);
     }
 
@@ -565,7 +565,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double>(
+      return ExecuteScalarAsync<TSource, double>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Double],
         source, selector, cancellationToken);
     }
@@ -576,7 +576,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, double?>(
+      return ExecuteScalarAsync<TSource, double?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableDouble],
         source, selector, cancellationToken);
     }
@@ -588,7 +588,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<float, float>(
+      return ExecuteScalarAsync<float, float>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Float], source, cancellationToken);
     }
 
@@ -597,7 +597,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<float?, float?>(
+      return ExecuteScalarAsync<float?, float?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableFloat], source, cancellationToken);
     }
 
@@ -607,7 +607,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, float>(
+      return ExecuteScalarAsync<TSource, float>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Float],
         source, selector, cancellationToken);
     }
@@ -618,7 +618,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, float?>(
+      return ExecuteScalarAsync<TSource, float?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableFloat],
         source, selector, cancellationToken);
     }
@@ -630,7 +630,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<decimal, decimal>(
+      return ExecuteScalarAsync<decimal, decimal>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Decimal], source, cancellationToken);
     }
 
@@ -639,7 +639,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteAsync<decimal?, decimal?>(
+      return ExecuteScalarAsync<decimal?, decimal?>(
         WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableDecimal], source, cancellationToken);
     }
 
@@ -649,7 +649,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, decimal>(
+      return ExecuteScalarAsync<TSource, decimal>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Decimal],
         source, selector, cancellationToken);
     }
@@ -660,7 +660,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteAsync<TSource, decimal?>(
+      return ExecuteScalarAsync<TSource, decimal?>(
         WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableDecimal],
         source, selector, cancellationToken);
     }
@@ -739,11 +739,11 @@ namespace Xtensive.Orm
 
     // Private methods
 
-    private static Task<TResult> ExecuteAsync<TSource, TResult>(MethodInfo operation,
+    private static Task<TResult> ExecuteScalarAsync<TSource, TResult>(MethodInfo operation,
       IQueryable<TSource> source, CancellationToken cancellationToken) =>
-      ExecuteAsync<TSource, TResult>(operation, source, null, cancellationToken);
+      ExecuteScalarAsync<TSource, TResult>(operation, source, null, cancellationToken);
 
-    private static Task<TResult> ExecuteAsync<TSource, TResult>(MethodInfo operation,
+    private static Task<TResult> ExecuteScalarAsync<TSource, TResult>(MethodInfo operation,
       IQueryable<TSource> source,
       Expression expression,
       CancellationToken cancellationToken = default)
@@ -757,7 +757,7 @@ namespace Xtensive.Orm
         }
 
         var arguments = expression == null ? new[] {source.Expression} : new[] {source.Expression, expression};
-        return provider.ExecuteAsync<TResult>(Expression.Call(null, operation, arguments), cancellationToken);
+        return provider.ExecuteScalarAsync<TResult>(Expression.Call(null, operation, arguments), cancellationToken);
       }
 
       throw new InvalidOperationException("QueryProvider doesn't support async operations.");

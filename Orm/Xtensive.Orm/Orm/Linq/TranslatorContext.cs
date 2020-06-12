@@ -35,8 +35,6 @@ namespace Xtensive.Orm.Linq
 
     public Expression Query { get; }
 
-    public bool IsAsync { get; }
-
     public Domain Domain { get; }
 
     public DomainModel Model { get; }
@@ -125,8 +123,7 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
-      CompiledQueryProcessingScope compiledQueryScope,
-      bool isAsync)
+      CompiledQueryProcessingScope compiledQueryScope)
     {
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, nameof(rseCompilerConfiguration));
@@ -148,8 +145,6 @@ namespace Xtensive.Orm.Linq
       Evaluator = new ExpressionEvaluator(query);
       query = PersistentIndexerRewriter.Rewrite(query, this);
       Query = query;
-
-      IsAsync = isAsync;
 
       resultAliasGenerator = AliasGenerator.Create("#{0}{1}");
       columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});

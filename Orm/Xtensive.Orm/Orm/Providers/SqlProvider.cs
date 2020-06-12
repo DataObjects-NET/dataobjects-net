@@ -54,14 +54,14 @@ namespace Xtensive.Orm.Providers
     protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    protected override TupleEnumerator OnEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override TupleEnumerator OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var storageContext = (EnumerationContext) context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
       return executor.ExecuteTupleReader(Request, storageContext.ParameterContext);
     }
 
-    protected async override Task<TupleEnumerator> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    protected internal async override Task<TupleEnumerator> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
       var storageContext = (EnumerationContext)context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();

@@ -15,18 +15,18 @@ using Tuple = Xtensive.Tuples.Tuple;
 namespace Xtensive.Orm.Rse
 {
   /// <summary>
-  /// <see cref="ExecutableProvider.RecordSet"/> related extension methods.
+  /// <see cref="TupleReader"/> related extension methods.
   /// </summary>
   public static class RecordSetExtensions
   {
     /// <summary>
-    /// Converts the <see cref="ExecutableProvider.RecordSet"/> items to <see cref="Entity"/> instances.
+    /// Converts the <see cref="TupleReader"/> items to <see cref="Entity"/> instances.
     /// </summary>
     /// <typeparam name="T">The type of <see cref="Entity"/> instances to get.</typeparam>
-    /// <param name="source">The <see cref="ExecutableProvider.RecordSet"/> to process.</param>
+    /// <param name="source">The <see cref="TupleReader"/> to process.</param>
     /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<T> ToEntities<T>(this ExecutableProvider.RecordSet source, int primaryKeyIndex)
+    public static IEnumerable<T> ToEntities<T>(this TupleReader source, int primaryKeyIndex)
       where T : class, IEntity
     {
       return ToEntities(source, primaryKeyIndex).Cast<T>();
@@ -49,12 +49,12 @@ namespace Xtensive.Orm.Rse
     }
 
     /// <summary>
-    /// Converts the <see cref="ExecutableProvider.RecordSet"/> items to <see cref="Entity"/> instances.
+    /// Converts the <see cref="TupleReader"/> items to <see cref="Entity"/> instances.
     /// </summary>
-    /// <param name="source">The <see cref="ExecutableProvider.RecordSet"/> to process.</param>
+    /// <param name="source">The <see cref="TupleReader"/> to process.</param>
     /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
-    public static IEnumerable<Entity> ToEntities(this ExecutableProvider.RecordSet source, int primaryKeyIndex)
+    public static IEnumerable<Entity> ToEntities(this TupleReader source, int primaryKeyIndex)
     {
       var session = ((EnumerationContext) source.Context).Session;
       var reader = session.Domain.RecordSetReader;
@@ -95,12 +95,12 @@ namespace Xtensive.Orm.Rse
       }
     }
 
-    public static Tuple First(this ExecutableProvider.RecordSet recordSet) =>
+    public static Tuple First(this TupleReader recordSet) =>
       recordSet.MoveNext()
         ? recordSet.Current
         : throw new InvalidOperationException("Sequence contains no elements.");
 
-    public static Tuple FirstOrDefault(this ExecutableProvider.RecordSet recordSet) =>
+    public static Tuple FirstOrDefault(this TupleReader recordSet) =>
       recordSet.MoveNext() ? recordSet.Current : null;
   }
 }

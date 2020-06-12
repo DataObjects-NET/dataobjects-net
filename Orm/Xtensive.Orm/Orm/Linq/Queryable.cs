@@ -9,7 +9,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -37,7 +36,7 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     public IEnumerator<T> GetEnumerator()
     {
-      var result = provider.Execute<IEnumerable<T>>(expression);
+      var result = provider.ExecuteSequence<T>(expression);
       return result.GetEnumerator();
     }
 
@@ -46,7 +45,7 @@ namespace Xtensive.Orm.Linq
 
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-      var result = await provider.ExecuteForEnumerationAsync<T>(expression, cancellationToken);
+      var result = await provider.ExecuteSequenceAsync<T>(expression, cancellationToken);
       await foreach (var element in result.WithCancellation(cancellationToken)) {
         yield return element;
       }

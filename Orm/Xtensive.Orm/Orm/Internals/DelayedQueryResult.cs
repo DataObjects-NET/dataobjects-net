@@ -5,56 +5,31 @@
 // Created:    2009.08.19
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
-using Xtensive.Orm.Rse.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
   /// <summary>
   /// Abstract base for a future query and future scalar implementation.
   /// </summary>
-  /// <typeparam name="TResult">The type of the result.</typeparam>
   [Serializable]
-  public abstract class DelayedQueryResult<TResult>
+  public abstract class DelayedQueryResult
   {
-    private readonly ParameterContext parameterContext;
-    private readonly
-      Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer;
-    private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
-
     /// <summary>
     /// Gets <see cref="Session"/> this instance is bound to.
     /// </summary>
-    public Session Session { get; private set; }
+    public Session Session { get; }
 
     /// <summary>
     /// Gets <see cref="StateLifetimeToken"/> this instance is bound to.
     /// </summary>
-    public StateLifetimeToken LifetimeToken { get; private set; }
+    public StateLifetimeToken LifetimeToken { get; }
 
     /// <summary>
     /// Gets the task for this future.
     /// </summary>
-    public QueryTask Task { get; private set; }
-
-    /// <summary>
-    /// Materializes a result.
-    /// </summary>
-    /// <param name="session"></param>
-    /// <returns>The materialized result.</returns>
-    protected TResult Materialize(Session session)
-    {
-      if (!LifetimeToken.IsActive)
-        throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
-      if (Task.Result==null)
-        session.ExecuteUserDefinedDelayedQueries(false);
-      return (TResult) materializer.Invoke(
-        ExecutableProvider.RecordSet.Create(Task.Result), session, tupleParameterBindings, parameterContext);
-    }
-
+    public QueryTask Task { get; }
 
     // Constructors
 
@@ -66,16 +41,13 @@ namespace Xtensive.Orm.Internals
     /// <param name="parameterContext">The parameter context.</param>
     internal DelayedQueryResult(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(translatedQuery, "translatedQuery");
-      ArgumentValidator.EnsureArgumentNotNull(parameterContext, "parameterContext");
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
+      ArgumentValidator.EnsureArgumentNotNull(translatedQuery, nameof(translatedQuery));
+      ArgumentValidator.EnsureArgumentNotNull(parameterContext, nameof(parameterContext));
 
       Session = session;
       LifetimeToken = session.GetLifetimeToken();
 
-      materializer = translatedQuery.Materializer;
-      tupleParameterBindings = translatedQuery.TupleParameterBindings;
-      this.parameterContext = parameterContext;
       Task = new QueryTask(translatedQuery.DataSource, LifetimeToken, parameterContext);
     }
   }

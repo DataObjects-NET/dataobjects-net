@@ -96,22 +96,34 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken token) =>
-      ExecuteAsync<TResult>(expression, token, false);
+    public Task<TResult> ExecuteScalarAsync<TResult>(Expression expression, CancellationToken token)
+    {
+      static Task<TResult> ExecuteScalarQueryAsync(
+        TranslatedQuery query, Session session, ParameterContext parameterContext, CancellationToken token)
+      {
+        return query.ExecuteScalarAsync<TResult>(session, parameterContext, token);
+      }
+      return ExecuteAsync(expression, ExecuteScalarQueryAsync, token);
+    }
 
-    public Task<IAsyncEnumerable<T>> ExecuteForEnumerationAsync<T>(Expression expression, CancellationToken token) =>
-      ExecuteAsync<IAsyncEnumerable<T>>(expression, token, true);
+    public Task<SequenceQueryResult<T>> ExecuteSequenceAsync<T>(Expression expression, CancellationToken token)
+    {
+      static Task<SequenceQueryResult<T>> ExecuteSequenceQueryAsync(
+        TranslatedQuery query, Session session, ParameterContext parameterContext, CancellationToken token)
+      {
+        return query.ExecuteSequenceAsync<T>(session, parameterContext, token);
+      }
+      return ExecuteAsync(expression, ExecuteSequenceQueryAsync, token);
+    }
 
-    private async Task<TResult> ExecuteAsync<TResult>(
-      Expression expression, CancellationToken token, bool isAsyncEnumeration)
+    private async Task<TResult> ExecuteAsync<TResult>(Expression expression,
+      Func<TranslatedQuery, Session, ParameterContext, CancellationToken, Task<TResult>> runQuery, CancellationToken token)
     {
       expression = session.Events.NotifyQueryExecuting(expression);
-      var query = Translate(expression, isAsyncEnumeration);
+      var query = Translate(expression);
       TResult result;
       try {
-        result = await query
-          .ExecuteAsync<TResult>(session, new ParameterContext(), token)
-          .ConfigureAwait(false);
+        result = await runQuery(query, session, new ParameterContext(), token).ConfigureAwait(false);
       }
       catch (Exception exception) {
         session.Events.NotifyQueryExecuted(expression, exception);
@@ -124,15 +136,15 @@ namespace Xtensive.Orm.Linq
 
     #region Private / internal methods
 
-    internal TranslatedQuery Translate(Expression expression, bool isAsync = false) =>
-      Translate(expression, session.CompilationService.CreateConfiguration(session), isAsync);
+    internal TranslatedQuery Translate(Expression expression) =>
+      Translate(expression, session.CompilationService.CreateConfiguration(session));
 
     internal TranslatedQuery Translate(Expression expression,
-      CompilerConfiguration compilerConfiguration, bool isAsync = false)
+      CompilerConfiguration compilerConfiguration)
     {
       try {
         var compiledQueryScope = CompiledQueryProcessingScope.Current;
-        var context = new TranslatorContext(session, compilerConfiguration, expression, compiledQueryScope, isAsync);
+        var context = new TranslatorContext(session, compilerConfiguration, expression, compiledQueryScope);
         return context.Translator.Translate();
       }
       catch (Exception ex) {

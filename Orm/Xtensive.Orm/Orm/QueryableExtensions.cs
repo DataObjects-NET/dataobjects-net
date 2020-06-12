@@ -307,12 +307,13 @@ namespace Xtensive.Orm
     /// <param name="source">Query to run asynchronous.</param>
     /// <param name="cancellationToken">Token to cancel operation.</param>
     /// <returns>A task which runs query.</returns>
-    public static Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
+    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
-      var doProvider = source.Provider as QueryProvider;
-      if (doProvider!=null)
-        return doProvider.ExecuteAsync<IEnumerable<T>>(source.Expression, cancellationToken);
-      return Task<IEnumerable<T>>.FromResult(source.AsEnumerable());
+      if (source.Provider is QueryProvider doProvider) {
+        return await doProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken);
+      }
+
+      return source.AsEnumerable();
     }
 
     #region Private / internal members

@@ -24,13 +24,13 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       LockAndStore(context, Source.ToEnumerable(context));
     }
 
-    protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
       base.OnAfterEnumerate(context);

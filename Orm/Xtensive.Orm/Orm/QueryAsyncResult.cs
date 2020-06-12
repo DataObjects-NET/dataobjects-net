@@ -14,14 +14,14 @@ namespace Xtensive.Orm
     private readonly ParameterContext parameterContext;
     private readonly CancellationToken token;
 
-    public ValueTaskAwaiter<IEnumerable<TElement>> GetAwaiter() =>
-      new ValueTask<IEnumerable<TElement>>(
-        parameterizedQuery.ExecuteAsync<IEnumerable<TElement>>(session, parameterContext, token)).GetAwaiter();
+    public ValueTaskAwaiter<SequenceQueryResult<TElement>> GetAwaiter() =>
+      new ValueTask<SequenceQueryResult<TElement>>(
+        parameterizedQuery.ExecuteSequenceAsync<TElement>(session, parameterContext, token)).GetAwaiter();
 
     public async IAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
       using var linkedTokenSource = CancellationTokenSource.CreateLinkedTokenSource(token, cancellationToken);
-      var result = await parameterizedQuery.ExecuteAsync<IAsyncEnumerable<TElement>>(
+      var result = await parameterizedQuery.ExecuteSequenceAsync<TElement>(
         session, parameterContext, linkedTokenSource.Token);
       await foreach (var element in result.WithCancellation(linkedTokenSource.Token)) {
         yield return element;

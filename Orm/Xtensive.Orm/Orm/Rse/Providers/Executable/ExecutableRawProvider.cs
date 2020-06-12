@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Rse.Providers
     #endregion
 
     /// <inheritdoc/>
-    protected override void OnBeforeEnumerate(EnumerationContext context)
+    protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
       var parameterContext = ((Xtensive.Orm.Providers.EnumerationContext) context).ParameterContext;
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override TupleEnumerator OnEnumerate(EnumerationContext context)
+    protected internal override TupleEnumerator OnEnumerate(EnumerationContext context)
     {
       return new TupleEnumerator(GetValue<IEnumerable<Tuple>>(context, CachedSourceName));
     }

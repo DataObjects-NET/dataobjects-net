@@ -32,20 +32,20 @@ namespace Xtensive.Orm.Internals
     public IEnumerable<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
-      return parameterizedQuery.Execute<IEnumerable<TElement>>(session, CreateParameterContext(parameterizedQuery));
+      return parameterizedQuery.ExecuteSequence<TElement>(session, CreateParameterContext(parameterizedQuery));
     }
 
     public IEnumerable<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
-      return parameterizedQuery.Execute<IEnumerable<TElement>>(session, CreateParameterContext(parameterizedQuery));
+      return parameterizedQuery.ExecuteSequence<TElement>(session, CreateParameterContext(parameterizedQuery));
     }
 
     public TResult ExecuteCompiled<TResult>(Func<QueryEndpoint, TResult> query)
     {
       var parameterizedQuery = GetCachedQuery();
       if (parameterizedQuery!=null) {
-        return parameterizedQuery.Execute<TResult>(session, CreateParameterContext(parameterizedQuery));
+        return parameterizedQuery.ExecuteScalar<TResult>(session, CreateParameterContext(parameterizedQuery));
       }
 
       GetScalarQuery(query, true, out var result);
@@ -72,12 +72,12 @@ namespace Xtensive.Orm.Internals
       var parameterizedQuery = GetCachedQuery();
       if (parameterizedQuery!=null) {
         token.ThrowIfCancellationRequested();
-        return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
+        return parameterizedQuery.ExecuteScalarAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
       }
 
       parameterizedQuery = GetScalarQuery(query, false, out _);
       token.ThrowIfCancellationRequested();
-      return parameterizedQuery.ExecuteAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
+      return parameterizedQuery.ExecuteScalarAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
     }
 
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)

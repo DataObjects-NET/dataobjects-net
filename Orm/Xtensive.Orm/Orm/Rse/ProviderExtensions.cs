@@ -16,14 +16,14 @@ namespace Xtensive.Orm.Rse
   {
     /// <summary>
     /// Compiles specified <paramref name="provider"/>
-    /// and returns new <see cref="ExecutableProvider.RecordSet"/> bound to specified <paramref name="session"/>.
+    /// and returns new <see cref="TupleReader"/> bound to specified <paramref name="session"/>.
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="session">The session.</param>
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>
-    /// <returns>New <see cref="ExecutableProvider.RecordSet"/> bound to specified <paramref name="session"/>.</returns>
-    public static ExecutableProvider.RecordSet GetRecordSet(
+    /// <returns>New <see cref="TupleReader"/> bound to specified <paramref name="session"/>.</returns>
+    public static TupleReader GetRecordSet(
       this CompilableProvider provider, Session session, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));

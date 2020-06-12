@@ -4,15 +4,14 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.27
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq
 {
@@ -29,7 +28,7 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Materializer.
     /// </summary>
-    public readonly Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> Materializer;
+    public readonly Materializer Materializer;
 
     /// <summary>
     /// Gets the tuple parameter bindings.
@@ -47,10 +46,33 @@ namespace Xtensive.Orm.Linq
     /// <param name="session">The session.</param>
     /// <param name="parameterContext">The parameter context.</param>
     /// <returns>Query execution result.</returns>
-    public TResult Execute<TResult>(Session session, ParameterContext parameterContext)
+    public TResult ExecuteScalar<TResult>(Session session, ParameterContext parameterContext)
+    {
+      var sequenceResult = ExecuteSequence<TResult>(session, parameterContext);
+      // TODO: Call proper method specified by projection.ResultType
+      // if (projection.IsScalar) {
+      //   var materializerResultType = typeof(IEnumerable<>).MakeGenericType(elementType);
+      //   var scalarMethodName = projection.ResultType.ToString();
+      //   var enumerableMethod = typeof (Enumerable)
+      //     .GetMethods(BindingFlags.Static | BindingFlags.Public)
+      //     .First(m => m.Name==scalarMethodName && m.GetParameters().Length==1)
+      //     .MakeGenericMethod(elementType);
+      //   body = Expression.Call(enumerableMethod, Expression.Convert(body, materializerResultType));
+      // }
+
+      return sequenceResult.First();
+    }
+
+    /// <summary>
+    /// Executes the query in specified parameter context.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="parameterContext">The parameter context.</param>
+    /// <returns>Query execution result.</returns>
+    public SequenceQueryResult<T> ExecuteSequence<T>(Session session, ParameterContext parameterContext)
     {
       var recordSet = DataSource.GetRecordSet(session, parameterContext);
-      return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext);
+      return Materializer.Invoke<T>(recordSet, session, TupleParameterBindings, parameterContext);
     }
 
     /// <summary>
@@ -60,15 +82,25 @@ namespace Xtensive.Orm.Linq
     /// <param name="parameterContext">The parameter context.</param>
     /// <param name="token">The token to cancel this operation</param>
     /// <returns><see cref="Task{TResult}"/> performing this operation.</returns>
-    public async Task<TResult> ExecuteAsync<TResult>(
+    public async Task<TResult> ExecuteScalarAsync<TResult>(
+      Session session, ParameterContext parameterContext, CancellationToken token)
+    {
+      var sequenceResult = await ExecuteSequenceAsync<TResult>(session, parameterContext, token);
+      return sequenceResult.First();
+    }
+
+    /// <summary>
+    /// Asynchronously executes the query in specified parameter context.
+    /// </summary>
+    /// <param name="session">The session.</param>
+    /// <param name="parameterContext">The parameter context.</param>
+    /// <param name="token">The token to cancel this operation</param>
+    /// <returns><see cref="Task{TResult}"/> performing this operation.</returns>
+    public async Task<SequenceQueryResult<T>> ExecuteSequenceAsync<T>(
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
       var recordSet = await DataSource.GetRecordSetAsync(session, parameterContext, token).ConfigureAwait(false);
-      return (TResult) Materializer(recordSet, session, TupleParameterBindings, parameterContext);
-
-      // var enumerable = (await recordSet.GetEnumeratorAsync(token).ConfigureAwait(false)).ToEnumerable();
-      // enumerable.GetEnumerator().Dispose();
-      // return (TResult) Materializer(enumerable, session, TupleParameterBindings, parameterContext, false);
+      return Materializer.Invoke<T>(recordSet, session, TupleParameterBindings, parameterContext);
     }
 
 
@@ -79,8 +111,7 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
-    public TranslatedQuery(ExecutableProvider dataSource,
-      Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer)
+    public TranslatedQuery(ExecutableProvider dataSource, Materializer materializer)
       : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
     {
     }
@@ -93,7 +124,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     /// <param name="tupleParameters">The tuple parameters.</param>
    public TranslatedQuery(ExecutableProvider dataSource,
-      Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializer,
+      Materializer materializer,
         Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;

@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Linq
       return origin;
     }
 
-    private Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>
+    private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var rs = Expression.Parameter(typeof (object), "rs");
@@ -145,9 +145,9 @@ namespace Xtensive.Orm.Linq
       body = body.Type == resultType ? body : Expression.Convert(body, resultType);
 
       var projectorExpression = FastExpression
-        .Lambda<Func<ExecutableProvider.RecordSet, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>>(
+        .Lambda<Func<TupleReader, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>>(
           body, rs, session, tupleParameterBindings, parameterContext);
-      return projectorExpression.CachingCompile();
+      return new Materializer(projectorExpression.CachingCompile());
     }
 
     private List<Expression> VisitNewExpressionArguments(NewExpression n)
