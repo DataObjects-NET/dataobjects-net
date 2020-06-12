@@ -85,10 +85,10 @@ namespace Xtensive.Orm.Tests.Rse
       }
     }
 
-    private void UpdateCache(Session session, RecordSet source)
+    private void UpdateCache(Session session, TupleReader source)
     {
       var reader = Domain.RecordSetReader;
-      foreach (var record in reader.Read(source, source.Header, session)) {
+      foreach (var record in reader.Read(source.ToEnumerable(), source.Header, session)) {
         for (int i = 0; i < record.Count; i++) {
           var key = record.GetKey(i);
           if (key==null)

@@ -199,6 +199,9 @@ namespace Xtensive.Orm.Linq
       // Enumerable
       public static readonly MethodInfo Select;
       public static readonly MethodInfo First;
+      public static readonly MethodInfo FirstOrDefault;
+      public static readonly MethodInfo Single;
+      public static readonly MethodInfo SingleOrDefault;
       public static readonly Type OfTuple;
       public static readonly MethodInfo DefaultIfEmpty;
       public static readonly MethodInfo Contains;
@@ -210,7 +213,16 @@ namespace Xtensive.Orm.Linq
         Select = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.Select));
         First = typeof (System.Linq.Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
-          .First(m => m.Name==Xtensive.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
+          .First(m => m.Name==nameof(System.Linq.Enumerable.First) && m.GetParameters().Length==1);
+        FirstOrDefault = typeof (System.Linq.Enumerable)
+          .GetMethods(BindingFlags.Static | BindingFlags.Public)
+          .First(m => m.Name==nameof(System.Linq.Enumerable.FirstOrDefault) && m.GetParameters().Length==1);
+        Single = typeof (System.Linq.Enumerable)
+          .GetMethods(BindingFlags.Static | BindingFlags.Public)
+          .First(m => m.Name==nameof(System.Linq.Enumerable.Single) && m.GetParameters().Length==1);
+        SingleOrDefault = typeof (System.Linq.Enumerable)
+          .GetMethods(BindingFlags.Static | BindingFlags.Public)
+          .First(m => m.Name==nameof(System.Linq.Enumerable.SingleOrDefault) && m.GetParameters().Length==1);
         OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Xtensive.Tuples.Tuple));
         DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.DefaultIfEmpty));
         Contains = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Contains), 1, 2);

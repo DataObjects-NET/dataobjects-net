@@ -4,11 +4,13 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.27
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -20,6 +22,8 @@ namespace Xtensive.Orm.Linq
   /// </summary>
   internal class TranslatedQuery
   {
+    internal readonly ResultType scalarResultType;
+
     /// <summary>
     /// The <see cref="ExecutableProvider"/> acting as source for further materialization.
     /// </summary>
@@ -29,6 +33,8 @@ namespace Xtensive.Orm.Linq
     /// Materializer.
     /// </summary>
     public readonly Materializer Materializer;
+
+    public bool IsScalar => scalarResultType != ResultType.All;
 
     /// <summary>
     /// Gets the tuple parameter bindings.
@@ -49,18 +55,7 @@ namespace Xtensive.Orm.Linq
     public TResult ExecuteScalar<TResult>(Session session, ParameterContext parameterContext)
     {
       var sequenceResult = ExecuteSequence<TResult>(session, parameterContext);
-      // TODO: Call proper method specified by projection.ResultType
-      // if (projection.IsScalar) {
-      //   var materializerResultType = typeof(IEnumerable<>).MakeGenericType(elementType);
-      //   var scalarMethodName = projection.ResultType.ToString();
-      //   var enumerableMethod = typeof (Enumerable)
-      //     .GetMethods(BindingFlags.Static | BindingFlags.Public)
-      //     .First(m => m.Name==scalarMethodName && m.GetParameters().Length==1)
-      //     .MakeGenericMethod(elementType);
-      //   body = Expression.Call(enumerableMethod, Expression.Convert(body, materializerResultType));
-      // }
-
-      return sequenceResult.First();
+      return sequenceResult.ToScalar(scalarResultType);
     }
 
     /// <summary>
@@ -86,7 +81,7 @@ namespace Xtensive.Orm.Linq
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
       var sequenceResult = await ExecuteSequenceAsync<TResult>(session, parameterContext, token);
-      return sequenceResult.First();
+      return sequenceResult.ToScalar(scalarResultType);
     }
 
     /// <summary>
@@ -111,8 +106,8 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
-    public TranslatedQuery(ExecutableProvider dataSource, Materializer materializer)
-      : this(dataSource, materializer, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
+    public TranslatedQuery(ExecutableProvider dataSource, Materializer materializer, ResultType scalarResultType)
+      : this(dataSource, materializer, scalarResultType, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
     {
     }
 
@@ -121,14 +116,17 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
+    /// <param name="isScalar"></param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     /// <param name="tupleParameters">The tuple parameters.</param>
-   public TranslatedQuery(ExecutableProvider dataSource,
+    public TranslatedQuery(ExecutableProvider dataSource,
       Materializer materializer,
-        Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
+      ResultType scalarResultType,
+      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;
       Materializer = materializer;
+      this.scalarResultType = scalarResultType;
       TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
       TupleParameters = tupleParameters.ToList();
     }

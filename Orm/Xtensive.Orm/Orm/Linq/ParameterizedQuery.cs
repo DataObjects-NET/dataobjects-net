@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Linq
     public readonly Parameter QueryParameter;
 
     public ParameterizedQuery(TranslatedQuery translatedQuery, Parameter parameter)
-      : base(translatedQuery.DataSource, translatedQuery.Materializer)
+      : base(translatedQuery.DataSource, translatedQuery.Materializer, translatedQuery.scalarResultType)
     {
       QueryParameter = parameter;
     }

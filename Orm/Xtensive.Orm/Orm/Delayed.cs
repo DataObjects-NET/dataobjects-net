@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -25,9 +26,10 @@ namespace Xtensive.Orm
   [Serializable]
   public sealed class Delayed<T> : DelayedQueryResult
   {
-    private ParameterContext parameterContext;
-    private Materializer materializer;
-    private Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
+    private readonly ParameterContext parameterContext;
+    private readonly Materializer materializer;
+    private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
+    private readonly ResultType scalarResultType;
 
     /// <summary>
     /// Gets the result.
@@ -80,7 +82,6 @@ namespace Xtensive.Orm
       return Materialize(Session);
     }
 
-
     private T Materialize(Session session)
     {
       if (!LifetimeToken.IsActive)
@@ -89,8 +90,7 @@ namespace Xtensive.Orm
         session.ExecuteUserDefinedDelayedQueries(false);
       var tupleReader = TupleReader.Create(Task.Result);
       var result = materializer.Invoke<T>(tupleReader, session, tupleParameterBindings, parameterContext);
-      // TODO: Call correct Result selection method
-      return result.First();
+      return result.ToScalar(scalarResultType);
     }
 
     // Constructors
@@ -106,6 +106,7 @@ namespace Xtensive.Orm
     {
       materializer = translatedQuery.Materializer;
       tupleParameterBindings = translatedQuery.TupleParameterBindings;
+      scalarResultType = translatedQuery.scalarResultType;
       this.parameterContext = parameterContext;
     }
   }

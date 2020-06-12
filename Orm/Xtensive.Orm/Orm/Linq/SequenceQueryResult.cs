@@ -1,6 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
 
 namespace Xtensive.Orm.Linq
@@ -19,5 +22,17 @@ namespace Xtensive.Orm.Linq
     {
       this.reader = reader;
     }
+  }
+
+  internal static class SequenceQueryResultExtensions
+  {
+    public static TResult ToScalar<TResult>(this in SequenceQueryResult<TResult> sequence, ResultType resultType) =>
+      resultType switch {
+        ResultType.First => sequence.First(),
+        ResultType.FirstOrDefault => sequence.FirstOrDefault(),
+        ResultType.Single => sequence.Single(),
+        ResultType.SingleOrDefault => sequence.SingleOrDefault(),
+        _ => throw new InvalidOperationException("Query is not scalar.")
+      };
   }
 }

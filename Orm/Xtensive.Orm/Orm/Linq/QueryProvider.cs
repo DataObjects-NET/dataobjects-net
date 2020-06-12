@@ -5,7 +5,6 @@
 // Created:    2008.11.26
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -24,12 +23,10 @@ namespace Xtensive.Orm.Linq
   /// </summary>
   public sealed class QueryProvider : IQueryProvider
   {
-    private readonly Session session;
-
     /// <summary>
     /// Gets <see cref="Session"/> this provider is attached to.
     /// </summary>
-    public Session Session => session;
+    public Session Session { get; }
 
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
@@ -76,7 +73,30 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     public TResult Execute<TResult>(Expression expression)
     {
-      expression = session.Events.NotifyQueryExecuting(expression);
+      static TResult ExecuteScalarQuery(
+        TranslatedQuery query, Session session, ParameterContext parameterContext)
+      {
+        return query.ExecuteScalar<TResult>(session, parameterContext);
+      }
+
+      return Execute(expression, ExecuteScalarQuery);
+    }
+
+    public SequenceQueryResult<T> ExecuteSequence<T>(Expression expression)
+    {
+      static SequenceQueryResult<T> ExecuteSequenceQuery(
+        TranslatedQuery query, Session session, ParameterContext parameterContext)
+      {
+        return query.ExecuteSequence<T>(session, parameterContext);
+      }
+
+      return Execute(expression, ExecuteSequenceQuery);
+    }
+
+    private TResult Execute<TResult>(Expression expression,
+      Func<TranslatedQuery, Session, ParameterContext, TResult> runQuery)
+    {
+      expression = Session.Events.NotifyQueryExecuting(expression);
       var query = Translate(expression);
       TResult result;
       var compiledQueryScope = CompiledQueryProcessingScope.Current;
@@ -85,14 +105,14 @@ namespace Xtensive.Orm.Linq
       }
       else {
         try {
-          result = query.Execute<TResult>(session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
+          result = runQuery(query, Session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
         }
         catch (Exception exception) {
-          session.Events.NotifyQueryExecuted(expression, exception);
+          Session.Events.NotifyQueryExecuted(expression, exception);
           throw;
         }
       }
-      session.Events.NotifyQueryExecuted(expression);
+      Session.Events.NotifyQueryExecuted(expression);
       return result;
     }
 
@@ -119,32 +139,32 @@ namespace Xtensive.Orm.Linq
     private async Task<TResult> ExecuteAsync<TResult>(Expression expression,
       Func<TranslatedQuery, Session, ParameterContext, CancellationToken, Task<TResult>> runQuery, CancellationToken token)
     {
-      expression = session.Events.NotifyQueryExecuting(expression);
+      expression = Session.Events.NotifyQueryExecuting(expression);
       var query = Translate(expression);
       TResult result;
       try {
-        result = await runQuery(query, session, new ParameterContext(), token).ConfigureAwait(false);
+        result = await runQuery(query, Session, new ParameterContext(), token).ConfigureAwait(false);
       }
       catch (Exception exception) {
-        session.Events.NotifyQueryExecuted(expression, exception);
+        Session.Events.NotifyQueryExecuted(expression, exception);
         throw;
       }
 
-      session.Events.NotifyQueryExecuted(expression);
+      Session.Events.NotifyQueryExecuted(expression);
       return result;
     }
 
     #region Private / internal methods
 
     internal TranslatedQuery Translate(Expression expression) =>
-      Translate(expression, session.CompilationService.CreateConfiguration(session));
+      Translate(expression, Session.CompilationService.CreateConfiguration(Session));
 
     internal TranslatedQuery Translate(Expression expression,
       CompilerConfiguration compilerConfiguration)
     {
       try {
         var compiledQueryScope = CompiledQueryProcessingScope.Current;
-        var context = new TranslatorContext(session, compilerConfiguration, expression, compiledQueryScope);
+        var context = new TranslatorContext(Session, compilerConfiguration, expression, compiledQueryScope);
         return context.Translator.Translate();
       }
       catch (Exception ex) {
@@ -160,7 +180,7 @@ namespace Xtensive.Orm.Linq
 
     internal QueryProvider(Session session)
     {
-      this.session = session;
+      Session = session;
     }
   }
 }

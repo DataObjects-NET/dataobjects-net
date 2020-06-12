@@ -98,6 +98,7 @@ namespace Xtensive.Orm.Linq
       var translatedQuery = new TranslatedQuery(
         query.DataSource,
         query.Materializer,
+        query.scalarResultType,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
       delayedSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);

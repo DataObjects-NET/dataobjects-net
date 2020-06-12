@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
-              foreach (var tuple in rs.GetRecordSet(session, parameterContext)) {
+              foreach (var tuple in rs.GetRecordSet(session, parameterContext).ToEnumerable()) {
                 var o = new SqlClientCrudModel.Simplest
                           {
                             Id = tuple.GetValueOrDefault<long>(0),

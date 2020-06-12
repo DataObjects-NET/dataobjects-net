@@ -68,6 +68,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .GetRecordSet(Session.Current, parameterContext)
+          .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(3, result.Count);
@@ -90,6 +91,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0) == y)
           .GetRecordSet(Session.Current, parameterContext)
+          .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);
@@ -109,6 +111,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
           .GetRecordSet(Session.Current, parameterContext)
+          .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);

@@ -152,9 +152,9 @@ namespace Xtensive.Orm.Tests.Model
           var rs = a1.TypeInfo.Indexes.PrimaryIndex.GetQuery();
 
           var parameterContext = new ParameterContext();
-          foreach (Tuple tuple in rs.GetRecordSet(Session.Current, parameterContext)) {
+          foreach (Tuple tuple in rs.GetRecordSet(Session.Current, parameterContext).ToEnumerable()) {
             var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.GetQuery();
-            foreach (Tuple tuple2 in rs2.GetRecordSet(Session.Current, parameterContext)) {
+            foreach (Tuple tuple2 in rs2.GetRecordSet(Session.Current, parameterContext).ToEnumerable()) {
               TestLog.Debug(tuple2.ToString());
             }
           }

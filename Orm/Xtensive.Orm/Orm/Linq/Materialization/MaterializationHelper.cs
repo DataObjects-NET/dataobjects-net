@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq.Materialization
     /// <param name="parameterContext">The parameter context.</param>
     /// <param name="itemMaterializer">The item materializer.</param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
-    public static MaterializingReader<TResult> Materialize<TResult>(
+    public static object Materialize<TResult>(
       TupleReader recordSet,
       MaterializationContext context,
       ParameterContext parameterContext,

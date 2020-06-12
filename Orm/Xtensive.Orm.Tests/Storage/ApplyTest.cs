@@ -105,6 +105,7 @@ namespace Xtensive.Orm.Tests.Storage
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.Single, JoinType.Inner)
             .GetRecordSet(Session.Current, new ParameterContext())
+            .ToEnumerable()
             .Count(t => (bool) t.GetValue(t.Count-1));
           Assert.AreEqual(total, result);
         }

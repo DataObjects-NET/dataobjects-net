@@ -55,7 +55,9 @@ namespace Xtensive.Orm.Linq
 
       // Build materializer
       var materializer = BuildMaterializer(prepared, tupleParameterBindings);
-      var translatedQuery = new TranslatedQuery(compiled, materializer, projection.TupleParameterBindings, tupleParameterBindings);
+      var translatedQuery = new TranslatedQuery(
+        compiled, materializer, prepared.ResultType,
+        projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
       if (compiledQueryScope != null && translatedQuery.TupleParameters.Count == 0) {
@@ -105,11 +107,11 @@ namespace Xtensive.Orm.Linq
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var rs = Expression.Parameter(typeof (object), "rs");
+      var tupleReader = Expression.Parameter(typeof (TupleReader), "tupleReader");
       var session = Expression.Parameter(typeof (Session), "session");
       var tupleParameterBindings = Expression.Parameter(typeof (Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var parameterContext = Expression.Parameter(typeof (ParameterContext), "parameterContext");
-      
+
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
@@ -125,28 +127,15 @@ namespace Xtensive.Orm.Linq
 
       Expression body = Expression.Call(
         materializeMethod,
-        rs,
+        tupleReader,
         materializationContextExpression,
         parameterContext,
         Expression.Constant(itemMaterializer),
         tupleParameterBindings);
 
-      if (projection.IsScalar) {
-        var materializerResultType = typeof(IEnumerable<>).MakeGenericType(elementType);
-        var scalarMethodName = projection.ResultType.ToString();
-        var enumerableMethod = typeof (Enumerable)
-          .GetMethods(BindingFlags.Static | BindingFlags.Public)
-          .First(m => m.Name==scalarMethodName && m.GetParameters().Length==1)
-          .MakeGenericMethod(elementType);
-        body = Expression.Call(enumerableMethod, Expression.Convert(body, materializerResultType));
-      }
-
-      var resultType = typeof (object);
-      body = body.Type == resultType ? body : Expression.Convert(body, resultType);
-
       var projectorExpression = FastExpression
         .Lambda<Func<TupleReader, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>>(
-          body, rs, session, tupleParameterBindings, parameterContext);
+          body, tupleReader, session, tupleParameterBindings, parameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 
