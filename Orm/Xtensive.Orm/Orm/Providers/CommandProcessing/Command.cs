@@ -241,7 +241,7 @@ namespace Xtensive.Orm.Providers
 
     public TupleEnumerator(IEnumerable<Tuple> tuples)
     {
-      source = tuples;
+      source = tuples.GetEnumerator();
       accessor = null;
     }
 
