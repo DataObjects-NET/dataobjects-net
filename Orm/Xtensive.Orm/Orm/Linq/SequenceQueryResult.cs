@@ -10,7 +10,7 @@ namespace Xtensive.Orm.Linq
 {
   public readonly struct SequenceQueryResult<TItem> : IEnumerable<TItem>, IAsyncEnumerable<TItem>
   {
-    private readonly MaterializingReader<TItem> reader;
+    private readonly IMaterializingReader<TItem> reader;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq
 
     public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default) => reader;
 
-    internal SequenceQueryResult(MaterializingReader<TItem> reader)
+    internal SequenceQueryResult(IMaterializingReader<TItem> reader)
     {
       this.reader = reader;
     }

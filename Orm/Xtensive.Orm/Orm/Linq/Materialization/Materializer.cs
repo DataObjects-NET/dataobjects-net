@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public SequenceQueryResult<T> Invoke<T>(
       TupleReader tupleReader, Session session, Dictionary<Parameter<Tuple>,Tuple> tupleParameterBindings, ParameterContext parameterContext)
     {
-      var reader = (MaterializingReader<T>)
+      var reader = (IMaterializingReader<T>)
         materializeMethod.Invoke(tupleReader, session, tupleParameterBindings, parameterContext);
       return new SequenceQueryResult<T>(reader);
     }
@@ -22,7 +22,6 @@ namespace Xtensive.Orm.Linq.Materialization
       Func<TupleReader,Session,Dictionary<Parameter<Tuple>,Tuple>,ParameterContext,object> materializeMethod)
     {
       this.materializeMethod = materializeMethod;
-      throw new NotImplementedException();
     }
   }
 }

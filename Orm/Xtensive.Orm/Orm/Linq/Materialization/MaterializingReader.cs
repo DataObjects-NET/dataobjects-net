@@ -8,7 +8,10 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  public class MaterializingReader<TItem>: IEnumerator<TItem>, IAsyncEnumerator<TItem>
+  public interface IMaterializingReader<out TItem>: IEnumerator<TItem>, IAsyncEnumerator<TItem>
+  {}
+
+  public class MaterializingReader<TItem>: IMaterializingReader<TItem>
   {
     private readonly TupleReader tupleReader;
     private readonly MaterializationContext context;
