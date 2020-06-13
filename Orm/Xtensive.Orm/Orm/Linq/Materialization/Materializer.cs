@@ -8,18 +8,16 @@ namespace Xtensive.Orm.Linq.Materialization
 {
   internal readonly struct Materializer
   {
-    private readonly Func<TupleReader, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object> materializeMethod;
+    private readonly Func<TupleReader, Session, ParameterContext, object> materializeMethod;
 
-    public SequenceQueryResult<T> Invoke<T>(
-      TupleReader tupleReader, Session session, Dictionary<Parameter<Tuple>,Tuple> tupleParameterBindings, ParameterContext parameterContext)
+    public SequenceQueryResult<T> Invoke<T>(TupleReader tupleReader, Session session, ParameterContext parameterContext)
     {
       var reader = (IMaterializingReader<T>)
-        materializeMethod.Invoke(tupleReader, session, tupleParameterBindings, parameterContext);
+        materializeMethod.Invoke(tupleReader, session, parameterContext);
       return new SequenceQueryResult<T>(reader);
     }
 
-    public Materializer(
-      Func<TupleReader,Session,Dictionary<Parameter<Tuple>,Tuple>,ParameterContext,object> materializeMethod)
+    public Materializer(Func<TupleReader,Session,ParameterContext,object> materializeMethod)
     {
       this.materializeMethod = materializeMethod;
     }

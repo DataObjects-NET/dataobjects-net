@@ -109,7 +109,6 @@ namespace Xtensive.Orm.Linq
     {
       var tupleReader = Expression.Parameter(typeof (TupleReader), "tupleReader");
       var session = Expression.Parameter(typeof (Session), "session");
-      var tupleParameterBindings = Expression.Parameter(typeof (Dictionary<Parameter<Tuple>, Tuple>), "tupleParameterBindings");
       var parameterContext = Expression.Parameter(typeof (ParameterContext), "parameterContext");
 
       var itemProjector = projection.ItemProjector;
@@ -130,12 +129,10 @@ namespace Xtensive.Orm.Linq
         tupleReader,
         materializationContextExpression,
         parameterContext,
-        Expression.Constant(itemMaterializer),
-        tupleParameterBindings);
+        Expression.Constant(itemMaterializer));
 
-      var projectorExpression = FastExpression
-        .Lambda<Func<TupleReader, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, object>>(
-          body, tupleReader, session, tupleParameterBindings, parameterContext);
+      var projectorExpression = FastExpression.Lambda<Func<TupleReader, Session, ParameterContext, object>>(
+        body, tupleReader, session, parameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 

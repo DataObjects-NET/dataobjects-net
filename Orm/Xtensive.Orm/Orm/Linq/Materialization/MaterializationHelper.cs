@@ -65,13 +65,8 @@ namespace Xtensive.Orm.Linq.Materialization
       TupleReader recordSet,
       MaterializationContext context,
       ParameterContext parameterContext,
-      Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer,
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+      Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer)
     {
-      foreach (var (parameter, tuple) in tupleParameterBindings) {
-        parameterContext.SetValue(parameter, tuple);
-      }
-
       var enumerationContext = (EnumerationContext) recordSet.Context;
       if (enumerationContext!=null) {
         enumerationContext.MaterializationContext = context;

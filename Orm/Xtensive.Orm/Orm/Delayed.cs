@@ -28,7 +28,6 @@ namespace Xtensive.Orm
   {
     private readonly ParameterContext parameterContext;
     private readonly Materializer materializer;
-    private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
     private readonly ResultType scalarResultType;
 
     /// <summary>
@@ -89,7 +88,7 @@ namespace Xtensive.Orm
       if (Task.Result==null)
         session.ExecuteUserDefinedDelayedQueries(false);
       var tupleReader = TupleReader.Create(Task.Result);
-      var result = materializer.Invoke<T>(tupleReader, session, tupleParameterBindings, parameterContext);
+      var result = materializer.Invoke<T>(tupleReader, session, parameterContext);
       return result.ToScalar(scalarResultType);
     }
 
@@ -105,9 +104,11 @@ namespace Xtensive.Orm
       base(session, translatedQuery, parameterContext)
     {
       materializer = translatedQuery.Materializer;
-      tupleParameterBindings = translatedQuery.TupleParameterBindings;
       scalarResultType = translatedQuery.scalarResultType;
-      this.parameterContext = parameterContext;
+      this.parameterContext = new ParameterContext(parameterContext);
+      foreach (var (parameter, tuple) in translatedQuery.TupleParameterBindings) {
+        this.parameterContext.SetValue(parameter, tuple);
+      }
     }
   }
 }

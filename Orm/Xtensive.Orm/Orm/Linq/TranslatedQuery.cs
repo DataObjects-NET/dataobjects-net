@@ -66,8 +66,12 @@ namespace Xtensive.Orm.Linq
     /// <returns>Query execution result.</returns>
     public SequenceQueryResult<T> ExecuteSequence<T>(Session session, ParameterContext parameterContext)
     {
-      var recordSet = DataSource.GetRecordSet(session, parameterContext);
-      return Materializer.Invoke<T>(recordSet, session, TupleParameterBindings, parameterContext);
+      var newParameterContext = new ParameterContext(parameterContext);
+      foreach (var (parameter, tuple) in TupleParameterBindings) {
+        newParameterContext.SetValue(parameter, tuple);
+      }
+      var recordSet = DataSource.GetRecordSet(session, newParameterContext);
+      return Materializer.Invoke<T>(recordSet, session, newParameterContext);
     }
 
     /// <summary>
@@ -94,8 +98,12 @@ namespace Xtensive.Orm.Linq
     public async Task<SequenceQueryResult<T>> ExecuteSequenceAsync<T>(
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
-      var recordSet = await DataSource.GetRecordSetAsync(session, parameterContext, token).ConfigureAwait(false);
-      return Materializer.Invoke<T>(recordSet, session, TupleParameterBindings, parameterContext);
+      var newParameterContext = new ParameterContext(parameterContext);
+      foreach (var (parameter, tuple) in TupleParameterBindings) {
+        newParameterContext.SetValue(parameter, tuple);
+      }
+      var recordSet = await DataSource.GetRecordSetAsync(session, newParameterContext, token).ConfigureAwait(false);
+      return Materializer.Invoke<T>(recordSet, session, newParameterContext);
     }
 
 

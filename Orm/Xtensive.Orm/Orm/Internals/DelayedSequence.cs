@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Internals
   {
     private readonly ParameterContext parameterContext;
     private readonly Materializer materializer;
-    private readonly Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings;
 
     public IEnumerator<T> GetEnumerator() => Materialize(Session).GetEnumerator();
 
@@ -36,7 +35,7 @@ namespace Xtensive.Orm.Internals
         session.ExecuteUserDefinedDelayedQueries(false);
       }
 
-      return materializer.Invoke<T>(TupleReader.Create(Task.Result), session, tupleParameterBindings, parameterContext);
+      return materializer.Invoke<T>(TupleReader.Create(Task.Result), session, parameterContext);
     }
 
     // Constructors
@@ -45,8 +44,10 @@ namespace Xtensive.Orm.Internals
       : base(session, translatedQuery, parameterContext)
     {
       materializer = translatedQuery.Materializer;
-      tupleParameterBindings = translatedQuery.TupleParameterBindings;
-      this.parameterContext = parameterContext;
+      this.parameterContext = new ParameterContext(parameterContext);
+      foreach (var (parameter, tuple) in translatedQuery.TupleParameterBindings) {
+        this.parameterContext.SetValue(parameter, tuple);
+      }
     }
   }
 }
