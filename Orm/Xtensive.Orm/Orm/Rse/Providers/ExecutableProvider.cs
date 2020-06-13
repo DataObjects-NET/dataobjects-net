@@ -82,9 +82,9 @@ namespace Xtensive.Orm.Rse.Providers
 
     public IEnumerable<Tuple> ToEnumerable(EnumerationContext context)
     {
-      var recordSet = TupleReader.Create(context, this);
-      while (recordSet.MoveNext()) {
-        yield return recordSet.Current;
+      using var tupleReader = TupleReader.Create(context, this);
+      while (tupleReader.MoveNext()) {
+        yield return tupleReader.Current;
       }
     }
 
