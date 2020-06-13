@@ -95,12 +95,20 @@ namespace Xtensive.Orm.Rse
       }
     }
 
-    public static Tuple First(this TupleReader recordSet) =>
-      recordSet.MoveNext()
-        ? recordSet.Current
-        : throw new InvalidOperationException("Sequence contains no elements.");
+    public static Tuple First(this TupleReader tupleReader)
+    {
+      using (tupleReader) {
+        return tupleReader.MoveNext()
+          ? tupleReader.Current
+          : throw new InvalidOperationException("Sequence contains no elements.");
+      }
+    }
 
-    public static Tuple FirstOrDefault(this TupleReader recordSet) =>
-      recordSet.MoveNext() ? recordSet.Current : null;
+    public static Tuple FirstOrDefault(this TupleReader tupleReader)
+    {
+      using (tupleReader) {
+        return tupleReader.MoveNext() ? tupleReader.Current : null;
+      }
+    }
   }
 }
