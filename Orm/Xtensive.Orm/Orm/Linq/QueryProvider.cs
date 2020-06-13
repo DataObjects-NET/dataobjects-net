@@ -52,14 +52,12 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      var iEnumerableOfT = WellKnown.Interfaces.EnumerableOfT;
-      var resultType = expression.Type.IsOfGenericInterface(iEnumerableOfT)
-        ? iEnumerableOfT.MakeGenericType(expression.Type.GetGenericArguments())
-        : expression.Type;
+      var resultType = expression.Type;
+      var executeMethod = resultType.IsOfGenericInterface(WellKnown.Interfaces.EnumerableOfT)
+        ? WellKnownMembers.QueryProvider.ExecuteSequence.MakeGenericMethod(SequenceHelper.GetElementType(resultType))
+        : WellKnownMembers.QueryProvider.ExecuteScalar.MakeGenericMethod(resultType);
       try {
-        var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
-        var result = executeMethod.Invoke(this, new object[] {expression});
-        return result;
+        return executeMethod.Invoke(this, new object[] {expression});
       }
       catch (TargetInvocationException e) {
         if (e.InnerException != null) {
@@ -71,10 +69,11 @@ namespace Xtensive.Orm.Linq
     }
 
     /// <inheritdoc/>
-    public TResult Execute<TResult>(Expression expression)
+    public TResult Execute<TResult>(Expression expression) => ExecuteScalar<TResult>(expression);
+
+    internal TResult ExecuteScalar<TResult>(Expression expression)
     {
-      static TResult ExecuteScalarQuery(
-        TranslatedQuery query, Session session, ParameterContext parameterContext)
+      static TResult ExecuteScalarQuery(TranslatedQuery query, Session session, ParameterContext parameterContext)
       {
         return query.ExecuteScalar<TResult>(session, parameterContext);
       }
@@ -82,7 +81,7 @@ namespace Xtensive.Orm.Linq
       return Execute(expression, ExecuteScalarQuery);
     }
 
-    public QueryResult<T> ExecuteSequence<T>(Expression expression)
+    internal QueryResult<T> ExecuteSequence<T>(Expression expression)
     {
       static QueryResult<T> ExecuteSequenceQuery(
         TranslatedQuery query, Session session, ParameterContext parameterContext)
@@ -116,7 +115,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Task<TResult> ExecuteScalarAsync<TResult>(Expression expression, CancellationToken token)
+    internal Task<TResult> ExecuteScalarAsync<TResult>(Expression expression, CancellationToken token)
     {
       static Task<TResult> ExecuteScalarQueryAsync(
         TranslatedQuery query, Session session, ParameterContext parameterContext, CancellationToken token)
@@ -126,7 +125,7 @@ namespace Xtensive.Orm.Linq
       return ExecuteAsync(expression, ExecuteScalarQueryAsync, token);
     }
 
-    public Task<QueryResult<T>> ExecuteSequenceAsync<T>(Expression expression, CancellationToken token)
+    internal Task<QueryResult<T>> ExecuteSequenceAsync<T>(Expression expression, CancellationToken token)
     {
       static Task<QueryResult<T>> ExecuteSequenceQueryAsync(
         TranslatedQuery query, Session session, ParameterContext parameterContext, CancellationToken token)

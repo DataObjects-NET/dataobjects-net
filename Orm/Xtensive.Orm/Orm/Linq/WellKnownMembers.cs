@@ -140,14 +140,22 @@ namespace Xtensive.Orm.Linq
 
     public static class QueryProvider
     {
-      public static readonly MethodInfo Execute;
+      public static readonly MethodInfo ExecuteScalar;
+      public static readonly MethodInfo ExecuteSequence;
 
       static QueryProvider()
       {
-        Execute = typeof(Linq.QueryProvider)
-          .GetMethods()
-          .Where(mi => mi.Name == nameof(Linq.QueryProvider.Execute) && mi.IsGenericMethod)
-          .Single();
+        var methodInfos = typeof(Linq.QueryProvider).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);
+        foreach (var methodInfo in methodInfos) {
+          switch (methodInfo.Name) {
+            case nameof(Linq.QueryProvider.ExecuteScalar):
+              ExecuteScalar = methodInfo;
+              break;
+            case nameof(Linq.QueryProvider.ExecuteSequence):
+              ExecuteSequence = methodInfo;
+              break;
+          }
+        }
       }
     }
 
