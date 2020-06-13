@@ -282,7 +282,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var readyToRockQuery =  session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().AsAsync();
 
         new TestEntity(session);
         new TestEntity(session);
@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
 
         count = 0;
-        foreach (var testEntity in await readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery)
           count++;
 
         Assert.That(count, Is.EqualTo(TestEntityCount));
