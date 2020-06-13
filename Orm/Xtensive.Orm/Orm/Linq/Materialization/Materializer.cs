@@ -10,11 +10,11 @@ namespace Xtensive.Orm.Linq.Materialization
   {
     private readonly Func<TupleReader, Session, ParameterContext, object> materializeMethod;
 
-    public SequenceQueryResult<T> Invoke<T>(TupleReader tupleReader, Session session, ParameterContext parameterContext)
+    public QueryResult<T> Invoke<T>(TupleReader tupleReader, Session session, ParameterContext parameterContext)
     {
       var reader = (IMaterializingReader<T>)
         materializeMethod.Invoke(tupleReader, session, parameterContext);
-      return new SequenceQueryResult<T>(reader);
+      return new QueryResult<T>(reader);
     }
 
     public Materializer(Func<TupleReader,Session,ParameterContext,object> materializeMethod)

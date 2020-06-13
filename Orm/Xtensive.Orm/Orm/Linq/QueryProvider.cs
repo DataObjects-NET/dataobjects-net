@@ -82,9 +82,9 @@ namespace Xtensive.Orm.Linq
       return Execute(expression, ExecuteScalarQuery);
     }
 
-    public SequenceQueryResult<T> ExecuteSequence<T>(Expression expression)
+    public QueryResult<T> ExecuteSequence<T>(Expression expression)
     {
-      static SequenceQueryResult<T> ExecuteSequenceQuery(
+      static QueryResult<T> ExecuteSequenceQuery(
         TranslatedQuery query, Session session, ParameterContext parameterContext)
       {
         return query.ExecuteSequence<T>(session, parameterContext);
@@ -126,9 +126,9 @@ namespace Xtensive.Orm.Linq
       return ExecuteAsync(expression, ExecuteScalarQueryAsync, token);
     }
 
-    public Task<SequenceQueryResult<T>> ExecuteSequenceAsync<T>(Expression expression, CancellationToken token)
+    public Task<QueryResult<T>> ExecuteSequenceAsync<T>(Expression expression, CancellationToken token)
     {
-      static Task<SequenceQueryResult<T>> ExecuteSequenceQueryAsync(
+      static Task<QueryResult<T>> ExecuteSequenceQueryAsync(
         TranslatedQuery query, Session session, ParameterContext parameterContext, CancellationToken token)
       {
         return query.ExecuteSequenceAsync<T>(session, parameterContext, token);

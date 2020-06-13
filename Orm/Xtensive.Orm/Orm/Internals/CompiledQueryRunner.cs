@@ -29,13 +29,13 @@ namespace Xtensive.Orm.Internals
     private Parameter queryParameter;
     private ExtendedExpressionReplacer queryParameterReplacer;
 
-    public IEnumerable<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    public QueryResult<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
       return parameterizedQuery.ExecuteSequence<TElement>(session, CreateParameterContext(parameterizedQuery));
     }
 
-    public IEnumerable<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    public QueryResult<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
       return parameterizedQuery.ExecuteSequence<TElement>(session, CreateParameterContext(parameterizedQuery));
@@ -52,17 +52,19 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
-    public QueryAsyncResult<TElement> ExecuteCompiledAsync<TElement>(
+    public AsyncQueryResult<TElement> ExecuteCompiledAsync<TElement>(
       Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
     {
-      token.ThrowIfCancellationRequested();
       var parameterizedQuery = GetSequenceQuery(query);
       token.ThrowIfCancellationRequested();
-      return new QueryAsyncResult<TElement>(
-        parameterizedQuery, session, CreateParameterContext(parameterizedQuery), token);
+      var parameterContext = CreateParameterContext(parameterizedQuery);
+      token.ThrowIfCancellationRequested();
+
+      var queryResultTask = parameterizedQuery.ExecuteSequenceAsync<TElement>(session, parameterContext, token);
+      return new AsyncQueryResult<TElement>(queryResultTask);
     }
 
-    public QueryAsyncResult<TElement> ExecuteCompiledAsync<TElement>(
+    public AsyncQueryResult<TElement> ExecuteCompiledAsync<TElement>(
       Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token) =>
       ExecuteCompiledAsync((Func<QueryEndpoint, IQueryable<TElement>>)query, token);
 

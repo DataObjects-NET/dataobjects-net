@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Internals
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    private SequenceQueryResult<T> Materialize(Session session)
+    private QueryResult<T> Materialize(Session session)
     {
       if (!LifetimeToken.IsActive) {
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);

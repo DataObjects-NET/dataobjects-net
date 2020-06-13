@@ -292,7 +292,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    public static IEnumerable<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
+    public static QueryResult<TElement> Execute<TElement>(Func<IQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteCompiled(WrapQuery(query));
@@ -308,7 +308,7 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Query result.</returns>
-    public static IEnumerable<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
+    public static QueryResult<TElement> Execute<TElement>(object key, Func<IQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
       return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteCompiled(WrapQuery(query));
@@ -390,7 +390,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<IQueryable<TElement>> query)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(Func<IQueryable<TElement>> query)
     {
       return ExecuteAsync<TElement>(query, CancellationToken.None);
     }
@@ -406,7 +406,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">A token to cancel operation.</param>
     /// <returns>Task performing this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<IQueryable<TElement>> query, CancellationToken token)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(Func<IQueryable<TElement>> query, CancellationToken token)
     {
       var endpoint = Session.Demand().Query;
       token.ThrowIfCancellationRequested();
@@ -423,7 +423,7 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task preforming this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<IQueryable<TElement>> query)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(object key, Func<IQueryable<TElement>> query)
     {
       return ExecuteAsync(key, query, CancellationToken.None);
     }
@@ -439,7 +439,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">A token to cancel operation.</param>
     /// <returns>Task preforming this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<IQueryable<TElement>> query, CancellationToken token)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(object key, Func<IQueryable<TElement>> query, CancellationToken token)
     {
       var endpoint = Session.Demand().Query;
       token.ThrowIfCancellationRequested();
@@ -456,7 +456,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task preforming this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<IOrderedQueryable<TElement>> query)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(Func<IOrderedQueryable<TElement>> query)
     {
       return ExecuteAsync(query, CancellationToken.None);
     }
@@ -472,7 +472,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">A token to cancel operation.</param>
     /// <returns>Task preforming this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(Func<IOrderedQueryable<TElement>> query, CancellationToken token)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(Func<IOrderedQueryable<TElement>> query, CancellationToken token)
     {
       var endpoint = Session.Demand().Query;
       token.ThrowIfCancellationRequested();
@@ -489,7 +489,7 @@ namespace Xtensive.Orm
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task preforming this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<IOrderedQueryable<TElement>> query)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(object key, Func<IOrderedQueryable<TElement>> query)
     {
       return ExecuteAsync(key, query, CancellationToken.None);
     }
@@ -505,7 +505,7 @@ namespace Xtensive.Orm
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">A token to cancel operation.</param>
     /// <returns>Task preforming this operation.</returns>
-    public static QueryAsyncResult<TElement> ExecuteAsync<TElement>(object key, Func<IOrderedQueryable<TElement>> query, CancellationToken token)
+    public static AsyncQueryResult<TElement> ExecuteAsync<TElement>(object key, Func<IOrderedQueryable<TElement>> query, CancellationToken token)
     {
       var endpoint = Session.Demand().Query;
       token.ThrowIfCancellationRequested();

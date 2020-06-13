@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="session">The session.</param>
     /// <param name="parameterContext">The parameter context.</param>
     /// <returns>Query execution result.</returns>
-    public SequenceQueryResult<T> ExecuteSequence<T>(Session session, ParameterContext parameterContext)
+    public QueryResult<T> ExecuteSequence<T>(Session session, ParameterContext parameterContext)
     {
       var newParameterContext = new ParameterContext(parameterContext);
       foreach (var (parameter, tuple) in TupleParameterBindings) {
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="parameterContext">The parameter context.</param>
     /// <param name="token">The token to cancel this operation</param>
     /// <returns><see cref="Task{TResult}"/> performing this operation.</returns>
-    public async Task<SequenceQueryResult<T>> ExecuteSequenceAsync<T>(
+    public async Task<QueryResult<T>> ExecuteSequenceAsync<T>(
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
       var newParameterContext = new ParameterContext(parameterContext);
