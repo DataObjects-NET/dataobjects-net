@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
@@ -8,16 +9,31 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  public interface IMaterializingReader<out TItem>: IEnumerator<TItem>, IAsyncEnumerator<TItem>
-  {}
+  public interface IMaterializingReader<out TItem>
+  {
+    IEnumerator<TItem> AsEnumerator();
+    IAsyncEnumerator<TItem> AsAsyncEnumerator(CancellationToken token);
+  }
 
-  public class MaterializingReader<TItem>: IMaterializingReader<TItem>
+  public class MaterializingReader<TItem>: IMaterializingReader<TItem>, IEnumerator<TItem>, IAsyncEnumerator<TItem>
   {
     private readonly TupleReader tupleReader;
     private readonly MaterializationContext context;
     private readonly ParameterContext parameterContext;
     private readonly Func<Tuple, ItemMaterializationContext, TItem> itemMaterializer;
     private readonly Queue<Action> materializationQueue;
+
+    public IEnumerator<TItem> AsEnumerator()
+    {
+      tupleReader.Reset();
+      return this;
+    }
+
+    public IAsyncEnumerator<TItem> AsAsyncEnumerator(CancellationToken token)
+    {
+      tupleReader.Reset();
+      return this;
+    }
 
     object IEnumerator.Current => Current;
 

@@ -16,9 +16,10 @@ namespace Xtensive.Orm
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TItem> GetEnumerator() => reader;
+    public IEnumerator<TItem> GetEnumerator() => reader.AsEnumerator();
 
-    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken cancellationToken = default) => reader;
+    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken token = default) =>
+      reader.AsAsyncEnumerator(token);
 
     internal QueryResult(IMaterializingReader<TItem> reader)
     {

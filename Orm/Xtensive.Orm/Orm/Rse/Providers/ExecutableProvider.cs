@@ -140,6 +140,7 @@ namespace Xtensive.Orm.Rse.Providers
     {
       New,
       Prepared,
+      InProgress,
       Finished
     }
 
@@ -159,7 +160,12 @@ namespace Xtensive.Orm.Rse.Providers
     public EnumerationContext Context => context;
     public RecordSetHeader Header => provider?.Header;
 
-    void IEnumerator.Reset() => throw new NotSupportedException();
+    public void Reset()
+    {
+      if (state == State.InProgress || state == State.Finished) {
+        tupleEnumerator.Reset();
+      }
+    }
 
     public bool MoveNext()
     {
@@ -167,6 +173,9 @@ namespace Xtensive.Orm.Rse.Providers
         case State.New:
           throw new InvalidOperationException("RecordSet is not prepared.");
         case State.Prepared:
+          state = State.InProgress;
+          goto case State.InProgress;
+        case State.InProgress:
           try {
             if (tupleEnumerator.MoveNext()) {
               return true;
@@ -194,6 +203,9 @@ namespace Xtensive.Orm.Rse.Providers
         case State.New:
           throw new InvalidOperationException("RecordSet is not prepared.");
         case State.Prepared:
+          state = State.InProgress;
+          goto case State.InProgress;
+        case State.InProgress:
           try {
             if (await tupleEnumerator.MoveNextAsync()) {
               return true;

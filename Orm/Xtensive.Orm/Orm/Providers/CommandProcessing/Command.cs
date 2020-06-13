@@ -186,12 +186,21 @@ namespace Xtensive.Orm.Providers
       ? await command.NextRowAsync(token)
       : ((IEnumerator<Tuple>) source).MoveNext();
 
-    void IEnumerator.Reset() => throw new NotSupportedException();
+    public void Reset()
+    {
+      if (source is Command) {
+        throw new NotSupportedException("Multiple enumeration is not supported.");
+      }
+      ((IEnumerator)source).Reset();
+    }
 
     public void Dispose()
     {
       if (source is Command command) {
         command.Dispose();
+      }
+      else {
+        ((IEnumerator<Tuple>) source).Dispose();
       }
     }
 
@@ -199,6 +208,9 @@ namespace Xtensive.Orm.Providers
     {
       if (source is Command command) {
         await command.DisposeAsync();
+      }
+      else {
+        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync();
       }
     }
 
