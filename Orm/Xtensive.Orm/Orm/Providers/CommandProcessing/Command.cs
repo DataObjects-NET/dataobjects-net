@@ -214,43 +214,6 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    // IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-    //
-    // public IEnumerator<Tuple> GetEnumerator()
-    // {
-    //   if (source is Command command) {
-    //     var accessor = request.GetAccessor();
-    //     return EnumerateCommand(command, accessor);
-    //   }
-    //
-    //   var tuples = (IEnumerable<Tuple>)source;
-    //   return tuples.GetEnumerator();
-    // }
-    //
-    // private static IEnumerator<Tuple> EnumerateCommand(Command command, DbDataReaderAccessor accessor)
-    // {
-    //   using (command) {
-    //     while (command.NextRow()) {
-    //       yield return command.ReadTupleWith(accessor);
-    //     }
-    //   }
-    // }
-    //
-    // public async IAsyncEnumerator<Tuple> GetAsyncEnumerator(CancellationToken token = default)
-    // {
-    //   if (!(source is Command command)) {
-    //     throw new NotSupportedException("Async enumeration makes sense only for async source.");
-    //   }
-    //
-    //   var accessor = request.GetAccessor();
-    //   using (command) {
-    //     while (await command.NextRowAsync(token)) {
-    //       token.ThrowIfCancellationRequested();
-    //       yield return command.ReadTupleWith(accessor);
-    //     }
-    //   }
-    // }
-
     public TupleEnumerator(IEnumerable<Tuple> tuples)
     {
       source = tuples.GetEnumerator();
