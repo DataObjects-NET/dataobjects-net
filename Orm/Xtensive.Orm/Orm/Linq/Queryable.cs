@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Linq
 
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
-      var result = await provider.ExecuteSequenceAsync<T>(expression, cancellationToken);
+      var result = new AsyncQueryResult<T>(provider.ExecuteSequenceAsync<T>(expression, cancellationToken));
       await foreach (var element in result.WithCancellation(cancellationToken)) {
         yield return element;
       }

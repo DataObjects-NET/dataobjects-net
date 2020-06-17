@@ -10,20 +10,17 @@ using Xtensive.Orm.Linq.Materialization;
 
 namespace Xtensive.Orm
 {
-  public readonly struct QueryResult<TItem> : IEnumerable<TItem>, IAsyncEnumerable<TItem>
+  public readonly struct QueryResult<TItem> : IEnumerable<TItem>
   {
-    private readonly IMaterializingReader<TItem> reader;
+    internal readonly IMaterializingReader<TItem> Reader;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TItem> GetEnumerator() => reader.AsEnumerator();
-
-    public IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken token = default) =>
-      reader.AsAsyncEnumerator(token);
+    public IEnumerator<TItem> GetEnumerator() => Reader.AsEnumerator();
 
     internal QueryResult(IMaterializingReader<TItem> reader)
     {
-      this.reader = reader;
+      Reader = reader;
     }
   }
 
@@ -48,8 +45,9 @@ namespace Xtensive.Orm
     public async IAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
       var result = await queryResultTask;
-      await foreach (var element in result.WithCancellation(cancellationToken)) {
-        yield return element;
+      var asyncEnumerator = result.Reader.AsAsyncEnumerator(cancellationToken);
+      while (await asyncEnumerator.MoveNextAsync()) {
+        yield return asyncEnumerator.Current;
       }
     }
 
