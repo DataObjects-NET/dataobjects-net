@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
         new DerivedNode() {Description = "Node"};
 
         var primaryIndex = Domain.Model.Types[typeof (Base)].Indexes.PrimaryIndex;
-        var rs = primaryIndex.GetQuery().GetRecordSet(session, new ParameterContext());
+        var rs = primaryIndex.GetQuery().GetRecordSetReader(session, new ParameterContext());
         var result = rs.ToEntities(0).ToList();
         t.Complete();
       }

@@ -4,18 +4,11 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xtensive.Core;
-
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
-using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse.Providers;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -54,14 +47,14 @@ namespace Xtensive.Orm.Providers
     protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    protected internal override TupleEnumerator OnEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override DataReader OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var storageContext = (EnumerationContext) context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
       return executor.ExecuteTupleReader(Request, storageContext.ParameterContext);
     }
 
-    protected internal async override Task<TupleEnumerator> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    protected internal async override Task<DataReader> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
       var storageContext = (EnumerationContext)context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();

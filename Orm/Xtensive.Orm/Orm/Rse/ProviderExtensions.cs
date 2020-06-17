@@ -16,20 +16,20 @@ namespace Xtensive.Orm.Rse
   {
     /// <summary>
     /// Compiles specified <paramref name="provider"/>
-    /// and returns new <see cref="TupleReader"/> bound to specified <paramref name="session"/>.
+    /// and returns new <see cref="RecordSetReader"/> bound to specified <paramref name="session"/>.
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="session">The session.</param>
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>
-    /// <returns>New <see cref="TupleReader"/> bound to specified <paramref name="session"/>.</returns>
-    public static TupleReader GetRecordSet(
+    /// <returns>New <see cref="RecordSetReader"/> bound to specified <paramref name="session"/>.</returns>
+    public static RecordSetReader GetRecordSetReader(
       this CompilableProvider provider, Session session, ParameterContext parameterContext)
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       var executableProvider = session.Compile(provider);
-      return executableProvider.GetRecordSet(session, parameterContext);
+      return executableProvider.GetRecordSetReader(session, parameterContext);
     }
 
     /// <summary>
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Rse
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       return provider
         .Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count))
-        .GetRecordSet(session, new ParameterContext())
+        .GetRecordSetReader(session, new ParameterContext())
         .First()
         .GetValue<long>(0);
     }

@@ -10,8 +10,7 @@ using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Materialization;
-using Xtensive.Orm.Rse.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Internals
 {
@@ -35,7 +34,7 @@ namespace Xtensive.Orm.Internals
         session.ExecuteUserDefinedDelayedQueries(false);
       }
 
-      return materializer.Invoke<T>(TupleReader.Create(Task.Result), session, parameterContext);
+      return materializer.Invoke<T>(RecordSetReader.Create(Task.Result), session, parameterContext);
     }
 
     // Constructors

@@ -6,11 +6,9 @@
 
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
@@ -67,7 +65,7 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             context.ActiveCommand.ExecuteReader();
-            var enumerator = context.ActiveCommand.AsEnumeratorOf(loadTask.Request);
+            var enumerator = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor());
             using (enumerator) {
               while (enumerator.MoveNext()) {
                 loadTask.Output.Add(enumerator.Current);
@@ -95,7 +93,7 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
-            await using (var enumerator = context.ActiveCommand.AsEnumeratorOf(loadTask.Request, token)) {
+            await using (var enumerator = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor(), token)) {
               while (await enumerator.MoveNextAsync()) {
                 loadTask.Output.Add(enumerator.Current);
               }
@@ -110,7 +108,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public override TupleEnumerator ExecuteTasksWithReader(QueryRequest lastRequest, CommandProcessorContext context)
+    public override DataReader ExecuteTasksWithReader(QueryRequest lastRequest, CommandProcessorContext context)
     {
       var oldValue = context.AllowPartialExecution;
       context.AllowPartialExecution = false;
@@ -121,10 +119,10 @@ namespace Xtensive.Orm.Providers
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
       lastRequestCommand.AddPart(commandPart);
       lastRequestCommand.ExecuteReader();
-      return lastRequestCommand.AsEnumeratorOf(lastRequest);
+      return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
     }
 
-    public override async Task<TupleEnumerator> ExecuteTasksWithReaderAsync(QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
+    public override async Task<DataReader> ExecuteTasksWithReaderAsync(QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
     {
       var oldValue = context.AllowPartialExecution;
       context.AllowPartialExecution = false;
@@ -139,7 +137,7 @@ namespace Xtensive.Orm.Providers
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token);
-      return lastRequestCommand.AsEnumeratorOf(lastRequest);
+      return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
     }
 
     // Constructors

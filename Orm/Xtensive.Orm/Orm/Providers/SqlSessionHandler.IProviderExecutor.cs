@@ -4,9 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
-using System;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -19,7 +17,7 @@ namespace Xtensive.Orm.Providers
     // Implementation of IProviderExecutor
 
     /// <inheritdoc/>
-    TupleEnumerator IProviderExecutor.ExecuteTupleReader(QueryRequest request,
+    DataReader IProviderExecutor.ExecuteTupleReader(QueryRequest request,
       ParameterContext parameterContext)
     {
       Prepare();
@@ -27,7 +25,7 @@ namespace Xtensive.Orm.Providers
       return commandProcessor.ExecuteTasksWithReader(request, context);
     }
 
-    async Task<TupleEnumerator> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
+    async Task<DataReader> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {
       await PrepareAsync(token);

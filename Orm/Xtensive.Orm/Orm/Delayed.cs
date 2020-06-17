@@ -5,8 +5,6 @@
 // Created:    2009.08.19
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -14,8 +12,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
-using Xtensive.Orm.Rse.Providers;
-using Tuple = Xtensive.Tuples.Tuple;
+using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm
 {
@@ -87,8 +84,8 @@ namespace Xtensive.Orm
         throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
       if (Task.Result==null)
         session.ExecuteUserDefinedDelayedQueries(false);
-      var tupleReader = TupleReader.Create(Task.Result);
-      var result = materializer.Invoke<T>(tupleReader, session, parameterContext);
+      var reader = RecordSetReader.Create(Task.Result);
+      var result = materializer.Invoke<T>(reader, session, parameterContext);
       return result.ToScalar(scalarResultType);
     }
 

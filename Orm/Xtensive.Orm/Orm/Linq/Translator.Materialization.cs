@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Linq
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleReader = Expression.Parameter(typeof (TupleReader), "tupleReader");
+      var tupleReader = Expression.Parameter(typeof (RecordSetReader), "tupleReader");
       var session = Expression.Parameter(typeof (Session), "session");
       var parameterContext = Expression.Parameter(typeof (ParameterContext), "parameterContext");
 
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Linq
         parameterContext,
         Expression.Constant(itemMaterializer));
 
-      var projectorExpression = FastExpression.Lambda<Func<TupleReader, Session, ParameterContext, object>>(
+      var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(
         body, tupleReader, session, parameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }

@@ -848,7 +848,8 @@ namespace Xtensive.Orm
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(keyParameter, entitySetTypeState.SeekTransform
         .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value));
-      foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session, parameterContext).FirstOrDefault()!=null;
+      var recordSetReader = entitySetTypeState.SeekProvider.GetRecordSetReader(Session, parameterContext);
+      foundInDatabase = recordSetReader.FirstOrDefault()!=null;
 
       if (foundInDatabase)
         State.Register(key);

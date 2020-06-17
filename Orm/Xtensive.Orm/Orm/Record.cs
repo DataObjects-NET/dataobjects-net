@@ -14,7 +14,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// A single item in <see cref="RecordSetReader.Read"/> result 
+  /// A single item in <see cref="EntityDataReader.Read"/> result
   /// containing both raw <see cref="Source"/> and parsed primary keys.
   /// </summary>
   public sealed class Record

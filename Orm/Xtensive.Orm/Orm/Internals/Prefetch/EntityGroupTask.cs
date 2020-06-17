@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void UpdateCache(HashSet<Key> foundKeys)
     {
-      var reader = manager.Owner.Session.Domain.RecordSetReader;
+      var reader = manager.Owner.Session.Domain.EntityDataReader;
       foreach (var queryTask in queryTasks)
         PutLoadedStatesInCache(queryTask.Result, reader, foundKeys);
       HandleMissedKeys(foundKeys);
@@ -173,14 +173,14 @@ namespace Xtensive.Orm.Internals.Prefetch
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     }
 
-    private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, RecordSetReader reader,
+    private void PutLoadedStatesInCache(IEnumerable<Tuple> queryResult, EntityDataReader reader,
       HashSet<Key> foundedKeys)
     {
-      var records = reader.Read(queryResult, Provider.Header, manager.Owner.Session);
-      foreach (var record in records) {
-        if (record!=null) {
-          var fetchedKey = record.GetKey();
-          var tuple = record.GetTuple();
+      var entityRecords = reader.Read(queryResult, Provider.Header, manager.Owner.Session);
+      foreach (var entityRecord in entityRecords) {
+        if (entityRecord!=null) {
+          var fetchedKey = entityRecord.GetKey();
+          var tuple = entityRecord.GetTuple();
           if (tuple!=null) {
             manager.SaveStrongReference(manager.Owner.UpdateState(fetchedKey, tuple));
             foundedKeys.Add(fetchedKey);

@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var parameterContext = new ParameterContext();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
-          .GetRecordSet(Session.Current, parameterContext)
+          .GetRecordSetReader(Session.Current, parameterContext)
           .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0) == y)
-          .GetRecordSet(Session.Current, parameterContext)
+          .GetRecordSetReader(Session.Current, parameterContext)
           .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
-          .GetRecordSet(Session.Current, parameterContext)
+          .GetRecordSetReader(Session.Current, parameterContext)
           .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();

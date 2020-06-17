@@ -1,5 +1,4 @@
-﻿using System;
-using System.Reflection;
+﻿using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
@@ -43,7 +42,7 @@ namespace Xtensive.Orm.Linq.Materialization
         return result;
 
       TypeReferenceAccuracy accuracy;
-      int typeId = RecordSetReader.ExtractTypeId(type, typeIdRegistry, tuple, typeIdIndex, out accuracy);
+      int typeId = EntityDataReader.ExtractTypeId(type, typeIdRegistry, tuple, typeIdIndex, out accuracy);
       if (typeId==TypeInfo.NoTypeId)
         return null;
 

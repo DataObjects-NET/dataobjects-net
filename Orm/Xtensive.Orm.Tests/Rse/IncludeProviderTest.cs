@@ -30,8 +30,8 @@ namespace Xtensive.Orm.Tests.Rse
       var inIndex = inRs.Header.Columns.Count-1;
       var whereRs = inRs.Filter(tuple => tuple.GetValueOrDefault<bool>(inIndex));
       var parameterContext = new ParameterContext();
-      var result = whereRs.GetRecordSet(Session.Current, parameterContext).ToEnumerable().ToList();
-      Assert.AreEqual(0, whereRs.GetRecordSet(Session.Current, parameterContext).ToEnumerable()
+      var result = whereRs.GetRecordSetReader(Session.Current, parameterContext).ToEnumerable().ToList();
+      Assert.AreEqual(0, whereRs.GetRecordSetReader(Session.Current, parameterContext).ToEnumerable()
         .Select(t => t.GetValue<int>(0)).Except(tracks.Select(s => s.TrackId)).Count());
     }
   }

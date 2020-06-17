@@ -41,8 +41,8 @@ namespace Xtensive.Orm.Tests.Storage
       customerIdIndex = customerPrimary.Header.IndexOf(customerIdColumn);
       invoiceCustomerIndex = orderPrimary.Header.IndexOf(invoiceCustomerColumn);
 
-      allCustomers = customerPrimary.GetRecordSet(session, new ParameterContext()).ToEntities<Customer>(0).ToList();
-      allInvoices = orderPrimary.GetRecordSet(session, new ParameterContext()).ToEntities<Invoice>(0).ToList();
+      allCustomers = customerPrimary.GetRecordSetReader(session, new ParameterContext()).ToEntities<Customer>(0).ToList();
+      allInvoices = orderPrimary.GetRecordSetReader(session, new ParameterContext()).ToEntities<Invoice>(0).ToList();
     }
 
     [Test]
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Storage
             .Existence("LALALA");
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.Single, JoinType.Inner)
-            .GetRecordSet(Session.Current, new ParameterContext())
+            .GetRecordSetReader(Session.Current, new ParameterContext())
             .ToEnumerable()
             .Count(t => (bool) t.GetValue(t.Count-1));
           Assert.AreEqual(total, result);

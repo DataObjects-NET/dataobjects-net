@@ -17,8 +17,6 @@ using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Orm.Logging;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -278,8 +276,8 @@ namespace Xtensive.Orm
         return Session.Compile(query);
       };
       var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-      var recordSet = source.GetRecordSet(Session, parameterContext);
-      recordSet.FirstOrDefault();
+      var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
+      recordSetReader.FirstOrDefault();
     }
 
     /// <inheritdoc/>

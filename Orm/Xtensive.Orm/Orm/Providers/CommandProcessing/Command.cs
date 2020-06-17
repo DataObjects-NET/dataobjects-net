@@ -5,7 +5,6 @@
 // Created:    2009.10.09
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Threading;
@@ -118,10 +117,10 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public Tuple ReadTupleWith(DbDataReaderAccessor accessor) => accessor.Read(reader);
+    internal Tuple ReadTupleWith(DbDataReaderAccessor accessor) => accessor.Read(reader);
 
-    public TupleEnumerator AsEnumeratorOf(QueryRequest request, CancellationToken token = default) =>
-      new TupleEnumerator(this, request, token);
+    public DataReader CreateReader(DbDataReaderAccessor accessor, CancellationToken token = default) =>
+      new DataReader(this, accessor, token);
 
     public DbCommand Prepare()
     {
@@ -161,70 +160,6 @@ namespace Xtensive.Orm.Providers
     {
       this.origin = origin;
       this.underlyingCommand = underlyingCommand;
-    }
-  }
-
-  public readonly struct TupleEnumerator: IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
-  {
-    private readonly object source;
-    private readonly CancellationToken token;
-    private readonly DbDataReaderAccessor accessor;
-
-    public bool IsInMemory => !(source is Command);
-
-    public Tuple Current => source is Command command
-      ? command.ReadTupleWith(accessor)
-      : ((IEnumerator<Tuple>)source).Current;
-
-    object IEnumerator.Current => Current;
-
-    public bool MoveNext() => source is Command command
-      ? command.NextRow()
-      : ((IEnumerator<Tuple>) source).MoveNext();
-
-    public async ValueTask<bool> MoveNextAsync() => source is Command command
-      ? await command.NextRowAsync(token)
-      : ((IEnumerator<Tuple>) source).MoveNext();
-
-    public void Reset()
-    {
-      if (source is Command) {
-        throw new NotSupportedException("Multiple enumeration is not supported.");
-      }
-      ((IEnumerator)source).Reset();
-    }
-
-    public void Dispose()
-    {
-      if (source is Command command) {
-        command.Dispose();
-      }
-      else {
-        ((IEnumerator<Tuple>) source).Dispose();
-      }
-    }
-
-    public async ValueTask DisposeAsync()
-    {
-      if (source is Command command) {
-        await command.DisposeAsync();
-      }
-      else {
-        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync();
-      }
-    }
-
-    public TupleEnumerator(IEnumerable<Tuple> tuples)
-    {
-      source = tuples.GetEnumerator();
-      accessor = null;
-    }
-
-    public TupleEnumerator(Command command, QueryRequest request, CancellationToken token)
-    {
-      source = command;
-      accessor = request.GetAccessor();
-      this.token = token;
     }
   }
 }

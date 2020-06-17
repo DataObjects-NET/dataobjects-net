@@ -13,7 +13,6 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
@@ -270,9 +269,6 @@ namespace Xtensive.Orm.Linq
     // Record
     public static readonly MethodInfo RecordKey;
 
-    // RecordSet
-    public static readonly MethodInfo RecordSetParse;
-
     // Structure
     public static readonly MethodInfo CreateStructure;
 
@@ -321,9 +317,6 @@ namespace Xtensive.Orm.Linq
       // Record
       RecordKey = typeof (Record).GetMethods()
         .Single(methodInfo => methodInfo.Name=="GetKey" && methodInfo.GetParameters().Length==1);
-
-      // RecordSet
-      RecordSetParse = typeof (RecordSetExtensions).GetMethod("Parse");
 
       // Structure
       CreateStructure = typeof (Internals.Activator)

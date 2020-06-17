@@ -110,7 +110,7 @@ namespace Xtensive.Orm
 
     #region Private / internal members
 
-    internal RecordSetReader RecordSetReader { get; private set; }
+    internal EntityDataReader EntityDataReader { get; private set; }
 
     internal Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
 
@@ -444,7 +444,7 @@ namespace Xtensive.Orm
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
-      RecordSetReader = new RecordSetReader(this);
+      EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);

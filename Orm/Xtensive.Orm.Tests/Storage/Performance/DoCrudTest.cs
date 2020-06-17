@@ -254,7 +254,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
-              foreach (var tuple in rs.GetRecordSet(session, parameterContext).ToEnumerable()) {
+              foreach (var tuple in rs.GetRecordSetReader(session, parameterContext).ToEnumerable()) {
                 var o = new SqlClientCrudModel.Simplest
                           {
                             Id = tuple.GetValueOrDefault<long>(0),
@@ -425,7 +425,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
               var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(context => context.GetValue(pKey));
               var parameterContext = new ParameterContext();
               parameterContext.SetValue(pKey, Tuple.Create((long) (i%instanceCount)));
-              var es = rs.GetRecordSet(session, parameterContext).ToEntities<Simplest>(0);
+              var es = rs.GetRecordSetReader(session, parameterContext).ToEntities<Simplest>(0);
               foreach (var o in es) {
                 // Doing nothing, just enumerate
               }
@@ -448,7 +448,7 @@ namespace Xtensive.Orm.Tests.Storage.Performance
         using (warmup ? null : new Measurement("Cached RSE query", count)) {
           for (int i = 0; i < count; i++) {
             parameterContext.SetValue(pKey, Tuple.Create((long) (i%instanceCount)));
-            var es = rs.GetRecordSet(session, parameterContext).ToEntities<Simplest>(0);
+            var es = rs.GetRecordSetReader(session, parameterContext).ToEntities<Simplest>(0);
             foreach (var o in es) {
               // Doing nothing, just enumerate
             }

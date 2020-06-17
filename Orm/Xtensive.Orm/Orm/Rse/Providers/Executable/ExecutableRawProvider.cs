@@ -32,9 +32,9 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected internal override TupleEnumerator OnEnumerate(EnumerationContext context)
+    protected internal override DataReader OnEnumerate(EnumerationContext context)
     {
-      return new TupleEnumerator(GetValue<IEnumerable<Tuple>>(context, CachedSourceName));
+      return new DataReader(GetValue<IEnumerable<Tuple>>(context, CachedSourceName));
     }
 
 

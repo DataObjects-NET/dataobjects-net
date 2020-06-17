@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Rse;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
   public class MaterializingReader<TItem>: IMaterializingReader<TItem>, IEnumerator<TItem>, IAsyncEnumerator<TItem>
   {
-    private readonly TupleReader tupleReader;
+    private readonly RecordSetReader recordSetReader;
     private readonly MaterializationContext context;
     private readonly ParameterContext parameterContext;
     private readonly Func<Tuple, ItemMaterializationContext, TItem> itemMaterializer;
@@ -25,26 +25,26 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public IEnumerator<TItem> AsEnumerator()
     {
-      tupleReader.Reset();
+      recordSetReader.Reset();
       return this;
     }
 
     public IAsyncEnumerator<TItem> AsAsyncEnumerator(CancellationToken token)
     {
-      tupleReader.Reset();
+      recordSetReader.Reset();
       return this;
     }
 
     object IEnumerator.Current => Current;
 
     public TItem Current =>
-      itemMaterializer.Invoke(tupleReader.Current, new ItemMaterializationContext(context, parameterContext));
+      itemMaterializer.Invoke(recordSetReader.Current, new ItemMaterializationContext(context, parameterContext));
 
     public void Reset() => throw new NotSupportedException();
 
     public bool MoveNext()
     {
-      if (tupleReader.MoveNext()) {
+      if (recordSetReader.MoveNext()) {
         return true;
       }
 
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public async ValueTask<bool> MoveNextAsync()
     {
-      if (await tupleReader.MoveNextAsync()) {
+      if (await recordSetReader.MoveNextAsync()) {
         return true;
       }
 
@@ -70,14 +70,14 @@ namespace Xtensive.Orm.Linq.Materialization
       return false;
     }
 
-    public void Dispose() => tupleReader.Dispose();
+    public void Dispose() => recordSetReader.Dispose();
 
-    public ValueTask DisposeAsync() => tupleReader.DisposeAsync();
+    public ValueTask DisposeAsync() => recordSetReader.DisposeAsync();
 
-    internal MaterializingReader(TupleReader tupleReader, MaterializationContext context,
+    internal MaterializingReader(RecordSetReader recordSetReader, MaterializationContext context,
       ParameterContext parameterContext, Func<Tuple, ItemMaterializationContext, TItem> itemMaterializer)
     {
-      this.tupleReader = tupleReader;
+      this.recordSetReader = recordSetReader;
       this.context = context;
       this.parameterContext = parameterContext;
       this.itemMaterializer = itemMaterializer;

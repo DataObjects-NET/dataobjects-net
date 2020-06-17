@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.05.27
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -70,8 +69,8 @@ namespace Xtensive.Orm.Linq
       foreach (var (parameter, tuple) in TupleParameterBindings) {
         newParameterContext.SetValue(parameter, tuple);
       }
-      var recordSet = DataSource.GetRecordSet(session, newParameterContext);
-      return Materializer.Invoke<T>(recordSet, session, newParameterContext);
+      var recordSetReader = DataSource.GetRecordSetReader(session, newParameterContext);
+      return Materializer.Invoke<T>(recordSetReader, session, newParameterContext);
     }
 
     /// <summary>
@@ -102,8 +101,9 @@ namespace Xtensive.Orm.Linq
       foreach (var (parameter, tuple) in TupleParameterBindings) {
         newParameterContext.SetValue(parameter, tuple);
       }
-      var recordSet = await DataSource.GetRecordSetAsync(session, newParameterContext, token).ConfigureAwait(false);
-      return Materializer.Invoke<T>(recordSet, session, newParameterContext);
+      var recordSetReader =
+        await DataSource.GetRecordSetReaderAsync(session, newParameterContext, token).ConfigureAwait(false);
+      return Materializer.Invoke<T>(recordSetReader, session, newParameterContext);
     }
 
 
