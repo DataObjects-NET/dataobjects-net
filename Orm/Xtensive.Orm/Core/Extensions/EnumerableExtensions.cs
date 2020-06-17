@@ -235,30 +235,6 @@ namespace Xtensive.Core
       return sb.ToString();
     }
 
-    // /// <summary>
-    // /// Constructs <see cref="IEnumerable{T}"/> from
-    // /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
-    // /// by creating a <see cref="Pair{TFirst,TSecond}"/> from each pair of items.
-    // /// If one input <see cref="IEnumerable{T}"/> is short,
-    // /// excess elements of the longer <see cref="IEnumerable{T}"/> are discarded.
-    // /// </summary>
-    // /// <typeparam name="TLeft">Type of first <see cref="IEnumerable{T}"/>.</typeparam>
-    // /// <typeparam name="TRight">Type of second <see cref="IEnumerable{T}"/>.</typeparam>
-    // /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
-    // /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
-    // /// <returns>Zip result.</returns>
-    // public static IEnumerable<Pair<TLeft,TRight>> Zip<TLeft, TRight>(
-    //   this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence)
-    // {
-    //   ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
-    //   ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
-    //
-    //   using (var leftEnum = leftSequence.GetEnumerator())
-    //   using (var rightEnum = rightSequence.GetEnumerator())
-    //     while (leftEnum.MoveNext() && rightEnum.MoveNext())
-    //       yield return new Pair<TLeft, TRight>(leftEnum.Current, rightEnum.Current);
-    // }
-
     /// <summary>
     /// If <paramref name="sequence"/> is not <see langword="null"/>, creates an array from <see cref="IEnumerable{T}"/>.
     /// Otherwise, returns empty array.
