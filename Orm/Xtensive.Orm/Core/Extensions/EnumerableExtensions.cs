@@ -14,9 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Collections.Graphs;
-using Xtensive.Core;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Linq;
 
 
 namespace Xtensive.Core
@@ -538,43 +536,6 @@ namespace Xtensive.Core
         return delayedSequence;
       }
       return await Task.FromResult(source);
-    }
-
-    /// <summary>
-    /// Converts IEnumerable of <typeparamref name="TItem"/> to IEnumerator of <typeparamref name="TItem"/>.
-    /// </summary>
-    /// <typeparam name="TItem">Type of elements.</typeparam>
-    /// <param name="enumerable">Enumerable to convert</param>
-    /// <param name="afterEnumerationAction">Action which invoked after enumeration even if enumreation fails.</param>
-    /// <param name="parameterForAction">Object parameter for <paramref name="afterEnumerationAction"/> action.</param>
-    /// <returns>IEnumerator of <typeparamref name="TItem"/>.</returns>
-    internal static IEnumerator<TItem> ToEnumerator<TItem>(this IEnumerable<TItem> enumerable, Action<object> afterEnumerationAction, object parameterForAction)
-    {
-      try {
-        foreach (var item in enumerable) 
-          yield return item;
-      }
-      finally {
-        afterEnumerationAction.Invoke(parameterForAction);
-      }
-    }
-
-    /// <summary>
-    /// Converts IEnumerable of <typeparamref name="TItem"/> to IEnumerator of <typeparamref name="TItem"/>.
-    /// </summary>
-    /// <typeparam name="TItem">Type of elements.</typeparam>
-    /// <param name="enumerable">Enumerable to convert</param>
-    /// <param name="afterEnumerationAction">Action which invoked after enumeration even if enumreation fails.</param>
-    /// <returns>IEnumerator of <typeparamref name="TItem"/>.</returns>
-    internal static IEnumerator<TItem> ToEnumerator<TItem>(this IEnumerable<TItem> enumerable, Action afterEnumerationAction)
-    {
-      try {
-        foreach (var item in enumerable)
-          yield return item;
-      }
-      finally {
-        afterEnumerationAction.Invoke();
-      }
     }
   }
 }
