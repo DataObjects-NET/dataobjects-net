@@ -11,8 +11,6 @@ using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions;
-using Xtensive.Orm.Linq.Materialization;
-using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm
 {
@@ -28,7 +26,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the result.
     /// </summary>
-    public T Value => Materialize(Session);
+    public T Value => Materialize<T>().ToScalar(scalarResultType);
 
     /// <summary>
     /// Asynchronously gets value.
@@ -52,18 +50,7 @@ namespace Xtensive.Orm
         token.ThrowIfCancellationRequested();
         await Session.ExecuteDelayedUserQueriesAsync(false, token).ConfigureAwait(false);
       }
-      return Materialize(Session);
-    }
-
-    private T Materialize(Session session)
-    {
-      if (!LifetimeToken.IsActive)
-        throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
-      if (Task.Result==null)
-        session.ExecuteUserDefinedDelayedQueries(false);
-      var reader = RecordSetReader.Create(Task.Result);
-      var result = materializer.Invoke<T>(reader, session, parameterContext);
-      return result.ToScalar(scalarResultType);
+      return Materialize<T>().ToScalar(scalarResultType);
     }
 
     // Constructors

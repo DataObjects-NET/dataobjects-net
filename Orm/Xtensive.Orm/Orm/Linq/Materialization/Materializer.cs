@@ -4,7 +4,7 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  public readonly struct Materializer
+  internal readonly struct Materializer
   {
     private readonly Func<RecordSetReader, Session, ParameterContext, object> materializeMethod;
 

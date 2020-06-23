@@ -17,22 +17,9 @@ namespace Xtensive.Orm.Internals
   [Serializable]
   public sealed class DelayedQuery<T> : DelayedQuery, IEnumerable<T>
   {
-    public IEnumerator<T> GetEnumerator() => Materialize(Session).GetEnumerator();
+    public IEnumerator<T> GetEnumerator() => Materialize<T>().GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    private QueryResult<T> Materialize(Session session)
-    {
-      if (!LifetimeToken.IsActive) {
-        throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
-      }
-
-      if (Task.Result==null) {
-        session.ExecuteUserDefinedDelayedQueries(false);
-      }
-
-      return materializer.Invoke<T>(RecordSetReader.Create(Task.Result), session, parameterContext);
-    }
 
     // Constructors
 
