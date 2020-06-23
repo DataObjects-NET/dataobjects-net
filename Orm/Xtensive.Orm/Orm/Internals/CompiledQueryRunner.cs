@@ -82,15 +82,6 @@ namespace Xtensive.Orm.Internals
       return parameterizedQuery.ExecuteScalarAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
     }
 
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
-    {
-      var parameterizedQuery = GetSequenceQuery(query);
-      var parameterContext = CreateParameterContext(parameterizedQuery);
-      var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
-      session.RegisterUserDefinedDelayedQuery(result.Task);
-      return result;
-    }
-
     public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint, TResult> query)
     {
       var parameterizedQuery = GetCachedQuery() ?? GetScalarQuery(query, false, out _);
@@ -100,7 +91,13 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
+      ExecuteDelayedImpl(query);
+
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query) =>
+      ExecuteDelayedImpl(query);
+
+    private IEnumerable<TElement> ExecuteDelayedImpl<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
       var parameterContext = CreateParameterContext(parameterizedQuery);
