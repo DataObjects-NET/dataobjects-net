@@ -76,247 +76,247 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    [Test]
-    public async Task InseparableBatchTest()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (longListOfQueries.Count < OneBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value += 1;
-        }
+    // [Test]
+    // public async Task InseparableBatchTest()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (longListOfQueries.Count < OneBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value += 1;
+    //     }
+    //
+    //     var task = longListOfQueries.First().AsAsync();
+    //     var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     await task;
+    //
+    //     int countBefore = 1;
+    //     foreach (var query in longListOfQueries) {
+    //       var actualCount = query.Count();
+    //       var expectedCount = countBefore;
+    //       Console.WriteLine(actualCount);
+    //       Assert.That(actualCount, Is.EqualTo(expectedCount));
+    //       countBefore = countBefore + 1;
+    //     }
+    //   }
+    // }
 
-        var task = longListOfQueries.First().AsAsync();
-        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        await task;
+    // [Test]
+    // public async Task SeparableBatchTest01()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(TwoBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (longListOfQueries.Count < TwoBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value += 1;
+    //     }
+    //
+    //     var task = longListOfQueries.First().AsAsync();
+    //     var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     await task;
+    //
+    //     int countBefore = 1;
+    //     foreach (var query in longListOfQueries) {
+    //       var actualCount = query.Count();
+    //       var expectedCount = countBefore;
+    //       Console.WriteLine(actualCount);
+    //       Assert.That(actualCount, Is.EqualTo(expectedCount));
+    //       countBefore = countBefore + 1;
+    //     }
+    //   }
+    // }
 
-        int countBefore = 1;
-        foreach (var query in longListOfQueries) {
-          var actualCount = query.Count();
-          var expectedCount = countBefore;
-          Console.WriteLine(actualCount);
-          Assert.That(actualCount, Is.EqualTo(expectedCount));
-          countBefore = countBefore + 1;
-        }
-      }
-    }
+    // [Test]
+    // public async Task SeparableBatchTest02()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (longListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value += 1;
+    //     }
+    //
+    //     var task = longListOfQueries.First().AsAsync();
+    //     var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     await task;
+    //
+    //     int countBefore = 1;
+    //     foreach (var query in longListOfQueries) {
+    //       var actualCount = query.Count();
+    //       var expectedCount = countBefore;
+    //       Console.WriteLine(actualCount);
+    //       Assert.That(actualCount, Is.EqualTo(expectedCount));
+    //       countBefore = countBefore + 1;
+    //     }
+    //   }
+    // }
 
-    [Test]
-    public async Task SeparableBatchTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(TwoBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (longListOfQueries.Count < TwoBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value += 1;
-        }
+    // [Test]
+    // public async Task ActualPersistAfterBatchFinishedTest01()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> looooongListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (looooongListOfQueries.Count < OneBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       looooongListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value++;
+    //     }
+    //
+    //     var task = looooongListOfQueries.First().AsAsync();
+    //     new TestEntity(session) {Value = 0};
+    //     new TestEntity(session) {Value = 0};
+    //     var result1 = await task;
+    //     var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     var result2 = await anotherTask;
+    //
+    //     int countBefore = 1;
+    //     foreach (var query in looooongListOfQueries) {
+    //       var actualCount = query.Count();
+    //       var expectedCount = countBefore;
+    //       Console.WriteLine(actualCount);
+    //       Assert.That(actualCount, Is.EqualTo(expectedCount));
+    //       countBefore = countBefore + 1;
+    //     }
+    //   }
+    // }
 
-        var task = longListOfQueries.First().AsAsync();
-        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        await task;
+    // [Test]
+    // public async Task ActualPersistAfterBatchFinishedTest02()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> looooongListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (looooongListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       looooongListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value++;
+    //     }
+    //
+    //     var task = looooongListOfQueries.First().AsAsync();
+    //     new TestEntity(session) {Value = 0};
+    //     new TestEntity(session) {Value = 0};
+    //     var result1 = await task;
+    //     var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //
+    //     var result2 = await anotherTask;
+    //
+    //     int countBefore = 1;
+    //     foreach (var query in looooongListOfQueries) {
+    //       var actualCount = query.Count();
+    //       var expectedCount = countBefore;
+    //       Console.WriteLine(actualCount);
+    //       Assert.That(actualCount, Is.EqualTo(expectedCount));
+    //       countBefore = countBefore + 1;
+    //     }
+    //   }
+    // }
 
-        int countBefore = 1;
-        foreach (var query in longListOfQueries) {
-          var actualCount = query.Count();
-          var expectedCount = countBefore;
-          Console.WriteLine(actualCount);
-          Assert.That(actualCount, Is.EqualTo(expectedCount));
-          countBefore = countBefore + 1;
-        }
-      }
-    }
+    // [Test]
+    // public async Task PersistDuringNonSeparableBatchExecutionTest01()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (longListOfQueries.Count < OneBatchSizedTaskCollectionCount){
+    //       var closureValue = value;
+    //       longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value += 1;
+    //     }
+    //
+    //     var task = longListOfQueries.First().AsAsync();
+    //     new TestEntity(session) {Value = 0};
+    //     new TestEntity(session) {Value = 0};
+    //     var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     var result1 = await task;
+    //     Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
+    //   }
+    // }
 
-    [Test]
-    public async Task SeparableBatchTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (longListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value += 1;
-        }
+    // [Test]
+    // public async Task PersistDuringNonSeparableBatchExecutionTest02()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (longListOfQueries.Count < OneBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value += 1;
+    //     }
+    //
+    //     var task = longListOfQueries.First().AsAsync();
+    //     new TestEntity(session) {Value = 0};
+    //     new TestEntity(session) {Value = 0};
+    //     var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     try {
+    //       Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
+    //     }
+    //     finally {
+    //       var result2 = await task;
+    //     }
+    //   }
+    // }
 
-        var task = longListOfQueries.First().AsAsync();
-        var fastBatch = await session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        await task;
+    // [Test]
+    // public async Task PersistDuringSeparableBatchExecutionTest01()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (longListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value += 1;
+    //     }
+    //
+    //     var task = longListOfQueries.First().AsAsync();
+    //     new TestEntity(session) { Value = 0 };
+    //     new TestEntity(session) { Value = 0 };
+    //     var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     var result1 = await task;
+    //     Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
+    //   }
+    // }
 
-        int countBefore = 1;
-        foreach (var query in longListOfQueries) {
-          var actualCount = query.Count();
-          var expectedCount = countBefore;
-          Console.WriteLine(actualCount);
-          Assert.That(actualCount, Is.EqualTo(expectedCount));
-          countBefore = countBefore + 1;
-        }
-      }
-    }
-
-    [Test]
-    public async Task ActualPersistAfterBatchFinishedTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> looooongListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (looooongListOfQueries.Count < OneBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          looooongListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value++;
-        }
-
-        var task = looooongListOfQueries.First().AsAsync();
-        new TestEntity(session) {Value = 0};
-        new TestEntity(session) {Value = 0};
-        var result1 = await task;
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        var result2 = await anotherTask;
-
-        int countBefore = 1;
-        foreach (var query in looooongListOfQueries) {
-          var actualCount = query.Count();
-          var expectedCount = countBefore;
-          Console.WriteLine(actualCount);
-          Assert.That(actualCount, Is.EqualTo(expectedCount));
-          countBefore = countBefore + 1;
-        }
-      }
-    }
-
-    [Test]
-    public async Task ActualPersistAfterBatchFinishedTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> looooongListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (looooongListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          looooongListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value++;
-        }
-
-        var task = looooongListOfQueries.First().AsAsync();
-        new TestEntity(session) {Value = 0};
-        new TestEntity(session) {Value = 0};
-        var result1 = await task;
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-
-        var result2 = await anotherTask;
-
-        int countBefore = 1;
-        foreach (var query in looooongListOfQueries) {
-          var actualCount = query.Count();
-          var expectedCount = countBefore;
-          Console.WriteLine(actualCount);
-          Assert.That(actualCount, Is.EqualTo(expectedCount));
-          countBefore = countBefore + 1;
-        }
-      }
-    }
-
-    [Test]
-    public async Task PersistDuringNonSeparableBatchExecutionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (longListOfQueries.Count < OneBatchSizedTaskCollectionCount){
-          var closureValue = value;
-          longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value += 1;
-        }
-
-        var task = longListOfQueries.First().AsAsync();
-        new TestEntity(session) {Value = 0};
-        new TestEntity(session) {Value = 0};
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        var result1 = await task;
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask); 
-      }
-    }
-
-    [Test]
-    public async Task PersistDuringNonSeparableBatchExecutionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(OneBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (longListOfQueries.Count < OneBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value += 1;
-        }
-
-        var task = longListOfQueries.First().AsAsync();
-        new TestEntity(session) {Value = 0};
-        new TestEntity(session) {Value = 0};
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        try {
-          Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
-        }
-        finally {
-          var result2 = await task;
-        }
-      }
-    }
-
-    [Test]
-    public async Task PersistDuringSeparableBatchExecutionTest01()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (longListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value += 1;
-        }
-
-        var task = longListOfQueries.First().AsAsync();
-        new TestEntity(session) { Value = 0 };
-        new TestEntity(session) { Value = 0 };
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        var result1 = await task;
-        Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
-      }
-    }
-
-    [Test]
-    public async Task PersistDuringSeparableBatchExecutionTest02()
-    {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
-        int value = 1;
-        while (longListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
-          var closureValue = value;
-          longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
-          value += 1;
-        }
-
-        var task = longListOfQueries.First().AsAsync();
-        new TestEntity(session) {Value = 0};
-        new TestEntity(session) {Value = 0};
-        var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
-        try {
-          Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
-        }
-        finally {
-          var result2 = await task;
-        }
-      }
-    }
+    // [Test]
+    // public async Task PersistDuringSeparableBatchExecutionTest02()
+    // {
+    //   using (var session = Domain.OpenSession())
+    //   using (var transaction = session.OpenTransaction()) {
+    //     List<IEnumerable<TestEntity>> longListOfQueries = new List<IEnumerable<TestEntity>>(MoreThatTwoBatchSizedTaskCollectionCount);
+    //     int value = 1;
+    //     while (longListOfQueries.Count < MoreThatTwoBatchSizedTaskCollectionCount) {
+    //       var closureValue = value;
+    //       longListOfQueries.Add(session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < closureValue)));
+    //       value += 1;
+    //     }
+    //
+    //     var task = longListOfQueries.First().AsAsync();
+    //     new TestEntity(session) {Value = 0};
+    //     new TestEntity(session) {Value = 0};
+    //     var anotherTask = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value > 10)).AsAsync();
+    //     try {
+    //       Assert.ThrowsAsync<InvalidOperationException>(async () => await anotherTask);
+    //     }
+    //     finally {
+    //       var result2 = await task;
+    //     }
+    //   }
+    // }
   }
 }

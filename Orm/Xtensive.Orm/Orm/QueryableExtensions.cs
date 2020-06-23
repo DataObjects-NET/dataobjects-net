@@ -270,11 +270,29 @@ namespace Xtensive.Orm
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <returns>A task which runs query.</returns>
-    [Obsolete("Use AsAsync(IQueryable<t>) method instead.")]
-    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source)
-    {
-      return AsAsync(source, CancellationToken.None);
-    }
+    [Obsolete("Use ExecuteAsync(IQueryable<T>) method instead.")]
+    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source) =>
+      await ExecuteAsync(source, CancellationToken.None);
+
+    /// <summary>
+    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>A task which runs query.</returns>
+    [Obsolete("Use ExecuteAsync(IQueryable<T>, CancellationToken) method instead.")]
+    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken token) =>
+      await ExecuteAsync(source, token);
+
+    /// <summary>
+    /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <returns>A task which runs query.</returns>
+    public static Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source) =>
+      ExecuteAsync(source, CancellationToken.None);
 
     /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
@@ -283,37 +301,13 @@ namespace Xtensive.Orm
     /// <param name="source">Query to run asynchronous.</param>
     /// <param name="cancellationToken">Token to cancel operation.</param>
     /// <returns>A task which runs query.</returns>
-    [Obsolete("Use AsAsync(IQueryable<t>, CancellationToken) method instead.")]
-    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source, CancellationToken cancellationToken)
+    public static async Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
-      return AsAsync(source, cancellationToken);
-    }
-
-    /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <returns>A task which runs query.</returns>
-    public static Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source)
-    {
-      return AsAsync(source, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <param name="cancellationToken">Token to cancel operation.</param>
-    /// <returns>A task which runs query.</returns>
-    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
-    {
-      if (source.Provider is QueryProvider doProvider) {
-        return await doProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken);
+      if (source.Provider is QueryProvider queryProvider) {
+        return await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken);
       }
 
-      return source.AsEnumerable();
+      return new QueryResult<T>(source.AsEnumerable());
     }
 
     #region Private / internal members

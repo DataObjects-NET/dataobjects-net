@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       try {
         session = Domain.OpenSession();
         using (var transaction = session.OpenTransaction())
-          foreach (var item in (await session.Query.All<Discepline>().AsAsync())) { }
+          foreach (var item in (await session.Query.All<Discepline>().ExecuteAsync())) { }
       }
       finally {
         session.DisposeSafely();
@@ -199,7 +199,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       try {
         session = Domain.OpenSession();
         using (var transaction = session.OpenTransaction())
-          foreach (var item in await session.Query.All<Discepline>().AsAsync())
+          foreach (var item in await session.Query.All<Discepline>().ExecuteAsync())
             break;
       }
       finally {
@@ -215,7 +215,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
         session = Domain.OpenSession();
         IEnumerator<Discepline> enumerator;
         using (var transaction = session.OpenTransaction()) {
-          enumerator = (await session.Query.All<Discepline>().AsAsync()).GetEnumerator();
+          enumerator = (await session.Query.All<Discepline>().ExecuteAsync()).GetEnumerator();
           enumerator.MoveNext();
           var a = enumerator.Current;
         }

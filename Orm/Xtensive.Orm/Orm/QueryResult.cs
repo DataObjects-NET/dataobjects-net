@@ -19,6 +19,26 @@ namespace Xtensive.Orm
     {
       Reader = reader;
     }
+
+    private class EnumerableReader: IMaterializingReader<TItem>
+    {
+      private readonly IEnumerable<TItem> items;
+
+      public IEnumerator<TItem> AsEnumerator() => items.GetEnumerator();
+
+      public IAsyncEnumerator<TItem> AsAsyncEnumerator(CancellationToken token)
+        => throw new System.NotSupportedException();
+
+      public EnumerableReader(IEnumerable<TItem> items)
+      {
+        this.items = items;
+      }
+    }
+
+    internal QueryResult(IEnumerable<TItem> items)
+    {
+      Reader = new EnumerableReader(items);
+    }
   }
 
   public readonly struct AsyncQueryResult<TElement> : IAsyncEnumerable<TElement>

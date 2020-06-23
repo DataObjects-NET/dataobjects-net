@@ -79,8 +79,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var readyToRockQuery = await session.Query.All<TestEntity>().AsAsync();
-        var anotherAsyncQuery = await session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+        var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in readyToRockQuery)
@@ -100,9 +100,9 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
-        var anotherAsyncQuery = session.Query.All<TestEntity>().AsAsync();
+        var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         // some local non-DO work probably;
 
@@ -124,8 +124,8 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()){
-        var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
-        var anotherAsyncQuery = session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
+        var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in await anotherAsyncQuery)
@@ -149,13 +149,13 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery = await session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
         new TestEntity(session);
 
-        var anotherAsyncQuery = await session.Query.All<TestEntity>().AsAsync();
+        var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in readyToRockQuery)
@@ -179,9 +179,9 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery = await session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        var anotherAsyncQuery = await session.Query.All<TestEntity>().AsAsync();
+        var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in readyToRockQuery)
@@ -201,13 +201,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var readyToRockQuery = await session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
         new TestEntity(session);
 
-        var anotherAsyncQuery = await session.Query.All<TestEntity>().AsAsync();
+        var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in readyToRockQuery)
@@ -231,13 +231,13 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session) {Value = 102};
         new TestEntity(session) {Value = 103};
 
-        var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session) { Value = 104 };
         new TestEntity(session) { Value = 105 };
         new TestEntity(session) { Value = 106 };
 
-        var anotherAsyncQuery = session.Query.All<TestEntity>().AsAsync();
+        var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in await anotherAsyncQuery)
@@ -261,8 +261,8 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery =  session.Query.All<TestEntity>().AsAsync();
-        var anotherAsyncQuery =  session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery =  session.Query.All<TestEntity>().ExecuteAsync();
+        var anotherAsyncQuery =  session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in await anotherAsyncQuery)
@@ -282,13 +282,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var readyToRockQuery = await session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
         new TestEntity(session);
 
-        var anotherAsyncQuery =  session.Query.All<TestEntity>().AsAsync();
+        var anotherAsyncQuery =  session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
         foreach (var testEntity in await anotherAsyncQuery)
@@ -315,7 +315,7 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session);
 
         var count = 0;
-        foreach (var entity in await session.Query.All<TestEntity>().AsAsync())
+        foreach (var entity in await session.Query.All<TestEntity>().ExecuteAsync())
           count++;
 
         new TestEntity(session);
@@ -340,7 +340,7 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
@@ -369,7 +369,7 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
@@ -393,7 +393,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
+        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);

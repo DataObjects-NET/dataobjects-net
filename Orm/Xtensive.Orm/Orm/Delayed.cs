@@ -36,27 +36,6 @@ namespace Xtensive.Orm
     /// Asynchronously gets value.
     /// </summary>
     /// <returns>Task running this operation</returns>
-    [Obsolete("Use AsAsync() method instead.")]
-    public Task<T> AsAsyncTask()
-    {
-      return AsAsync(CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Asynchronously gets value.
-    /// </summary>
-    /// <param name="token">Token to cancel operation.</param>
-    /// <returns>Task running this operation.</returns>
-    [Obsolete("Use AsAsync(CancellationToken) method instead.")]
-    public Task<T> AsAsyncTask(CancellationToken token)
-    {
-      return AsAsync(token);
-    }
-
-    /// <summary>
-    /// Asynchronously gets value.
-    /// </summary>
-    /// <returns>Task running this operation</returns>
     public Task<T> AsAsync()
     {
       return AsAsync(CancellationToken.None);
