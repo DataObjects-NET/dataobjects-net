@@ -21,10 +21,8 @@ namespace Xtensive.Orm
   /// </summary>
   /// <typeparam name="T">The type of the result.</typeparam>
   [Serializable]
-  public sealed class DelayedScalarQuery<T> : DelayedQueryResult
+  public sealed class DelayedScalarQuery<T> : DelayedQuery
   {
-    private readonly ParameterContext parameterContext;
-    private readonly Materializer materializer;
     private readonly ResultType scalarResultType;
 
     /// <summary>
@@ -76,15 +74,10 @@ namespace Xtensive.Orm
     /// <param name="session">The session.</param>
     /// <param name="translatedQuery">The translated query.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    internal DelayedScalarQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext) :
-      base(session, translatedQuery, parameterContext)
+    internal DelayedScalarQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
+      : base(session, translatedQuery, parameterContext)
     {
-      materializer = translatedQuery.Materializer;
       scalarResultType = translatedQuery.scalarResultType;
-      this.parameterContext = new ParameterContext(parameterContext);
-      foreach (var (parameter, tuple) in translatedQuery.TupleParameterBindings) {
-        this.parameterContext.SetValue(parameter, tuple);
-      }
     }
   }
 }

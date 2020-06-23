@@ -15,11 +15,8 @@ using Xtensive.Orm.Rse;
 namespace Xtensive.Orm.Internals
 {
   [Serializable]
-  public sealed class DelayedQuery<T> : DelayedQueryResult, IEnumerable<T>
+  public sealed class DelayedQuery<T> : DelayedQuery, IEnumerable<T>
   {
-    private readonly ParameterContext parameterContext;
-    private readonly Materializer materializer;
-
     public IEnumerator<T> GetEnumerator() => Materialize(Session).GetEnumerator();
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -41,12 +38,6 @@ namespace Xtensive.Orm.Internals
 
     internal DelayedQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
       : base(session, translatedQuery, parameterContext)
-    {
-      materializer = translatedQuery.Materializer;
-      this.parameterContext = new ParameterContext(parameterContext);
-      foreach (var (parameter, tuple) in translatedQuery.TupleParameterBindings) {
-        this.parameterContext.SetValue(parameter, tuple);
-      }
-    }
+    {}
   }
 }
