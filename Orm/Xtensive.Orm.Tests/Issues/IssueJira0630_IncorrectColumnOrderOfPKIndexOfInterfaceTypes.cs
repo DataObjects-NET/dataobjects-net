@@ -451,14 +451,14 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0630_IncorrectColumnOrderOfPKIndexO
 
       private void PopulateContainers()
       {
-        var AFieldValue = Session.Query.ExecuteDelayed((q) => q.All<AIncorrectOrder>().First());
-        var AHFieldValue = Session.Query.ExecuteDelayed((q) => q.All<AHIncorrectOrder>().First());
-        var AHandEFieldValue = Session.Query.ExecuteDelayed((q) => q.All<AHandE>().First());
-        var EFieldValue = Session.Query.ExecuteDelayed((q) => q.All<EIncorrectOrder>().First());
-        var EandAHFieldValue = Session.Query.ExecuteDelayed((q) => q.All<EandAH>().First());
-        var HAEFieldValue = Session.Query.ExecuteDelayed((q) => q.All<HAEIncorrectOrder>().First());
-        var HAFieldValue = Session.Query.ExecuteDelayed((q) => q.All<HAIncorrectOrder>().First());
-        var HEAFieldValue = Session.Query.ExecuteDelayed((q) => q.All<HEAIncorrectOrder>().First());
+        var AFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<AIncorrectOrder>().First());
+        var AHFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<AHIncorrectOrder>().First());
+        var AHandEFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<AHandE>().First());
+        var EFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<EIncorrectOrder>().First());
+        var EandAHFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<EandAH>().First());
+        var HAEFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<HAEIncorrectOrder>().First());
+        var HAFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<HAIncorrectOrder>().First());
+        var HEAFieldValue = Session.Query.CreateDelayedQuery((q) => q.All<HEAIncorrectOrder>().First());
         var HFieldValue = Session.Query.All<HIncorrectOrder>().First();
 
         new InterfaceFieldsContainer {

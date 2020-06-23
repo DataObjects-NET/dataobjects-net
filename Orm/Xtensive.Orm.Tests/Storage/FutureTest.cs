@@ -29,13 +29,13 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureHighComission = session.Query.ExecuteDelayed(
+        var futureHighComission = session.Query.CreateDelayedQuery(
           qe => qe.All<Invoice>().Where(i => i.Commission > 0.1m));
-        var futurePaid = session.Query.ExecuteDelayed(
+        var futurePaid = session.Query.CreateDelayedQuery(
           qe => qe.All<Invoice>().Where(i => i.Status==InvoiceStatus.Paid).Count());
-        var futureSequenceTrack = session.Query.ExecuteDelayed(
+        var futureSequenceTrack = session.Query.CreateDelayedQuery(
           qe => qe.All<Track>().Where(p => p.Name.Contains("c")));
-        var futureAvgComission = session.Query.ExecuteDelayed(
+        var futureAvgComission = session.Query.CreateDelayedQuery(
           qe => qe.All<Invoice>().Average(i => i.Commission));
         Assert.Greater(futureHighComission.Count(), 0); // Count() here is IEnumerable.Count()
         Assert.Greater(futurePaid.Value, 0);
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Storage
       IEnumerable<Invoice> futureHighComission;
       using (var session = Domain.OpenSession()) {
         using (var ts = session.OpenTransaction()) {
-          futureHighComission = session.Query.ExecuteDelayed(qe => qe.All<Invoice>().Where(i => i.Commission > 0.1m));
+          futureHighComission = session.Query.CreateDelayedQuery(qe => qe.All<Invoice>().Where(i => i.Commission > 0.1m));
           ts.Complete();
         }
         AssertEx.Throws<InvalidOperationException>(() => futureHighComission.GetEnumerator());
@@ -66,14 +66,14 @@ namespace Xtensive.Orm.Tests.Storage
       Func<QueryEndpoint,IQueryable<Invoice>> futureQueryDelegate = GetFutureSequenceQuery;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureSequenceOrder = session.Query.ExecuteDelayed(futureQueryDelegate);
+        var futureSequenceOrder = session.Query.CreateDelayedQuery(futureQueryDelegate);
         Assert.Greater(futureSequenceOrder.Count(), 0);
         ts.Complete();
       }
 
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureSequenceOrder = session.Query.ExecuteDelayed(futureQueryDelegate.Method, GetFutureSequenceQueryFake);
+        var futureSequenceOrder = session.Query.CreateDelayedQuery(futureQueryDelegate.Method, GetFutureSequenceQueryFake);
         Assert.Greater(futureSequenceOrder.Count(), 0);
         ts.Complete();
       }
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Storage
       var invoiceStatus = InvoiceStatus.Paid;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futurePaid = session.Query.ExecuteDelayed(cacheKey,
+        var futurePaid = session.Query.CreateDelayedQuery(cacheKey,
           qe => qe.All<Invoice>().Where(i => i.Status==invoiceStatus).Count());
         Assert.Greater(futurePaid.Value, 0);
         ts.Complete();
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Storage
       var t = 0;
       using (var session = Domain.OpenSession())
       using (var ts = session.OpenTransaction()) {
-        var futureScalar = session.Query.ExecuteDelayed(cacheKey, qe => t);
+        var futureScalar = session.Query.CreateDelayedQuery(cacheKey, qe => t);
         Assert.Greater(futureScalar.Value, 0);
         ts.Complete();
       }

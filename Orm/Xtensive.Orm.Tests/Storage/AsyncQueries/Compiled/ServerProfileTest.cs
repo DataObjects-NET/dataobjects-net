@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction())
       {
-        var qelayedQuery = session.Query.ExecuteDelayed(endpoint => { return endpoint.All<Discepline>(); });
+        var qelayedQuery = session.Query.CreateDelayedQuery(endpoint => { return endpoint.All<Discepline>(); });
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
         Assert.NotNull(((DelayedQuery<Discepline>)qelayedQuery).Task.Result);
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction())
       {
-        var qelayedQuery = session.Query.ExecuteDelayed(query => query.All<Discepline>());
+        var qelayedQuery = session.Query.CreateDelayedQuery(query => query.All<Discepline>());
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
         Assert.NotNull(((DelayedQuery<Discepline>)qelayedQuery).Task.Result);

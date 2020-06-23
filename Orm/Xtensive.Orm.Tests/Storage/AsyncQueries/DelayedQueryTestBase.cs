@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     {
       using (var session = Domain.OpenSession(SessionConfiguration))
       using (var tx = GetTransactionScope(session)) {
-        var task = session.Query.ExecuteDelayed(
+        var task = session.Query.CreateDelayedQuery(
           endpoint => endpoint.All<DisceplinesOfCourse>().Where(el => el.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First()).AsAsync();
         Assert.IsInstanceOf<Task<Discepline>>(task);
         var result = await task;

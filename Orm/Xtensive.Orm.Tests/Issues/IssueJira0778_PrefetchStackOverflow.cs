@@ -244,13 +244,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var contactCount = session.Query.ExecuteDelayed(q => q.All<Contact>().Count());
-        var employeeCount = session.Query.ExecuteDelayed(q => q.All<Employee>().Count());
-        var recipientCount = session.Query.ExecuteDelayed(q => q.All<Recipient>().Count());
-        var boss = session.Query.ExecuteDelayed(q => q.All<Employee>().FirstOrDefault(emp => emp.FirstName == "The" && emp.LastName == "Boss"));
-        var As = session.Query.ExecuteDelayed(q => q.All<AAAA>().Count());
-        var Bs = session.Query.ExecuteDelayed(q => q.All<BBBB>().Count());
-        var Cs = session.Query.ExecuteDelayed(q => q.All<CCCC>().Count());
+        var contactCount = session.Query.CreateDelayedQuery(q => q.All<Contact>().Count());
+        var employeeCount = session.Query.CreateDelayedQuery(q => q.All<Employee>().Count());
+        var recipientCount = session.Query.CreateDelayedQuery(q => q.All<Recipient>().Count());
+        var boss = session.Query.CreateDelayedQuery(q => q.All<Employee>().FirstOrDefault(emp => emp.FirstName == "The" && emp.LastName == "Boss"));
+        var As = session.Query.CreateDelayedQuery(q => q.All<AAAA>().Count());
+        var Bs = session.Query.CreateDelayedQuery(q => q.All<BBBB>().Count());
+        var Cs = session.Query.CreateDelayedQuery(q => q.All<CCCC>().Count());
 
         var isValid = recipientCount.Value==CustomerCount &&
           employeeCount.Value== 45 &&

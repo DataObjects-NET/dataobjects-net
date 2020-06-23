@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var delaedQuery = session.Query.ExecuteDelayed(
+        var delaedQuery = session.Query.CreateDelayedQuery(
           query => from zoo in query.All<TestEntity>()
             orderby zoo.OrderByThisField
             select zoo);

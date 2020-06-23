@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var countBeforeInsertion = session.Query.All<Membership>().Count();
         var membership = new Membership() {Type = new MembershipType(), Status = MembershipStatus.Active};
-        var countAfterInsertionUsingDelayedQuery = session.Query.ExecuteDelayed(endpoint => endpoint.All<Membership>().Count());
+        var countAfterInsertionUsingDelayedQuery = session.Query.CreateDelayedQuery(endpoint => endpoint.All<Membership>().Count());
         GetAllMembershipWithTypes(GetMembershipTypes(jobKey));
         Assert.Greater(countAfterInsertionUsingDelayedQuery.Value, countBeforeInsertion);
         Assert.AreEqual(1, countAfterInsertionUsingDelayedQuery.Value - countBeforeInsertion);
@@ -116,10 +116,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
         var firstCustomer = session.Query.All<Customer>().First();
-        var allMemberships = session.Query.ExecuteDelayed(queryEndpoint => queryEndpoint.All<Membership>());
-        var countOfMemberships = session.Query.ExecuteDelayed(queryEndpoint => queryEndpoint.All<Membership>().Count());
-        var allActiveMemberships = session.Query.ExecuteDelayed(queryEndpoint => queryEndpoint.All<Membership>().Where(el => el.Status==MembershipStatus.Active));
-        var countOfActiveMemberships = session.Query.ExecuteDelayed(queryEndpoint => queryEndpoint.All<Membership>().Count(el => el.Status==MembershipStatus.Active));
+        var allMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>());
+        var countOfMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>().Count());
+        var allActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>().Where(el => el.Status==MembershipStatus.Active));
+        var countOfActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>().Count(el => el.Status==MembershipStatus.Active));
         var userDefinedQueryTasks = GetUserDefinedQueryTasks(session);
         Assert.AreEqual(4, userDefinedQueryTasks.Count);
         //must be fetching without execution of user defined queries

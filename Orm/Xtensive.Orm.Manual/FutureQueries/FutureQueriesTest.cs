@@ -68,12 +68,12 @@ namespace Xtensive.Orm.Manual.FutureQueries
           orderby person.Name
           select person
           );
-        var managedPersonCount = session.Query.ExecuteDelayed(qe => (
+        var managedPersonCount = session.Query.CreateDelayedQuery(qe => (
           from person in qe.All<Person>()
           where person.Manager!=null
           select person
           ).Count());
-        var personsWithEmployees = session.Query.ExecuteDelayed(qe =>
+        var personsWithEmployees = session.Query.CreateDelayedQuery(qe =>
           from person in session.Query.All<Person>()
           where person.Employees.Count!=0
           select person

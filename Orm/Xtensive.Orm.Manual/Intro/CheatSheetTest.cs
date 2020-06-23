@@ -159,12 +159,12 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           Assert.AreSame(dmitri, anotherDmitri);
 
           // Querying the storage using compiled future scalar query
-          var delayedDmitry1 = session.Query.ExecuteDelayed(qe => (
+          var delayedDmitry1 = session.Query.CreateDelayedQuery(qe => (
             from user in qe.All<User>()
             where user.Name=="Dmitri"
             select user
             ).FirstOrDefault());
-          var delayedDmitry2 = session.Query.ExecuteDelayed(qe => (
+          var delayedDmitry2 = session.Query.CreateDelayedQuery(qe => (
             from user in qe.All<User>()
             where user.Id==dmitriId
             select user

@@ -459,7 +459,7 @@ namespace Xtensive.Orm.Tests.Issues
         var delayedQueries = new List<IEnumerable<Customer>>();
 
         while (currentParametersCount < parametersCountLimit) {
-          var customersDelayed = session.Query.ExecuteDelayed(q => q.All<Customer>().Where(c => c.Id.In(customers)));
+          var customersDelayed = session.Query.CreateDelayedQuery(q => q.All<Customer>().Where(c => c.Id.In(customers)));
           delayedQueries.Add(customersDelayed);
           currentParametersCount += customers.Length;
         }

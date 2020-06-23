@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Issues
         var expected = new Exception(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
 
         Assert.Throws<NotSupportedException>(() => {
-          var result = session.Query.ExecuteDelayed(query => query.SingleOrDefault<TestEntity>(instanceKey));
+          var result = session.Query.CreateDelayedQuery(query => query.SingleOrDefault<TestEntity>(instanceKey));
           Assert.That(result.Value.FirstName, Is.EqualTo("Jeremy"));
         });
       }

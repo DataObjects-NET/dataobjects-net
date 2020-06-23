@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Issues
     public int GetMinimalLocationIdDelayedApi()
     {
       Func<Session, int> func = (s) => {
-        var locations = Session.Query.ExecuteDelayed(endpoint => from location in s.Query.All<Location>()
+        var locations = Session.Query.CreateDelayedQuery(endpoint => from location in s.Query.All<Location>()
           where location.Active && location.Id.In((
             from loc in s.Query.All<Location>()
               where loc.Id > StartValue && loc.Zone==NullZone
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Tests.Issues
         List<IEnumerable<Location>> queries = new List<IEnumerable<Location>>();
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         for (int i = 0; i < upperLimit; i++) {
-          var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
+          var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
             where location.Active && location.Id.In((
               from loc in session.Query.All<Location>()
               where loc.Id > i && loc.Zone==null
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalId(Session session, int startId)
     {
-      var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
+      var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in session.Query.All<Location>()
           where loc.Id > startId && loc.Zone==null
@@ -338,7 +338,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalIdWithZone(Session session, Zone zone)
     {
-      var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
+      var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in session.Query.All<Location>()
           where loc.Zone==zone

@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var zone = TimeZoneInfo.Local;
-        var query = session.Query.ExecuteDelayed(
+        var query = session.Query.CreateDelayedQuery(
           q => q.All<TestEntity>().Select(e => e.Value.GetUserTime(zone)));
         var result = query.ToList();
         tx.Complete();

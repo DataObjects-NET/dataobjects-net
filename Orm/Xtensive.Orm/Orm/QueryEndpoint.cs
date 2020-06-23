@@ -718,10 +718,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
-    {
-      return new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
-    }
+    public DelayedScalarQuery<TResult> CreateDelayedQuery<TResult>(object key, Func<QueryEndpoint, TResult> query) =>
+      new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
 
     /// <summary>
     /// Creates future scalar query and registers it for the later execution.
@@ -732,10 +730,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
-    {
-      return new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
-    }
+    public DelayedScalarQuery<TResult> CreateDelayedQuery<TResult>(Func<QueryEndpoint, TResult> query) =>
+      new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
 
     /// <summary>
     /// Creates future query and registers it for the later execution.
@@ -747,10 +743,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query)
-    {
-      return new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
-    }
+    public DelayedQuery<TElement> CreateDelayedQuery<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query) =>
+      new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
 
     /// <summary>
     /// Creates future query and registers it for the later execution.
@@ -761,10 +755,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
-    {
-      return new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
-    }
+    public DelayedQuery<TElement> CreateDelayedQuery<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query) =>
+      new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
 
     /// <summary>
     /// Creates future query and registers it for the later execution.
@@ -776,10 +768,8 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
-    {
-      return new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
-    }
+    public DelayedQuery<TElement> CreateDelayedQuery<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
+      new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
 
     /// <summary>
     /// Creates future query and registers it for the later execution.
@@ -790,10 +780,89 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
-    {
-      return new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
-    }
+    public DelayedQuery<TElement> CreateDelayedQuery<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
+      new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
+
+    /// <summary>
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
+    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint, TResult> query) =>
+      CreateDelayedQuery(key, query);
+
+    /// <summary>
+    /// Creates future scalar query and registers it for the later execution.
+    /// The query associated with the future scalar will not be cached.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
+    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint, TResult> query) =>
+      CreateDelayedQuery(query);
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query) =>
+      CreateDelayedQuery(key, query);
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query) =>
+      CreateDelayedQuery(query);
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
+      CreateDelayedQuery(key, query);
+
+    /// <summary>
+    /// Creates future query and registers it for the later execution.
+    /// The associated query will be cached.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <returns>
+    /// The future that will be executed when its result is requested.
+    /// </returns>
+    [Obsolete("ExecuteDelayed method is obsolete. Use corresponding CreateDelayedQuery method instead")]
+    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
+      CreateDelayedQuery(query);
 
     #endregion
 
