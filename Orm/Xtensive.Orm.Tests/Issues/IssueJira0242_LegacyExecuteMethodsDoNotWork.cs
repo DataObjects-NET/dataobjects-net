@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureSequenceTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFuture(() => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(() => Query.All<MetadataType>().Where(m => m.Id==id));
       VerifyResult(r);
     }
 
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureSequenceWithKeyTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFuture(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id==id));
       VerifyResult(r);
     }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureScalarTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFutureScalar(() => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(() => Query.All<MetadataType>().Single(m => m.Id==id));
       VerifyResult(r.Value);
     }
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureScalarWithKeyTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFutureScalar(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id==id));
       VerifyResult(r.Value);
     }
 

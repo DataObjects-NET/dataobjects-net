@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Issues
     public int GetMinimalLocationIdFutureApi()
     {
       Func<int> func = () => {
-        var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+        var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
           where location.Active && location.Id.In((
             from loc in Query.All<Location>()
             where loc.Id > StartValue && loc.Zone == NullZone
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Issues
         List<IEnumerable<Location>> queries = new List<IEnumerable<Location>>();
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         for (int i = 0; i < upperLimit; i++) {
-          var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+          var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
             where location.Active && location.Id.In((
               from loc in Query.All<Location>()
               where loc.Id > i && loc.Zone == null
@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalId(int startId)
     {
-      var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+      var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in Query.All<Location>()
           where loc.Id > startId && loc.Zone == null
@@ -351,7 +351,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalIdWithZone(Zone zone)
     {
-      var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+      var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in Query.All<Location>()
           where loc.Zone == zone

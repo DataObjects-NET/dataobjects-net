@@ -15,7 +15,7 @@ using Xtensive.Orm.Rse;
 namespace Xtensive.Orm.Internals
 {
   [Serializable]
-  internal sealed class DelayedQuery<T> : DelayedQueryResult, IEnumerable<T>
+  public sealed class DelayedQuery<T> : DelayedQueryResult, IEnumerable<T>
   {
     private readonly ParameterContext parameterContext;
     private readonly Materializer materializer;
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Internals
 
     // Constructors
 
-    public DelayedQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
+    internal DelayedQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
       : base(session, translatedQuery, parameterContext)
     {
       materializer = translatedQuery.Materializer;
