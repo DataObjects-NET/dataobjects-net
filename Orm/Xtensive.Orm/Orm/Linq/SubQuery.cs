@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Linq
     IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
-    private DelayedSequence<TElement> delayedSequence;
+    private DelayedQuery<TElement> delayedQuery;
     private List<TElement> materializedSequence;
     private readonly QueryProvider provider;
 
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Linq
     public IEnumerator<TElement> GetEnumerator()
     {
       if (materializedSequence == null)
-        materializedSequence = delayedSequence.ToList();
+        materializedSequence = delayedQuery.ToList();
       return materializedSequence.GetEnumerator();
     }
 
@@ -65,8 +65,8 @@ namespace Xtensive.Orm.Linq
     {
       if (materializedSequence != null) 
         return;
-      materializedSequence = delayedSequence.ToList();
-      delayedSequence = null;
+      materializedSequence = delayedQuery.ToList();
+      delayedQuery = null;
     }
 
 
@@ -101,8 +101,8 @@ namespace Xtensive.Orm.Linq
         query.scalarResultType,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
-      delayedSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);
-      context.Session.RegisterUserDefinedDelayedQuery(delayedSequence.Task);
+      delayedQuery = new DelayedQuery<TElement>(context.Session, translatedQuery, parameterContext);
+      context.Session.RegisterUserDefinedDelayedQuery(delayedQuery.Task);
       context.MaterializationContext.MaterializationQueue.Enqueue(MaterializeSelf);
     }
   }

@@ -718,9 +718,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public Delayed<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
+    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(object key, Func<QueryEndpoint,TResult> query)
     {
-      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
     }
 
     /// <summary>
@@ -732,9 +732,9 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
+    public DelayedScalarQuery<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint,TResult> query)
     {
-      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
     }
 
     /// <summary>
@@ -749,7 +749,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint,IQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
     }
 
     /// <summary>
@@ -763,7 +763,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
     }
 
     /// <summary>
@@ -778,7 +778,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IEnumerable<TElement> ExecuteDelayed<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, key, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, key, query.Target).CreateDelayedQuery(query);
     }
 
     /// <summary>
@@ -792,7 +792,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
-      return new CompiledQueryRunner(this, query.Method, query.Target).ExecuteDelayed(query);
+      return new CompiledQueryRunner(this, query.Method, query.Target).CreateDelayedQuery(query);
     }
 
     #endregion

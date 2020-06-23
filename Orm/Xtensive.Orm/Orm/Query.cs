@@ -594,10 +594,10 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public static Delayed<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
+    public static DelayedScalarQuery<TResult> ExecuteFutureScalar<TResult>(object key, Func<TResult> query)
     {
       var endpoint = Session.Demand().Query;
-      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteDelayed(WrapQuery(query));
+      return new CompiledQueryRunner(endpoint, key, query.Target).CreateDelayedQuery(WrapQuery(query));
     }
 
     /// <summary>
@@ -609,10 +609,10 @@ namespace Xtensive.Orm
     /// <returns>
     /// The future that will be executed when its result is requested.
     /// </returns>
-    public static Delayed<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
+    public static DelayedScalarQuery<TResult> ExecuteFutureScalar<TResult>(Func<TResult> query)
     {
       var endpoint = Session.Demand().Query;
-      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayed(WrapQuery(query));
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).CreateDelayedQuery(WrapQuery(query));
     }
 
     /// <summary>
@@ -628,7 +628,7 @@ namespace Xtensive.Orm
     public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
-      return new CompiledQueryRunner(endpoint, key, query.Target).ExecuteDelayed(WrapQuery(query));
+      return new CompiledQueryRunner(endpoint, key, query.Target).CreateDelayedQuery(WrapQuery(query));
     }
 
     /// <summary>
@@ -643,7 +643,7 @@ namespace Xtensive.Orm
     public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
-      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayed(WrapQuery(query));
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).CreateDelayedQuery(WrapQuery(query));
     }
 
     /// <summary>
@@ -658,7 +658,7 @@ namespace Xtensive.Orm
     public static IEnumerable<TElement> ExecuteFuture<TElement>(Func<IOrderedQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
-      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayed(WrapQuery(query));
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).CreateDelayedQuery(WrapQuery(query));
     }
 
     /// <summary>
@@ -674,7 +674,7 @@ namespace Xtensive.Orm
     public static IEnumerable<TElement> ExecuteFuture<TElement>(object key, Func<IOrderedQueryable<TElement>> query)
     {
       var endpoint = Session.Demand().Query;
-      return new CompiledQueryRunner(endpoint, query.Method, query.Target).ExecuteDelayed(WrapQuery(query));
+      return new CompiledQueryRunner(endpoint, query.Method, query.Target).CreateDelayedQuery(WrapQuery(query));
     }
 
     #endregion

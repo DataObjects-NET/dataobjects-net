@@ -5,7 +5,6 @@
 // Created:    2012.01.27
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
@@ -82,26 +81,27 @@ namespace Xtensive.Orm.Internals
       return parameterizedQuery.ExecuteScalarAsync<TResult>(session, CreateParameterContext(parameterizedQuery), token);
     }
 
-    public Delayed<TResult> ExecuteDelayed<TResult>(Func<QueryEndpoint, TResult> query)
+    public DelayedScalarQuery<TResult> CreateDelayedQuery<TResult>(Func<QueryEndpoint, TResult> query)
     {
       var parameterizedQuery = GetCachedQuery() ?? GetScalarQuery(query, false, out _);
       var parameterContext = CreateParameterContext(parameterizedQuery);
-      var result = new Delayed<TResult>(session, parameterizedQuery, parameterContext);
+      var result = new DelayedScalarQuery<TResult>(session, parameterizedQuery, parameterContext);
       session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }
 
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
-      ExecuteDelayedImpl(query);
+    public DelayedQuery<TElement> CreateDelayedQuery<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
+      CreateDelayedSequenceQuery(query);
 
-    public IEnumerable<TElement> ExecuteDelayed<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query) =>
-      ExecuteDelayedImpl(query);
+    public DelayedQuery<TElement> CreateDelayedQuery<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query) =>
+      CreateDelayedSequenceQuery(query);
 
-    private IEnumerable<TElement> ExecuteDelayedImpl<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
+    private DelayedQuery<TElement> CreateDelayedSequenceQuery<TElement>(
+      Func<QueryEndpoint, IQueryable<TElement>> query)
     {
       var parameterizedQuery = GetSequenceQuery(query);
       var parameterContext = CreateParameterContext(parameterizedQuery);
-      var result = new DelayedSequence<TElement>(session, parameterizedQuery, parameterContext);
+      var result = new DelayedQuery<TElement>(session, parameterizedQuery, parameterContext);
       session.RegisterUserDefinedDelayedQuery(result.Task);
       return result;
     }

@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
         var qelayedQuery = session.Query.ExecuteDelayed(endpoint => { return endpoint.All<Discepline>(); });
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
-        Assert.NotNull(((DelayedSequence<Discepline>)qelayedQuery).Task.Result);
+        Assert.NotNull(((DelayedQuery<Discepline>)qelayedQuery).Task.Result);
       }
     }
 
