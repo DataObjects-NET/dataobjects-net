@@ -32,26 +32,24 @@ namespace Xtensive.Orm
     /// Asynchronously gets value.
     /// </summary>
     /// <returns>Task running this operation</returns>
-    public Task<T> AsAsync()
-    {
-      return AsAsync(CancellationToken.None);
-    }
+    [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
+    public Task<T> AsAsync() => AsAsync(CancellationToken.None);
 
     /// <summary>
     /// Asynchronously gets value.
     /// </summary>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task running this operation.</returns>
-    public async Task<T> AsAsync(CancellationToken token)
-    {
-      if (!LifetimeToken.IsActive)
-        throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
-      if (Task.Result==null) {
-        token.ThrowIfCancellationRequested();
-        await Session.ExecuteDelayedUserQueriesAsync(false, token).ConfigureAwait(false);
-      }
-      return Materialize<T>().ToScalar(scalarResultType);
-    }
+    [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
+    public async Task<T> AsAsync(CancellationToken token) => await ExecuteAsync(token);
+
+    /// <summary>
+    /// Asynchronously executes delayed scalar query.
+    /// </summary>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>Value representing scalar query execution result.</returns>
+    public async ValueTask<T> ExecuteAsync(CancellationToken token = default) =>
+      (await MaterializeAsync<T>(token)).ToScalar(scalarResultType);
 
     // Constructors
 

@@ -5,6 +5,8 @@
 // Created:    2009.08.19
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Materialization;
@@ -51,6 +53,27 @@ namespace Xtensive.Orm.Internals
 
       if (Task.Result==null) {
         Session.ExecuteUserDefinedDelayedQueries(false);
+      }
+
+      return materializer.Invoke<T>(RecordSetReader.Create(Task.Result), Session, parameterContext);
+    }
+
+    /// <summary>
+    /// Materializes items from underlying record set.
+    /// </summary>
+    /// <param name="token">Cancellation token.</param>
+    /// <typeparam name="T">The type of items in the resulting sequence.</typeparam>
+    /// <returns><see cref="QueryResult{TItem}"/> representing a sequence to be enumerated.</returns>
+    /// <exception cref="InvalidOperationException">Thrown on attempt to get delayed result outside of transaction
+    /// boundaries.</exception>
+    protected async ValueTask<QueryResult<T>> MaterializeAsync<T>(CancellationToken token)
+    {
+      if (!LifetimeToken.IsActive) {
+        throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
+      }
+
+      if (Task.Result==null) {
+        await Session.ExecuteDelayedUserQueriesAsync(false, token);
       }
 
       return materializer.Invoke<T>(RecordSetReader.Create(Task.Result), Session, parameterContext);

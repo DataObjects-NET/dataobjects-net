@@ -488,8 +488,9 @@ namespace Xtensive.Core
     /// <typeparam name="T">Type of items in sequence.</typeparam>
     /// <param name="source">Delayed query sequence or regular enumerable.</param>
     /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete]
-    public static Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source) => Task.FromResult(source);
+    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
+    public static Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source) =>
+      AsAsync(source, CancellationToken.None);
 
     /// <summary>
     /// Runs delayed query as async operation or returns enumerable as a task.
@@ -498,19 +499,13 @@ namespace Xtensive.Core
     /// <param name="source">Delayed query sequence or regular enumerable.</param>
     /// <param name="token">A token to cancel operation.</param>
     /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete]
-    public static Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source, CancellationToken token)
-      => Task.FromResult(source);
-    // {
-    //   var delayedSequence = source as DelayedSequence<T>;
-    //   if (delayedSequence!=null) {
-    //     if (!delayedSequence.LifetimeToken.IsActive)
-    //       throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
-    //     if (delayedSequence.Task.Result==null)
-    //       await delayedSequence.Session.ExecuteDelayedUserQueriesAsync(false, token).ConfigureAwait(false);
-    //     return delayedSequence;
-    //   }
-    //   return await Task.FromResult(source);
-    // }
+    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
+    public static async Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source, CancellationToken token)
+    {
+      if (source is DelayedQuery<T> delayedQuery) {
+        return await delayedQuery.ExecuteAsync(token);
+      }
+      return await Task.FromResult(source);
+    }
   }
 }
