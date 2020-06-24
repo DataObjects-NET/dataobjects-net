@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -58,13 +60,15 @@ namespace Xtensive.Orm
         entitySetsWithInvalidState.Add(entitySet);
     }
 
-    internal void RemapEntityKeys(KeyMapping keyMapping)
+    internal void RemapEntityKeys(KeyMapping keyMapping) => _ = RemapEntityKeys(keyMapping, false);
+
+    private async ValueTask RemapEntityKeys(KeyMapping keyMapping, bool isAsync, CancellationToken token = default)
     {
       if (keyMapping.Map.Count==0)
         return;
       using (Activate()) {
         if (!LazyKeyGenerationIsEnabled) {
-          Persist(PersistReason.RemapEntityKeys);
+          await Persist(PersistReason.RemapEntityKeys, isAsync, token);
           Invalidate();
         }
         if (IsDebugEventLoggingEnabled) {

@@ -248,8 +248,7 @@ namespace Xtensive.Orm
 
     internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext, CancellationToken token)
     {
-      Persist(PersistReason.Other);
-      token.ThrowIfCancellationRequested();
+      await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
       await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
       return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }

@@ -253,8 +253,21 @@ namespace Xtensive.Orm.Providers
       Prepare();
       domainHandler.Persister.Persist(registry, commandProcessor);
 
-      using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution))
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution)) {
         commandProcessor.ExecuteTasks(context);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override async Task PersistAsync(EntityChangeRegistry registry, bool allowPartialExecution,
+      CancellationToken token)
+    {
+      await PrepareAsync(token);
+      domainHandler.Persister.Persist(registry, commandProcessor);
+
+      using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution)) {
+        await commandProcessor.ExecuteTasksAsync(context, token);
+      }
     }
 
     /// <inheritdoc/>

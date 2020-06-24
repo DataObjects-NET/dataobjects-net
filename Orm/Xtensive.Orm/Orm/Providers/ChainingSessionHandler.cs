@@ -5,6 +5,8 @@
 // Created:    2009.07.06
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
@@ -83,11 +85,20 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
+    public override Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token) =>
+      ChainedHandler.ExecuteQueryTasksAsync(queryTasks, allowPartialExecution, token);
+
+    /// <inheritdoc/>
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
       ChainedHandler.Persist(registry, allowPartialExecution);
     }
 
+    /// <inheritdoc/>
+    public override Task PersistAsync(EntityChangeRegistry registry, bool allowPartialExecution, CancellationToken token) =>
+      ChainedHandler.PersistAsync(registry, allowPartialExecution, token);
+
+    /// <inheritdoc/>
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return ChainedHandler.Prefetch(key, type, descriptors);

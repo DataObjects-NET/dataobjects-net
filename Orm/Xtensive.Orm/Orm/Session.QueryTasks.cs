@@ -37,23 +37,29 @@ namespace Xtensive.Orm
 
     internal bool ExecuteUserDefinedDelayedQueries(bool skipPersist)
     {
-      if (!skipPersist)
+      if (!skipPersist) {
         Persist(PersistReason.Query);
+      }
+
       return ProcessUserDefinedDelayedQueries(false);
     }
     
     internal bool ExecuteInternalDelayedQueries(bool skipPersist)
     {
-      if (!skipPersist)
+      if (!skipPersist) {
         Persist(PersistReason.Other);
+      }
+
       return ProcessInternalDelayedQueries(false);
     }
 
     internal async Task<bool> ExecuteDelayedUserQueriesAsync(bool skipPersist, CancellationToken token)
     {
       token.ThrowIfCancellationRequested();
-      if (!skipPersist)
-        Persist(PersistReason.Other);
+      if (!skipPersist) {
+        await PersistAsync(PersistReason.Other, token);
+      }
+
       token.ThrowIfCancellationRequested();
       return await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
     }

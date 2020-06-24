@@ -7,6 +7,9 @@
 using System;
 using System.Transactions;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -51,6 +54,35 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Asynchronously saves all modified instances immediately to the database.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// This method should be called to ensure that all delayed
+    /// updates are flushed to the storage.
+    /// </para>
+    /// <para>
+    /// For session with auto saving (with <see cref="SessionOptions.AutoSaveChanges"/> this method is called automatically when it's necessary,
+    /// e.g. before beginning, committing and rolling back a transaction, performing a
+    /// query and so further. So generally you should not worry
+    /// about calling this method.
+    /// </para>
+    /// <para>
+    /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
+    /// </para>
+    /// </remarks>
+    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
+    public async Task SaveChangesAsync(CancellationToken token = default)
+    {
+      if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
+        await SaveLocalChangesAsync(token);
+      }
+      else {
+        await PersistAsync(PersistReason.Manual, token);
+      }
+    }
+
+    /// <summary>
     /// Cancels all changes and resets modified entities to their original state.
     /// </summary>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
@@ -62,23 +94,32 @@ namespace Xtensive.Orm
       NonPairedReferencesRegistry.Clear();
     }
 
-    internal void Persist(PersistReason reason)
+    internal void Persist(PersistReason reason) => _ = Persist(reason, false);
+
+    internal async Task PersistAsync(PersistReason reason, CancellationToken token = default) =>
+      await Persist(reason, true, token);
+
+    private async ValueTask Persist(PersistReason reason, bool isAsync, CancellationToken token = default)
     {
       EnsureNotDisposed();
-      if (IsPersisting || EntityChangeRegistry.Count==0)
+      if (IsPersisting || EntityChangeRegistry.Count==0) {
         return;
+      }
+
       EnsureAllAsyncQueriesFinished();
 
       var performPinning = pinner.RootCount > 0;
-      if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) 
+      if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) {
         switch (reason) {
           case PersistReason.NestedTransaction:
           case PersistReason.Commit:
             throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
-          }
+        }
+      }
 
-      if (disableAutoSaveChanges && reason != PersistReason.Manual)
+      if (disableAutoSaveChanges && reason != PersistReason.Manual) {
         return;
+      }
 
       using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)) {
         IsPersisting = true;
@@ -97,17 +138,23 @@ namespace Xtensive.Orm
               pinner.Process(EntityChangeRegistry);
               itemsToPersist = pinner.PersistableItems;
             }
-            else
+            else {
               itemsToPersist = EntityChangeRegistry;
+            }
 
             if (LazyKeyGenerationIsEnabled) {
-              RemapEntityKeys(remapper.Remap(itemsToPersist));
+              await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token);
             }
             ApplyEntitySetsChanges();
-            var persistIsSuccessfull = false;
+            var persistIsSuccessful = false;
             try {
-              Handler.Persist(itemsToPersist, reason == PersistReason.Query);
-              persistIsSuccessfull = true;
+              if (isAsync) {
+                await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token);
+              }
+              else {
+                Handler.Persist(itemsToPersist, reason == PersistReason.Query);
+              }
+              persistIsSuccessful = true;
             }
             catch(Exception) {
               persistingIsFailed = true;
@@ -116,7 +163,7 @@ namespace Xtensive.Orm
               throw;
             }
             finally {
-              if (persistIsSuccessfull || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
+              if (persistIsSuccessful || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
                 DropDifferenceBackup();
                 foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
                   item.PersistenceState = PersistenceState.Synchronized;
@@ -215,6 +262,19 @@ namespace Xtensive.Orm
       using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
         try {
           Persist(PersistReason.Manual);
+        }
+        finally {
+          transaction.Complete();
+        }
+      }
+    }
+
+    private async Task SaveLocalChangesAsync(CancellationToken token = default)
+    {
+      Validate();
+      using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
+        try {
+          await PersistAsync(PersistReason.Manual, token);
         }
         finally {
           transaction.Complete();

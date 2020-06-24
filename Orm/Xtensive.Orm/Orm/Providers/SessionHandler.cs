@@ -9,9 +9,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Threading;
 using System.Threading.Tasks;
-using Xtensive.Core;
 using Xtensive.IoC;
-using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Providers
@@ -53,17 +51,17 @@ namespace Xtensive.Orm.Providers
     public abstract void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution);
 
     /// <summary>
-    /// Asynchrously executes the specified query tasks.
-    /// Default implementation executest query task synchronously.
+    /// Asynchronously executes the specified query tasks.
+    /// Default implementation executes query tasks synchronously.
     /// </summary>
     /// <param name="queryTasks">The query tasks to execute.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    public virtual async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
+    public virtual Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
     {
       ExecuteQueryTasks(queryTasks, allowPartialExecution);
-      await Task.Yield();
+      return Task.CompletedTask;
     }
 
     /// <summary>
@@ -78,6 +76,18 @@ namespace Xtensive.Orm.Providers
     /// <param name="registry">The registry.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
     public abstract void Persist(EntityChangeRegistry registry, bool allowPartialExecution);
+
+    /// <summary>
+    /// Asynchronously persists changed entities.
+    /// Default implementation works synchronously.
+    /// </summary>
+    /// <param name="registry">The registry.</param>
+    /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
+    public virtual Task PersistAsync(EntityChangeRegistry registry, bool allowPartialExecution, CancellationToken token)
+    {
+      Persist(registry, allowPartialExecution);
+      return Task.CompletedTask;
+    }
 
     /// <summary>
     /// Adds system session service registration entries.
