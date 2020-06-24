@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Linq.Materialization
   public interface IMaterializingReader<out TItem>
   {
     IEnumerator<TItem> AsEnumerator();
-    IAsyncEnumerator<TItem> AsAsyncEnumerator(CancellationToken token);
+    IAsyncEnumerator<TItem> AsAsyncEnumerator();
   }
 
   public class MaterializingReader<TItem>: IMaterializingReader<TItem>, IEnumerator<TItem>, IAsyncEnumerator<TItem>
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return this;
     }
 
-    public IAsyncEnumerator<TItem> AsAsyncEnumerator(CancellationToken token)
+    public IAsyncEnumerator<TItem> AsAsyncEnumerator()
     {
       recordSetReader.Reset();
       return this;

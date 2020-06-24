@@ -1,23 +1,28 @@
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Xtensive.Orm.Linq.Materialization;
 
 namespace Xtensive.Orm
 {
   public readonly struct QueryResult<TItem> : IEnumerable<TItem>
   {
-    internal readonly IMaterializingReader<TItem> Reader;
+    private readonly IMaterializingReader<TItem> reader;
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TItem> GetEnumerator() => Reader.AsEnumerator();
+    public IEnumerator<TItem> GetEnumerator() => reader.AsEnumerator();
+
+    public async IAsyncEnumerable<TItem> AsAsyncEnumerable()
+    {
+      var enumerator = reader.AsAsyncEnumerator();
+      while (await enumerator.MoveNextAsync()) {
+        yield return enumerator.Current;
+      }
+    }
 
     internal QueryResult(IMaterializingReader<TItem> reader)
     {
-      Reader = reader;
+      this.reader = reader;
     }
 
     private class EnumerableReader: IMaterializingReader<TItem>
@@ -26,8 +31,7 @@ namespace Xtensive.Orm
 
       public IEnumerator<TItem> AsEnumerator() => items.GetEnumerator();
 
-      public IAsyncEnumerator<TItem> AsAsyncEnumerator(CancellationToken token)
-        => throw new System.NotSupportedException();
+      public IAsyncEnumerator<TItem> AsAsyncEnumerator() => throw new System.NotSupportedException();
 
       public EnumerableReader(IEnumerable<TItem> items)
       {
@@ -37,28 +41,7 @@ namespace Xtensive.Orm
 
     internal QueryResult(IEnumerable<TItem> items)
     {
-      Reader = new EnumerableReader(items);
-    }
-  }
-
-  public readonly struct AsyncQueryResult<TElement> : IAsyncEnumerable<TElement>
-  {
-    private readonly Task<QueryResult<TElement>> queryResultTask;
-
-    public TaskAwaiter<QueryResult<TElement>> GetAwaiter() => queryResultTask.GetAwaiter();
-
-    public async IAsyncEnumerator<TElement> GetAsyncEnumerator(CancellationToken cancellationToken = default)
-    {
-      var result = await queryResultTask;
-      var asyncEnumerator = result.Reader.AsAsyncEnumerator(cancellationToken);
-      while (await asyncEnumerator.MoveNextAsync()) {
-        yield return asyncEnumerator.Current;
-      }
-    }
-
-    internal AsyncQueryResult(Task<QueryResult<TElement>> queryResultTask)
-    {
-      this.queryResultTask = queryResultTask;
+      reader = new EnumerableReader(items);
     }
   }
 }

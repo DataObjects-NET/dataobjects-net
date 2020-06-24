@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Internals
       return result;
     }
 
-    public AsyncQueryResult<TElement> ExecuteCompiledAsync<TElement>(
+    public Task<QueryResult<TElement>> ExecuteCompiledAsync<TElement>(
       Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token)
     {
       var parameterizedQuery = GetSequenceQuery(query);
@@ -59,14 +59,12 @@ namespace Xtensive.Orm.Internals
       var parameterContext = CreateParameterContext(parameterizedQuery);
       token.ThrowIfCancellationRequested();
 
-      var queryResultTask = parameterizedQuery.ExecuteSequenceAsync<TElement>(session, parameterContext, token);
-      return new AsyncQueryResult<TElement>(queryResultTask);
+      return parameterizedQuery.ExecuteSequenceAsync<TElement>(session, parameterContext, token);
     }
 
-    public AsyncQueryResult<TElement> ExecuteCompiledAsync<TElement>(
+    public Task<QueryResult<TElement>> ExecuteCompiledAsync<TElement>(
       Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token) =>
       ExecuteCompiledAsync((Func<QueryEndpoint, IQueryable<TElement>>)query, token);
-
 
     public Task<TResult> ExecuteCompiledAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token)
     {
