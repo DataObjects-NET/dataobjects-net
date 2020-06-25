@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Internals
       }
 
       if (Task.Result==null) {
-        await Session.ExecuteDelayedUserQueriesAsync(false, token);
+        await Session.ExecuteUserDefinedDelayedQueriesAsync(false, token);
       }
 
       return materializer.Invoke<T>(RecordSetReader.Create(Task.Result), Session, parameterContext);

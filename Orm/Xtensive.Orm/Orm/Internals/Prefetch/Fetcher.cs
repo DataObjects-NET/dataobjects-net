@@ -4,9 +4,10 @@
 // Created by: Alexander Nikolaev
 // Created:    2009.10.20
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -19,19 +20,26 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private readonly PrefetchManager manager;
 
-    public int ExecuteTasks(IEnumerable<GraphContainer> containers, bool skipPersist)
+    public async ValueTask<int> ExecuteTasks(
+      IReadOnlyCollection<GraphContainer> containers, bool skipPersist, bool isAsync, CancellationToken token)
     {
       var batchExecuted = 0;
       try {
         var rootEntityContainers = containers
           .Where(container => container.RootEntityContainer!=null)
           .Select(container => container.RootEntityContainer);
-        foreach (var container in rootEntityContainers)
+        foreach (var container in rootEntityContainers) {
           AddTask(container);
+        }
+
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
-        batchExecuted += manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist) ? 1 : 0;
+        var isExecuted = isAsync
+          ? await manager.Owner.Session.ExecuteInternalDelayedQueriesAsync(skipPersist, token)
+          : manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist);
+        batchExecuted += isExecuted ? 1 : 0;
+
         UpdateCacheFromAllEntityGroupTasks();
         UpdateCacheFromAllEntitySetTasks(containers);
 
@@ -41,14 +49,21 @@ namespace Xtensive.Orm.Internals.Prefetch
           .Select(container => container.ReferencedEntityContainers)
           .Where(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers!=null)
           .SelectMany(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers);
-        foreach (var container in referencedEntityContainers)
+        foreach (var container in referencedEntityContainers) {
           AddTask(container);
+        }
 
-        if (tasks.Count==0)
+        if (tasks.Count==0) {
           return batchExecuted;
+        }
+
         RegisterAllEntityGroupTasks();
 
-        batchExecuted += manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist) ? 1 : 0;
+        isExecuted = isAsync
+          ? await manager.Owner.Session.ExecuteInternalDelayedQueriesAsync(skipPersist, token)
+          : manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist);
+        batchExecuted += isExecuted ? 1 : 0;
+
         UpdateCacheFromAllEntityGroupTasks();
         return batchExecuted;
       }
@@ -112,8 +127,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public Fetcher(PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
-
+      ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
       this.manager = manager;
     }
   }

@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -89,24 +91,40 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private StrongReferenceContainer referenceContainer;
 
-    public SessionHandler Owner { get { return session.Handler; } }
+    public SessionHandler Owner => session.Handler;
 
     public int TaskExecutionCount { get; private set; }
 
     public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
-      ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      ArgumentValidator.EnsureArgumentNotNull(descriptors, "fields");
-      if (descriptors.Count==0)
+      var prefetchTask = Prefetch(key, type, descriptors, false, default);
+      return prefetchTask.Result;
+    }
+
+    public async Task<StrongReferenceContainer> PrefetchAsync(Key key, TypeInfo type,
+      IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+    {
+      var prefetchTask = Prefetch(key, type, descriptors, true, token);
+      return await prefetchTask;
+    }
+
+    private async ValueTask<StrongReferenceContainer> Prefetch(
+      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, bool isAsync, CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(key, nameof(key));
+      ArgumentValidator.EnsureArgumentNotNull(descriptors, nameof(descriptors));
+      if (descriptors.Count==0) {
         return null;
+      }
 
       try {
         EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
 
-        EntityState ownerState;
         var currentKey = key;
-        if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out ownerState))
+        if (!TryGetTupleOfNonRemovedEntity(ref currentKey, out var ownerState)) {
           return null;
+        }
+
         var selectedFields = descriptors;
         var currentType = type;
         var isKeyTypeExact = currentKey.HasExactType
@@ -130,8 +148,10 @@ namespace Xtensive.Orm.Internals.Prefetch
         SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState, ReferenceEquals(descriptors, selectedFields));
 
         StrongReferenceContainer container = null;
-        if (graphContainers.Count >= MaxContainerCount)
-          container = ExecuteTasks();
+        if (graphContainers.Count >= MaxContainerCount) {
+          container = await ExecuteTasks(false, isAsync, token);
+        }
+
         if (referenceContainer!=null) {
           referenceContainer.JoinIfPossible(container);
           return referenceContainer;
@@ -144,22 +164,25 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
     }
 
-    public StrongReferenceContainer ExecuteTasks()
-    {
-      return ExecuteTasks(false);
-    }
+    public StrongReferenceContainer ExecuteTasks(bool skipPersist = false) =>
+      ExecuteTasks(skipPersist, false, default).Result;
 
-    public StrongReferenceContainer ExecuteTasks(bool skipPersist)
+    public async Task<StrongReferenceContainer> ExecuteTasksAsync(bool skipPersist, CancellationToken token = default)
+      => await ExecuteTasks(skipPersist, true, token);
+
+    private async ValueTask<StrongReferenceContainer> ExecuteTasks(bool skipPersist, bool isAsync, CancellationToken token)
     {
       if (graphContainers.Count==0) {
         referenceContainer = null;
         return null;
       }
       try {
-        var batchExecuted = fetcher.ExecuteTasks(graphContainers, skipPersist);
+        var batchExecuted = await fetcher.ExecuteTasks(graphContainers, skipPersist, isAsync, token);
         TaskExecutionCount += batchExecuted;
-        foreach (var graphContainer in graphContainers)
+        foreach (var graphContainer in graphContainers) {
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
+        }
+
         return referenceContainer;
       }
       finally {

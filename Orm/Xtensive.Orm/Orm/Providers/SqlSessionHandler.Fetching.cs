@@ -38,8 +38,7 @@ namespace Xtensive.Orm.Providers
       prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
       prefetchManager.ExecuteTasks(true);
-      EntityState result;
-      return LookupState(key, out result) ? result : null;
+      return LookupState(key, out var result) ? result : null;
     }
     
     /// <summary>

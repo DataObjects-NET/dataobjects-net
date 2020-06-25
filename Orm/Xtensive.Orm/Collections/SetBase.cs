@@ -15,7 +15,7 @@ namespace Xtensive.Collections
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public abstract class SetBase<TItem> : LockableBase, 
-    ISet<TItem>
+    ISet<TItem>, IReadOnlyCollection<TItem>
   {
     private bool containsNull;
     private readonly IEqualityComparer<TItem> comparer;
