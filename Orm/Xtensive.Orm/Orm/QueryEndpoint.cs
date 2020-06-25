@@ -11,6 +11,7 @@ using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
+//using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -380,10 +381,10 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="keys">The source sequence.</param>
     /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
-    public IEnumerable<T> Many<T>(IEnumerable<Key> keys)
+    public PrefetchQuery<T> Many<T>(IEnumerable<Key> keys)
       where T : class, IEntity
     {
-      return new PrefetchFacade<T>(session, keys);
+      return new PrefetchQuery<T>(session, keys);
     }
 
     /// <summary>
@@ -394,19 +395,22 @@ namespace Xtensive.Orm
     /// <see cref="IEntity"/> interface.</typeparam>
     /// <typeparam name="TElement">A type of keys collection elements.</typeparam>
     /// <returns>The sequence of entities of type <typeparamref name="T"/> matching provided <paramref name="keys"/>.</returns>
-    public IEnumerable<T> Many<T, TElement>(IEnumerable<TElement> keys)
+    public PrefetchQuery<T> Many<T, TElement>(IEnumerable<TElement> keys)
       where T : class, IEntity
     {
       var elementType = typeof (TElement);
       Func<TElement, Key> selector;
-      if (elementType==typeof (object[]))
+      if (elementType==typeof (object[])) {
         selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (object[]) (object) e);
-      else if (typeof (Tuple).IsAssignableFrom(elementType))
+      }
+      else if (typeof (Tuple).IsAssignableFrom(elementType)) {
         selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e);
-      else
+      }
+      else {
         selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, new object[] {e});
+      }
 
-      return new PrefetchFacade<T>(session, keys.Select(selector));
+      return new PrefetchQuery<T>(session, keys.Select(selector));
     }
 
     #region Execute methods

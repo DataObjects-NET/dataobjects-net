@@ -26,21 +26,18 @@ namespace Xtensive.Orm.Internals.Prefetch
     private Queue<Key> unknownTypeQueue;
     private Queue<Pair<IEnumerable<Key>, IHasNestedNodes>> prefetchQueue;
     private Dictionary<Pair<IHasNestedNodes, TypeInfo>, IList<PrefetchFieldDescriptor>> fieldDescriptorCache;
-    private int taskCount;
 
     public PrefetchFacade<T> RegisterPath<TValue>(Expression<Func<T, TValue>> expression)
     {
       var node = NodeBuilder.Build(session.Domain.Model, expression);
-      if (node==null)
-        return this;
-      return new PrefetchFacade<T>(session, source, nodes.Add(node));
+      return node==null ? this : new PrefetchFacade<T>(session, source, nodes.Add(node));
     }
 
     public IEnumerator<T> GetEnumerator()
     {
       Initialize();
 
-      var currentTaskCount = taskCount = sessionHandler.PrefetchTaskExecutionCount;
+      var currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       var aggregatedNodes = NodeAggregator<T>.Aggregate(nodes);
       var resultQueue = new Queue<T>();
       var container = new StrongReferenceContainer(null);
@@ -96,7 +93,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     private StrongReferenceContainer ProcessFetchedElements()
     {
       var container = new StrongReferenceContainer(null);
-      taskCount = sessionHandler.PrefetchTaskExecutionCount;
       while (unknownTypeQueue.Count > 0) {
         var unknownKey = unknownTypeQueue.Dequeue();
         var unknownType = session.EntityStateCache[unknownKey, false].Type;
@@ -112,7 +108,6 @@ namespace Xtensive.Orm.Internals.Prefetch
           var entityState = session.EntityStateCache[parentKey, false];
           if (entityState == null) {
             container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks(true));
-            taskCount = sessionHandler.PrefetchTaskExecutionCount;
             entityState = session.EntityStateCache[parentKey, false];
             if (entityState == null)
               throw new InvalidOperationException(string.Format(Strings.ExCannotResolveEntityWithKeyX, parentKey));

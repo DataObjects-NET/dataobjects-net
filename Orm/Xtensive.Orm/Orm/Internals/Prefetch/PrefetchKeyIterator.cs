@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var fieldDescriptors = new List<PrefetchFieldDescriptor>();
       var resultQueue = new Queue<Key>();
       var unknownTypeQueue = new Queue<Key>();
-      var se = source.GetEnumerator();
+      using var se = source.GetEnumerator();
       bool exists;
       do {
         exists = se.MoveNext();

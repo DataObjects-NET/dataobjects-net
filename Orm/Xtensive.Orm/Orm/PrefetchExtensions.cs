@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 
@@ -27,14 +26,15 @@ namespace Xtensive.Orm
     /// <param name="source">The source query.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <returns>An <see cref="IEnumerable{TElement}"/> of source items.</returns>
-    public static IEnumerable<TElement> Prefetch<TElement, TFieldValue>(
+    public static PrefetchQuery<TElement> Prefetch<TElement, TFieldValue>(
       this IQueryable<TElement> source,
       Expression<Func<TElement, TFieldValue>> expression)
     {
-      var queryProvider = source.Provider as QueryProvider;
-      if (queryProvider == null)
-        return Prefetch(source, Session.Demand(), expression);
-      return new PrefetchFacade<TElement>(queryProvider.Session, source).RegisterPath(expression);
+      if (source.Provider is QueryProvider queryProvider) {
+        return new PrefetchQuery<TElement>(queryProvider.Session, source).RegisterPath(expression);
+      }
+
+      return Prefetch(source, Session.Demand(), expression);
     }
 
     /// <summary>
@@ -45,13 +45,14 @@ namespace Xtensive.Orm
     /// <param name="source">The source sequence.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <returns>An <see cref="IEnumerable{TElement}"/> of source items.</returns>
-    public static IEnumerable<TElement> Prefetch<TElement, TFieldValue>(
+    public static PrefetchQuery<TElement> Prefetch<TElement, TFieldValue>(
       this IEnumerable<TElement> source,
       Expression<Func<TElement, TFieldValue>> expression)
     {
-      var facade = source as PrefetchFacade<TElement>;
-      if (facade != null)
-        return facade.RegisterPath(expression);
+      if (source is PrefetchQuery<TElement> prefetchQuery) {
+        return prefetchQuery.RegisterPath(expression);
+      }
+
       return Prefetch(source, Session.Demand(), expression);
     }
 
@@ -65,15 +66,15 @@ namespace Xtensive.Orm
     /// <param name="session">The session.</param>
     /// <param name="expression">The expression specifying a field to be prefetched.</param>
     /// <returns>A newly created <see cref="PrefetchFacade{T}"/>.</returns>
-    public static IEnumerable<TElement> Prefetch<TElement, TFieldValue>(
+    public static PrefetchQuery<TElement> Prefetch<TElement, TFieldValue>(
       this IEnumerable<TElement> source,
       Session session,
       Expression<Func<TElement, TFieldValue>> expression)
     {
-      var facade = source as PrefetchFacade<TElement>;
-      if (facade != null)
-        return facade.RegisterPath(expression);
-      return new PrefetchFacade<TElement>(session, source).RegisterPath(expression);
+      if (source is PrefetchQuery<TElement> prefetchQuery) {
+        return prefetchQuery.RegisterPath(expression);
+      }
+      return new PrefetchQuery<TElement>(session, source).RegisterPath(expression);
     }
   }
 }
