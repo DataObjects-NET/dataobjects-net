@@ -13,7 +13,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     ReadOnlyCollection<BaseFieldNode> NestedNodes { get; }
 
-    IEnumerable<Key> ExtractKeys(object target);
+    IReadOnlyCollection<Key> ExtractKeys(object target);
 
     IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes);
   }

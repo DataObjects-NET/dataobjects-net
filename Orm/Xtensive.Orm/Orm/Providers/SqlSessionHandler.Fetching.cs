@@ -5,6 +5,8 @@
 // Created:    2009.08.19
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -22,9 +24,20 @@ namespace Xtensive.Orm.Providers
       return prefetchManager.Prefetch(key, type, descriptors);
     }
 
+    public override Task<StrongReferenceContainer> PrefetchAsync(
+      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+    {
+      return prefetchManager.PrefetchAsync(key, type, descriptors, token);
+    }
+
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
       return prefetchManager.ExecuteTasks(skipPersist);
+    }
+
+    public override Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(bool skipPersist, CancellationToken token = default)
+    {
+      return prefetchManager.ExecuteTasksAsync(skipPersist, token);
     }
 
     /// <summary>

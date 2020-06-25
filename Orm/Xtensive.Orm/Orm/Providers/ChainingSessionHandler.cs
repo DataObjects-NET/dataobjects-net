@@ -105,9 +105,22 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
+    public override Task<StrongReferenceContainer> PrefetchAsync(
+      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+    {
+      return ChainedHandler.PrefetchAsync(key, type, descriptors, token);
+    }
+
+    /// <inheritdoc/>
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
       return ChainedHandler.ExecutePrefetchTasks(skipPersist);
+    }
+
+    /// <inheritdoc/>
+    public override Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(bool skipPersist, CancellationToken token = default)
+    {
+      return ChainedHandler.ExecutePrefetchTasksAsync(skipPersist, token);
     }
 
     /// <inheritdoc/>

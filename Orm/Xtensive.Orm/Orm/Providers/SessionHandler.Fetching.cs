@@ -5,6 +5,8 @@
 // Created:    2009.08.19
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -26,6 +28,17 @@ namespace Xtensive.Orm.Providers
     public abstract StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors);
 
     /// <summary>
+    /// Register the task prefetching fields' values of the <see cref="Entity"/> with the specified key.
+    /// </summary>
+    /// <param name="key">The key.</param>
+    /// <param name="type">The type of the <see cref="Entity"/>.</param>
+    /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
+    /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
+    /// a strong reference to a fetched <see cref="Entity"/>.</returns>
+    public abstract Task<StrongReferenceContainer> PrefetchAsync(
+      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default);
+
+    /// <summary>
     /// Executes registered prefetch tasks.
     /// </summary>
     /// <param name="skipPersist">if set to <see langword="true"/> persist is not performed.</param>
@@ -36,11 +49,30 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Executes registered prefetch tasks.
     /// </summary>
+    /// <param name="skipPersist">if set to <see langword="true"/> persist is not performed.</param>
+    /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
+    /// a strong reference to a fetched <see cref="Entity"/>.</returns>
+    public abstract Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(
+      bool skipPersist, CancellationToken token = default);
+
+    /// <summary>
+    /// Executes registered prefetch tasks.
+    /// </summary>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public StrongReferenceContainer ExecutePrefetchTasks()
     {
       return ExecutePrefetchTasks(false);
+    }
+
+    /// <summary>
+    /// Executes registered prefetch tasks.
+    /// </summary>
+    /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
+    /// a strong reference to a fetched <see cref="Entity"/>.</returns>
+    public Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(CancellationToken token = default)
+    {
+      return ExecutePrefetchTasksAsync(false, token);
     }
 
     /// <summary>

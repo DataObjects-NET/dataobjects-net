@@ -2,6 +2,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -18,24 +20,23 @@ namespace Xtensive.Orm.Internals.Prefetch
       return node==null ? this : new PrefetchQuery<TItem>(session, source, nodes.Add(node));
     }
 
-    IEnumerator IEnumerable.GetEnumerator() => throw new NotImplementedException();
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    IEnumerator<TItem> IEnumerable<TItem>.GetEnumerator() => throw new NotImplementedException();
+    public IEnumerator<TItem> GetEnumerator() =>
+      new PrefetchQueryEnumerable<TItem>(session, source, nodes).GetEnumerator();
 
-    public readonly struct PrefetchQueryEnumerator : IEnumerator<TItem>
+    public IAsyncEnumerable<TItem> AsAsyncEnumerable() =>
+      new PrefetchQueryAsyncEnumerable<TItem>(session, source, nodes);
+
+    public async Task<IEnumerable<TItem>> ExecuteAsync(CancellationToken token = default)
     {
-      public bool MoveNext() => throw new NotImplementedException();
+      var list = new List<TItem>();
+      await foreach (var element in AsAsyncEnumerable().WithCancellation(token)) {
+        list.Add(element);
+      }
 
-      public void Reset() => throw new NotImplementedException();
-
-      public TItem Current { get; }
-
-      object IEnumerator.Current => Current;
-
-      public void Dispose() => throw new NotImplementedException();
+      return list;
     }
-
-    public PrefetchQueryEnumerator GetEnumerator() => new PrefetchQueryEnumerator();
 
     internal PrefetchQuery(Session session, IEnumerable<Key> keySource)
       : this(session, new PrefetchKeyIterator<TItem>(session, keySource), SinglyLinkedList<KeyExtractorNode<TItem>>.Empty)
