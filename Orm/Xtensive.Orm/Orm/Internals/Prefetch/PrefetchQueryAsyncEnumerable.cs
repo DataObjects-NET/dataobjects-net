@@ -31,20 +31,18 @@ namespace Xtensive.Orm.Internals.Prefetch
       var resultQueue = new Queue<TItem>();
       strongReferenceContainer = new StrongReferenceContainer(null);
 
-      var items = source is IQueryable<TItem> queryableSource
-        ? await queryableSource.ExecuteAsync(token)
-        : source;
-      foreach (var item in items) {
-        resultQueue.Enqueue(item);
-        if (item!=null) {
+      async IAsyncEnumerable<TItem> ProcessItem(TItem item1)
+      {
+        resultQueue.Enqueue(item1);
+        if (item1 != null) {
           foreach (var extractorNode in aggregatedNodes) {
-            var fetchedItems = await RegisterPrefetchAsync(extractorNode.ExtractKeys(item), extractorNode, token);
+            var fetchedItems = await RegisterPrefetchAsync(extractorNode.ExtractKeys(item1), extractorNode, token);
             strongReferenceContainer.JoinIfPossible(fetchedItems);
           }
         }
 
-        if (currentTaskCount==sessionHandler.PrefetchTaskExecutionCount) {
-          continue;
+        if (currentTaskCount == sessionHandler.PrefetchTaskExecutionCount) {
+          yield break;
         }
 
         while (strongReferenceContainer.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(token))) {
@@ -57,6 +55,26 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       }
+
+      if (source is IAsyncEnumerable<TItem> asyncItemSource) {
+        await foreach (var item in asyncItemSource.WithCancellation(token)) {
+          await foreach (var p in ProcessItem(item)) {
+            yield return p;
+          }
+        }
+      }
+      else {
+        var items = source is IQueryable<TItem> queryableSource
+          ? await queryableSource.ExecuteAsync(token)
+          : source;
+
+        foreach (var item in items) {
+          await foreach (var p in ProcessItem(item)) {
+            yield return p;
+          }
+        }
+      }
+
       while (strongReferenceContainer.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(token))) {
         strongReferenceContainer.JoinIfPossible(await ProcessFetchedElementsAsync(token));
       }
