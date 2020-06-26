@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
@@ -13,7 +14,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Context for <see cref="CommandProcessor"/> and its descendants used during command execution.
   /// </summary>
-  public sealed class CommandProcessorContext : IDisposable
+  public sealed class CommandProcessorContext : IDisposable, IAsyncDisposable
   {
     /// <summary>
     /// <see cref="ParameterContext"/> instance with the values of parameters of currently executing query.
@@ -47,20 +48,33 @@ namespace Xtensive.Orm.Providers
 
     internal event EventHandler Disposed;
 
-    public void Dispose()
+    public void Dispose() => _ = DisposeImpl(false);
+
+    public ValueTask DisposeAsync() => DisposeImpl(true);
+
+    private async ValueTask DisposeImpl(bool isAsync)
     {
-      if (ActiveTasks!=null) {
+      if (ActiveTasks != null) {
         ActiveTasks.Clear();
         ActiveTasks = null;
       }
-      if (ProcessingTasks!=null) {
+
+      if (ProcessingTasks != null) {
         ProcessingTasks.Clear();
         ProcessingTasks = null;
       }
-      if (ActiveCommand!=null) {
-        ActiveCommand.Dispose();
+
+      if (ActiveCommand != null) {
+        if (isAsync) {
+          await ActiveCommand.DisposeAsync();
+        }
+        else {
+          ActiveCommand.Dispose();
+        }
+
         ActiveCommand = null;
       }
+
       NotifyDisposed();
     }
 

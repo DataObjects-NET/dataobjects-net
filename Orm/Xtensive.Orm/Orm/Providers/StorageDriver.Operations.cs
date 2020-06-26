@@ -128,6 +128,24 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    public async Task CloseConnectionAsync(Session session, SqlConnection connection)
+    {
+      if (connection.State!=ConnectionState.Open) {
+        return;
+      }
+
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+      }
+
+      try {
+        await connection.CloseAsync();
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
     public void DisposeConnection(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled)
@@ -135,6 +153,20 @@ namespace Xtensive.Orm.Providers
 
       try {
         connection.Dispose();
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
+    public async Task DisposeConnectionAsync(Session session, SqlConnection connection)
+    {
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXDisposingConnection, session.ToStringSafely());
+      }
+
+      try {
+        await connection.DisposeAsync();
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);

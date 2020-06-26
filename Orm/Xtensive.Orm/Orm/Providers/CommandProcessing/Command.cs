@@ -149,9 +149,9 @@ namespace Xtensive.Orm.Providers
 
     public async ValueTask DisposeAsync()
     {
-      reader.DisposeSafely();
-      resources.DisposeSafely();
-      await underlyingCommand.DisposeAsync();
+      await reader.DisposeSafelyAsync();
+      await resources.DisposeSafelyAsync();
+      await underlyingCommand.DisposeSafelyAsync();
     }
 
     // Constructors

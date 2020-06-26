@@ -5,6 +5,7 @@
 // Created:    2008.11.07
 
 using System;
+using System.Threading.Tasks;
 using System.Transactions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -34,10 +35,8 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public TransactionScope OpenTransaction()
-    {
-      return OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false);
-    }
+    public TransactionScope OpenTransaction() =>
+      OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false);
 
     /// <summary>
     /// Opens a new or already running transaction.
@@ -146,7 +145,7 @@ namespace Xtensive.Orm
         Handler.BeginTransaction(transaction);
     }
 
-    internal void CommitTransaction(Transaction transaction)
+    internal async ValueTask CommitTransaction(Transaction transaction, bool isAsync)
     {
       if (IsDebugEventLoggingEnabled) {
         OrmLog.Debug(Strings.LogSessionXCommittingTransaction, this);
@@ -155,20 +154,33 @@ namespace Xtensive.Orm
       SystemEvents.NotifyTransactionPrecommitting(transaction);
       Events.NotifyTransactionPrecommitting(transaction);
 
-      Persist(PersistReason.Commit);
+      if (isAsync) {
+        await PersistAsync(PersistReason.Commit);
+      }
+      else {
+        Persist(PersistReason.Commit);
+      }
+
       ValidationContext.Validate(ValidationReason.Commit);
 
       SystemEvents.NotifyTransactionCommitting(transaction);
       Events.NotifyTransactionCommitting(transaction);
 
       Handler.CompletingTransaction(transaction);
-      if (transaction.IsNested)
+      if (transaction.IsNested) {
         Handler.ReleaseSavepoint(transaction);
-      else
-        Handler.CommitTransaction(transaction);
+      }
+      else {
+        if (isAsync) {
+          await Handler.CommitTransactionAsync(transaction);
+        }
+        else {
+          Handler.CommitTransaction(transaction);
+        }
+      }
     }
 
-    internal void RollbackTransaction(Transaction transaction)
+    internal async ValueTask RollbackTransaction(Transaction transaction, bool isAsync)
     {
       try {
         if (IsDebugEventLoggingEnabled) {
@@ -184,11 +196,12 @@ namespace Xtensive.Orm
         }
         finally {
           try {
-            
-            if (Configuration.Supports(SessionOptions.SuppressRollbackExceptions))
-              RollbackWithSuppression(transaction);
-            else
-              Rollback(transaction);
+            if (Configuration.Supports(SessionOptions.SuppressRollbackExceptions)) {
+              await RollbackWithSuppression(transaction, isAsync);
+            }
+            else {
+              await Rollback(transaction, isAsync);
+            }
           }
           finally {
             if(!persistingIsFailed || !Configuration.Supports(SessionOptions.NonTransactionalReads)) {
@@ -203,22 +216,29 @@ namespace Xtensive.Orm
       }
     }
 
-    private void RollbackWithSuppression(Transaction transaction)
+    private async ValueTask RollbackWithSuppression(Transaction transaction, bool isAsync)
     {
       try {
-        Rollback(transaction);
+        await Rollback(transaction, isAsync);
       }
       catch(Exception e) {
         OrmLog.Warning(e);
       }
     }
 
-    private void Rollback(Transaction transaction)
+    private async ValueTask Rollback(Transaction transaction, bool isAsync)
     {
-      if (transaction.IsNested)
+      if (transaction.IsNested) {
         Handler.RollbackToSavepoint(transaction);
-      else
-        Handler.RollbackTransaction(transaction);
+      }
+      else {
+        if (isAsync) {
+          await Handler.RollbackTransactionAsync(transaction);
+        }
+        else {
+          Handler.RollbackTransaction(transaction);
+        }
+      }
     }
 
     internal void CompleteTransaction(Transaction transaction)

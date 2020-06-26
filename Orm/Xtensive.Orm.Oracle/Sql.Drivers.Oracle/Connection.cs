@@ -53,14 +53,14 @@ namespace Xtensive.Sql.Drivers.Oracle
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
- 	    EnsureTrasactionIsNotActive();
+ 	    EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      EnsureTrasactionIsNotActive();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
     }
 

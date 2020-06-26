@@ -64,7 +64,8 @@ namespace Xtensive.Orm
     IVersionSetProvider,
     IContext<SessionScope>, 
     IHasExtensions,
-    IDisposable
+    IDisposable,
+    IAsyncDisposable
   {
     private const string IdentifierFormat = "#{0}";
     private const string FullNameFormat   = "{0}, #{1}";
@@ -569,10 +570,16 @@ namespace Xtensive.Orm
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose()
+    public void Dispose() => _ = DisposeImpl(false);
+
+    public ValueTask DisposeAsync() => DisposeImpl(true);
+
+    private async ValueTask DisposeImpl(bool isAsync)
     {
-      if (isDisposed)
+      if (isDisposed) {
         return;
+      }
+
       try {
         if (IsDebugEventLoggingEnabled) {
           OrmLog.Debug(Strings.LogSessionXDisposing, this);
@@ -582,7 +589,12 @@ namespace Xtensive.Orm
         Events.NotifyDisposing();
 
         Services.DisposeSafely();
-        Handler.DisposeSafely();
+        if (isAsync) {
+          await Handler.DisposeSafelyAsync();
+        }
+        else {
+          Handler.DisposeSafely();
+        }
         CommandProcessorContextProvider.DisposeSafely();
 
         Domain.ReleaseSingleConnection();

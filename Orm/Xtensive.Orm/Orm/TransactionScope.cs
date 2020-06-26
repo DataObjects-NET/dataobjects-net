@@ -5,6 +5,7 @@
 // Created:    2008.08.30
 
 using System;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm
@@ -12,7 +13,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Transaction scope suitable for storage.
   /// </summary>
-  public sealed class TransactionScope : ICompletableScope
+  public sealed class TransactionScope : ICompletableScope, IAsyncDisposable
   {
     private static readonly TransactionScope VoidScope = new TransactionScope();
 
@@ -51,18 +52,29 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public void Dispose()
+    public void Dispose() => _ = DisposeImpl(false);
+
+    /// <inheritdoc/>
+    public ValueTask DisposeAsync() => DisposeImpl(true);
+
+    private async ValueTask DisposeImpl(bool isAsync)
     {
-      if (isDisposed)
+      if (isDisposed) {
         return;
+      }
+
       isDisposed = true;
       try {
-        if (Transaction==null || !Transaction.State.IsActive())
+        if (Transaction==null || !Transaction.State.IsActive()) {
           return;
-        if (IsCompleted)
-          Transaction.Commit();
-        else
-          Transaction.Rollback();
+        }
+
+        if (IsCompleted) {
+          await Transaction.Commit(isAsync);
+        }
+        else {
+          await Transaction.Rollback(isAsync);
+        }
       }
       finally {
         try {

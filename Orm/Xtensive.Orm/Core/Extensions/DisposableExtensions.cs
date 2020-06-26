@@ -5,6 +5,7 @@
 // Created:    2008.05.14
 
 using System;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Core
@@ -42,6 +43,12 @@ namespace Xtensive.Core
     /// Safely disposes an <see cref="IDisposable"/> object.
     /// </summary>
     /// <param name="disposable">Object to dispose (can be <see langword="null"/>).</param>
+    public static ValueTask DisposeSafelyAsync(this IAsyncDisposable disposable) => disposable?.DisposeAsync() ?? default;
+
+    /// <summary>
+    /// Safely disposes an <see cref="IDisposable"/> object.
+    /// </summary>
+    /// <param name="disposable">Object to dispose (can be <see langword="null"/>).</param>
     /// <param name="silently">If set to <see langword="true"/>, it won't throw an exception in any case.</param>
     public static void DisposeSafely(this IDisposable disposable, bool silently)
     {
@@ -52,6 +59,25 @@ namespace Xtensive.Core
       catch {
         if (!silently)
           throw;
+      }
+    }
+
+    /// <summary>
+    /// Safely disposes an <see cref="IDisposable"/> object.
+    /// </summary>
+    /// <param name="disposable">Object to dispose (can be <see langword="null"/>).</param>
+    /// <param name="silently">If set to <see langword="true"/>, it won't throw an exception in any case.</param>
+    public static async ValueTask DisposeSafelyAsync(this IAsyncDisposable disposable, bool silently)
+    {
+      try {
+        if (disposable!=null) {
+          await disposable.DisposeAsync();
+        }
+      }
+      catch {
+        if (!silently) {
+          throw;
+        }
       }
     }
   }

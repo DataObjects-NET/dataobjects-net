@@ -49,16 +49,19 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void CommitTransaction(Transaction transaction)
-    {
-      ChainedHandler.CommitTransaction(transaction);
-    }
+    public override void CommitTransaction(Transaction transaction) => ChainedHandler.CommitTransaction(transaction);
 
     /// <inheritdoc/>
-    public override void RollbackTransaction(Transaction transaction)
-    {
+    public override ValueTask CommitTransactionAsync(Transaction transaction) =>
+      ChainedHandler.CommitTransactionAsync(transaction);
+
+    /// <inheritdoc/>
+    public override void RollbackTransaction(Transaction transaction) =>
       ChainedHandler.RollbackTransaction(transaction);
-    }
+
+    /// <inheritdoc/>
+    public override ValueTask RollbackTransactionAsync(Transaction transaction) =>
+      ChainedHandler.RollbackTransactionAsync(transaction);
 
     /// <inheritdoc/>
     public override void CreateSavepoint(Transaction transaction)
@@ -168,10 +171,10 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void Dispose()
-    {
-      ChainedHandler.Dispose();
-    }
+    public override void Dispose() => ChainedHandler.Dispose();
+
+    /// <inheritdoc/>
+    public override ValueTask DisposeAsync() => ChainedHandler.DisposeAsync();
 
     // Constructors
 

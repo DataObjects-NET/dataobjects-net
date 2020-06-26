@@ -18,7 +18,7 @@ namespace Xtensive.Sql
   /// A connection to a database.
   /// </summary>
   public abstract class SqlConnection : SqlDriverBound,
-    IDisposable
+    IDisposable, IAsyncDisposable
   {
     private int? commandTimeout;
     private ConnectionInfo connectionInfo;
@@ -38,25 +38,16 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets <see cref="IExtensionCollection"/> associated with this instance.
     /// </summary>
-    public IExtensionCollection Extensions
-    {
-      get
-      {
-        if (extensions==null)
-          extensions = new ExtensionCollection();
-        return extensions;
-      }
-    }
+    public IExtensionCollection Extensions => extensions ??= new ExtensionCollection();
 
     /// <summary>
     /// Gets or sets <see cref="ConnectionInfo"/> to use.
     /// </summary>
     public ConnectionInfo ConnectionInfo
     {
-      get { return connectionInfo; }
-      set
-      {
-        ArgumentValidator.EnsureArgumentNotNull(value, "value");
+      get => connectionInfo;
+      set {
+        ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
         UnderlyingConnection.ConnectionString = Driver.GetConnectionString(value);
         connectionInfo = value;
       }
@@ -67,10 +58,12 @@ namespace Xtensive.Sql
     /// </summary>
     public int? CommandTimeout
     {
-      get { return commandTimeout; }
+      get => commandTimeout;
       set {
-        if (value!=null)
-          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, "value");
+        if (value!=null) {
+          ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, nameof(value));
+        }
+
         commandTimeout = value;
       }
     }
@@ -78,8 +71,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets the state of the connection.
     /// </summary>
-    public ConnectionState State { get { return isDisposed ? ConnectionState.Closed : UnderlyingConnection.State; } }
-    
+    public ConnectionState State => isDisposed ? ConnectionState.Closed : UnderlyingConnection.State;
+
     /// <summary>
     /// Creates and returns a <see cref="DbCommand"/> object associated with the current connection.
     /// </summary>
@@ -87,8 +80,10 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand()
     {
       var command = CreateNativeCommand();
-      if (commandTimeout!=null)
+      if (commandTimeout!=null) {
         command.CommandTimeout = commandTimeout.Value;
+      }
+
       command.Transaction = ActiveTransaction;
       return command;
     }
@@ -100,7 +95,7 @@ namespace Xtensive.Sql
     /// <returns>Created command.</returns>
     public DbCommand CreateCommand(ISqlCompileUnit statement)
     {
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
+      ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
       var command = CreateCommand();
       command.CommandText = Driver.Compile(statement).GetCommandText();
       return command;
@@ -113,7 +108,7 @@ namespace Xtensive.Sql
     /// <returns>Created command.</returns>
     public DbCommand CreateCommand(string commandText)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, "commandText");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, nameof(commandText));
       var command = CreateCommand();
       command.CommandText = commandText;
       return command;
@@ -129,38 +124,28 @@ namespace Xtensive.Sql
     /// Creates the cursor parameter.
     /// </summary>
     /// <returns>Created parameter.</returns>
-    public virtual DbParameter CreateCursorParameter()
-    {
-      throw SqlHelper.NotSupported(ServerFeatures.CursorParameters);
-    }
+    public virtual DbParameter CreateCursorParameter() => throw SqlHelper.NotSupported(ServerFeatures.CursorParameters);
 
     /// <summary>
     /// Creates the character large object bound to this connection.
     /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
     /// </summary>
     /// <returns>Created CLOB.</returns>
-    public virtual ICharacterLargeObject CreateCharacterLargeObject()
-    {
+    public virtual ICharacterLargeObject CreateCharacterLargeObject() =>
       throw SqlHelper.NotSupported(ServerFeatures.LargeObjects);
-    }
 
     /// <summary>
     /// Creates the binary large object bound to this connection.
     /// Created object initially have NULL value (<see cref="ILargeObject.IsNull"/> returns <see langword="true"/>)
     /// </summary>
     /// <returns>Created BLOB.</returns>
-    public virtual IBinaryLargeObject CreateBinaryLargeObject()
-    {
+    public virtual IBinaryLargeObject CreateBinaryLargeObject() =>
       throw SqlHelper.NotSupported(ServerFeatures.LargeObjects);
-    }
 
     /// <summary>
     /// Opens the connection.
     /// </summary>
-    public virtual void Open()
-    {
-      UnderlyingConnection.Open();
-    }
+    public virtual void Open() => UnderlyingConnection.Open();
 
     /// <summary>
     /// Opens the connection and initialize it with given script.
@@ -169,12 +154,13 @@ namespace Xtensive.Sql
     public virtual void OpenAndInitialize(string initializationScript)
     {
       UnderlyingConnection.Open();
-      if (string.IsNullOrEmpty(initializationScript))
+      if (string.IsNullOrEmpty(initializationScript)) {
         return;
-      using (var command = UnderlyingConnection.CreateCommand()) {
-        command.CommandText = initializationScript;
-        command.ExecuteNonQuery();
       }
+
+      using var command = UnderlyingConnection.CreateCommand();
+      command.CommandText = initializationScript;
+      command.ExecuteNonQuery();
     }
 
     /// <summary>
@@ -192,22 +178,23 @@ namespace Xtensive.Sql
     /// Opens the connection and initialize it with given script asynchronously.
     /// </summary>
     /// <param name="initializationScript">Initialization script.</param>
-    /// <param name="cancellationToken">Token to control cancellation.</param>
+    /// <param name="token">Token to control cancellation.</param>
     /// <returns>Awaitable task.</returns>
-    public virtual async Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
+    public virtual async Task OpenAndInitializeAsync(string initializationScript, CancellationToken token = default)
     {
-      cancellationToken.ThrowIfCancellationRequested();
-      await UnderlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
-      if (string.IsNullOrEmpty(initializationScript))
+      token.ThrowIfCancellationRequested();
+      await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
+      if (string.IsNullOrEmpty(initializationScript)) {
         return;
+      }
+
       try {
-        using (var command = UnderlyingConnection.CreateCommand()) {
-          command.CommandText = initializationScript;
-          await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
-        }
+        await using var command = UnderlyingConnection.CreateCommand();
+        command.CommandText = initializationScript;
+        await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
       }
       catch (OperationCanceledException) {
-        UnderlyingConnection.Close();
+        await UnderlyingConnection.CloseAsync().ConfigureAwait(false);
         throw;
       }
     }
@@ -215,10 +202,12 @@ namespace Xtensive.Sql
     /// <summary>
     /// Closes the connection.
     /// </summary>
-    public virtual void Close()
-    {
-      UnderlyingConnection.Close();
-    }
+    public virtual void Close() => UnderlyingConnection.Close();
+
+    /// <summary>
+    /// Closes the connection.
+    /// </summary>
+    public virtual Task CloseAsync() => UnderlyingConnection.CloseAsync();
 
     /// <summary>
     /// Begins the transaction.
@@ -226,10 +215,31 @@ namespace Xtensive.Sql
     public abstract void BeginTransaction();
 
     /// <summary>
+    /// Begins the transaction.
+    /// </summary>
+    /// <param name="token">The cancellation token to be used to cancel this operation.</param>
+    public virtual ValueTask BeginTransactionAsync(CancellationToken token = default)
+    {
+      BeginTransaction();
+      return default;
+    }
+
+    /// <summary>
     /// Begins the transaction with the specified <see cref="IsolationLevel"/>.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
     public abstract void BeginTransaction(IsolationLevel isolationLevel);
+
+    /// <summary>
+    /// Begins the transaction with the specified <see cref="IsolationLevel"/>.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="token">The cancellation token to be used to cancel this operation.</param>
+    public virtual ValueTask BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken token = default)
+    {
+      BeginTransaction(isolationLevel);
+      return default;
+    }
 
     /// <summary>
     /// Commits the current transaction.
@@ -242,6 +252,21 @@ namespace Xtensive.Sql
       }
       finally {
         ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
+    }
+
+    /// <summary>
+    /// Commits the current transaction.
+    /// </summary>
+    public virtual async Task CommitAsync(CancellationToken token = default)
+    {
+      EnsureTransactionIsActive();
+      try {
+        await ActiveTransaction.CommitAsync(token);
+      }
+      finally {
+        await ActiveTransaction.DisposeAsync();
         ClearActiveTransaction();
       }
     }
@@ -262,6 +287,21 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Rollbacks the current transaction.
+    /// </summary>
+    public virtual async Task RollbackAsync(CancellationToken token = default)
+    {
+      EnsureTransactionIsActive();
+      try {
+        await ActiveTransaction.RollbackAsync(token);
+      }
+      finally {
+        await ActiveTransaction.DisposeAsync();
+        ClearActiveTransaction();
+      }
+    }
+
+    /// <summary>
     /// Makes the transaction savepoint.
     /// </summary>
     /// <param name="name">The name of the savepoint.</param>
@@ -269,7 +309,6 @@ namespace Xtensive.Sql
     {
       // That's ok to make a savepoint even if they aren't supported - 
       // default impl. will fail on rollback
-      return;
     }
 
     /// <summary>
@@ -289,20 +328,36 @@ namespace Xtensive.Sql
     {
       // That's ok to release a savepoint even if they aren't supported - 
       // default impl. will fail on rollback
-      return;
     }
 
     /// <inheritdoc/>
     public void Dispose()
     {
-      if (isDisposed)
+      if (isDisposed) {
         return;
+      }
+
       isDisposed = true;
       if (ActiveTransaction!=null) {
         ActiveTransaction.Dispose();
         ClearActiveTransaction();
       }
       UnderlyingConnection.Dispose();
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask DisposeAsync()
+    {
+      if (isDisposed) {
+        return;
+      }
+
+      isDisposed = true;
+      if (ActiveTransaction!=null) {
+        await ActiveTransaction.DisposeAsync();
+        ClearActiveTransaction();
+      }
+      await UnderlyingConnection.DisposeAsync();
     }
 
     /// <summary>
@@ -314,27 +369,26 @@ namespace Xtensive.Sql
     /// Creates the native command.
     /// </summary>
     /// <returns>Created command.</returns>
-    protected virtual DbCommand CreateNativeCommand()
-    {
-      return UnderlyingConnection.CreateCommand();
-    }
+    protected virtual DbCommand CreateNativeCommand() => UnderlyingConnection.CreateCommand();
 
     /// <summary>
     /// Ensures the transaction is active (i.e. <see cref="ActiveTransaction"/> is not <see langword="null"/>).
     /// </summary>
     protected void EnsureTransactionIsActive()
     {
-      if (ActiveTransaction==null)
+      if (ActiveTransaction==null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldBeActive);
+      }
     }
 
     /// <summary>
-    /// Ensures the trasaction is not active (i.e. <see cref="ActiveTransaction"/> is <see langword="null"/>).
+    /// Ensures the transaction is not active (i.e. <see cref="ActiveTransaction"/> is <see langword="null"/>).
     /// </summary>
-    protected void EnsureTrasactionIsNotActive()
+    protected void EnsureTransactionIsNotActive()
     {
-      if (ActiveTransaction!=null)
+      if (ActiveTransaction!=null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
+      }
     }
 
 

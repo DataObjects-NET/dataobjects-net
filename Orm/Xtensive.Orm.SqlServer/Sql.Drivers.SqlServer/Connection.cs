@@ -70,28 +70,28 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    public override Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
+    public override Task OpenAndInitializeAsync(string initializationScript, CancellationToken token)
     {
       if (!checkConnectionIsAlive)
-        return base.OpenAndInitializeAsync(initializationScript, cancellationToken);
+        return base.OpenAndInitializeAsync(initializationScript, token);
 
       var script = string.IsNullOrEmpty(initializationScript.Trim())
         ? DefaultCheckConnectionQuery
         : initializationScript;
-      return OpenWithCheckAsync(script, cancellationToken);
+      return OpenWithCheckAsync(script, token);
     }
 
     /// <inheritdoc/>
     public override void BeginTransaction()
     {
-      EnsureTrasactionIsNotActive();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      EnsureTrasactionIsNotActive();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(isolationLevel);
     }
     

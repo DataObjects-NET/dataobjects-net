@@ -12,7 +12,7 @@ namespace Xtensive.Orm
 {
   public sealed class CommandProcessorContextProvider : SessionBound, IDisposable
   {
-    private ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext> providedContexts
+    private readonly ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext> providedContexts
       = new ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext>();
 
     /// <inheritdoc/>
@@ -28,20 +28,19 @@ namespace Xtensive.Orm
     public CommandProcessorContext ProvideContext(bool allowPartialExecution)
     {
       var context = new CommandProcessorContext(null, allowPartialExecution);
-      providedContexts.AddOrUpdate(context, (CommandProcessorContext) null, (processorContext, commandProcessorContext) => { return null; });
-      context.Disposed += RemoveDesposedContext;
+      providedContexts.AddOrUpdate(
+        context, (CommandProcessorContext) null, (processorContext, commandProcessorContext) => null);
+      context.Disposed += RemoveDisposedContext;
       return context;
     }
 
-    public void Dispose()
-    {
-      providedContexts.Clear();
-    }
+    public void Dispose() => providedContexts.Clear();
 
-    private void RemoveDesposedContext(object sender, EventArgs args)
+    private void RemoveDisposedContext(object sender, EventArgs args)
     {
-      CommandProcessorContext outResult;
-      providedContexts.TryRemove((CommandProcessorContext) sender, out outResult);
+      var context = (CommandProcessorContext) sender;
+      providedContexts.TryRemove(context, out _);
+      context.Disposed -= RemoveDisposedContext;
     }
     
     internal CommandProcessorContextProvider(Session session)

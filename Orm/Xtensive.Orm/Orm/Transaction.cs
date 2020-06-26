@@ -6,13 +6,12 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Internals;
-using Xtensive.Orm.Validation;
 
 namespace Xtensive.Orm
 {
@@ -175,40 +174,47 @@ namespace Xtensive.Orm
       State = TransactionState.Active;
     }
 
-    internal void Commit()
+    internal async ValueTask Commit(bool isAsync)
     {
       EnsureIsActive();
       State = TransactionState.Committing;
       try {
-        if (inner!=null)
+        if (inner!=null) {
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
-        Session.CommitTransaction(this);
+        }
+
+        await Session.CommitTransaction(this, isAsync);
       }
       catch {
-        Rollback();
+        await Rollback(isAsync);
         throw;
       }
-      if (Outer!=null)
+      if (Outer!=null) {
         PromoteLifetimeTokens();
-      else if (Session.Configuration.Supports(SessionOptions.NonTransactionalReads))
+      }
+      else if (Session.Configuration.Supports(SessionOptions.NonTransactionalReads)) {
         ClearLifetimeTokens();
-      else
+      }
+      else {
         ExpireLifetimeTokens();
+      }
+
       State = TransactionState.Committed;
       EndTransaction();
     }
 
-    internal void Rollback()
+    internal async ValueTask Rollback(bool isAsync)
     {
       EnsureIsActive();
       State = TransactionState.RollingBack;
       try {
         try {
-          if (inner!=null)
-            inner.Rollback();
+          if (inner!=null) {
+            await inner.Rollback(isAsync);
+          }
         }
         finally {
-          Session.RollbackTransaction(this);
+          await Session.RollbackTransaction(this, isAsync);
         }
       }
       finally {

@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     [SecuritySafeCritical]
     public override void BeginTransaction()
     {
-      EnsureTrasactionIsNotActive();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     [SecuritySafeCritical]
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      EnsureTrasactionIsNotActive();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
     }
 

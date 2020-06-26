@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// Base <see cref="Session"/> handler class.
   /// </summary>
-  public abstract partial class SessionHandler : IDisposable
+  public abstract partial class SessionHandler : IDisposable, IAsyncDisposable
   {
     private static readonly object CachingRegion = new object();
 
@@ -98,9 +98,13 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
+
     public virtual void Dispose()
     {
     }
+
+    /// <inheritdoc/>
+    public virtual ValueTask DisposeAsync() => default;
 
     internal abstract void SetStorageNode(StorageNode node);
 

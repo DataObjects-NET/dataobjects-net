@@ -5,6 +5,7 @@
 // Created:    2009.08.19
 
 using System;
+using System.Threading.Tasks;
 using Xtensive.Orm;
 
 
@@ -38,10 +39,30 @@ namespace Xtensive.Orm.Providers
     public abstract void CommitTransaction(Transaction transaction);
 
     /// <summary>
+    /// Commits the transaction.
+    /// This method is invoked for actual transactions only.
+    /// </summary>
+    public virtual ValueTask CommitTransactionAsync(Transaction transaction)
+    {
+      CommitTransaction(transaction);
+      return default;
+    }
+
+    /// <summary>
     /// Rollbacks the transaction.
     /// This method is invoked for actual transactions only.
-    /// </summary>    
+    /// </summary>
     public abstract void RollbackTransaction(Transaction transaction);
+
+    /// <summary>
+    /// Rollbacks the transaction.
+    /// This method is invoked for actual transactions only.
+    /// </summary>
+    public virtual ValueTask RollbackTransactionAsync(Transaction transaction)
+    {
+      RollbackTransaction(transaction);
+      return default;
+    }
 
     // Savepoint related methods
 
