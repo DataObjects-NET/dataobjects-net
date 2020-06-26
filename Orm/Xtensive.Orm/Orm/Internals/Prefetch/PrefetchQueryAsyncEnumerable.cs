@@ -20,12 +20,16 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly Dictionary<Pair<IHasNestedNodes, TypeInfo>, IList<PrefetchFieldDescriptor>> fieldDescriptorCache;
     private readonly SessionHandler sessionHandler;
 
+    private StrongReferenceContainer strongReferenceContainer;
+
+    internal StrongReferenceContainer StrongReferenceContainer => strongReferenceContainer;
+
     public async IAsyncEnumerator<TItem> GetAsyncEnumerator(CancellationToken token = default)
     {
       var currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       var aggregatedNodes = NodeAggregator<TItem>.Aggregate(nodes);
       var resultQueue = new Queue<TItem>();
-      var container = new StrongReferenceContainer(null);
+      strongReferenceContainer = new StrongReferenceContainer(null);
 
       var items = source is IQueryable<TItem> queryableSource
         ? await queryableSource.ExecuteAsync(token)
@@ -35,7 +39,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (item!=null) {
           foreach (var extractorNode in aggregatedNodes) {
             var fetchedItems = await RegisterPrefetchAsync(extractorNode.ExtractKeys(item), extractorNode, token);
-            container.JoinIfPossible(fetchedItems);
+            strongReferenceContainer.JoinIfPossible(fetchedItems);
           }
         }
 
@@ -43,8 +47,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           continue;
         }
 
-        while (container.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(token))) {
-          container.JoinIfPossible(await ProcessFetchedElementsAsync(token));
+        while (strongReferenceContainer.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(token))) {
+          strongReferenceContainer.JoinIfPossible(await ProcessFetchedElementsAsync(token));
         }
 
         while (resultQueue.TryDequeue(out var resultItem)) {
@@ -53,8 +57,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       }
-      while (container.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(token))) {
-        container.JoinIfPossible(await ProcessFetchedElementsAsync(token));
+      while (strongReferenceContainer.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(token))) {
+        strongReferenceContainer.JoinIfPossible(await ProcessFetchedElementsAsync(token));
       }
 
       while (resultQueue.TryDequeue(out var resultItem)) {

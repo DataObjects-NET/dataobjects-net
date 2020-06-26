@@ -28,14 +28,32 @@ namespace Xtensive.Orm.Internals.Prefetch
     public IAsyncEnumerable<TItem> AsAsyncEnumerable() =>
       new PrefetchQueryAsyncEnumerable<TItem>(session, source, nodes);
 
+    private class ExecuteAsyncResult : IEnumerable<TItem>
+    {
+      private readonly List<TItem> items;
+      // We need to hold StrongReferenceContainer to prevent loaded entities from being collected
+      private readonly StrongReferenceContainer referenceContainer;
+
+      IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+      public IEnumerator<TItem> GetEnumerator() => items.GetEnumerator();
+
+      public ExecuteAsyncResult(List<TItem> items, StrongReferenceContainer referenceContainer)
+      {
+        this.items = items;
+        this.referenceContainer = referenceContainer;
+      }
+    }
+
     public async Task<IEnumerable<TItem>> ExecuteAsync(CancellationToken token = default)
     {
       var list = new List<TItem>();
-      await foreach (var element in AsAsyncEnumerable().WithCancellation(token)) {
+      var asyncEnumerable = new PrefetchQueryAsyncEnumerable<TItem>(session, source, nodes);
+      await foreach (var element in asyncEnumerable.WithCancellation(token)) {
         list.Add(element);
       }
 
-      return list;
+      return new ExecuteAsyncResult(list, asyncEnumerable.StrongReferenceContainer);
     }
 
     internal PrefetchQuery(Session session, IEnumerable<Key> keySource)
