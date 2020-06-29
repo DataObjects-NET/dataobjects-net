@@ -52,7 +52,7 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public void Dispose() => _ = DisposeImpl(false);
+    public void Dispose() => DisposeImpl(false).GetAwaiter().GetResult();
 
     /// <inheritdoc/>
     public ValueTask DisposeAsync() => DisposeImpl(true);

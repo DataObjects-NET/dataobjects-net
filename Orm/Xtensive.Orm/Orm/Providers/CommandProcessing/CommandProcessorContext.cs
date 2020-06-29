@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Providers
 
     internal event EventHandler Disposed;
 
-    public void Dispose() => _ = DisposeImpl(false);
+    public void Dispose() => DisposeImpl(false).GetAwaiter().GetResult();
 
     public ValueTask DisposeAsync() => DisposeImpl(true);
 

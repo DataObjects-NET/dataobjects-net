@@ -570,7 +570,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose() => _ = DisposeImpl(false);
+    public void Dispose() => DisposeImpl(false).GetAwaiter().GetResult();
 
     public ValueTask DisposeAsync() => DisposeImpl(true);
 

@@ -94,7 +94,7 @@ namespace Xtensive.Orm
       NonPairedReferencesRegistry.Clear();
     }
 
-    internal void Persist(PersistReason reason) => _ = Persist(reason, false);
+    internal void Persist(PersistReason reason) => Persist(reason, false).GetAwaiter().GetResult();
 
     internal async Task PersistAsync(PersistReason reason, CancellationToken token = default) =>
       await Persist(reason, true, token);

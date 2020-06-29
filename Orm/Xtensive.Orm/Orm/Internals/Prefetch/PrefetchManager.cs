@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       var prefetchTask = Prefetch(key, type, descriptors, false, default);
-      return prefetchTask.Result;
+      return prefetchTask.GetAwaiter().GetResult();
     }
 
     public async Task<StrongReferenceContainer> PrefetchAsync(Key key, TypeInfo type,
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public StrongReferenceContainer ExecuteTasks(bool skipPersist = false) =>
-      ExecuteTasks(skipPersist, false, default).Result;
+      ExecuteTasks(skipPersist, false, default).GetAwaiter().GetResult();
 
     public async Task<StrongReferenceContainer> ExecuteTasksAsync(bool skipPersist, CancellationToken token = default)
       => await ExecuteTasks(skipPersist, true, token);

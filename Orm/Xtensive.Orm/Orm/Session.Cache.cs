@@ -60,7 +60,8 @@ namespace Xtensive.Orm
         entitySetsWithInvalidState.Add(entitySet);
     }
 
-    internal void RemapEntityKeys(KeyMapping keyMapping) => _ = RemapEntityKeys(keyMapping, false);
+    internal void RemapEntityKeys(KeyMapping keyMapping) =>
+      RemapEntityKeys(keyMapping, false).GetAwaiter().GetResult();
 
     private async ValueTask RemapEntityKeys(KeyMapping keyMapping, bool isAsync, CancellationToken token = default)
     {
