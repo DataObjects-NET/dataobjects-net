@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Internals
     {
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       ArgumentValidator.EnsureArgumentNotNull(translatedQuery, nameof(translatedQuery));
-      ArgumentValidator.EnsureArgumentNotNull(parameterContext, nameof(parameterContext));
+      ArgumentValidator.EnsureArgumentNotNull(outerParameterContext, nameof(outerParameterContext));
 
       Session = session;
       LifetimeToken = session.GetLifetimeToken();
