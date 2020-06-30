@@ -16,9 +16,16 @@ namespace Xtensive.Orm
   {
     private static readonly AsyncLocal<SessionScope> currentScopeAsync = new AsyncLocal<SessionScope>();
 
+    private enum State
+    {
+      New,
+      Active,
+      Disposed
+    }
+
     private readonly SessionScope outerScope;
-    private readonly Session session;
-    private bool isDisposed;
+    private Session session;
+    private State state;
 
     /// <summary>
     /// Gets the current <see cref="Session"/>.
@@ -28,11 +35,22 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the context of this scope.
     /// </summary>
-    public Session Session => !isDisposed ? session : outerScope?.Session;
+    public Session Session
+    {
+      get => state == State.Active ? session : outerScope?.Session;
+      internal set {
+        if (state != State.New) {
+          throw new InvalidOperationException("Can't modify Active or Disposed scope.");
+        }
+
+        state = State.Active;
+        session = value;
+      }
+    }
 
     public void Dispose()
     {
-      if (isDisposed) {
+      if (state == State.Disposed) {
         return;
       }
 
@@ -41,7 +59,7 @@ namespace Xtensive.Orm
       while (currentScope != null) {
         if (currentScope == this) {
           currentScopeAsync.Value = outerScope;
-          isDisposed = true;
+          state = State.Disposed;
           return;
         }
 
@@ -53,18 +71,23 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    /// <summary>
-    ///   Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="session">The session to activate.</param>
-    public SessionScope(Session session)
+    internal SessionScope()
     {
-      this.session = session;
+      state = State.New;
+
       outerScope = currentScopeAsync.Value;
-      while (outerScope!=null && outerScope.isDisposed) {
+      while (outerScope != null && outerScope.state != State.Active) {
         outerScope = outerScope.outerScope;
       }
+
       currentScopeAsync.Value = this;
+    }
+
+    internal SessionScope(Session session)
+      : this()
+    {
+      this.session = session;
+      state = State.Active;
     }
   }
 }

@@ -235,9 +235,10 @@ namespace Xtensive.Orm
         throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
     }
 
-    internal void ActivateInternally()
+    internal void AttachToScope(SessionScope sessionScope)
     {
-      disposableSet.Add(new SessionScope(this));
+      sessionScope.Session = this;
+      disposableSet.Add(sessionScope);
     }
 
     internal EnumerationContext CreateEnumerationContext(ParameterContext parameterContext)
@@ -558,8 +559,9 @@ namespace Xtensive.Orm
       disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
 
       // Perform activation
-      if (activate)
-        ActivateInternally();
+      if (activate) {
+        AttachToScope(new SessionScope());
+      }
 
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));

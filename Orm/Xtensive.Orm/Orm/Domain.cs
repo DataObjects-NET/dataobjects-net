@@ -375,12 +375,22 @@ namespace Xtensive.Orm
     /// <seealso cref="Session"/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
     {
-      return OpenSessionInternalAsync(configuration, configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
+      SessionScope sessionScope = null;
+      try {
+        if (configuration.Supports(SessionOptions.AutoActivation)) {
+          sessionScope = new SessionScope();
+        }
+        return OpenSessionInternalAsync(configuration, sessionScope, cancellationToken);
+      }
+      catch {
+        sessionScope?.Dispose();
+        throw;
+      }
     }
 
-    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, bool activate, CancellationToken cancellationToken)
+    private async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, SessionScope sessionScope, CancellationToken cancellationToken)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
@@ -403,9 +413,10 @@ namespace Xtensive.Orm
         // connection become opened.
         session = new Session(this, configuration, false);
         try {
-          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith((t) => {
-            if (activate)
-              session.ActivateInternally();
+          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith(t => {
+            if (sessionScope != null) {
+              session.AttachToScope(sessionScope);
+            }
           }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously).ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
