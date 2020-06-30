@@ -31,11 +31,8 @@ namespace Xtensive.Reflection
     private const string invokeMethodName = "Invoke";
 
     private static readonly object emitLock = new object();
-    private static readonly Type ArrayType = typeof(Array);
-    private static readonly Type EnumType = typeof(Enum);
-    private static readonly Type NullableType = typeof(Nullable<>);
-    private static readonly int NullableTypeMetadataToken = NullableType.MetadataToken;
-    private static readonly Module NullableTypeModule = NullableType.Module;
+    private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
+    private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
@@ -149,13 +146,13 @@ namespace Xtensive.Reflection
 
         genericArguments = new[] {elementType};
       }
-      else if (currentForType == EnumType) {
+      else if (currentForType == WellKnownTypes.Enum) {
         // Enum type
         var underlyingType = Enum.GetUnderlyingType(originalForType);
         associateTypePrefix = "Enum`2";
         genericArguments = new[] {originalForType, underlyingType};
       }
-      else if (currentForType == ArrayType) {
+      else if (currentForType == WellKnownTypes.Array) {
         // Untyped Array type
         foundForType = null;
         return null;
@@ -991,7 +988,7 @@ namespace Xtensive.Reflection
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return type.IsValueType && !type.IsNullable()
-        ? NullableType.MakeGenericType(type)
+        ? WellKnownTypes.NullableOfT.MakeGenericType(type)
         : type;
     }
 
