@@ -60,6 +60,7 @@ namespace Xtensive.Orm
         if (currentScope == this) {
           currentScopeAsync.Value = outerScope;
           state = State.Disposed;
+          session = null;
           return;
         }
 
