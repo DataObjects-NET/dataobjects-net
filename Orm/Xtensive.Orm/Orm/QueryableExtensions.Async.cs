@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm
 {
@@ -50,7 +51,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<int, double>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Int32], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
     }
 
     public static Task<double?> AverageAsync(this IQueryable<int?> source,
@@ -59,7 +60,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<int?, double?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableInt32], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
     }
 
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
@@ -69,7 +70,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Int32],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Int32],
         source, selector, cancellationToken);
     }
 
@@ -80,7 +81,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableInt32],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableInt32],
         source, selector, cancellationToken);
     }
 
@@ -92,7 +93,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<long, double>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Int64], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
     }
 
     public static Task<double?> AverageAsync(this IQueryable<long?> source,
@@ -101,7 +102,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<long?, double?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableInt64], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
     }
 
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
@@ -111,7 +112,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Int64],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Int64],
         source, selector, cancellationToken);
     }
 
@@ -122,7 +123,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableInt64],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableInt64],
         source, selector, cancellationToken);
     }
 
@@ -134,7 +135,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<double, double>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Double], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Double], source, cancellationToken);
     }
 
     public static Task<double?> AverageAsync(this IQueryable<double?> source,
@@ -143,7 +144,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<double?, double?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableDouble], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
     }
 
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
@@ -153,7 +154,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Double],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Double],
         source, selector, cancellationToken);
     }
 
@@ -164,7 +165,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableDouble],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableDouble],
         source, selector, cancellationToken);
     }
 
@@ -176,7 +177,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<float, float>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Float], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Float], source, cancellationToken);
     }
 
     public static Task<float?> AverageAsync(this IQueryable<float?> source,
@@ -185,7 +186,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<float?, float?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableFloat], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableFloat], source, cancellationToken);
     }
 
     public static Task<float> AverageAsync<TSource>(this IQueryable<TSource> source,
@@ -195,7 +196,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, float>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Float],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Float],
         source, selector, cancellationToken);
     }
 
@@ -206,7 +207,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, float?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableFloat],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableFloat],
         source, selector, cancellationToken);
     }
 
@@ -218,7 +219,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<decimal, decimal>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.Decimal], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
     }
 
     public static Task<decimal?> AverageAsync(this IQueryable<decimal?> source,
@@ -227,7 +228,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<decimal?, decimal?>(
-        WellKnownMembers.Queryable.AverageMethodInfos[WellKnown.Types.NullableDecimal], source, cancellationToken);
+        WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
     }
 
     public static Task<decimal> AverageAsync<TSource>(this IQueryable<TSource> source,
@@ -237,7 +238,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, decimal>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.Decimal],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.Decimal],
         source, selector, cancellationToken);
     }
 
@@ -248,7 +249,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, decimal?>(
-        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnown.Types.NullableDecimal],
+        WellKnownMembers.Queryable.AverageWithSelectorMethodInfos[WellKnownTypes.NullableDecimal],
         source, selector, cancellationToken);
     }
 
@@ -463,7 +464,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<int, int>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Int32], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
     }
 
     public static Task<int?> SumAsync(this IQueryable<int?> source,
@@ -472,7 +473,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<int?, int?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableInt32], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
     }
 
     public static Task<int> SumAsync<TSource>(this IQueryable<TSource> source,
@@ -482,7 +483,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, int>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Int32],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Int32],
         source, selector, cancellationToken);
     }
 
@@ -493,7 +494,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, int?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableInt32],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableInt32],
         source, selector, cancellationToken);
     }
 
@@ -505,7 +506,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<long, long>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Int64], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
     }
 
     public static Task<long?> SumAsync(this IQueryable<long?> source,
@@ -514,7 +515,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<long?, long?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableInt64], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
     }
 
     public static Task<long> SumAsync<TSource>(this IQueryable<TSource> source,
@@ -524,7 +525,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, long>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Int64],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Int64],
         source, selector, cancellationToken);
     }
 
@@ -535,7 +536,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, long?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableInt64],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableInt64],
         source, selector, cancellationToken);
     }
 
@@ -547,7 +548,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<double, double>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Double], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Double], source, cancellationToken);
     }
 
     public static Task<double?> SumAsync(this IQueryable<double?> source,
@@ -556,7 +557,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<double?, double?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableDouble], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
     }
 
     public static Task<double> SumAsync<TSource>(this IQueryable<TSource> source,
@@ -566,7 +567,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Double],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Double],
         source, selector, cancellationToken);
     }
 
@@ -577,7 +578,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, double?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableDouble],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableDouble],
         source, selector, cancellationToken);
     }
 
@@ -589,7 +590,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<float, float>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Float], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Float], source, cancellationToken);
     }
 
     public static Task<float?> SumAsync(this IQueryable<float?> source,
@@ -598,7 +599,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<float?, float?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableFloat], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableFloat], source, cancellationToken);
     }
 
     public static Task<float> SumAsync<TSource>(this IQueryable<TSource> source,
@@ -608,7 +609,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, float>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Float],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Float],
         source, selector, cancellationToken);
     }
 
@@ -619,7 +620,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, float?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableFloat],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableFloat],
         source, selector, cancellationToken);
     }
 
@@ -631,7 +632,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<decimal, decimal>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.Decimal], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
     }
 
     public static Task<decimal?> SumAsync(this IQueryable<decimal?> source,
@@ -640,7 +641,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
       return ExecuteScalarAsync<decimal?, decimal?>(
-        WellKnownMembers.Queryable.SumMethodInfos[WellKnown.Types.NullableDecimal], source, cancellationToken);
+        WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
     }
 
     public static Task<decimal> SumAsync<TSource>(this IQueryable<TSource> source,
@@ -650,7 +651,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, decimal>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.Decimal],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.Decimal],
         source, selector, cancellationToken);
     }
 
@@ -661,7 +662,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
       return ExecuteScalarAsync<TSource, decimal?>(
-        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnown.Types.NullableDecimal],
+        WellKnownMembers.Queryable.SumWithSelectorMethodInfos[WellKnownTypes.NullableDecimal],
         source, selector, cancellationToken);
     }
 

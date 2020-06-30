@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq
     {
       var elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable) WellKnown.Types.QueryableOfT.Activate(new[] {elementType}, this, expression);
+        var query = (IQueryable) WellKnownTypes.QueryableOfT.Activate(new[] {elementType}, this, expression);
         return query;
       }
       catch (TargetInvocationException e) {
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Linq
     object IQueryProvider.Execute(Expression expression)
     {
       var resultType = expression.Type;
-      var executeMethod = resultType.IsOfGenericInterface(WellKnown.Interfaces.EnumerableOfT)
+      var executeMethod = resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
         ? WellKnownMembers.QueryProvider.ExecuteSequence.MakeGenericMethod(SequenceHelper.GetElementType(resultType))
         : WellKnownMembers.QueryProvider.ExecuteScalar.MakeGenericMethod(resultType);
       try {
