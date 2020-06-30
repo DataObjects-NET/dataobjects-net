@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Linq
     public async Task<TResult> ExecuteScalarAsync<TResult>(
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
-      var sequenceResult = await ExecuteSequenceAsync<TResult>(session, parameterContext, token);
+      var sequenceResult = await ExecuteSequenceAsync<TResult>(session, parameterContext, token).ConfigureAwait(false);
       return sequenceResult.ToScalar(scalarResultType);
     }
 

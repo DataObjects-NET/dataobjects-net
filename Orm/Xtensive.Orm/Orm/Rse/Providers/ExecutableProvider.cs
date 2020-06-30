@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Rse.Providers
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       var enumerationContext =
         await session.CreateEnumerationContextAsync(parameterContext, token).ConfigureAwait(false);
-      return await RecordSetReader.CreateAsync(enumerationContext, this, token);
+      return await RecordSetReader.CreateAsync(enumerationContext, this, token).ConfigureAwait(false);
     }
 
     // Constructors

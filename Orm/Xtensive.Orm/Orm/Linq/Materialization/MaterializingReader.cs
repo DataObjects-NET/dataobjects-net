@@ -1,7 +1,6 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
@@ -58,7 +57,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public async ValueTask<bool> MoveNextAsync()
     {
-      if (await recordSetReader.MoveNextAsync()) {
+      if (await recordSetReader.MoveNextAsync().ConfigureAwait(false)) {
         return true;
       }
 

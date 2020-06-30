@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Providers
       : ((IEnumerator<Tuple>) source).MoveNext();
 
     public async ValueTask<bool> MoveNextAsync() => source is Command command
-      ? await command.NextRowAsync(token)
+      ? await command.NextRowAsync(token).ConfigureAwait(false)
       : ((IEnumerator<Tuple>) source).MoveNext();
 
     public void Reset()
@@ -50,10 +50,10 @@ namespace Xtensive.Orm.Providers
     public async ValueTask DisposeAsync()
     {
       if (source is Command command) {
-        await command.DisposeAsync();
+        await command.DisposeAsync().ConfigureAwait(false);
       }
       else {
-        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync();
+        await ((IAsyncEnumerator<Tuple>) source).DisposeAsync().ConfigureAwait(false);
       }
     }
 

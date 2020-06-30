@@ -71,7 +71,7 @@ namespace Xtensive.Core
     {
       try {
         if (disposable!=null) {
-          await disposable.DisposeAsync();
+          await disposable.DisposeAsync().ConfigureAwait(false);
         }
       }
       catch {

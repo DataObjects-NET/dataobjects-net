@@ -413,11 +413,13 @@ namespace Xtensive.Orm
         // connection become opened.
         session = new Session(this, configuration, false);
         try {
-          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith(t => {
-            if (sessionScope != null) {
-              session.AttachToScope(sessionScope);
-            }
-          }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously).ConfigureAwait(false);
+          await ((SqlSessionHandler) session.Handler).OpenConnectionAsync(cancellationToken)
+            .ContinueWith(t => {
+              if (sessionScope != null) {
+                session.AttachToScope(sessionScope);
+              }
+            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
+            .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
           session.DisposeSafely();

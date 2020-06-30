@@ -592,7 +592,7 @@ namespace Xtensive.Orm
 
         Services.DisposeSafely();
         if (isAsync) {
-          await Handler.DisposeSafelyAsync();
+          await Handler.DisposeSafelyAsync().ConfigureAwait(false);
         }
         else {
           Handler.DisposeSafely();

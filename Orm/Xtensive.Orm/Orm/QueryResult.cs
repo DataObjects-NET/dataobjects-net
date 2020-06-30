@@ -15,7 +15,7 @@ namespace Xtensive.Orm
     public async IAsyncEnumerable<TItem> AsAsyncEnumerable()
     {
       var enumerator = reader.AsAsyncEnumerator();
-      while (await enumerator.MoveNextAsync()) {
+      while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
         yield return enumerator.Current;
       }
     }

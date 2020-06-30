@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Providers
     public async Task<bool> NextResultAsync(CancellationToken token = default)
     {
       try {
-        return await reader.NextResultAsync(token);
+        return await reader.NextResultAsync(token).ConfigureAwait(false);
       }
       catch(Exception exception) {
         throw TranslateException(exception);
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Providers
     public async ValueTask<bool> NextRowAsync(CancellationToken token = default)
     {
       try {
-        return await reader.ReadAsync(token);
+        return await reader.ReadAsync(token).ConfigureAwait(false);
       }
       catch (Exception exception) {
         throw TranslateException(exception);
@@ -149,9 +149,9 @@ namespace Xtensive.Orm.Providers
 
     public async ValueTask DisposeAsync()
     {
-      await reader.DisposeSafelyAsync();
-      await resources.DisposeSafelyAsync();
-      await underlyingCommand.DisposeSafelyAsync();
+      await reader.DisposeSafelyAsync().ConfigureAwait(false);
+      await resources.DisposeSafelyAsync().ConfigureAwait(false);
+      await underlyingCommand.DisposeSafelyAsync().ConfigureAwait(false);
     }
 
     // Constructors

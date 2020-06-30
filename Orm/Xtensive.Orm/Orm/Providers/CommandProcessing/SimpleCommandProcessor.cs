@@ -93,16 +93,17 @@ namespace Xtensive.Orm.Providers
           var loadTask = context.ActiveTasks.FirstOrDefault();
           if (loadTask!=null) {
             await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
-            await using (var enumerator = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor(), token)) {
-              while (await enumerator.MoveNextAsync()) {
-                loadTask.Output.Add(enumerator.Current);
+            var reader = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor(), token);
+            await using (reader.ConfigureAwait(false)) {
+              while (await reader.MoveNextAsync().ConfigureAwait(false)) {
+                loadTask.Output.Add(reader.Current);
               }
             }
             context.ActiveTasks.Clear();
           }
         }
         finally {
-          context.ActiveCommand.Dispose();
+          await context.ActiveCommand.DisposeAsync().ConfigureAwait(false);
           ReleaseCommand(context);
         }
       }
@@ -129,14 +130,14 @@ namespace Xtensive.Orm.Providers
 
       token.ThrowIfCancellationRequested();
 
-      await ExecuteTasksAsync(context, token);
+      await ExecuteTasksAsync(context, token).ConfigureAwait(false);
       context.AllowPartialExecution = oldValue;
 
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
-      await lastRequestCommand.ExecuteReaderAsync(token);
+      await lastRequestCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
       return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
     }
 

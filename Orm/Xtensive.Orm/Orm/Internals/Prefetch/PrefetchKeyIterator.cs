@@ -88,24 +88,28 @@ namespace Xtensive.Orm.Internals.Prefetch
 
           resultQueue.Enqueue(key);
           var defaultDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type);
-          container.JoinIfPossible(await session.Handler.PrefetchAsync(key, type, defaultDescriptors, token));
+          container.JoinIfPossible(
+            await session.Handler.PrefetchAsync(key, type, defaultDescriptors, token).ConfigureAwait(false));
         }
         if (exists && taskCount==session.Handler.PrefetchTaskExecutionCount) {
           continue;
         }
 
         if (!exists) {
-          container.JoinIfPossible(await session.Handler.ExecutePrefetchTasksAsync(token));
+          container.JoinIfPossible(
+            await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false));
         }
 
         if (unknownTypeQueue.Count > 0) {
           while (unknownTypeQueue.Count > 0) {
             var unknownKey = unknownTypeQueue.Dequeue();
             var unknownType = session.EntityStateCache[unknownKey, false].Type;
-            var unknownDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
-            await session.Handler.PrefetchAsync(unknownKey, unknownType, unknownDescriptors, token);
+            var unknownDescriptors =
+              PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
+            await session.Handler.PrefetchAsync(
+              unknownKey, unknownType, unknownDescriptors, token).ConfigureAwait(false);
           }
-          await session.Handler.ExecutePrefetchTasksAsync(token);
+          await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false);
         }
         while (resultQueue.Count > 0) {
           yield return (T) (IEntity) session.EntityStateCache[resultQueue.Dequeue(), true].Entity;

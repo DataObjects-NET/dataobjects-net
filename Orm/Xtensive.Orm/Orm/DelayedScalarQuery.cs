@@ -41,7 +41,7 @@ namespace Xtensive.Orm
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task running this operation.</returns>
     [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
-    public async Task<T> AsAsync(CancellationToken token) => await ExecuteAsync(token);
+    public async Task<T> AsAsync(CancellationToken token) => await ExecuteAsync(token).ConfigureAwait(false);
 
     /// <summary>
     /// Asynchronously executes delayed scalar query.
@@ -49,7 +49,7 @@ namespace Xtensive.Orm
     /// <param name="token">Cancellation token.</param>
     /// <returns>Value representing scalar query execution result.</returns>
     public async ValueTask<T> ExecuteAsync(CancellationToken token = default) =>
-      (await MaterializeAsync<T>(token)).ToScalar(scalarResultType);
+      (await MaterializeAsync<T>(token).ConfigureAwait(false)).ToScalar(scalarResultType);
 
     // Constructors
 

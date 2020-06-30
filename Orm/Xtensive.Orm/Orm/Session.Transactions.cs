@@ -155,7 +155,7 @@ namespace Xtensive.Orm
       Events.NotifyTransactionPrecommitting(transaction);
 
       if (isAsync) {
-        await PersistAsync(PersistReason.Commit);
+        await PersistAsync(PersistReason.Commit).ConfigureAwait(false);
       }
       else {
         Persist(PersistReason.Commit);
@@ -172,7 +172,7 @@ namespace Xtensive.Orm
       }
       else {
         if (isAsync) {
-          await Handler.CommitTransactionAsync(transaction);
+          await Handler.CommitTransactionAsync(transaction).ConfigureAwait(false);
         }
         else {
           Handler.CommitTransaction(transaction);
@@ -197,10 +197,10 @@ namespace Xtensive.Orm
         finally {
           try {
             if (Configuration.Supports(SessionOptions.SuppressRollbackExceptions)) {
-              await RollbackWithSuppression(transaction, isAsync);
+              await RollbackWithSuppression(transaction, isAsync).ConfigureAwait(false);
             }
             else {
-              await Rollback(transaction, isAsync);
+              await Rollback(transaction, isAsync).ConfigureAwait(false);
             }
           }
           finally {
@@ -219,7 +219,7 @@ namespace Xtensive.Orm
     private async ValueTask RollbackWithSuppression(Transaction transaction, bool isAsync)
     {
       try {
-        await Rollback(transaction, isAsync);
+        await Rollback(transaction, isAsync).ConfigureAwait(false);
       }
       catch(Exception e) {
         OrmLog.Warning(e);
@@ -233,7 +233,7 @@ namespace Xtensive.Orm
       }
       else {
         if (isAsync) {
-          await Handler.RollbackTransactionAsync(transaction);
+          await Handler.RollbackTransactionAsync(transaction).ConfigureAwait(false);
         }
         else {
           Handler.RollbackTransaction(transaction);

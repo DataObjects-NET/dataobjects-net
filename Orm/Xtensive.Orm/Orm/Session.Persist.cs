@@ -75,10 +75,10 @@ namespace Xtensive.Orm
     public async Task SaveChangesAsync(CancellationToken token = default)
     {
       if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
-        await SaveLocalChangesAsync(token);
+        await SaveLocalChangesAsync(token).ConfigureAwait(false);
       }
       else {
-        await PersistAsync(PersistReason.Manual, token);
+        await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
       }
     }
 
@@ -97,7 +97,7 @@ namespace Xtensive.Orm
     internal void Persist(PersistReason reason) => Persist(reason, false).GetAwaiter().GetResult();
 
     internal async Task PersistAsync(PersistReason reason, CancellationToken token = default) =>
-      await Persist(reason, true, token);
+      await Persist(reason, true, token).ConfigureAwait(false);
 
     private async ValueTask Persist(PersistReason reason, bool isAsync, CancellationToken token = default)
     {
@@ -143,13 +143,13 @@ namespace Xtensive.Orm
             }
 
             if (LazyKeyGenerationIsEnabled) {
-              await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token);
+              await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwait(false);
             }
             ApplyEntitySetsChanges();
             var persistIsSuccessful = false;
             try {
               if (isAsync) {
-                await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token);
+                await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwait(false);
               }
               else {
                 Handler.Persist(itemsToPersist, reason == PersistReason.Query);
@@ -272,9 +272,10 @@ namespace Xtensive.Orm
     private async Task SaveLocalChangesAsync(CancellationToken token = default)
     {
       Validate();
-      using (var transaction = OpenTransaction(TransactionOpenMode.New)) {
+      var transaction = OpenTransaction(TransactionOpenMode.New);
+      await using (transaction.ConfigureAwait(false)) {
         try {
-          await PersistAsync(PersistReason.Manual, token);
+          await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
         }
         finally {
           transaction.Complete();

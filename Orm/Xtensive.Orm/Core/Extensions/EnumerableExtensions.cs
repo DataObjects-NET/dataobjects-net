@@ -503,9 +503,9 @@ namespace Xtensive.Core
     public static async Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source, CancellationToken token)
     {
       if (source is DelayedQuery<T> delayedQuery) {
-        return await delayedQuery.ExecuteAsync(token);
+        return await delayedQuery.ExecuteAsync(token).ConfigureAwait(false);
       }
-      return await Task.FromResult(source);
+      return await Task.FromResult(source).ConfigureAwait(false);
     }
   }
 }

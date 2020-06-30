@@ -41,10 +41,10 @@ namespace Xtensive.Orm
     internal async Task<bool> ExecuteInternalDelayedQueriesAsync(bool skipPersist, CancellationToken token = default)
     {
       if (!skipPersist) {
-        await PersistAsync(PersistReason.Other, token);
+        await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
       }
 
-      return await ProcessInternalDelayedQueriesAsync(false, token);
+      return await ProcessInternalDelayedQueriesAsync(false, token).ConfigureAwait(false);
     }
 
     internal bool ExecuteUserDefinedDelayedQueries(bool skipPersist)
@@ -60,7 +60,7 @@ namespace Xtensive.Orm
     {
       token.ThrowIfCancellationRequested();
       if (!skipPersist) {
-        await PersistAsync(PersistReason.Other, token);
+        await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
       }
 
       token.ThrowIfCancellationRequested();
@@ -89,7 +89,8 @@ namespace Xtensive.Orm
       }
 
       try {
-        await Handler.ExecuteQueryTasksAsync(internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution, token);
+        await Handler.ExecuteQueryTasksAsync(
+          internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution, token).ConfigureAwait(false);
         return true;
       }
       finally {
@@ -118,7 +119,8 @@ namespace Xtensive.Orm
         return false;
       }
 
-      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
+      var aliveTasks = new List<QueryTask>(userDefinedQueryTasks.Count);
+      aliveTasks.AddRange(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive));
       userDefinedQueryTasks.Clear();
       await Handler.ExecuteQueryTasksAsync(aliveTasks, false, token).ConfigureAwait(false);
       return true;

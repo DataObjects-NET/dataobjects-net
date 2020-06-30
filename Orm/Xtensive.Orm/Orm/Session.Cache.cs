@@ -69,7 +69,7 @@ namespace Xtensive.Orm
         return;
       using (Activate()) {
         if (!LazyKeyGenerationIsEnabled) {
-          await Persist(PersistReason.RemapEntityKeys, isAsync, token);
+          await Persist(PersistReason.RemapEntityKeys, isAsync, token).ConfigureAwait(false);
           Invalidate();
         }
         if (IsDebugEventLoggingEnabled) {

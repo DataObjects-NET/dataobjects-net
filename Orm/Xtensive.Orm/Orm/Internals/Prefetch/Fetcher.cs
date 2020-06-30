@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         RegisterAllEntitySetTasks(containers);
 
         var isExecuted = isAsync
-          ? await manager.Owner.Session.ExecuteInternalDelayedQueriesAsync(skipPersist, token)
+          ? await manager.Owner.Session.ExecuteInternalDelayedQueriesAsync(skipPersist, token).ConfigureAwait(false)
           : manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist);
         batchExecuted += isExecuted ? 1 : 0;
 
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         RegisterAllEntityGroupTasks();
 
         isExecuted = isAsync
-          ? await manager.Owner.Session.ExecuteInternalDelayedQueriesAsync(skipPersist, token)
+          ? await manager.Owner.Session.ExecuteInternalDelayedQueriesAsync(skipPersist, token).ConfigureAwait(false)
           : manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist);
         batchExecuted += isExecuted ? 1 : 0;
 

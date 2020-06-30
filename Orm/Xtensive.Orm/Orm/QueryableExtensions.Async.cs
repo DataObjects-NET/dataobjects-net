@@ -671,21 +671,24 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var list = new List<TSource>();
-      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var element in asyncSource) {
         list.Add(element);
       }
 
       return list;
     }
 
-    public static async Task<TSource[]> ToArrayAsync<TSource>(this IQueryable<TSource> source,
-      CancellationToken cancellationToken = default) => (await source.ToListAsync(cancellationToken)).ToArray();
+    public static async Task<TSource[]>
+      ToArrayAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+      (await source.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
 
     public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TKey, TSource>(
       this IQueryable<TSource> source, Func<TSource, TKey> keySelector, CancellationToken cancellationToken = default)
     {
       var dictionary = new Dictionary<TKey, TSource>();
-      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var element in asyncSource) {
         dictionary.Add(keySelector(element), element);
       }
 
@@ -697,7 +700,8 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var dictionary = new Dictionary<TKey, TValue>();
-      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var element in asyncSource) {
         dictionary.Add(keySelector(element), valueSelector(element));
       }
 
@@ -708,7 +712,8 @@ namespace Xtensive.Orm
       CancellationToken cancellationToken = default)
     {
       var hashSet = new HashSet<TSource>();
-      await foreach (var element in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
+      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var element in asyncSource) {
         hashSet.Add(element);
       }
 
@@ -719,8 +724,9 @@ namespace Xtensive.Orm
       Func<TSource, TElement> elementSelector, CancellationToken cancellationToken = default)
     {
       var hashSet = new HashSet<TElement>();
-      await foreach (var item in source.AsAsyncEnumerable().WithCancellation(cancellationToken)) {
-        hashSet.Add(elementSelector(item));
+      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var element in asyncSource) {
+        hashSet.Add(elementSelector(element));
       }
 
       return hashSet;

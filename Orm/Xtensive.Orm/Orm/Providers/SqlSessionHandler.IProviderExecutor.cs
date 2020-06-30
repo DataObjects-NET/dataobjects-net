@@ -28,9 +28,11 @@ namespace Xtensive.Orm.Providers
     async Task<DataReader> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {
-      await PrepareAsync(token);
-      using var context = new CommandProcessorContext(parameterContext);
-      return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
+      await PrepareAsync(token).ConfigureAwait(false);
+      var context = new CommandProcessorContext(parameterContext);
+      await using (context.ConfigureAwait(false)) {
+        return await commandProcessor.ExecuteTasksWithReaderAsync(request, context, token).ConfigureAwait(false);
+      }
     }
 
     /// <inheritdoc/>

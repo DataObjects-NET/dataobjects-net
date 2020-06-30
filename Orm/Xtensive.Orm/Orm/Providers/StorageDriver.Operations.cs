@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Providers
       Session session, SqlConnection connection, CancellationToken cancellationToken)
     {
       if (connection.State!=ConnectionState.Open) {
-        await OpenConnectionAsync(session, connection, cancellationToken);
+        await OpenConnectionAsync(session, connection, cancellationToken).ConfigureAwait(false);
       }
     }
 
@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.CloseAsync();
+        await connection.CloseAsync().ConfigureAwait(false);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Providers
       }
 
       try {
-        await connection.DisposeAsync();
+        await connection.DisposeAsync().ConfigureAwait(false);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);

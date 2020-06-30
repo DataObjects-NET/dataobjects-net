@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var list = new List<TItem>();
       var asyncEnumerable = new PrefetchQueryAsyncEnumerable<TItem>(session, source, nodes);
-      await foreach (var element in asyncEnumerable.WithCancellation(token)) {
+      await foreach (var element in asyncEnumerable.WithCancellation(token).ConfigureAwait(false)) {
         list.Add(element);
       }
 

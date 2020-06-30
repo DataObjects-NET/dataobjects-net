@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Rse
           goto case State.InProgress;
         case State.InProgress:
           try {
-            if (await dataReader.MoveNextAsync()) {
+            if (await dataReader.MoveNextAsync().ConfigureAwait(false)) {
               return true;
             }
           }
@@ -114,14 +114,14 @@ namespace Xtensive.Orm.Rse
 
       try {
         dataReader = executeAsync
-          ? await provider.OnEnumerateAsync(context, token)
+          ? await provider.OnEnumerateAsync(context, token).ConfigureAwait(false)
           : provider.OnEnumerate(context);
 
         if (isGreedy && !dataReader.IsInMemory) {
           var tuples = new List<Tuple>();
           if (executeAsync) {
-            await using (dataReader) {
-              while (await dataReader.MoveNextAsync()) {
+            await using (dataReader.ConfigureAwait(false)) {
+              while (await dataReader.MoveNextAsync().ConfigureAwait(false)) {
                 tuples.Add(dataReader.Current);
               }
             }
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Rse
     public async ValueTask DisposeAsync()
     {
       if (state != State.New) {
-        await dataReader.DisposeAsync();
+        await dataReader.DisposeAsync().ConfigureAwait(false);
       }
       enumerationScope?.Dispose();
     }
@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Rse
       EnumerationContext context, ExecutableProvider provider, CancellationToken token)
     {
       var recordSet = new RecordSetReader(context, provider, token);
-      await recordSet.Prepare(true);
+      await recordSet.Prepare(true).ConfigureAwait(false);
       return recordSet;
     }
 

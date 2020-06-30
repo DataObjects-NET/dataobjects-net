@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Providers
       }
 
       if (!connectionIsExternal) {
-        await driver.CloseConnectionAsync(Session, connection);
+        await driver.CloseConnectionAsync(Session, connection).ConfigureAwait(false);
       }
     }
 
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Providers
       }
 
       if (!connectionIsExternal) {
-        await driver.CloseConnectionAsync(Session, connection);
+        await driver.CloseConnectionAsync(Session, connection).ConfigureAwait(false);
       }
     }
 
@@ -191,12 +191,13 @@ namespace Xtensive.Orm.Providers
 
       try {
         foreach (var initializationSqlScript in initializationSqlScripts) {
-          await using var command = connection.CreateCommand(initializationSqlScript);
+          var command = connection.CreateCommand(initializationSqlScript);
+          await using var commandAwaiter = command.ConfigureAwait(false);
           await driver.ExecuteNonQueryAsync(Session, command, cancellationToken).ConfigureAwait(false);
         }
       }
       catch (OperationCanceledException) {
-        await connection.CloseAsync();
+        await connection.CloseAsync().ConfigureAwait(false);
         throw;
       }
 
@@ -247,7 +248,7 @@ namespace Xtensive.Orm.Providers
 
     public override async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
     {
-      await PrepareAsync(token);
+      await PrepareAsync(token).ConfigureAwait(false);
 
       var nonBatchedTasks = new List<QueryTask>();
       foreach (var task in queryTasks) {
@@ -259,15 +260,17 @@ namespace Xtensive.Orm.Providers
         }
       }
 
-      if (nonBatchedTasks.Count==0){
-        await using (var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution)) {
-          await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
-        }
+      CommandProcessorContext context;
+      if (nonBatchedTasks.Count==0) {
+        context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution);
+        await using var contextAwaiter = context.ConfigureAwait(false);
+        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
 
         return;
       }
 
-      await using (var context = Session.CommandProcessorContextProvider.ProvideContext()) {
+      context = Session.CommandProcessorContextProvider.ProvideContext();
+      await using (context.ConfigureAwait(false)) {
         await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
       }
 
@@ -298,11 +301,12 @@ namespace Xtensive.Orm.Providers
     public override async Task PersistAsync(EntityChangeRegistry registry, bool allowPartialExecution,
       CancellationToken token)
     {
-      await PrepareAsync(token);
+      await PrepareAsync(token).ConfigureAwait(false);
       domainHandler.Persister.Persist(registry, commandProcessor);
 
-      await using var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution);
-      await commandProcessor.ExecuteTasksAsync(context, token);
+      var context = Session.CommandProcessorContextProvider.ProvideContext(allowPartialExecution);
+      await using var contextAwaiter = context.ConfigureAwait(false);
+      await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -327,8 +331,8 @@ namespace Xtensive.Orm.Providers
 
       isDisposed = true;
       if (!connectionIsExternal) {
-        await driver.CloseConnectionAsync(Session, connection);
-        await driver.DisposeConnectionAsync(Session, connection);
+        await driver.CloseConnectionAsync(Session, connection).ConfigureAwait(false);
+        await driver.DisposeConnectionAsync(Session, connection).ConfigureAwait(false);
       }
     }
 

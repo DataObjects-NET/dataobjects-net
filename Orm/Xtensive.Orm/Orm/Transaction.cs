@@ -183,10 +183,10 @@ namespace Xtensive.Orm
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
         }
 
-        await Session.CommitTransaction(this, isAsync);
+        await Session.CommitTransaction(this, isAsync).ConfigureAwait(false);
       }
       catch {
-        await Rollback(isAsync);
+        await Rollback(isAsync).ConfigureAwait(false);
         throw;
       }
       if (Outer!=null) {
@@ -210,11 +210,11 @@ namespace Xtensive.Orm
       try {
         try {
           if (inner!=null) {
-            await inner.Rollback(isAsync);
+            await inner.Rollback(isAsync).ConfigureAwait(false);
           }
         }
         finally {
-          await Session.RollbackTransaction(this, isAsync);
+          await Session.RollbackTransaction(this, isAsync).ConfigureAwait(false);
         }
       }
       finally {

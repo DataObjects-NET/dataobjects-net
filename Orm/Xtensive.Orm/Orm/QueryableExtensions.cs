@@ -272,7 +272,7 @@ namespace Xtensive.Orm
     /// <returns>A task which runs query.</returns>
     [Obsolete("Use ExecuteAsync(IQueryable<T>) method instead.")]
     public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source) =>
-      await ExecuteAsync(source, CancellationToken.None);
+      await ExecuteAsync(source, CancellationToken.None).ConfigureAwait(false);
 
     /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
@@ -283,7 +283,7 @@ namespace Xtensive.Orm
     /// <returns>A task which runs query.</returns>
     [Obsolete("Use ExecuteAsync(IQueryable<T>, CancellationToken) method instead.")]
     public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken token) =>
-      await ExecuteAsync(source, token);
+      await ExecuteAsync(source, token).ConfigureAwait(false);
 
     /// <summary>
     /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.
@@ -304,7 +304,7 @@ namespace Xtensive.Orm
     public static async Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
       if (source.Provider is QueryProvider queryProvider) {
-        return await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken);
+        return await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwait(false);
       }
 
       return new QueryResult<T>(source.AsEnumerable());
