@@ -22,13 +22,13 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async Task GetScalarResultUsingSessionDirectly()
     {
-      using (var session = Domain.OpenSession(SessionConfiguration))
+      await using var session = await Domain.OpenSessionAsync(SessionConfiguration);
       using (var tx = GetTransactionScope(session)) {
         var task = session.Query.CreateDelayedQuery(
           endpoint => endpoint.All<DisceplinesOfCourse>()
             .Where(el => el.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First()
-          ).ExecuteAsync();
-        Assert.IsInstanceOf<Task<Discepline>>(task);
+        ).ExecuteAsync();
+        Assert.IsInstanceOf<ValueTask<Discepline>>(task);
         var result = await task;
         Assert.IsInstanceOf<Discepline>(result);
         Assert.NotNull(result);
