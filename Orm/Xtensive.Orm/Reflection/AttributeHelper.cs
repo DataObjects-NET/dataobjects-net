@@ -81,7 +81,7 @@ namespace Xtensive.Reflection
       }
 
       if ((options & AttributeSearchOptions.InheritFromAllBase)!=0
-        && member.DeclaringType!=typeof(object)) {
+        && member.DeclaringType!=WellKnownTypes.Object) {
         var bm = member.GetBaseMember();
         if (bm!=null)
           attributes = attributes.Combine(bm.GetAttributes<TAttribute>(options));

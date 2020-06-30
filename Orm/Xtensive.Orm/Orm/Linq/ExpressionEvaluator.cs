@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Linq
         return (ConstantExpression) e;
       Type type = e.Type;
       if (type.IsValueType)
-        e = Expression.Convert(e, typeof (object));
+        e = Expression.Convert(e, WellKnownTypes.Object);
       var lambda = FastExpression.Lambda<Func<object>>(e);
       var func = lambda.CachingCompile();
       return Expression.Constant(func(), type);
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Linq
           return false;
       }
 #pragma warning restore 612,618
-      if (expression.NodeType==ExpressionType.Convert && expression.Type==typeof (object))
+      if (expression.NodeType==ExpressionType.Convert && expression.Type==WellKnownTypes.Object)
         return true;
       return expression.NodeType!=ExpressionType.Parameter &&
         expression.NodeType!=ExpressionType.Lambda;

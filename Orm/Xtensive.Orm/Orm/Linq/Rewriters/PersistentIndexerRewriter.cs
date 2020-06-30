@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     {
       if (IsIndexerAccessor(mc)) {
         var memberExpression = GetMemberExpression(mc);
-        return Expression.Convert(memberExpression, typeof (object));
+        return Expression.Convert(memberExpression, WellKnownTypes.Object);
       }
       return base.VisitMethodCall(mc);
     }

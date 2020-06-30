@@ -430,7 +430,7 @@ namespace Xtensive.Orm.Linq.Materialization
           var parameterType = m.Expression.Type;
           var parameterValueType = parameterType.IsGenericType
             ? parameterType.GetGenericArguments()[0]
-            : typeof(object);
+            : WellKnownTypes.Object;
           return Expression.Call(
             Expression.MakeMemberAccess(itemMaterializationContextParameter, ParameterContextProperty),
               GetParameterValueMethod.MakeGenericMethod(parameterValueType), m.Expression);

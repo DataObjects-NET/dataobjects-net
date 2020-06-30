@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.Comparison
 {
@@ -220,8 +221,8 @@ namespace Xtensive.Comparison
     private AdvancedComparer(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      ComparerImplementation = (IComparer<T>)info.GetValue("ComparerImplementation", typeof(object));
-      EqualityComparerImplementation = (IEqualityComparer<T>)info.GetValue("EqualityComparerImplementation", typeof(object));
+      ComparerImplementation = (IComparer<T>)info.GetValue("ComparerImplementation", WellKnownTypes.Object);
+      EqualityComparerImplementation = (IEqualityComparer<T>)info.GetValue("EqualityComparerImplementation", WellKnownTypes.Object);
       // Below code is the same between both primary constructors
       if (Implementation!=null) {
         Provider = Implementation.Provider;

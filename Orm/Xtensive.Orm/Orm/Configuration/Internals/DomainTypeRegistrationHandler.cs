@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Configuration
 {
@@ -19,7 +20,7 @@ namespace Xtensive.Orm.Configuration
   /// of <see cref="Type"/>s.</remarks>
   internal sealed class DomainTypeRegistrationHandler : TypeRegistrationProcessorBase
   {
-    private readonly static Type objectType = typeof (object);
+    private readonly static Type objectType = WellKnownTypes.Object;
     private const string providersNamespace = "Xtensive.Orm.Providers.";
 
     /// <inheritdoc/>

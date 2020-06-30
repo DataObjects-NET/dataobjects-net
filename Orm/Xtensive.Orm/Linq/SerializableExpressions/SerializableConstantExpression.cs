@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
+using Xtensive.Reflection;
 
 namespace Xtensive.Linq.SerializableExpressions
 {
@@ -35,7 +36,7 @@ namespace Xtensive.Linq.SerializableExpressions
     public SerializableConstantExpression(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      Value = info.GetValue("Value", typeof(object));
+      Value = info.GetValue("Value", WellKnownTypes.Object);
     }
   }
 }

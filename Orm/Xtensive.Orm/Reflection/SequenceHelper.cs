@@ -54,7 +54,7 @@ namespace Xtensive.Reflection
           if (enumerable != null)
             return enumerable;
         }
-      if (sequenceType.BaseType != null && sequenceType.BaseType != typeof (object))
+      if (sequenceType.BaseType != null && sequenceType.BaseType != WellKnownTypes.Object)
         return FindIEnumerable(sequenceType.BaseType);
       return null;
     }

@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Providers
     {
       var type = e.Type;
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
-      if (e.NodeType==ExpressionType.Convert && e.Type==typeof(object))
+      if (e.NodeType==ExpressionType.Convert && e.Type==WellKnownTypes.Object)
         type = ((UnaryExpression) e).Operand.Type;
       bool optimizeBooleanParameter = type==typeof (bool);
       type = type.StripNullable();
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Providers
     {
       var sourceType = cast.Operand.Type.StripNullable();
       var targetType = cast.Type.StripNullable();
-      if (sourceType==targetType || targetType==typeof(object) || sourceType==typeof(object))
+      if (sourceType==targetType || targetType==WellKnownTypes.Object || sourceType==WellKnownTypes.Object)
         return operand;
       if (IsEnumUnderlyingType(sourceType, targetType) || IsEnumUnderlyingType(targetType, sourceType))
         return operand;
@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Providers
           ? booleanExpressionConverter.IntToBoolean(SqlDml.Null)
           : SqlDml.Null;
       var type = expression.Type;
-      if (type==typeof (object))
+      if (type==WellKnownTypes.Object)
         type = expression.Value.GetType();
       type = type.StripNullable();
       if (fixBooleanExpressions && type==typeof (bool)) {

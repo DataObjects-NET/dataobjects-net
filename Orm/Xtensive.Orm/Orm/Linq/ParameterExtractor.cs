@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq
@@ -95,7 +96,7 @@ namespace Xtensive.Orm.Linq
           var parameterType = ma.Expression.Type;
           var parameterValueType = parameterType.IsGenericType
             ? parameterType.GetGenericArguments()[0]
-            : typeof(object);
+            : WellKnownTypes.Object;
           return Expression.Call(parameterContextArgument,
             GetParameterValueMethod.MakeGenericMethod(parameterValueType), ma.Expression);
         }

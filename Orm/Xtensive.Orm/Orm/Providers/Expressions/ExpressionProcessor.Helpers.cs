@@ -226,7 +226,7 @@ namespace Xtensive.Orm.Providers
 
     private static Expression StripObjectCasts(Expression expression)
     {
-      while (expression.Type==typeof (object) && expression.NodeType==ExpressionType.Convert)
+      while (expression.Type==WellKnownTypes.Object && expression.NodeType==ExpressionType.Convert)
         expression = GetOperand(expression);
       return expression;
     }

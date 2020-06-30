@@ -6,15 +6,13 @@
 
 using System;
 using Xtensive.Collections;
-using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.IoC
 {
   internal sealed class ServiceTypeRegistrationProcessor : TypeRegistrationProcessorBase
   {
-    public override Type BaseType {
-      get { return typeof (object); }
-    }
+    public override Type BaseType => WellKnownTypes.Object;
 
     protected override bool IsAcceptable(TypeRegistration registration, Type type)
     {

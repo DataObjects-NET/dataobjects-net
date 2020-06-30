@@ -31,7 +31,6 @@ namespace Xtensive.Reflection
     private const string invokeMethodName = "Invoke";
 
     private static readonly object emitLock = new object();
-    private static readonly Type ObjectType = typeof(object);
     private static readonly Type ArrayType = typeof(Array);
     private static readonly Type EnumType = typeof(Enum);
     private static readonly Type NullableType = typeof(Nullable<>);
@@ -187,7 +186,7 @@ namespace Xtensive.Reflection
       // Nothing is found; trying to find an associate for base type (except Object)
       var forTypeBase = currentForType.BaseType;
       if (forTypeBase != null) {
-        while (forTypeBase != null && forTypeBase != ObjectType) {
+        while (forTypeBase != null && forTypeBase != WellKnownTypes.Object) {
           result = CreateAssociateInternal<T>(originalForType, forTypeBase, out foundForType,
             associateTypeSuffixes, constructorParams, locations, true);
           if (result != null) {
@@ -262,8 +261,8 @@ namespace Xtensive.Reflection
       }
 
       // Nothing is found; trying to find an associate for Object type
-      if (currentForType != ObjectType) {
-        result = CreateAssociateInternal<T>(originalForType, ObjectType, out foundForType,
+      if (currentForType != WellKnownTypes.Object) {
+        result = CreateAssociateInternal<T>(originalForType, WellKnownTypes.Object, out foundForType,
           "Object", associateTypeSuffixes,
           locations, null, constructorParams);
         if (result != null) {
@@ -617,7 +616,7 @@ namespace Xtensive.Reflection
           let parameter = pair.parameter
           let parameterType = parameter.ParameterType
           let argument = pair.argument
-          let argumentType = argument == null ? ObjectType : argument.GetType()
+          let argumentType = argument == null ? WellKnownTypes.Object : argument.GetType()
           select
             !parameter.IsOut && (
               parameterType.IsAssignableFrom(argumentType) ||
@@ -920,7 +919,7 @@ namespace Xtensive.Reflection
     {
       var definitionMetadataToken = openGenericBaseType.MetadataToken;
       var definitionModule = openGenericBaseType.Module;
-      while (type != null && !ReferenceEquals(type, ObjectType)) {
+      while (type != null && !ReferenceEquals(type, WellKnownTypes.Object)) {
         if ((type.MetadataToken ^ definitionMetadataToken) == 0 && ReferenceEquals(type.Module, definitionModule)) {
           return type;
         }
@@ -1025,7 +1024,7 @@ namespace Xtensive.Reflection
     {
       var typeName = type.Name;
       return (type.Attributes & TypeAttributes.Public) == 0
-        && type.BaseType == ObjectType
+        && type.BaseType == WellKnownTypes.Object
         && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
         && typeName.IndexOf("AnonymousType", StringComparison.Ordinal) >= 0
         && type.IsDefined(CompilerGeneratedAttributeType, false);
@@ -1041,7 +1040,7 @@ namespace Xtensive.Reflection
     public static bool IsClosure(this Type type)
     {
       var typeName = type.Name;
-      return type.BaseType == ObjectType
+      return type.BaseType == WellKnownTypes.Object
         && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
         && typeName.IndexOf("DisplayClass", StringComparison.Ordinal) >= 0
         && type.IsDefined(CompilerGeneratedAttributeType, false);

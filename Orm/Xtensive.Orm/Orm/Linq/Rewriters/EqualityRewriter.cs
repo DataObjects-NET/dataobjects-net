@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         return base.VisitMethodCall(mc);
       }
 
-      if (declaringType == typeof(object) && mc.Arguments.Count == 1)
+      if (declaringType == WellKnownTypes.Object && mc.Arguments.Count == 1)
         return Expression.Equal(mc.Object, mc.Arguments[0]);
 
       return base.VisitMethodCall(mc);

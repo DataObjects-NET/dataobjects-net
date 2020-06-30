@@ -780,7 +780,7 @@ namespace Xtensive.Modelling
       return cachedPropertyAccessors.GetValue(type,
         (_type) => {
           var d = new Dictionary<string, PropertyAccessor>();
-          if (_type!=typeof(object))
+          if (_type!=WellKnownTypes.Object)
             foreach (var pair in GetPropertyAccessors(_type.BaseType))
               d.Add(pair.Key, pair.Value);
           foreach (var p in _type.GetProperties(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly)) {

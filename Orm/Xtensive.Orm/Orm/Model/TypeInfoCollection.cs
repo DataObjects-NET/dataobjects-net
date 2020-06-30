@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Model
     : NodeCollection<TypeInfo>,
       IFilterable<TypeAttributes, TypeInfo>
   {
-    private readonly Type baseType = typeof (object);
     private readonly Dictionary<Type, TypeInfo> typeTable = new Dictionary<Type, TypeInfo>();
     private readonly Dictionary<string, TypeInfo> fullNameTable = new Dictionary<string, TypeInfo>();
     private readonly Dictionary<TypeInfo, TypeInfo> ancestorTable = new Dictionary<TypeInfo, TypeInfo>();
@@ -337,7 +336,7 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private TypeInfo FindAncestor(Type type)
     {
-      if (type == baseType || type.BaseType == null)
+      if (type == WellKnownTypes.Object || type.BaseType == null)
         return null;
       return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
     }

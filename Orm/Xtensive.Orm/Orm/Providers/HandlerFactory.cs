@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Providers
     protected HandlerFactory()
     {
       var type = GetType();
-      while (type!=typeof (object)) {
+      while (type!=WellKnownTypes.Object) {
         RegisterHandlersFrom(type.Assembly, type.Namespace);
         type = type.BaseType;
       }

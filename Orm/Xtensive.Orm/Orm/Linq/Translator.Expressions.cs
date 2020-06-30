@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Linq
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
-        else if (u.Type==typeof (object) && state.ShouldOmitConvertToObject) {
+        else if (u.Type==WellKnownTypes.Object && state.ShouldOmitConvertToObject) {
           var expression = u.StripCasts();
           return Visit(expression);
         }
@@ -167,7 +167,7 @@ namespace Xtensive.Orm.Linq
     {
       Expression left;
       Expression right;
-      MemberType memberType = binaryExpression.Left.Type==typeof (object)
+      MemberType memberType = binaryExpression.Left.Type==WellKnownTypes.Object
         ? binaryExpression.Right.GetMemberType()
         : binaryExpression.Left.GetMemberType();
       if (memberType==MemberType.EntitySet) {
@@ -666,7 +666,7 @@ namespace Xtensive.Orm.Linq
       IList<Expression> rightExpressions;
 
       // Split left and right arguments to subexpressions.
-      MemberType memberType = left.Type==typeof (object)
+      MemberType memberType = left.Type==WellKnownTypes.Object
         ? right.GetMemberType()
         : left.GetMemberType();
       switch (memberType) {
@@ -732,7 +732,7 @@ namespace Xtensive.Orm.Linq
               String.Format(
                 Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression,
                 binaryExpression));
-         var type = left.Type == typeof(object)
+         var type = left.Type == WellKnownTypes.Object
             ? right.Type
             : left.Type;
 
@@ -747,7 +747,7 @@ namespace Xtensive.Orm.Linq
         break;
       case MemberType.Anonymous:
         // Anonymous type split to constructor arguments.
-        var anonymousType = (left.Type==typeof (object))
+        var anonymousType = (left.Type==WellKnownTypes.Object)
           ? right.Type
           : left.Type;
         leftExpressions = GetAnonymousArguments(left, anonymousType);
@@ -1079,8 +1079,8 @@ namespace Xtensive.Orm.Linq
     {
       var columnType = expression.Body.Type;
       var body = EnumRewriter.Rewrite(expression.Body);
-      if (columnType!=typeof (object))
-        body = Expression.Convert(body, typeof (object));
+      if (columnType!=WellKnownTypes.Object)
+        body = Expression.Convert(body, WellKnownTypes.Object);
       var calculator = (Expression<Func<Tuple, object>>) FastExpression.Lambda(body, expression.Parameters);
       return new CalculatedColumnDescriptor(context.GetNextColumnAlias(), columnType, calculator);
     }
@@ -1180,7 +1180,7 @@ namespace Xtensive.Orm.Linq
 
       if (expression.NodeType==ExpressionType.Constant) {
         var constantExpression = expression as ConstantExpression;
-        if (constantExpression.Value==null && constantExpression.Type==typeof (object)) {
+        if (constantExpression.Value==null && constantExpression.Type==WellKnownTypes.Object) {
           var newConstantExpressionType = anonymousTypeForNullValues ?? constantExpression.Type;
           constantExpression = Expression.Constant(null, newConstantExpressionType);
           return constantExpression

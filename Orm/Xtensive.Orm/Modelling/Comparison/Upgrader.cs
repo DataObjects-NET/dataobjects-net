@@ -701,7 +701,7 @@ namespace Xtensive.Modelling.Comparison
         foreach (var ctx in EnumerableUtils.Unfold(Context, c => c.Parent)) {
           var difference = ctx.Difference;
           var any = difference.Target ?? difference.Source;
-          var type = any==null ? typeof (object) : any.GetType();
+          var type = any==null ? WellKnownTypes.Object : any.GetType();
           if (type==dependencyRootType) {
             switch (actionType) {
             case UpgradeActionType.PreCondition:
