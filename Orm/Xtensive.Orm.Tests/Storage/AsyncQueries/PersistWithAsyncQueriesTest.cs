@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task AsyncButFullySequential()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
         var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
@@ -98,11 +98,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task QueryFirstWaitLater()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
-
-        var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
         // some local non-DO work probably;
 
@@ -110,30 +108,24 @@ namespace Xtensive.Orm.Tests.Storage
         foreach (var testEntity in await readyToRockQuery)
           count++;
         Assert.That(count, Is.EqualTo(TestEntityCount));
-
-        count = 0;
-        foreach (var testEntity in await anotherAsyncQuery)
-          count++;
-
-        Assert.That(count, Is.EqualTo(TestEntityCount));
       }
     }
 
     [Test]
-    public async Task QueryFirstWaitLaterInDiffferentOrder()
+    public async Task QueryButIterateInDifferentOrder()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()){
-        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
-        var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+        var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
-        foreach (var testEntity in await anotherAsyncQuery)
+        foreach (var testEntity in anotherAsyncQuery)
           count++;
         Assert.That(count, Is.EqualTo(TestEntityCount));
 
         count = 0;
-        foreach (var testEntity in await readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery)
           count++;
 
         Assert.That(count, Is.EqualTo(TestEntityCount));
@@ -143,7 +135,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task ProperPersistSequenceTest()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         new TestEntity(session);
         new TestEntity(session);
@@ -173,7 +165,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeFirstAsyncQueryAwaitTest()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         new TestEntity(session);
         new TestEntity(session);
@@ -199,7 +191,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeSecondAsyncQueryAwaitTest()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
@@ -225,13 +217,13 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeBothAsyncQueriesAndDelayedWaitTest()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         new TestEntity(session) {Value = 101};
         new TestEntity(session) {Value = 102};
         new TestEntity(session) {Value = 103};
 
-        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session) { Value = 104 };
         new TestEntity(session) { Value = 105 };
@@ -245,7 +237,7 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(count, Is.EqualTo(TestEntityCount + 6));
 
         count = 0;
-        foreach (var testEntity in await readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery)
           count++;
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
@@ -253,15 +245,15 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
-    public async Task PersistBeforeFirstAsyncQueryAndDalayedAwaitTest()
+    public async Task PersistBeforeFirstAsyncQueryAndDelayedAwaitTest()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         new TestEntity(session);
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery =  session.Query.All<TestEntity>().ExecuteAsync();
+        var readyToRockQuery =  await session.Query.All<TestEntity>().ExecuteAsync();
         var anotherAsyncQuery =  session.Query.All<TestEntity>().ExecuteAsync();
 
         int count = 0;
@@ -270,7 +262,7 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
 
         count = 0;
-        foreach (var testEntity in await readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery)
           count++;
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
@@ -280,7 +272,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeSecondAsyncQueryAndDelayedAwaitTest()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
@@ -308,7 +300,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task ProperManualSavingChanges()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         new TestEntity(session);
         new TestEntity(session);
@@ -322,7 +314,7 @@ namespace Xtensive.Orm.Tests.Storage
         new TestEntity(session);
         new TestEntity(session);
 
-        session.SaveChanges();
+        await session.SaveChangesAsync();
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
         count = 0;
@@ -334,13 +326,13 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task AwaitingQueryBeforeManualSavingChanges()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         new TestEntity(session);
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
@@ -348,10 +340,10 @@ namespace Xtensive.Orm.Tests.Storage
 
 
         int count = 0;
-        foreach (var entity in await readyToRockQuery) 
+        foreach (var entity in readyToRockQuery)
           count++;
 
-        session.SaveChanges();
+        await session.SaveChangesAsync();
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
         count = 0;
@@ -363,22 +355,22 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task ManualSavingDuringAsyncQueryExecution()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         new TestEntity(session);
         new TestEntity(session);
         new TestEntity(session);
 
-        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
         new TestEntity(session);
 
-        session.SaveChanges();
+        await session.SaveChangesAsync();
 
         int count = 0;
-        foreach (var entity in await readyToRockQuery)
+        foreach (var entity in readyToRockQuery)
           count++;
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
@@ -391,9 +383,9 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task ManualSavingDuringEnumeration()
     {
-      using (var session = Domain.OpenSession())
+      await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         new TestEntity(session);
         new TestEntity(session);
@@ -402,9 +394,9 @@ namespace Xtensive.Orm.Tests.Storage
         bool shouldPersist = true;
 
         int count = 0;
-        foreach (var entity in await readyToRockQuery) {
+        foreach (var entity in readyToRockQuery) {
           if (count > 10 && shouldPersist) {
-            session.SaveChanges();
+            await session.SaveChangesAsync();
             shouldPersist = false;
           }
           count++;
