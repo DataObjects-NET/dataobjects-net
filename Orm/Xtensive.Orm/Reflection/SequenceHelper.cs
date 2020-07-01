@@ -37,7 +37,7 @@ namespace Xtensive.Reflection
 
     private static Type FindIEnumerable(Type sequenceType)
     {
-      if (sequenceType == null || sequenceType == typeof (string))
+      if (sequenceType == null || sequenceType == WellKnownTypes.String)
         return null;
       if (sequenceType.IsArray)
         return typeof (IEnumerable<>).MakeGenericType(sequenceType.GetElementType());

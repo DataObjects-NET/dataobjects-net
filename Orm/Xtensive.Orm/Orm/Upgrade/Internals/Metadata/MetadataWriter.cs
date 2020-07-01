@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Providers;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -19,8 +20,10 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class MetadataWriter
   {
-    private static readonly TupleDescriptor IntStringDescriptor = TupleDescriptor.Create(new[] {typeof (int), typeof (string)});
-    private static readonly TupleDescriptor StringStringDescriptor = TupleDescriptor.Create(new[] {typeof (string), typeof (string)});
+    private static readonly TupleDescriptor IntStringDescriptor =
+      TupleDescriptor.Create(new[] {typeof (int), WellKnownTypes.String});
+    private static readonly TupleDescriptor StringStringDescriptor =
+      TupleDescriptor.Create(new[] {WellKnownTypes.String, WellKnownTypes.String});
 
     private sealed class Descriptor : IPersistDescriptor
     {

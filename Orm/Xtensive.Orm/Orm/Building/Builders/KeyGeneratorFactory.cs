@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.IoC;
 using Xtensive.Orm.Internals.KeyGenerators;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -27,7 +28,7 @@ namespace Xtensive.Orm.Building.Builders
     };
 
     private static readonly Type[] SupportedTypes = SupportedNumericTypes
-      .Concat(new[] { typeof(Guid), typeof(string) })
+      .Concat(new[] { typeof(Guid), WellKnownTypes.String })
       .ToArray();
 
     public static bool IsSupported(Type valueType)
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Building.Builders
       if (valueType==typeof (Guid))
         return typeof (GuidGenerator);
 
-      if (valueType==typeof (string))
+      if (valueType==WellKnownTypes.String)
         return typeof (StringGenerator);
 
       throw TypeNotSupported(valueType);
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Building.Builders
       if (valueType==typeof (Guid))
         return typeof (GuidGenerator);
 
-      if (valueType==typeof (string))
+      if (valueType==WellKnownTypes.String)
         return typeof (StringGenerator);
 
       throw TypeNotSupported(valueType);

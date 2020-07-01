@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Linq.Materialization
           Expression<Func<ItemMaterializationContext, Domain>> domainExtractorLambda = imc => imc.Session.Domain;
           var result = keyParseLambda.BindParameters(
             domainExtractorLambda.BindParameters(itemMaterializationContextParameter),
-            tupleExpression.MakeTupleAccess(typeof (string), expression.Mapping.Offset));
+            tupleExpression.MakeTupleAccess(WellKnownTypes.String, expression.Mapping.Offset));
           return result;
         }
 

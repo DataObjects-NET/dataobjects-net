@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Metadata;
 using Xtensive.Orm.Providers;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Type = System.Type;
 
@@ -68,7 +69,7 @@ namespace Xtensive.Orm.Upgrade
       ExtensionName = ColumnOf((Extension x) => x.Name);
       ExtensionText = ColumnOf((Extension x) => x.Text);
 
-      StringMapping = driver.GetTypeMapping(typeof (string));
+      StringMapping = driver.GetTypeMapping(WellKnownTypes.String);
       IntMapping = driver.GetTypeMapping(typeof (int));
     }
   }

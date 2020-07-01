@@ -5,6 +5,7 @@
 // Created:    2008.08.07
 
 using System.ComponentModel;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm
 {
@@ -16,7 +17,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override bool CanConvertFrom(ITypeDescriptorContext context, System.Type sourceType)
     {
-      return ((sourceType == typeof(string)) || base.CanConvertFrom(context, sourceType));
+      return sourceType == WellKnownTypes.String || base.CanConvertFrom(context, sourceType);
     }
 
     /// <inheritdoc/>
@@ -31,7 +32,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, System.Type destinationType)
     {
-      if (destinationType == typeof(string)) {
+      if (destinationType == WellKnownTypes.String) {
         return ((UrlInfo) value).Url;
       }
       return base.ConvertTo(context, culture, value, destinationType);

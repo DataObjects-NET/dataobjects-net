@@ -448,7 +448,7 @@ namespace Xtensive.Orm.Linq
       var searchCriteria = expressions[0];
       if (compiledQueryScope!=null
           && searchCriteria.NodeType==ExpressionType.Constant
-          && searchCriteria.Type==typeof (string))
+          && searchCriteria.Type==WellKnownTypes.String)
         throw new InvalidOperationException(String.Format(Strings.ExFreeTextNotSupportedInCompiledQueries, ((ConstantExpression) searchCriteria).Value));
 
       // Prepare parameter

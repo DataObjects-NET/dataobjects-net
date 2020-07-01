@@ -385,7 +385,7 @@ namespace Xtensive.Orm.Upgrade
         return null;
       
       var type = typeInfo.Type;
-      if (type==typeof(string))
+      if (type==WellKnownTypes.String)
         return string.Empty;
       if (type==typeof(byte[]))
         return ArrayUtils<byte>.EmptyArray;

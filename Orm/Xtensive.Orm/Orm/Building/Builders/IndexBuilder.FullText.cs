@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 
 
 namespace Xtensive.Orm.Building.Builders
@@ -105,7 +106,7 @@ namespace Xtensive.Orm.Building.Builders
         FieldInfo field;
         if (!type.Fields.TryGetValue(fullTextFieldDef.TypeFieldName, out field))
           throw new DomainBuilderException(string.Format(Strings.ExColumnXIsNotFound, fullTextFieldDef.TypeFieldName));
-        if (field.ValueType!=typeof (string))
+        if (field.ValueType!=WellKnownTypes.String)
           throw new DomainBuilderException(string.Format(Strings.ExTypeColumnXForFulltextColumnYMustBeTypeOfString, field.Name, column.Name));
         typeColumn = field.Column;
       }

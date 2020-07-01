@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -166,7 +167,7 @@ namespace Xtensive.Orm.Providers
           var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
           column.IsNullable = true;
           // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          if (mapping.Type==typeof(string))
+          if (mapping.Type==WellKnownTypes.String)
             column.Collation = collation;
           fieldIndex++;
         }

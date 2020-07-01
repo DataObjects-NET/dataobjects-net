@@ -374,7 +374,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       ColumnInfo column;
       if (field.ValueType==typeof (Key))
-        column = new ColumnInfo(field, typeof (string));
+        column = new ColumnInfo(field, WellKnownTypes.String);
       else
         column = new ColumnInfo(field);
       column.Name = context.NameBuilder.BuildColumnName(field, column);

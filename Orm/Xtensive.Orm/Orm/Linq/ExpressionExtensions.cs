@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Linq
         && !expression.IsGroupingExpression()
         && !expression.IsEntitySet()
         && !expression.IsSubqueryExpression()
-        && expression.Type!=typeof (string)
+        && expression.Type!=WellKnownTypes.String
         && expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
         && (IsEvaluableCollection(context, expression) || IsForeignQuery(expression));
     }

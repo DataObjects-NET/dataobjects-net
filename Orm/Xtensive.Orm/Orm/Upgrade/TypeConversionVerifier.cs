@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
 
       // Types are different
-      if (toType==typeof(string))
+      if (toType==WellKnownTypes.String)
         // Checking target string length
         return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
 
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Upgrade
 
       if (toType==typeof(decimal) && fromType==typeof(decimal))
         return CheckScaleAndPrecision(from, to);
-      else if (toType==typeof(string) && fromType==typeof(string))
+      else if (toType==WellKnownTypes.String && fromType==WellKnownTypes.String)
         return CheckLength(from, to);
       else if (toType==typeof (byte[]) && fromType==typeof (byte[]))
         return CheckLength(from, to);

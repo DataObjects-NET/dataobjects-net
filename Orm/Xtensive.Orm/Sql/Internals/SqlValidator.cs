@@ -225,7 +225,7 @@ namespace Xtensive.Sql
           typeof (uint),
           typeof (long),
           typeof (ulong),
-          typeof (string),
+          WellKnownTypes.String,
           typeof (float),
           typeof (double),
           typeof (decimal),

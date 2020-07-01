@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToChar(SqlExpression target)
     {
-      return Cast(target, typeof (string));
+      return Cast(target, WellKnownTypes.String);
     }
 
     public static SqlExpression ToDateTime(SqlExpression target)
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToString(SqlExpression target)
     {
-      return Cast(target, typeof (string));
+      return Cast(target, WellKnownTypes.String);
     }
 
     private static SqlExpression Cast(SqlExpression target, Type type)

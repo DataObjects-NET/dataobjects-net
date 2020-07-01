@@ -45,9 +45,9 @@ namespace Xtensive.Orm.Linq
 
         var freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.FreeText)).ToArray();
         FreeTextString = freetextMethods
-          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==WellKnownTypes.String);
         FreeTextStringTopNByRank = freetextMethods
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(string) && ft.GetParameterTypes()[1]==typeof(int));
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==WellKnownTypes.String && ft.GetParameterTypes()[1]==typeof(int));
         FreeTextExpression = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>));
         FreeTextExpressionTopNByRank = freetextMethods
@@ -103,9 +103,9 @@ namespace Xtensive.Orm.Linq
 
         var freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.FreeText)).ToArray();
         FreeTextString = freetextMethods
-          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==WellKnownTypes.String);
         FreeTextStringTopNByRank = freetextMethods
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(string) && ft.GetParameterTypes()[1]==typeof(int));
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==WellKnownTypes.String && ft.GetParameterTypes()[1]==typeof(int));
         FreeTextExpression = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>));
         FreeTextExpressionTopNByRank = freetextMethods
@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Linq
           nameof(Orm.Key.Create),
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
           null,
-          new[] {typeof (Domain), typeof (string), typeof (TypeInfo), typeof (TypeReferenceAccuracy), typeof (Tuples.Tuple)}, null);
+          new[] {typeof (Domain), WellKnownTypes.String, typeof (TypeInfo), typeof (TypeReferenceAccuracy), typeof (Tuples.Tuple)}, null);
       }
     }
 

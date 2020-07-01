@@ -170,7 +170,7 @@ namespace Xtensive.Modelling
         isImmutable |= pa.IsImmutable;
         recreateParent |= pa.RecreateParent;
         dependencyRootType = pa.DependencyRootType;
-        compareCaseInsensitive = tProperty == typeof (string) && pa.CaseInsensitiveComparison;
+        compareCaseInsensitive = tProperty == WellKnownTypes.String && pa.CaseInsensitiveComparison;
       }
       this.GetType()
         .GetMethod("InnerInitialize", 

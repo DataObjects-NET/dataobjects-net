@@ -7,6 +7,7 @@
 using System;
 using System.Collections;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation
 {
@@ -28,8 +29,8 @@ namespace Xtensive.Orm.Validation
     public override void Configure(Domain domain, TypeInfo type, FieldInfo field)
     {
       base.Configure(domain, type, field);
-      if (field.ValueType!=typeof (string) && typeof (ICollection).IsAssignableFrom(field.ValueType))
-        ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, typeof (string).FullName));
+      if (field.ValueType!=WellKnownTypes.String && typeof (ICollection).IsAssignableFrom(field.ValueType))
+        ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, WellKnownTypes.String.FullName));
       if (Max==int.MaxValue && Min==0)
         ThrowConfigurationError(Strings.MaxOrMinPropertyShouldBeSpecified);
     }

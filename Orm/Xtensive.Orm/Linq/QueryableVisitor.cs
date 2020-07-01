@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Linq
 {
@@ -21,7 +22,7 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Arguments.Count > 0 && mc.Arguments[0].Type==typeof (string))
+      if (mc.Arguments.Count > 0 && mc.Arguments[0].Type==WellKnownTypes.String)
         return base.VisitMethodCall(mc);
 
       var method = GetQueryableMethod(mc);

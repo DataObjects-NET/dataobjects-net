@@ -343,7 +343,7 @@ namespace Xtensive.Linq
       else if (c.Value==null) {
         Write("null");
       }
-      else if (type==typeof (string)) {
+      else if (type==WellKnownTypes.String) {
         string value = c.Value.ToString();
         if (value.IndexOfAny(special) >= 0)
           Write("@");

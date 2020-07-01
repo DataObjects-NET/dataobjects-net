@@ -890,7 +890,7 @@ namespace Xtensive.Orm.Upgrade
         var tableRef = SqlDml.TableRef(table);
         var copyValues = SqlDml.Update(tableRef);
         if (newTypeInfo.IsNullable) {
-          if (sourceColumn.Type.Type.StripNullable()==typeof (string) && newSqlType.Length < column.DataType.Length)
+          if (sourceColumn.Type.Type.StripNullable()==WellKnownTypes.String && newSqlType.Length < column.DataType.Length)
             copyValues.Values[tableRef[originalName]] = SqlDml.Cast(SqlDml.Substring(tableRef[tempName], 0, newSqlType.Length), newSqlType);
           else
             copyValues.Values[tableRef[originalName]] = SqlDml.Cast(tableRef[tempName], newSqlType);
@@ -944,7 +944,7 @@ namespace Xtensive.Orm.Upgrade
 
       column.IsNullable = columnInfo.Type.IsNullable;
 
-      if (columnInfo.Type.Type==typeof (string) && collationName!=null)
+      if (columnInfo.Type.Type==WellKnownTypes.String && collationName!=null)
         column.Collation = table.Schema.Collations[collationName] ?? new Collation(table.Schema, collationName);
 
       return column;

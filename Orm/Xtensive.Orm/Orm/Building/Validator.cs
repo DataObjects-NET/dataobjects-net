@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Building
     /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
     internal void EnsureIsNullable(Type valueType)
     {
-      if (!(typeof(IEntity).IsAssignableFrom(valueType) || valueType==typeof (string) || valueType==typeof (byte[])))
+      if (!(typeof(IEntity).IsAssignableFrom(valueType) || valueType==WellKnownTypes.String || valueType==typeof (byte[])))
         throw new DomainBuilderException(string.Format(
           Strings.ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT, valueType));
     }

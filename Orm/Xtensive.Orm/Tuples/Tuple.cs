@@ -11,8 +11,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Comparison;
 using Xtensive.Core;
-
-
+using Xtensive.Reflection;
 using Xtensive.Tuples.Packed;
 
 namespace Xtensive.Tuples
@@ -278,7 +277,7 @@ namespace Xtensive.Tuples
           sb.Append(Strings.NotAvailable);
         else if (state.IsNull())
           sb.Append(Strings.Null);
-        else if (Descriptor[i]==typeof (string)) {
+        else if (Descriptor[i]==WellKnownTypes.String) {
           if (string.IsNullOrEmpty(value as string))
             sb.Append(Strings.EmptyString);
           else

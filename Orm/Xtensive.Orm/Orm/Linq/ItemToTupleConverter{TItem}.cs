@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Linq
         type.IsEnum ||
         type==typeof (byte[]) || 
         type==typeof (decimal) || 
-        type==typeof (string) || 
+        type==WellKnownTypes.String ||
         type==typeof (DateTime) ||
         type==typeof (DateTimeOffset) ||
         type==typeof(Guid) || 

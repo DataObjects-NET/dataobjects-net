@@ -140,7 +140,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
       column.IsNullable = columnInfo.Type.IsNullable;
 
-      if (columnInfo.Type.Type == typeof(string) && collationName != null)
+      if (columnInfo.Type.Type == WellKnownTypes.String && collationName != null)
         column.Collation = table.Schema.Collations[collationName] ?? new Collation(table.Schema, collationName);
     }
 
