@@ -333,7 +333,7 @@ namespace Xtensive.Orm.Linq
 
         // Visit Query. Deprecated.
 #pragma warning disable 612,618
-        if (mc.Method.DeclaringType==typeof (Query)) {
+        if (mc.Method.DeclaringType==WellKnownOrmTypes.Query) {
           // Query.All<T>
           if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All)
             return ConstructQueryable(mc);

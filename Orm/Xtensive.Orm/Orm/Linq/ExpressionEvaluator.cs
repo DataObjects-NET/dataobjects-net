@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
@@ -108,7 +109,7 @@ namespace Xtensive.Orm.Linq
         var methodInfo = mc.Method;
         if (methodInfo.DeclaringType == WellKnownTypes.Enumerable ||
             methodInfo.DeclaringType == WellKnownTypes.Queryable ||
-            (methodInfo.DeclaringType == typeof (Query)) && methodInfo.IsGenericMethod)
+            (methodInfo.DeclaringType == WellKnownOrmTypes.Query) && methodInfo.IsGenericMethod)
           return false;
       }
 #pragma warning restore 612,618

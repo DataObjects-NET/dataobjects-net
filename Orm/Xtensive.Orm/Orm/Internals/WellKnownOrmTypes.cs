@@ -1,4 +1,5 @@
 using System;
+using Xtensive.Orm.Linq;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
@@ -16,5 +17,8 @@ namespace Xtensive.Orm.Internals
     public static readonly Type Structure = typeof(Structure);
 
     public static readonly Type Tuple = typeof(Tuple);
+
+    public static readonly Type Query = typeof(Query);
+    public static readonly Type QueryProvider = typeof(QueryProvider);
   }
 }
