@@ -1153,7 +1153,7 @@ namespace Xtensive.Orm.Linq
       if (state.Parameters.Length==0)
         throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
 
-      if (!resultType.IsOfGenericInterface(typeof (IEnumerable<>)))
+      if (!resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT))
         throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), OrmLog.Instance);
 
       ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);

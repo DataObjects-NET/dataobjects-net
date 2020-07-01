@@ -1046,7 +1046,7 @@ namespace Xtensive.Orm.Linq
       var visitedOuterSource = Visit(outerSource);
       var innerItemType = visitedInnerSource.Type.GetGenericArguments()[0];
       var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerItemType);
-      var enumerableType = typeof (IEnumerable<>).MakeGenericType(innerItemType);
+      var enumerableType = WellKnownInterfaces.EnumerableOfT.MakeGenericType(innerItemType);
       var groupingResultType = WellKnownInterfaces.QueryableOfT.MakeGenericType(enumerableType);
       var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
 

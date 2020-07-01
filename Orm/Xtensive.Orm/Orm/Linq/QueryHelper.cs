@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Linq
 
     public static Type GetSequenceElementType(Type type)
     {
-      var sequenceType = type.GetGenericInterface(typeof (IEnumerable<>));
+      var sequenceType = type.GetGenericInterface(WellKnownInterfaces.EnumerableOfT);
       return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
     }
 
