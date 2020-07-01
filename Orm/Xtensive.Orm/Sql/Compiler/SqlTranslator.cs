@@ -1054,7 +1054,7 @@ namespace Xtensive.Sql.Compiler
       }
       if (literalType == WellKnownTypes.TimeSpan)
         return SqlHelper.TimeSpanToString((TimeSpan) literalValue, TimeSpanFormatString);
-      if (literalType==WellKnownTypes.Guid || literalType==typeof(byte[]))
+      if (literalType==WellKnownTypes.Guid || literalType==WellKnownTypes.ByteArray)
         throw new NotSupportedException(string.Format(
           Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
       return literalValue.ToString();

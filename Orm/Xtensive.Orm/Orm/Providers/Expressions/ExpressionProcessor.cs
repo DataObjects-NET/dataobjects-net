@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Providers
 
       switch (expression.NodeType) {
         case ExpressionType.ArrayLength:
-          if (expression.Operand.Type!=typeof(byte[]))
+          if (expression.Operand.Type!=WellKnownTypes.ByteArray)
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
           return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.MapValueType(WellKnownTypes.Int32));
         case ExpressionType.Negate:

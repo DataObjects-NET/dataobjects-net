@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Upgrade
         return CheckScaleAndPrecision(from, to);
       else if (toType==WellKnownTypes.String && fromType==WellKnownTypes.String)
         return CheckLength(from, to);
-      else if (toType==typeof (byte[]) && fromType==typeof (byte[]))
+      else if (toType==WellKnownTypes.ByteArray && fromType==WellKnownTypes.ByteArray)
         return CheckLength(from, to);
       return true;
     }

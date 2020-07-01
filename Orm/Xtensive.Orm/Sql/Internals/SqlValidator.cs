@@ -232,7 +232,7 @@ namespace Xtensive.Sql
           WellKnownTypes.DateTime,
           WellKnownTypes.DateTimeOffset,
           WellKnownTypes.TimeSpan,
-          typeof (byte[]),
+          WellKnownTypes.ByteArray,
           WellKnownTypes.Guid
         }.ToHashSet();
     }

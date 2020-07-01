@@ -778,10 +778,10 @@ namespace Xtensive.Orm.Linq
           return Expression.ArrayIndex(arrayExpression, arrayIndex);
         }
 
-        // If array compares to null use standart routine. 
+        // If array compares to null use standard routine.
         if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
           || (rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
-            || (right.Type==typeof (byte[]) && (left is FieldExpression || left is ColumnExpression || right is FieldExpression || right is ColumnExpression)))
+            || (right.Type==WellKnownTypes.ByteArray && (left is FieldExpression || left is ColumnExpression || right is FieldExpression || right is ColumnExpression)))
           return Expression.MakeBinary(binaryExpression.NodeType,
             left,
             right,

@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Linq
       type = type.StripNullable();
       return type.IsPrimitive || 
         type.IsEnum ||
-        type==typeof (byte[]) || 
+        type==WellKnownTypes.ByteArray ||
         type==WellKnownTypes.Decimal ||
         type==WellKnownTypes.String ||
         type==WellKnownTypes.DateTime ||

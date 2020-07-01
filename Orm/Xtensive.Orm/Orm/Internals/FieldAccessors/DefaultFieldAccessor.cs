@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
     private static readonly bool isValueType = (typeof (T).IsValueType);
     private static readonly bool isObject = (typeof (T)==WellKnownTypes.Object);
     private static readonly bool isString = (typeof (T)==WellKnownTypes.String);
-    private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
+    private static readonly bool isByteArray = (typeof (T)==WellKnownTypes.ByteArray);
 
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
