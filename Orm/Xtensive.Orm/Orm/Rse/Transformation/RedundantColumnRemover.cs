@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -44,7 +45,7 @@ namespace Xtensive.Orm.Rse.Transformation
         .GetMethods()
         .Single(methodInfo => methodInfo.Name == "Select"
           && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
-        .MakeGenericMethod(typeof(Tuple), typeof(Tuple));
+        .MakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
 
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
       var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));

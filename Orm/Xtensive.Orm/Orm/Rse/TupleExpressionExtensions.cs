@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse
@@ -53,7 +54,7 @@ namespace Xtensive.Orm.Rse
     {
       if (expression.NodeType==ExpressionType.Call) {
         var mc = (MethodCallExpression) expression;
-        if (mc.Object!=null && mc.Object.Type==typeof (Tuple))
+        if (mc.Object!=null && mc.Object.Type==WellKnownOrmTypes.Tuple)
           if (mc.Method.Name==Reflection.WellKnown.Tuple.GetValue || mc.Method.Name==Reflection.WellKnown.Tuple.GetValueOrDefault)
             return mc;
       }

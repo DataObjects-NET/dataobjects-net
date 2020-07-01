@@ -69,10 +69,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static readonly object itemsQueryCachingRegion = new object();
     private static readonly Parameter<Tuple> ownerParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private static readonly Parameter<int> itemCountLimitParameter = new Parameter<int>("ItemCountLimit");
-    private static readonly MethodInfo getValueMethodDefinition = typeof (Tuple)
-      .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-      .Where(method => method.Name=="GetValue" && method.GetParameters().Length == 1
-        && method.IsGenericMethodDefinition).Single();
 
     private readonly Key ownerKey;
     private readonly bool isOwnerCached;

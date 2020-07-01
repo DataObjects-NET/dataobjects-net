@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Operations
         }
       }
       else if (WellKnownOrmTypes.Structure.IsAssignableFrom(Field.ValueType)) {
-        var tuple = (Tuple) info.GetValue("value", typeof (Tuple));
+        var tuple = (Tuple) info.GetValue("value", WellKnownOrmTypes.Tuple);
         Value = session.Services.Get<DirectPersistentAccessor>()
           .CreateStructure(Field.ValueType, tuple);
       }
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Operations
       }
       else if (structureValue != null) {
         // serializing structure value as tuple
-        info.AddValue("value", structureValue.Tuple.ToRegular(), typeof (Tuple));
+        info.AddValue("value", structureValue.Tuple.ToRegular(), WellKnownOrmTypes.Tuple);
       }
       else
         info.AddValue("value", Value, Field.ValueType);

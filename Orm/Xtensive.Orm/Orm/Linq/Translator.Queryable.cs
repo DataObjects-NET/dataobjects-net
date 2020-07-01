@@ -836,7 +836,7 @@ namespace Xtensive.Orm.Linq
         })
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
-      var tupleParameter = Expression.Parameter(typeof(Tuple), "tuple");
+      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 
       Expression filterBody = (nullableFields.Count == 0)
         ? comparisonInfos.Aggregate(

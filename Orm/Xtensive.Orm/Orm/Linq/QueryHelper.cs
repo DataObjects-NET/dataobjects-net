@@ -36,8 +36,8 @@ namespace Xtensive.Orm.Linq
     public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IReadOnlyList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
-      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
-      var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
+      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+      var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", WellKnownOrmTypes.Tuple);
       var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
       for (var i = 0; i < keyColumnTypes.Count; i++) {
         var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);

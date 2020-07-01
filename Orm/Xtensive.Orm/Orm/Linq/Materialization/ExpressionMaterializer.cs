@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
     {
-      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
+      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
       var visitor = new ExpressionMaterializer(tupleParameter, context, null, EnumerableUtils<Parameter<Tuple>>.Empty);
       var processedExpression = OwnerRemover.RemoveOwner(expression);
       return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context, 
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
+      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
       var materializationContextParameter = Expression.Parameter(typeof (ItemMaterializationContext), "mc");
       var visitor = new ExpressionMaterializer(tupleParameter, context, materializationContextParameter, tupleParameters);
       var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), tupleParameter, materializationContextParameter);
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var keyMaterializer = Visit(groupingExpression.KeyExpression);
       var groupingCtor = typeof (Grouping<,>)
         .MakeGenericType(keyType, elementType)
-        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), keyType, typeof (ItemMaterializationContext)});
+        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), WellKnownOrmTypes.Tuple, keyType, typeof (ItemMaterializationContext)});
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Linq.Materialization
       // 2. Create constructor
       var subQueryCtor = typeof (SubQuery<>)
         .MakeGenericType(elementType)
-        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), typeof (Tuple), typeof (ItemMaterializationContext)});
+        .GetConstructor(new[] {typeof (ProjectionExpression), typeof (TranslatedQuery), typeof (Parameter<Tuple>), WellKnownOrmTypes.Tuple, typeof (ItemMaterializationContext)});
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
@@ -543,7 +543,7 @@ namespace Xtensive.Orm.Linq.Materialization
       ParameterContextProperty =
         typeof(ItemMaterializationContext).GetProperty(nameof(ItemMaterializationContext.ParameterContext));
       GetParameterValueMethod = typeof(ParameterContext).GetMethod(nameof(ParameterContext.GetValue));
-      GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(typeof(Tuple));
+      GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(WellKnownOrmTypes.Tuple);
       BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);
       GetTupleSegmentMethod = typeof (ExpressionMaterializer).GetMethod("GetTupleSegment", BindingFlags.NonPublic | BindingFlags.Static);
     }

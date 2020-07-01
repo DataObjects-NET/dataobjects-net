@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse;
 using Xtensive.Tuples;
 
@@ -91,7 +92,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
     {
-      calculatedColumnParameter = Expression.Parameter(typeof (Tuple), "filteredRow");
+      calculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
 
       this.filterDataTuple = filterDataTuple;
       this.filteredTuple = filteredTuple;

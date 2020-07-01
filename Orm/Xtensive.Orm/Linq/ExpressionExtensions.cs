@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -76,8 +77,8 @@ namespace Xtensive.Linq
 
     static ExpressionExtensions()
     {
-      var tupleGenericAccessor = typeof(Tuple).GetMethods()
-        .Single(mi => mi.Name == WellKnown.Tuple.GetValueOrDefault && mi.IsGenericMethod);
+      var tupleGenericAccessor = WellKnownOrmTypes.Tuple.GetMethods()
+        .Single(mi => mi.Name == nameof(Tuple.GetValueOrDefault) && mi.IsGenericMethod);
       TupleValueAccessorFactory = type => tupleGenericAccessor.MakeGenericMethod(type);
     }
   }

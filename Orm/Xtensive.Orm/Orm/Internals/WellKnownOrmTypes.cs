@@ -1,4 +1,5 @@
 using System;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
@@ -13,5 +14,7 @@ namespace Xtensive.Orm.Internals
     public static readonly Type KeyOfT = typeof(Key<>);
 
     public static readonly Type Structure = typeof(Structure);
+
+    public static readonly Type Tuple = typeof(Tuple);
   }
 }

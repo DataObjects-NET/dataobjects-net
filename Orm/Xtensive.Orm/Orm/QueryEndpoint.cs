@@ -403,7 +403,7 @@ namespace Xtensive.Orm
       if (elementType==typeof (object[])) {
         selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (object[]) (object) e);
       }
-      else if (typeof (Tuple).IsAssignableFrom(elementType)) {
+      else if (WellKnownOrmTypes.Tuple.IsAssignableFrom(elementType)) {
         selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (Tuple) (object) e);
       }
       else {

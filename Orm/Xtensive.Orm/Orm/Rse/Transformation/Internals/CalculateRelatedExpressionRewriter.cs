@@ -7,6 +7,7 @@
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Tuple = Xtensive.Tuples.Tuple;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var visited = (MethodCallExpression)base.VisitMethodCall(mc);
       if (mc.Object.NodeType == ExpressionType.Parameter
-        && mc.Object.Type == typeof(Tuple)) {
+        && mc.Object.Type == WellKnownOrmTypes.Tuple) {
         var sourceIndex = visited.GetTupleAccessArgument();
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
         var currentIndex = targetColumns[name].Index;
