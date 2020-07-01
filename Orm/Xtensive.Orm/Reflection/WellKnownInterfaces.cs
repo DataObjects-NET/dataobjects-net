@@ -9,6 +9,6 @@ namespace Xtensive.Reflection
     public static readonly Type QueryableOfT = typeof(IQueryable<>);
     public static readonly Type EnumerableOfT = typeof(IEnumerable<>);
     public static readonly Type AsyncEnumerableOfT = typeof(IAsyncEnumerable<>);
-    public static readonly Type GroupingOfTKeyTElement = typeof (IGrouping<,>);
+    public static readonly Type GroupingOfTKeyTElement = typeof(IGrouping<,>);
   }
 }

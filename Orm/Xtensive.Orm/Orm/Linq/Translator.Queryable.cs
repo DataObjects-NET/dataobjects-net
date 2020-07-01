@@ -910,7 +910,7 @@ namespace Xtensive.Orm.Linq
       var elementType = elementSelector == null
         ? keySelector.Parameters[0].Type
         : elementSelector.Type.GetGenericArguments()[1];
-      var groupingType = typeof(IGrouping<,>).MakeGenericType(keyType, elementType);
+      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.MakeGenericType(keyType, elementType);
 
       Type realGroupingType =
         resultSelector != null
@@ -1045,7 +1045,7 @@ namespace Xtensive.Orm.Linq
       var visitedInnerSource = Visit(innerSource);
       var visitedOuterSource = Visit(outerSource);
       var innerItemType = visitedInnerSource.Type.GetGenericArguments()[0];
-      var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerItemType);
+      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.MakeGenericType(innerKey.Type, innerItemType);
       var enumerableType = WellKnownInterfaces.EnumerableOfT.MakeGenericType(innerItemType);
       var groupingResultType = WellKnownInterfaces.QueryableOfT.MakeGenericType(enumerableType);
       var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
