@@ -22,6 +22,7 @@ namespace Xtensive.Comparison
   {
     private static readonly ComparerProvider defaultProvider = new ComparerProvider();
     private static readonly SystemComparerProvider systemProvider = SystemComparerProvider.Instance;
+    private static readonly Type BaseComparerWrapperType = typeof (BaseComparerWrapper<,>);
 
     /// <summary>
     /// Gets default instance of this type.
@@ -73,13 +74,10 @@ namespace Xtensive.Comparison
       }
       if (foundFor==typeof (TKey))
         return (TAssociate) comparer;
-      Type baseComparerWrapperType = typeof (BaseComparerWrapper<,>);
-      associate =
-        baseComparerWrapperType.Activate(new Type[] {typeof (TKey), foundFor}, ConstructorParams) as
-          TAssociate;
+      associate = BaseComparerWrapperType.Activate(new[] {typeof (TKey), foundFor}, ConstructorParams) as TAssociate;
       if (associate!=null) {
         CoreLog.Warning(Strings.LogGenericAssociateIsUsedFor,
-          baseComparerWrapperType.GetShortName(),
+          BaseComparerWrapperType.GetShortName(),
           typeof (TKey).GetShortName(),
           foundFor.GetShortName(),
           typeof (TKey).GetShortName());
@@ -87,7 +85,7 @@ namespace Xtensive.Comparison
       }
       else {
         CoreLog.Warning(Strings.LogGenericAssociateCreationHasFailedFor,
-          baseComparerWrapperType.GetShortName(),
+          BaseComparerWrapperType.GetShortName(),
           typeof (TKey).GetShortName(),
           foundFor.GetShortName(),
           typeof (TKey).GetShortName());
