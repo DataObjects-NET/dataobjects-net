@@ -14,6 +14,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using System.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -56,13 +57,12 @@ namespace Xtensive.Orm.Rse.Providers
 
     public CombineTransform ResultTransform { get; private set; }
 
-    private static readonly Type BoolType = typeof(bool);
-    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {BoolType});
+    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, BoolType));
+      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, WellKnownTypes.Bool));
       var fieldTypes = new Type[FilteredColumns.Count];
       for (var index = 0; index < fieldTypes.Length; index++) {
         fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;

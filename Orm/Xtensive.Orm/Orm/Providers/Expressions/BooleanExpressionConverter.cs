@@ -5,6 +5,7 @@
 // Created:    2009.08.17
 
 using System.Linq;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -56,7 +57,7 @@ namespace Xtensive.Orm.Providers
 
     public BooleanExpressionConverter(StorageDriver driver)
     {
-      booleanType = driver.MapValueType(typeof (bool));
+      booleanType = driver.MapValueType(WellKnownTypes.Bool);
     }
   }
 }

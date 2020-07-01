@@ -37,7 +37,7 @@ namespace Xtensive.Linq
   internal sealed class LambdaExpressionFactory
   {
     private static readonly Type[] internalFactorySignature = new[] {
-      typeof(Expression), typeof(string), typeof(bool), typeof(IReadOnlyList<ParameterExpression>)
+      typeof(Expression), typeof(string), WellKnownTypes.Bool, typeof(IReadOnlyList<ParameterExpression>)
     };
 
     private static readonly object _lock = new object();

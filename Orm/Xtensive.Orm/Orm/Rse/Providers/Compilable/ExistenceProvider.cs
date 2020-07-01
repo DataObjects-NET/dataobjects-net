@@ -7,7 +7,7 @@
 using System;
 using System.Diagnostics;
 using Xtensive.Collections;
-
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -25,12 +25,13 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public string ExistenceColumnName { get; private set; }
 
+    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
+
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return new RecordSetHeader(
-        TupleDescriptor.Create(new[] { typeof(bool) }),
-        new[] { new SystemColumn(ExistenceColumnName, 0, typeof(bool)) });
+        BoolTupleDescriptor, new[] { new SystemColumn(ExistenceColumnName, 0, WellKnownTypes.Bool) });
     }
 
 

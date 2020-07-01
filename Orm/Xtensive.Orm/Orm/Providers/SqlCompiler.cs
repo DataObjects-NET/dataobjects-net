@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Providers
         var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
-        if (column.Type.StripNullable()==typeof (bool))
+        if (column.Type.StripNullable()==WellKnownTypes.Bool)
           predicate = GetBooleanColumnExpression(predicate);
         AddInlinableColumn(provider, column, sqlSelect, predicate);
         allBindings = allBindings.Concat(bindings);

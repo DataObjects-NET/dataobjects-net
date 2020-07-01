@@ -1241,14 +1241,14 @@ namespace Xtensive.Orm.Linq
         ? VisitSequence(source)
         : VisitWhere(source, predicate);
 
-      var existenceColumn = ColumnExpression.Create(typeof (bool), 0);
+      var existenceColumn = ColumnExpression.Create(WellKnownTypes.Bool, 0);
       var projectorBody = notExists
         ? Expression.Not(existenceColumn)
         : (Expression) existenceColumn;
       var newRecordSet = result.ItemProjector.DataSource.Existence(context.GetNextColumnAlias());
       var itemProjector = new ItemProjectorExpression(projectorBody, newRecordSet, context);
       return new ProjectionExpression(
-        typeof (bool), 
+        WellKnownTypes.Bool,
         itemProjector, 
         result.TupleParameterBindings, 
         ResultType.Single);
@@ -1272,7 +1272,7 @@ namespace Xtensive.Orm.Linq
         .DataSource
         .Existence(context.GetNextColumnAlias());
 
-      var filter = AddSubqueryColumn(typeof (bool), recordSet);
+      var filter = AddSubqueryColumn(WellKnownTypes.Bool, recordSet);
       if (notExists)
         filter = Expression.Not(filter);
       return filter;
@@ -1351,7 +1351,7 @@ namespace Xtensive.Orm.Linq
           outerResult.TupleParameterBindings,
           outerResult.ResultType);
         context.Bindings.ReplaceBound(outerParameter, newOuterResult);
-        Expression resultExpression = ColumnExpression.Create(typeof (bool), columnIndex);
+        Expression resultExpression = ColumnExpression.Create(WellKnownTypes.Bool, columnIndex);
         if (notExists)
           resultExpression = Expression.Not(resultExpression);
         return resultExpression;

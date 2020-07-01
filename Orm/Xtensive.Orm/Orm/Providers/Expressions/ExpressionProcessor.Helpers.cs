@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsBooleanExpression(Expression expression)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (bool);
+      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.Bool;
     }
 
     private static bool IsDateTimeExpression(Expression expression)

@@ -673,15 +673,15 @@ namespace Xtensive.Orm.Linq
       case MemberType.EntitySet:
         if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value==null)
           || left is ConstantExpression && ((ConstantExpression) left).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
+          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
         if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
           || right is ConstantExpression && ((ConstantExpression) right).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
+          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
         var leftEntitySetExpression = left as EntitySetExpression;
         var rightEntitySetExpression = right as EntitySetExpression;
         if (leftEntitySetExpression!=null && rightEntitySetExpression!=null) {
           if (leftEntitySetExpression.Field!=rightEntitySetExpression.Field)
-            return Expression.Constant(false, typeof (bool));
+            return Expression.Constant(false, WellKnownTypes.Bool);
           var binary = Expression.MakeBinary(binaryExpression.NodeType,
             (Expression) leftEntitySetExpression.Owner,
             (Expression) rightEntitySetExpression.Owner,
@@ -756,10 +756,10 @@ namespace Xtensive.Orm.Linq
       case MemberType.Structure:
         if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value==null)
           || left is ConstantExpression && ((ConstantExpression) left).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
+          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
         if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
           || right is ConstantExpression && ((ConstantExpression) right).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, typeof (bool));
+          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
         // Structure split to it's fields.
         var leftStructureExpression = left as StructureFieldExpression;
         var rightStructureExpression = right as StructureFieldExpression;

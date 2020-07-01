@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Reflection;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -292,7 +293,7 @@ namespace Xtensive.Sql
     {
       var mapper = builder.Mapper;
 
-      builder.Add(typeof (bool), mapper.ReadBoolean, mapper.BindBoolean, mapper.MapBoolean);
+      builder.Add(WellKnownTypes.Bool, mapper.ReadBoolean, mapper.BindBoolean, mapper.MapBoolean);
       builder.Add(typeof (char), mapper.ReadChar, mapper.BindChar, mapper.MapChar);
       builder.Add(typeof (string), mapper.ReadString, mapper.BindString, mapper.MapString);
       builder.Add(typeof (byte), mapper.ReadByte, mapper.BindByte, mapper.MapByte);
@@ -314,7 +315,7 @@ namespace Xtensive.Sql
 
     private static void RegisterStandardReverseMappings(TypeMappingRegistryBuilder builder)
     {
-      builder.AddReverse(SqlType.Boolean, typeof(bool));
+      builder.AddReverse(SqlType.Boolean, WellKnownTypes.Bool);
       builder.AddReverse(SqlType.Int8, typeof(sbyte));
       builder.AddReverse(SqlType.UInt8, typeof(byte));
       builder.AddReverse(SqlType.Int16, typeof(short));

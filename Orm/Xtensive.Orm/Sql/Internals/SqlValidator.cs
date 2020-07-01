@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql
@@ -214,7 +215,7 @@ namespace Xtensive.Sql
     {
       supportedTypes = new[]
         {
-          typeof (bool),
+          WellKnownTypes.Bool,
           typeof (char),
           typeof (sbyte),
           typeof (byte),

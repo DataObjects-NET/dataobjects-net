@@ -66,7 +66,8 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsBooleanSpecialCase(ExpressionTranslationContext context, MemberInfo member)
     {
-      return member.DeclaringType==typeof (bool?) && !context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
+      return member.DeclaringType==WellKnownTypes.NullableBool
+        && !context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
     }
   }
 }

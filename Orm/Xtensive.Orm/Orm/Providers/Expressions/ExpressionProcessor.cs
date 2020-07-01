@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Providers
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
       if (e.NodeType==ExpressionType.Convert && e.Type==WellKnownTypes.Object)
         type = ((UnaryExpression) e).Operand.Type;
-      bool optimizeBooleanParameter = type==typeof (bool);
+      bool optimizeBooleanParameter = type==WellKnownTypes.Bool;
       type = type.StripNullable();
       var typeMapping = driver.GetTypeMapping(type);
       var expression = ParameterAccessorFactory.CreateAccessorExpression<object>(e);
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Providers
       }
       else {
         result = binding.ParameterReference;
-        if (type==typeof(bool) && fixBooleanExpressions)
+        if (type==WellKnownTypes.Bool && fixBooleanExpressions)
           result = booleanExpressionConverter.IntToBoolean(result);
         else if (typeMapping.ParameterCastRequired)
           result = SqlDml.Cast(result, typeMapping.MapType());
@@ -335,14 +335,14 @@ namespace Xtensive.Orm.Providers
     protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
       if (expression.Value==null)
-        return fixBooleanExpressions && expression.Type==typeof (bool?)
+        return fixBooleanExpressions && expression.Type==WellKnownTypes.NullableBool
           ? booleanExpressionConverter.IntToBoolean(SqlDml.Null)
           : SqlDml.Null;
       var type = expression.Type;
       if (type==WellKnownTypes.Object)
         type = expression.Value.GetType();
       type = type.StripNullable();
-      if (fixBooleanExpressions && type==typeof (bool)) {
+      if (fixBooleanExpressions && type==WellKnownTypes.Bool) {
         var literal = SqlDml.Literal((bool) expression.Value);
         return booleanExpressionConverter.IntToBoolean(literal);
       }

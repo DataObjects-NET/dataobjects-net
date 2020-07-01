@@ -203,7 +203,8 @@ namespace Xtensive.Orm.Building.Builders
         return;
       var declaringType = indexDef.Type.UnderlyingType;
       var filterType = attribute.FilterType ?? declaringType;
-      indexDef.FilterExpression = GetExpressionFromProvider(filterType, attribute.Filter, declaringType, typeof (bool));
+      indexDef.FilterExpression =
+        GetExpressionFromProvider(filterType, attribute.Filter, declaringType, WellKnownTypes.Bool);
       if (indexDef.MappingName == null) {
         var nameBuilder = context.NameBuilder;
         var name = nameBuilder.BuildPartialIndexName(indexDef, filterType, attribute.Filter);

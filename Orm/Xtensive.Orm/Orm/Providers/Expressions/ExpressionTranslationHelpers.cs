@@ -5,6 +5,7 @@
 // Created:    2009.09.18
 
 using System;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -14,7 +15,7 @@ namespace Xtensive.Orm.Providers
   {
     public static SqlExpression ToBool(SqlExpression target)
     {
-      return Cast(target, typeof (bool));
+      return Cast(target, WellKnownTypes.Bool);
     }
 
     public static SqlExpression ToInt(SqlExpression target)
