@@ -327,7 +327,7 @@ namespace Xtensive.Orm.Building.Definitions
       Validators = new List<IPropertyValidator>();
 
       // Nullable<T>
-      if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()==typeof (Nullable<>)) {
+      if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()==WellKnownTypes.NullableOfT) {
         attributes |= FieldAttributes.Nullable;
         return;
       }

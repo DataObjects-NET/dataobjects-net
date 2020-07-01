@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.CompilerServices;
+using Xtensive.Reflection;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -80,7 +81,7 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
 
-      private static readonly int NullableTypeMetadataToken = typeof(Nullable<>).MetadataToken;
+      private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
 
       public static ValueFieldAccessor GetValue(Type probeType)
       {

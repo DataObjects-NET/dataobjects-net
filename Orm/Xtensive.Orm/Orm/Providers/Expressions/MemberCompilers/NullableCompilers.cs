@@ -17,13 +17,13 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof (SqlExpression))]
   internal static class NullableCompilers
   {
-    [Compiler(typeof (Nullable<>), "Value", TargetKind.PropertyGet)]
+    [Compiler(typeof(Nullable<>), "Value", TargetKind.PropertyGet)]
     public static SqlExpression NullableValue(MemberInfo memberInfo, SqlExpression _this)
     {
       return _this;
     }
 
-    [Compiler(typeof (Nullable<>), "HasValue", TargetKind.PropertyGet)]
+    [Compiler(typeof(Nullable<>), "HasValue", TargetKind.PropertyGet)]
     public static SqlExpression NullableHasValue(MemberInfo memberInfo, SqlExpression _this)
     {
       var context = ExpressionTranslationContext.Current;
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.IsNotNull(context.BooleanExpressionConverter.BooleanToInt(_this));
     }
 
-    [Compiler(typeof (Nullable<>), "GetValueOrDefault")]
+    [Compiler(typeof(Nullable<>), "GetValueOrDefault")]
     public static SqlExpression NullableGetValueOrDefault(MemberInfo memberInfo, SqlExpression _this)
     {
       var context = ExpressionTranslationContext.Current;
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Providers
         SqlDml.Coalesce(context.BooleanExpressionConverter.BooleanToInt(_this), defaultValue));
     }
 
-    [Compiler(typeof (Nullable<>), "GetValueOrDefault")]
+    [Compiler(typeof(Nullable<>), "GetValueOrDefault")]
     public static SqlExpression NullableGetValueOrDefault(MemberInfo memberInfo, SqlExpression _this, SqlExpression _default)
     {
       var context = ExpressionTranslationContext.Current;

@@ -13,6 +13,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
+using Xtensive.Reflection;
 using Xtensive.Sorting;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -349,18 +350,19 @@ namespace Xtensive.Orm.Model
     public Type ValueType
     {
       [DebuggerStepThrough]
-      get { return valueType; }
+      get => valueType;
       [DebuggerStepThrough]
       set
       {
         this.EnsureNotLocked();
         valueType = value;
         if (valueType.IsGenericType) {
-          if (valueType.GetGenericTypeDefinition()==typeof (Nullable<>))
-            IsEnum = Nullable.GetUnderlyingType(valueType).IsEnum;
+          valueType = valueType.StripNullable();
+          IsEnum = Nullable.GetUnderlyingType(valueType)?.IsEnum == true;
         }
-        else
+        else {
           IsEnum = value.IsEnum;
+        }
       }
     }
 

@@ -110,12 +110,11 @@ namespace Xtensive.Orm.Building
 
     internal void ValidateFieldType(TypeDef declaringType, Type fieldType, bool isKeyField)
     {
-      if (fieldType.IsGenericType) {
-        Type genericType = fieldType.GetGenericTypeDefinition();
-        if (genericType==typeof (Nullable<>)) {
-          ValidateFieldType(declaringType, Nullable.GetUnderlyingType(fieldType), isKeyField);
-          return;
-        }
+      var nullableFieldType = fieldType.StripNullable();
+      if (!ReferenceEquals(fieldType, nullableFieldType)) {
+        // Field type is nullable
+        ValidateFieldType(declaringType, nullableFieldType, isKeyField);
+        return;
       }
 
       if (fieldType.IsArray && isKeyField)

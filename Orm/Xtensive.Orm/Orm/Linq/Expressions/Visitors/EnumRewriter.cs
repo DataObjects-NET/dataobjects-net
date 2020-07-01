@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       if (expression.Type.StripNullable().IsEnum) {
         var underlyingType = Enum.GetUnderlyingType(expression.Type.StripNullable());
         if (expression.Type.IsNullable())
-          underlyingType = typeof (Nullable<>).MakeGenericType(underlyingType);
+          underlyingType = WellKnownTypes.NullableOfT.MakeGenericType(underlyingType);
         return Expression.Convert(expression, underlyingType);
       }
       return expression;
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       if (c.Type.StripNullable().IsEnum) {
         var underlyingType = Enum.GetUnderlyingType(c.Type.StripNullable());
         if (c.Type.IsNullable())
-          underlyingType = typeof (Nullable<>).MakeGenericType(underlyingType);
+          underlyingType = WellKnownTypes.NullableOfT.MakeGenericType(underlyingType);
         var underlyingTypeValue = Convert.ChangeType(c.Value, underlyingType);
         var constantExpression = Expression.Constant(underlyingTypeValue);
         return Expression.Convert(constantExpression, c.Type);

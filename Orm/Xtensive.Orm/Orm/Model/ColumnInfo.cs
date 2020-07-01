@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Model
 {
@@ -294,9 +295,7 @@ namespace Xtensive.Orm.Model
       IsLazyLoad = field.IsLazyLoad;
       valueType = field.ValueType;
       if (valueType.IsGenericType) {
-        var genericType = valueType.GetGenericTypeDefinition();
-        if (genericType == typeof(Nullable<>))
-          valueType = Nullable.GetUnderlyingType(valueType);
+        valueType = valueType.StripNullable();
       }
       if (field.IsEnum) {
         valueType = Enum.GetUnderlyingType(valueType);
