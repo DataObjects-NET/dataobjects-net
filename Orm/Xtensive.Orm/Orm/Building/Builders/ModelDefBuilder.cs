@@ -345,7 +345,7 @@ namespace Xtensive.Orm.Building.Builders
     private bool IsTypeAvailable(Type type)
     {
       return context.BuilderConfiguration.ModelFilter.IsTypeAvailable(type)
-        && type!=typeof (EntitySetItem<,>);
+        && type!=WellKnownOrmTypes.EntitySetItemOfT1T2;
     }
 
     private bool IsFieldAvailable(PropertyInfo property)

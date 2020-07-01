@@ -1,0 +1,9 @@
+using System;
+
+namespace Xtensive.Orm.Internals
+{
+  internal static class WellKnownOrmTypes
+  {
+    public static readonly Type EntitySetItemOfT1T2 = typeof (EntitySetItem<,>);
+  }
+}

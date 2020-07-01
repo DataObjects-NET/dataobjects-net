@@ -354,7 +354,8 @@ namespace Xtensive.Orm.Building.Builders
         underlyingTypeDef.MappingDatabase = association.OwnerType.MappingDatabase;
 
         // HierarchyRootAttribute is not inherited so we must take it from the generic type definition or generic instance type
-        var hra = typeof (EntitySetItem<,>).GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
+        var hra = WellKnownOrmTypes.EntitySetItemOfT1T2
+          .GetAttribute<HierarchyRootAttribute>(AttributeSearchOptions.Default);
         // Defining the hierarchy
         var hierarchy = modelDefBuilder.DefineHierarchy(underlyingTypeDef, hra);
 
@@ -404,7 +405,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var masterType = association.OwnerType.UnderlyingType;
       var slaveType = association.TargetType.UnderlyingType;
-      var baseType = typeof (EntitySetItem<,>).MakeGenericType(masterType, slaveType);
+      var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(masterType, slaveType);
 
       var typeName = string.Format(GeneratedTypeNameFormat,
         masterType.Namespace,
