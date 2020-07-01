@@ -70,10 +70,10 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[2]==WellKnownTypes.Int32).Method;
         var singleMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.Single) && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
-        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
+        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
         var singleOrDefaultMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
-        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
+        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
 
 #pragma warning restore 612,618
       }
@@ -128,10 +128,10 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[2]==WellKnownTypes.Int32).Method;
         var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.Single) && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
-        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
+        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
         var singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
-        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
+        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
         Items = typeof (Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.Items));
 #pragma warning restore 612,618
       }

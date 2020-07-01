@@ -106,7 +106,7 @@ namespace Xtensive.Linq
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       this.lambda = lambda;
       this.constantFilter = constantFilter ?? DefaultConstantFilter;
-      constantParameter = Expression.Parameter(typeof(object[]), "constants");
+      constantParameter = Expression.Parameter(WellKnownTypes.ObjectArray, "constants");
     }
   }
 }

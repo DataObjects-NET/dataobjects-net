@@ -65,5 +65,6 @@ namespace Xtensive.Reflection
     public static readonly Type ExpressionOfT = typeof(Expression<>);
 
     public static readonly Type ByteArray = typeof(byte[]);
+    public static readonly Type ObjectArray = typeof(object[]);
   }
 }

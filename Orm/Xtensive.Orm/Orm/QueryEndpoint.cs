@@ -13,6 +13,7 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 //using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
+using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm
@@ -400,7 +401,7 @@ namespace Xtensive.Orm
     {
       var elementType = typeof (TElement);
       Func<TElement, Key> selector;
-      if (elementType==typeof (object[])) {
+      if (elementType==WellKnownTypes.ObjectArray) {
         selector = e => Key.Create(session.Domain, session.StorageNodeId, typeof (T), TypeReferenceAccuracy.BaseType, (object[]) (object) e);
       }
       else if (WellKnownOrmTypes.Tuple.IsAssignableFrom(elementType)) {
