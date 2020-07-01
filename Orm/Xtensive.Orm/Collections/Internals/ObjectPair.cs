@@ -5,47 +5,30 @@
 // Created:    2009.12.11
 
 using System;
-using System.Diagnostics;
 
 namespace Xtensive.Collections
 {
-  internal struct ObjectPair : IEquatable<ObjectPair>
+  internal readonly struct ObjectPair : IEquatable<ObjectPair>
   {
-    public readonly object First;
-    public readonly object Second;
+    private readonly object first;
+    private readonly object second;
 
     #region Equality members
 
-    public bool Equals(ObjectPair other)
-    {
-      return Equals(First, other.First) && Equals(Second, other.Second);
-    }
+    public bool Equals(ObjectPair other) => Equals(first, other.first) && Equals(second, other.second);
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (obj.GetType()!=typeof (ObjectPair))
-        return false;
-      return Equals((ObjectPair) obj);
-    }
+    public override bool Equals(object obj) => obj is ObjectPair other && Equals(other);
 
     public override int GetHashCode()
     {
       unchecked {
-        return ((First!=null ? First.GetHashCode() : 0) * 397) ^ (Second!=null ? Second.GetHashCode() : 0);
+        return ((first != null ? first.GetHashCode() : 0) * 397) ^ (second != null ? second.GetHashCode() : 0);
       }
     }
 
-    public static bool operator ==(ObjectPair left, ObjectPair right)
-    {
-      return left.Equals(right);
-    }
+    public static bool operator ==(ObjectPair left, ObjectPair right) => left.Equals(right);
 
-    public static bool operator !=(ObjectPair left, ObjectPair right)
-    {
-      return !left.Equals(right);
-    }
+    public static bool operator !=(ObjectPair left, ObjectPair right) => !left.Equals(right);
 
     #endregion
 
@@ -54,8 +37,8 @@ namespace Xtensive.Collections
 
     public ObjectPair(object first, object second)
     {
-      First = first;
-      Second = second;
+      this.first = first;
+      this.second = second;
     }
   }
 }
