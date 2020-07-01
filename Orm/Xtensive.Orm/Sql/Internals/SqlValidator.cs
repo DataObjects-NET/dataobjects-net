@@ -226,7 +226,7 @@ namespace Xtensive.Sql
           WellKnownTypes.Int64,
           WellKnownTypes.UInt64,
           WellKnownTypes.String,
-          typeof (float),
+          WellKnownTypes.Single,
           typeof (double),
           WellKnownTypes.Decimal,
           typeof (DateTime),

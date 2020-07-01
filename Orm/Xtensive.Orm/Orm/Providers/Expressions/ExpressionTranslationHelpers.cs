@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToFloat(SqlExpression target)
     {
-      return Cast(target, typeof (float));
+      return Cast(target, WellKnownTypes.Single);
     }
     
     public static SqlExpression ToDecimal(SqlExpression target)
