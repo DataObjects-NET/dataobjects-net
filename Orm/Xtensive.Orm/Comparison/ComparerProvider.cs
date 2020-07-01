@@ -114,8 +114,7 @@ namespace Xtensive.Comparison
     {
       TypeSuffixes = new[] {"Comparer"};
       ConstructorParams = new object[] {this, ComparisonRules.Positive};
-      Type t = typeof (BooleanComparer);
-      AddHighPriorityLocation(t.Assembly, t.Namespace);
+      AddHighPriorityLocation(BaseComparerWrapperType.Assembly, BaseComparerWrapperType.Namespace);
     }
   }
 }
