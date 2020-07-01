@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Builders;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using TypeAttributes=Xtensive.Orm.Model.TypeAttributes;
 
@@ -231,7 +232,7 @@ namespace Xtensive.Orm.Building.Definitions
 
       if (type.IsInterface)
         Attributes = TypeAttributes.Interface;
-      else if (type==typeof (Structure) || type.IsSubclassOf(typeof (Structure)))
+      else if (type==WellKnownOrmTypes.Structure || type.IsSubclassOf(WellKnownOrmTypes.Structure))
         Attributes = TypeAttributes.Structure;
       else
         Attributes = type.IsAbstract

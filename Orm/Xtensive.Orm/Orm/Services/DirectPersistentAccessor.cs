@@ -103,8 +103,10 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
-        if (!typeof(Structure).IsAssignableFrom(structureType))
-          throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof(Structure)));
+        if (!WellKnownOrmTypes.Structure.IsAssignableFrom(structureType)) {
+          throw new InvalidOperationException(
+            string.Format(Strings.TypeXIsNotAnYDescendant, structureType, WellKnownOrmTypes.Structure));
+        }
 
         return Activator.CreateStructure(Session, structureType, structureData);
       }

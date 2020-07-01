@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
-
+using Xtensive.Orm.Internals;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Operations
 //          ValueKey.TypeReference = new TypeReference(ValueKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         }
       }
-      else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {
+      else if (WellKnownOrmTypes.Structure.IsAssignableFrom(Field.ValueType)) {
         var tuple = (Tuple) info.GetValue("value", typeof (Tuple));
         Value = session.Services.Get<DirectPersistentAccessor>()
           .CreateStructure(Field.ValueType, tuple);

@@ -74,8 +74,8 @@ namespace Xtensive.Orm.Linq
     {
       if (type==WellKnownOrmTypes.Entity
         || type.IsSubclassOf(WellKnownOrmTypes.Entity)
-          || type==typeof (Structure)
-            || type.IsSubclassOf(typeof (Structure))
+          || type==WellKnownOrmTypes.Structure
+            || type.IsSubclassOf(WellKnownOrmTypes.Structure)
         ) {
         if (!model.Types.Contains(type))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
@@ -217,7 +217,7 @@ namespace Xtensive.Orm.Linq
         return expression;
       }
 
-      if (type.IsSubclassOf(typeof (Structure))) {
+      if (type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
         TypeInfo typeInfo = model.Types[type];
         TupleDescriptor tupleDescriptor = typeInfo.TupleDescriptor;
         var tupleSegment = new Segment<int>(index, tupleDescriptor.Count);

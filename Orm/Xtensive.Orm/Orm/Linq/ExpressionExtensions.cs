@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Linq
         return MemberType.Key;
       if (typeof (IEntity).IsAssignableFrom(type))
         return MemberType.Entity;
-      if (typeof (Structure).IsAssignableFrom(type))
+      if (WellKnownOrmTypes.Structure.IsAssignableFrom(type))
         return MemberType.Structure;
       if (typeof (EntitySetBase).IsAssignableFrom(type))
         return MemberType.EntitySet;

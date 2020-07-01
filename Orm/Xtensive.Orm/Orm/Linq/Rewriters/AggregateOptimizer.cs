@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Model;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
@@ -149,7 +150,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       {
         var property = m.Member as PropertyInfo;
         return property!=null && (typeof (IEntity).IsAssignableFrom(property.PropertyType)
-          || typeof (Structure).IsAssignableFrom(property.PropertyType));
+          || WellKnownOrmTypes.Structure.IsAssignableFrom(property.PropertyType));
       }
 
       private ReferenceFieldAccessExtractor()

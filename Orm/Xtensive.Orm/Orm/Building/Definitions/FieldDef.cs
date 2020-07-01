@@ -320,7 +320,7 @@ namespace Xtensive.Orm.Building.Definitions
     internal FieldDef(Type valueType, Validator validator)
     {
       this.validator = validator;
-      IsStructure = valueType.IsSubclassOf(typeof(Structure)) || valueType == typeof(Structure);
+      IsStructure = valueType.IsSubclassOf(WellKnownOrmTypes.Structure) || valueType == WellKnownOrmTypes.Structure;
       IsEntity = typeof(IEntity).IsAssignableFrom(valueType);
       if ((valueType.IsClass || valueType.IsInterface) && !IsStructure)
         attributes |= FieldAttributes.Nullable;

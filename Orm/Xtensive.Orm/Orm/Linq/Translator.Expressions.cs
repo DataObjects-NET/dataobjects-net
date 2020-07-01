@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq
       // Structure
       var memberType = expression.GetMemberType();
       if (memberType==MemberType.Structure
-        && typeof (Structure).IsAssignableFrom(operandType))
+        && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType))
         return Expression.Constant(false);
 
       // Entity

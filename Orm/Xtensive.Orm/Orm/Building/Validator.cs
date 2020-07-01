@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Building
       if (fieldType.IsInterface && typeof (IEntity).IsAssignableFrom(fieldType) && fieldType!=typeof (IEntity))
         return;
 
-      if (fieldType.IsSubclassOf(typeof (Structure))) {
+      if (fieldType.IsSubclassOf(WellKnownOrmTypes.Structure)) {
         if (isKeyField)
           throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
         return;

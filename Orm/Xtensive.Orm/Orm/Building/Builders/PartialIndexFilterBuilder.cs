@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
@@ -148,7 +149,7 @@ namespace Xtensive.Orm.Building.Builders
         return false;
       var ownerType = expression.Expression.Type;
       return typeof (IEntity).IsAssignableFrom(ownerType)
-        || typeof (Structure).IsAssignableFrom(ownerType);
+        || WellKnownOrmTypes.Structure.IsAssignableFrom(ownerType);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)
