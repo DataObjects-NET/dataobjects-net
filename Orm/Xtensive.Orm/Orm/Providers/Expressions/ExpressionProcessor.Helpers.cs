@@ -189,13 +189,13 @@ namespace Xtensive.Orm.Providers
     {
       return
         e.NodeType==ExpressionType.Convert &&
-        e.Type==typeof (int) &&
+        e.Type==WellKnownTypes.Int32 &&
         ((UnaryExpression) e).Operand.Type==typeof (char);
     }
 
     private static bool IsIntConstant(Expression expression)
     {
-      return expression.NodeType==ExpressionType.Constant && expression.Type==typeof (int);
+      return expression.NodeType==ExpressionType.Constant && expression.Type==WellKnownTypes.Int32;
     }
 
     private static bool IsBooleanExpression(Expression expression)

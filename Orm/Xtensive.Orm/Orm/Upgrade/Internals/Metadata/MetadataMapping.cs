@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Upgrade
       ExtensionText = ColumnOf((Extension x) => x.Text);
 
       StringMapping = driver.GetTypeMapping(WellKnownTypes.String);
-      IntMapping = driver.GetTypeMapping(typeof (int));
+      IntMapping = driver.GetTypeMapping(WellKnownTypes.Int32);
     }
   }
 }

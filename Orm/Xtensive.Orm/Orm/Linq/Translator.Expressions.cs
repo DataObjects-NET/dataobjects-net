@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Linq
       if (binaryExpression.NodeType==ExpressionType.ArrayIndex) {
         var newArrayExpression = left.StripCasts() as NewArrayExpression;
         var indexExpression = right.StripCasts() as ConstantExpression;
-        if (newArrayExpression!=null && indexExpression!=null && indexExpression.Type==typeof (int))
+        if (newArrayExpression!=null && indexExpression!=null && indexExpression.Type==WellKnownTypes.Int32)
           return newArrayExpression.Expressions[(int) indexExpression.Value];
 
         throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionXOfTypeXIsNotSupported, binaryExpression.ToString(true), binaryExpression.NodeType));

@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToInt(SqlExpression target)
     {
-      return Cast(target, typeof (int));
+      return Cast(target, WellKnownTypes.Int32);
     }
 
     public static SqlExpression ToDouble(SqlExpression target)

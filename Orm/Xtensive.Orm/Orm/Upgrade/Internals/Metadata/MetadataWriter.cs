@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Upgrade
   internal sealed class MetadataWriter
   {
     private static readonly TupleDescriptor IntStringDescriptor =
-      TupleDescriptor.Create(new[] {typeof (int), WellKnownTypes.String});
+      TupleDescriptor.Create(new[] {WellKnownTypes.Int32, WellKnownTypes.String});
     private static readonly TupleDescriptor StringStringDescriptor =
       TupleDescriptor.Create(new[] {WellKnownTypes.String, WellKnownTypes.String});
 

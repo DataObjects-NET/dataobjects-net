@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Providers
         case ExpressionType.ArrayLength:
           if (expression.Operand.Type!=typeof(byte[]))
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
-          return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.MapValueType(typeof (int)));
+          return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.MapValueType(WellKnownTypes.Int32));
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
           return SqlDml.Negate(operand);

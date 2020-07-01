@@ -221,7 +221,7 @@ namespace Xtensive.Sql
           WellKnownTypes.Byte,
           WellKnownTypes.Int16,
           WellKnownTypes.UInt16,
-          typeof (int),
+          WellKnownTypes.Int32,
           typeof (uint),
           typeof (long),
           typeof (ulong),

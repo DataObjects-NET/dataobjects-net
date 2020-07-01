@@ -221,7 +221,8 @@ namespace Xtensive.Orm.Upgrade.Internals
           sequenceInfo.Increment);
       sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
       if (!provider.Supports(ProviderFeatures.InsertDefaultValues)) {
-        var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(typeof (int)));
+        var fakeColumn = sequenceTable.CreateColumn(
+          WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));
         fakeColumn.IsNullable = true;
       }
     }

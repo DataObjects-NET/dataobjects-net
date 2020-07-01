@@ -419,7 +419,7 @@ namespace Xtensive.Orm.Linq
     {
       if (compiledQueryScope!=null
         && index.NodeType==ExpressionType.Constant
-          && index.Type==typeof (int)) {
+          && index.Type==WellKnownTypes.Int32) {
         var errorString = allowDefault
           ? Strings.ExElementAtOrDefaultNotSupportedInCompiledQueries
           : Strings.ExElementAtNotSupportedInCompiledQueries;
@@ -494,7 +494,7 @@ namespace Xtensive.Orm.Linq
     {
       if (compiledQueryScope!=null
         && take.NodeType==ExpressionType.Constant
-          && take.Type==typeof (int))
+          && take.Type==WellKnownTypes.Int32)
         throw new InvalidOperationException(String.Format(Strings.ExTakeNotSupportedInCompiledQueries, ((ConstantExpression) take).Value));
       var projection = VisitSequence(source);
       Func<ParameterContext, int> compiledParameter;
@@ -529,7 +529,7 @@ namespace Xtensive.Orm.Linq
     {
       if (compiledQueryScope!=null
         && skip.NodeType==ExpressionType.Constant
-          && skip.Type==typeof (int))
+          && skip.Type==WellKnownTypes.Int32)
         throw new InvalidOperationException(String.Format(Strings.ExSkipNotSupportedInCompiledQueries, ((ConstantExpression) skip).Value));
       var projection = VisitSequence(source);
       Func<ParameterContext, int> compiledParameter;
