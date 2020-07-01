@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Internals
     private static GenericKeyFactory BuildGenericKeyFactory(TypeInfo typeInfo)
     {
       var descriptor = typeInfo.Key.TupleDescriptor;
-      var keyTypeName = string.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, WellKnownOrmTypes.Key.Name, descriptor.Count);
+      var keyTypeName = string.Format(GenericKeyNameFormat, WellKnownOrmTypes.KeyOfT.Namespace, WellKnownOrmTypes.Key.Name, descriptor.Count);
       var keyType = WellKnownOrmTypes.Key.Assembly.GetType(keyTypeName);
       keyType = keyType.MakeGenericType(descriptor.ToArray(descriptor.Count));
       var defaultConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(

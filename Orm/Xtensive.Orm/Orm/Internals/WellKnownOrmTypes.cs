@@ -10,6 +10,7 @@ namespace Xtensive.Orm.Internals
     public static readonly Type EntitySetItemOfT1T2 = typeof(EntitySetItem<,>);
 
     public static readonly Type Key = typeof(Key);
+    public static readonly Type KeyOfT = typeof(Key<>);
 
     public static readonly Type Structure = typeof(Structure);
   }
