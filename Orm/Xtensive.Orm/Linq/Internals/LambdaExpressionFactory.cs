@@ -37,7 +37,7 @@ namespace Xtensive.Linq
   internal sealed class LambdaExpressionFactory
   {
     private static readonly Type[] internalFactorySignature = new[] {
-      typeof(Expression), WellKnownTypes.String, WellKnownTypes.Bool, typeof(IReadOnlyList<ParameterExpression>)
+      WellKnownTypes.Expression, WellKnownTypes.String, WellKnownTypes.Bool, typeof(IReadOnlyList<ParameterExpression>)
     };
 
     private static readonly object _lock = new object();
@@ -79,7 +79,7 @@ namespace Xtensive.Linq
 
     internal static Factory CreateFactoryFast(Type delegateType)
     {
-      var method = typeof(Expression<>).MakeGenericType(delegateType).GetMethod(
+      var method = WellKnownTypes.ExpressionOfT.MakeGenericType(delegateType).GetMethod(
         "Create", BindingFlags.Static | BindingFlags.NonPublic, null, internalFactorySignature, null);
 
       if (method == null) {
@@ -108,7 +108,7 @@ namespace Xtensive.Linq
     {
       cache = ThreadSafeDictionary<Type, Factory>.Create(new object());
 
-      slowFactoryMethod = typeof(Expression).GetMethods().Single(m =>
+      slowFactoryMethod = WellKnownTypes.Expression.GetMethods().Single(m =>
         m.IsGenericMethod &&
         m.Name == "Lambda" &&
         m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>));

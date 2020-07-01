@@ -459,7 +459,7 @@ namespace Xtensive.Orm.Linq
 
       private static Type[] GetLambdaFuncGenericArguments(Type selectorType)
       {
-        var lambdaFuncType = selectorType.IsOfGenericType(typeof(Expression<>))
+        var lambdaFuncType = selectorType.IsOfGenericType(WellKnownTypes.ExpressionOfT)
           ? selectorType.GetGenericArguments()[0]
           : null;
         var lambdaFuncArguments = lambdaFuncType?.IsGenericType == true

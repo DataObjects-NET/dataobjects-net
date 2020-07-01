@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Linq
       VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
         BindingFlags.NonPublic | BindingFlags.Instance,
         new[] {"TItem"},
-        new object[] {typeof(Expression)});
+        new object[] {WellKnownTypes.Expression});
     }
   }
 }

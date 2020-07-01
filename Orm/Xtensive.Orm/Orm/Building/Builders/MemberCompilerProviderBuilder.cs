@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Linq.MemberCompilation;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void RegisterLinqExtensions()
     {
-      var linqExtensionProvider = (IMemberCompilerProvider<Expression>) GetProvider(typeof (Expression));
+      var linqExtensionProvider = (IMemberCompilerProvider<Expression>) GetProvider(WellKnownTypes.Expression);
       var substitutions = configuration.LinqExtensions.Substitutions
         .Select(item => new KeyValuePair<MemberInfo, Func<MemberInfo, Expression, Expression[], Expression>>(item.Member, CreateCompilerFromSubstitution(item)));
       linqExtensionProvider.RegisterCompilers(substitutions);
