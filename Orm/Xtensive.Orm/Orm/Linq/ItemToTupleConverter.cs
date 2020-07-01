@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal abstract class ItemToTupleConverter
   {
+    private static readonly Type ItemToTupleConverterType = typeof (ItemToTupleConverter<>);
     public abstract Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable();
 
     public TupleDescriptor TupleDescriptor { get; protected set; }
@@ -28,7 +29,7 @@ namespace Xtensive.Orm.Linq
 
     public static ItemToTupleConverter BuildConverter(Type type, Type storedEntityType, object enumerable, DomainModel model, Expression sourceExpression)
     {
-      return (ItemToTupleConverter) typeof (ItemToTupleConverter<>)
+      return (ItemToTupleConverter) ItemToTupleConverterType
         .MakeGenericType(type)
         .GetConstructors()[0]
         .Invoke(new[] { enumerable, model, sourceExpression, storedEntityType });
