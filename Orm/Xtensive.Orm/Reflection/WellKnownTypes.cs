@@ -9,6 +9,9 @@ namespace Xtensive.Reflection
     public static readonly Type Array = typeof(Array);
     public static readonly Type Enum = typeof(Enum);
 
+    public static readonly Type Bool = typeof(bool);
+    public static readonly Type NullableBool = typeof(bool?);
+
     public static readonly Type Byte = typeof(byte);
     public static readonly Type NullableByte = typeof(byte?);
     public static readonly Type SByte = typeof(sbyte);
@@ -31,8 +34,8 @@ namespace Xtensive.Reflection
 
     public static readonly Type Decimal = typeof(decimal);
     public static readonly Type NullableDecimal = typeof(decimal?);
-    public static readonly Type Float = typeof(float);
-    public static readonly Type NullableFloat = typeof(float?);
+    public static readonly Type Single = typeof(float);
+    public static readonly Type NullableSingle = typeof(float?);
     public static readonly Type Double = typeof(double);
     public static readonly Type NullableDouble = typeof(double?);
 
