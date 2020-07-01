@@ -314,9 +314,9 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentTypes, "genericArgumentTypes");
       Type delegateType = typeof (TDelegate);
-      if (!typeof(Delegate).IsAssignableFrom(delegateType))
+      if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
-          "TDelegate", typeof(Delegate).GetShortName()));
+          "TDelegate", WellKnownTypes.Delegate.GetShortName()));
 
       BindingFlags bindingFlags =
         BindingFlags.Public |
@@ -361,9 +361,9 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(methodName, "methodName");
       ArgumentValidator.EnsureArgumentNotNull(genericArgumentVariants, "genericArgumentVariants");
       Type delegateType = typeof (TDelegate);
-      if (!typeof(Delegate).IsAssignableFrom(delegateType))
+      if (!WellKnownTypes.Delegate.IsAssignableFrom(delegateType))
         throw new ArgumentException(string.Format(Strings.ExGenericParameterShouldBeOfTypeT,
-          "TDelegate", typeof(Delegate).GetShortName()));
+          "TDelegate", WellKnownTypes.Delegate.GetShortName()));
 
       int count = genericArgumentVariants.Count;
       TDelegate[] delegates = new TDelegate[count];
@@ -437,7 +437,7 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(parameterTypes, "parameterTypes");
       if (parameterTypes.Length > MaxNumberOfGenericDelegateParameters)
         throw new NotSupportedException();
-      if (returnType == typeof(void) || returnType == null) {
+      if (returnType == WellKnownTypes.Void || returnType == null) {
         if (parameterTypes.Length == 0)
           return ActionTypes[0];
         return ActionTypes[parameterTypes.Length].MakeGenericType(parameterTypes);
@@ -468,7 +468,7 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(delegateType, "delegateType");
       // check for non-generic Action
       if (delegateType == ActionTypes[0])
-        return new Pair<Type, Type[]>(typeof(void), ArrayUtils<Type>.EmptyArray);
+        return new Pair<Type, Type[]>(WellKnownTypes.Void, ArrayUtils<Type>.EmptyArray);
       if (delegateType.IsGenericType) {
         var genericTypeDefinition = delegateType.GetGenericTypeDefinition();
         var genericArguments = delegateType.GetGenericArguments();
@@ -485,7 +485,7 @@ namespace Xtensive.Reflection
         if (genericArgumentsLength >= 1
           && genericArgumentsLength <= MaxNumberOfGenericDelegateParameters
           && ActionTypes[genericArgumentsLength] == genericTypeDefinition)
-          return new Pair<Type, Type[]>(typeof(void), delegateType.GetGenericArguments());
+          return new Pair<Type, Type[]>(WellKnownTypes.Void, delegateType.GetGenericArguments());
       }
       // universal (but slow) strategy - reflect "Invoke" method
       var method = delegateType.GetMethod("Invoke", BindingFlags.Public | BindingFlags.Instance);
@@ -513,28 +513,28 @@ namespace Xtensive.Reflection
 
     static DelegateHelper()
     {
-      opCodeConv.Add(typeof(sbyte),  OpCodes.Conv_I1);
-      opCodeConv.Add(typeof(byte),   OpCodes.Conv_U1);
-      opCodeConv.Add(typeof(short),  OpCodes.Conv_I2);
-      opCodeConv.Add(typeof(ushort), OpCodes.Conv_U2);
-      opCodeConv.Add(typeof(char),   OpCodes.Conv_U2);
-      opCodeConv.Add(typeof(int),    OpCodes.Conv_I4);
-      opCodeConv.Add(typeof(uint),   OpCodes.Conv_U4);
-      opCodeConv.Add(typeof(long),   OpCodes.Conv_I8);
-      opCodeConv.Add(typeof(ulong),  OpCodes.Conv_U8);
-      opCodeConv.Add(typeof(float),  OpCodes.Conv_R4);
-      opCodeConv.Add(typeof(double), OpCodes.Conv_R8);
-      typeOnStack.Add(typeof(sbyte),  typeof(int));
-      typeOnStack.Add(typeof(byte),   typeof(uint));
-      typeOnStack.Add(typeof(short),  typeof(int));
-      typeOnStack.Add(typeof(ushort), typeof(uint));
-      typeOnStack.Add(typeof(char),   typeof(uint));
-      typeOnStack.Add(typeof(int),    typeof(int));
-      typeOnStack.Add(typeof(uint),   typeof(uint));
-      typeOnStack.Add(typeof(long),   typeof(long));
-      typeOnStack.Add(typeof(ulong),  typeof(ulong));
-      typeOnStack.Add(typeof(float),  typeof(float));
-      typeOnStack.Add(typeof(double), typeof(double));
+      opCodeConv.Add(WellKnownTypes.SByte,  OpCodes.Conv_I1);
+      opCodeConv.Add(WellKnownTypes.Byte,   OpCodes.Conv_U1);
+      opCodeConv.Add(WellKnownTypes.Int16,  OpCodes.Conv_I2);
+      opCodeConv.Add(WellKnownTypes.UInt16, OpCodes.Conv_U2);
+      opCodeConv.Add(WellKnownTypes.Char,   OpCodes.Conv_U2);
+      opCodeConv.Add(WellKnownTypes.Int32,  OpCodes.Conv_I4);
+      opCodeConv.Add(WellKnownTypes.UInt32, OpCodes.Conv_U4);
+      opCodeConv.Add(WellKnownTypes.Int64,  OpCodes.Conv_I8);
+      opCodeConv.Add(WellKnownTypes.UInt16, OpCodes.Conv_U8);
+      opCodeConv.Add(WellKnownTypes.Single, OpCodes.Conv_R4);
+      opCodeConv.Add(WellKnownTypes.Double, OpCodes.Conv_R8);
+      typeOnStack.Add(WellKnownTypes.SByte,  WellKnownTypes.Int32);
+      typeOnStack.Add(WellKnownTypes.Byte,   WellKnownTypes.UInt32);
+      typeOnStack.Add(WellKnownTypes.Int16,  WellKnownTypes.Int32);
+      typeOnStack.Add(WellKnownTypes.UInt16, WellKnownTypes.UInt32);
+      typeOnStack.Add(WellKnownTypes.Char,   WellKnownTypes.UInt32);
+      typeOnStack.Add(WellKnownTypes.Int32,  WellKnownTypes.Int32);
+      typeOnStack.Add(WellKnownTypes.UInt32, WellKnownTypes.UInt32);
+      typeOnStack.Add(WellKnownTypes.Int64,  WellKnownTypes.Int64);
+      typeOnStack.Add(WellKnownTypes.UInt64, WellKnownTypes.UInt64);
+      typeOnStack.Add(WellKnownTypes.Single, WellKnownTypes.Single);
+      typeOnStack.Add(WellKnownTypes.Double, WellKnownTypes.Double);
 
       FuncTypes = new[]
         {

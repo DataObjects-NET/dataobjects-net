@@ -8,6 +8,8 @@ namespace Xtensive.Reflection
     public static readonly Type Object = typeof(object);
     public static readonly Type Array = typeof(Array);
     public static readonly Type Enum = typeof(Enum);
+    public static readonly Type Void = typeof(void);
+    public static readonly Type Delegate = typeof(Delegate);
 
     public static readonly Type Bool = typeof(bool);
     public static readonly Type NullableBool = typeof(bool?);
