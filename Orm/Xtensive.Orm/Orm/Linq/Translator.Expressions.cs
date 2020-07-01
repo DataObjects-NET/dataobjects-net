@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Linq
       if (e.IsProjection())
         return e;
       if (context.Evaluator.CanBeEvaluated(e)) {
-        if (typeof (IQueryable).IsAssignableFrom(e.Type))
+        if (WellKnownInterfaces.Queryable.IsAssignableFrom(e.Type))
           return base.Visit(ExpressionEvaluator.Evaluate(e));
         return context.ParameterExtractor.IsParameter(e)
           ? e
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Linq
         }
         break;
       }
-      return u.Type==typeof (IQueryable)
+      return u.Type==WellKnownInterfaces.Queryable
         ? Visit(u.Operand)
         : base.VisitUnary(u);
     }
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Linq
       }
 
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
-        if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
+        if (WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type)) {
           Func<IQueryable> lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           IQueryable rootPoint = lambda();
           if (rootPoint!=null)
@@ -287,7 +287,7 @@ namespace Xtensive.Orm.Linq
         return ma;
       }
       if (ma.Expression==null) {
-        if (typeof (IQueryable).IsAssignableFrom(ma.Type)) {
+        if (WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type)) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
           if (rootPoint!=null)
@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Linq
       }
       else if (ma.Expression.NodeType==ExpressionType.Constant) {
         var rfi = ma.Member as FieldInfo;
-        if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType))) {
+        if (rfi!=null && rfi.FieldType.IsGenericType && WellKnownInterfaces.Queryable.IsAssignableFrom(rfi.FieldType)) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
           if (rootPoint!=null)

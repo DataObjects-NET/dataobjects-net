@@ -94,12 +94,12 @@ namespace Xtensive.Orm.Linq
       if (expression.NodeType==ExpressionType.MemberAccess) {
         var ma = (MemberExpression) expression;
         if (ma.Expression==null)
-          return !typeof (IQueryable).IsAssignableFrom(ma.Type);
+          return !WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type);
         if (ma.Expression.Type.IsNullable() && ma.Member.Name == "Value")
           return false;
         if (ma.Expression.NodeType==ExpressionType.Constant) {
           var rfi = ma.Member as FieldInfo;
-          if (rfi!=null && (rfi.FieldType.IsGenericType && typeof (IQueryable).IsAssignableFrom(rfi.FieldType)))
+          if (rfi!=null && rfi.FieldType.IsGenericType && WellKnownInterfaces.Queryable.IsAssignableFrom(rfi.FieldType))
             return false;
         }
       }
