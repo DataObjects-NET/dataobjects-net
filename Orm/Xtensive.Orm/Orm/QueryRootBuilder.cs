@@ -15,6 +15,8 @@ namespace Xtensive.Orm
   /// </summary>
   public abstract class QueryRootBuilder : IQueryRootBuilder
   {
+    private static readonly Type InvokerOfTType = typeof (Invoker<>);
+
     private abstract class Invoker
     {
       public abstract Expression Invoke(QueryRootBuilder builder);
@@ -37,7 +39,7 @@ namespace Xtensive.Orm
 
     private Invoker CreateInvoker(Type entityType)
     {
-      return (Invoker) Activator.CreateInstance(typeof (Invoker<>).MakeGenericType(entityType));
+      return (Invoker) Activator.CreateInstance(InvokerOfTType.MakeGenericType(entityType));
     }
 
     /// <summary>
