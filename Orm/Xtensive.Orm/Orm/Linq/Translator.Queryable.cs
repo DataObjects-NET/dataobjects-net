@@ -281,7 +281,7 @@ namespace Xtensive.Orm.Linq
       var replacer = new ExtendedExpressionReplacer(e => e == sourceEntity ? expression : null);
       var targetItem = replacer.Replace(projection.ItemProjector.Item);
       var targetItemProjector = new ItemProjectorExpression(targetItem, recordSet, context);
-      var targetProjectionType = typeof(IQueryable<>).MakeGenericType(targetType);
+      var targetProjectionType = WellKnownInterfaces.QueryableOfT.MakeGenericType(targetType);
       return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings, projection.ResultType);
 //      if (targetType.IsSubclassOf(sourceType)) {
 //        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
@@ -798,7 +798,7 @@ namespace Xtensive.Orm.Linq
         state.GroupingKey = true;
         var itemProjector = (ItemProjectorExpression)VisitLambda(keySelector);
         groupingSourceProjection = new ProjectionExpression(
-          typeof(IQueryable<>).MakeGenericType(keySelector.Body.Type),
+          WellKnownInterfaces.QueryableOfT.MakeGenericType(keySelector.Body.Type),
           itemProjector,
           sequence.TupleParameterBindings);
       }
@@ -1047,7 +1047,7 @@ namespace Xtensive.Orm.Linq
       var innerItemType = visitedInnerSource.Type.GetGenericArguments()[0];
       var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerItemType);
       var enumerableType = typeof (IEnumerable<>).MakeGenericType(innerItemType);
-      var groupingResultType = typeof (IQueryable<>).MakeGenericType(enumerableType);
+      var groupingResultType = WellKnownInterfaces.QueryableOfT.MakeGenericType(enumerableType);
       var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
 
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()
@@ -1203,7 +1203,7 @@ namespace Xtensive.Orm.Linq
         state.BuildingProjection = true;
         var itemProjector = (ItemProjectorExpression) VisitLambda(le);
         return new ProjectionExpression(
-          typeof (IQueryable<>).MakeGenericType(le.Body.Type),
+          WellKnownInterfaces.QueryableOfT.MakeGenericType(le.Body.Type),
           itemProjector,
           new Dictionary<Parameter<Tuple>, Tuple>());
       }

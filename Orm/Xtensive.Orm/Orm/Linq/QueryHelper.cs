@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Linq
         return;
       if (!baseType.IsAssignableFrom(elementType) || baseType==elementType)
         return;
-      var castMethod = source.Type.IsOfGenericInterface(typeof (IQueryable<>))
+      var castMethod = source.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
         ? WellKnownMembers.Queryable.Cast
         : WellKnownMembers.Enumerable.Cast;
       source = Expression.Call(castMethod.MakeGenericMethod(baseType), source);

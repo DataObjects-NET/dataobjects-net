@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitMemberAccess(MemberExpression memberExpression)
     {
-      if (memberExpression.Type.IsOfGenericInterface(typeof (IQueryable<>))
+      if (memberExpression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
         && memberExpression.Expression!=null
         && memberExpression.Expression.NodeType==ExpressionType.Constant
         && memberExpression.Member!=null
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Linq.Rewriters
             throw new InvalidOperationException(String.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
           var queryable = (IQueryable) fieldInfo.GetValue(constantValue);
-          if (queryable.Expression.Type.IsOfGenericInterface(typeof (IQueryable<>)))
+          if (queryable.Expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT))
             return Visit(queryable.Expression);
           return queryable.Expression;
         }

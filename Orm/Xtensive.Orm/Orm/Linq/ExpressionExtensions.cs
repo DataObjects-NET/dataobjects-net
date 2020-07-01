@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Linq
 
     public static bool IsQuery(this Expression expression)
     {
-      return expression.Type.IsOfGenericInterface(typeof (IQueryable<>));
+      return expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT);
     }
 
     public static bool IsLocalCollection(this Expression expression, TranslatorContext context)
@@ -73,7 +73,8 @@ namespace Xtensive.Orm.Linq
 
     private static bool IsEvaluableCollection(TranslatorContext context, Expression expression)
     {
-      return !expression.Type.IsOfGenericInterface(typeof (IQueryable<>)) && context.Evaluator.CanBeEvaluated(expression);
+      return !expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
+        && context.Evaluator.CanBeEvaluated(expression);
     }
 
     private static bool IsForeignQuery(Expression expression)
@@ -85,7 +86,7 @@ namespace Xtensive.Orm.Linq
           var type = value.GetType();
           if (type.IsGenericType) {
             var definition = type.GetGenericTypeDefinition();
-            return definition!=typeof (IQueryable<>) && definition!=WellKnownTypes.QueryableOfT;
+            return definition!=WellKnownInterfaces.QueryableOfT && definition!=WellKnownTypes.QueryableOfT;
           }
         }
       }
