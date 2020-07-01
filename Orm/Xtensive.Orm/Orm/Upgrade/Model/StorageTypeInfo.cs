@@ -117,9 +117,7 @@ namespace Xtensive.Orm.Upgrade.Model
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (StorageTypeInfo))
-        return false;
-      return Equals((StorageTypeInfo) obj);
+      return obj is StorageTypeInfo otherStorageTypeInfo && Equals(otherStorageTypeInfo);
     }
 
     /// <inheritdoc/>
