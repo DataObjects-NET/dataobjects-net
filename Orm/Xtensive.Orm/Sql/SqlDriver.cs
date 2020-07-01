@@ -294,48 +294,48 @@ namespace Xtensive.Sql
       var mapper = builder.Mapper;
 
       builder.Add(WellKnownTypes.Bool, mapper.ReadBoolean, mapper.BindBoolean, mapper.MapBoolean);
-      builder.Add(typeof (char), mapper.ReadChar, mapper.BindChar, mapper.MapChar);
-      builder.Add(typeof (string), mapper.ReadString, mapper.BindString, mapper.MapString);
-      builder.Add(typeof (byte), mapper.ReadByte, mapper.BindByte, mapper.MapByte);
-      builder.Add(typeof (sbyte), mapper.ReadSByte, mapper.BindSByte, mapper.MapSByte);
-      builder.Add(typeof (short), mapper.ReadShort, mapper.BindShort, mapper.MapShort);
-      builder.Add(typeof (ushort), mapper.ReadUShort, mapper.BindUShort, mapper.MapUShort);
-      builder.Add(typeof (int), mapper.ReadInt, mapper.BindInt, mapper.MapInt);
-      builder.Add(typeof (uint), mapper.ReadUInt, mapper.BindUInt, mapper.MapUInt);
-      builder.Add(typeof (long), mapper.ReadLong, mapper.BindLong, mapper.MapLong);
-      builder.Add(typeof (ulong), mapper.ReadULong, mapper.BindULong, mapper.MapULong);
-      builder.Add(typeof (float), mapper.ReadFloat, mapper.BindFloat, mapper.MapFloat);
-      builder.Add(typeof (double), mapper.ReadDouble, mapper.BindDouble, mapper.MapDouble);
-      builder.Add(typeof (decimal), mapper.ReadDecimal, mapper.BindDecimal, mapper.MapDecimal);
-      builder.Add(typeof (DateTime), mapper.ReadDateTime, mapper.BindDateTime, mapper.MapDateTime);
-      builder.Add(typeof (TimeSpan), mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
-      builder.Add(typeof (Guid), mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
-      builder.Add(typeof (byte[]), mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
+      builder.Add(WellKnownTypes.Char, mapper.ReadChar, mapper.BindChar, mapper.MapChar);
+      builder.Add(WellKnownTypes.String, mapper.ReadString, mapper.BindString, mapper.MapString);
+      builder.Add(WellKnownTypes.Byte, mapper.ReadByte, mapper.BindByte, mapper.MapByte);
+      builder.Add(WellKnownTypes.SByte, mapper.ReadSByte, mapper.BindSByte, mapper.MapSByte);
+      builder.Add(WellKnownTypes.Int16, mapper.ReadShort, mapper.BindShort, mapper.MapShort);
+      builder.Add(WellKnownTypes.UInt16, mapper.ReadUShort, mapper.BindUShort, mapper.MapUShort);
+      builder.Add(WellKnownTypes.Int32, mapper.ReadInt, mapper.BindInt, mapper.MapInt);
+      builder.Add(WellKnownTypes.UInt32, mapper.ReadUInt, mapper.BindUInt, mapper.MapUInt);
+      builder.Add(WellKnownTypes.Int64, mapper.ReadLong, mapper.BindLong, mapper.MapLong);
+      builder.Add(WellKnownTypes.UInt64, mapper.ReadULong, mapper.BindULong, mapper.MapULong);
+      builder.Add(WellKnownTypes.Single, mapper.ReadFloat, mapper.BindFloat, mapper.MapFloat);
+      builder.Add(WellKnownTypes.Double, mapper.ReadDouble, mapper.BindDouble, mapper.MapDouble);
+      builder.Add(WellKnownTypes.Decimal, mapper.ReadDecimal, mapper.BindDecimal, mapper.MapDecimal);
+      builder.Add(WellKnownTypes.DateTime, mapper.ReadDateTime, mapper.BindDateTime, mapper.MapDateTime);
+      builder.Add(WellKnownTypes.TimeSpan, mapper.ReadTimeSpan, mapper.BindTimeSpan, mapper.MapTimeSpan);
+      builder.Add(WellKnownTypes.Guid, mapper.ReadGuid, mapper.BindGuid, mapper.MapGuid);
+      builder.Add(WellKnownTypes.ByteArray, mapper.ReadByteArray, mapper.BindByteArray, mapper.MapByteArray);
     }
 
     private static void RegisterStandardReverseMappings(TypeMappingRegistryBuilder builder)
     {
       builder.AddReverse(SqlType.Boolean, WellKnownTypes.Bool);
-      builder.AddReverse(SqlType.Int8, typeof(sbyte));
-      builder.AddReverse(SqlType.UInt8, typeof(byte));
-      builder.AddReverse(SqlType.Int16, typeof(short));
-      builder.AddReverse(SqlType.UInt16, typeof(ushort));
-      builder.AddReverse(SqlType.Int32, typeof(int));
-      builder.AddReverse(SqlType.UInt32, typeof(uint));
-      builder.AddReverse(SqlType.Int64, typeof(long));
-      builder.AddReverse(SqlType.UInt64, typeof(ulong));
-      builder.AddReverse(SqlType.Decimal, typeof(decimal));
-      builder.AddReverse(SqlType.Float, typeof(float));
-      builder.AddReverse(SqlType.Double, typeof(double));
-      builder.AddReverse(SqlType.DateTime, typeof(DateTime));
-      builder.AddReverse(SqlType.Interval, typeof(TimeSpan));
-      builder.AddReverse(SqlType.Char, typeof(string));
-      builder.AddReverse(SqlType.VarChar, typeof(string));
-      builder.AddReverse(SqlType.VarCharMax, typeof(string));
-      builder.AddReverse(SqlType.Binary, typeof(byte[]));
-      builder.AddReverse(SqlType.VarBinary, typeof(byte[]));
-      builder.AddReverse(SqlType.VarBinaryMax, typeof(byte[]));
-      builder.AddReverse(SqlType.Guid, typeof(Guid));
+      builder.AddReverse(SqlType.Int8, WellKnownTypes.SByte);
+      builder.AddReverse(SqlType.UInt8, WellKnownTypes.Byte);
+      builder.AddReverse(SqlType.Int16, WellKnownTypes.Int16);
+      builder.AddReverse(SqlType.UInt16, WellKnownTypes.UInt16);
+      builder.AddReverse(SqlType.Int32, WellKnownTypes.Int32);
+      builder.AddReverse(SqlType.UInt32, WellKnownTypes.UInt32);
+      builder.AddReverse(SqlType.Int64, WellKnownTypes.Int64);
+      builder.AddReverse(SqlType.UInt64, WellKnownTypes.UInt64);
+      builder.AddReverse(SqlType.Decimal, WellKnownTypes.Decimal);
+      builder.AddReverse(SqlType.Float, WellKnownTypes.Single);
+      builder.AddReverse(SqlType.Double, WellKnownTypes.Double);
+      builder.AddReverse(SqlType.DateTime, WellKnownTypes.DateTime);
+      builder.AddReverse(SqlType.Interval, WellKnownTypes.TimeSpan);
+      builder.AddReverse(SqlType.Char, WellKnownTypes.String);
+      builder.AddReverse(SqlType.VarChar, WellKnownTypes.String);
+      builder.AddReverse(SqlType.VarCharMax, WellKnownTypes.String);
+      builder.AddReverse(SqlType.Binary, WellKnownTypes.ByteArray);
+      builder.AddReverse(SqlType.VarBinary, WellKnownTypes.ByteArray);
+      builder.AddReverse(SqlType.VarBinaryMax, WellKnownTypes.ByteArray);
+      builder.AddReverse(SqlType.Guid, WellKnownTypes.Guid);
     }
 
     private Extractor BuildExtractor(SqlConnection connection)
