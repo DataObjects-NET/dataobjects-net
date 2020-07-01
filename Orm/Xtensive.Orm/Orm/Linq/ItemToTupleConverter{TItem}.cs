@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Linq
         type==WellKnownTypes.Decimal ||
         type==WellKnownTypes.String ||
         type==WellKnownTypes.DateTime ||
-        type==typeof (DateTimeOffset) ||
+        type==WellKnownTypes.DateTimeOffset ||
         type==typeof(Guid) || 
         type==WellKnownTypes.TimeSpan;
     }

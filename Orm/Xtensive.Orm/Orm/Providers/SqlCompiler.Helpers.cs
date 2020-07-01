@@ -328,7 +328,7 @@ namespace Xtensive.Orm.Providers
         return SqlDml.Cast(expression, SqlType.DateTime);
       }
 
-      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == typeof(DateTimeOffset)) {
+      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == WellKnownTypes.DateTimeOffset) {
         return SqlDml.Cast(expression, SqlType.DateTimeOffset);
       }
 
@@ -353,11 +353,11 @@ namespace Xtensive.Orm.Providers
 
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
           columnPair = provider.EqualColumns[index];
-          if (columnPair.First.Type == typeof(DateTimeOffset)) {
+          if (columnPair.First.Type == WellKnownTypes.DateTimeOffset) {
             leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTimeOffset);
           }
 
-          if (columnPair.Second.Type == typeof(DateTimeOffset)) {
+          if (columnPair.Second.Type == WellKnownTypes.DateTimeOffset) {
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTimeOffset);
           }
         }

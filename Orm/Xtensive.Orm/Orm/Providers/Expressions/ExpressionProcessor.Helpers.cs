@@ -210,7 +210,7 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsDateTimeOffsetExpression(Expression expression)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTimeOffset);
+      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.DateTimeOffset;
     }
 
     private static bool IsComparisonExpression(Expression expression)
