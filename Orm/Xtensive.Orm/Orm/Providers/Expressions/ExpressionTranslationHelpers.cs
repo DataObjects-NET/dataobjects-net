@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToShort(SqlExpression target)
     {
-      return Cast(target, typeof (short));
+      return Cast(target, WellKnownTypes.Int16);
     }
 
     public static SqlExpression ToFloat(SqlExpression target)

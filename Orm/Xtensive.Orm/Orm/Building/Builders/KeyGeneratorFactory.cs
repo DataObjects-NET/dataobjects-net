@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       WellKnownTypes.SByte,
       WellKnownTypes.Byte,
-      typeof (short),
+      WellKnownTypes.Int16,
       typeof (ushort),
       typeof (int),
       typeof (uint),

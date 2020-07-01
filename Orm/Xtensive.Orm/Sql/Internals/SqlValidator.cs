@@ -219,7 +219,7 @@ namespace Xtensive.Sql
           typeof (char),
           WellKnownTypes.SByte,
           WellKnownTypes.Byte,
-          typeof (short),
+          WellKnownTypes.Int16,
           typeof (ushort),
           typeof (int),
           typeof (uint),
