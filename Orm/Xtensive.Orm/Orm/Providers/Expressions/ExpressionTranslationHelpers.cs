@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Providers
     
     public static SqlExpression ToByte(SqlExpression target)
     {
-      return Cast(target, typeof (byte));
+      return Cast(target, WellKnownTypes.Byte);
     }
 
     public static SqlExpression ToChar(SqlExpression target)
