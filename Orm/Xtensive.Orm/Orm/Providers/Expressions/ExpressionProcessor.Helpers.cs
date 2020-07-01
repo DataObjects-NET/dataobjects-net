@@ -45,8 +45,8 @@ namespace Xtensive.Orm.Providers
       var methodType = method.DeclaringType;
 
       // There no methods in IComparable except CompareTo so checking only DeclatingType.
-      bool isCompareTo = methodType==typeof (IComparable)
-        || methodType.IsGenericType && methodType.GetGenericTypeDefinition()==typeof (IComparable<>);
+      bool isCompareTo = methodType==WellKnownInterfaces.Comparable
+        || (methodType.IsGenericType && methodType.GetGenericTypeDefinition()==WellKnownInterfaces.ComparableOfT);
 
       bool isVbStringCompare = method.DeclaringType.FullName=="Microsoft.VisualBasic.CompilerServices.Operators" 
         && method.Name=="CompareString" 

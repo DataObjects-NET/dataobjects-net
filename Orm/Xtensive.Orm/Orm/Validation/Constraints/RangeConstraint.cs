@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Validation
       if (Min==null && Max==null)
         ThrowConfigurationError(Strings.MaxOrMinPropertyShouldBeSpecified);
 
-      if (!field.ValueType.IsOfGenericInterface(typeof (IComparable<>)))
+      if (!field.ValueType.IsOfGenericInterface(WellKnownInterfaces.ComparableOfT))
         ThrowConfigurationError(Strings.FieldShouldBeOfComparableType);
 
       handler = ValidationHandler.Create(field.ValueType, Min, Max);

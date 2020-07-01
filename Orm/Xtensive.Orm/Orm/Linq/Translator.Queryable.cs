@@ -759,7 +759,7 @@ namespace Xtensive.Orm.Linq
       case AggregateType.Max:
         if (type.IsNullable())
           type = Nullable.GetUnderlyingType(type);
-        if (!typeof (IComparable).IsAssignableFrom(type))
+        if (!WellKnownInterfaces.Comparable.IsAssignableFrom(type))
           throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
         return;
       }
