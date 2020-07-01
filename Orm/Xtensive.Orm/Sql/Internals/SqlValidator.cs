@@ -220,7 +220,7 @@ namespace Xtensive.Sql
           WellKnownTypes.SByte,
           WellKnownTypes.Byte,
           WellKnownTypes.Int16,
-          typeof (ushort),
+          WellKnownTypes.UInt16,
           typeof (int),
           typeof (uint),
           typeof (long),

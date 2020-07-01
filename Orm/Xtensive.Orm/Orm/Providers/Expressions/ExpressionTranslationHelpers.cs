@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToUshort(SqlExpression target)
     {
-      return Cast(target, typeof (ushort));
+      return Cast(target, WellKnownTypes.UInt16);
     }
 
     public static SqlExpression ToString(SqlExpression target)
