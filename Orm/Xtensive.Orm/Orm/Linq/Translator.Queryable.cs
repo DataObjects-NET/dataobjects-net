@@ -1286,8 +1286,8 @@ namespace Xtensive.Orm.Linq
       ProjectionExpression visitedSource;
       using (state.CreateScope()) {
         if (source.IsLocalCollection(context) &&
-            (source.Type.IsGenericType && source.Type.GetGenericArguments()[0].IsAssignableFrom(typeof (Key))) ||
-            (source.Type.IsAssignableFrom(typeof (Key)))) {
+            (source.Type.IsGenericType && source.Type.GetGenericArguments()[0].IsAssignableFrom(WellKnownOrmTypes.Key)) ||
+            (source.Type.IsAssignableFrom(WellKnownOrmTypes.Key))) {
           var localCollecctionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression)predicate.Body);
           state.TypeOfEntityStoredInKey = localCollecctionKeyType;
         }

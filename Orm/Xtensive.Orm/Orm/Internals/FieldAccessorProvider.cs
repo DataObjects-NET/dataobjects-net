@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Internals
         return CreateFieldAccessor(typeof(StructureFieldAccessor<>), field);
       if (field.IsEnum)
         return CreateFieldAccessor(typeof(EnumFieldAccessor<>), field);
-      if (field.ValueType==typeof(Key))
+      if (field.ValueType==WellKnownOrmTypes.Key)
         return CreateFieldAccessor(typeof(KeyFieldAccessor<>), field);
       return CreateFieldAccessor(typeof(DefaultFieldAccessor<>), field);
     }

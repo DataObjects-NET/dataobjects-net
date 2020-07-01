@@ -153,7 +153,7 @@ namespace Xtensive.Orm.Linq
 
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types)
     {
-      if (type.IsAssignableFrom(typeof (Key)))
+      if (type.IsAssignableFrom(WellKnownOrmTypes.Key))
         throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, typeof (Ref<>).GetShortName()));
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(String.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Linq
       this.enumerableFunc = enumerableFunc;
       this.sourceExpression = sourceExpression;
       this.entityTypestoredInKey = storedEntityType;
-      isKeyConverter = typeof (TItem).IsAssignableFrom(typeof (Key));
+      isKeyConverter = typeof (TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
       BuildConverter();
     }
   }

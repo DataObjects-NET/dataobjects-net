@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Building
       TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
       FieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-      ValidFieldTypes = new HashSet<Type>(validFieldTypes) {typeof (Key)};
+      ValidFieldTypes = new HashSet<Type>(validFieldTypes) {WellKnownOrmTypes.Key};
     }
 
     public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)

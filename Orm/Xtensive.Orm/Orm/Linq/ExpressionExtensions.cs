@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Linq
     {
       e = e.StripMarkers();
       var type = e.Type;
-      if (typeof (Key).IsAssignableFrom(type))
+      if (WellKnownOrmTypes.Key.IsAssignableFrom(type))
         return MemberType.Key;
       if (typeof (IEntity).IsAssignableFrom(type))
         return MemberType.Entity;

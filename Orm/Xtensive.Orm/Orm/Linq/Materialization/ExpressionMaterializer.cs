@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Rewriters;
@@ -191,7 +192,7 @@ namespace Xtensive.Orm.Linq.Materialization
             expression.Type);
           return result;
         }
-        if (typeof(Key).IsAssignableFrom(expression.Field.ValueType)) {
+        if (WellKnownOrmTypes.Key.IsAssignableFrom(expression.Field.ValueType)) {
           Expression<Func<Domain, string, Key>> keyParseLambda = (d, s) => Key.Parse(d, s);
           Expression<Func<ItemMaterializationContext, Domain>> domainExtractorLambda = imc => imc.Session.Domain;
           var result = keyParseLambda.BindParameters(

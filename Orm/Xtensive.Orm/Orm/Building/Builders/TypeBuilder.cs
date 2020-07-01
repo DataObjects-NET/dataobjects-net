@@ -373,7 +373,7 @@ namespace Xtensive.Orm.Building.Builders
     private ColumnInfo BuildDeclaredColumn(FieldInfo field)
     {
       ColumnInfo column;
-      if (field.ValueType==typeof (Key))
+      if (field.ValueType==WellKnownOrmTypes.Key)
         column = new ColumnInfo(field, WellKnownTypes.String);
       else
         column = new ColumnInfo(field);

@@ -12,6 +12,7 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 
 
@@ -289,7 +290,7 @@ namespace Xtensive.Orm.Building
         context.ModelInspectionResult.Register(new MarkFieldAsNotNullableAction(typeDef, fieldDef));
       
       if (fieldDef.IsPrimitive) {
-        if (fieldDef.ValueType==typeof (Key) && !fieldDef.IsNotIndexed)
+        if (fieldDef.ValueType==WellKnownOrmTypes.Key && !fieldDef.IsNotIndexed)
           context.ModelInspectionResult.Register(new AddForeignKeyIndexAction(typeDef, fieldDef));
         return;
       }
