@@ -79,14 +79,12 @@ namespace Xtensive.Reflection
         return true;
       }
 
-      public override bool Equals(object obj)
-      {
-        if (ReferenceEquals(null, obj))
-          return false;
-        if (obj.GetType()!=typeof (MethodCallDelegateKey))
-          return false;
-        return Equals((MethodCallDelegateKey) obj);
-      }
+      public override bool Equals(object obj) =>
+        obj switch {
+          null => false,
+          MethodCallDelegateKey otherKey => Equals(otherKey),
+          _ => false
+        };
 
       public override int GetHashCode()
       {
