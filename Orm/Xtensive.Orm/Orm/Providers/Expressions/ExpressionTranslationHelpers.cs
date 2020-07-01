@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToLong(SqlExpression target)
     {
-      return Cast(target, typeof (long));
+      return Cast(target, WellKnownTypes.Int64);
     }
 
     public static SqlExpression ToSbyte(SqlExpression target)

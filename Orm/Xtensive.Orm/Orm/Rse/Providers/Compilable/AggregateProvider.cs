@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Rse.Providers
         sourceColumnType = sourceColumnType.GetGenericArguments()[0];
       switch (aggregateType) {
       case AggregateType.Count:
-        return typeof (long);
+        return WellKnownTypes.Int64;
       case AggregateType.Min:
       case AggregateType.Max:
         return GetMinMaxColumnType(sourceColumnType, aggregateType);

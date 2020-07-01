@@ -162,11 +162,11 @@ namespace Xtensive.Orm.Linq
     {
       if (le.Parameters.Count==2) {
         var indexDataSource = sequence.ItemProjector.DataSource.RowNumber(context.GetNextColumnAlias());
-        var columnExpression = ColumnExpression.Create(typeof (long), indexDataSource.Header.Columns.Count - 1);
+        var columnExpression = ColumnExpression.Create(WellKnownTypes.Int64, indexDataSource.Header.Columns.Count - 1);
         var indexExpression = Expression.Subtract(columnExpression, Expression.Constant(1L));
         var itemExpression = Expression.Convert(indexExpression, WellKnownTypes.Int32);
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
-        var indexProjectionExpression = new ProjectionExpression(typeof (long), indexItemProjector, sequence.TupleParameterBindings);
+        var indexProjectionExpression = new ProjectionExpression(WellKnownTypes.Int64, indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
         sequence = new ProjectionExpression(
           sequence.Type, 

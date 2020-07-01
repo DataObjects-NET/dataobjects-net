@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Building.Builders
         TimeSpan timespan;
         if (value is string && !TimeSpan.TryParse((string) value, out timespan))
           throw FailToParseValue(fieldName, value);
-        var ticks = (long) Convert.ChangeType(value, typeof (long));
+        var ticks = (long) Convert.ChangeType(value, WellKnownTypes.Int64);
         timespan = TimeSpan.FromTicks(ticks);
         return timespan;
       }

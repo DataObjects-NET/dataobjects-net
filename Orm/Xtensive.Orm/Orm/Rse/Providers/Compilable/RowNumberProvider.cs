@@ -6,7 +6,7 @@
 
 using System;
 using Xtensive.Collections;
-
+using Xtensive.Reflection;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse.Providers
     public RowNumberProvider(CompilableProvider source, string columnName)
       : base(ProviderType.RowNumber, source)
     {
-      SystemColumn = new SystemColumn(columnName, Source.Header.Length, typeof(long));
+      SystemColumn = new SystemColumn(columnName, Source.Header.Length, WellKnownTypes.Int64);
       Initialize();
     }
   }

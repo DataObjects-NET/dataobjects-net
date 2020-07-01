@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Building.Builders
       WellKnownTypes.UInt16,
       WellKnownTypes.Int32,
       WellKnownTypes.UInt32,
-      typeof (long),
+      WellKnownTypes.Int64,
       typeof (ulong)
     };
 
