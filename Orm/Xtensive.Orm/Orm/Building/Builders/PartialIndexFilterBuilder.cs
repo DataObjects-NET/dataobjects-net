@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Building.Builders
     public static void BuildFilter(IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
-      var parameter = Expression.Parameter(typeof (Tuples.Tuple), "tuple");
+      var parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
       var builder = new PartialIndexFilterBuilder(index, parameter);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
