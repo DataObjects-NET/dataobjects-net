@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   public static class TypeConversionVerifier
   {
-    private static readonly Dictionary<Type, List<Type>> supportedConversions;
+    private static readonly Dictionary<Type, IList<Type>> supportedConversions;
 
     /// <summary>
     /// Verifies whether the source type can be converted to the target type. 
@@ -141,43 +141,54 @@ namespace Xtensive.Orm.Upgrade
 
     static TypeConversionVerifier()
     {
-      supportedConversions = new Dictionary<Type, List<Type>>();
-      AddConverter<Boolean>(
-        typeof (Int16), typeof (UInt16), typeof (Int32), typeof (UInt32),
-        typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<Byte>(
-        typeof (Int16), typeof (UInt16), typeof (Char), typeof (Int32), typeof (UInt32),
-        typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
-        typeof (Decimal));
-      AddConverter<SByte>(
-        typeof (Int16), typeof (UInt16), typeof (Char), typeof (Int32),
-        typeof (UInt32), typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single),
-        typeof (Decimal));
-      AddConverter<Int16>(
-        typeof (Int32), typeof (UInt32), typeof (Int64), typeof (UInt64),
-        typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<UInt16>(
-        typeof (Char), typeof (Int32), typeof (UInt32), typeof (Int64),
-        typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<Int32>(
-        typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<UInt32>(
-        typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<Int64>(
-        typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<UInt64>(
-        typeof (Int64), typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<Char>(
-        typeof (UInt16), typeof (Int32), typeof (UInt32), typeof (Int64),
-        typeof (UInt64), typeof (Double), typeof (Single), typeof (Decimal));
-      AddConverter<Decimal>(typeof (Double), typeof (Single), typeof(Decimal));
-      AddConverter<Single>(typeof (Double));
+      supportedConversions = new Dictionary<Type, IList<Type>>();
+      AddConverter<bool>(
+        WellKnownTypes.Int16, WellKnownTypes.UInt16,
+        WellKnownTypes.Int32, WellKnownTypes.UInt32,
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<byte>(
+        WellKnownTypes.Char,
+        WellKnownTypes.Int16, WellKnownTypes.UInt16,
+        WellKnownTypes.Int32, WellKnownTypes.UInt32,
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<sbyte>(
+        WellKnownTypes.Char,
+        WellKnownTypes.Int16, WellKnownTypes.UInt16,
+        WellKnownTypes.Int32, WellKnownTypes.UInt32,
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<short>(
+        WellKnownTypes.Int32, WellKnownTypes.UInt32,
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<ushort>(
+        WellKnownTypes.Char,
+        WellKnownTypes.Int32, WellKnownTypes.UInt32,
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<int>(
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<uint>(
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<long>(
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<ulong>(
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<char>(
+        WellKnownTypes.UInt16,
+        WellKnownTypes.Int32, WellKnownTypes.UInt32,
+        WellKnownTypes.Int64, WellKnownTypes.UInt64,
+        WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<decimal>(WellKnownTypes.Double, WellKnownTypes.Single, WellKnownTypes.Decimal);
+      AddConverter<float>(WellKnownTypes.Double);
     }
 
-    private static void AddConverter<T>(params Type[] types)
-    {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(types.Length, -1, "types.Length");
-      supportedConversions.Add(typeof(T), new List<Type>(types));
-    }
+    private static void AddConverter<T>(params Type[] types) => supportedConversions.Add(typeof(T), types);
   }
 }
