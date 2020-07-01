@@ -55,9 +55,9 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     private bool IsDefaultingMethod(MethodInfo method)
     {
-      return method.DeclaringType==typeof (Queryable)
-        && (method.Name==Reflection.WellKnown.Queryable.FirstOrDefault
-        || method.Name==Reflection.WellKnown.Queryable.SingleOrDefault);
+      return method.DeclaringType==WellKnownTypes.Queryable
+        && (method.Name==nameof(Queryable.FirstOrDefault)
+        || method.Name==nameof(Queryable.SingleOrDefault));
     }
 
     public static Expression Rewrite(Expression expression)

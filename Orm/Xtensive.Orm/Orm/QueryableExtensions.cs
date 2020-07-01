@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm
 {
@@ -31,7 +32,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       return (int) source.Provider.Execute(
         Expression.Call(
-          typeof (Queryable), "Count",
+          WellKnownTypes.Queryable, nameof(Queryable.Count),
           new[] {source.ElementType}, source.Expression));
     }
 

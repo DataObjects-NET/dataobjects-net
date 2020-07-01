@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Linq
       if (mc != null) {
         var methodInfo = mc.Method;
         if (methodInfo.DeclaringType == typeof (Enumerable) ||
-            methodInfo.DeclaringType == typeof (Queryable) || 
+            methodInfo.DeclaringType == WellKnownTypes.Queryable ||
             (methodInfo.DeclaringType == typeof (Query)) && methodInfo.IsGenericMethod)
           return false;
       }

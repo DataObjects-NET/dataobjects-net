@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Orm.Linq;
 
@@ -55,7 +56,10 @@ namespace Xtensive.Reflection
 
     public static readonly Type NullableOfT = typeof(Nullable<>);
 
+    public static readonly Type Queryable = typeof(Queryable);
     public static readonly Type QueryableOfT = typeof(Queryable<>);
+
+    public static readonly Type Enumerable = typeof(Enumerable);
 
     public static readonly Type Expression = typeof(Expression);
     public static readonly Type ExpressionOfT = typeof(Expression<>);

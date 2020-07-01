@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Linq
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
       var innerQuery = CreateEntityQuery(elementType);
-      var joinMethodInfo = typeof (Queryable).GetMethods()
+      var joinMethodInfo = WellKnownTypes.Queryable.GetMethods()
         .Single(mi => mi.Name==Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length==5)
         .MakeGenericMethod(new[] {
           connectorType,
