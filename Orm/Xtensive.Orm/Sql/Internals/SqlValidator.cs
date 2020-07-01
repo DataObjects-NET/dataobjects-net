@@ -229,7 +229,7 @@ namespace Xtensive.Sql
           WellKnownTypes.Single,
           WellKnownTypes.Double,
           WellKnownTypes.Decimal,
-          typeof (DateTime),
+          WellKnownTypes.DateTime,
           typeof (DateTimeOffset),
           WellKnownTypes.TimeSpan,
           typeof (byte[]),

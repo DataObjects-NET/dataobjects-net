@@ -5,6 +5,7 @@
 // Created:    2009.05.27
 
 using System;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation
 {
@@ -18,8 +19,8 @@ namespace Xtensive.Orm.Validation
       base.Configure(domain, type, field);
 
       var valueType = field.ValueType;
-      if (valueType!=typeof (DateTime) && valueType!=typeof (DateTime?))
-        ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, typeof (DateTime).FullName));
+      if (valueType!=WellKnownTypes.DateTime && valueType!=typeof (DateTime?))
+        ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, WellKnownTypes.DateTime.FullName));
     }
 
     public override ValidationResult Validate(Entity target, object fieldValue)

@@ -351,7 +351,7 @@ namespace Xtensive.Linq
         Write(c.Value.ToString());
         Write("\"");
       }
-      else if (type==typeof (DateTime)) {
+      else if (type==WellKnownTypes.DateTime) {
         Write("new DateTime(\"");
         Write(c.Value.ToString());
         Write("\")");

@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsDateTimeExpression(Expression expression)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTime);
+      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.DateTime;
     }
 
     private static bool IsDateTimeOffsetExpression(Expression expression)

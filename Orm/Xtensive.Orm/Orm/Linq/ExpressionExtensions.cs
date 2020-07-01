@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq
     {
       return expression.NodeType==ExpressionType.New
         && (expression.Type==WellKnownTypes.TimeSpan
-          || expression.Type==typeof (DateTime)
+          || expression.Type==WellKnownTypes.DateTime
           || expression.Type==typeof (DateTimeOffset));
     }
 

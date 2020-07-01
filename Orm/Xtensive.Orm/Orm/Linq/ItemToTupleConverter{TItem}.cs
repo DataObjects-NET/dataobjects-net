@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Linq
         type==typeof (byte[]) || 
         type==WellKnownTypes.Decimal ||
         type==WellKnownTypes.String ||
-        type==typeof (DateTime) ||
+        type==WellKnownTypes.DateTime ||
         type==typeof (DateTimeOffset) ||
         type==typeof(Guid) || 
         type==WellKnownTypes.TimeSpan;

@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToDateTime(SqlExpression target)
     {
-      return Cast(target, typeof (DateTime));
+      return Cast(target, WellKnownTypes.DateTime);
     }
 
     public static SqlExpression ToUint(SqlExpression target)
