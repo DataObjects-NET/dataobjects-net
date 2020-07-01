@@ -19,13 +19,15 @@ namespace Xtensive.Orm.Validation
   {
     private abstract class ValidationHandler
     {
+      private static readonly Type ValidationHandlerType = typeof(ValidationHandler<>);
+
       protected abstract void Configure(object min, object max);
 
       public abstract bool Validate(object value);
 
       public static ValidationHandler Create(Type valueType, object min, object max)
       {
-        var validatorType = typeof (ValidationHandler<>).MakeGenericType(valueType);
+        var validatorType = ValidationHandlerType.MakeGenericType(valueType);
         var result = (ValidationHandler) Activator.CreateInstance(validatorType);
         result.Configure(min, max);
         return result;
