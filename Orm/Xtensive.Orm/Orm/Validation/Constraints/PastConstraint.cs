@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Validation
       base.Configure(domain, type, field);
 
       var valueType = field.ValueType;
-      if (valueType!=WellKnownTypes.DateTime && valueType!=typeof (DateTime?))
+      if (valueType!=WellKnownTypes.DateTime && valueType!=WellKnownTypes.NullableDateTime)
         ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, WellKnownTypes.DateTime.FullName));
     }
 
