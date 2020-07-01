@@ -84,11 +84,13 @@ namespace Xtensive.Tuples
 
     private abstract class FormatHandler
     {
+      private static readonly Type FormatHandlerType = typeof(FormatHandler<>);
+
       public abstract void Execute(Tuple source, string[] targets, int fieldIndex);
 
       public static FormatHandler Get(Type fieldType)
       {
-        return (FormatHandler) Activator.CreateInstance(typeof (FormatHandler<>).MakeGenericType(fieldType));
+        return (FormatHandler) Activator.CreateInstance(FormatHandlerType.MakeGenericType(fieldType));
       }
     }
 
@@ -115,11 +117,13 @@ namespace Xtensive.Tuples
 
     private abstract class ParseHandler
     {
+      private static readonly Type ParseHandlerType = typeof(ParseHandler<>);
+
       public abstract void Execute(string[] source, Tuple target, int fieldIndex);
 
       public static ParseHandler Get(Type fieldType)
       {
-        return (ParseHandler) Activator.CreateInstance(typeof (ParseHandler<>).MakeGenericType(fieldType));
+        return (ParseHandler) Activator.CreateInstance(ParseHandlerType.MakeGenericType(fieldType));
       }
     }
 
