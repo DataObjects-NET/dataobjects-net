@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.Builders
   {
     private static readonly Type[] SupportedNumericTypes =
     {
-      typeof (sbyte),
+      WellKnownTypes.SByte,
       WellKnownTypes.Byte,
       typeof (short),
       typeof (ushort),

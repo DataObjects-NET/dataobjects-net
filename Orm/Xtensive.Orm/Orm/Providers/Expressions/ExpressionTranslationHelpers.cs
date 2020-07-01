@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToSbyte(SqlExpression target)
     {
-      return Cast(target, typeof (sbyte));
+      return Cast(target, WellKnownTypes.SByte);
     }
 
     public static SqlExpression ToShort(SqlExpression target)

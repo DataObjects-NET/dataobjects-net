@@ -217,7 +217,7 @@ namespace Xtensive.Sql
         {
           WellKnownTypes.Bool,
           typeof (char),
-          typeof (sbyte),
+          WellKnownTypes.SByte,
           WellKnownTypes.Byte,
           typeof (short),
           typeof (ushort),
