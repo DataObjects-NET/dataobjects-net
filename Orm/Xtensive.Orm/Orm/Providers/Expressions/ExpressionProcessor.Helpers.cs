@@ -190,7 +190,7 @@ namespace Xtensive.Orm.Providers
       return
         e.NodeType==ExpressionType.Convert &&
         e.Type==WellKnownTypes.Int32 &&
-        ((UnaryExpression) e).Operand.Type==typeof (char);
+        ((UnaryExpression) e).Operand.Type==WellKnownTypes.Char;
     }
 
     private static bool IsIntConstant(Expression expression)

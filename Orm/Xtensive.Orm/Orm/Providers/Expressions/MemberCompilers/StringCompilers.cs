@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Providers
     {
       var method = (MethodInfo) member;
       // Try string.Contains first
-      if (method.GetGenericArguments()[0]==typeof (char))
+      if (method.GetGenericArguments()[0]==WellKnownTypes.Char)
         return StringContainsCh(sequence, value);
       // Otherwise translate into general IN clause
       if (!(sequence is SqlContainer container))

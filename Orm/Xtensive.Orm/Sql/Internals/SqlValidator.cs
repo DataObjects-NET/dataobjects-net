@@ -216,7 +216,7 @@ namespace Xtensive.Sql
       supportedTypes = new[]
         {
           WellKnownTypes.Bool,
-          typeof (char),
+          WellKnownTypes.Char,
           WellKnownTypes.SByte,
           WellKnownTypes.Byte,
           WellKnownTypes.Int16,
