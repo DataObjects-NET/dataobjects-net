@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 
@@ -41,9 +42,9 @@ namespace Xtensive.Orm.Rse.Transformation
     private static Expression<Func<ParameterContext, IEnumerable<Tuple>>> RemapRawProviderSource(
       Expression<Func<ParameterContext, IEnumerable<Tuple>>> source, MapTransform mappingTransform)
     {
-      var selectMethodInfo = typeof(Enumerable)
+      var selectMethodInfo = WellKnownTypes.Enumerable
         .GetMethods()
-        .Single(methodInfo => methodInfo.Name == "Select"
+        .Single(methodInfo => methodInfo.Name == nameof(Enumerable.Select)
           && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
         .MakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
 

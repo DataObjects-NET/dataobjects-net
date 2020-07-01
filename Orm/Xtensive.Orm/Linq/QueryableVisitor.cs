@@ -50,7 +50,7 @@ namespace Xtensive.Linq
       if (call==null)
         return null;
       var declaringType = call.Method.DeclaringType;
-      if (declaringType==WellKnownTypes.Queryable || declaringType==typeof (Enumerable))
+      if (declaringType==WellKnownTypes.Queryable || declaringType==WellKnownTypes.Enumerable)
         return ParseQueryableMethodKind(call.Method.Name);
       return null;
     }

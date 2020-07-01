@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Linq
 #pragma warning disable 612,618
       if (mc != null) {
         var methodInfo = mc.Method;
-        if (methodInfo.DeclaringType == typeof (Enumerable) ||
+        if (methodInfo.DeclaringType == WellKnownTypes.Enumerable ||
             methodInfo.DeclaringType == WellKnownTypes.Queryable ||
             (methodInfo.DeclaringType == typeof (Query)) && methodInfo.IsGenericMethod)
           return false;
