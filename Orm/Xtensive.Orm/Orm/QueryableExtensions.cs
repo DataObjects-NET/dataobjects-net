@@ -13,6 +13,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 
@@ -51,7 +52,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTake.MakeGenericMethod(new[] {typeof (TSource)});
@@ -74,7 +75,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionSkip.MakeGenericMethod(new[] {typeof (TSource)});
@@ -97,7 +98,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExElementAtDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionElementAt.MakeGenericMethod(new[] {typeof (TSource)});
@@ -120,7 +121,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.MakeGenericMethod(new[] {typeof (TSource)});
@@ -143,7 +144,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(lockBehavior, "lockBehavior");
       var errorMessage = Strings.ExLockDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLock.MakeGenericMethod(new[] {typeof (TSource)});
@@ -234,7 +235,7 @@ namespace Xtensive.Orm
       var errorMessage = Strings.ExLeftJoinDoesNotSupportQueryProviderOfTypeX;
 
       var outerProviderType = outer.Provider.GetType();
-      if (outerProviderType!=typeof (QueryProvider))
+      if (outerProviderType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, outerProviderType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
@@ -319,7 +320,7 @@ namespace Xtensive.Orm
     {
       
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = methodInfo.MakeGenericMethod(new[] {typeof (TSource)});
