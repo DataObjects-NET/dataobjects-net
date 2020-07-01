@@ -366,11 +366,11 @@ namespace Xtensive.Tuples
     /// <returns>Fast read-only version of <paramref name="source"/> tuple.</returns>
     public static Tuple ToFastReadOnly(this Tuple source)
     {
-      if (source==null)
+      if (source==null) {
         return null;
-      if (source.GetType()==typeof (FastReadOnlyTuple))
-        return source;
-      return new FastReadOnlyTuple(source);
+      }
+
+      return source is FastReadOnlyTuple ? source : new FastReadOnlyTuple(source);
     }
 
     #endregion
