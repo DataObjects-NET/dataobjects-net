@@ -18,6 +18,8 @@ namespace Xtensive.Reflection
   /// </summary>
   public static class MethodHelper
   {
+    private static readonly Type AnyArrayPlaceholderType = typeof(AnyArrayPlaceholder);
+
     /// <summary>
     /// This class is used internally by <see cref="MethodHelper"/> to denote
     /// an array of any type when matching parameter types
@@ -50,7 +52,7 @@ namespace Xtensive.Reflection
       bool parameterTypesAreFullyDefined = true;
       for (int i = 0; i<parameterTypes.Length; i++) {
         var parameterType = parameterTypes[i] as Type;
-        if (parameterType==null || parameterType.IsGenericTypeDefinition || parameterType==typeof (AnyArrayPlaceholder)) {
+        if (parameterType==null || parameterType.IsGenericTypeDefinition || parameterType==AnyArrayPlaceholderType) {
           parameterTypesAreFullyDefined = false;
           break;
         }
@@ -342,7 +344,7 @@ namespace Xtensive.Reflection
             || requiredParameterType.IsGenericTypeDefinition
                && actualParameterType.IsGenericType
                && actualParameterType.GetGenericTypeDefinition()==requiredParameterType
-            || requiredParameterType==typeof(AnyArrayPlaceholder)
+            || requiredParameterType==AnyArrayPlaceholderType
                && actualParameterType.IsArray;
         else
           isMatch = true;
