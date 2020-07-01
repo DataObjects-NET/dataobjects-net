@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-
+using Xtensive.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
@@ -1739,7 +1739,7 @@ namespace Xtensive.Sql.Compiler
       : base(driver)
     {
       translator = driver.Translator;
-      decimalType = driver.TypeMappings[typeof (Decimal)].MapType();
+      decimalType = driver.TypeMappings[WellKnownTypes.Decimal].MapType();
     }
   }
 }
