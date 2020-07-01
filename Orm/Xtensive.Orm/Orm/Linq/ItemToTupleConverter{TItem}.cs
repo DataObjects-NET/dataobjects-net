@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Linq
         type==WellKnownTypes.String ||
         type==WellKnownTypes.DateTime ||
         type==WellKnownTypes.DateTimeOffset ||
-        type==typeof(Guid) || 
+        type==WellKnownTypes.Guid ||
         type==WellKnownTypes.TimeSpan;
     }
 

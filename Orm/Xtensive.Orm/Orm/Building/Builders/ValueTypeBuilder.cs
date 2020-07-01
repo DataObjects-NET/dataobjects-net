@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       var valueType = fieldType.StripNullable();
 
-      if (valueType==typeof (Guid)) {
+      if (valueType==WellKnownTypes.Guid) {
         Guid guid;
         try {
           guid = new Guid((string) value);

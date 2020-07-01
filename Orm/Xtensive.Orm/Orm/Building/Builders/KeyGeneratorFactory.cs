@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Building.Builders
     };
 
     private static readonly Type[] SupportedTypes = SupportedNumericTypes
-      .Concat(new[] { typeof(Guid), WellKnownTypes.String })
+      .Concat(new[] { WellKnownTypes.Guid, WellKnownTypes.String })
       .ToArray();
 
     public static bool IsSupported(Type valueType)
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Building.Builders
       if (IsSequenceBacked(valueType))
         return typeof (StorageSequentalGenerator<>).MakeGenericType(valueType);
 
-      if (valueType==typeof (Guid))
+      if (valueType==WellKnownTypes.Guid)
         return typeof (GuidGenerator);
 
       if (valueType==WellKnownTypes.String)
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Building.Builders
       if (IsSequenceBacked(valueType))
         return typeof (TemporarySequentalGenerator<>).MakeGenericType(valueType);
 
-      if (valueType==typeof (Guid))
+      if (valueType==WellKnownTypes.Guid)
         return typeof (GuidGenerator);
 
       if (valueType==WellKnownTypes.String)
