@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers
     
     public static SqlExpression ToDecimal(SqlExpression target)
     {
-      return Cast(target, typeof (decimal));
+      return Cast(target, WellKnownTypes.Decimal);
     }
     
     public static SqlExpression ToByte(SqlExpression target)

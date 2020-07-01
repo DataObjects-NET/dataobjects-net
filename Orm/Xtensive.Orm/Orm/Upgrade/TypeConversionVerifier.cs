@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Upgrade
       var toType = to.Type.StripNullable();
       var fromType = from.Type.StripNullable();
 
-      if (toType==typeof(decimal) && fromType==typeof(decimal))
+      if (toType==WellKnownTypes.Decimal && fromType==WellKnownTypes.Decimal)
         return CheckScaleAndPrecision(from, to);
       else if (toType==WellKnownTypes.String && fromType==WellKnownTypes.String)
         return CheckLength(from, to);

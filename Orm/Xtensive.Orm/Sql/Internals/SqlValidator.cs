@@ -228,7 +228,7 @@ namespace Xtensive.Sql
           WellKnownTypes.String,
           typeof (float),
           typeof (double),
-          typeof (decimal),
+          WellKnownTypes.Decimal,
           typeof (DateTime),
           typeof (DateTimeOffset),
           typeof (TimeSpan),

@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Linq
       return type.IsPrimitive || 
         type.IsEnum ||
         type==typeof (byte[]) || 
-        type==typeof (decimal) || 
+        type==WellKnownTypes.Decimal ||
         type==WellKnownTypes.String ||
         type==typeof (DateTime) ||
         type==typeof (DateTimeOffset) ||
