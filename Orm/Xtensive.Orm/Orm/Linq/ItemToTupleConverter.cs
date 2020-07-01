@@ -5,11 +5,8 @@
 // Created:    2009.10.01
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -20,7 +17,9 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal abstract class ItemToTupleConverter
   {
-    private static readonly Type ItemToTupleConverterType = typeof (ItemToTupleConverter<>);
+    private static readonly Type ItemToTupleConverterType = typeof(ItemToTupleConverter<>);
+    protected static readonly Type RefOfTType = typeof(Ref<>);
+
     public abstract Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable();
 
     public TupleDescriptor TupleDescriptor { get; protected set; }

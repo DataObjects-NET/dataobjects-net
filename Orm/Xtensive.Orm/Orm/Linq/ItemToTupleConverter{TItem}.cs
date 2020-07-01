@@ -81,8 +81,8 @@ namespace Xtensive.Orm.Linq
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
       }
-      if (type.IsOfGenericType(typeof (Ref<>))) {
-        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
+      if (type.IsOfGenericType(RefOfTType)) {
+        var entityType = type.GetGenericType(RefOfTType).GetGenericArguments()[0];
         if (!model.Types.Contains(entityType))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Linq
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types)
     {
       if (type.IsAssignableFrom(WellKnownOrmTypes.Key))
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, typeof (Ref<>).GetShortName()));
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, RefOfTType.GetShortName()));
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(String.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
