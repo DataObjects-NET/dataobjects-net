@@ -388,9 +388,8 @@ namespace Xtensive.Orm
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (UrlInfo))
-        return false;
-      return Equals((UrlInfo) obj);
+
+      return obj is UrlInfo otherUrlInfo && Equals(otherUrlInfo);
     }
 
     /// <inheritdoc/>
