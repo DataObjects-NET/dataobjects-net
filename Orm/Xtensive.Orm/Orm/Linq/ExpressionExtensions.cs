@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Linq
           var type = value.GetType();
           if (type.IsGenericType) {
             var definition = type.GetGenericTypeDefinition();
-            return definition!=typeof (IQueryable<>) && definition!=typeof (Queryable<>);
+            return definition!=typeof (IQueryable<>) && definition!=WellKnownTypes.QueryableOfT;
           }
         }
       }
