@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
@@ -166,7 +167,7 @@ namespace Xtensive.Orm.Building.Builders
       if (reflectedType.IsInterface)
         return;
 
-      if (!typeof(Entity).IsAssignableFrom(reflectedType))
+      if (!WellKnownOrmTypes.Entity.IsAssignableFrom(reflectedType))
         throw new DomainBuilderException(
           string.Format(Strings.ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator, fieldDef.Name));
       fieldDef.IsTypeDiscriminator = true;

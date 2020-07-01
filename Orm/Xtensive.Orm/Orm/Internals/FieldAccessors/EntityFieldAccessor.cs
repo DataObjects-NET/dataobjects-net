@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
 
       if (!ReferenceEquals(value, null) && entity==null)
         throw new InvalidOperationException(string.Format(
-          Strings.ExValueShouldBeXDescendant, typeof (Entity)));
+          Strings.ExValueShouldBeXDescendant, WellKnownOrmTypes.Entity));
 
       if (entity!=null && entity.Session!=obj.Session)
         throw new InvalidOperationException(string.Format(

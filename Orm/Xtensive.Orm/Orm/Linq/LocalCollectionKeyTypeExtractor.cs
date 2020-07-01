@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Linq
 {
@@ -19,7 +20,7 @@ namespace Xtensive.Orm.Linq
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       var expr = VisitBinaryExpession(expression);
-      if (expr.Type.IsSubclassOf(typeof (Entity)))
+      if (expr.Type.IsSubclassOf(WellKnownOrmTypes.Entity))
         return expr.Type;
       throw new NotSupportedException(string.Format(Strings.ExCurrentTypeXIsNotSupported, expr.Type));
     }

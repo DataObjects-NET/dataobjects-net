@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
@@ -50,7 +51,7 @@ namespace Xtensive.Orm.Linq
       var property = m.Member as PropertyInfo;
       if (property==null)
         throw UnsupportedTypeExpression(m);
-      if (typeof (Entity).IsAssignableFrom(property.GetGetMethod().ReturnType))
+      if (WellKnownOrmTypes.Entity.IsAssignableFrom(property.GetGetMethod().ReturnType))
         throw UnsupportedTypeExpression(m);
       if (rootExpression!=m)
         return null;

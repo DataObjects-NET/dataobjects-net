@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Building
       if (fieldType.IsPrimitive || fieldType.IsEnum || ValidFieldTypes.Contains(fieldType))
         return;
 
-      if (fieldType.IsSubclassOf(typeof (Entity)))
+      if (fieldType.IsSubclassOf(WellKnownOrmTypes.Entity))
         return;
 
       if (fieldType.IsInterface && typeof (IEntity).IsAssignableFrom(fieldType) && fieldType!=typeof (IEntity))

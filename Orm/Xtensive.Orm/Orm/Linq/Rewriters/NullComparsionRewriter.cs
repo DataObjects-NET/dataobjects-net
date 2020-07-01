@@ -1,6 +1,7 @@
 ﻿using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -46,7 +47,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     private static bool IsEntity(Expression expression)
     {
-      return expression.Type.IsSubclassOf(typeof (Entity));
+      return expression.Type.IsSubclassOf(WellKnownOrmTypes.Entity);
     }
 
     public static Expression Rewrite(Expression e)

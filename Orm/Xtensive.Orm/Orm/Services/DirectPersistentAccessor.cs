@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Internals;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -33,9 +34,9 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
-        if (!typeof (Entity).IsAssignableFrom(entityType))
+        if (!WellKnownOrmTypes.Entity.IsAssignableFrom(entityType))
           throw new InvalidOperationException(
-            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
+            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, WellKnownOrmTypes.Entity));
 
         var key = Key.Generate(Session, entityType);
         return Session.CreateOrInitializeExistingEntity(entityType, key);
@@ -53,9 +54,9 @@ namespace Xtensive.Orm.Services
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
         ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
-        if (!typeof (Entity).IsAssignableFrom(entityType))
+        if (!WellKnownOrmTypes.Entity.IsAssignableFrom(entityType))
           throw new InvalidOperationException(
-            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
+            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, WellKnownOrmTypes.Entity));
 
         var domain = Session.Domain;
         var key = Key.Create(domain, Session.StorageNodeId, domain.Model.Types[entityType], TypeReferenceAccuracy.ExactType, tuple);

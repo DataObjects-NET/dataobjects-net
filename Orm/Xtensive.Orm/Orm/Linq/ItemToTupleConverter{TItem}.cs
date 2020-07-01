@@ -13,6 +13,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -71,8 +72,8 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private bool IsPersistableType(Type type)
     {
-      if (type==typeof (Entity)
-        || type.IsSubclassOf(typeof (Entity))
+      if (type==WellKnownOrmTypes.Entity
+        || type.IsSubclassOf(WellKnownOrmTypes.Entity)
           || type==typeof (Structure)
             || type.IsSubclassOf(typeof (Structure))
         ) {
@@ -199,7 +200,7 @@ namespace Xtensive.Orm.Linq
 //        return Expression.Convert(entityExpression, type);
 //      }
 
-      if (type.IsSubclassOf(typeof (Entity))) {
+      if (type.IsSubclassOf(WellKnownOrmTypes.Entity)) {
         TypeInfo typeInfo = model.Types[type];
         KeyInfo keyInfo = typeInfo.Key;
         TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;

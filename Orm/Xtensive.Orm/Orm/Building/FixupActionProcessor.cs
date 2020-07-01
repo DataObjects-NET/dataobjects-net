@@ -11,6 +11,7 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building
@@ -209,7 +210,7 @@ namespace Xtensive.Orm.Building
 
     public void Process(AddTypeIdFieldAction action)
     {
-      FieldDef fieldDef = context.ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
+      var fieldDef = context.ModelDefBuilder.DefineField(WellKnownOrmTypes.Entity.GetProperty(WellKnown.TypeIdFieldName));
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);

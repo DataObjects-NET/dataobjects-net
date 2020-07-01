@@ -12,7 +12,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.Serialization;
 using Xtensive.Core;
-
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 
@@ -231,7 +231,7 @@ namespace Xtensive.Orm
     private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
     {
       var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
-        .GetProperty("Value", typeof(Entity)));
+        .GetProperty("Value", WellKnownOrmTypes.Entity));
       var queryExpression = QueryHelper.CreateEntitySetQuery(owner, field);
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
