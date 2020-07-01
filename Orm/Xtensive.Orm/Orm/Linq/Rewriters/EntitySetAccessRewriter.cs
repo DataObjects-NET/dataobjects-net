@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -51,7 +52,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     private static Type GetEntitySetElementType(Type entitySetType)
     {
-      return entitySetType.GetGenericType(typeof (EntitySet<>)).GetGenericArguments()[0];
+      return entitySetType.GetGenericType(WellKnownOrmTypes.EntitySetOfT).GetGenericArguments()[0];
     }
 
     private static NotSupportedException NotSupported(MemberInfo member)
@@ -61,7 +62,7 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     private static bool IsEntitySet(Expression expression)
     {
-      return expression!=null && expression.Type.IsOfGenericType(typeof (EntitySet<>));
+      return expression!=null && expression.Type.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT);
     }
 
     public static Expression Rewrite(Expression e)

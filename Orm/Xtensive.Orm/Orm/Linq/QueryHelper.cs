@@ -12,8 +12,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
+using Activator = System.Activator;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -94,9 +96,9 @@ namespace Xtensive.Orm.Linq
 
     public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
     {
-      if (!field.IsDynalicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof (EntitySet<>)))
+      if (!field.IsDynalicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT))
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
-      if (field.IsDynalicallyDefined && !field.ValueType.IsOfGenericType(typeof (EntitySet<>)))
+      if (field.IsDynalicallyDefined && !field.ValueType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT))
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
 
       var elementType = field.ItemType;

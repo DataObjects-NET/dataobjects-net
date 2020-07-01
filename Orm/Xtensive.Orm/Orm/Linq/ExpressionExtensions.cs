@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Reflection;
 
@@ -144,7 +145,7 @@ namespace Xtensive.Orm.Linq
     public static bool IsEntitySet(this Expression expression)
     {
       return expression.Type.IsGenericType
-        && expression.Type.GetGenericTypeDefinition()==typeof (EntitySet<>);
+        && expression.Type.GetGenericTypeDefinition()==WellKnownOrmTypes.EntitySetOfT;
     }
 
     public static Type GetGroupingKeyType(this Expression expression)

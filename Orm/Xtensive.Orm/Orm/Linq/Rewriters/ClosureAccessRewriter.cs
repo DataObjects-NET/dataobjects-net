@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Linq.Rewriters
         && memberExpression.Member.ReflectedType.IsClosure()
         && memberExpression.Member.MemberType==MemberTypes.Field) {
         var fieldInfo = (FieldInfo) memberExpression.Member;
-        if (!fieldInfo.FieldType.IsOfGenericType(typeof (EntitySet<>))) {
+        if (!fieldInfo.FieldType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
           if (compiledQueryScope!=null)
             throw new InvalidOperationException(String.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;

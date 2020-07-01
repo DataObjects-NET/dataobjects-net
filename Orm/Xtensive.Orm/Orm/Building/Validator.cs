@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using FieldAttributes = Xtensive.Orm.Model.FieldAttributes;
 
@@ -135,7 +136,7 @@ namespace Xtensive.Orm.Building
         return;
       }
 
-      if (fieldType.IsOfGenericType(typeof (EntitySet<>))) {
+      if (fieldType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         if (declaringType.IsStructure)
           throw new DomainBuilderException(
             String.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, fieldType.Name));

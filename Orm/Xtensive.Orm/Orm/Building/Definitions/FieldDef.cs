@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Orm.Model;
@@ -333,7 +334,7 @@ namespace Xtensive.Orm.Building.Definitions
       }
 
       // EntitySet<TEntity>
-      var genericTypeDefinition = valueType.GetGenericType(typeof (EntitySet<>));
+      var genericTypeDefinition = valueType.GetGenericType(WellKnownOrmTypes.EntitySetOfT);
       if (genericTypeDefinition != null) {
         IsEntitySet = true;
         ItemType = genericTypeDefinition.GetGenericArguments()[0];
