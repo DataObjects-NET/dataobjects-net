@@ -37,7 +37,8 @@ namespace Xtensive.Orm.Linq
     {
       Expression filterExpression = null;
       var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", WellKnownOrmTypes.Tuple);
+      var valueProperty = WellKnownOrmTypes.ParameterOfTuple
+        .GetProperty(nameof(Parameter<Tuple>.Value), WellKnownOrmTypes.Tuple);
       var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
       for (var i = 0; i < keyColumnTypes.Count; i++) {
         var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);
