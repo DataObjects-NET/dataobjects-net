@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToUint(SqlExpression target)
     {
-      return Cast(target, typeof (uint));
+      return Cast(target, WellKnownTypes.UInt32);
     }
 
     public static SqlExpression ToUlong(SqlExpression target)
