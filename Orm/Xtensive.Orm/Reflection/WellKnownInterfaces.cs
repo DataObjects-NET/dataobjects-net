@@ -6,6 +6,8 @@ namespace Xtensive.Reflection
 {
   internal static class WellKnownInterfaces
   {
+    public static readonly Type Collection = typeof(ICollection);
+
     public static readonly Type Queryable = typeof(IQueryable);
     public static readonly Type QueryableOfT = typeof(IQueryable<>);
     public static readonly Type EnumerableOfT = typeof(IEnumerable<>);
