@@ -53,5 +53,9 @@ namespace Xtensive.Reflection
     public static readonly Type NullableOfT = typeof(Nullable<>);
 
     public static readonly Type QueryableOfT = typeof(Queryable<>);
+
+    // Arrays
+
+    public static readonly Type ByteArray = typeof(byte[]);
   }
 }
