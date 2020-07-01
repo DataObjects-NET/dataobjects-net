@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Linq
         return MemberType.Entity;
       if (WellKnownOrmTypes.Structure.IsAssignableFrom(type))
         return MemberType.Structure;
-      if (typeof (EntitySetBase).IsAssignableFrom(type))
+      if (WellKnownOrmTypes.EntitySetBase.IsAssignableFrom(type))
         return MemberType.EntitySet;
       if (type.IsAnonymous())
         return MemberType.Anonymous;

@@ -990,7 +990,7 @@ namespace Xtensive.Orm
       else
         skipOwnerVersionChange = Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
 
-      Initialize(typeof (EntitySetBase));
+      Initialize(WellKnownOrmTypes.EntitySetBase);
     }
 
     /// <summary>

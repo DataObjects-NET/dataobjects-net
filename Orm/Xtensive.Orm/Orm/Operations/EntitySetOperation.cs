@@ -6,6 +6,7 @@
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 
@@ -18,8 +19,6 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public abstract class EntitySetOperation : EntityFieldOperation
   {
-    private readonly static Type entitySetBaseType = typeof (EntitySetBase);
-
     /// <summary>
     /// Gets the entity set involved into this operation.
     /// </summary>
@@ -53,11 +52,11 @@ namespace Xtensive.Orm.Operations
         var name = field.UnderlyingProperty.GetShortName(true);
       }
       
-      if (!entitySetBaseType.IsAssignableFrom(fieldType))
+      if (!WellKnownOrmTypes.EntitySetBase.IsAssignableFrom(fieldType))
           throw new ArgumentOutOfRangeException(
             Strings.ExTypeOfXMustBeADescendantOfYType,
               fieldName,
-              entitySetBaseType.GetShortName());
+              WellKnownOrmTypes.EntitySetBase.GetShortName());
     }
 
     /// <inheritdoc/>
