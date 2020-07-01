@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToUlong(SqlExpression target)
     {
-      return Cast(target, typeof (ulong));
+      return Cast(target, WellKnownTypes.UInt64);
     }
 
     public static SqlExpression ToUshort(SqlExpression target)

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Building.Builders
       WellKnownTypes.Int32,
       WellKnownTypes.UInt32,
       WellKnownTypes.Int64,
-      typeof (ulong)
+      WellKnownTypes.UInt64
     };
 
     private static readonly Type[] SupportedTypes = SupportedNumericTypes

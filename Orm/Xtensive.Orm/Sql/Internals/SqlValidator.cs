@@ -224,7 +224,7 @@ namespace Xtensive.Sql
           WellKnownTypes.Int32,
           WellKnownTypes.UInt32,
           WellKnownTypes.Int64,
-          typeof (ulong),
+          WellKnownTypes.UInt64,
           WellKnownTypes.String,
           typeof (float),
           typeof (double),
