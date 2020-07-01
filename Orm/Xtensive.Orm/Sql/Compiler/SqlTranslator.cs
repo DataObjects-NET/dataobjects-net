@@ -1052,8 +1052,8 @@ namespace Xtensive.Sql.Compiler
       case TypeCode.Decimal:
         return Convert.ToString(literalValue, IntegerNumberFormat);
       }
-      if (literalType == typeof(TimeSpan))
-        return SqlHelper.TimeSpanToString(((TimeSpan) literalValue), TimeSpanFormatString);
+      if (literalType == WellKnownTypes.TimeSpan)
+        return SqlHelper.TimeSpanToString((TimeSpan) literalValue, TimeSpanFormatString);
       if (literalType==typeof(Guid) || literalType==typeof(byte[]))
         throw new NotSupportedException(string.Format(
           Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));

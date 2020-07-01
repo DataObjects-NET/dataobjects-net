@@ -92,6 +92,7 @@ namespace Xtensive.Orm.Linq
     private static bool TypeIsStorageMappable(Type type)
     {
       // TODO: AG: Take info from storage!
+      type = type.StripNullable();
       return type.IsPrimitive || 
         type.IsEnum ||
         type==typeof (byte[]) || 
@@ -100,8 +101,7 @@ namespace Xtensive.Orm.Linq
         type==typeof (DateTime) ||
         type==typeof (DateTimeOffset) ||
         type==typeof(Guid) || 
-        type==typeof (TimeSpan) || 
-        (type.IsNullable() && TypeIsStorageMappable(type.GetGenericArguments()[0]));
+        type==WellKnownTypes.TimeSpan;
     }
 
 

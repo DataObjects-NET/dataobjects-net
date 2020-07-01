@@ -231,7 +231,7 @@ namespace Xtensive.Sql
           WellKnownTypes.Decimal,
           typeof (DateTime),
           typeof (DateTimeOffset),
-          typeof (TimeSpan),
+          WellKnownTypes.TimeSpan,
           typeof (byte[]),
           typeof (Guid)
         }.ToHashSet();

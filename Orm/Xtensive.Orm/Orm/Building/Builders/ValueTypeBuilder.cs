@@ -47,7 +47,7 @@ namespace Xtensive.Orm.Building.Builders
         return guid;
       }
 
-      if (valueType==typeof (TimeSpan)) {
+      if (valueType==WellKnownTypes.TimeSpan) {
         TimeSpan timespan;
         if (value is string && !TimeSpan.TryParse((string) value, out timespan))
           throw FailToParseValue(fieldName, value);
