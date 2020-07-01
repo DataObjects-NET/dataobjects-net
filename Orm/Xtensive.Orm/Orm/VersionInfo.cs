@@ -122,16 +122,12 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(obj, null))
-        return false;
-      if (obj.GetType()!=typeof (VersionInfo))
-        return false;
-      if (obj.GetHashCode()!=GetHashCode())
-        return false;
-      return Equals((VersionInfo) obj);
-    }
+    public override bool Equals(object obj) =>
+      obj switch {
+        null => false,
+        VersionInfo otherVersionInfo => GetHashCode()==obj.GetHashCode() && Equals(otherVersionInfo),
+        _ => false
+      };
 
     /// <summary>
     /// Implements the operator ==.
