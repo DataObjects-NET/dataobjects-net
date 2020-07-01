@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
 
     public static SqlExpression ToDouble(SqlExpression target)
     {
-      return Cast(target, typeof (double));
+      return Cast(target, WellKnownTypes.Double);
     }
 
     public static SqlExpression ToLong(SqlExpression target)

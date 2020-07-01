@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var entityMaterializer = Visit(expression.EntityExpression);
       var constructorInfo = typeof (FullTextMatch<>)
         .MakeGenericType(expression.EntityExpression.Type)
-        .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new[] {typeof (double), expression.EntityExpression.Type});
+        .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new[] {WellKnownTypes.Double, expression.EntityExpression.Type});
 
       return Expression.New(
         constructorInfo,

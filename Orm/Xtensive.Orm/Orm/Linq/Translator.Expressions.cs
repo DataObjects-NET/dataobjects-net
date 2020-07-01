@@ -490,7 +490,7 @@ namespace Xtensive.Orm.Linq
       else 
         dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, fullFeatured);
 
-      rankExpression = ColumnExpression.Create(typeof(double), dataSource.Header.Columns.Count - 1);
+      rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       return new ProjectionExpression(typeof (IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
@@ -556,7 +556,7 @@ namespace Xtensive.Orm.Linq
       else
         dataSource = new ContainsTableProvider(fullTextIndex, compiledParameter, rankColumnAlias, searchableColumns, fullFeatured);
 
-      rankExpression = ColumnExpression.Create(typeof(double), dataSource.Header.Columns.Count - 1);
+      rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
       return new ProjectionExpression(typeof(IQueryable<>).MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());

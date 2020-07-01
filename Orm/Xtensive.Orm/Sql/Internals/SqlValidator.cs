@@ -227,7 +227,7 @@ namespace Xtensive.Sql
           WellKnownTypes.UInt64,
           WellKnownTypes.String,
           WellKnownTypes.Single,
-          typeof (double),
+          WellKnownTypes.Double,
           WellKnownTypes.Decimal,
           typeof (DateTime),
           typeof (DateTimeOffset),

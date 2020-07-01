@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
       if (FullFeatured) {
         var primaryIndexRecordsetHeader = index.PrimaryIndex.ReflectedType.Indexes.PrimaryIndex.GetRecordSetHeader();
-        var rankColumn = new MappedColumn(rankColumnName, primaryIndexRecordsetHeader.Length, typeof (double));
+        var rankColumn = new MappedColumn(rankColumnName, primaryIndexRecordsetHeader.Length, WellKnownTypes.Double);
         indexHeader = primaryIndexRecordsetHeader.Add(rankColumn);
       }
       else {
@@ -61,12 +62,12 @@ namespace Xtensive.Orm.Rse.Providers
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
         var fieldTypes = primaryIndexKeyColumns
           .Select(columnInfo => columnInfo.Key.ValueType)
-          .AddOne(typeof (double))
+          .AddOne(WellKnownTypes.Double)
           .ToArray(primaryIndexKeyColumns.Count + 1);
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
         var columns = primaryIndexKeyColumns
           .Select((c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
-          .AddOne(new MappedColumn("RANK", tupleDescriptor.Count, typeof (double)));
+          .AddOne(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double));
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);
       }
       Initialize();

@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Rse.Providers
       case TypeCode.UInt16:
       case TypeCode.UInt32:
       case TypeCode.UInt64:
-        return typeof(double);
+        return WellKnownTypes.Double;
       case TypeCode.Decimal:
       case TypeCode.Single:
       case TypeCode.Double:
