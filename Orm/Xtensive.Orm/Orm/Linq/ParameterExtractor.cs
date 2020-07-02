@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Linq
       protected override Expression VisitMemberAccess(MemberExpression ma)
       {
         if (string.Equals(nameof(Parameter<T>.Value), ma.Member.Name, StringComparison.Ordinal)
-          && typeof(Parameter).IsAssignableFrom(ma.Expression.Type)) {
+          && WellKnownOrmTypes.Parameter.IsAssignableFrom(ma.Expression.Type)) {
           var parameterType = ma.Expression.Type;
           var parameterValueType = parameterType.IsGenericType
             ? parameterType.GetGenericArguments()[0]

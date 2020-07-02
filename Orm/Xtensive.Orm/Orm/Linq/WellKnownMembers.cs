@@ -310,10 +310,10 @@ namespace Xtensive.Orm.Linq
       ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetProperty("Value");
 
       // Parameter<Tuple>
-      ParameterOfTupleValue = typeof (Parameter<Tuples.Tuple>).GetProperty("Value", typeof (Tuples.Tuple));
+      ParameterOfTupleValue = WellKnownOrmTypes.ParameterOfTuple.GetProperty("Value", typeof (Tuples.Tuple));
 
       // Parameter
-      ParameterValue = typeof (Parameter).GetProperty("Value");
+      ParameterValue = WellKnownOrmTypes.Parameter.GetProperty("Value");
 
       // Record
       RecordKey = typeof (Record).GetMethods()

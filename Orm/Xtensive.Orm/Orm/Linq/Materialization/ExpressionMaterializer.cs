@@ -440,7 +440,7 @@ namespace Xtensive.Orm.Linq.Materialization
         }
         if (itemMaterializationContextParameter!=null
           && string.Equals(nameof(Parameter<object>.Value), m.Member.Name, StringComparison.Ordinal)
-          && typeof(Parameter).IsAssignableFrom(m.Expression.Type)) {
+          && WellKnownOrmTypes.Parameter.IsAssignableFrom(m.Expression.Type)) {
           var parameterType = m.Expression.Type;
           var parameterValueType = parameterType.IsGenericType
             ? parameterType.GetGenericArguments()[0]
