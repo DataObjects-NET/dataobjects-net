@@ -28,9 +28,7 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (UpgradeHint))
-        return false;
-      return Equals((UpgradeHint) obj);
+      return obj is UpgradeHint otherHint && Equals(otherHint);
     }
 
     /// <inheritdoc/>
