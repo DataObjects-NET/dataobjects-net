@@ -83,6 +83,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     /// <param name="registry">The registry.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
+    /// <param name="token">The token to cancel this operation</param>
     public virtual Task PersistAsync(EntityChangeRegistry registry, bool allowPartialExecution, CancellationToken token)
     {
       Persist(registry, allowPartialExecution);

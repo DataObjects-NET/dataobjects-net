@@ -28,11 +28,12 @@ namespace Xtensive.Orm.Providers
     public abstract StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors);
 
     /// <summary>
-    /// Register the task prefetching fields' values of the <see cref="Entity"/> with the specified key.
+    /// Registers a task prefetching field values of the <see cref="Entity"/> with the specified key.
     /// </summary>
     /// <param name="key">The key.</param>
     /// <param name="type">The type of the <see cref="Entity"/>.</param>
     /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
+    /// <param name="token">The token to cancel this operation</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public abstract Task<StrongReferenceContainer> PrefetchAsync(
@@ -50,6 +51,7 @@ namespace Xtensive.Orm.Providers
     /// Executes registered prefetch tasks.
     /// </summary>
     /// <param name="skipPersist">if set to <see langword="true"/> persist is not performed.</param>
+    /// <param name="token">The token to cancel this operation</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public abstract Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(
