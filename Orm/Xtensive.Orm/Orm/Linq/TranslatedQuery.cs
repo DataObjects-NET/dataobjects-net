@@ -110,10 +110,11 @@ namespace Xtensive.Orm.Linq
     // Constructors
 
     /// <summary>
-    ///	Initializes a new instance of this class.
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
+    /// <param name="resultAccessMethod">The value describing how it is supposed to access query result.</param>
     public TranslatedQuery(ExecutableProvider dataSource, Materializer materializer, ResultAccessMethod resultAccessMethod)
       : this(dataSource, materializer, resultAccessMethod, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
     {
@@ -124,7 +125,7 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
-    /// <param name="isScalar"></param>
+    /// <param name="resultAccessMethod">The value describing how it is supposed to access query result.</param>
     /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
     /// <param name="tupleParameters">The tuple parameters.</param>
     public TranslatedQuery(ExecutableProvider dataSource,
