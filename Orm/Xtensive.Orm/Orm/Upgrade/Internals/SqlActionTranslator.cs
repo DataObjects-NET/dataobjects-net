@@ -16,12 +16,14 @@ using Xtensive.Modelling;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Orm.Internals;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Orm.Upgrade.Model;
+using Activator = System.Activator;
 using Index = Xtensive.Sql.Model.Index;
 using ReferentialAction = Xtensive.Sql.ReferentialAction;
 using TableInfo = Xtensive.Orm.Upgrade.Model.TableInfo;
@@ -116,78 +118,76 @@ namespace Xtensive.Orm.Upgrade
       if (action is GroupingNodeAction)
         foreach (var nodeAction in ((GroupingNodeAction) action).Actions)
           VisitAction(nodeAction);
-      else if (action is CreateNodeAction)
-        VisitCreateAction(action as CreateNodeAction);
-      else if (action is RemoveNodeAction)
-        VisitRemoveAction(action as RemoveNodeAction);
-      else if (action is DataAction)
-        VisitDataAction(action as DataAction);
+      else if (action is CreateNodeAction createNodeAction)
+        VisitCreateAction(createNodeAction);
+      else if (action is RemoveNodeAction removeNodeAction)
+        VisitRemoveAction(removeNodeAction);
+      else if (action is DataAction dataAction)
+        VisitDataAction(dataAction);
       else
         VisitAlterAction(action);
     }
 
     private void VisitCreateAction(CreateNodeAction action)
     {
-      if (action.Type == typeof(TableInfo))
+      if (action.Type == WellKnownUpgradeTypes.TableInfo)
         VisitCreateTableAction(action);
-      else if (action.Type == typeof(StorageColumnInfo))
+      else if (action.Type == WellKnownUpgradeTypes.StorageColumnInfo)
         VisitCreateColumnAction(action);
-      else if (action.Type == typeof(PrimaryIndexInfo))
+      else if (action.Type == WellKnownUpgradeTypes.PrimaryIndexInfo)
         VisitCreatePrimaryKeyAction(action);
-      else if (action.Type == typeof(SecondaryIndexInfo))
+      else if (action.Type == WellKnownUpgradeTypes.SecondaryIndexInfo)
         VisitCreateSecondaryIndexAction(action);
-      else if (action.Type == typeof(ForeignKeyInfo))
+      else if (action.Type == WellKnownUpgradeTypes.ForeignKeyInfo)
         VisitCreateForeignKeyAction(action);
-      else if (action.Type == typeof(StorageSequenceInfo))
+      else if (action.Type == WellKnownUpgradeTypes.StorageSequenceInfo)
         VisitCreateSequenceAction(action);
-      else if (action.Type == typeof(StorageFullTextIndexInfo))
+      else if (action.Type == WellKnownUpgradeTypes.StorageFullTextIndexInfo)
         VisitCreateFullTextIndexAction(action);
     }
 
     private void VisitRemoveAction(RemoveNodeAction action)
     {
       var node = action.Difference.Source;
-      if (node.GetType() == typeof(TableInfo))
+      if (node is TableInfo)
         VisitRemoveTableAction(action);
-      else if (node.GetType() == typeof(StorageColumnInfo))
+      else if (node is StorageColumnInfo)
         VisitRemoveColumnAction(action);
-      else if (node.GetType() == typeof(PrimaryIndexInfo))
+      else if (node is PrimaryIndexInfo)
         VisitRemovePrimaryKeyAction(action);
-      else if (node.GetType() == typeof(SecondaryIndexInfo))
+      else if (node is SecondaryIndexInfo)
         VisitRemoveSecondaryIndexAction(action);
-      else if (node.GetType() == typeof(ForeignKeyInfo))
+      else if (node is ForeignKeyInfo)
         VisitRemoveForeignKeyAction(action);
-      else if (node.GetType() == typeof(StorageSequenceInfo))
+      else if (node is StorageSequenceInfo)
         VisitRemoveSequenceAction(action);
-      else if (node.GetType() == typeof(StorageFullTextIndexInfo))
+      else if (node is StorageFullTextIndexInfo)
         VisitRemoveFullTextIndexAction(action);
     }
 
     private void VisitAlterAction(NodeAction action)
     {
-      var propertyChangeAction = action as PropertyChangeAction;
-      if (propertyChangeAction != null) {
+      if (action is PropertyChangeAction propertyChangeAction) {
         var changedNode = targetModel.Resolve(propertyChangeAction.Path, true);
-        if (changedNode.GetType()==typeof (StorageSequenceInfo))
+        if (changedNode is StorageSequenceInfo)
           VisitAlterSequenceAction(propertyChangeAction);
-        else if (changedNode.GetType()==typeof (StorageColumnInfo))
+        else if (changedNode is StorageColumnInfo)
           VisitAlterColumnAction(propertyChangeAction);
         return;
       }
 
-      var moveNodeAction = action as MoveNodeAction;
-      if (moveNodeAction==null)
+      if (!(action is MoveNodeAction moveNodeAction))
         return;
       var node = moveNodeAction.Difference.Source;
-      if (node.GetType()==typeof (TableInfo))
+      if (node is TableInfo)
         VisitAlterTableAction(moveNodeAction);
-      else if (node.GetType()==typeof (StorageColumnInfo))
+      else if (node is StorageColumnInfo)
         VisitMoveColumnAction(moveNodeAction);
-      else if (node.GetType()==typeof (PrimaryIndexInfo))
+      else if (node is PrimaryIndexInfo)
         VisitAlterPrimaryKeyAction(moveNodeAction);
-      else if (node.GetType()==typeof (SecondaryIndexInfo))
+      else if (node is SecondaryIndexInfo)
         VisitAlterSecondaryIndexAction(moveNodeAction);
-      else if (node.GetType()==typeof (ForeignKeyInfo))
+      else if (node is ForeignKeyInfo)
         VisitAlterForeignKeyAction(moveNodeAction);
     }
 
@@ -451,7 +451,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var isNewlyCreatedColumn = action.Difference.Source==null;
       if (isNewlyCreatedColumn)
-        return; // Properties already initilized
+        return; // Properties already initialized
 
       if (!action.Properties.ContainsKey(ColumnTypePropertyName))
         if (!action.Properties.ContainsKey(ColumnDefaultPropertyName))
