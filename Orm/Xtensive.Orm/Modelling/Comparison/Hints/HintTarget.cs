@@ -43,9 +43,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj.GetType()!=typeof (HintTarget))
-        return false;
-      return Equals((HintTarget) obj);
+      return obj is HintTarget hintTarget && Equals(hintTarget);
     }
 
     /// <inheritdoc/>
