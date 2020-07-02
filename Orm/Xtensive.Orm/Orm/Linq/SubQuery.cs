@@ -94,11 +94,11 @@ namespace Xtensive.Orm.Linq
         projectionExpression.Type, 
         projectionExpression.ItemProjector, 
         tupleParameterBindings, 
-        projectionExpression.ResultType);
+        projectionExpression.ResultAccessMethod);
       var translatedQuery = new TranslatedQuery(
         query.DataSource,
         query.Materializer,
-        query.scalarResultType,
+        query.ResultAccessMethod,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
       delayedQuery = new DelayedQuery<TElement>(context.Session, translatedQuery, parameterContext);

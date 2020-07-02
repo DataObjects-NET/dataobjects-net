@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Linq.Expressions
         ProjectionExpression.Type, 
         newItemProjector, 
         ProjectionExpression.TupleParameterBindings, 
-        ProjectionExpression.ResultType);
+        ProjectionExpression.ResultAccessMethod);
       return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter);
     }
 

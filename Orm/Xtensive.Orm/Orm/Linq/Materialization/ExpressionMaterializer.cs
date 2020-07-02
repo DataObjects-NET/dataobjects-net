@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Linq.Materialization
         subQueryExpression.ProjectionExpression.Type,
         itemProjector,
         subQueryExpression.ProjectionExpression.TupleParameterBindings,
-        subQueryExpression.ProjectionExpression.ResultType);
+        subQueryExpression.ProjectionExpression.ResultAccessMethod);
 
       // 3. Make translation 
       elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;

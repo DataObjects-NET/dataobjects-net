@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Linq.Expressions
         ProjectionExpression.Type, 
         newItemProjector, 
         ProjectionExpression.TupleParameterBindings, 
-        ProjectionExpression.ResultType);
+        ProjectionExpression.ResultAccessMethod);
       return new GroupingExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter, KeyExpression, SelectManyInfo);
     }
 

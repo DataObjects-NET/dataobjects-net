@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Linq
   /// </summary>
   internal class TranslatedQuery
   {
-    internal readonly ResultType scalarResultType;
+    internal readonly ResultAccessMethod ResultAccessMethod;
 
     /// <summary>
     /// The <see cref="ExecutableProvider"/> acting as source for further materialization.
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     public readonly Materializer Materializer;
 
-    public bool IsScalar => scalarResultType != ResultType.All;
+    public bool IsScalar => ResultAccessMethod != ResultAccessMethod.All;
 
     /// <summary>
     /// Gets the tuple parameter bindings.
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Linq
     public TResult ExecuteScalar<TResult>(Session session, ParameterContext parameterContext)
     {
       var sequenceResult = ExecuteSequence<TResult>(session, parameterContext);
-      return sequenceResult.ToScalar(scalarResultType);
+      return sequenceResult.ToScalar(ResultAccessMethod);
     }
 
     /// <summary>
@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Linq
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
       var sequenceResult = await ExecuteSequenceAsync<TResult>(session, parameterContext, token).ConfigureAwait(false);
-      return sequenceResult.ToScalar(scalarResultType);
+      return sequenceResult.ToScalar(ResultAccessMethod);
     }
 
     /// <summary>
@@ -114,8 +114,8 @@ namespace Xtensive.Orm.Linq
     /// </summary>
     /// <param name="dataSource">The data source.</param>
     /// <param name="materializer">The materializer.</param>
-    public TranslatedQuery(ExecutableProvider dataSource, Materializer materializer, ResultType scalarResultType)
-      : this(dataSource, materializer, scalarResultType, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
+    public TranslatedQuery(ExecutableProvider dataSource, Materializer materializer, ResultAccessMethod resultAccessMethod)
+      : this(dataSource, materializer, resultAccessMethod, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
     {
     }
 
@@ -129,12 +129,12 @@ namespace Xtensive.Orm.Linq
     /// <param name="tupleParameters">The tuple parameters.</param>
     public TranslatedQuery(ExecutableProvider dataSource,
       Materializer materializer,
-      ResultType scalarResultType,
+      ResultAccessMethod resultAccessMethod,
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;
       Materializer = materializer;
-      this.scalarResultType = scalarResultType;
+      ResultAccessMethod = resultAccessMethod;
       TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
       TupleParameters = tupleParameters.ToList();
     }

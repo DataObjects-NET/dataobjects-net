@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Linq
               projection.Type, 
               newItemProjector, 
               projection.TupleParameterBindings, 
-              projection.ResultType);
+              projection.ResultAccessMethod);
             base.ReplaceBound(parameter, newProjection);
           }
         }

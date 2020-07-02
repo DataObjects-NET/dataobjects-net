@@ -1162,7 +1162,7 @@ namespace Xtensive.Orm.Linq
           resultType,
           subQuery.ItemProjector,
           subQuery.TupleParameterBindings,
-          subQuery.ResultType);
+          subQuery.ResultAccessMethod);
       return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
     }
 

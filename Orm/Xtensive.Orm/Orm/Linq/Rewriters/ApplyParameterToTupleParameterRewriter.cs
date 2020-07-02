@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Linq.Rewriters
           expression.ProjectionExpression.Type, 
           newItemProjector, 
           expression.ProjectionExpression.TupleParameterBindings, 
-          expression.ProjectionExpression.ResultType);
+          expression.ProjectionExpression.ResultAccessMethod);
         return new GroupingExpression(
           expression.Type, expression.OuterParameter, expression.DefaultIfEmpty,
           newProjectionExpression, expression.ApplyParameter,
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Linq.Rewriters
           expression.ProjectionExpression.Type, 
           newItemProjector, 
           expression.ProjectionExpression.TupleParameterBindings, 
-          expression.ProjectionExpression.ResultType);
+          expression.ProjectionExpression.ResultAccessMethod);
         return new SubQueryExpression(
           expression.Type, expression.OuterParameter,
           expression.DefaultIfEmpty, newProjectionExpression,

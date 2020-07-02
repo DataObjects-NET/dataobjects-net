@@ -14,12 +14,12 @@ namespace Xtensive.Orm.Linq.Expressions
   internal class ProjectionExpression : ExtendedExpression
   {
     public ItemProjectorExpression ItemProjector { get; private set;}
-    public ResultType ResultType { get; private set; }
+    public ResultAccessMethod ResultAccessMethod { get; private set; }
     public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
 
     public bool IsScalar
     {
-      get {  return ResultType != ResultType.All; }
+      get {  return ResultAccessMethod != ResultAccessMethod.All; }
     }
 
     public override string ToString()
@@ -34,18 +34,18 @@ namespace Xtensive.Orm.Linq.Expressions
       Type type,
       ItemProjectorExpression itemProjectorExpression,
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
-      : this(type, itemProjectorExpression, tupleParameterBindings, ResultType.All)
+      : this(type, itemProjectorExpression, tupleParameterBindings, ResultAccessMethod.All)
     {}
 
     public ProjectionExpression(
       Type type, 
       ItemProjectorExpression itemProjectorExpression, 
       Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
-      ResultType resultType)
+      ResultAccessMethod resultAccessMethod)
       : base(ExtendedExpressionType.Projection, type)
     {
       ItemProjector = itemProjectorExpression;
-      ResultType = resultType;
+      ResultAccessMethod = resultAccessMethod;
       TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
     }
   }

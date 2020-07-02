@@ -21,12 +21,12 @@ namespace Xtensive.Orm
   [Serializable]
   public sealed class DelayedScalarQuery<T> : DelayedQuery
   {
-    private readonly ResultType scalarResultType;
+    private readonly ResultAccessMethod resultAccessMethod;
 
     /// <summary>
     /// Gets the result.
     /// </summary>
-    public T Value => Materialize<T>().ToScalar(scalarResultType);
+    public T Value => Materialize<T>().ToScalar(resultAccessMethod);
 
     /// <summary>
     /// Asynchronously gets value.
@@ -49,7 +49,7 @@ namespace Xtensive.Orm
     /// <param name="token">Cancellation token.</param>
     /// <returns>Value representing scalar query execution result.</returns>
     public async ValueTask<T> ExecuteAsync(CancellationToken token = default) =>
-      (await MaterializeAsync<T>(token).ConfigureAwait(false)).ToScalar(scalarResultType);
+      (await MaterializeAsync<T>(token).ConfigureAwait(false)).ToScalar(resultAccessMethod);
 
     // Constructors
 
@@ -62,7 +62,7 @@ namespace Xtensive.Orm
     internal DelayedScalarQuery(Session session, TranslatedQuery translatedQuery, ParameterContext parameterContext)
       : base(session, translatedQuery, parameterContext)
     {
-      scalarResultType = translatedQuery.scalarResultType;
+      resultAccessMethod = translatedQuery.ResultAccessMethod;
     }
   }
 }

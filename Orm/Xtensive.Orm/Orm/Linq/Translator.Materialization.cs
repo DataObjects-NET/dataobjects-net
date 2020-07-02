@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Linq
         projection.Type,
         newItemProjector,
         projection.TupleParameterBindings,
-        projection.ResultType);
+        projection.ResultAccessMethod);
       var optimized = Optimize(result);
 
       // Prepare cached query, if required
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Linq
       // Build materializer
       var materializer = BuildMaterializer(prepared, tupleParameterBindings);
       var translatedQuery = new TranslatedQuery(
-        compiled, materializer, prepared.ResultType,
+        compiled, materializer, prepared.ResultAccessMethod,
         projection.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Linq
           origin.Type,
           itemProjector,
           origin.TupleParameterBindings,
-          origin.ResultType);
+          origin.ResultAccessMethod);
         return result;
       }
       return origin;
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Linq
           sequence.Type, 
           sequenceItemProjector, 
           sequence.TupleParameterBindings, 
-          sequence.ResultType);
+          sequence.ResultAccessMethod);
         return indexProjectionExpression;
       }
       return null;

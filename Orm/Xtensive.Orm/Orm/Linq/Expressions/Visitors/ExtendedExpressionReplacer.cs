@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
           projectionExpression.Type,
           itemProjector,
           projectionExpression.TupleParameterBindings,
-          projectionExpression.ResultType);
+          projectionExpression.ResultAccessMethod);
       }
       return projectionExpression;
     }
