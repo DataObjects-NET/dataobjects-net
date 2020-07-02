@@ -17,6 +17,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
@@ -118,7 +119,7 @@ namespace Xtensive.Orm.Providers
       else {
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
-          if (argument.IsSubclassOf(typeof (Persistent))) {
+          if (argument.IsSubclassOf(WellKnownOrmTypes.Persistent)) {
             var argTypeDef = context.ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }

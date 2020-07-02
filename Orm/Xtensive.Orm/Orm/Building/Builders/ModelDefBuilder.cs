@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Building.Builders
         var propertyType = field.UnderlyingProperty.PropertyType;
         if (propertyType.IsGenericParameter)
           continue;
-        if (propertyType.IsSubclassOf(typeof(Persistent)) && !context.ModelDef.Types.Contains(propertyType))
+        if (propertyType.IsSubclassOf(WellKnownOrmTypes.Persistent) && !context.ModelDef.Types.Contains(propertyType))
           types.Enqueue(propertyType);
       }
     }

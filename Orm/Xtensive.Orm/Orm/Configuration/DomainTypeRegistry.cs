@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using System.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Configuration
@@ -20,7 +21,6 @@ namespace Xtensive.Orm.Configuration
   public class DomainTypeRegistry : TypeRegistry
   {
     private readonly static Type iEntityType = typeof (IEntity);
-    private readonly static Type persistentType = typeof (Persistent);
     private readonly static Type iDomainServiceType = typeof (IDomainService);
     private readonly static Type iSessionServiceType = typeof (ISessionService);
     private readonly static Type iModuleType = typeof (IModule);
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsPersistentType(Type type)
     {
-      if (persistentType.IsAssignableFrom(type) && persistentType!=type)
+      if (WellKnownOrmTypes.Persistent.IsAssignableFrom(type) && WellKnownOrmTypes.Persistent!=type)
         return true;
       if (iEntityType.IsAssignableFrom(type))
         return true;

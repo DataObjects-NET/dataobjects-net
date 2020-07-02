@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var methodCallExpression = (MethodCallExpression) expression;
       return methodCallExpression.Object!=null && 
         methodCallExpression.Method.Name=="get_Item" && 
-        methodCallExpression.Method.DeclaringType.In(typeof (Persistent), typeof(IEntity)) && 
+        methodCallExpression.Method.DeclaringType.In(WellKnownOrmTypes.Persistent, typeof(IEntity)) &&
         context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 

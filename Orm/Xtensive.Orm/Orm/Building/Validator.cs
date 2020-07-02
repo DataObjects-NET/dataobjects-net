@@ -182,7 +182,7 @@ namespace Xtensive.Orm.Building
 
     public void EnsureTypeIsPersistent(Type type)
     {
-      if (type.IsClass && type.IsSubclassOf(typeof (Persistent)))
+      if (type.IsClass && type.IsSubclassOf(WellKnownOrmTypes.Persistent))
         return;
 
       if (type.IsInterface && typeof (IEntity).IsAssignableFrom(type))
