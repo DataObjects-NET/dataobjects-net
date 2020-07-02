@@ -349,20 +349,14 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public Type ValueType
     {
+      [DebuggerStepThrough] get => valueType;
       [DebuggerStepThrough]
-      get => valueType;
-      [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         valueType = value;
-        if (valueType.IsGenericType) {
-          valueType = valueType.StripNullable();
-          IsEnum = Nullable.GetUnderlyingType(valueType)?.IsEnum == true;
-        }
-        else {
-          IsEnum = value.IsEnum;
-        }
+        IsEnum = valueType.IsNullable()
+          ? valueType.GetGenericArguments()[0].IsEnum
+          : valueType.IsEnum;
       }
     }
 
