@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <summary>
-    /// Gets <see cref="RecordSetReader"/> bound to the specified <paramref name="provider"/>.
+    /// Gets <see cref="RecordSetReader"/> bound to the specified <paramref name="session"/>.
     /// </summary>
     /// <param name="session">Session to bind.</param>
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <summary>
-    /// Asynchronously gets <see cref="RecordSetReader"/> bound to the specified <paramref name="provider"/>.
+    /// Asynchronously gets <see cref="RecordSetReader"/> bound to the specified <paramref name="session"/>.
     /// </summary>
     /// <param name="session">Session to bind.</param>
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
