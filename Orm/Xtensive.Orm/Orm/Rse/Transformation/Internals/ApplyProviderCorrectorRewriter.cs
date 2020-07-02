@@ -11,7 +11,6 @@ using System.Linq.Expressions;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 
@@ -131,14 +130,14 @@ namespace Xtensive.Orm.Rse.Transformation
     public static void ThrowInvalidOperationException()
     {
       throw new InvalidOperationException(String.Format(Strings.ExCantConvertXToY,
-        typeof (ApplyProvider).Name, typeof (PredicateJoinProvider).Name));
+        nameof(ApplyProvider), nameof(PredicateJoinProvider)));
     }
 
     public static void ThrowInvalidOperationException(string description)
     {
       var sb = new StringBuilder();
       sb.Append(String.Format(Strings.ExCantConvertXToY,
-        typeof (ApplyProvider).Name, typeof (PredicateJoinProvider).Name));
+        nameof(ApplyProvider), nameof(PredicateJoinProvider)));
       sb.Append(" ");
       sb.Append(description);
       throw new InvalidOperationException(sb.ToString());
