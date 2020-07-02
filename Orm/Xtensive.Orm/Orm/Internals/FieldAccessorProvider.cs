@@ -18,6 +18,12 @@ namespace Xtensive.Orm.Internals
   internal sealed class FieldAccessorProvider
   {
     private readonly FieldAccessor[] fieldAccessors;
+    private static readonly Type EntityFieldAccessorType = typeof(EntityFieldAccessor<>);
+    private static readonly Type EntitySetFieldAccessorType = typeof(EntitySetFieldAccessor<>);
+    private static readonly Type StructureFieldAccessorType = typeof(StructureFieldAccessor<>);
+    private static readonly Type EnumFieldAccessorType = typeof(EnumFieldAccessor<>);
+    private static readonly Type KeyFieldAccessorType = typeof(KeyFieldAccessor<>);
+    private static readonly Type DefaultFieldAccessorType = typeof(DefaultFieldAccessor<>);
 
     public FieldAccessor GetFieldAccessor(FieldInfo field)
     {
@@ -27,16 +33,16 @@ namespace Xtensive.Orm.Internals
     private static FieldAccessor CreateFieldAccessor(FieldInfo field)
     {
       if (field.IsEntity)
-        return CreateFieldAccessor(typeof(EntityFieldAccessor<>), field);
+        return CreateFieldAccessor(EntityFieldAccessorType, field);
       if (field.IsEntitySet)
-        return CreateFieldAccessor(typeof(EntitySetFieldAccessor<>), field);
+        return CreateFieldAccessor(EntitySetFieldAccessorType, field);
       if (field.IsStructure)
-        return CreateFieldAccessor(typeof(StructureFieldAccessor<>), field);
+        return CreateFieldAccessor(StructureFieldAccessorType, field);
       if (field.IsEnum)
-        return CreateFieldAccessor(typeof(EnumFieldAccessor<>), field);
+        return CreateFieldAccessor(EnumFieldAccessorType, field);
       if (field.ValueType==WellKnownOrmTypes.Key)
-        return CreateFieldAccessor(typeof(KeyFieldAccessor<>), field);
-      return CreateFieldAccessor(typeof(DefaultFieldAccessor<>), field);
+        return CreateFieldAccessor(KeyFieldAccessorType, field);
+      return CreateFieldAccessor(DefaultFieldAccessorType, field);
     }
 
     private static FieldAccessor CreateFieldAccessor(Type accessorType, FieldInfo field)
