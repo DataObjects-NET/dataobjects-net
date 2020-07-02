@@ -54,6 +54,8 @@ namespace Xtensive.Linq
     private readonly ThreadSafeDictionary<Type, Factory> cache;
     private readonly Func<Type, Factory> createHandler;
     private readonly MethodInfo slowFactoryMethod;
+    private static readonly Type FastFactoryType = typeof(FastFactory);
+    private static readonly Type SlowFactoryType = typeof(SlowFactory);
 
     public LambdaExpression CreateLambda(Type delegateType, Expression body, ParameterExpression[] parameters)
     {
@@ -72,7 +74,7 @@ namespace Xtensive.Linq
     internal Factory CreateFactorySlow(Type delegateType)
     {
       var factory = (SlowFactory) Delegate.CreateDelegate(
-        typeof(SlowFactory), slowFactoryMethod.MakeGenericMethod(delegateType));
+        SlowFactoryType, slowFactoryMethod.MakeGenericMethod(delegateType));
 
       return (body, parameters) => factory.Invoke(body, parameters);
     }
@@ -86,7 +88,7 @@ namespace Xtensive.Linq
         return null;
       }
 
-      var factory = (FastFactory) Delegate.CreateDelegate(typeof(FastFactory), null, method);
+      var factory = (FastFactory) Delegate.CreateDelegate(FastFactoryType, null, method);
       return (body, parameters) => factory.Invoke(body, null, false, parameters);
     }
 
