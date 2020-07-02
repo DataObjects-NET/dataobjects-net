@@ -53,14 +53,15 @@ namespace Xtensive.Orm.Linq.Materialization
       throw new InvalidOperationException(Strings.ExSequenceContainsNoElements);
 
     /// <summary>
-    /// Materializes the specified data source.
+    /// Wraps <see cref="RecordSetReader"/> by adding <see cref="Tuple"/> to <typeparamref name="TResult"/>
+    /// conversion for individual records.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="dataSource">The data source.</param>
+    /// <param name="recordSetReader">The reader over raw data source.</param>
     /// <param name="context">The context.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    /// <param name="itemMaterializer">The item materializer.</param>
-    /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
+    /// <param name="itemMaterializer">The materialization delegate performing
+    /// <see cref="Tuple"/> instance to instance of <typeparamref name="TResult"/> type conversion.</param>
     public static object Materialize<TResult>(
       RecordSetReader recordSetReader,
       MaterializationContext context,
