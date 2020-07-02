@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Internals
     public static readonly Type KeyOfT = typeof(Key<>);
 
     public static readonly Type Parameter = typeof(Parameter);
+    public static readonly Type ParameterContext = typeof(ParameterContext);
     public static readonly Type ParameterOfT = typeof(Parameter<>);
     public static readonly Type ParameterOfTuple = typeof(Parameter<Tuple>);
 

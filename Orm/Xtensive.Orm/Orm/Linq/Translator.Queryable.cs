@@ -436,7 +436,7 @@ namespace Xtensive.Orm.Linq
         ParameterExpression contextParameter;
         if (compiledQueryScope==null) {
           var indexLambda = (Expression<Func<int>>) index;
-          contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
+          contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
           elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, contextParameter);
         }
         else {
@@ -504,7 +504,7 @@ namespace Xtensive.Orm.Linq
 
       if (take.Type==typeof (Func<int>)) {
         if (compiledQueryScope==null) {
-          var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
+          var contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
           var takeLambda = (Expression<Func<int>>) take;
           var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, contextParameter);
           compiledParameter = newTakeLambda.CachingCompile();
@@ -537,7 +537,7 @@ namespace Xtensive.Orm.Linq
         skip = skip.StripQuotes();
       if (skip.Type==typeof (Func<int>)) {
         if (compiledQueryScope==null) {
-          var contextParameter = Expression.Parameter(typeof(ParameterContext), "context");
+          var contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
           var skipLambda = (Expression<Func<int>>) skip;
           var newSkipLambda = FastExpression.Lambda<Func<ParameterContext, int>>(skipLambda.Body, contextParameter);
           compiledParameter = newSkipLambda.CachingCompile();

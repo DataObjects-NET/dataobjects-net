@@ -8,10 +8,12 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using TypeMapping = Xtensive.Sql.TypeMapping;
 
 namespace Xtensive.Orm.Providers
 {
@@ -290,7 +292,7 @@ namespace Xtensive.Orm.Providers
         var callExpression = (MethodCallExpression) operand;
         if (string.Equals(callExpression.Method.Name, nameof(ParameterContext.GetValue), StringComparison.Ordinal)) {
           operand = callExpression.Object;
-          if (operand!=null && typeof(ParameterContext) == operand.Type) {
+          if (operand!=null && WellKnownOrmTypes.ParameterContext == operand.Type) {
             operand = callExpression.Arguments[0];
           }
         }

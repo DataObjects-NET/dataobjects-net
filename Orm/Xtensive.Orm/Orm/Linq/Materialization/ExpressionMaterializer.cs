@@ -555,7 +555,7 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       ParameterContextProperty =
         typeof(ItemMaterializationContext).GetProperty(nameof(ItemMaterializationContext.ParameterContext));
-      GetParameterValueMethod = typeof(ParameterContext).GetMethod(nameof(ParameterContext.GetValue));
+      GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
       GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(WellKnownOrmTypes.Tuple);
       BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);
       GetTupleSegmentMethod = typeof (ExpressionMaterializer).GetMethod("GetTupleSegment", BindingFlags.NonPublic | BindingFlags.Static);

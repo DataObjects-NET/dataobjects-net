@@ -457,7 +457,7 @@ namespace Xtensive.Orm.Linq
         searchCriteria = searchCriteria.StripQuotes();
       if (searchCriteria.Type==typeof (Func<string>)) {
         if (compiledQueryScope==null) {
-          var parameterContextParam = Expression.Parameter(typeof(ParameterContext), "context");
+          var parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
           var originalSearchCriteria = (Expression<Func<string>>) searchCriteria;
           var body = originalSearchCriteria.Body;
           var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, parameterContextParam);
@@ -526,7 +526,7 @@ namespace Xtensive.Orm.Linq
       var conditionCompiler = context.Domain.Handler.GetSearchConditionCompiler();
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
 
-      var parameterContextParam = Expression.Parameter(typeof(ParameterContext), "context");
+      var parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
       var preparedSearchCriteria = FastExpression.Lambda<Func<ParameterContext, string>>(
         Expression.Constant(conditionCompiler.CurrentOutput), parameterContextParam);
 

@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var paramContext = Expression.Parameter(typeof(ParameterContext), "context");
+      var paramContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
       var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, paramContext);
       var selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), WellKnownOrmTypes.Tuple);
       var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
