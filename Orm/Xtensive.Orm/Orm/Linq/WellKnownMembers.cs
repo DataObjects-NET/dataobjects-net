@@ -13,6 +13,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
@@ -306,7 +307,7 @@ namespace Xtensive.Orm.Linq
       TypeId = typeof(IEntity).GetProperty(WellKnown.TypeIdFieldName);
 
       // ApplyParameter
-      ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");
+      ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetProperty("Value");
 
       // Parameter<Tuple>
       ParameterOfTupleValue = typeof (Parameter<Tuples.Tuple>).GetProperty("Value", typeof (Tuples.Tuple));

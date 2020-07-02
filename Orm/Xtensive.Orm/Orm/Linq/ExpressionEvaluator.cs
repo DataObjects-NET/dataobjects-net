@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Linq
 
     private static bool CanEvaluateExpression(Expression expression)
     {
-      if (expression.Type==typeof (ApplyParameter))
+      if (expression.Type==WellKnownOrmTypes.ApplyParameter)
         return false;
       var cex = expression as ConstantExpression;
       if (cex!=null) {

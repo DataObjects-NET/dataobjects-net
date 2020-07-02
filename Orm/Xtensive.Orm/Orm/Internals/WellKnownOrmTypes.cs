@@ -1,12 +1,15 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Rse;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Internals
 {
   internal static class WellKnownOrmTypes
   {
+    public static readonly Type ApplyParameter = typeof(ApplyParameter);
+
     public static readonly Type Entity = typeof(Entity);
     public static readonly Type EntitySetBase = typeof(EntitySetBase);
     public static readonly Type EntitySetOfT = typeof(EntitySet<>);

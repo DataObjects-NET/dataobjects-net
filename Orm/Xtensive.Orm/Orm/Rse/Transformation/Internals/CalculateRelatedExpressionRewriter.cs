@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private static bool IsApplyParameter(Expression exp)
     {
       return exp.NodeType == ExpressionType.Constant
-        && exp.Type == typeof(ApplyParameter);
+        && exp.Type == WellKnownOrmTypes.ApplyParameter;
     }
   }
 }

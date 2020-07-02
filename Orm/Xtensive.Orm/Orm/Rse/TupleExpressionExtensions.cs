@@ -136,7 +136,7 @@ namespace Xtensive.Orm.Rse
         return null;
       var memberAccess = (MemberExpression) tupleAccess.Object;
       if (memberAccess.Expression==null ||
-        memberAccess.Expression.Type!=typeof (ApplyParameter) ||
+        memberAccess.Expression.Type!=WellKnownOrmTypes.ApplyParameter ||
         memberAccess.Member.Name!="Value")
         return null;
       return memberAccess.Expression;
