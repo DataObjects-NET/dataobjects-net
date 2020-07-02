@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Building.Builders
       if (!(expression.Member is PropertyInfo))
         return false;
       var ownerType = expression.Expression.Type;
-      return typeof (IEntity).IsAssignableFrom(ownerType)
+      return WellKnownOrmInterfaces.Entity.IsAssignableFrom(ownerType)
         || WellKnownOrmTypes.Structure.IsAssignableFrom(ownerType);
     }
 

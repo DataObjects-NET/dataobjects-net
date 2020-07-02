@@ -30,4 +30,10 @@ namespace Xtensive.Orm.Internals
     public static readonly Type Query = typeof(Query);
     public static readonly Type QueryProvider = typeof(QueryProvider);
   }
+
+  internal static class WellKnownOrmInterfaces
+  {
+    public static readonly Type Entity = typeof(IEntity);
+  }
+
 }

@@ -250,7 +250,7 @@ namespace Xtensive.Orm.Building
         if (typeDef.IsGenericTypeDefinition) {
           var allGenericConstraintsAreEntity = typeDef.UnderlyingType.GetGenericArguments()
             .SelectMany(ga => ga.GetGenericParameterConstraints())
-            .All(constraintType => typeof (IEntity).IsAssignableFrom(constraintType));
+            .All(constraintType => WellKnownOrmInterfaces.Entity.IsAssignableFrom(constraintType));
           // Skip automatic registration for open generic types whicn constraints are not IEntity
           if (!allGenericConstraintsAreEntity)
             return;

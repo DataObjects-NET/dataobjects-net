@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var methodCallExpression = (MethodCallExpression) expression;
       return methodCallExpression.Object!=null && 
         methodCallExpression.Method.Name=="get_Item" && 
-        methodCallExpression.Method.DeclaringType.In(WellKnownOrmTypes.Persistent, typeof(IEntity)) &&
+        methodCallExpression.Method.DeclaringType.In(WellKnownOrmTypes.Persistent, WellKnownOrmInterfaces.Entity) &&
         context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 

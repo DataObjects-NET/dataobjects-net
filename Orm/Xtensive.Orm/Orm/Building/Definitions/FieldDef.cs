@@ -321,7 +321,7 @@ namespace Xtensive.Orm.Building.Definitions
     {
       this.validator = validator;
       IsStructure = valueType.IsSubclassOf(WellKnownOrmTypes.Structure) || valueType == WellKnownOrmTypes.Structure;
-      IsEntity = typeof(IEntity).IsAssignableFrom(valueType);
+      IsEntity = WellKnownOrmInterfaces.Entity.IsAssignableFrom(valueType);
       if ((valueType.IsClass || valueType.IsInterface) && !IsStructure)
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;

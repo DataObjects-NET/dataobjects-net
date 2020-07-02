@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Reflection;
 using Xtensive.Orm.Building.Definitions;
+using Xtensive.Orm.Internals;
 
 
 namespace Xtensive.Orm.Building.Builders
@@ -21,7 +22,7 @@ namespace Xtensive.Orm.Building.Builders
         return value;
 
       // We can't do anything here cause we don't know the structure of referenced Entity's key
-      if (typeof(IEntity).IsAssignableFrom(fieldType))
+      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(fieldType))
         return value;
 
       return AdjustValue(targetField.Name, fieldType, value);

@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public static KeyExtractorNode<T> Build<T, TValue>(DomainModel model, Expression<Func<T, TValue>> expression)
     {
-      if (!typeof (IEntity).IsAssignableFrom(typeof (T)))
+      if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(typeof (T)))
         return null;
       var parameter = expression.Parameters.First();
       if (expression.Body==parameter)
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var currentType = access.Expression.Type;
 
-      if (!typeof (IEntity).IsAssignableFrom(currentType))
+      if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(currentType))
         throw new NotSupportedException("Only persistent properties are supported");
 
       var currentEntity = model.Types[currentType];

@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
-      if (!typeof(IEntity).IsAssignableFrom(sourceType))
+      if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(sourceType))
         throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
 
       var visitedSource = VisitSequence(source);

@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Linq
 
       // Entity
       if (memberType==MemberType.Entity
-        && typeof (IEntity).IsAssignableFrom(operandType)) {
+        && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
         IEnumerable<int> typeIds = type.GetDescendants(true)
           .Union(type.GetImplementors(true))
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Linq
         if (u.GetMemberType()==MemberType.Entity) {
           if (u.Type==u.Operand.Type
             || u.Type.IsAssignableFrom(u.Operand.Type)
-            || !typeof (IEntity).IsAssignableFrom(u.Operand.Type))
+            || !WellKnownOrmInterfaces.Entity.IsAssignableFrom(u.Operand.Type))
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
@@ -996,8 +996,8 @@ namespace Xtensive.Orm.Linq
       {
         ConstantExpression nullEntityExpression = Expression.Constant(null, expression.Type);
         BinaryExpression isNullExpression = Expression.Equal(expression, nullEntityExpression);
-        if (!typeof (IEntity).IsAssignableFrom(expression.Type))
-          expression = Expression.Convert(expression, typeof (IEntity));
+        if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(expression.Type))
+          expression = Expression.Convert(expression, WellKnownOrmInterfaces.Entity);
         keyExpression = Expression.Condition(
           isNullExpression,
           Expression.Constant(null, WellKnownOrmTypes.Key),

@@ -20,7 +20,6 @@ namespace Xtensive.Orm.Configuration
   [Serializable]
   public class DomainTypeRegistry : TypeRegistry
   {
-    private readonly static Type iEntityType = typeof (IEntity);
     private readonly static Type iDomainServiceType = typeof (IDomainService);
     private readonly static Type iSessionServiceType = typeof (ISessionService);
     private readonly static Type iModuleType = typeof (IModule);
@@ -132,7 +131,7 @@ namespace Xtensive.Orm.Configuration
     {
       if (WellKnownOrmTypes.Persistent.IsAssignableFrom(type) && WellKnownOrmTypes.Persistent!=type)
         return true;
-      if (iEntityType.IsAssignableFrom(type))
+      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(type))
         return true;
       return false;
     }

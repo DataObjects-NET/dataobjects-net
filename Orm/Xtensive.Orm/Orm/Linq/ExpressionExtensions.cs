@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Linq
       var type = e.Type;
       if (WellKnownOrmTypes.Key.IsAssignableFrom(type))
         return MemberType.Key;
-      if (typeof (IEntity).IsAssignableFrom(type))
+      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(type))
         return MemberType.Entity;
       if (WellKnownOrmTypes.Structure.IsAssignableFrom(type))
         return MemberType.Structure;

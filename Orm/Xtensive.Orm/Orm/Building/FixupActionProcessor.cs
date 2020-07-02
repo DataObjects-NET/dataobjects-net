@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Building
         var argument = arguments[i];
         var constraints = argument.GetGenericParameterConstraints()
           .ToList();
-        if (constraints.Count==0 || !constraints.Any(c => typeof (IEntity).IsAssignableFrom(c)))
+        if (constraints.Count==0 || !constraints.Any(c => WellKnownOrmInterfaces.Entity.IsAssignableFrom(c)))
           return; // No IEntity / Entity constraints
         var queue = new Queue<Type>(
           from hierarchy in hierarchies

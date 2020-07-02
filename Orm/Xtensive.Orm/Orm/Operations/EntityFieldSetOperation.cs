@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Operations
       : base(info, context)
     {
       var session = Session.Demand();
-      if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
+      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(Field.ValueType)) {
         // deserializing entity
         var value = info.GetString("value");
         if (!value.IsNullOrEmpty()) {
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Operations
     {
       base.GetObjectData(info, context);
       var structureValue = Value as Structure;
-      if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
+      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(Field.ValueType)) {
         // serializing entity value as key
         if (ValueKey != null)
           info.AddValue("value", ValueKey.Format());

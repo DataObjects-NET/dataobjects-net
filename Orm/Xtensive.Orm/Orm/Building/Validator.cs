@@ -127,7 +127,8 @@ namespace Xtensive.Orm.Building
       if (fieldType.IsSubclassOf(WellKnownOrmTypes.Entity))
         return;
 
-      if (fieldType.IsInterface && typeof (IEntity).IsAssignableFrom(fieldType) && fieldType!=typeof (IEntity))
+      if (fieldType.IsInterface && WellKnownOrmInterfaces.Entity.IsAssignableFrom(fieldType)
+        && fieldType!=WellKnownOrmInterfaces.Entity)
         return;
 
       if (fieldType.IsSubclassOf(WellKnownOrmTypes.Structure)) {
@@ -185,7 +186,7 @@ namespace Xtensive.Orm.Building
       if (type.IsClass && type.IsSubclassOf(WellKnownOrmTypes.Persistent))
         return;
 
-      if (type.IsInterface && typeof (IEntity).IsAssignableFrom(type))
+      if (type.IsInterface && WellKnownOrmInterfaces.Entity.IsAssignableFrom(type))
         return;
 
       throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, type));
@@ -208,7 +209,7 @@ namespace Xtensive.Orm.Building
     /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
     internal void EnsureIsNullable(Type valueType)
     {
-      if (!(typeof(IEntity).IsAssignableFrom(valueType) || valueType==WellKnownTypes.String || valueType==WellKnownTypes.ByteArray))
+      if (!(WellKnownOrmInterfaces.Entity.IsAssignableFrom(valueType) || valueType==WellKnownTypes.String || valueType==WellKnownTypes.ByteArray))
         throw new DomainBuilderException(string.Format(
           Strings.ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT, valueType));
     }

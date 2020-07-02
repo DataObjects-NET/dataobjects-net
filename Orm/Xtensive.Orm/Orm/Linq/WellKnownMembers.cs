@@ -303,8 +303,8 @@ namespace Xtensive.Orm.Linq
     static WellKnownMembers()
     {
       // IEntity
-      IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);
-      TypeId = typeof(IEntity).GetProperty(WellKnown.TypeIdFieldName);
+      IEntityKey = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.KeyFieldName);
+      TypeId = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.TypeIdFieldName);
 
       // ApplyParameter
       ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetProperty("Value");

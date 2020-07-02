@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Building.Builders
     private void RemoveTemporaryDefinitions()
     {
       var modelDef = context.ModelDef;
-      var ientityDef = modelDef.Types.TryGetValue(typeof (IEntity));
+      var ientityDef = modelDef.Types.TryGetValue(WellKnownOrmInterfaces.Entity);
       if (ientityDef != null)
         modelDef.Types.Remove(ientityDef);
     }

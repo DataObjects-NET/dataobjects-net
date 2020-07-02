@@ -143,13 +143,13 @@ namespace Xtensive.Orm.Linq.Rewriters
       private static bool IsReferenceFieldAccess(MemberExpression m)
       {
         var property = m.Member as PropertyInfo;
-        return property!=null && typeof (IEntity).IsAssignableFrom(property.PropertyType);
+        return property!=null && WellKnownOrmInterfaces.Entity.IsAssignableFrom(property.PropertyType);
       }
 
       private static bool IsReferenceOrStructureFieldAccess(MemberExpression m)
       {
         var property = m.Member as PropertyInfo;
-        return property!=null && (typeof (IEntity).IsAssignableFrom(property.PropertyType)
+        return property!=null && (WellKnownOrmInterfaces.Entity.IsAssignableFrom(property.PropertyType)
           || WellKnownOrmTypes.Structure.IsAssignableFrom(property.PropertyType));
       }
 
