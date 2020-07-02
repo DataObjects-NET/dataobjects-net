@@ -20,9 +20,9 @@ namespace Xtensive.Comparison
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
   {
-    private static readonly ComparerProvider defaultProvider = new ComparerProvider();
-    private static readonly SystemComparerProvider systemProvider = SystemComparerProvider.Instance;
-    private static readonly Type BaseComparerWrapperType = typeof (BaseComparerWrapper<,>);
+    private static readonly ComparerProvider defaultProvider;
+    private static readonly SystemComparerProvider systemProvider;
+    private static readonly Type BaseComparerWrapperType;
 
     /// <summary>
     /// Gets default instance of this type.
@@ -115,6 +115,13 @@ namespace Xtensive.Comparison
       TypeSuffixes = new[] {"Comparer"};
       ConstructorParams = new object[] {this, ComparisonRules.Positive};
       AddHighPriorityLocation(BaseComparerWrapperType.Assembly, BaseComparerWrapperType.Namespace);
+    }
+
+    static ComparerProvider()
+    {
+      BaseComparerWrapperType = typeof (BaseComparerWrapper<,>);
+      defaultProvider = new ComparerProvider();
+      systemProvider = SystemComparerProvider.Instance;
     }
   }
 }

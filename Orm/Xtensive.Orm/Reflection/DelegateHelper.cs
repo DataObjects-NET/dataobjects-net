@@ -519,7 +519,7 @@ namespace Xtensive.Reflection
       opCodeConv.Add(WellKnownTypes.Int32,  OpCodes.Conv_I4);
       opCodeConv.Add(WellKnownTypes.UInt32, OpCodes.Conv_U4);
       opCodeConv.Add(WellKnownTypes.Int64,  OpCodes.Conv_I8);
-      opCodeConv.Add(WellKnownTypes.UInt16, OpCodes.Conv_U8);
+      opCodeConv.Add(WellKnownTypes.UInt64, OpCodes.Conv_U8);
       opCodeConv.Add(WellKnownTypes.Single, OpCodes.Conv_R4);
       opCodeConv.Add(WellKnownTypes.Double, OpCodes.Conv_R8);
       typeOnStack.Add(WellKnownTypes.SByte,  WellKnownTypes.Int32);
