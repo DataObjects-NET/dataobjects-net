@@ -40,10 +40,11 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Safely disposes an <see cref="IDisposable"/> object.
+    /// Safely disposes an <see cref="IAsyncDisposable"/> object.
     /// </summary>
     /// <param name="disposable">Object to dispose (can be <see langword="null"/>).</param>
-    public static ValueTask DisposeSafelyAsync(this IAsyncDisposable disposable) => disposable?.DisposeAsync() ?? default;
+    public static ValueTask DisposeSafelyAsync(this IAsyncDisposable disposable) =>
+      disposable?.DisposeAsync() ?? default;
 
     /// <summary>
     /// Safely disposes an <see cref="IDisposable"/> object.
@@ -63,7 +64,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Safely disposes an <see cref="IDisposable"/> object.
+    /// Safely disposes an <see cref="IAsyncDisposable"/> object.
     /// </summary>
     /// <param name="disposable">Object to dispose (can be <see langword="null"/>).</param>
     /// <param name="silently">If set to <see langword="true"/>, it won't throw an exception in any case.</param>
