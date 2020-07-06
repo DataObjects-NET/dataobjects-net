@@ -15,7 +15,7 @@ using Xtensive.Orm.Rse;
 namespace Xtensive.Orm.Internals
 {
   /// <summary>
-  /// Abstract base for a future query and future scalar implementation.
+  /// Abstract base for both sequence and scalar delayed queries.
   /// </summary>
   [Serializable]
   public abstract class DelayedQuery
