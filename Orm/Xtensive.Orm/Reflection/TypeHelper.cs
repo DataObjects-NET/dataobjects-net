@@ -891,6 +891,22 @@ namespace Xtensive.Reflection
     /// <returns><see cref="MethodInfo"/> object describing the delegate "Invoke" method.</returns>
     public static MethodInfo GetInvokeMethod(this Type delegateType) => delegateType.GetMethod(invokeMethodName);
 
+
+    /// <summary>
+    /// Determines whether given <paramref name="method"/> is a specification
+    /// of the provided <paramref name="genericMethodDefinition"/>.
+    /// </summary>
+    /// <param name="method">The <see cref="MethodInfo"/> to check.</param>
+    /// <param name="genericMethodDefinition">The <see cref="MethodInfo"/> of the generic method definition
+    /// to check against.</param>
+    /// <returns><see langword="true"/> if the specified <paramref name="method"/> is a specification
+    /// of the provided <paramref name="genericMethodDefinition"/>.</returns>
+    public static bool IsGenericMethodSpecificationOf(this MethodInfo method, MethodInfo genericMethodDefinition) =>
+      method.MetadataToken == genericMethodDefinition.MetadataToken
+      && (ReferenceEquals(method.Module, genericMethodDefinition.Module)
+        || method.Module == genericMethodDefinition.Module)
+      && method.IsGenericMethod && genericMethodDefinition.IsGenericMethodDefinition;
+
     /// <summary>
     /// Determines whether the specified <paramref name="type"/> is an ancestor or an instance of the
     /// provided <paramref name="openGenericBaseType"/>.

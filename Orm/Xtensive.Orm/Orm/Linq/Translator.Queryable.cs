@@ -1083,12 +1083,12 @@ namespace Xtensive.Orm.Linq
         bool isOuter = false;
         if (collectionSelector.Body.NodeType==ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
-          var genericMethodDefinition = call.Method.GetGenericMethodDefinition();
-          isOuter = call.Method.IsGenericMethod
-            && (genericMethodDefinition==WellKnownMembers.Queryable.DefaultIfEmpty
-              || genericMethodDefinition==WellKnownMembers.Enumerable.DefaultIfEmpty);
-          if (isOuter)
+          var method = call.Method;
+          isOuter = method.IsGenericMethodSpecificationOf(WellKnownMembers.Queryable.DefaultIfEmpty)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Enumerable.DefaultIfEmpty);
+          if (isOuter) {
             collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
+          }
         }
         ProjectionExpression innerProjection;
         using (state.CreateScope()) {
