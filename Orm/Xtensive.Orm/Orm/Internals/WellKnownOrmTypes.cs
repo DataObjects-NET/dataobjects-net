@@ -31,6 +31,8 @@ namespace Xtensive.Orm.Internals
 
     public static readonly Type Query = typeof(Query);
     public static readonly Type QueryProvider = typeof(QueryProvider);
+
+    public static readonly Type FullTextMatchOfT = typeof(FullTextMatch<>);
   }
 
   internal static class WellKnownOrmInterfaces
