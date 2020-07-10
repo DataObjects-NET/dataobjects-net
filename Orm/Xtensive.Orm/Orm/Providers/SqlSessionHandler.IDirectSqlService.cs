@@ -14,6 +14,7 @@ namespace Xtensive.Orm.Providers
   {
     // Implementation of IDirectSqlService
 
+    /// <inheritdoc/>
     ConnectionInfo IDirectSqlService.ConnectionInfo {
       get { return connection.ConnectionInfo; }
       set { connection.ConnectionInfo = value; }
@@ -35,6 +36,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    /// <inheritdoc/>
     void IDirectSqlService.RegisterInitializationSql(string sql)
     {
       ArgumentValidator.EnsureArgumentNotNull(sql, "sql");

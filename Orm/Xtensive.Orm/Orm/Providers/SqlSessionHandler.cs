@@ -147,6 +147,7 @@ namespace Xtensive.Orm.Providers
       driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
     }
 
+    /// <inheritdoc/>
     public override void CompletingTransaction(Transaction transaction)
     {
       prefetchManager.CancelTasks();
@@ -246,6 +247,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    /// <inheritdoc/>
     public override async Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token)
     {
       await PrepareAsync(token).ConfigureAwait(false);
@@ -323,6 +325,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    /// <inheritdoc/>
     public override async ValueTask DisposeAsync()
     {
       if (isDisposed) {

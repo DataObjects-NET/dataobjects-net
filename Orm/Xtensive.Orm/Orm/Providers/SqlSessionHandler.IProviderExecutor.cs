@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Providers
       return commandProcessor.ExecuteTasksWithReader(request, context);
     }
 
+    /// <inheritdoc/>
     async Task<DataReader> IProviderExecutor.ExecuteTupleReaderAsync(QueryRequest request,
       ParameterContext parameterContext, CancellationToken token)
     {

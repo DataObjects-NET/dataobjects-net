@@ -13,28 +13,32 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlSessionHandler
+  public partial class SqlSessionHandler
   {
     private readonly PrefetchManager prefetchManager;
 
     internal override int PrefetchTaskExecutionCount { get { return prefetchManager.TaskExecutionCount; } }
 
+    /// <inheritdoc/>
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return prefetchManager.Prefetch(key, type, descriptors);
     }
 
+    /// <inheritdoc/>
     public override Task<StrongReferenceContainer> PrefetchAsync(
       Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
     {
       return prefetchManager.PrefetchAsync(key, type, descriptors, token);
     }
 
+    /// <inheritdoc/>
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
       return prefetchManager.ExecuteTasks(skipPersist);
     }
 
+    /// <inheritdoc/>
     public override Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(bool skipPersist, CancellationToken token = default)
     {
       return prefetchManager.ExecuteTasksAsync(skipPersist, token);
