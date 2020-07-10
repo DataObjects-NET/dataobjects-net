@@ -303,12 +303,12 @@ namespace Xtensive.Orm
       storageNode = node;
     }
 
-    public ExecutableProvider Compile(CompilableProvider provider)
+    internal ExecutableProvider Compile(CompilableProvider provider)
     {
       return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
     }
 
-    public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
+    internal ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {
       return CompilationService.Compile(provider, configuration);
     }
