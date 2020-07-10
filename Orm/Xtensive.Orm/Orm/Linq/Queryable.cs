@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Linq
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <inheritdoc/>
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken cancellationToken = default)
     {
       var result = await provider.ExecuteSequenceAsync<T>(expression, cancellationToken).ConfigureAwait(false);
