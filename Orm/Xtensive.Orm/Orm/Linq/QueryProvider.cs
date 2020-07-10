@@ -73,10 +73,8 @@ namespace Xtensive.Orm.Linq
 
     internal TResult ExecuteScalar<TResult>(Expression expression)
     {
-      static TResult ExecuteScalarQuery(TranslatedQuery query, Session session, ParameterContext parameterContext)
-      {
-        return query.ExecuteScalar<TResult>(session, parameterContext);
-      }
+      static TResult ExecuteScalarQuery(TranslatedQuery query, Session session, ParameterContext parameterContext) =>
+        query.ExecuteScalar<TResult>(session, parameterContext);
 
       return Execute(expression, ExecuteScalarQuery);
     }
@@ -153,8 +151,6 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    #region Private / internal methods
-
     internal TranslatedQuery Translate(Expression expression) =>
       Translate(expression, Session.CompilationService.CreateConfiguration(Session));
 
@@ -171,8 +167,6 @@ namespace Xtensive.Orm.Linq
           Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
-
-    #endregion
 
 
     // Constructors
