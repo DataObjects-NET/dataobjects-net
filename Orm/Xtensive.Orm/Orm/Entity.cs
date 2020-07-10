@@ -276,8 +276,8 @@ namespace Xtensive.Orm
         return Session.Compile(query);
       };
       var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-      var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
-      recordSetReader.FirstOrDefault();
+      using var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
+      recordSetReader.MoveNext();
     }
 
     /// <inheritdoc/>

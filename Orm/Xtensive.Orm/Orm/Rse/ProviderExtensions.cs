@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2010.09.13
 
+using System;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 
@@ -41,11 +42,12 @@ namespace Xtensive.Orm.Rse
     {
       ArgumentValidator.EnsureArgumentNotNull(provider, nameof(provider));
       ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
-      return provider
+      using var recordSetReader = provider
         .Aggregate(null, new AggregateColumnDescriptor("$Count", 0, AggregateType.Count))
-        .GetRecordSetReader(session, new ParameterContext())
-        .First()
-        .GetValue<long>(0);
+        .GetRecordSetReader(session, new ParameterContext());
+      return recordSetReader.MoveNext() && recordSetReader.Current != null
+        ? recordSetReader.Current.GetValue<long>(0)
+        : throw new InvalidOperationException("Sequence contains no elements.");
     }
   }
 }

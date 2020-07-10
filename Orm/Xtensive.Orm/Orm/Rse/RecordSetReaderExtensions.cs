@@ -4,11 +4,9 @@
 // Created by: Alexey Kochetov
 // Created:    2008.06.09
 
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Orm.Rse.Providers;
 using EnumerationContext = Xtensive.Orm.Providers.EnumerationContext;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -27,10 +25,8 @@ namespace Xtensive.Orm.Rse
     /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>The sequence of <see cref="Entity"/> instances.</returns>
     public static IEnumerable<T> ToEntities<T>(this RecordSetReader source, int primaryKeyIndex)
-      where T : class, IEntity
-    {
-      return ToEntities(source, primaryKeyIndex).Cast<T>();
-    }
+      where T : class, IEntity =>
+      ToEntities(source, primaryKeyIndex).Cast<T>();
 
     /// <summary>
     /// Converts the <see cref="IEnumerable{T}"/> of tuples to <see cref="Entity"/> instances.
@@ -43,10 +39,8 @@ namespace Xtensive.Orm.Rse
     /// The sequence of <see cref="Entity"/> instances.
     /// </returns>
     public static IEnumerable<T> ToEntities<T>(this IEnumerable<Tuple> source, RecordSetHeader header, Session session, int primaryKeyIndex)
-      where T : class, IEntity
-    {
-      return ToEntities(source, header, session, primaryKeyIndex).Cast<T>();
-    }
+      where T : class, IEntity =>
+      ToEntities(source, header, session, primaryKeyIndex).Cast<T>();
 
     /// <summary>
     /// Converts the <see cref="RecordSetReader"/> items to <see cref="Entity"/> instances.
@@ -92,22 +86,6 @@ namespace Xtensive.Orm.Rse
           yield return session.Handler.UpdateState(key, tuple).Entity;
         else
           yield return session.Query.SingleOrDefault(key);
-      }
-    }
-
-    public static Tuple First(this RecordSetReader recordSetReader)
-    {
-      using (recordSetReader) {
-        return recordSetReader.MoveNext()
-          ? recordSetReader.Current
-          : throw new InvalidOperationException("Sequence contains no elements.");
-      }
-    }
-
-    public static Tuple FirstOrDefault(this RecordSetReader recordSetReader)
-    {
-      using (recordSetReader) {
-        return recordSetReader.MoveNext() ? recordSetReader.Current : null;
       }
     }
   }
