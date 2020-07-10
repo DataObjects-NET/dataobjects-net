@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Reflection;
 
@@ -54,11 +53,9 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo OfType;
       public static readonly MethodInfo OrderBy;
       public static readonly MethodInfo OrderByDescending;
-      // public static readonly MethodInfo Prepend;
       public static readonly MethodInfo Reverse;
       public static readonly MethodInfo Select;
       public static readonly MethodInfo SelectMany;
-      // public static readonly MethodInfo SequenceEqual;
       public static readonly MethodInfo Single;
       public static readonly MethodInfo SingleWithPredicate;
       public static readonly MethodInfo SingleOrDefault;
@@ -75,8 +72,6 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo ThenByDescending;
       public static readonly MethodInfo Union;
       public static readonly MethodInfo Where;
-      // public static readonly MethodInfo Zip;
-
 
       // Queryable extensions
       public static readonly MethodInfo ExtensionCount;
