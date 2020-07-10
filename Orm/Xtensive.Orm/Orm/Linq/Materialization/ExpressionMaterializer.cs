@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Linq.Materialization
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var materializationContextParameter = Expression.Parameter(typeof (ItemMaterializationContext), "mc");
+      var materializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
       var visitor = new ExpressionMaterializer(tupleParameter, context, materializationContextParameter, tupleParameters);
       var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), tupleParameter, materializationContextParameter);
       var count = visitor.entityRegistry.Count;
@@ -69,7 +69,8 @@ namespace Xtensive.Orm.Linq.Materialization
       var entityMaterializer = Visit(expression.EntityExpression);
       var constructorInfo = WellKnownOrmTypes.FullTextMatchOfT
         .MakeGenericType(expression.EntityExpression.Type)
-        .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance, new[] {WellKnownTypes.Double, expression.EntityExpression.Type});
+        .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
+          new object[] {WellKnownTypes.Double, expression.EntityExpression.Type});
 
       return Expression.New(
         constructorInfo,
@@ -111,7 +112,7 @@ namespace Xtensive.Orm.Linq.Materialization
           WellKnownOrmTypes.ParameterOfTuple,
           WellKnownOrmTypes.Tuple,
           keyType,
-          typeof (ItemMaterializationContext)
+          WellKnownOrmTypes.ItemMaterializationContext
         });
 
       // 3. Create result expression.
@@ -144,7 +145,7 @@ namespace Xtensive.Orm.Linq.Materialization
           typeof (TranslatedQuery),
           WellKnownOrmTypes.ParameterOfTuple,
           WellKnownOrmTypes.Tuple,
-          typeof (ItemMaterializationContext)
+          WellKnownOrmTypes.ItemMaterializationContext
         });
 
       // 3. Create result expression.
@@ -554,7 +555,7 @@ namespace Xtensive.Orm.Linq.Materialization
     static ExpressionMaterializer()
     {
       ParameterContextProperty =
-        typeof(ItemMaterializationContext).GetProperty(nameof(ItemMaterializationContext.ParameterContext));
+        WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
       GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
       GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(WellKnownOrmTypes.Tuple);
       BuildPersistentTupleMethod = typeof (ExpressionMaterializer).GetMethod("BuildPersistentTuple", BindingFlags.NonPublic | BindingFlags.Static);

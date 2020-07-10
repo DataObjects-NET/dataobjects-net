@@ -1,6 +1,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -33,6 +34,8 @@ namespace Xtensive.Orm.Internals
     public static readonly Type QueryProvider = typeof(QueryProvider);
 
     public static readonly Type FullTextMatchOfT = typeof(FullTextMatch<>);
+
+    public static readonly Type ItemMaterializationContext = typeof (ItemMaterializationContext);
   }
 
   internal static class WellKnownOrmInterfaces

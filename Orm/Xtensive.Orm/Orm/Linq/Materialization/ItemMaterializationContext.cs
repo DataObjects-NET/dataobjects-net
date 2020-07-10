@@ -87,10 +87,10 @@ namespace Xtensive.Orm.Linq.Materialization
 
     static ItemMaterializationContext()
     {
-      IsMaterializedMethodInfo = typeof (ItemMaterializationContext).GetMethod("IsMaterialized");
-      GetEntityMethodInfo = typeof (ItemMaterializationContext).GetMethod("GetEntity");
-      MaterializeMethodInfo = typeof (ItemMaterializationContext).GetMethod("Materialize");
-      SessionFieldInfo = typeof (ItemMaterializationContext).GetField("Session");
+      IsMaterializedMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(IsMaterialized));
+      GetEntityMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(GetEntity));
+      MaterializeMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(Materialize));
+      SessionFieldInfo = WellKnownOrmTypes.ItemMaterializationContext.GetField(nameof(Session));
     }
   }
 }
