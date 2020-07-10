@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Linq
       TranslateMethod = typeof(Translator).GetMethod(nameof(Translate),
         BindingFlags.NonPublic | BindingFlags.Instance,
         Array.Empty<string>(),
-        new object[] {typeof(ProjectionExpression), typeof(IEnumerable<Parameter<Tuple>>)});
+        new object[] {WellKnownOrmTypes.ProjectionExpression, typeof(IEnumerable<Parameter<Tuple>>)});
 
       VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
         BindingFlags.NonPublic | BindingFlags.Instance,

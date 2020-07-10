@@ -104,11 +104,11 @@ namespace Xtensive.Orm.Linq.Materialization
       // 2. Create constructor
       var keyType = groupingExpression.KeyExpression.Type;
       var keyMaterializer = Visit(groupingExpression.KeyExpression);
-      var groupingCtor = typeof (Grouping<,>)
+      var groupingCtor = WellKnownOrmTypes.GroupingOfTKeyTElement
         .MakeGenericType(keyType, elementType)
         .GetConstructor(new[] {
-          typeof (ProjectionExpression),
-          typeof (TranslatedQuery),
+          WellKnownOrmTypes.ProjectionExpression,
+          WellKnownOrmTypes.TranslatedQuery,
           WellKnownOrmTypes.ParameterOfTuple,
           WellKnownOrmTypes.Tuple,
           keyType,
@@ -138,11 +138,11 @@ namespace Xtensive.Orm.Linq.Materialization
       TranslatedQuery translatedQuery = PrepareSubqueryParameters(subQueryExpression, out parameterOfTuple, out elementType, out projection);
 
       // 2. Create constructor
-      var subQueryCtor = typeof (SubQuery<>)
+      var subQueryCtor = WellKnownOrmTypes.SubQueryOfT
         .MakeGenericType(elementType)
         .GetConstructor(new[] {
-          typeof (ProjectionExpression),
-          typeof (TranslatedQuery),
+          WellKnownOrmTypes.ProjectionExpression,
+          WellKnownOrmTypes.TranslatedQuery,
           WellKnownOrmTypes.ParameterOfTuple,
           WellKnownOrmTypes.Tuple,
           WellKnownOrmTypes.ItemMaterializationContext

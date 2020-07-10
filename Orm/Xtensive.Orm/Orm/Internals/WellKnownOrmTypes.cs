@@ -1,6 +1,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
 using Xtensive.Orm.Rse;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -33,9 +34,16 @@ namespace Xtensive.Orm.Internals
     public static readonly Type Query = typeof(Query);
     public static readonly Type QueryProvider = typeof(QueryProvider);
 
+    public static readonly Type TranslatedQuery = typeof(TranslatedQuery);
+    public static readonly Type GroupingOfTKeyTElement = typeof(Grouping<,>);
+    public static readonly Type SubQueryOfT = typeof(SubQuery<>);
+
     public static readonly Type FullTextMatchOfT = typeof(FullTextMatch<>);
 
     public static readonly Type ItemMaterializationContext = typeof (ItemMaterializationContext);
+
+    public static readonly Type ProjectionExpression = typeof(ProjectionExpression);
+
   }
 
   internal static class WellKnownOrmInterfaces
