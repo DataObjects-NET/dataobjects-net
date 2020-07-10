@@ -11,7 +11,6 @@ using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-//using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
