@@ -56,8 +56,19 @@ namespace Xtensive.Orm.Rse.Providers
       }
     }
 
+    /// <summary>
+    /// Starts enumeration of the given <see cref="ExecutableProvider"/>.
+    /// </summary>
+    /// <param name="context">The enumeration context.</param>
+    /// <returns><see cref="DataReader"/> ready to be iterated.</returns>
     protected internal abstract DataReader OnEnumerate(EnumerationContext context);
 
+    /// <summary>
+    /// Asynchronously starts enumeration of the given <see cref="ExecutableProvider"/>.
+    /// </summary>
+    /// <param name="context">The enumeration context.</param>
+    /// <param name="token">The <see cref="CancellationToken"/> to interrupt execution if necessary.</param>
+    /// <returns><see cref="DataReader"/> ready to be iterated.</returns>
     protected internal virtual Task<DataReader> OnEnumerateAsync(EnumerationContext context, CancellationToken token)
     {
       //Default version is synchronous
@@ -67,18 +78,38 @@ namespace Xtensive.Orm.Rse.Providers
 
     #endregion
 
-    #region Caching related methods
-
+    /// <summary>
+    /// Gets value of type <typeparamref name="T"/> previously cached in
+    /// <see cref="EnumerationContext"/> by its <paramref name="name"/>.
+    /// </summary>
+    /// <param name="context"><see cref="EnumerationContext"/> instance where value cache resides.</param>
+    /// <param name="name">The name of the required cached value.</param>
+    /// <typeparam name="T">The type of the value in cache.</typeparam>
+    /// <returns> Cached value with the specified key;
+    /// or <see langword="null"/>, if no cached value is found, or it has already expired.
+    /// </returns>
     protected T GetValue<T>(EnumerationContext context, string name)
       where T : class =>
       context.GetValue<T>(this, name);
 
+    /// <summary>
+    /// Puts specified <paramref name="value"/> into the cache residing in the provided
+    /// <see cref="EnumerationContext"/> instance using the <paramref name="name"/> as the key.
+    /// </summary>
+    /// <param name="context">The <see cref="EnumerationContext"/> where to cache <paramref name="value"/>.</param>
+    /// <param name="name">The name of the <paramref name="value"/> to be cached.</param>
+    /// <param name="value">The value of <typeparamref name="T"/> type to be cached.</param>
+    /// <typeparam name="T">The type of the provided <paramref name="value"/>.</typeparam>
     protected void SetValue<T>(EnumerationContext context, string name, T value)
       where T : class =>
       context.SetValue(this, name, value);
 
-    #endregion
-
+    /// <summary>
+    /// Transforms current <see cref="ExecutableProvider"/> instance to <see cref="IEnumerable{T}"/>
+    /// sequence of <see cref="Tuple"/>s.
+    /// </summary>
+    /// <param name="context">The <see cref="EnumerationContext"/> instance where to perform enumeration.</param>
+    /// <returns>Sequence of <see cref="Tuple"/>s.</returns>
     public IEnumerable<Tuple> ToEnumerable(EnumerationContext context)
     {
       using var tupleReader = RecordSetReader.Create(context, this);
