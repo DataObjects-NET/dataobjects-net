@@ -1,6 +1,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Orm.Linq;
 
 namespace Xtensive.Reflection
@@ -66,5 +67,7 @@ namespace Xtensive.Reflection
 
     public static readonly Type ByteArray = typeof(byte[]);
     public static readonly Type ObjectArray = typeof(object[]);
+
+    public static readonly Type DefaultMemberAttribute = typeof(DefaultMemberAttribute);
   }
 }

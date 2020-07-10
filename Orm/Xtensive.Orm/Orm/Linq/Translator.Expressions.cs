@@ -942,7 +942,7 @@ namespace Xtensive.Orm.Linq
         if (fieldExpression.UnderlyingProperty!=null)
           propertyAccessorExpression = Expression.MakeMemberAccess(Expression.Convert(expression, structureType), fieldExpression.UnderlyingProperty);
         else {
-          var attributes = structureType.GetCustomAttributes(typeof(DefaultMemberAttribute), true);
+          var attributes = structureType.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
           var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
           var methodInfo = structureType.GetProperty(indexerPropertyName).GetGetMethod();
           propertyAccessorExpression = Expression.Call(Expression.Convert(expression, structureType), methodInfo, Expression.Constant(fieldExpression.Name));

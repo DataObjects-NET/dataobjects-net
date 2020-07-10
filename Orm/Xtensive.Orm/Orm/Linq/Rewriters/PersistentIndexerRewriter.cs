@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
 
-      var attributes = mc.Object.Type.GetCustomAttributes(typeof (DefaultMemberAttribute), true);
+      var attributes = mc.Object.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
       var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
       var indexerProperty = mc.Object.Type.GetProperty(indexerPropertyName);
       if (indexerProperty!=null)
