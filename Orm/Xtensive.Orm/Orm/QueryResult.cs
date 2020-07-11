@@ -4,14 +4,23 @@ using Xtensive.Orm.Linq.Materialization;
 
 namespace Xtensive.Orm
 {
+  /// <summary>
+  /// Represents result of sequence query execution.
+  /// </summary>
+  /// <typeparam name="TItem">The type of items in the sequence.</typeparam>
   public readonly struct QueryResult<TItem> : IEnumerable<TItem>
   {
     private readonly IMaterializingReader<TItem> reader;
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
+    /// <inheritdoc/>
     public IEnumerator<TItem> GetEnumerator() => reader.AsEnumerator();
 
+    /// <summary>
+    /// Transforms <see cref="QueryResult{TItem}"/> to an <see cref="IAsyncEnumerable{T}"/> sequence.
+    /// </summary>
     public async IAsyncEnumerable<TItem> AsAsyncEnumerable()
     {
       var enumerator = reader.AsAsyncEnumerator();
