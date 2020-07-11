@@ -10,6 +10,10 @@ using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse
 {
+  /// <summary>
+  /// <see cref="RecordSetReader"/> instance properly runs query execution and
+  /// serves as both synchronous or asynchronous enumerator over resulting record set.
+  /// </summary>
   public class RecordSetReader: IEnumerator<Tuple>, IAsyncEnumerator<Tuple>
   {
     private const string enumerationMarker = "Enumerated";
@@ -31,12 +35,24 @@ namespace Xtensive.Orm.Rse
     private DataReader dataReader;
     private ICompletableScope enumerationScope;
 
+    /// <inheritdoc cref="IEnumerator{T}.Current"/>
     public Tuple Current => dataReader.Current;
 
+    /// <inheritdoc/>
     object IEnumerator.Current => Current;
+
+    /// <summary>
+    /// Gets <see cref="EnumerationContext"/> associated with the current operation.
+    /// </summary>
     public EnumerationContext Context => context;
+
+    /// <summary>
+    /// Gets <see cref="RecordSetHeader"/> describing content of each individual <see cref="Tuple"/>
+    /// in the underlying record set.
+    /// </summary>
     public RecordSetHeader Header => provider?.Header;
 
+    /// <inheritdoc/>
     public void Reset()
     {
       if (state == State.InProgress || state == State.Finished) {
@@ -44,6 +60,7 @@ namespace Xtensive.Orm.Rse
       }
     }
 
+    /// <inheritdoc/>
     public bool MoveNext()
     {
       switch (state) {
@@ -74,6 +91,7 @@ namespace Xtensive.Orm.Rse
       }
     }
 
+    /// <inheritdoc/>
     public async ValueTask<bool> MoveNextAsync()
     {
       switch (state) {
@@ -154,6 +172,7 @@ namespace Xtensive.Orm.Rse
       }
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
       if (state != State.New) {
@@ -162,6 +181,7 @@ namespace Xtensive.Orm.Rse
       enumerationScope?.Dispose();
     }
 
+    /// <inheritdoc/>
     public async ValueTask DisposeAsync()
     {
       if (state != State.New) {
@@ -184,6 +204,14 @@ namespace Xtensive.Orm.Rse
       state = State.Prepared;
     }
 
+    /// <summary>
+    /// Creates a <see cref="RecordSetReader"/> instance capable to read <paramref name="provider"/>
+    /// execution results and bound to the specified <paramref name="context"/>.
+    /// </summary>
+    /// <param name="context">The <see cref="EnumerationContext"/> instance associated with the query execution.</param>
+    /// <param name="provider">The <see cref="ExecutableProvider"/> to be processed.</param>
+    /// <returns><see cref="RecordSetReader"/> instance ready for enumeration.
+    /// This means query is already executed but no records have been read yet.</returns>
     public static RecordSetReader Create(EnumerationContext context, ExecutableProvider provider)
     {
       var recordSet = new RecordSetReader(context, provider);
@@ -192,6 +220,15 @@ namespace Xtensive.Orm.Rse
       return recordSet;
     }
 
+    /// <summary>
+    /// Asynchronously creates a <see cref="RecordSetReader"/> instance capable to read <paramref name="provider"/>
+    /// execution results and bound to the specified <paramref name="context"/>.
+    /// </summary>
+    /// <param name="context">The <see cref="EnumerationContext"/> instance associated with the query execution.</param>
+    /// <param name="provider">The <see cref="ExecutableProvider"/> to be processed.</param>
+    /// <param name="token">The <see cref="CancellationToken"/> allowing to cancel query execution if necessary.</param>
+    /// <returns><see cref="RecordSetReader"/> instance ready for enumeration.
+    /// This means query is already executed but no records have been read yet.</returns>
     public static async ValueTask<RecordSetReader> CreateAsync(
       EnumerationContext context, ExecutableProvider provider, CancellationToken token)
     {
@@ -200,10 +237,11 @@ namespace Xtensive.Orm.Rse
       return recordSet;
     }
 
-    public static RecordSetReader Create(IEnumerable<Tuple> tuples)
-    {
-      return new RecordSetReader(new DataReader(tuples));
-    }
-
+    /// <summary>
+    /// Creates <see cref="RecordSetReader"/> instance wrapping the specified sequence of <paramref name="tuples"/>.
+    /// </summary>
+    /// <param name="tuples">A tuple sequence to be wrapped.</param>
+    /// <returns><see cref="RecordSetReader"/> instance ready for enumeration.</returns>
+    public static RecordSetReader Create(IEnumerable<Tuple> tuples) => new RecordSetReader(new DataReader(tuples));
   }
 }
