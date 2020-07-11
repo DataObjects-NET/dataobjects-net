@@ -48,6 +48,7 @@ namespace Xtensive.Orm
       }
     }
 
+    /// <inheritdoc/>
     public void Dispose()
     {
       if (state == State.Disposed) {
