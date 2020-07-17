@@ -144,15 +144,27 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
   }
 
   [HierarchyRoot]
-  public class ClassWithParameterizedConstructor : Entity
+  public class StatRecord : Entity
   {
     [Key, Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
 
     [Field]
-    public string TextField { get; set; }
+    public int IntFactor { get; set; }
 
-    public ClassWithParameterizedConstructor(Session session)
+    [Field]
+    public long LongFactor { get; set; }
+
+    [Field]
+    public float FloatFactor { get; set; }
+
+    [Field]
+    public double DoubleFactor { get; set; }
+
+    [Field]
+    public decimal DecimalFactor { get; set; }
+
+    public StatRecord(Session session)
       : base(session)
     { }
   }

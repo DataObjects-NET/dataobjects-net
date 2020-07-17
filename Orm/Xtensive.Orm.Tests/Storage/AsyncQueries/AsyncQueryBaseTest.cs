@@ -49,6 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         PopulateDisceplinesOfCourses(session);
         PopulateGroups(session);
         PopulateStudents(session);
+        PopulateStats(session);
       }
     }
 
@@ -151,10 +152,24 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
               Gender = (index % 2 == 1) ? Gender.Male : Gender.Female
             });
           }
-
-          transaction.Complete();
         }
+        transaction.Complete();
       }
+    }
+
+    private void PopulateStats(Session session)
+    {
+      using var transaction = session.OpenTransaction();
+      for (var i = 0; i < 100; i++) {
+        _ = new StatRecord(session) {
+          IntFactor = i,
+          LongFactor = i * i,
+          FloatFactor = i / 4.0f,
+          DoubleFactor = i / 3.0,
+          DecimalFactor = i / 5m
+        };
+      }
+      transaction.Complete();
     }
   }
 }
