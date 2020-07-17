@@ -259,7 +259,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var emptyQuery = session.Query.All<StatRecord>()
-          .Where(stat => stat.IntFactor < 0).Select(stat => (int?)stat.LongFactor);
+          .Where(stat => stat.IntFactor < 0).Select(stat => (long?)stat.LongFactor);
 
         var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
@@ -294,6 +294,118 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (long?)stat.LongFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (long?)stat.LongFactor));
+      }
+    }
+
+    // Average<double>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDoubleExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.DoubleFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDoubleOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => stat.DoubleFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<double>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDoubleWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync()).Select(stat => stat.DoubleFactor).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.DoubleFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDoubleWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DoubleFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DoubleFactor));
+      }
+    }
+
+    // Average<double?>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDoubleExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDoubleOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => (double?)stat.DoubleFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<double?>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDoubleWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync())
+          .Select(stat => stat.LongFactor % 2 == 0 ? default(double?) : stat.DoubleFactor)
+          .ToList();
+        Assert.AreEqual(
+          allFactors.Average(),
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(double?) : stat.DoubleFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDoubleWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (double?)stat.DoubleFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync(stat => (double?)stat.DoubleFactor));
       }
     }
   }
