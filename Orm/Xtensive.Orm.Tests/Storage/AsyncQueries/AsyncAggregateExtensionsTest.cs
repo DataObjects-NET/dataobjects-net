@@ -520,5 +520,117 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (float?)stat.FloatFactor));
       }
     }
+
+    // Average<decimal>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDecimalExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.DecimalFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDecimalOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => stat.DecimalFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<decimal>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDecimalWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncDecimalWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.DecimalFactor));
+      }
+    }
+
+    // Average<decimal?>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDecimalExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDecimalOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => (decimal?) stat.DecimalFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<decimal?>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDecimalWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync())
+          .Select(stat => stat.LongFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor)
+          .ToList();
+        Assert.AreEqual(
+          allFactors.Average(),
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDecimalWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (decimal?)stat.DecimalFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync(stat => (decimal?)stat.DecimalFactor));
+      }
+    }
   }
 }
