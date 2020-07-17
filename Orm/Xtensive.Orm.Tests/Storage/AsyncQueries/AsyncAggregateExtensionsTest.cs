@@ -646,5 +646,52 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.IsFalse(await query.ContainsAsync(-1));
       }
     }
+
+    // Count
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task CountAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+
+        Assert.AreEqual(0, await query.Where(stat => stat.IntFactor < 0).CountAsync());
+        Assert.AreEqual(
+          allStats.Count(stat => stat.IntFactor < 0),
+          await query.Where(stat => stat.IntFactor < 0).CountAsync());
+
+        Assert.AreEqual(10, await query.Where(stat => stat.IntFactor < 10).CountAsync());
+        Assert.AreEqual(
+          allStats.Count(stat => stat.IntFactor < 10),
+          await query.Where(stat => stat.IntFactor < 10).CountAsync());
+
+        Assert.AreEqual(100, await query.CountAsync());
+        Assert.AreEqual(
+          allStats.Count,
+          await query.CountAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task CountAsyncWithPredicateExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+
+        Assert.AreEqual(0, await query.CountAsync(stat => stat.IntFactor < 0));
+        Assert.AreEqual(
+          allStats.Count(stat => stat.IntFactor < 0),
+          await query.CountAsync(stat => stat.IntFactor < 0));
+
+        Assert.AreEqual(10, await query.CountAsync(stat => stat.IntFactor < 10));
+        Assert.AreEqual(
+          allStats.Count(stat => stat.IntFactor < 10),
+          await query.CountAsync(stat => stat.IntFactor < 10));
+      }
+    }
   }
 }
