@@ -632,5 +632,19 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (decimal?)stat.DecimalFactor));
       }
     }
+
+    // Contains
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ContainsAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.IntFactor);
+
+        Assert.IsTrue(await query.ContainsAsync(50));
+        Assert.IsFalse(await query.ContainsAsync(-1));
+      }
+    }
   }
 }
