@@ -184,5 +184,117 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (int?)stat.IntFactor));
       }
     }
+
+    // Average<long>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncLongExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.LongFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncLongOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => stat.LongFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<long>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncLongWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.LongFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncLongWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.LongFactor));
+      }
+    }
+
+    // Average<long?>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableLongExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableLongOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => (int?)stat.LongFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<long?>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableLongWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync())
+          .Select(stat => stat.LongFactor % 2 == 0 ? default(long?) : stat.LongFactor)
+          .ToList();
+        Assert.AreEqual(
+          allFactors.Average(),
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(long?) : stat.LongFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableLongWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (long?)stat.LongFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync(stat => (long?)stat.LongFactor));
+      }
+    }
   }
 }
