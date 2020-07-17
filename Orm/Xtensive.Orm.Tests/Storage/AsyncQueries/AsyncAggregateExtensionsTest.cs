@@ -408,5 +408,117 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (double?)stat.DoubleFactor));
       }
     }
+
+    // Average<float>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncFloatExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.FloatFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncFloatOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => stat.FloatFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<float>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncFloatWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync(stat => stat.FloatFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncFloatWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => emptyQuery.AverageAsync(stat => stat.FloatFactor));
+      }
+    }
+
+    // Average<float?>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableFloatExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Average(), await query.AverageAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableFloatOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => (float?) stat.FloatFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync());
+      }
+    }
+
+    // Average<float?>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableFloatWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync())
+          .Select(stat => stat.LongFactor % 2 == 0 ? default(float?) : stat.FloatFactor)
+          .ToList();
+        Assert.AreEqual(
+          allFactors.Average(),
+          await query.AverageAsync(stat => stat.LongFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableFloatWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (float?)stat.FloatFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.IsNull(await emptyQuery.AverageAsync(stat => (float?)stat.FloatFactor));
+      }
+    }
   }
 }
