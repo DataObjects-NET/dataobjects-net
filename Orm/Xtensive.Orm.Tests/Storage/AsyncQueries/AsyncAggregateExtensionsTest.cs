@@ -1578,5 +1578,117 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (float?)stat.FloatFactor));
       }
     }
+
+    // Sum<decimal>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncDecimalExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.DecimalFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncDecimalOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => stat.DecimalFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(0.0m, await emptyQuery.SumAsync());
+      }
+    }
+
+    // Sum<decimal>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncDecimalWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncDecimalWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.DecimalFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(0.0f, await emptyQuery.SumAsync(stat => stat.DecimalFactor));
+      }
+    }
+
+    // Sum<decimal?>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDecimalExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDecimalOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => (decimal?)stat.DecimalFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+      }
+    }
+
+    // Sum<decimal?>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDecimalWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync())
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor)
+          .ToList();
+        Assert.AreEqual(
+          allFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDecimalWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (decimal?)stat.DecimalFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (decimal?)stat.DecimalFactor));
+      }
+    }
   }
 }
