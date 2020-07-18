@@ -781,5 +781,94 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.IsNull(await query.FirstOrDefaultAsync(teacher => teacher.Id < 0));
       }
     }
+
+    // Last
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var allTeachers = query.ToList();
+        Assert.AreEqual(allTeachers.Last(), await query.LastAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().Take(0);
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.LastAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastAsyncWithPredicateExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var lastInListFemaleTeacher = query.AsEnumerable().Last(teacher => teacher.Gender==Gender.Female);
+        Assert.AreEqual(lastInListFemaleTeacher, await query.LastAsync(teacher => teacher.Gender==Gender.Female));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastAsyncWithPredicateOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.LastAsync(teacher => teacher.Id < 0));
+      }
+    }
+
+    // LastOrDefault
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastOrDefaultAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var allTeachers = query.ToList();
+        Assert.AreEqual(allTeachers.Last(), await query.LastOrDefaultAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastOrDefaultAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().Take(0);
+        Assert.IsNull(await query.LastOrDefaultAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastOrDefaultAsyncWithPredicateExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var lastInListFemaleTeacher = query.AsEnumerable().First(teacher => teacher.Gender==Gender.Female);
+        Assert.AreEqual(
+          lastInListFemaleTeacher, await query.LastOrDefaultAsync(teacher => teacher.Gender==Gender.Female));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LastOrDefaultAsyncWithPredicateOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        Assert.IsNull(await query.LastOrDefaultAsync(teacher => teacher.Id < 0));
+      }
+    }
   }
 }
