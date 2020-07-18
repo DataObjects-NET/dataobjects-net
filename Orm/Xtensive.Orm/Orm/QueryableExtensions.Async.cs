@@ -284,7 +284,7 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
-    // First / FirstOrDefault
+    // First
 
     public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
@@ -304,6 +304,8 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
+    // FirstOrDefault
+
     public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -322,7 +324,7 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
-    // Last / LastOrDefault
+    // Last
 
     public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
@@ -341,6 +343,8 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastWithPredicate,
         source, predicate, cancellationToken);
     }
+
+    // LastOrDefault
 
     public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
@@ -380,7 +384,7 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
-    // Max / Min
+    // Max
 
     public static Task<TSource> MaxAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
@@ -400,6 +404,8 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    // Min
+
     public static Task<TSource> MinAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -418,7 +424,7 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
-    // Single / SingleOrDefault
+    // Single
 
     public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
@@ -437,6 +443,8 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleWithPredicate,
         source, predicate, cancellationToken);
     }
+
+    // SingleOrDefault
 
     public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
