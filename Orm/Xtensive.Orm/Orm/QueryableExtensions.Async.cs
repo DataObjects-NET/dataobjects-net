@@ -456,7 +456,7 @@ namespace Xtensive.Orm
         source, predicate, cancellationToken);
     }
 
-    // Average<int>
+    // Sum<int>
 
     public static Task<int> SumAsync(this IQueryable<int> source,
       CancellationToken cancellationToken = default)
@@ -498,7 +498,7 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
-    // Average<long>
+    // Sum<long>
 
     public static Task<long> SumAsync(this IQueryable<long> source,
       CancellationToken cancellationToken = default)
@@ -540,7 +540,7 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
-    // Average<double>
+    // Sum<double>
 
     public static Task<double> SumAsync(this IQueryable<double> source,
       CancellationToken cancellationToken = default)
@@ -582,7 +582,7 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
-    // Average<float>
+    // Sum<float>
 
     public static Task<float> SumAsync(this IQueryable<float> source,
       CancellationToken cancellationToken = default)
@@ -624,7 +624,7 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
-    // Average<decimal>
+    // Sum<decimal>
 
     public static Task<decimal> SumAsync(this IQueryable<decimal> source,
       CancellationToken cancellationToken = default)
