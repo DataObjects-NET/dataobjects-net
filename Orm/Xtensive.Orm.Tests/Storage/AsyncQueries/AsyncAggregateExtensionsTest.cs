@@ -1242,5 +1242,117 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (int?)stat.IntFactor));
       }
     }
+
+    // Sum<long>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncLongExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.LongFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncLongOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => stat.LongFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(0L, await emptyQuery.SumAsync());
+      }
+    }
+
+    // Sum<long>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncLongWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.LongFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncLongWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.LongFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(0L, await emptyQuery.SumAsync(stat => stat.LongFactor));
+      }
+    }
+
+    // Sum<long?>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableLongExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableLongOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => (long?)stat.LongFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+      }
+    }
+
+    // Sum<long?>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableLongWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync())
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor)
+          .ToList();
+        Assert.AreEqual(
+          allFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableLongWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (long?)stat.LongFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (long?)stat.LongFactor));
+      }
+    }
   }
 }
