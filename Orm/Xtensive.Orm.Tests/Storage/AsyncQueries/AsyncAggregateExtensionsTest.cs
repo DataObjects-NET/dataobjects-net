@@ -693,5 +693,49 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           await query.CountAsync(stat => stat.IntFactor < 10));
       }
     }
+
+    // First
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var allTeachers = query.ToList();
+        Assert.AreEqual(allTeachers[0], await query.FirstAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().Take(0);
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.FirstAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstAsyncWithPredicateExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var firstFemaleTeacher = query.AsEnumerable().First(teacher => teacher.Gender==Gender.Female);
+        Assert.AreEqual(firstFemaleTeacher, await query.FirstAsync(teacher => teacher.Gender==Gender.Female));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstAsyncWithPredicateOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.FirstAsync(teacher => teacher.Id < 0));
+      }
+    }
   }
 }
