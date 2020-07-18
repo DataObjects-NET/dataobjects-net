@@ -870,5 +870,52 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.IsNull(await query.LastOrDefaultAsync(teacher => teacher.Id < 0));
       }
     }
+
+    // LongCount
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LongCountAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+
+        Assert.AreEqual(0L, await query.Where(stat => stat.IntFactor < 0).LongCountAsync());
+        Assert.AreEqual(
+          allStats.LongCount(stat => stat.IntFactor < 0),
+          await query.Where(stat => stat.IntFactor < 0).LongCountAsync());
+
+        Assert.AreEqual(10L, await query.Where(stat => stat.IntFactor < 10).LongCountAsync());
+        Assert.AreEqual(
+          allStats.LongCount(stat => stat.IntFactor < 10),
+          await query.Where(stat => stat.IntFactor < 10).LongCountAsync());
+
+        Assert.AreEqual(100L, await query.LongCountAsync());
+        Assert.AreEqual(
+          allStats.LongCount(),
+          await query.LongCountAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task LongCountAsyncWithPredicateExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+
+        Assert.AreEqual(0L, await query.LongCountAsync(stat => stat.IntFactor < 0));
+        Assert.AreEqual(
+          allStats.LongCount(stat => stat.IntFactor < 0),
+          await query.LongCountAsync(stat => stat.IntFactor < 0));
+
+        Assert.AreEqual(10L, await query.LongCountAsync(stat => stat.IntFactor < 10));
+        Assert.AreEqual(
+          allStats.LongCount(stat => stat.IntFactor < 10),
+          await query.LongCountAsync(stat => stat.IntFactor < 10));
+      }
+    }
   }
 }
