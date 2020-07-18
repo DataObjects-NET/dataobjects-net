@@ -155,6 +155,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableIntOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+      }
+    }
+
     // Average<int?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -182,6 +198,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (int?)stat.IntFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (int?)stat.IntFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableIntWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(int?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Average(),
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor));
       }
     }
 
@@ -267,6 +297,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableLongOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+      }
+    }
+
     // Average<long?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -294,6 +340,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (long?)stat.LongFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (long?)stat.LongFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableLongWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(long?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Average(),
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor));
       }
     }
 
@@ -379,6 +439,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDoubleOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+      }
+    }
+
     // Average<double?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -406,6 +482,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (double?)stat.DoubleFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (double?)stat.DoubleFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDoubleWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(double?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Average(),
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor));
       }
     }
 
@@ -491,6 +581,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableFloatOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+      }
+    }
+
     // Average<float?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -518,6 +624,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (float?)stat.FloatFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (float?)stat.FloatFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableFloatWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(float?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Average(),
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor));
       }
     }
 
@@ -603,6 +723,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDecimalOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Average(), await nullQuery.AverageAsync());
+      }
+    }
+
     // Average<decimal?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -630,6 +766,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (decimal?)stat.DecimalFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.IsNull(await emptyQuery.AverageAsync(stat => (decimal?)stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task AverageAsyncNullableDecimalWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(decimal?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Average(),
+          await query.AverageAsync(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor));
       }
     }
 
@@ -1213,6 +1363,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableIntOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+      }
+    }
+
     // Sum<int?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -1240,6 +1406,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (int?)stat.IntFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (int?)stat.IntFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableIntWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(int?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(int?) : stat.IntFactor));
       }
     }
 
@@ -1325,6 +1505,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableLongOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+      }
+    }
+
     // Sum<long?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -1352,6 +1548,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (long?)stat.LongFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (long?)stat.LongFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableLongWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(long?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(long?) : stat.LongFactor));
       }
     }
 
@@ -1437,6 +1647,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDoubleOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+      }
+    }
+
     // Sum<double?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -1464,6 +1690,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (double?)stat.DoubleFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (double?)stat.DoubleFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDoubleWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(double?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(double?) : stat.DoubleFactor));
       }
     }
 
@@ -1549,6 +1789,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableFloatOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+      }
+    }
+
     // Sum<float?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -1576,6 +1832,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (float?)stat.FloatFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (float?)stat.FloatFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableFloatWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(float?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(float?) : stat.FloatFactor));
       }
     }
 
@@ -1661,6 +1931,22 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDecimalOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var nullQuery = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor);
+
+        var nullFactors = (await nullQuery.ExecuteAsync()).ToList();
+        foreach (var factor in nullFactors) {
+          Assert.IsNull(factor);
+        }
+        Assert.AreEqual(nullFactors.Sum(), await nullQuery.SumAsync());
+      }
+    }
+
     // Sum<decimal?>(selector)
 
     [Test, TestCase(true), TestCase(false)]
@@ -1688,6 +1974,20 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (decimal?)stat.DecimalFactor).ToList();
         Assert.AreEqual(0, emptyFactors.Count);
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (decimal?)stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableDecimalWithSelectorOnNullSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+
+        var nullFactors = (await query.ExecuteAsync()).Select(stat => default(decimal?)).ToList();
+        Assert.AreEqual(
+          nullFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor));
       }
     }
   }
