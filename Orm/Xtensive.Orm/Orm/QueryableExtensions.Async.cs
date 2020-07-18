@@ -400,7 +400,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.MaxWithSelector,
         source, selector, cancellationToken);
     }
 
@@ -411,7 +411,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Min, source, cancellationToken);
     }
 
     public static Task<TSource> MinAsync<TSource, TResult>(this IQueryable<TSource> source,

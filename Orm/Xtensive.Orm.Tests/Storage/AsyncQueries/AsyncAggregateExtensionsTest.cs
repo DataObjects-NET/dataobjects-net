@@ -917,5 +917,89 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           await query.LongCountAsync(stat => stat.IntFactor < 10));
       }
     }
+
+    // Max
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Select(stat => stat.IntFactor).Max();
+        var maxLong = allStats.Select(stat => stat.LongFactor).Max();
+        var maxFloat = allStats.Select(stat => stat.FloatFactor).Max();
+        var maxDouble = allStats.Select(stat => stat.DoubleFactor).Max();
+        var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Max();
+        Assert.AreEqual(maxInt, await query.Select(stat => stat.IntFactor).MaxAsync());
+        Assert.AreEqual(maxLong, await query.Select(stat => stat.LongFactor).MaxAsync());
+        Assert.AreEqual(maxFloat, await query.Select(stat => stat.FloatFactor).MaxAsync());
+        Assert.AreEqual(maxDouble, await query.Select(stat => stat.DoubleFactor).MaxAsync());
+        Assert.AreEqual(maxDecimal, await query.Select(stat => stat.DecimalFactor).MaxAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Select(stat => stat.IntFactor).Max();
+        var maxLong = allStats.Select(stat => stat.LongFactor).Max();
+        var maxFloat = allStats.Select(stat => stat.FloatFactor).Max();
+        var maxDouble = allStats.Select(stat => stat.DoubleFactor).Max();
+        var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Max();
+        Assert.AreEqual(maxInt, await query.MaxAsync(stat => stat.IntFactor));
+        Assert.AreEqual(maxLong, await query.MaxAsync(stat => stat.LongFactor));
+        Assert.AreEqual(maxFloat, await query.MaxAsync(stat => stat.FloatFactor));
+        Assert.AreEqual(maxDouble, await query.MaxAsync(stat => stat.DoubleFactor));
+        Assert.AreEqual(maxDecimal, await query.MaxAsync(stat => stat.DecimalFactor));
+      }
+    }
+
+    // Min
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Select(stat => stat.IntFactor).Min();
+        var maxLong = allStats.Select(stat => stat.LongFactor).Min();
+        var maxFloat = allStats.Select(stat => stat.FloatFactor).Min();
+        var maxDouble = allStats.Select(stat => stat.DoubleFactor).Min();
+        var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Min();
+        Assert.AreEqual(maxInt, await query.Select(stat => stat.IntFactor).MinAsync());
+        Assert.AreEqual(maxLong, await query.Select(stat => stat.LongFactor).MinAsync());
+        Assert.AreEqual(maxFloat, await query.Select(stat => stat.FloatFactor).MinAsync());
+        Assert.AreEqual(maxDouble, await query.Select(stat => stat.DoubleFactor).MinAsync());
+        Assert.AreEqual(maxDecimal, await query.Select(stat => stat.DecimalFactor).MinAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Select(stat => stat.IntFactor).Min();
+        var maxLong = allStats.Select(stat => stat.LongFactor).Min();
+        var maxFloat = allStats.Select(stat => stat.FloatFactor).Min();
+        var maxDouble = allStats.Select(stat => stat.DoubleFactor).Min();
+        var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Min();
+        Assert.AreEqual(maxInt, await query.MinAsync(stat => stat.IntFactor));
+        Assert.AreEqual(maxLong, await query.MinAsync(stat => stat.LongFactor));
+        Assert.AreEqual(maxFloat, await query.MinAsync(stat => stat.FloatFactor));
+        Assert.AreEqual(maxDouble, await query.MinAsync(stat => stat.DoubleFactor));
+        Assert.AreEqual(maxDecimal, await query.MinAsync(stat => stat.DecimalFactor));
+      }
+    }
   }
 }
