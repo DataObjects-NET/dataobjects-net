@@ -737,5 +737,49 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.ThrowsAsync<InvalidOperationException>(() => query.FirstAsync(teacher => teacher.Id < 0));
       }
     }
+
+    // FirstOrDefault
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstOrDefaultAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var allTeachers = query.ToList();
+        Assert.AreEqual(allTeachers[0], await query.FirstOrDefaultAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstOrDefaultAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().Take(0);
+        Assert.IsNull(await query.FirstOrDefaultAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstOrDefaultAsyncWithPredicateExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var firstFemaleTeacher = query.AsEnumerable().First(teacher => teacher.Gender==Gender.Female);
+        Assert.AreEqual(firstFemaleTeacher, await query.FirstOrDefaultAsync(teacher => teacher.Gender==Gender.Female));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task FirstOrDefaultAsyncWithPredicateOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        Assert.IsNull(await query.FirstOrDefaultAsync(teacher => teacher.Id < 0));
+      }
+    }
   }
 }
