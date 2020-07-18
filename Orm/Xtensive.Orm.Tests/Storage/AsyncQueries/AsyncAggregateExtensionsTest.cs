@@ -1001,5 +1001,69 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.AreEqual(maxDecimal, await query.MinAsync(stat => stat.DecimalFactor));
       }
     }
+
+    // Single
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SingleAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id).Take(1);
+        var allTeachers = query.ToList();
+        Assert.AreEqual(allTeachers[0], await query.SingleAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SingleAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().Take(0);
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SingleAsyncOnSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SingleAsyncWithPredicateExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var allTeachers = query.ToList();
+        Assert.AreEqual(allTeachers[0], await query.SingleAsync(teacher => teacher.Id==allTeachers[0].Id));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SingleAsyncWithPredicateOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync(teacher => teacher.Id < 0));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SingleAsyncWithPredicateOnSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.SingleAsync(teacher => teacher.Gender==Gender.Male));
+      }
+    }
   }
 }
