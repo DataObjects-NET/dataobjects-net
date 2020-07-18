@@ -1466,5 +1466,117 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
         Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (double?)stat.DoubleFactor));
       }
     }
+
+    // Sum<float>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncFloatExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Select(stat => stat.FloatFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncFloatOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => stat.FloatFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(0.0f, await emptyQuery.SumAsync());
+      }
+    }
+
+    // Sum<float>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncFloatWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync(stat => stat.FloatFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncFloatWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => stat.FloatFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(0.0f, await emptyQuery.SumAsync(stat => stat.FloatFactor));
+      }
+    }
+
+    // Sum<float?>
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableFloatExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
+        var allFactors = (await query.ExecuteAsync()).ToList();
+        Assert.AreEqual(allFactors.Sum(), await query.SumAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableFloatOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>()
+          .Where(stat => stat.IntFactor < 0).Select(stat => (float?)stat.FloatFactor);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync());
+      }
+    }
+
+    // Sum<float?>(selector)
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableFloatWithSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allFactors = (await query.ExecuteAsync())
+          .Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor)
+          .ToList();
+        Assert.AreEqual(
+          allFactors.Sum(),
+          await query.SumAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task SumAsyncNullableFloatWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var emptyQuery = session.Query.All<StatRecord>().Where(stat => stat.IntFactor < 0);
+
+        var emptyFactors = (await emptyQuery.ExecuteAsync()).Select(stat => (float?)stat.FloatFactor).ToList();
+        Assert.AreEqual(0, emptyFactors.Count);
+        Assert.AreEqual(emptyFactors.Sum(), await emptyQuery.SumAsync(stat => (float?)stat.FloatFactor));
+      }
+    }
   }
 }
