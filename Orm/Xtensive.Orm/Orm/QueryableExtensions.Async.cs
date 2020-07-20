@@ -394,13 +394,13 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
     }
 
-    public static Task<TSource> MaxAsync<TSource, TResult>(this IQueryable<TSource> source,
+    public static Task<TResult> MaxAsync<TSource, TResult>(this IQueryable<TSource> source,
       Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.MaxWithSelector,
+      return ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MaxWithSelector,
         source, selector, cancellationToken);
     }
 
@@ -414,13 +414,13 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Min, source, cancellationToken);
     }
 
-    public static Task<TSource> MinAsync<TSource, TResult>(this IQueryable<TSource> source,
+    public static Task<TResult> MinAsync<TSource, TResult>(this IQueryable<TSource> source,
       Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       ArgumentValidator.EnsureArgumentNotNull(selector, nameof(selector));
 
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.MinWithSelector,
+      return ExecuteScalarAsync<TSource, TResult>(WellKnownMembers.Queryable.MinWithSelector,
         source, selector, cancellationToken);
     }
 
