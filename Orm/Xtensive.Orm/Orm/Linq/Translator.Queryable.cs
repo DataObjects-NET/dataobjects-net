@@ -606,14 +606,12 @@ namespace Xtensive.Orm.Linq
           projectorBody = Expression.Convert(projectorBody, resultType);
         }
 
-        var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context, true);
+        var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context, aggregateType);
         return new ProjectionExpression(
           resultType,
           itemProjector,
           originProjection.TupleParameterBindings,
-          aggregateType==AggregateType.Sum || resultIsNullable
-            ? ResultAccessMethod.FirstOrDefault
-            : ResultAccessMethod.First);
+          resultIsNullable ? ResultAccessMethod.FirstOrDefault : ResultAccessMethod.First);
       }
 
       // Optimization. Use grouping AggregateProvider.

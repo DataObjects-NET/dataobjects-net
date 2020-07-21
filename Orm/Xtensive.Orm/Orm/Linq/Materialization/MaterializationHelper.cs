@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Rse;
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
 using EnumerationContext = Xtensive.Orm.Providers.EnumerationContext;
@@ -24,6 +25,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public static readonly MethodInfo MaterializeMethodInfo;
     public static readonly MethodInfo GetDefaultMethodInfo;
     public static readonly MethodInfo CreateItemMaterializerMethodInfo;
+    public static readonly MethodInfo CreateNullableItemMaterializerMethodInfo;
     public static readonly MethodInfo IsNullMethodInfo;
     public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo;
     public static readonly MethodInfo PrefetchEntitySetMethodInfo;
@@ -66,7 +68,7 @@ namespace Xtensive.Orm.Linq.Materialization
       RecordSetReader recordSetReader,
       MaterializationContext context,
       ParameterContext parameterContext,
-      ItemMaterializer<TResult> itemMaterializer)
+      IItemMaterializer<TResult> itemMaterializer)
     {
       var enumerationContext = (EnumerationContext) recordSetReader.Context;
       if (enumerationContext!=null) {
@@ -76,9 +78,24 @@ namespace Xtensive.Orm.Linq.Materialization
       return new MaterializingReader<TResult>(recordSetReader, context, parameterContext, itemMaterializer);
     }
 
-    public static ItemMaterializer<TResult> CreateItemMaterializer<TResult>(
-      Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda, bool isAggregate) =>
-      new ItemMaterializer<TResult>(itemMaterializerLambda.CachingCompile(), isAggregate);
+    public static IItemMaterializer<TResult> CreateItemMaterializer<TResult>(
+      Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda, AggregateType? aggregateType)
+    {
+      var materializationDelegate = itemMaterializerLambda.CachingCompile();
+      return aggregateType.HasValue
+        ? new AggregateResultMaterializer<TResult>(materializationDelegate, aggregateType.Value)
+        : new ItemMaterializer<TResult>(materializationDelegate);
+    }
+
+    public static IItemMaterializer<TResult?> CreateNullableItemMaterializer<TResult>(
+      Expression<Func<Tuple, ItemMaterializationContext, TResult?>> itemMaterializerLambda, AggregateType? aggregateType)
+      where TResult : struct
+    {
+      var materializationDelegate = itemMaterializerLambda.CachingCompile();
+      return aggregateType.HasValue
+        ? new NullableAggregateResultMaterializer<TResult>(materializationDelegate, aggregateType.Value)
+        : new ItemMaterializer<TResult?>(materializationDelegate);
+    }
 
     public static TEntitySet PrefetechEntitySet<TEntitySet>(TEntitySet entitySet, ItemMaterializationContext context)
       where TEntitySet : EntitySetBase
@@ -98,6 +115,8 @@ namespace Xtensive.Orm.Linq.Materialization
         .GetMethod(nameof(Materialize), BindingFlags.Public | BindingFlags.Static);
       CreateItemMaterializerMethodInfo = typeof (MaterializationHelper)
         .GetMethod(nameof(CreateItemMaterializer), BindingFlags.Public | BindingFlags.Static);
+      CreateNullableItemMaterializerMethodInfo = typeof (MaterializationHelper)
+        .GetMethod(nameof(CreateNullableItemMaterializer), BindingFlags.Public | BindingFlags.Static);
       GetDefaultMethodInfo = typeof(MaterializationHelper)
         .GetMethod(nameof(GetDefault), BindingFlags.Public | BindingFlags.Static);
       IsNullMethodInfo = typeof(MaterializationHelper)

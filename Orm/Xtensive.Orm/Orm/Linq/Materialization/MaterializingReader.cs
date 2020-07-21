@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly RecordSetReader recordSetReader;
     private readonly MaterializationContext context;
     private readonly ParameterContext parameterContext;
-    private readonly ItemMaterializer<TItem> itemMaterializer;
+    private readonly IItemMaterializer<TItem> itemMaterializer;
     private readonly Queue<Action> materializationQueue;
 
     public IEnumerator<TItem> AsEnumerator()
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public ValueTask DisposeAsync() => recordSetReader.DisposeAsync();
 
     internal MaterializingReader(RecordSetReader recordSetReader, MaterializationContext context,
-      ParameterContext parameterContext, ItemMaterializer<TItem> itemMaterializer)
+      ParameterContext parameterContext, IItemMaterializer<TItem> itemMaterializer)
     {
       this.recordSetReader = recordSetReader;
       this.context = context;

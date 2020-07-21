@@ -116,10 +116,13 @@ namespace Xtensive.Orm.Linq
       var elementType = itemProjector.Item.Type;
       var materializeMethod = MaterializationHelper.MaterializeMethodInfo.MakeGenericMethod(elementType);
       var itemMaterializerFactoryMethod =
-        MaterializationHelper.CreateItemMaterializerMethodInfo.MakeGenericMethod(elementType);
+        elementType.IsNullable()
+          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.MakeGenericMethod(
+            elementType.GetGenericArguments()[0])
+          : MaterializationHelper.CreateItemMaterializerMethodInfo.MakeGenericMethod(elementType);
 
       var itemMaterializer = itemMaterializerFactoryMethod.Invoke(
-        null, new object[] {materializationInfo.Expression, itemProjector.IsAggregate});
+        null, new object[] {materializationInfo.Expression, itemProjector.AggregateType});
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor

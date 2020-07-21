@@ -1,26 +1,63 @@
 using System;
 using Xtensive.Core;
+using Xtensive.Orm.Rse;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  internal class ItemMaterializer<TItem>
+  internal interface IItemMaterializer<TItem>
+  {
+    TItem Materialize(Tuple tuple, MaterializationContext context, ParameterContext parameterContext);
+    bool CanMaterialize(Tuple tuple);
+  }
+
+  internal class ItemMaterializer<TItem> : IItemMaterializer<TItem>
   {
     private readonly Func<Tuple, ItemMaterializationContext, TItem> materializationDelegate;
-    private readonly bool isAggregate;
 
-    public TItem Materialize(Tuple tuple, MaterializationContext context, ParameterContext parameterContext) =>
+    public virtual TItem Materialize(Tuple tuple, MaterializationContext context, ParameterContext parameterContext) =>
       materializationDelegate.Invoke(tuple, new ItemMaterializationContext(context, parameterContext));
 
-    public bool CanMaterialize(Tuple tuple) =>
-      !(isAggregate && (tuple.GetFieldState(0) & TupleFieldState.Null)==TupleFieldState.Null);
+    public virtual bool CanMaterialize(Tuple tuple) => true;
 
-    public ItemMaterializer(
-      Func<Tuple, ItemMaterializationContext, TItem> materializationDelegate, bool isAggregate = false)
+    public ItemMaterializer(Func<Tuple, ItemMaterializationContext, TItem> materializationDelegate)
     {
       this.materializationDelegate = materializationDelegate;
-      this.isAggregate = isAggregate;
+    }
+  }
+
+  internal class AggregateResultMaterializer<TResult> : ItemMaterializer<TResult>
+  {
+    private readonly AggregateType aggregateType;
+
+    public override bool CanMaterialize(Tuple tuple) =>
+      aggregateType==AggregateType.Sum || (tuple.GetFieldState(0) & TupleFieldState.Null) == 0;
+
+    public AggregateResultMaterializer(
+      Func<Tuple, ItemMaterializationContext, TResult> materializationDelegate, AggregateType aggregateType)
+      : base(materializationDelegate)
+    {
+      this.aggregateType = aggregateType;
+    }
+  }
+
+  internal class NullableAggregateResultMaterializer<TResult> : ItemMaterializer<TResult?>
+    where TResult: struct
+  {
+    private readonly AggregateType aggregateType;
+
+    public override TResult? Materialize(Tuple tuple, MaterializationContext context, ParameterContext parameterContext)
+    {
+      var result = base.Materialize(tuple, context, parameterContext);
+      return aggregateType == AggregateType.Sum ? result ?? default : result;
+    }
+
+    public NullableAggregateResultMaterializer(
+      Func<Tuple, ItemMaterializationContext, TResult?> materializationDelegate, AggregateType aggregateType)
+      : base(materializationDelegate)
+    {
+      this.aggregateType = aggregateType;
     }
   }
 }
