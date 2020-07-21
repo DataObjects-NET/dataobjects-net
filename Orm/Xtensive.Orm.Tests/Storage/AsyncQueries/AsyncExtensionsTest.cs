@@ -7,7 +7,7 @@ using Xtensive.Orm.Tests.Storage.AsyncQueries.Model;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries
 {
-  public class AsyncAggregateExtensionsTest : AsyncQueriesBaseTest
+  public class AsyncExtensionsTest : AsyncQueriesBaseTest
   {
     private static Task<Session> OpenSessionAsync(Domain domain, bool isClientProfile) =>
       domain.OpenSessionAsync(
