@@ -1091,22 +1091,127 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncOnNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).Max();
+        var maxLong = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).Max();
+        var maxFloat = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).Max();
+        var maxDouble = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).Max();
+        var maxDecimal = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).Max();
+        Assert.AreEqual(maxInt,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).MaxAsync());
+        Assert.AreEqual(maxLong,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).MaxAsync());
+        Assert.AreEqual(maxFloat,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).MaxAsync());
+        Assert.AreEqual(maxDouble,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).MaxAsync());
+        Assert.AreEqual(maxDecimal,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).MaxAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Where(stat => stat.Id < 0)
+          .Select(stat => stat.IntFactor);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncOnEmptyNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Where(stat => stat.Id < 0)
+          .Select(stat => (int?) stat.IntFactor);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.IsNull(elements.Max());
+        Assert.AreEqual(elements.Max(), await query.MaxAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
     public async Task MaxAsyncWithSelectorExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allStats = query.ToList();
-        var maxInt = allStats.Select(stat => stat.IntFactor).Max();
-        var maxLong = allStats.Select(stat => stat.LongFactor).Max();
-        var maxFloat = allStats.Select(stat => stat.FloatFactor).Max();
-        var maxDouble = allStats.Select(stat => stat.DoubleFactor).Max();
-        var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Max();
+        var maxInt = allStats.Max(stat => stat.IntFactor);
+        var maxLong = allStats.Max(stat => stat.LongFactor);
+        var maxFloat = allStats.Max(stat => stat.FloatFactor);
+        var maxDouble = allStats.Max(stat => stat.DoubleFactor);
+        var maxDecimal = allStats.Max(stat => stat.DecimalFactor);
         Assert.AreEqual(maxInt, await query.MaxAsync(stat => stat.IntFactor));
         Assert.AreEqual(maxLong, await query.MaxAsync(stat => stat.LongFactor));
         Assert.AreEqual(maxFloat, await query.MaxAsync(stat => stat.FloatFactor));
         Assert.AreEqual(maxDouble, await query.MaxAsync(stat => stat.DoubleFactor));
         Assert.AreEqual(maxDecimal, await query.MaxAsync(stat => stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncWithSelectorOnNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor);
+        var maxLong = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor);
+        var maxFloat = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
+        var maxDouble = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor);
+        var maxDecimal = allStats.Max(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
+        Assert.AreEqual(maxInt,
+          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor));
+        Assert.AreEqual(maxLong,
+          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor));
+        Assert.AreEqual(maxFloat,
+          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
+        Assert.AreEqual(maxDouble,
+          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor));
+        Assert.AreEqual(maxDecimal,
+          await query.MaxAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.Throws<InvalidOperationException>(() => _ = elements.Max(stat => stat.IntFactor));
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.MaxAsync(stat => stat.IntFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MaxAsyncWithSelectorOnEmptyNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.IsNull(elements.Max(stat => (int?) stat.IntFactor));
+        Assert.AreEqual(elements.Max(stat => (int?) stat.IntFactor), await query.MaxAsync(stat => (int?) stat.IntFactor));
       }
     }
 
@@ -1133,22 +1238,127 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     }
 
     [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncOnNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).Min();
+        var maxLong = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).Min();
+        var maxFloat = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).Min();
+        var maxDouble = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).Min();
+        var maxDecimal = allStats.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).Min();
+        Assert.AreEqual(maxInt,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor).MinAsync());
+        Assert.AreEqual(maxLong,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor).MinAsync());
+        Assert.AreEqual(maxFloat,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor).MinAsync());
+        Assert.AreEqual(maxDouble,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor).MinAsync());
+        Assert.AreEqual(maxDecimal,
+          await query.Select(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor).MinAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Where(stat => stat.Id < 0)
+          .Select(stat => stat.IntFactor);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncOnEmptyNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>()
+          .Where(stat => stat.Id < 0)
+          .Select(stat => (int?) stat.IntFactor);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.IsNull(elements.Min());
+        Assert.AreEqual(elements.Min(), await query.MinAsync());
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
     public async Task MinAsyncWithSelectorExtensionTest(bool isClientProfile)
     {
       await using var session = await OpenSessionAsync(Domain, isClientProfile);
       await using (OpenTransactionAsync(session, isClientProfile)) {
         var query = session.Query.All<StatRecord>();
         var allStats = query.ToList();
-        var maxInt = allStats.Select(stat => stat.IntFactor).Min();
-        var maxLong = allStats.Select(stat => stat.LongFactor).Min();
-        var maxFloat = allStats.Select(stat => stat.FloatFactor).Min();
-        var maxDouble = allStats.Select(stat => stat.DoubleFactor).Min();
-        var maxDecimal = allStats.Select(stat => stat.DecimalFactor).Min();
+        var maxInt = allStats.Min(stat => stat.IntFactor);
+        var maxLong = allStats.Min(stat => stat.LongFactor);
+        var maxFloat = allStats.Min(stat => stat.FloatFactor);
+        var maxDouble = allStats.Min(stat => stat.DoubleFactor);
+        var maxDecimal = allStats.Min(stat => stat.DecimalFactor);
         Assert.AreEqual(maxInt, await query.MinAsync(stat => stat.IntFactor));
         Assert.AreEqual(maxLong, await query.MinAsync(stat => stat.LongFactor));
         Assert.AreEqual(maxFloat, await query.MinAsync(stat => stat.FloatFactor));
         Assert.AreEqual(maxDouble, await query.MinAsync(stat => stat.DoubleFactor));
         Assert.AreEqual(maxDecimal, await query.MinAsync(stat => stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncWithSelectorOnNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>();
+        var allStats = query.ToList();
+        var maxInt = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor);
+        var maxLong = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor);
+        var maxFloat = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor);
+        var maxDouble = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor);
+        var maxDecimal = allStats.Min(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor);
+        Assert.AreEqual(maxInt,
+          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(int?) : stat.IntFactor));
+        Assert.AreEqual(maxLong,
+          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(long?) : stat.LongFactor));
+        Assert.AreEqual(maxFloat,
+          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(float?) : stat.FloatFactor));
+        Assert.AreEqual(maxDouble,
+          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(double?) : stat.DoubleFactor));
+        Assert.AreEqual(maxDecimal,
+          await query.MinAsync(stat => stat.IntFactor % 2 == 0 ? default(decimal?) : stat.DecimalFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncWithSelectorOnEmptySequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.Throws<InvalidOperationException>(() => _ = elements.Min(stat => stat.IntFactor));
+        Assert.ThrowsAsync<InvalidOperationException>(() => query.MinAsync(stat => stat.IntFactor));
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task MinAsyncWithSelectorOnEmptyNullableSequenceExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<StatRecord>().Where(stat => stat.Id < 0);
+        var elements = query.ToList();
+        Assert.AreEqual(0, elements.Count);
+        Assert.IsNull(elements.Min(stat => (int?) stat.IntFactor));
+        Assert.AreEqual(elements.Min(stat => (int?) stat.IntFactor), await query.MinAsync(stat => (int?) stat.IntFactor));
       }
     }
 
