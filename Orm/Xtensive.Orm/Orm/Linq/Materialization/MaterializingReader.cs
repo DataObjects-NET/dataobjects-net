@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
@@ -19,7 +18,7 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly RecordSetReader recordSetReader;
     private readonly MaterializationContext context;
     private readonly ParameterContext parameterContext;
-    private readonly Func<Tuple, ItemMaterializationContext, TItem> itemMaterializer;
+    private readonly ItemMaterializer<TItem> itemMaterializer;
     private readonly Queue<Action> materializationQueue;
 
     public IEnumerator<TItem> AsEnumerator()
@@ -37,14 +36,16 @@ namespace Xtensive.Orm.Linq.Materialization
     object IEnumerator.Current => Current;
 
     public TItem Current =>
-      itemMaterializer.Invoke(recordSetReader.Current, new ItemMaterializationContext(context, parameterContext));
+      itemMaterializer.Materialize(recordSetReader.Current, context, parameterContext);
 
     public void Reset() => throw new NotSupportedException();
 
     public bool MoveNext()
     {
-      if (recordSetReader.MoveNext()) {
-        return true;
+      while (recordSetReader.MoveNext()) {
+        if (itemMaterializer.CanMaterialize(recordSetReader.Current)) {
+          return true;
+        }
       }
 
       if (materializationQueue != null) {
@@ -57,8 +58,10 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public async ValueTask<bool> MoveNextAsync()
     {
-      if (await recordSetReader.MoveNextAsync().ConfigureAwait(false)) {
-        return true;
+      while (await recordSetReader.MoveNextAsync().ConfigureAwait(false)) {
+        if (itemMaterializer.CanMaterialize(recordSetReader.Current)) {
+          return true;
+        }
       }
 
       if (materializationQueue != null) {
@@ -74,7 +77,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public ValueTask DisposeAsync() => recordSetReader.DisposeAsync();
 
     internal MaterializingReader(RecordSetReader recordSetReader, MaterializationContext context,
-      ParameterContext parameterContext, Func<Tuple, ItemMaterializationContext, TItem> itemMaterializer)
+      ParameterContext parameterContext, ItemMaterializer<TItem> itemMaterializer)
     {
       this.recordSetReader = recordSetReader;
       this.context = context;

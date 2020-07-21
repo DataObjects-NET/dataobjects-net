@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Linq.Materialization
   {
     public static readonly MethodInfo MaterializeMethodInfo;
     public static readonly MethodInfo GetDefaultMethodInfo;
-    public static readonly MethodInfo CompileItemMaterializerMethodInfo;
+    public static readonly MethodInfo CreateItemMaterializerMethodInfo;
     public static readonly MethodInfo IsNullMethodInfo;
     public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo;
     public static readonly MethodInfo PrefetchEntitySetMethodInfo;
@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Linq.Materialization
       RecordSetReader recordSetReader,
       MaterializationContext context,
       ParameterContext parameterContext,
-      Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer)
+      ItemMaterializer<TResult> itemMaterializer)
     {
       var enumerationContext = (EnumerationContext) recordSetReader.Context;
       if (enumerationContext!=null) {
@@ -76,11 +76,9 @@ namespace Xtensive.Orm.Linq.Materialization
       return new MaterializingReader<TResult>(recordSetReader, context, parameterContext, itemMaterializer);
     }
 
-    public static Func<Tuple, ItemMaterializationContext, TResult> CompileItemMaterializer<TResult>(
-      Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda)
-    {
-      return itemMaterializerLambda.CachingCompile();
-    }
+    public static ItemMaterializer<TResult> CreateItemMaterializer<TResult>(
+      Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda, bool isAggregate) =>
+      new ItemMaterializer<TResult>(itemMaterializerLambda.CachingCompile(), isAggregate);
 
     public static TEntitySet PrefetechEntitySet<TEntitySet>(TEntitySet entitySet, ItemMaterializationContext context)
       where TEntitySet : EntitySetBase
@@ -98,8 +96,8 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       MaterializeMethodInfo = typeof (MaterializationHelper)
         .GetMethod(nameof(Materialize), BindingFlags.Public | BindingFlags.Static);
-      CompileItemMaterializerMethodInfo = typeof (MaterializationHelper)
-        .GetMethod(nameof(CompileItemMaterializer), BindingFlags.Public | BindingFlags.Static);
+      CreateItemMaterializerMethodInfo = typeof (MaterializationHelper)
+        .GetMethod(nameof(CreateItemMaterializer), BindingFlags.Public | BindingFlags.Static);
       GetDefaultMethodInfo = typeof(MaterializationHelper)
         .GetMethod(nameof(GetDefault), BindingFlags.Public | BindingFlags.Static);
       IsNullMethodInfo = typeof(MaterializationHelper)

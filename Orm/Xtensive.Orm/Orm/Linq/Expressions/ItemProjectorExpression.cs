@@ -22,6 +22,7 @@ namespace Xtensive.Orm.Linq.Expressions
     public CompilableProvider DataSource { get; set; }
     public TranslatorContext Context { get; private set; }
     public Expression Item { get; private set; }
+    public bool IsAggregate { get; }
 
     public bool IsPrimitive { get { return CheckItemIsPrimitive(Item); } }
 
@@ -55,15 +56,15 @@ namespace Xtensive.Orm.Linq.Expressions
     public ItemProjectorExpression Remap(CompilableProvider dataSource, int offset)
     {
       if (offset==0)
-        return new ItemProjectorExpression(Item, dataSource, Context);
+        return new ItemProjectorExpression(Item, dataSource, Context, IsAggregate);
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(offset, new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, dataSource, Context);
+      return new ItemProjectorExpression(item, dataSource, Context, IsAggregate);
     }
 
     public ItemProjectorExpression Remap(CompilableProvider dataSource, int[] columnMap)
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, dataSource, Context);
+      return new ItemProjectorExpression(item, dataSource, Context, IsAggregate);
     }
 
     public LambdaExpression ToLambda(TranslatorContext context)
@@ -79,19 +80,19 @@ namespace Xtensive.Orm.Linq.Expressions
     public ItemProjectorExpression BindOuterParameter(ParameterExpression parameter)
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.BindParameter(parameter, new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, DataSource, Context);
+      return new ItemProjectorExpression(item, DataSource, Context, IsAggregate);
     }
 
     public ItemProjectorExpression RemoveOuterParameter()
     {
       var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.RemoveOuterParameter(new Dictionary<Expression, Expression>()));
-      return new ItemProjectorExpression(item, DataSource, Context);
+      return new ItemProjectorExpression(item, DataSource, Context, IsAggregate);
     }
 
     public ItemProjectorExpression RemoveOwner()
     {
       var item = OwnerRemover.RemoveOwner(Item);
-      return new ItemProjectorExpression(item, DataSource, Context);
+      return new ItemProjectorExpression(item, DataSource, Context, IsAggregate);
     }
 
     public ItemProjectorExpression SetDefaultIfEmpty()
@@ -100,14 +101,14 @@ namespace Xtensive.Orm.Linq.Expressions
         mapped.DefaultIfEmpty = true;
         return mapped;
       });
-      return new ItemProjectorExpression(item, DataSource, Context);
+      return new ItemProjectorExpression(item, DataSource, Context, IsAggregate);
     }
 
     public ItemProjectorExpression RewriteApplyParameter(ApplyParameter oldParameter, ApplyParameter newParameter)
     {
       var newDataSource = ApplyParameterRewriter.Rewrite(DataSource, oldParameter, newParameter);
       var newItemProjectorBody = ApplyParameterRewriter.Rewrite(Item, oldParameter, newParameter);
-      return new ItemProjectorExpression(newItemProjectorBody, newDataSource, Context);
+      return new ItemProjectorExpression(newItemProjectorBody, newDataSource, Context, IsAggregate);
     }
 
     public ItemProjectorExpression EnsureEntityIsJoined()
@@ -183,7 +184,7 @@ namespace Xtensive.Orm.Linq.Expressions
         return null;
       })
         .Replace(Item);
-      return new ItemProjectorExpression(newItem, dataSource, Context);
+      return new ItemProjectorExpression(newItem, dataSource, Context, IsAggregate);
     }
 
     public override string ToString()
@@ -194,7 +195,8 @@ namespace Xtensive.Orm.Linq.Expressions
 
     // Constructors
 
-    public ItemProjectorExpression(Expression expression, CompilableProvider dataSource, TranslatorContext context)
+    public ItemProjectorExpression(
+      Expression expression, CompilableProvider dataSource, TranslatorContext context, bool isAggregate = false)
       : base(ExtendedExpressionType.ItemProjector, expression.Type)
     {
       DataSource = dataSource;
@@ -205,6 +207,7 @@ namespace Xtensive.Orm.Linq.Expressions
           ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter)
           : null);
       Item = applyParameterReplacer.Replace(expression);
+      IsAggregate = isAggregate;
     }
   }
 }

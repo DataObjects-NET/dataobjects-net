@@ -593,16 +593,27 @@ namespace Xtensive.Orm.Linq
 
       var resultType = method.ReturnType;
       var columnType = resultDataSource.Header.TupleDescriptor[0];
-      var convertResultColumn = resultType!=columnType && !resultType.IsNullable();
-      if (!convertResultColumn) // Adjust column type so we always use nullable of T instead of T
+      var resultIsNullable = resultType.IsNullable();
+      var convertResultColumn = resultType!=columnType && !resultIsNullable;
+      if (!convertResultColumn) {
+        // Adjust column type so we always use nullable of T instead of T
         columnType = resultType;
+      }
 
       if (isRoot) {
         var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
-        if (convertResultColumn)
+        if (convertResultColumn) {
           projectorBody = Expression.Convert(projectorBody, resultType);
-        var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context);
-        return new ProjectionExpression(resultType, itemProjector, originProjection.TupleParameterBindings, ResultAccessMethod.First);
+        }
+
+        var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context, true);
+        return new ProjectionExpression(
+          resultType,
+          itemProjector,
+          originProjection.TupleParameterBindings,
+          aggregateType==AggregateType.Sum || resultIsNullable
+            ? ResultAccessMethod.FirstOrDefault
+            : ResultAccessMethod.First);
       }
 
       // Optimization. Use grouping AggregateProvider.
