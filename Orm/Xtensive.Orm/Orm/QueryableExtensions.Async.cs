@@ -699,25 +699,40 @@ namespace Xtensive.Orm
       (await source.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
 
     public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TKey, TSource>(
-      this IQueryable<TSource> source, Func<TSource, TKey> keySelector, CancellationToken cancellationToken = default)
+      this IQueryable<TSource> source,
+      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
+      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TSource));
+      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var body = Expression.Call(null, tupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        itemParam[0]);
+      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
       var dictionary = new Dictionary<TKey, TSource>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
-      await foreach (var element in asyncSource) {
-        dictionary.Add(keySelector(element), element);
+      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var tuple in asyncSource) {
+        dictionary.Add(tuple.Item1, tuple.Item2);
       }
 
       return dictionary;
     }
 
     public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue, TSource>(
-      this IQueryable<TSource> source, Func<TSource, TKey> keySelector, Func<TSource, TValue> valueSelector,
+      this IQueryable<TSource> source,
+      Expression<Func<TSource, TKey>> keySelector,
+      Expression<Func<TSource, TValue>> valueSelector,
       CancellationToken cancellationToken = default)
     {
+      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TValue));
+      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var body = Expression.Call(null, tupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
+      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
       var dictionary = new Dictionary<TKey, TValue>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
-      await foreach (var element in asyncSource) {
-        dictionary.Add(keySelector(element), valueSelector(element));
+      var asyncSource = query.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
+      await foreach (var tuple in asyncSource) {
+        dictionary.Add(tuple.Item1, tuple.Item2);
       }
 
       return dictionary;
