@@ -1263,11 +1263,18 @@ namespace Xtensive.Orm.Linq
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
       using (state.CreateScope()) {
-        if (source.IsLocalCollection(context) &&
-            (source.Type.IsGenericType && source.Type.GetGenericArguments()[0].IsAssignableFrom(typeof (Key))) ||
-            (source.Type.IsAssignableFrom(typeof (Key)))) {
-          var localCollecctionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression)predicate.Body);
-          state.TypeOfEntityStoredInKey = localCollecctionKeyType;
+        if (source.IsLocalCollection(context)) {
+          var sourceType = source.Type;
+          Type itemType = sourceType.IsGenericType
+            ? itemType = sourceType.GetGenericArguments()[0]
+            : sourceType.IsArray
+              ? sourceType.GetElementType()
+              : null;
+
+          if (itemType != null && itemType.IsAssignableFrom(typeof(Key))) {
+            var localCollectionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body);
+            state.TypeOfEntityStoredInKey = localCollectionKeyType;
+          }
         }
         state.IncludeAlgorithm = IncludeAlgorithm.Auto;
         visitedSource = VisitSequence(source);
