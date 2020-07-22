@@ -88,7 +88,7 @@ namespace Xtensive.Core
             parameters[i].ToString(true), i, lambdaExpression.Parameters[i].ToString(true)));
       }
       return ExpressionReplacer.ReplaceAll(
-        lambdaExpression.Body, lambdaExpression.Parameters.ToArray(), convertedParameters);
+        lambdaExpression.Body, lambdaExpression.Parameters, convertedParameters);
     }
 
     /// <summary>

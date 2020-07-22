@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 
@@ -451,7 +452,8 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
 
-      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefault, source, cancellationToken);
+      return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.SingleOrDefault, source,
+        cancellationToken);
     }
 
     public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
@@ -676,6 +678,10 @@ namespace Xtensive.Orm
 
     // Collection methods
 
+    private static readonly MethodInfo TupleCreateMethod =
+      typeof(Tuple).GetMethods(BindingFlags.Public | BindingFlags.Static)
+        .Single(mi => mi.Name == nameof(Tuple.Create) && mi.GetGenericArguments().Length == 2);
+
     public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -730,20 +736,32 @@ namespace Xtensive.Orm
     }
 
     public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
-      Func<TSource, TKey> keySelector, CancellationToken cancellationToken = default)
+      Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
-      var queryResult = await source.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-      return queryResult.ToLookup(keySelector);
+      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TSource));
+      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var body = Expression.Call(null, tupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        itemParam[0]);
+      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TSource>>>(body, itemParam));
+      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+      return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
     }
 
-    public static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(
+  public static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(
       this IQueryable<TSource> source,
-      Func<TSource, TKey> keySelector,
-      Func<TSource, TValue> valueSelector,
+      Expression<Func<TSource, TKey>> keySelector,
+      Expression<Func<TSource, TValue>> valueSelector,
       CancellationToken cancellationToken = default)
     {
-      var queryResult = await source.ExecuteAsync(cancellationToken).ConfigureAwait(false);
-      return queryResult.ToLookup(keySelector, valueSelector);
+      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TValue));
+      var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
+      var body = Expression.Call(null, tupleFactoryMethod,
+        ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
+        ExpressionReplacer.ReplaceAll(valueSelector.Body, valueSelector.Parameters, itemParam));
+      var query = source.Select(FastExpression.Lambda<Func<TSource, Tuple<TKey, TValue>>>(body, itemParam));
+      var queryResult = await query.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+      return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
     }
 
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)

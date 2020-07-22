@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.03.17
 
+using System.Collections.Generic;
 using System.Linq.Expressions;
 
 namespace Xtensive.Linq
@@ -34,10 +35,13 @@ namespace Xtensive.Linq
     /// <param name="searchFor">Expressions search for.</param>
     /// <param name="replaceWith">Expressions replace with.</param>
     /// <returns></returns>
-    public static Expression ReplaceAll(Expression expression, Expression[] searchFor, Expression[] replaceWith)
+    public static Expression ReplaceAll(
+      Expression expression, IReadOnlyList<Expression> searchFor, IReadOnlyList<Expression> replaceWith)
     {
-      for (int i = 0, n = searchFor.Length; i < n; i++)
+      for (int i = 0, n = searchFor.Count; i < n; i++) {
         expression = Replace(expression, searchFor[i], replaceWith[i]);
+      }
+
       return expression;
     }
 
