@@ -2200,5 +2200,116 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           await query.SumAsync(stat => stat.IntFactor >= 0 ? default(decimal?) : stat.DecimalFactor));
       }
     }
+
+    // ToList
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ToListAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var allTeachers = query.ToList();
+        var allTeachersAsync = await query.ToListAsync();
+        Assert.IsTrue(allTeachers.SequenceEqual(allTeachersAsync));
+      }
+    }
+
+    // ToArray
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ToArrayAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>().OrderBy(teacher => teacher.Id);
+        var allTeachers = query.ToArray();
+        var allTeachersAsync = await query.ToArrayAsync();
+        Assert.IsTrue(allTeachers.SequenceEqual(allTeachersAsync));
+      }
+    }
+
+    // ToDictionary
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ToDictionaryAsyncWithKeySelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        var allTeachers = query.ToDictionary(teacher => teacher.Id);
+        var allTeachersAsync = await query.ToDictionaryAsync(teacher => teacher.Id);
+        Assert.AreEqual(allTeachers.Count, allTeachersAsync.Count);
+        foreach (var teacherId in allTeachers.Keys) {
+          Assert.AreEqual(allTeachers[teacherId], allTeachersAsync[teacherId]);
+        }
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ToDictionaryAsyncWithKeyValueSelectorsExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        var allTeachers = query.ToDictionary(teacher => teacher.Id, teacher => teacher.Id);
+        var allTeachersAsync = await query.ToDictionaryAsync(teacher => teacher.Id, teacher => teacher.Id);
+        Assert.AreEqual(allTeachers.Count, allTeachersAsync.Count);
+        foreach (var teacherId in allTeachers.Keys) {
+          Assert.AreEqual(allTeachers[teacherId], allTeachersAsync[teacherId]);
+        }
+      }
+    }
+
+    // ToHashSet
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ToHashSetAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        var allTeachers = query.ToHashSet();
+        var allTeachersAsync = await query.ToHashSetAsync();
+        Assert.AreEqual(allTeachers.Count, allTeachersAsync.Count);
+        foreach (var teacher in allTeachers) {
+          Assert.IsTrue(allTeachersAsync.Contains(teacher));
+        }
+      }
+    }
+
+    // ToLookup
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ToLookupAsyncExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        var teachersByGender = query.ToLookup(teacher => teacher.Gender);
+        var teachersByGenderAsync = await query.ToLookupAsync(teacher => teacher.Gender);
+        Assert.AreEqual(teachersByGender.Count, teachersByGenderAsync.Count);
+        foreach (var grouping in teachersByGender) {
+          Assert.IsTrue(grouping.OrderBy(teacher => teacher.Id)
+            .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacher => teacher.Id)));
+        }
+      }
+    }
+
+    [Test, TestCase(true), TestCase(false)]
+    public async Task ToLookupAsyncWithValueSelectorExtensionTest(bool isClientProfile)
+    {
+      await using var session = await OpenSessionAsync(Domain, isClientProfile);
+      await using (OpenTransactionAsync(session, isClientProfile)) {
+        var query = session.Query.All<Teacher>();
+        var teachersByGender = query.ToLookup(teacher => teacher.Gender, teacher => teacher.Id);
+        var teachersByGenderAsync = await query.ToLookupAsync(teacher => teacher.Gender, teacher => teacher.Id);
+        Assert.AreEqual(teachersByGender.Count, teachersByGenderAsync.Count);
+        foreach (var grouping in teachersByGender) {
+          Assert.IsTrue(grouping.OrderBy(teacherId => teacherId)
+            .SequenceEqual(teachersByGenderAsync[grouping.Key].OrderBy(teacherId => teacherId)));
+        }
+      }
+    }
   }
 }

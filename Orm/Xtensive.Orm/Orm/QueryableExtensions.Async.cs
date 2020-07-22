@@ -729,16 +729,21 @@ namespace Xtensive.Orm
       return hashSet;
     }
 
-    public static async Task<HashSet<TElement>> ToHashSetAsync<TElement, TSource>(this IQueryable<TSource> source,
-      Func<TSource, TElement> elementSelector, CancellationToken cancellationToken = default)
+    public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
+      Func<TSource, TKey> keySelector, CancellationToken cancellationToken = default)
     {
-      var hashSet = new HashSet<TElement>();
-      var asyncSource = source.AsAsyncEnumerable().WithCancellation(cancellationToken).ConfigureAwait(false);
-      await foreach (var element in asyncSource) {
-        hashSet.Add(elementSelector(element));
-      }
+      var queryResult = await source.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+      return queryResult.ToLookup(keySelector);
+    }
 
-      return hashSet;
+    public static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(
+      this IQueryable<TSource> source,
+      Func<TSource, TKey> keySelector,
+      Func<TSource, TValue> valueSelector,
+      CancellationToken cancellationToken = default)
+    {
+      var queryResult = await source.ExecuteAsync(cancellationToken).ConfigureAwait(false);
+      return queryResult.ToLookup(keySelector, valueSelector);
     }
 
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)
