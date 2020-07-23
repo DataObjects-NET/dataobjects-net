@@ -8,63 +8,63 @@ using Xtensive.Collections;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
-  public readonly struct PrefetchQuery<TItem> : IEnumerable<TItem>
+  public readonly struct PrefetchQuery<TElement> : IEnumerable<TElement>
   {
     private readonly Session session;
-    private readonly IEnumerable<TItem> source;
-    private readonly SinglyLinkedList<KeyExtractorNode<TItem>> nodes;
+    private readonly IEnumerable<TElement> source;
+    private readonly SinglyLinkedList<KeyExtractorNode<TElement>> nodes;
 
-    internal PrefetchQuery<TItem> RegisterPath<TValue>(Expression<Func<TItem, TValue>> expression)
+    internal PrefetchQuery<TElement> RegisterPath<TValue>(Expression<Func<TElement, TValue>> expression)
     {
       var node = NodeBuilder.Build(session.Domain.Model, expression);
-      return node==null ? this : new PrefetchQuery<TItem>(session, source, nodes.Add(node));
+      return node==null ? this : new PrefetchQuery<TElement>(session, source, nodes.Add(node));
     }
 
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public IEnumerator<TItem> GetEnumerator() =>
-      new PrefetchQueryEnumerable<TItem>(session, source, nodes).GetEnumerator();
+    public IEnumerator<TElement> GetEnumerator() =>
+      new PrefetchQueryEnumerable<TElement>(session, source, nodes).GetEnumerator();
 
-    public IAsyncEnumerable<TItem> AsAsyncEnumerable() =>
-      new PrefetchQueryAsyncEnumerable<TItem>(session, source, nodes);
+    public IAsyncEnumerable<TElement> AsAsyncEnumerable() =>
+      new PrefetchQueryAsyncEnumerable<TElement>(session, source, nodes);
 
-    private class ExecuteAsyncResult : IEnumerable<TItem>
+    private class ExecuteAsyncResult : IEnumerable<TElement>
     {
-      private readonly List<TItem> items;
+      private readonly List<TElement> items;
       // We need to hold StrongReferenceContainer to prevent loaded entities from being collected
       private readonly StrongReferenceContainer referenceContainer;
 
       IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-      public IEnumerator<TItem> GetEnumerator() => items.GetEnumerator();
+      public IEnumerator<TElement> GetEnumerator() => items.GetEnumerator();
 
-      public ExecuteAsyncResult(List<TItem> items, StrongReferenceContainer referenceContainer)
+      public ExecuteAsyncResult(List<TElement> items, StrongReferenceContainer referenceContainer)
       {
         this.items = items;
         this.referenceContainer = referenceContainer;
       }
     }
 
-    public async Task<IEnumerable<TItem>> ExecuteAsync(CancellationToken token = default)
+    public async Task<QueryResult<TElement>> ExecuteAsync(CancellationToken token = default)
     {
-      var list = new List<TItem>();
-      var asyncEnumerable = new PrefetchQueryAsyncEnumerable<TItem>(session, source, nodes);
+      var list = new List<TElement>();
+      var asyncEnumerable = new PrefetchQueryAsyncEnumerable<TElement>(session, source, nodes);
       await foreach (var element in asyncEnumerable.WithCancellation(token).ConfigureAwait(false)) {
         list.Add(element);
       }
 
-      return new ExecuteAsyncResult(list, asyncEnumerable.StrongReferenceContainer);
+      return new QueryResult<TElement>(new ExecuteAsyncResult(list, asyncEnumerable.StrongReferenceContainer));
     }
 
     internal PrefetchQuery(Session session, IEnumerable<Key> keySource)
-      : this(session, new PrefetchKeyIterator<TItem>(session, keySource), SinglyLinkedList<KeyExtractorNode<TItem>>.Empty)
+      : this(session, new PrefetchKeyIterator<TElement>(session, keySource), SinglyLinkedList<KeyExtractorNode<TElement>>.Empty)
     { }
 
-    internal PrefetchQuery(Session session, IEnumerable<TItem> source)
-      : this(session, source, SinglyLinkedList<KeyExtractorNode<TItem>>.Empty)
+    internal PrefetchQuery(Session session, IEnumerable<TElement> source)
+      : this(session, source, SinglyLinkedList<KeyExtractorNode<TElement>>.Empty)
     { }
 
-    private PrefetchQuery(Session session, IEnumerable<TItem> source, SinglyLinkedList<KeyExtractorNode<TItem>> nodes)
+    private PrefetchQuery(Session session, IEnumerable<TElement> source, SinglyLinkedList<KeyExtractorNode<TElement>> nodes)
     {
       this.session = session;
       this.source = source;
