@@ -17,23 +17,23 @@ namespace Xtensive.Orm
   /// <summary>
   /// Future returning a scalar result.
   /// </summary>
-  /// <typeparam name="T">The type of the result.</typeparam>
+  /// <typeparam name="TResult">The type of the result.</typeparam>
   [Serializable]
-  public sealed class DelayedScalarQuery<T> : DelayedQuery
+  public sealed class DelayedScalarQuery<TResult> : DelayedQuery
   {
     private readonly ResultAccessMethod resultAccessMethod;
 
     /// <summary>
     /// Gets the result.
     /// </summary>
-    public T Value => Materialize<T>().ToScalar(resultAccessMethod);
+    public TResult Value => Materialize<TResult>().ToScalar(resultAccessMethod);
 
     /// <summary>
     /// Asynchronously gets value.
     /// </summary>
     /// <returns>Task running this operation</returns>
     [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
-    public Task<T> AsAsync() => AsAsync(CancellationToken.None);
+    public Task<TResult> AsAsync() => AsAsync(CancellationToken.None);
 
     /// <summary>
     /// Asynchronously gets value.
@@ -41,15 +41,15 @@ namespace Xtensive.Orm
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task running this operation.</returns>
     [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
-    public async Task<T> AsAsync(CancellationToken token) => await ExecuteAsync(token).ConfigureAwait(false);
+    public async Task<TResult> AsAsync(CancellationToken token) => await ExecuteAsync(token).ConfigureAwait(false);
 
     /// <summary>
     /// Asynchronously executes delayed scalar query.
     /// </summary>
     /// <param name="token">Cancellation token.</param>
     /// <returns>Value representing scalar query execution result.</returns>
-    public async ValueTask<T> ExecuteAsync(CancellationToken token = default) =>
-      (await MaterializeAsync<T>(token).ConfigureAwait(false)).ToScalar(resultAccessMethod);
+    public async ValueTask<TResult> ExecuteAsync(CancellationToken token = default) =>
+      (await MaterializeAsync<TResult>(token).ConfigureAwait(false)).ToScalar(resultAccessMethod);
 
     // Constructors
 

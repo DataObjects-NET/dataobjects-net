@@ -14,11 +14,17 @@ using Xtensive.Orm.Linq;
 
 namespace Xtensive.Orm.Internals
 {
+  /// <summary>
+  /// Represents a delayed sequence query (query where result can be enumerated after an execution).
+  /// </summary>
+  /// <typeparam name="TElement">The type of the element in a resulting sequence.</typeparam>
   [Serializable]
-  public sealed class DelayedQuery<T> : DelayedQuery, IEnumerable<T>
+  public sealed class DelayedQuery<TElement> : DelayedQuery, IEnumerable<TElement>
   {
-    public IEnumerator<T> GetEnumerator() => Materialize<T>().GetEnumerator();
+    /// <inheritdoc/>
+    public IEnumerator<TElement> GetEnumerator() => Materialize<TElement>().GetEnumerator();
 
+    /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
@@ -26,7 +32,8 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     /// <param name="token">Cancellation token.</param>
     /// <returns>Value representing query execution result.</returns>
-    public ValueTask<QueryResult<T>> ExecuteAsync(CancellationToken token = default) => MaterializeAsync<T>(token);
+    public ValueTask<QueryResult<TElement>> ExecuteAsync(CancellationToken token = default) =>
+      MaterializeAsync<TElement>(token);
 
     // Constructors
 
