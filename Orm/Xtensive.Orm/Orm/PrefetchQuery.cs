@@ -5,8 +5,9 @@ using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Collections;
+using Xtensive.Orm.Internals.Prefetch;
 
-namespace Xtensive.Orm.Internals.Prefetch
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Represents query configured to perform additional fetch operations for the entities
