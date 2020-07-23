@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="latest">
   <PropertyGroup Label="User defined variables">
-    <DoNugetFeedApiKey>Put key Here</DoNugetFeedApiKey>
+    <DoNugetFeedUserName>Put username here</DoNugetFeedUserName>
+    <DoNugetFeedPassword>Put password here</DoNugetFeedPassword>
     <DoNugetFeedUrl>Put url here</DoNugetFeedUrl>
   </PropertyGroup>
 </Project>
