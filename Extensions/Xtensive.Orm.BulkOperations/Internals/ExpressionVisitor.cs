@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Xtensive.Linq;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -234,7 +235,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       Expression body = Visit(lambda.Body);
       if (body!=lambda.Body)
-        return Expression.Lambda(lambda.Type, body, lambda.Parameters);
+        return FastExpression.Lambda(lambda.Type, body, lambda.Parameters);
       return lambda;
     }
 

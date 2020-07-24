@@ -144,7 +144,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       SqlTableColumn column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
       SqlExpression value;
-      object constant = FastExpression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
+      object constant = FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
       if (constant==null)
         value = SqlDml.Null;
       else {
@@ -204,8 +204,8 @@ namespace Xtensive.Orm.BulkOperations
             i++;
             ParameterExpression p = Expression.Parameter(info.UnderlyingType);
             LambdaExpression lambda =
-              Expression.Lambda(
-                typeof (Func<,>).MakeGenericType(info.UnderlyingType, field.ValueType),
+              FastExpression.Lambda(
+                WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(info.UnderlyingType, field.ValueType),
                 Expression.MakeMemberAccess(p, field.UnderlyingProperty),
                 p);
             IQueryable q =
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.BulkOperations
         }
       }
       i = -1;
-      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
+      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
       foreach (ColumnInfo column in addContext.Field.Columns) {
         i++;
         SqlExpression value;
@@ -243,8 +243,8 @@ namespace Xtensive.Orm.BulkOperations
         var addContext = new AddValueContext {
           Descriptor = descriptor,
           Lambda =
-            Expression.Lambda(
-              typeof (Func<,>).MakeGenericType(typeof (T), descriptor.Expression.Type),
+            FastExpression.Lambda(
+              WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(typeof (T), descriptor.Expression.Type),
               descriptor.Expression,
               descriptor.Parameter),
           Statement = Statement
