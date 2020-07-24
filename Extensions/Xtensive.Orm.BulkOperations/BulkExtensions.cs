@@ -1,10 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using Xtensive.Orm;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -19,10 +18,19 @@ namespace Xtensive.Orm.BulkOperations
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="query">The query.</param>
     /// <returns>Number of the deleted entities.</returns>
-    public static int Delete<T>(this IQueryable<T> query) where T : class, IEntity
-    {
-      return new BulkDeleteOperation<T>(query).Execute();
-    }
+    public static int Delete<T>(this IQueryable<T> query) where T : class, IEntity =>
+      new BulkDeleteOperation<T>(query).Execute();
+
+    /// <summary>
+    /// Asynchronously executes bulk delete of entities specified by the query.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="query">The query.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Number of the deleted entities.</returns>
+    public static Task<int> DeleteAsync<T>(this IQueryable<T> query, CancellationToken token = default)
+      where T : class, IEntity =>
+      new BulkDeleteOperation<T>(query).ExecuteAsync(token);
 
     /// <summary>
     /// Executes bulk update of entities specified by the query.
@@ -35,10 +43,8 @@ namespace Xtensive.Orm.BulkOperations
     /// <returns>Instance of <see cref=" IUpdatable&lt;T&gt;"/>.</returns>
     [Pure]
     public static IUpdatable<T> Set<T, TResult>(this IQueryable<T> query, Expression<Func<T, TResult>> field,
-      Expression<Func<T, TResult>> update) where T: IEntity
-    {
-      return new Updatable<T>(query, field, update);
-    }
+      Expression<Func<T, TResult>> update) where T: IEntity =>
+      new Updatable<T>(query, field, update);
 
     /// <summary>
     /// Executes bulk update of entities specified by the query.
@@ -51,10 +57,8 @@ namespace Xtensive.Orm.BulkOperations
     /// <returns>Instance of <see cref=" IUpdatable&lt;T&gt;"/>.</returns>
     [Pure]
     public static IUpdatable<T> Set<T, TResult>(this IUpdatable<T> query, Expression<Func<T, TResult>> field,
-      Expression<Func<T, TResult>> update) where T: IEntity
-    {
-      return new Updatable<T>((Updatable<T>) query, field, update);
-    }
+      Expression<Func<T, TResult>> update) where T: IEntity =>
+      new Updatable<T>((Updatable<T>) query, field, update);
 
     /// <summary>
     /// Executes bulk update of entities specified by the query.
@@ -67,10 +71,8 @@ namespace Xtensive.Orm.BulkOperations
     /// <returns>Instance of <see cref=" IUpdatable&lt;T&gt;"/>.</returns>
     [Pure]
     public static IUpdatable<T> Set<T, TResult>(this IQueryable<T> query, Expression<Func<T, TResult>> field,
-      TResult value) where T: IEntity
-    {
-      return Set(query, field, a => value);
-    }
+      TResult value) where T: IEntity =>
+      Set(query, field, a => value);
 
     /// <summary>
     /// Executes bulk update of entities specified by the query.
@@ -83,10 +85,8 @@ namespace Xtensive.Orm.BulkOperations
     /// <returns>Instance of <see cref=" IUpdatable&lt;T&gt;"/>.</returns>
     [Pure]
     public static IUpdatable<T> Set<T, TResult>(this IUpdatable<T> query, Expression<Func<T, TResult>> field,
-      TResult value) where T: IEntity
-    {
-      return Set(query, field, a => value);
-    }
+      TResult value) where T: IEntity =>
+      Set(query, field, a => value);
 
     /// <summary>
     /// Executes the UPDATE operation.
@@ -95,10 +95,20 @@ namespace Xtensive.Orm.BulkOperations
     /// <param name="query">The query.</param>
     /// <param name="evaluator">The expression, that specify new values. Constructor parameters are ignored.</param>
     /// <returns>Number of updated entities.</returns>
-    public static int Update<T>(this IQueryable<T> query, Expression<Func<T, T>> evaluator) where T : class, IEntity
-    {
-      return new BulkUpdateOperation<T>(query, evaluator).Execute();
-    }
+    public static int Update<T>(this IQueryable<T> query, Expression<Func<T, T>> evaluator) where T : class, IEntity =>
+      new BulkUpdateOperation<T>(query, evaluator).Execute();
+
+    /// <summary>
+    /// Asynchronously executes the UPDATE operation.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="query">The query.</param>
+    /// <param name="evaluator">The expression, that specify new values. Constructor parameters are ignored.</param>
+    /// <param name="token">The cancellation token to terminate execution if necessary.</param>
+    /// <returns>Number of updated entities.</returns>
+    public static Task<int> UpdateAsync<T>(this IQueryable<T> query, Expression<Func<T, T>> evaluator,
+      CancellationToken token = default) where T : class, IEntity =>
+      new BulkUpdateOperation<T>(query, evaluator).ExecuteAsync(token);
 
     /// <summary>
     /// Executes the UPDATE operation.
@@ -106,10 +116,19 @@ namespace Xtensive.Orm.BulkOperations
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="query">The query.</param>
     /// <returns>Number of updated entities.</returns>
-    public static int Update<T>(this IUpdatable<T> query) where T : class, IEntity
-    {
-      return new BulkUpdateOperation<T>(query).Execute();
-    }
+    public static int Update<T>(this IUpdatable<T> query) where T : class, IEntity =>
+      new BulkUpdateOperation<T>(query).Execute();
+
+    /// <summary>
+    /// Asynchronously executes the UPDATE operation.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="query">The query.</param>
+    /// <param name="token">The cancellation token to terminate execution if necessary.</param>
+    /// <returns>Number of updated entities.</returns>
+    public static Task<int> UpdateAsync<T>(this IUpdatable<T> query, CancellationToken token = default)
+      where T : class, IEntity =>
+      new BulkUpdateOperation<T>(query).ExecuteAsync(token);
 
     /// <summary>
     /// Executes INSERT operation.
@@ -125,9 +144,20 @@ namespace Xtensive.Orm.BulkOperations
       return operation.Key;
     }
 
-    #region Non-public methods
-
-
-    #endregion
+    /// <summary>
+    /// Asynchronously executes INSERT operation.
+    /// </summary>
+    /// <typeparam name="T">Type of the entity.</typeparam>
+    /// <param name="queryEndpoint">The query endpoint.</param>
+    /// <param name="evaluator">The expression, tha specify new values.</param>
+    /// <param name="token">The cancellation token to terminate execution if necessary.</param>
+    /// <returns>Key of the created entity.</returns>
+    public static async Task<Key> InsertAsync<T>(this QueryEndpoint queryEndpoint, Expression<Func<T>> evaluator,
+      CancellationToken token = default) where T : Entity
+    {
+      var operation = new InsertOperation<T>(queryEndpoint.Provider, evaluator);
+      await operation.ExecuteAsync(token);
+      return operation.Key;
+    }
   }
 }
