@@ -37,47 +37,6 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    // [Test]
-    // public async Task PureEnumerableTest()
-    // {
-    //   var task = AsEnumerable(1, 2, 3, 4).AsAsync();
-    //   Assert.That(task.IsCompleted, Is.True);
-    //
-    //   int before = 1;
-    //   foreach (var value in await task) {
-    //     Assert.That(value, Is.EqualTo(before));
-    //     before++;
-    //   }
-    // }
-    //
-    // [Test]
-    // public async Task CollectionAsEnumerableTest()
-    // {
-    //   var list = new List<int> {1, 2, 3, 4};
-    //   var task = list.AsAsync();
-    //   Assert.That(task.IsCompleted, Is.True);
-    //
-    //   int before = 1;
-    //   foreach (var value in await task) {
-    //     Assert.That(value, Is.EqualTo(before));
-    //     before++;
-    //   }
-    // }
-
-    // [Test]
-    // public async Task QueryableAsEnumearbleTest()
-    // {
-    //   IQueryable<int> queryableEnumeable = new EnumerableQuery<int>(Enumerable.Range(-100, 200).ToArray()).Where(v => v < 5 && v > 0);
-    //   var task = queryableEnumeable.AsEnumerable().AsAsync();
-    //   Assert.That(task.IsCompleted, Is.True);
-    //
-    //   int before = 1;
-    //   foreach (var value in await task) {
-    //     Assert.That(value, Is.EqualTo(before));
-    //     before++;
-    //   }
-    // }
-
     [Test]
     public async Task QueryableTest()
     {
@@ -91,39 +50,6 @@ namespace Xtensive.Orm.Tests.Storage
         before++;
       }
     }
-
-    // [Test]
-    // public async Task DoQueryableAsEnumeableTest()
-    // {
-    //   using (var session = Domain.OpenSession())
-    //   using (var transaction = session.OpenTransaction()) {
-    //     var task = session.Query.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0).AsEnumerable().AsAsync();
-    //     Assert.That(task.IsCompleted, Is.True);
-    //
-    //     int before = 1;
-    //     foreach (var value in await task) {
-    //       Assert.That(value.Value, Is.EqualTo(before));
-    //       before++;
-    //     }
-    //   }
-    // }
-
-    // [Test]
-    // public async Task PersistentCollectionAsEnumerableTesk()
-    // {
-    //   using (var session = Domain.OpenSession())
-    //   using (var transaction = session.OpenTransaction()) {
-    //     var container = session.Query.All<EntitySetContainer>().First();
-    //     var task = container.EntitySet.Where(e => e.Value < 5 && e.Value > 0).AsEnumerable().AsAsync();
-    //     Assert.That(task.IsCompleted, Is.True);
-    //
-    //     int before = 1;
-    //     foreach (var value in await task) {
-    //       Assert.That(value.Value, Is.EqualTo(before));
-    //       before++;
-    //     }
-    //   }
-    // }
 
     [Test]
     public async Task DoQueryableTest()
@@ -158,33 +84,21 @@ namespace Xtensive.Orm.Tests.Storage
       }
     }
 
-    // [Test]
-    // public async Task DelayedQueryTest()
-    // {
-    //   using (var session = Domain.OpenSession())
-    //   using (var transaction = session.OpenTransaction()) {
-    //     var delayed = session.Query.ExecuteDelayed((q) => q.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0));
-    //     var task = delayed.AsAsync();
-    //     Assert.That(task.IsCompleted, Is.False);
-    //
-    //     int before = 1;
-    //     foreach (var value in await task) {
-    //       Assert.That(value.Value, Is.EqualTo(before));
-    //       before++;
-    //     }
-    //   }
-    // }
-
-    private IEnumerable<T> AsEnumerable<T>(T a, T b, T c, T d)
+    [Test]
+    public async Task DelayedQueryTest()
     {
-      yield return a;
-      int counter = 0;
-      while (counter < Int32.MaxValue/10000) {
-        counter++;
+      await using (var session = await Domain.OpenSessionAsync())
+      await using (var transaction = session.OpenTransaction()) {
+        var delayed = session.Query.CreateDelayedQuery(
+          q => q.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0));
+        var task = delayed.ExecuteAsync();
+
+        int before = 1;
+        foreach (var value in await task) {
+          Assert.That(value.Value, Is.EqualTo(before));
+          before++;
+        }
       }
-      yield return b;
-      yield return c;
-      yield return d;
     }
   }
 }
