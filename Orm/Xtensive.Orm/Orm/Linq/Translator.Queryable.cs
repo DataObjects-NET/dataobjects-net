@@ -1263,18 +1263,9 @@ namespace Xtensive.Orm.Linq
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
       using (state.CreateScope()) {
-        if (source.IsLocalCollection(context)) {
-          var sourceType = source.Type;
-          Type itemType = sourceType.IsGenericType
-            ? itemType = sourceType.GetGenericArguments()[0]
-            : sourceType.IsArray
-              ? sourceType.GetElementType()
-              : null;
-
-          if (itemType != null && itemType.IsAssignableFrom(typeof(Key))) {
-            var localCollectionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body);
-            state.TypeOfEntityStoredInKey = localCollectionKeyType;
-          }
+        if (source.IsLocalCollection(context) && IsKeyCollection(source.Type)) {
+          var localCollectionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body);
+          state.TypeOfEntityStoredInKey = localCollectionKeyType;
         }
         state.IncludeAlgorithm = IncludeAlgorithm.Auto;
         visitedSource = VisitSequence(source);
@@ -1578,6 +1569,12 @@ namespace Xtensive.Orm.Linq
         var lambda = FastExpression.Lambda(Expression.Not(Expression.Call(containsMethod, setA, parameter)), parameter);
         return VisitAll(setB, lambda, isRoot);
       }
+    }
+
+    private bool IsKeyCollection(Type localCollectionType)
+    {
+      return (localCollectionType.IsArray && localCollectionType.GetElementType() == typeof(Key))
+        || typeof(IEnumerable<Key>).IsAssignableFrom(localCollectionType);
     }
   }
 }
