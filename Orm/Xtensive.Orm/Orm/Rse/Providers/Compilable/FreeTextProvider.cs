@@ -62,12 +62,12 @@ namespace Xtensive.Orm.Rse.Providers
           throw new InvalidOperationException(Strings.ExOnlySingleColumnKeySupported);
         var fieldTypes = primaryIndexKeyColumns
           .Select(columnInfo => columnInfo.Key.ValueType)
-          .AddOne(WellKnownTypes.Double)
+          .Append(WellKnownTypes.Double)
           .ToArray(primaryIndexKeyColumns.Count + 1);
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
         var columns = primaryIndexKeyColumns
           .Select((c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
-          .AddOne(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double));
+          .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double));
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);
       }
       Initialize();

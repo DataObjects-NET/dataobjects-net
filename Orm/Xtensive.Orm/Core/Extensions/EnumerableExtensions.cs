@@ -160,7 +160,7 @@ namespace Xtensive.Core
     ///<returns>Hash code, calculated by enumerable items. If enumerable is null or empty returns 0.</returns>
     public static int CalculateHashCode<TItem>(this IEnumerable<TItem> items)
     {
-      if (items==null) 
+      if (items==null)
         return 0;
       return items.Aggregate(0, (previousValue, item) => previousValue ^ item.GetHashCode());
     }
@@ -261,7 +261,7 @@ namespace Xtensive.Core
     {
       if (length == 0)
         return Array.Empty<T>();
-      
+
       var result = new T[length];
       using (var e = sequence.GetEnumerator()) {
         for (var i = 0; i < length && e.MoveNext(); i++)
@@ -269,7 +269,7 @@ namespace Xtensive.Core
       }
       return result;
     }
-    
+
     /// <summary>
     /// Gets the items from the segment.
     /// </summary>
@@ -287,6 +287,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to add to sequence.</param>
     /// <returns>New sequence with both <paramref name="source"/> and <paramref name="value"/> items inside without duplicates.</returns>
     /// <remarks>If source sequence is null, it's equals to empty sequence. If value is null, it will not added to result sequence.</remarks>
+    [Obsolete("Use Enumerable.Append method instead.")]
     public static IEnumerable<T> AddOne<T>(this IEnumerable<T> source, T value)
     {
       source = source ?? EnumerableUtils<T>.Empty;

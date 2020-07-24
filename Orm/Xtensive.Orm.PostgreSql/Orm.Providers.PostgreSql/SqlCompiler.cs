@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var query = BuildProviderQuery(index);
       var table = Mapping[realPrimaryIndex.ReflectedType];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference,
-        table.Columns.Select(column => column.Name).AddOne(rankColumnName).ToList());
+        table.Columns.Select(column => column.Name).Append(rankColumnName).ToList());
       var fromTableRef = SqlDml.QueryRef(fromTable);
       foreach (var column in query.Columns) {
         select.Columns.Add(fromTableRef.Columns[column.Name] ?? column);

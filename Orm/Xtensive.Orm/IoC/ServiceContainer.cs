@@ -207,9 +207,9 @@ namespace Xtensive.IoC
 
       var possibleArgs =
         Enumerable.Empty<object[]>()
-          .AddOne(new[] {configuration, parent})
-          .AddOne(new[] {configuration})
-          .AddOne(new[] {parent});
+          .Append(new[] {configuration, parent})
+          .Append(new[] {configuration})
+          .Append(new[] {parent});
       foreach (var args in possibleArgs) {
         var ctor = containerType.GetConstructor(args);
         if (ctor!=null)

@@ -471,7 +471,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       else
         accessor.RegisterResource(connection);
       accessor.Connection = connection;
-      accessor.Connection.Extensions.AddOne(new TypeDelegator(typeof (IProviderExecutor)));
 
       this.accessor = accessor;
     }

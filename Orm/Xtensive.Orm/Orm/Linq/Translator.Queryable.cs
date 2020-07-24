@@ -628,7 +628,7 @@ namespace Xtensive.Orm.Linq
           if (commonOriginDataSource!=null) {
             resultDataSource = new AggregateProvider(
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
-              groupingDataSource.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateDescriptor).ToArray());
+              groupingDataSource.AggregateColumns.Select(c => c.Descriptor).Append(aggregateDescriptor).ToArray());
             var optimizedItemProjector = groupingProjection.ItemProjector.Remap(resultDataSource, 0);
             groupingProjection = new ProjectionExpression(
               groupingProjection.Type, optimizedItemProjector,
@@ -1121,7 +1121,7 @@ namespace Xtensive.Orm.Linq
           state.OuterParameters = state.OuterParameters
             .Concat(state.Parameters)
             .Concat(collectionSelector.Parameters)
-            .AddOne(outerParameter).ToArray();
+            .Append(outerParameter).ToArray();
           state.Parameters = Array.Empty<ParameterExpression>();
           state.RequestCalculateExpressionsOnce = true;
           var visitedCollectionSelector = Visit(collectionSelector.Body);

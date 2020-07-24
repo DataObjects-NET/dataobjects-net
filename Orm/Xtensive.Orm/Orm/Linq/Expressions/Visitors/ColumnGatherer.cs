@@ -212,7 +212,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
           .Key
           .Mapping
           .GetItems()
-          .AddOne(entity
+          .Append(entity
             .Fields
             .Single(field => field.Name==WellKnown.TypeIdFieldName)
             .Mapping

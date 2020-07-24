@@ -591,12 +591,11 @@ namespace Xtensive.Orm.Building.Builders
 
       // Adding value columns
       var typeOrder = reflectedType.GetAncestors()
-        .AddOne(reflectedType)
+        .Append(reflectedType)
         .Select((t, i) => new {Type = t, Index = i})
         .ToDictionary(a => a.Type, a => a.Index);
-      var types = reflectedType.GetAncestors()
-        .AddOne(reflectedType)
-        .ToHashSet();
+      var types = reflectedType.GetAncestors().ToHashSet();
+      types.Add(reflectedType);
 
       var valueColumnMap = new List<List<int>>();
       foreach (var index in indexesToJoin) {
@@ -710,10 +709,10 @@ namespace Xtensive.Orm.Building.Builders
 
       // Adding value columns
       var types = (reflectedType.IsInterface
-        ? indexToApplyView.ReflectedType.GetAncestors().AddOne(indexToApplyView.ReflectedType)
-        : reflectedType.GetAncestors().AddOne(reflectedType)).ToHashSet();
+        ? indexToApplyView.ReflectedType.GetAncestors().Append(indexToApplyView.ReflectedType)
+        : reflectedType.GetAncestors().Append(reflectedType)).ToHashSet();
       var interfaces = (reflectedType.IsInterface
-        ? reflectedType.GetInterfaces(true).AddOne(reflectedType)
+        ? reflectedType.GetInterfaces(true).Append(reflectedType)
         : Enumerable.Empty<TypeInfo>()).ToHashSet();
 
       var indexReflectedType = indexToApplyView.ReflectedType;

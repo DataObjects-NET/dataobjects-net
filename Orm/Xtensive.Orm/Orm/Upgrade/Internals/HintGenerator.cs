@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Upgrade
     private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes, bool isMovedToAnotherHierarchy)
     {
       if (!isMovedToAnotherHierarchy)
-        removedTypes.ForEach(GenerateCleanupByForegnKeyHints);
+        removedTypes.ForEach(GenerateCleanupByForeignKeyHints);
       removedTypes.ForEach(type => GenerateCleanupByPrimaryKeyHints(type, isMovedToAnotherHierarchy));
     }
 
@@ -229,9 +229,10 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private void GenerateCleanupByForegnKeyHints(StoredTypeInfo removedType)
+    private void GenerateCleanupByForeignKeyHints(StoredTypeInfo removedType)
     {
-      var removedTypeAndAncestors = removedType.AllAncestors.AddOne(removedType).ToHashSet();
+      var removedTypeAndAncestors = removedType.AllAncestors.ToHashSet();
+      removedTypeAndAncestors.Add(removedType);
       var affectedAssociations = (
         from association in extractedModel.Associations
         let requiresInverseCleanup =

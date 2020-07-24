@@ -29,8 +29,10 @@ namespace Xtensive.Modelling.Comparison.Hints
     public override IEnumerable<HintTarget> GetTargets()
     {
       var targets = base.GetTargets();
-      foreach (var pair in UpdateParameter)
-        targets.AddOne(new HintTarget(ModelType.Source, pair.First));
+      foreach (var pair in UpdateParameter) {
+        targets = targets.Append(new HintTarget(ModelType.Source, pair.First));
+      }
+
       return targets;
     }
 

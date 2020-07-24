@@ -666,7 +666,7 @@ namespace Xtensive.Reflection
           return bases
             .Concat(interfaces)
             .OrderByInheritance()
-            .AddOne(t)
+            .Append(t)
             .ToArray();
         });
 

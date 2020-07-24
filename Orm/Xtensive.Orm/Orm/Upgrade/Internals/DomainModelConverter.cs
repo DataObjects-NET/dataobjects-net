@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Upgrade
           continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
           Dictionary<TypeInfo, int> typeOrder = type.GetAncestors()
-            .AddOne(type)
+            .Append(type)
             .Select((t, i) => new {Type = t, Index = i})
             .ToDictionary(a => a.Type, a => a.Index);
           List<IndexInfo> realPrimaryIndexes = type.Indexes.RealPrimaryIndexes

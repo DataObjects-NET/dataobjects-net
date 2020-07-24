@@ -52,7 +52,8 @@ namespace Xtensive.Orm.Building.Builders
         }
       }
 
-      var types = type.GetAncestors().AddOne(type).ToHashSet();
+      var types = type.GetAncestors().ToHashSet();
+      types.Add(type);
 
       // Build typed indexes
       foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {

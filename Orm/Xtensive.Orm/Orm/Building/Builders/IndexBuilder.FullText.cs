@@ -44,9 +44,7 @@ namespace Xtensive.Orm.Building.Builders
       var indexesToDefine = hierarchyIndexes.ToList();
       if (indexesToDefine.Any(fti => fti.Type.UnderlyingType != root.UnderlyingType) || indexesToDefine.Count > 1)
         throw new DomainBuilderException(string.Format(Strings.ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable, root.Name));
-      var descendants = root.GetDescendants(true)
-        .AddOne(root)
-        .ToList();
+      var descendants = root.GetDescendants(true).Append(root);
       var indexDef = indexesToDefine[0];
       var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
       var name = context.NameBuilder.BuildFullTextIndexName(root);
@@ -55,8 +53,9 @@ namespace Xtensive.Orm.Building.Builders
         var fullTextColumn = GetFullTextColumn(root, fullTextFieldDef);
         index.Columns.Add(fullTextColumn);
       }
-      foreach (var type in descendants)
+      foreach (var type in descendants) {
         model.FullTextIndexes.Add(type, index);
+      }
     }
 
     private void BuildFullTextIndexesSingleTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
