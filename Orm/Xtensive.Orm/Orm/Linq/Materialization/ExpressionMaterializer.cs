@@ -38,6 +38,14 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly Dictionary<IEntityExpression, int> entityRegistry = new Dictionary<IEntityExpression, int>();
     private readonly HashSet<Parameter<Tuple>> tupleParameters;
 
+    private static readonly Type[] SubQueryConstructorArgumentTypes = {
+      WellKnownOrmTypes.ProjectionExpression,
+      WellKnownOrmTypes.TranslatedQuery,
+      WellKnownOrmTypes.ParameterOfTuple,
+      WellKnownOrmTypes.Tuple,
+      WellKnownOrmTypes.ItemMaterializationContext
+    };
+
     #region Public static methods
 
     public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
@@ -132,21 +140,13 @@ namespace Xtensive.Orm.Linq.Materialization
     protected override Expression VisitSubQueryExpression(SubQueryExpression subQueryExpression)
     {
       // 1. Prepare subquery parameters.
-      Parameter<Tuple> parameterOfTuple;
-      Type elementType;
-      ProjectionExpression projection;
-      TranslatedQuery translatedQuery = PrepareSubqueryParameters(subQueryExpression, out parameterOfTuple, out elementType, out projection);
+      var translatedQuery = PrepareSubqueryParameters(
+        subQueryExpression, out var parameterOfTuple, out var elementType, out var projection);
 
       // 2. Create constructor
       var subQueryCtor = WellKnownOrmTypes.SubQueryOfT
         .MakeGenericType(elementType)
-        .GetConstructor(new[] {
-          WellKnownOrmTypes.ProjectionExpression,
-          WellKnownOrmTypes.TranslatedQuery,
-          WellKnownOrmTypes.ParameterOfTuple,
-          WellKnownOrmTypes.Tuple,
-          WellKnownOrmTypes.ItemMaterializationContext
-        });
+        .GetConstructor(SubQueryConstructorArgumentTypes);
 
       // 3. Create result expression.
       var resultExpression = Expression.New(
