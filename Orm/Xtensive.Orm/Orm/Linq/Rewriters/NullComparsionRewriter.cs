@@ -1,4 +1,8 @@
-﻿using System.Linq.Expressions;
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm.Internals;
