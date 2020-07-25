@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using TestCommon.Model;
-using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.BulkOperations.Tests
 {
@@ -32,6 +32,29 @@ namespace Xtensive.Orm.BulkOperations.Tests
     }
 
     [Test]
+    public async Task CompositeKeyUpdateAsync()
+    {
+      await using (Session session = await Domain.OpenSessionAsync()) {
+        await using (TransactionScope trx = session.OpenTransaction()) {
+          DateTime date1 = DateTime.Now;
+          DateTime date2 = DateTime.Now.AddDays(1);
+          Guid id1 = Guid.NewGuid();
+          Guid id2 = Guid.NewGuid();
+          var foo1 = new Bar2(session, date1, id1) {Name = "test"};
+          var foo2 = new Bar2(session, date2, id1);
+          var foo3 = new Bar2(session, date2, id2) {Name = "test"};
+          int updated =
+            await session.Query.All<Bar2>().Where(a => a.Name=="test").Set(a => a.Name, "abccba").UpdateAsync();
+          Assert.That(updated, Is.EqualTo(2));
+          Assert.That(foo1.Name, Is.EqualTo("abccba"));
+          Assert.That(foo3.Name, Is.EqualTo("abccba"));
+          Assert.That(foo2.Name, Is.Null);
+          trx.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void SimpleDelete()
     {
       using (Session session = Domain.OpenSession()) {
@@ -50,6 +73,36 @@ namespace Xtensive.Orm.BulkOperations.Tests
 
           session.Query.All<Bar>().Where(a => a.Foo.Any(b => b.Name=="Foo")).Update(a => new Bar(null) {Name = ""});
           deleted = session.Query.All<Bar>().Where(a => a.Foo.Count(b => b.Name=="Foo")==0).Delete();
+          Assert.That(bar2.IsRemoved, Is.True);
+          Assert.That(bar3.IsRemoved, Is.False);
+          Assert.That(deleted, Is.EqualTo(1));
+          trx.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public async Task SimpleDeleteAsync()
+    {
+      await using (Session session = await Domain.OpenSessionAsync()) {
+        await using (TransactionScope trx = session.OpenTransaction()) {
+          var bar1 = new Bar(session) {Name = "test", Count = 3};
+          var bar2 = new Bar(session);
+          var bar3 = new Bar(session);
+          bar3.Foo.Add(new Foo(session) {Name = "Foo"});
+          string s = "test";
+
+          int deleted = await session.Query.All<Bar>().Where(a => a.Name==s).DeleteAsync();
+          Assert.That(bar1.IsRemoved, Is.True);
+          Assert.That(bar2.IsRemoved, Is.False);
+          Assert.That(bar3.IsRemoved, Is.False);
+          Assert.That(deleted, Is.EqualTo(1));
+
+          await session.Query.All<Bar>()
+            .Where(a => a.Foo.Any(b => b.Name=="Foo"))
+            .UpdateAsync(a => new Bar(null) {Name = ""});
+
+          deleted = await session.Query.All<Bar>().Where(a => a.Foo.Count(b => b.Name=="Foo")==0).DeleteAsync();
           Assert.That(bar2.IsRemoved, Is.True);
           Assert.That(bar3.IsRemoved, Is.False);
           Assert.That(deleted, Is.EqualTo(1));
@@ -88,6 +141,34 @@ namespace Xtensive.Orm.BulkOperations.Tests
     }
 
     [Test]
+    public async Task SimpleInsertAsync()
+    {
+      await using (Session session = await Domain.OpenSessionAsync()) {
+        await using (TransactionScope trx = session.OpenTransaction()) {
+          string s1 = "abccba";
+          int i = 5;
+          Key key = await session.Query.InsertAsync(
+            () => new Bar(session) {Name = "test1" + s1, Count = i * 2 + 1, Description = null});
+          Assert.That(key, Is.EqualTo(Key.Create<Bar>(session.Domain, 1)));
+          var bar = session.Query.Single<Bar>(key);
+          Assert.That(bar.Name, Is.EqualTo("test1abccba"));
+          Assert.That(bar.Count, Is.EqualTo(11));
+          Assert.That(bar.Description, Is.Null);
+
+          key = await session.Query.InsertAsync(
+            () => new Bar(session) {Id = 100, Name = "test" + s1, Count = i * 2 + 1, Description = null});
+          Assert.That(key, Is.EqualTo(Key.Create<Bar>(session.Domain, 100)));
+          bar = session.Query.Single<Bar>(key);
+          Assert.That(bar.Name, Is.EqualTo("testabccba"));
+          Assert.That(bar.Count, Is.EqualTo(11));
+          Assert.That(bar.Description, Is.Null);
+
+          trx.Complete();
+        }
+      }
+    }
+
+    [Test]
     public void SimpleUpdate()
     {
       using (Session session = Domain.OpenSession()) {
@@ -99,6 +180,27 @@ namespace Xtensive.Orm.BulkOperations.Tests
           int updated =
             session.Query.All<Bar>().Where(a => a.Name.Contains(s)).Update(
               a => new Bar(session) {Name = a.Name + s1, Count = a.Count * 2, Description = null});
+          Assert.That(bar1.Name, Is.EqualTo("testabccba"));
+          Assert.That(bar1.Description, Is.Null);
+          Assert.That(bar1.Count, Is.EqualTo(6));
+          Assert.That(updated, Is.EqualTo(1));
+          trx.Complete();
+        }
+      }
+    }
+
+    [Test]
+    public async Task SimpleUpdateAsync()
+    {
+      await using (Session session = await Domain.OpenSessionAsync()) {
+        await using (TransactionScope trx = session.OpenTransaction()) {
+          var bar1 = new Bar(session) {Name = "test", Count = 3};
+          var bar2 = new Bar(session);
+          string s = "test";
+          string s1 = "abccba";
+          int updated = await session.Query.All<Bar>()
+            .Where(a => a.Name.Contains(s))
+            .UpdateAsync(a => new Bar(session) {Name = a.Name + s1, Count = a.Count * 2, Description = null});
           Assert.That(bar1.Name, Is.EqualTo("testabccba"));
           Assert.That(bar1.Description, Is.Null);
           Assert.That(bar1.Count, Is.EqualTo(6));
