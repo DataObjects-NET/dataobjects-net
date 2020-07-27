@@ -26,6 +26,9 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
+    private static readonly Type KeyType = typeof(Key);
+    private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
+
     public TranslatorState state;
     private readonly TranslatorContext context;
 
@@ -1573,8 +1576,8 @@ namespace Xtensive.Orm.Linq
 
     private bool IsKeyCollection(Type localCollectionType)
     {
-      return (localCollectionType.IsArray && localCollectionType.GetElementType() == typeof(Key))
-        || typeof(IEnumerable<Key>).IsAssignableFrom(localCollectionType);
+      return (localCollectionType.IsArray && localCollectionType.GetElementType() == KeyType)
+        || IEnumerableOfKeyType.IsAssignableFrom(localCollectionType);
     }
   }
 }
