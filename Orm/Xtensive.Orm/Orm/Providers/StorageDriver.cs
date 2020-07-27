@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Configuration;
@@ -53,6 +55,14 @@ namespace Xtensive.Orm.Providers
     }
 
     public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
+    {
+      var result = underlyingDriver.Extract(connection, tasks);
+      FixExtractionResult(result);
+      return result;
+    }
+
+    public Task<SqlExtractionResult> ExtractAsync(
+      SqlConnection connection, IEnumerable<SqlExtractionTask> tasks, CancellationToken token)
     {
       var result = underlyingDriver.Extract(connection, tasks);
       FixExtractionResult(result);

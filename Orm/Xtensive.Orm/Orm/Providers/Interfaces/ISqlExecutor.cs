@@ -6,6 +6,8 @@
 
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -23,11 +25,29 @@ namespace Xtensive.Orm.Providers
     CommandWithDataReader ExecuteReader(ISqlCompileUnit statement);
 
     /// <summary>
+    /// Asynchronously executes the specified query statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteReaderAsync()"/>.
+    /// </summary>
+    /// <param name="statement">The statement to execute.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<CommandWithDataReader> ExecuteReaderAsync(ISqlCompileUnit statement, CancellationToken token = default);
+
+    /// <summary>
     /// Executes the specified query statement. This method is similar to <see cref="DbCommand.ExecuteReader()"/>.
     /// </summary>
     /// <param name="commandText">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
     CommandWithDataReader ExecuteReader(string commandText);
+
+    /// <summary>
+    /// Asynchronously executes the specified query statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteReaderAsync()"/>.
+    /// </summary>
+    /// <param name="commandText">The statement to execute.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<CommandWithDataReader> ExecuteReaderAsync(string commandText, CancellationToken token = default);
 
     /// <summary>
     /// Executes the specified scalar statement. This method is similar to <see cref="DbCommand.ExecuteScalar"/>.
@@ -37,11 +57,29 @@ namespace Xtensive.Orm.Providers
     object ExecuteScalar(ISqlCompileUnit statement);
 
     /// <summary>
+    /// Asynchronously executes the specified scalar statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteScalarAsync()"/>.
+    /// </summary>
+    /// <param name="statement">The statement to execute.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<object> ExecuteScalarAsync(ISqlCompileUnit statement, CancellationToken token = default);
+
+    /// <summary>
     /// Executes the specified scalar statement. This method is similar to <see cref="DbCommand.ExecuteScalar"/>.
     /// </summary>
     /// <param name="commandText">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
     object ExecuteScalar(string commandText);
+
+    /// <summary>
+    /// Asynchronously executes the specified scalar statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteScalarAsync()"/>.
+    /// </summary>
+    /// <param name="commandText">The statement to execute.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<object> ExecuteScalarAsync(string commandText, CancellationToken token = default);
 
     /// <summary>
     /// Executes the specified non query statement. This method is similar to <see cref="DbCommand.ExecuteNonQuery"/>.
@@ -51,11 +89,29 @@ namespace Xtensive.Orm.Providers
     int ExecuteNonQuery(ISqlCompileUnit statement);
 
     /// <summary>
+    /// Asynchronously executes the specified non query statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteNonQueryAsync()"/>.
+    /// </summary>
+    /// <param name="statement">The statement to execute.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<int> ExecuteNonQueryAsync(ISqlCompileUnit statement, CancellationToken token = default);
+
+    /// <summary>
     /// Executes the specified non query statement. This method is similar to <see cref="DbCommand.ExecuteNonQuery"/>.
     /// </summary>
     /// <param name="commandText">The statement to execute.</param>
     /// <returns>Result of execution.</returns>
     int ExecuteNonQuery(string commandText);
+
+    /// <summary>
+    /// Asynchronously executes the specified non query statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteNonQueryAsync()"/>.
+    /// </summary>
+    /// <param name="commandText">The statement to execute.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<int> ExecuteNonQueryAsync(string commandText, CancellationToken token = default);
 
     /// <summary>
     /// Executes group of DDL statements via <see cref="ExecuteNonQuery(System.String)"/>.
@@ -64,10 +120,26 @@ namespace Xtensive.Orm.Providers
     void ExecuteMany(IEnumerable<string> statements);
 
     /// <summary>
+    /// Asynchronously executes group of DDL statements
+    /// via <see cref="ExecuteNonQueryAsync(System.String, System.Threading.CancellationToken)"/>.
+    /// </summary>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <param name="statements">Statements to execute</param>
+    Task ExecuteManyAsync(IEnumerable<string> statements, CancellationToken token = default);
+
+    /// <summary>
     /// Executes specified extraction tasks.
     /// </summary>
     /// <param name="tasks">Tasks to execute.</param>
-    /// <returns>Extration result.</returns>
+    /// <returns>Extraction result.</returns>
     SqlExtractionResult Extract(IEnumerable<SqlExtractionTask> tasks);
+
+    /// <summary>
+    /// Asynchronously executes the specified extraction tasks.
+    /// </summary>
+    /// <param name="tasks">Tasks to execute.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Extraction result.</returns>
+    Task<SqlExtractionResult> ExtractAsync(IEnumerable<SqlExtractionTask> tasks, CancellationToken token = default);
   }
 }
