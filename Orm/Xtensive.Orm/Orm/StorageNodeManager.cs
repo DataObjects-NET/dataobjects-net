@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -26,6 +28,19 @@ namespace Xtensive.Orm
     public bool AddNode([NotNull] NodeConfiguration configuration)
     {
       var node = UpgradingDomainBuilder.BuildNode(handlers.Domain, configuration);
+      return handlers.StorageNodeRegistry.Add(node);
+    }
+
+    /// <summary>
+    /// Asynchronously adds node with the specified <paramref name="configuration"/>
+    /// and performs required upgrade actions.
+    /// </summary>
+    /// <param name="configuration">Node configuration.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    public async Task<bool> AddNodeAsync([NotNull] NodeConfiguration configuration, CancellationToken token = default)
+    {
+      var node = await UpgradingDomainBuilder.BuildNodeAsync(handlers.Domain, configuration, token)
+        .ConfigureAwait(false);
       return handlers.StorageNodeRegistry.Add(node);
     }
 

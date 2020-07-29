@@ -12,6 +12,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -342,15 +344,45 @@ namespace Xtensive.Sql
     public static DefaultSchemaInfo ReadDatabaseAndSchema(string queryText,
       DbConnection connection, DbTransaction transaction)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, "queryText");
+      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
 
-      using (var command = connection.CreateCommand()) {
+      using var command = connection.CreateCommand();
+      command.CommandText = queryText;
+      command.Transaction = transaction;
+      using var reader = command.ExecuteReader();
+      if (!reader.Read()) {
+        throw new InvalidOperationException(Strings.ExCanNotReadDatabaseAndSchemaNames);
+      }
+
+      return new DefaultSchemaInfo(reader.GetString(0), reader.GetString(1));
+    }
+
+    /// <summary>
+    /// Asynchronously reads the database and schema using the specified query.
+    /// By contract query should return database in first column and schema in second.
+    /// </summary>
+    /// <param name="queryText">The query text.</param>
+    /// <param name="connection">The connection to use.</param>
+    /// <param name="transaction">The transaction to use.</param>
+    /// <param name="token">The token to cancel async operation if needed.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> instance.</returns>
+    public static async Task<DefaultSchemaInfo> ReadDatabaseAndSchemaAsync(string queryText,
+      DbConnection connection, DbTransaction transaction, CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(queryText, nameof(queryText));
+
+      var command = connection.CreateCommand();
+      await using (command.ConfigureAwait(false)) {
         command.CommandText = queryText;
         command.Transaction = transaction;
-        using (var reader = command.ExecuteReader()) {
-          if (!reader.Read())
+        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          if (!await reader.ReadAsync(token).ConfigureAwait(false)) {
             throw new InvalidOperationException(Strings.ExCanNotReadDatabaseAndSchemaNames);
+          }
+
           return new DefaultSchemaInfo(reader.GetString(0), reader.GetString(1));
         }
       }
@@ -363,11 +395,32 @@ namespace Xtensive.Sql
     /// <param name="configuration">Driver configuration.</param>
     public static void ExecuteInitializationSql(DbConnection connection, SqlDriverConfiguration configuration)
     {
-      if (string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+      if (string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
         return;
-      using (var command = connection.CreateCommand()) {
+      }
+
+      using var command = connection.CreateCommand();
+      command.CommandText = configuration.ConnectionInitializationSql;
+      command.ExecuteNonQuery();
+    }
+
+    /// <summary>
+    /// Executes <see cref="SqlDriverConfiguration.ConnectionInitializationSql"/> (if any).
+    /// </summary>
+    /// <param name="connection">Connection to initialize.</param>
+    /// <param name="configuration">Driver configuration.</param>
+    /// <param name="token">The token to cancel async operation if needed.</param>
+    public static async Task ExecuteInitializationSqlAsync(
+      DbConnection connection, SqlDriverConfiguration configuration, CancellationToken token)
+    {
+      if (string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
+        return;
+      }
+
+      var command = connection.CreateCommand();
+      await using (command.ConfigureAwait(false)) {
         command.CommandText = configuration.ConnectionInitializationSql;
-        command.ExecuteNonQuery();
+        await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
       }
     }
 

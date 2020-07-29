@@ -5,6 +5,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Reflection;
@@ -48,10 +50,7 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="connectionInfo"><see cref="ConnectionInfo"/> to convert.</param>
     /// <returns>Connection string.</returns>
-    public string GetConnectionString(ConnectionInfo connectionInfo)
-    {
-      return origin.GetConnectionString(connectionInfo);
-    }
+    public string GetConnectionString(ConnectionInfo connectionInfo) => origin.GetConnectionString(connectionInfo);
 
     /// <summary>
     /// Compiles the specified statement into SQL command representation.
@@ -60,7 +59,7 @@ namespace Xtensive.Sql
     /// <returns>Result of compilation.</returns>
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
+      ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
       return CreateCompiler().Compile(statement, new SqlCompilerConfiguration());
     }
 
@@ -72,8 +71,8 @@ namespace Xtensive.Sql
     /// <returns>Result of compilation.</returns>
     public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(statement, "statement");
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "options");
+      ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       ValidateCompilerConfiguration(configuration);
       return CreateCompiler().Compile(statement, configuration);
     }
@@ -85,11 +84,28 @@ namespace Xtensive.Sql
     /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
     public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      if (connection.Driver!=this)
+      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      if (connection.Driver!=this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+      }
 
       return origin.GetDefaultSchema(connection.UnderlyingConnection, connection.ActiveTransaction);
+    }
+
+    /// <summary>
+    /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
+    /// </summary>
+    /// <param name="connection"><see cref="SqlConnection"/> to use.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
+    public Task<DefaultSchemaInfo> GetDefaultSchemaAsync(SqlConnection connection, CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      if (connection.Driver!=this) {
+        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+      }
+
+      return origin.GetDefaultSchemaAsync(connection.UnderlyingConnection, connection.ActiveTransaction, token);
     }
 
     /// <summary>
@@ -100,11 +116,12 @@ namespace Xtensive.Sql
     /// <returns>Extracted catalogs.</returns>
     public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
     {
-      ArgumentValidator.EnsureArgumentNotNull(connection, "connection");
-      ArgumentValidator.EnsureArgumentNotNull(tasks, "tasks");
+      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      ArgumentValidator.EnsureArgumentNotNull(tasks, nameof(tasks));
 
-      if (connection.Driver!=this)
+      if (connection.Driver!=this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+      }
 
       var taskGroups = tasks
         .GroupBy(t => t.Catalog)
@@ -135,6 +152,48 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Asynchronously extracts catalogs/schemas according to the specified <paramref name="tasks"/>.
+    /// </summary>
+    /// <param name="connection">Extraction tasks.</param>
+    /// <param name="tasks">Connection to use.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>Extracted catalogs.</returns>
+    public async Task<SqlExtractionResult> ExtractAsync(
+      SqlConnection connection, IEnumerable<SqlExtractionTask> tasks, CancellationToken token = default)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
+      ArgumentValidator.EnsureArgumentNotNull(tasks, nameof(tasks));
+
+      if (connection.Driver!=this) {
+        throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
+      }
+
+      var taskGroups = tasks
+        .GroupBy(t => t.Catalog)
+        .ToDictionary(g => g.Key, g => g.ToList());
+
+      var result = new SqlExtractionResult();
+
+      foreach (var (catalogName, sqlExtractionTasks) in taskGroups) {
+        var extractor = await BuildExtractorAsync(connection, token).ConfigureAwait(false);
+        if (sqlExtractionTasks.All(t => !t.AllSchemas)) {
+          // extracting all the schemes we need
+          var schemasToExtract = sqlExtractionTasks.Select(t => t.Schema).ToArray();
+          var catalog = await extractor.ExtractSchemesAsync(catalogName, schemasToExtract, token).ConfigureAwait(false);
+          CleanSchemas(catalog, schemasToExtract);
+          result.Catalogs.Add(catalog);
+        }
+        else {
+          // Extracting whole catalog
+          var catalog = await extractor.ExtractCatalogAsync(catalogName, token).ConfigureAwait(false);
+          result.Catalogs.Add(catalog);
+        }
+      }
+
+      return result;
+    }
+
+    /// <summary>
     /// Extracts all schemas from the database.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -146,6 +205,21 @@ namespace Xtensive.Sql
       var defaultSchema = GetDefaultSchema(connection);
       var task = new SqlExtractionTask(defaultSchema.Database);
       return Extract(connection, new[] {task}).Catalogs.Single();
+    }
+
+    /// <summary>
+    /// Asynchronously extracts all schemas from the database.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>
+    /// <see cref="Catalog"/> that holds all schemas in the database.
+    /// </returns>
+    public async Task<Catalog> ExtractCatalogAsync(SqlConnection connection, CancellationToken token = default)
+    {
+      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwait(false);
+      var task = new SqlExtractionTask(defaultSchema.Database);
+      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwait(false)).Catalogs.Single();
     }
 
     /// <summary>
@@ -162,6 +236,21 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Asynchronously extracts the default schema from the database.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>
+    /// <see cref="Catalog"/> that holds just the default schema in the database.
+    /// </returns>
+    public async Task<Schema> ExtractDefaultSchemaAsync(SqlConnection connection, CancellationToken token = default)
+    {
+      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwait(false);
+      return await ExtractSchemaAsync(connection, defaultSchema.Database, defaultSchema.Schema, token)
+        .ConfigureAwait(false);
+    }
+
+    /// <summary>
     /// Extracts the specified schema from the database.
     /// </summary>
     /// <param name="connection">The connection.</param>
@@ -173,6 +262,22 @@ namespace Xtensive.Sql
     {
       var defaultSchema = GetDefaultSchema(connection);
       return ExtractSchema(connection, defaultSchema.Database, schemaName);
+    }
+
+    /// <summary>
+    /// Asynchronously extracts the specified schema from the database.
+    /// </summary>
+    /// <param name="connection">The connection.</param>
+    /// <param name="schemaName">A name of the schema to be extracted.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>
+    /// Extracted <see cref="Schema"/> instance.
+    /// </returns>
+    public async Task<Schema> ExtractSchemaAsync(
+      SqlConnection connection, string schemaName, CancellationToken token = default)
+    {
+      var defaultSchema = await GetDefaultSchemaAsync(connection, token).ConfigureAwait(false);
+      return await ExtractSchemaAsync(connection, defaultSchema.Database, schemaName, token).ConfigureAwait(false);
     }
 
     /// <summary>
@@ -202,21 +307,16 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="exception">The exception.</param>
     /// <returns>Type of the exception.</returns>
-    public virtual SqlExceptionType GetExceptionType(Exception exception)
-    {
-      return SqlExceptionType.Unknown;
-    }
+    public virtual SqlExceptionType GetExceptionType(Exception exception) => SqlExceptionType.Unknown;
 
     /// <summary>
     /// Gets information about exception.
     /// </summary>
     /// <param name="exception">The exception.</param>
     /// <returns>Information about exception.</returns>
-    public virtual SqlExceptionInfo GetExceptionInfo(Exception exception)
-    {
-      return SqlExceptionInfo.Create(GetExceptionType(exception));
-    }
-    
+    public virtual SqlExceptionInfo GetExceptionInfo(Exception exception) =>
+      SqlExceptionInfo.Create(GetExceptionType(exception));
+
     /// <summary>
     /// Creates the SQL DOM compiler.
     /// </summary>
@@ -345,12 +445,20 @@ namespace Xtensive.Sql
       return extractor;
     }
 
+    private async Task<Extractor> BuildExtractorAsync(SqlConnection connection, CancellationToken token = default)
+    {
+      var extractor = CreateExtractor();
+      await extractor.InitializeAsync(connection, token);
+      return extractor;
+    }
+
     private void ValidateCompilerConfiguration(SqlCompilerConfiguration configuration)
     {
       var supported = ServerInfo.Query.Features.Supports(QueryFeatures.MultidatabaseQueries);
       var requested = configuration.DatabaseQualifiedObjects;
-      if (requested && !supported)
+      if (requested && !supported) {
         throw SqlHelper.NotSupported(QueryFeatures.MultidatabaseQueries);
+      }
     }
 
     private Schema ExtractSchema(SqlConnection connection, string databaseName, string schemaName)
@@ -359,21 +467,31 @@ namespace Xtensive.Sql
       return Extract(connection, new[] {task}).Catalogs[databaseName].Schemas.FirstOrDefault(el=>el.Name==schemaName);
     }
 
-    private void CleanSchemas(Catalog catalog, IEnumerable<string> allowedSchemas)
+    private async Task<Schema> ExtractSchemaAsync(
+      SqlConnection connection, string databaseName, string schemaName, CancellationToken token = default)
+    {
+      var task = new SqlExtractionTask(databaseName, schemaName);
+      return (await ExtractAsync(connection, new[] {task}, token))
+        .Catalogs[databaseName].Schemas.FirstOrDefault(el=>el.Name==schemaName);
+    }
+
+    private static void CleanSchemas(Catalog catalog, IEnumerable<string> allowedSchemas)
     {
       // We allow extractors to extract schemas that were not requested
       // After extraction is complete, this methods removes not-necessary parts
 
       var allowed = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-      foreach (var schema in allowedSchemas)
+      foreach (var schema in allowedSchemas) {
         allowed.Add(schema);
+      }
 
       var schemasToRemove = catalog.Schemas
         .Where(s => !allowed.Contains(s.Name))
         .ToList();
 
-      foreach (var schema in schemasToRemove)
+      foreach (var schema in schemasToRemove) {
         catalog.Schemas.Remove(schema);
+      }
     }
 
     #endregion

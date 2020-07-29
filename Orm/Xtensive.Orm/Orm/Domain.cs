@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -22,9 +21,7 @@ using Xtensive.Orm.Linq;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Rse.Providers;
 using Xtensive.Orm.Upgrade;
-using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Info;
 
@@ -444,10 +441,16 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="configuration">The configuration of domain to build.</param>
     /// <returns>Newly built <see cref="Domain"/>.</returns>
-    public static Domain Build(DomainConfiguration configuration)
-    {
-      return UpgradingDomainBuilder.Build(configuration);
-    }
+    public static Domain Build(DomainConfiguration configuration) => UpgradingDomainBuilder.Build(configuration);
+
+    /// <summary>
+    /// Asynchronously builds the new <see cref="Domain"/> according to the specified <see cref="DomainConfiguration"/>.
+    /// </summary>
+    /// <param name="configuration">The configuration of domain to build.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>Newly built <see cref="Domain"/>.</returns>
+    public static Task<Domain> BuildAsync(DomainConfiguration configuration, CancellationToken token = default) =>
+      UpgradingDomainBuilder.BuildAsync(configuration, token);
 
 
     // Constructors

@@ -60,6 +60,28 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    public static async Task<Domain> BuildAsync(DomainConfiguration configuration, CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      if (configuration.ConnectionInfo==null) {
+        throw new ArgumentException(Strings.ExConnectionInfoIsMissing, nameof(configuration));
+      }
+
+      if (!configuration.IsLocked) {
+        configuration.Lock();
+      }
+
+      LogManager.Default.AutoInitialize();
+
+      var context = new UpgradeContext(configuration);
+
+      using (context.Activate())
+      using (context.Services) {
+        return await new UpgradingDomainBuilder(context).RunAsync(token).ConfigureAwait(false);
+      }
+    }
+
     public static StorageNode BuildNode(Domain parentDomain, NodeConfiguration nodeConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(parentDomain, nameof(parentDomain));
@@ -75,6 +97,26 @@ namespace Xtensive.Orm.Upgrade
       using (context.Activate())
       using (context.Services) {
         new UpgradingDomainBuilder(context).Run();
+        return context.StorageNode;
+      }
+    }
+
+    public static async Task<StorageNode> BuildNodeAsync(
+      Domain parentDomain, NodeConfiguration nodeConfiguration, CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(parentDomain, nameof(parentDomain));
+      ArgumentValidator.EnsureArgumentNotNull(nodeConfiguration, nameof(nodeConfiguration));
+
+      nodeConfiguration.Validate(parentDomain.Configuration);
+      if (!nodeConfiguration.IsLocked) {
+        nodeConfiguration.Lock();
+      }
+
+      var context = new UpgradeContext(parentDomain, nodeConfiguration);
+
+      using (context.Activate())
+      using (context.Services) {
+        await new UpgradingDomainBuilder(context).RunAsync(token).ConfigureAwait(false);
         return context.StorageNode;
       }
     }
@@ -114,8 +156,9 @@ namespace Xtensive.Orm.Upgrade
       var connection = context.Services.Connection;
       var driver = context.Services.StorageDriver;
 
-      if (connection.ActiveTransaction==null)
+      if (connection.ActiveTransaction==null) {
         return;
+      }
 
       try {
         driver.CommitTransaction(null, connection);
@@ -196,7 +239,9 @@ namespace Xtensive.Orm.Upgrade
         var descriptor = ProviderDescriptor.Get(configuration.ConnectionInfo.Provider);
         var driverFactory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
         var handlerFactory = (HandlerFactory) Activator.CreateInstance(descriptor.HandlerFactory);
-        var driver = StorageDriver.Create(driverFactory, configuration);
+        var driver = isAsync
+          ? await StorageDriver.CreateAsync(driverFactory, configuration, token).ConfigureAwait(false)
+          : StorageDriver.Create(driverFactory, configuration);
         services.HandlerFactory = handlerFactory;
         services.StorageDriver = driver;
         services.NameBuilder = new NameBuilder(configuration, driver.ProviderInfo);
@@ -209,7 +254,9 @@ namespace Xtensive.Orm.Upgrade
       }
 
       await CreateConnection(services, isAsync, token);
-      context.DefaultSchemaInfo = defaultSchemaInfo = services.StorageDriver.GetDefaultSchema(services.Connection);
+      context.DefaultSchemaInfo = defaultSchemaInfo = isAsync
+        ? await services.StorageDriver.GetDefaultSchemaAsync(services.Connection, token).ConfigureAwait(false)
+        : services.StorageDriver.GetDefaultSchema(services.Connection);
       services.MappingResolver = MappingResolver.Create(configuration, context.NodeConfiguration, defaultSchemaInfo);
       BuildExternalServices(services, configuration);
       services.Lock();
@@ -345,7 +392,7 @@ namespace Xtensive.Orm.Upgrade
         ? new FullTextCatalogNameBuilder()
         : candidates.First();
 
-      //storing sesolver
+      //storing resolver
       serviceAccessor.FulltextCatalogNameBuilder = resolver;
     }
 

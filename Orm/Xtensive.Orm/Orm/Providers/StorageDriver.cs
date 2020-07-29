@@ -49,10 +49,11 @@ namespace Xtensive.Orm.Providers
       return translator.ParameterPrefix + parameterName;
     }
 
-    public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection)
-    {
-      return underlyingDriver.GetDefaultSchema(connection);
-    }
+    public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection) =>
+      underlyingDriver.GetDefaultSchema(connection);
+
+    public Task<DefaultSchemaInfo> GetDefaultSchemaAsync(SqlConnection connection, CancellationToken token) =>
+      underlyingDriver.GetDefaultSchemaAsync(connection, token);
 
     public SqlExtractionResult Extract(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks)
     {
@@ -61,10 +62,10 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    public Task<SqlExtractionResult> ExtractAsync(
+    public async Task<SqlExtractionResult> ExtractAsync(
       SqlConnection connection, IEnumerable<SqlExtractionTask> tasks, CancellationToken token)
     {
-      var result = underlyingDriver.Extract(connection, tasks);
+      var result = await underlyingDriver.ExtractAsync(connection, tasks, token).ConfigureAwait(false);
       FixExtractionResult(result);
       return result;
     }
@@ -154,8 +155,8 @@ namespace Xtensive.Orm.Providers
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
     {
-      ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
       var driverConfiguration = new SqlDriverConfiguration {
         ForcedServerVersion = configuration.ForcedServerVersion,
@@ -164,6 +165,25 @@ namespace Xtensive.Orm.Providers
       };
 
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);
+      var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
+
+      return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
+    }
+
+    public static async Task<StorageDriver> CreateAsync(
+      SqlDriverFactory driverFactory, DomainConfiguration configuration, CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      var driverConfiguration = new SqlDriverConfiguration {
+        ForcedServerVersion = configuration.ForcedServerVersion,
+        ConnectionInitializationSql = configuration.ConnectionInitializationSql,
+        EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
+      };
+
+      var driver = await driverFactory.GetDriverAsync(configuration.ConnectionInfo, driverConfiguration, token)
+        .ConfigureAwait(false);
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
       return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
