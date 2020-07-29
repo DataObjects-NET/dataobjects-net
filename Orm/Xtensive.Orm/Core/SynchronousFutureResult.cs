@@ -5,6 +5,7 @@
 // Created:    2014.03.12
 
 using System;
+using System.Threading.Tasks;
 
 namespace Xtensive.Core
 {
@@ -12,31 +13,32 @@ namespace Xtensive.Core
   {
     private Func<T> worker;
 
-    public override bool IsAvailable
-    {
-      get { return worker!=null; }
-    }
+    public override bool IsAvailable => worker!=null;
 
     public override T Get()
     {
-      if (!IsAvailable)
+      if (!IsAvailable) {
         throw new InvalidOperationException(Strings.ExResultIsNotAvailable);
+      }
 
       var localWorker = worker;
       worker = null;
       return localWorker.Invoke();
     }
 
+    public override ValueTask<T> GetAsync() => new ValueTask<T>(Get());
+
     public override void Dispose()
-    {
-    }
+    { }
+
+    public override ValueTask DisposeAsync() => default;
 
 
     // Constructors
 
     public SynchronousFutureResult(Func<T> worker)
     {
-      ArgumentValidator.EnsureArgumentNotNull(worker, "worker");
+      ArgumentValidator.EnsureArgumentNotNull(worker, nameof(worker));
 
       this.worker = worker;
     }

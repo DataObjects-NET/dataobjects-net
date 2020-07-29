@@ -7,6 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Logging;
 using Xtensive.Modelling.Actions;
@@ -23,21 +25,46 @@ namespace Xtensive.Orm.Upgrade
   {
     private readonly UpgradeContext context;
     private readonly Session session;
-    private readonly UpgradeServiceAccessor services;
     private readonly ISqlExecutor executor;
     private readonly Action<IEnumerable<string>> statementProcessor;
+    private readonly Func<IEnumerable<string>, CancellationToken, Task> asyncStatementProcessor;
     private readonly StorageDriver driver;
     private readonly SqlConnection connection;
 
     public void UpgradeSchema(SchemaExtractionResult extractedSchema,
       StorageModel sourceModel, StorageModel targetModel, ActionSequence upgradeActions)
     {
+      var result = TranslateActions(extractedSchema, sourceModel, targetModel, upgradeActions);
+
+      foreach (var handler in context.OrderedUpgradeHandlers) {
+        handler.OnBeforeExecuteActions(result);
+      }
+
+      result.ProcessWith(statementProcessor, ExecuteNonTransactionally);
+    }
+
+    public async Task UpgradeSchemaAsync(SchemaExtractionResult extractedSchema,
+      StorageModel sourceModel, StorageModel targetModel, ActionSequence upgradeActions, CancellationToken token)
+    {
+      var result = TranslateActions(extractedSchema, sourceModel, targetModel, upgradeActions);
+
+      foreach (var handler in context.OrderedUpgradeHandlers) {
+        await handler.OnBeforeExecuteActionsAsync(result, token).ConfigureAwait(false);
+      }
+
+      await result.ProcessWithAsync(asyncStatementProcessor, ExecuteNonTransactionallyAsync, token)
+        .ConfigureAwait(false);
+    }
+
+    private UpgradeActionSequence TranslateActions(SchemaExtractionResult extractedSchema, StorageModel sourceModel,
+      StorageModel targetModel, ActionSequence upgradeActions)
+    {
       var enforceChangedColumns = context.Hints
         .OfType<ChangeFieldTypeHint>()
         .SelectMany(hint => hint.AffectedColumns)
         .ToList();
 
-      var skipConstraints = context.Stage==UpgradeStage.Upgrading;
+      var skipConstraints = context.Stage == UpgradeStage.Upgrading;
 
       var translator = new SqlActionTranslator(
         session.Handlers, executor, context.Services.MappingResolver,
@@ -46,13 +73,11 @@ namespace Xtensive.Orm.Upgrade
 
       var result = translator.Translate();
 
-      if (SqlLog.IsLogged(LogLevel.Info))
+      if (SqlLog.IsLogged(LogLevel.Info)) {
         LogStatements(result);
+      }
 
-      foreach (var handler in context.OrderedUpgradeHandlers)
-        handler.OnBeforeExecuteActions(result);
-
-      result.ProcessWith(statementProcessor, ExecuteNonTransactionally);
+      return result;
     }
 
     #region Private / internal methods
@@ -64,10 +89,17 @@ namespace Xtensive.Orm.Upgrade
       driver.BeginTransaction(null, connection, null);
     }
 
-    private void ExecuteTransactionally(IEnumerable<string> batch)
+    private async Task ExecuteNonTransactionallyAsync(IEnumerable<string> batch, CancellationToken token)
     {
-      executor.ExecuteMany(batch);
+      driver.CommitTransaction(null, connection);
+      await executor.ExecuteManyAsync(batch, token);
+      driver.BeginTransaction(null, connection, null);
     }
+
+    private void ExecuteTransactionally(IEnumerable<string> batch) => executor.ExecuteMany(batch);
+
+    private Task ExecuteTransactionallyAsync(IEnumerable<string> batch, CancellationToken token) =>
+      executor.ExecuteManyAsync(batch, token);
 
     private void LogStatements(IEnumerable<string> statements)
     {
@@ -86,15 +118,19 @@ namespace Xtensive.Orm.Upgrade
       this.context = context;
       this.session = session;
 
-      services = context.Services;
       connection = context.Services.Connection;
       executor = session.Services.Demand<ISqlExecutor>();
 
+      var services = context.Services;
       driver = services.StorageDriver;
-      if (driver.ProviderInfo.Supports(ProviderFeatures.TransactionalDdl))
+      if (driver.ProviderInfo.Supports(ProviderFeatures.TransactionalDdl)) {
         statementProcessor = ExecuteTransactionally;
-      else
+        asyncStatementProcessor = ExecuteTransactionallyAsync;
+      }
+      else {
         statementProcessor = ExecuteNonTransactionally;
+        asyncStatementProcessor = ExecuteNonTransactionallyAsync;
+      }
     }
   }
 }

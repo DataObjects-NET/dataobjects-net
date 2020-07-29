@@ -13,7 +13,6 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Reflection;
-using Xtensive.Sql;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -34,8 +33,9 @@ namespace Xtensive.Orm.Building.Builders
       ArgumentValidator.EnsureArgumentNotNull(builderConfiguration, "builderConfiguration");
 
       var context = new BuildingContext(builderConfiguration);
-      using (BuildLog.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName()))
+      using (BuildLog.InfoRegion(Strings.LogBuildingX, typeof (Domain).GetShortName())) {
         new DomainBuilder(context).Run();
+      }
 
       return context.Domain;
     }
@@ -67,7 +67,6 @@ namespace Xtensive.Orm.Building.Builders
 
     private void CreateHandlers()
     {
-      var configuration = context.Domain.Configuration;
       var handlers = context.Domain.Handlers;
       var services = context.BuilderConfiguration.Services;
 
@@ -122,32 +121,40 @@ namespace Xtensive.Orm.Building.Builders
 
       using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.KeyGenerators)) {
         var generators = domain.KeyGenerators;
-        var initialized = new HashSet<KeyGenerator>();
         var keysToProcess = domain.Model.Hierarchies
           .Select(h => h.Key)
           .Where(k => k.GeneratorKind!=KeyGeneratorKind.None);
         foreach (var keyInfo in keysToProcess) {
           var generator = domain.Services.Demand<KeyGenerator>(keyInfo.GeneratorName);
           generators.Register(keyInfo, generator);
-          if (keyInfo.IsFirstAmongSimilarKeys)
+          if (keyInfo.IsFirstAmongSimilarKeys) {
             generator.Initialize(context.Domain, keyInfo.TupleDescriptor);
+          }
+
           var temporaryGenerator = domain.Services.Get<TemporaryKeyGenerator>(keyInfo.GeneratorName);
-          if (temporaryGenerator==null)
+          if (temporaryGenerator==null) {
             continue; // Temporary key generators are optional
+          }
+
           generators.RegisterTemporary(keyInfo, temporaryGenerator);
-          if (keyInfo.IsFirstAmongSimilarKeys)
+          if (keyInfo.IsFirstAmongSimilarKeys) {
             temporaryGenerator.Initialize(context.Domain, keyInfo.TupleDescriptor);
+          }
         }
         generators.Lock();
       }
 
       using (BuildLog.InfoRegion(Strings.LogBuildingX, Strings.Validators)) {
         foreach (var type in domain.Model.Types) {
-          foreach (var validator in type.Validators)
+          foreach (var validator in type.Validators) {
             validator.Configure(domain, type);
-          foreach (var field in type.Fields)
-            foreach (var validator in field.Validators)
+          }
+
+          foreach (var field in type.Fields) {
+            foreach (var validator in field.Validators) {
               validator.Configure(domain, type, field);
+            }
+          }
         }
       }
 
@@ -155,10 +162,8 @@ namespace Xtensive.Orm.Building.Builders
       domain.Handler.InitializeServices();
     }
 
-    private static IEnumerable<ServiceRegistration> CreateServiceRegistrations(DomainConfiguration configuration)
-    {
-      return configuration.Types.DomainServices.SelectMany(ServiceRegistration.CreateAll);
-    }
+    private static IEnumerable<ServiceRegistration> CreateServiceRegistrations(DomainConfiguration configuration) =>
+      configuration.Types.DomainServices.SelectMany(ServiceRegistration.CreateAll);
 
     // Constructors
 

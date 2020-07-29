@@ -99,8 +99,8 @@ namespace Xtensive.Orm.Upgrade
       await OnPrepareAsync(token).ConfigureAwait(false);
 
       var domain = upgradeMode.IsMultistage()
-        ? BuildMultistageDomain()
-        : BuildSingleStageDomain();
+        ? await BuildMultistageDomainAsync(token).ConfigureAwait(false)
+        : await BuildSingleStageDomainAsync(token).ConfigureAwait(false);
 
       await OnCompleteAsync(domain, token).ConfigureAwait(false);
       CompleteUpgradeTransaction();
@@ -126,29 +126,15 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private FutureResult<T> CreateResult<T>(T value)
-    {
-      return new ValueFutureResult<T>(value);
-    }
-
-    private FutureResult<T> CreateResult<T>(Func<T> action)
-    {
-      if (context.Configuration.BuildInParallel)
-        return new AsyncFutureResult<T>(action, UpgradeLog.Instance);
-      return new SynchronousFutureResult<T>(action);
-    }
-
     private Domain BuildMultistageDomain()
     {
       Domain finalDomain;
-      using (StartSqlWorker()) {
-        var finalDomainResult = context.ParentDomain!=null
-          ? CreateResult(context.ParentDomain)
-          : CreateResult(CreateBuilder(UpgradeStage.Final));
-        using (finalDomainResult) {
+      using (StartSchemaExtractSqlWorker()) {
+        var domainBuilder = CreateDomainBuilder(UpgradeStage.Final);
+        using (var finalDomainResult = CreateResult(domainBuilder)) {
           OnConfigureUpgradeDomain();
-          using (var upgradeDomain = CreateBuilder(UpgradeStage.Upgrading).Invoke()) {
-            CompleteSqlWorker();
+          using (var upgradeDomain = CreateDomainBuilder(UpgradeStage.Upgrading).Invoke()) {
+            CompleteSchemaExtractSqlWorker();
             PerformUpgrade(upgradeDomain, UpgradeStage.Upgrading);
           }
           finalDomain = finalDomainResult.Get();
@@ -158,12 +144,42 @@ namespace Xtensive.Orm.Upgrade
       return finalDomain;
     }
 
+    private async Task<Domain> BuildMultistageDomainAsync(CancellationToken token)
+    {
+      Domain finalDomain;
+      var sqlAsyncWorker = StartSchemaExtractSqlAsyncWorker(token);
+      await using (sqlAsyncWorker.ConfigureAwait(false)) {
+        var domainBuilder = CreateDomainBuilder(UpgradeStage.Final);
+        await using (var finalDomainResult = CreateResult(domainBuilder)) {
+          OnConfigureUpgradeDomain();
+          using (var upgradeDomain = CreateDomainBuilder(UpgradeStage.Upgrading).Invoke()) {
+            await CompleteSchemaExtractSqlWorkerAsync().ConfigureAwait(false);
+            await PerformUpgradeAsync(upgradeDomain, UpgradeStage.Upgrading, token).ConfigureAwait(false);
+          }
+          finalDomain = await finalDomainResult.GetAsync().ConfigureAwait(false);
+        }
+      }
+      await PerformUpgradeAsync(finalDomain, UpgradeStage.Final, token).ConfigureAwait(false);
+      return finalDomain;
+    }
+
     private Domain BuildSingleStageDomain()
     {
-      using (StartSqlWorker()) {
-        var domain = context.ParentDomain ?? CreateBuilder(UpgradeStage.Final).Invoke();
-        CompleteSqlWorker();
+      using (StartSchemaExtractSqlWorker()) {
+        var domain = CreateDomainBuilder(UpgradeStage.Final).Invoke();
+        CompleteSchemaExtractSqlWorker();
         PerformUpgrade(domain, UpgradeStage.Final);
+        return domain;
+      }
+    }
+
+    private async Task<Domain> BuildSingleStageDomainAsync(CancellationToken token)
+    {
+      var sqlAsyncWorker = StartSchemaExtractSqlAsyncWorker(token);
+      await using (sqlAsyncWorker.ConfigureAwait(false)) {
+        var domain = CreateDomainBuilder(UpgradeStage.Final).Invoke();
+        await CompleteSchemaExtractSqlWorkerAsync().ConfigureAwait(false);
+        await PerformUpgradeAsync(domain, UpgradeStage.Final, token).ConfigureAwait(false);
         return domain;
       }
     }
@@ -333,7 +349,6 @@ namespace Xtensive.Orm.Upgrade
       serviceAccessor.FulltextCatalogNameBuilder = resolver;
     }
 
-    /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     private void PerformUpgrade(Domain domain, UpgradeStage stage)
     {
       context.Stage = stage;
@@ -346,16 +361,35 @@ namespace Xtensive.Orm.Upgrade
         var upgrader = new SchemaUpgrader(context, session);
         var extractor = new SchemaExtractor(context, session);
         SynchronizeSchema(domain, upgrader, extractor, GetUpgradeMode(stage));
-        var storageNode = BuildStorageNode(domain, extractor);
+        var storageNode = BuildStorageNode(domain, extractor.GetSqlSchema());
         session.SetStorageNode(storageNode);
         OnStage(session);
         transaction.Complete();
       }
     }
 
-    private StorageNode BuildStorageNode(Domain domain, SchemaExtractor extractor)
+    private async Task PerformUpgradeAsync(Domain domain, UpgradeStage stage, CancellationToken token)
     {
-      var schemaExtractionResult = GetRealExtractionResult(extractor.GetSqlSchema());
+      context.Stage = stage;
+
+      await OnBeforeStageAsync(token).ConfigureAwait(false);
+
+      await using var session = await domain.OpenSessionAsync(SessionType.System, token).ConfigureAwait(false);
+      using (session.Activate())
+      await using (var transaction = session.OpenTransaction()) {
+        var upgrader = new SchemaUpgrader(context, session);
+        var extractor = new SchemaExtractor(context, session);
+        await SynchronizeSchemaAsync(domain, upgrader, extractor, GetUpgradeMode(stage), token).ConfigureAwait(false);
+        var storageNode = BuildStorageNode(domain, await extractor.GetSqlSchemaAsync(token).ConfigureAwait(false));
+        session.SetStorageNode(storageNode);
+        await OnStageAsync(session, token);
+        transaction.Complete();
+      }
+    }
+
+    private StorageNode BuildStorageNode(Domain domain, SchemaExtractionResult extractedSchema)
+    {
+      var schemaExtractionResult = GetRealExtractionResult(extractedSchema);
       context.ExtractedSqlModelCache = schemaExtractionResult;
 
       var modelMapping = ModelMappingBuilder.Build(
@@ -400,7 +434,17 @@ namespace Xtensive.Orm.Upgrade
       return baseSchemaExtractionResult;
     }
 
-    private Func<Domain> CreateBuilder(UpgradeStage stage)
+    private Func<Domain> CreateDomainBuilder(UpgradeStage stage)
+    {
+      if (stage == UpgradeStage.Final && context.ParentDomain != null) {
+        return () => context.ParentDomain;
+      }
+
+      var configuration = CreateDomainBuilderConfiguration(stage);
+      return ((Func<DomainBuilderConfiguration, Domain>) DomainBuilder.Run).Bind(configuration);
+    }
+
+    private DomainBuilderConfiguration CreateDomainBuilderConfiguration(UpgradeStage stage)
     {
       var configuration = new DomainBuilderConfiguration {
         DomainConfiguration = context.Configuration,
@@ -413,17 +457,8 @@ namespace Xtensive.Orm.Upgrade
       };
 
       configuration.Lock();
-      Func<DomainBuilderConfiguration, Domain> builder = DomainBuilder.Run;
-      return builder.Bind(configuration);
+      return configuration;
     }
-
-    //private HintSet GetSchemaHints(StorageModel extractedSchema, StorageModel targetSchema)
-    //{
-    //  context.SchemaHints = new HintSet(extractedSchema, targetSchema);
-    //  if (context.Stage==UpgradeStage.Upgrading)
-    //    BuildSchemaHints(extractedSchema);
-    //  return context.SchemaHints;
-    //}
 
     private void BuildSchemaHints(StorageModel extractedSchema, UpgradeHintsProcessingResult result, StoredDomainModel currentDomainModel)
     {
@@ -535,6 +570,94 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    private async Task SynchronizeSchemaAsync(
+      Domain domain, SchemaUpgrader upgrader, SchemaExtractor extractor, SchemaUpgradeMode schemaUpgradeMode, CancellationToken token)
+    {
+      using (UpgradeLog.InfoRegion(Strings.LogSynchronizingSchemaInXMode, schemaUpgradeMode)) {
+        StorageModel targetSchema = null;
+        if (schemaUpgradeMode==SchemaUpgradeMode.Skip) {
+          if (context.ParentDomain==null) {
+            //If we build main domain we should log target model.
+            //Log of Storage Node target model is not necessary
+            //because storage target model exactly the same.
+            targetSchema = GetTargetModel(domain);
+            context.TargetStorageModel = targetSchema;
+            if (UpgradeLog.IsLogged(LogLevel.Info)) {
+              UpgradeLog.Info(Strings.LogTargetSchema);
+              targetSchema.Dump();
+            }
+          }
+          var builder = ExtractedModelBuilderFactory.GetBuilder(context);
+          context.ExtractedSqlModelCache = builder.Run();
+          OnSchemaReady();
+          return; // Skipping comparison completely
+        }
+
+        var extractedSchema = await extractor.GetSchemaAsync(token).ConfigureAwait(false);
+
+        // Hints
+        var triplet = BuildTargetModelAndHints(extractedSchema);
+        var hintProcessingResult = triplet.Third;
+        targetSchema = triplet.First;
+        context.TargetStorageModel = targetSchema;
+        var hints = triplet.Second;
+        if (UpgradeLog.IsLogged(LogLevel.Info))
+        {
+          UpgradeLog.Info(Strings.LogExtractedSchema);
+          extractedSchema.Dump();
+          UpgradeLog.Info(Strings.LogTargetSchema);
+          targetSchema.Dump();
+        }
+        OnSchemaReady();
+
+        var briefExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
+        var result = SchemaComparer.Compare(extractedSchema, targetSchema,
+          hints, context.Hints, schemaUpgradeMode, domain.Model, briefExceptionFormat, context.Stage);
+        var shouldDumpSchema = !schemaUpgradeMode.In(
+          SchemaUpgradeMode.Skip, SchemaUpgradeMode.ValidateCompatible, SchemaUpgradeMode.Recreate);
+        if (shouldDumpSchema && UpgradeLog.IsLogged(LogLevel.Info))
+          UpgradeLog.Info(result.ToString());
+
+        if (UpgradeLog.IsLogged(LogLevel.Info))
+          UpgradeLog.Info(Strings.LogComparisonResultX, result);
+
+        context.SchemaDifference = (NodeDifference) result.Difference;
+        context.SchemaUpgradeActions = result.UpgradeActions;
+
+        switch (schemaUpgradeMode) {
+          case SchemaUpgradeMode.ValidateExact:
+            if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal || result.HasColumnTypeChanges)
+              throw new SchemaSynchronizationException(result);
+            if (!hintProcessingResult.AreAllTypesMapped() && hintProcessingResult.SuspiciousTypes.Any())
+              throw new SchemaSynchronizationException(Strings.ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet);
+            break;
+          case SchemaUpgradeMode.ValidateCompatible:
+            if (result.SchemaComparisonStatus!=SchemaComparisonStatus.Equal
+              && result.SchemaComparisonStatus!=SchemaComparisonStatus.TargetIsSubset)
+              throw new SchemaSynchronizationException(result);
+            break;
+          case SchemaUpgradeMode.PerformSafely:
+            if (result.HasUnsafeActions)
+              throw new SchemaSynchronizationException(result);
+            goto case SchemaUpgradeMode.Perform;
+          case SchemaUpgradeMode.Recreate:
+          case SchemaUpgradeMode.Perform:
+            var extractedSqlSchema = await extractor.GetSqlSchemaAsync(token).ConfigureAwait(false);
+            await upgrader.UpgradeSchemaAsync(
+              extractedSqlSchema, extractedSchema, targetSchema, result.UpgradeActions, token).ConfigureAwait(false);
+            if (result.UpgradeActions.Any())
+              extractor.ClearCache();
+            break;
+          case SchemaUpgradeMode.ValidateLegacy:
+            if (result.IsCompatibleInLegacyMode!=true)
+              throw new SchemaSynchronizationException(result);
+            break;
+          default:
+            throw new ArgumentOutOfRangeException(nameof(schemaUpgradeMode));
+        }
+      }
+    }
+
     private Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult> BuildTargetModelAndHints(StorageModel extractedSchema)
     {
       var handlers = Domain.Demand().Handlers;
@@ -575,21 +698,49 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private FutureResult<SqlWorkerResult> StartSqlWorker()
+    private FutureResult<T> CreateResult<T>(Func<T> action) =>
+      context.Configuration.BuildInParallel
+        ? (FutureResult<T>) new AsyncFutureResult<T>(action, UpgradeLog.Instance)
+        : new SynchronousFutureResult<T>(action);
+
+    private FutureResult<SqlWorkerResult> StartSchemaExtractSqlWorker()
     {
       var result = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
       workerResult = result;
       return result;
     }
 
-    private void CompleteSqlWorker()
+    private FutureResult<SqlWorkerResult> StartSchemaExtractSqlAsyncWorker(CancellationToken token)
     {
-      if (!workerResult.IsAvailable)
+      var worker = SqlAsyncWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask(), token);
+      return workerResult =
+        new AsyncFutureResult<SqlWorkerResult>(worker, UpgradeLog.Instance, context.Configuration.BuildInParallel);
+    }
+
+    private void CompleteSchemaExtractSqlWorker()
+    {
+      if (!workerResult.IsAvailable) {
         return;
+      }
+
       var result = workerResult.Get();
       context.Metadata = result.Metadata;
-      if (result.Schema!=null)
+      if (result.Schema!=null) {
         context.ExtractedSqlModelCache = result.Schema;
+      }
+    }
+
+    private async Task CompleteSchemaExtractSqlWorkerAsync()
+    {
+      if (!workerResult.IsAvailable) {
+        return;
+      }
+
+      var result = await workerResult.GetAsync().ConfigureAwait(false);
+      context.Metadata = result.Metadata;
+      if (result.Schema!=null) {
+        context.ExtractedSqlModelCache = result.Schema;
+      }
     }
 
     private void OnBeforeStage()

@@ -15,8 +15,9 @@ namespace Xtensive.Core
   {
     private readonly BaseLog logger;
     private Task<T> task;
+    private Func<Task<T>> worker;
 
-    public override bool IsAvailable => task!=null;
+    public override bool IsAvailable => task != null || worker != null;
 
     public override T Get()
     {
@@ -24,9 +25,10 @@ namespace Xtensive.Core
         throw new InvalidOperationException(Strings.ExResultIsNotAvailable);
       }
 
-      var localTask = task;
+      var localTask = task ?? worker();
       task = null;
-      return localTask.Result;
+      worker = null;
+      return localTask.GetAwaiter().GetResult();
     }
 
     public override async ValueTask<T> GetAsync()
@@ -35,8 +37,9 @@ namespace Xtensive.Core
         throw new InvalidOperationException(Strings.ExResultIsNotAvailable);
       }
 
-      var localTask = task;
+      var localTask = task ?? worker();
       task = null;
+      worker = null;
       return await localTask;
     }
 
@@ -77,6 +80,20 @@ namespace Xtensive.Core
       this.logger = logger;
 
       task = Task.Run(worker);
+    }
+
+    public AsyncFutureResult(Func<Task<T>> worker, BaseLog logger, bool startWorker)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(worker, nameof(worker));
+
+      this.logger = logger;
+
+      if (startWorker) {
+        task = Task.Run(worker);
+      }
+      else {
+        this.worker = worker;
+      }
     }
   }
 }

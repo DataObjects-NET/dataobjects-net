@@ -6,6 +6,8 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Model.Stored;
 using Xtensive.Orm.Providers;
@@ -31,12 +33,38 @@ namespace Xtensive.Orm.Upgrade
       return result;
     }
 
+    public async Task<StorageModel> GetSchemaAsync(CancellationToken token)
+    {
+      if (context.ExtractedModelCache!=null)
+        return context.ExtractedModelCache;
+
+      var schemaExtractionResult = await GetSqlSchemaAsync(token).ConfigureAwait(false);
+      var converter = new SqlModelConverter(services, schemaExtractionResult, GetPartialIndexes());
+      var result =  converter.Run();
+      context.ExtractedModelCache = result;
+      return result;
+    }
+
     public SchemaExtractionResult GetSqlSchema()
     {
       if (context.ExtractedSqlModelCache!=null)
         return context.ExtractedSqlModelCache;
 
       var schema = new SchemaExtractionResult(executor.Extract(services.MappingResolver.GetSchemaTasks()));
+      var handledSchema = new IgnoreRulesHandler(schema, services.Configuration, services.MappingResolver).Handle();
+      context.ExtractedSqlModelCache = handledSchema;
+      return handledSchema;
+    }
+
+    public async Task<SchemaExtractionResult> GetSqlSchemaAsync(CancellationToken token)
+    {
+      if (context.ExtractedSqlModelCache!=null) {
+        return context.ExtractedSqlModelCache;
+      }
+
+      var sqlExtractionTasks = services.MappingResolver.GetSchemaTasks();
+      var sqlExtractionResult = await executor.ExtractAsync(sqlExtractionTasks, token).ConfigureAwait(false);
+      var schema = new SchemaExtractionResult(sqlExtractionResult);
       var handledSchema = new IgnoreRulesHandler(schema, services.Configuration, services.MappingResolver).Handle();
       context.ExtractedSqlModelCache = handledSchema;
       return handledSchema;
