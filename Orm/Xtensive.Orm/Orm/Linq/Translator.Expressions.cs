@@ -977,7 +977,7 @@ namespace Xtensive.Orm.Linq
       Expression keyExpression;
 
       if (expression.IsNull())
-        keyExpression = Expression.Constant(null, typeof (Key));
+        keyExpression = Expression.Constant(null, KeyType);
       else if (IsConditionalOrWellknown(expression))
         return keyFieldTypes
           .Select((type, index) => GetConditionalKeyField(expression, type, index))
@@ -990,7 +990,7 @@ namespace Xtensive.Orm.Linq
           expression = Expression.Convert(expression, typeof (IEntity));
         keyExpression = Expression.Condition(
           isNullExpression,
-          Expression.Constant(null, typeof (Key)),
+          Expression.Constant(null, KeyType),
           Expression.MakeMemberAccess(expression, WellKnownMembers.IEntityKey));
       }
       return GetKeyFields(keyExpression, keyFieldTypes);
