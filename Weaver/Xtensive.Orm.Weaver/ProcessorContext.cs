@@ -24,6 +24,8 @@ namespace Xtensive.Orm.Weaver
 
     public bool TranformationPerformed { get; set; }
 
+    public bool ShouldAddReferenceToOrm { get; set; }
+
     public IList<WeavingTask> WeavingTasks { get; set; }
 
     public ModuleDefinition TargetModule { get; set; }
@@ -54,6 +56,7 @@ namespace Xtensive.Orm.Weaver
       References = new ReferenceRegistry();
       PersistentTypes = new List<TypeInfo>();
       AssemblyChecker = new AssemblyChecker();
+      ShouldAddReferenceToOrm = false;
     }
   }
 }
