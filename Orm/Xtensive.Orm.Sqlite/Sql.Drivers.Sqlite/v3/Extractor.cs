@@ -7,14 +7,32 @@
 using System;
 using System.Collections.Generic;
 using System.Data;
+using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.Sqlite.v3
 {
   internal class Extractor : Model.Extractor
   {
+    private struct ForeignKeyReaderState
+    {
+      public readonly Table ReferencingTable;
+      public Table ReferencedTable;
+      public ForeignKey ForeignKey;
+      public int LastColumnIndex;
+
+      public ForeignKeyReaderState(Table referencingTable) : this()
+      {
+        ReferencingTable = referencingTable;
+        LastColumnIndex = int.MaxValue;
+      }
+    }
+
     public const string PrimaryKeyName = "PrimaryKey";
 
     internal const string DefaultSchemaName = "Main";
@@ -26,13 +44,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private Catalog catalog;
 
     /// <inheritdoc/>
-    public override Catalog ExtractCatalog(string catalogName)
-    {
-      catalog = new Catalog(catalogName);
-      schema = catalog.CreateSchema(DefaultSchemaName);
-      ExtractCatalogContents();
-      return catalog;
-    }
+    public override Catalog ExtractCatalog(string catalogName) =>
+      ExtractSchemes(catalogName, new[] {DefaultSchemaName});
+
+    /// <inheritdoc/>
+    public override Task<Catalog> ExtractCatalogAsync(string catalogName, CancellationToken token = default) =>
+      ExtractSchemesAsync(catalogName, new[] {DefaultSchemaName}, token);
 
     /// <inheritdoc/>
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
@@ -40,6 +57,16 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       catalog = new Catalog(catalogName);
       schema = catalog.CreateSchema(schemaNames[0]);
       ExtractCatalogContents();
+      return catalog;
+    }
+
+    /// <inheritdoc/>
+    public override async Task<Catalog> ExtractSchemesAsync(
+      string catalogName, string[] schemaNames, CancellationToken token = default)
+    {
+      catalog = new Catalog(catalogName);
+      schema = catalog.CreateSchema(schemaNames[0]);
+      await ExtractCatalogContentsAsync(token).ConfigureAwait(false);
       return catalog;
     }
 
@@ -52,216 +79,374 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       ExtractForeignKeys();
     }
 
+    private async Task ExtractCatalogContentsAsync(CancellationToken token)
+    {
+      await ExtractTablesAsync(token).ConfigureAwait(false);
+      await ExtractViewsAsync(token).ConfigureAwait(false);
+      await ExtractColumnsAsync(token).ConfigureAwait(false);
+      await ExtractIndexesAsync(token).ConfigureAwait(false);
+      await ExtractForeignKeysAsync(token).ConfigureAwait(false);
+    }
+
+    private const string ExtractTablesQuery =
+      "SELECT [name] FROM [Main].[sqlite_master] WHERE type = 'table' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
+
+    private const string ExtractViewsQuery =
+      "SELECT [name], sql FROM [Main].[sqlite_master] WHERE type = 'view' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
+
     private void ExtractTables()
     {
-      const string query = "SELECT [name] FROM [Main].[sqlite_master] WHERE type = 'table' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
-      using (var cmd = Connection.CreateCommand(query))
-      using (IDataReader reader = cmd.ExecuteReader()) {
-        while (reader.Read()) {
+      using var cmd = Connection.CreateCommand(ExtractTablesQuery);
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read()) {
+        schema.CreateTable(reader.GetString(0));
+      }
+    }
+
+    private async Task ExtractTablesAsync(CancellationToken token)
+    {
+      var cmd = Connection.CreateCommand(ExtractTablesQuery);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
           schema.CreateTable(reader.GetString(0));
         }
       }
     }
 
-    public bool DoesTableExist(string tableName)
+    private static string BuildTableExistenceCheckQuery(string tableName) =>
+      string.Format("SELECT name FROM {0} WHERE type = 'table' AND name='{1}'", SqliteMaster, tableName);
+
+    private bool DoesTableExist(string tableName)
     {
-      var select = string.Format("SELECT name FROM {0} WHERE type = 'table' AND name='{1}'", SqliteMaster, tableName);
-      using (var cmd = Connection.CreateCommand(select))
-      using (IDataReader reader = cmd.ExecuteReader())
-        return reader.Read();
+      var select = BuildTableExistenceCheckQuery(tableName);
+      using var cmd = Connection.CreateCommand(select);
+      using IDataReader reader = cmd.ExecuteReader();
+      return reader.Read();
     }
+
+    private async Task<bool> DoesTableExistAsync(string tableName, CancellationToken token)
+    {
+      var select = BuildTableExistenceCheckQuery(tableName);
+      var cmd = Connection.CreateCommand(select);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        return await reader.ReadAsync(token).ConfigureAwait(false);
+      }
+    }
+
+    private static string BuildIncrementValueQuery(string tableName) =>
+      string.Format("SELECT seq from {0} WHERE name = '{1}' ", SqliteSequence, tableName);
 
     private int? GetIncrementValue(string tableName)
     {
-      if (!DoesTableExist(SqliteSequence))
+      if (!DoesTableExist(SqliteSequence)) {
         return null;
+      }
 
-      var select = string.Format("SELECT seq from {0} WHERE name = '{1}' ", SqliteSequence, tableName);
-      using (var cmd = Connection.CreateCommand(select))
-      using (IDataReader reader = cmd.ExecuteReader()) {
-        while (reader.Read())
+      var select = BuildIncrementValueQuery(tableName);
+      using var cmd = Connection.CreateCommand(select);
+      using IDataReader reader = cmd.ExecuteReader();
+      while (reader.Read()) {
+        return ReadNullableInt(reader, "seq");
+      }
+
+      return null;
+    }
+
+    private async Task<int?> GetIncrementValueAsync(string tableName, CancellationToken token)
+    {
+      if (!await DoesTableExistAsync(SqliteSequence, token).ConfigureAwait(false)) {
+        return null;
+      }
+
+      var select = BuildIncrementValueQuery(tableName);
+      var cmd = Connection.CreateCommand(select);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
           return ReadNullableInt(reader, "seq");
+        }
+
         return null;
       }
     }
+
+    private static string BuildExtractTableColumnsQuery(string tableName) => $"PRAGMA table_info([{tableName}])";
 
     private void ExtractColumns()
     {
       foreach (var table in schema.Tables) {
-        var select = string.Format("PRAGMA table_info([{0}])", table.Name);
         var primaryKeyItems = new Dictionary<int, TableColumn>();
-        using (var cmd = Connection.CreateCommand(select))
-        using (IDataReader reader = cmd.ExecuteReader()) {
-          while (reader.Read()) {
-            var tableSchema = table.Schema;
-            string tableName = table.Name;
-
-            // Column Name
-            var tableColumn = table.CreateColumn(reader.GetString(1));
-
-            // Column Type
-            tableColumn.DataType = ParseValueType(reader.GetString(2));
-
-            // IsNullable
-            tableColumn.IsNullable = ReadInt(reader, 3)==0;
-
-            // Default Value
-            var defaultValue = ReadStringOrNull(reader, 4);
-            if (!string.IsNullOrEmpty(defaultValue) && string.Compare("NULL", defaultValue, StringComparison.OrdinalIgnoreCase)!=0)
-              tableColumn.DefaultValue = defaultValue;
-
-            var primaryKeyPosition = ReadInt(reader, 5);
-            if (primaryKeyPosition > 0) {
-              primaryKeyItems.Add(primaryKeyPosition, tableColumn);
-              if (primaryKeyPosition==1) {
-                // Auto Increment
-                var incrementValue = GetIncrementValue(tableName);
-                if (incrementValue!=null)
-                  tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, incrementValue, 1);
-              }
-            }
-          }
+        var select = BuildExtractTableColumnsQuery(table.Name);
+        using var cmd = Connection.CreateCommand(select);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+          ReadTableColumnData(reader, table, primaryKeyItems);
         }
 
-        if (primaryKeyItems.Count > 0)
-          table.CreatePrimaryKey(PrimaryKeyName,
-            primaryKeyItems.OrderBy(i => i.Key).Select(i => i.Value).ToArray());
+        if (primaryKeyItems.Count > 0) {
+          // Auto Increment
+          var incrementValue = GetIncrementValue(table.Name);
+          CreateTablePrimaryKey(table, primaryKeyItems, incrementValue);
+        }
       }
     }
 
-    private IEnumerable<string> ColumnNamesFromIndex(string indexName)
+    private async Task ExtractColumnsAsync(CancellationToken token)
     {
-      var select = string.Format("PRAGMA index_info([{0}])", indexName);
-      using (var cmd = Connection.CreateCommand(select))
-      using (IDataReader reader = cmd.ExecuteReader()) {
-        while (reader.Read())
-          yield return ReadStringOrNull(reader, 2);
+      foreach (var table in schema.Tables) {
+        var primaryKeyItems = new Dictionary<int, TableColumn>();
+        var select = BuildExtractTableColumnsQuery(table.Name);
+        var cmd = Connection.CreateCommand(select);
+        await using (cmd.ConfigureAwait(false))
+        await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadTableColumnData(reader, table, primaryKeyItems);
+          }
+        }
+
+        if (primaryKeyItems.Count > 0) {
+          // Auto Increment
+          var incrementValue = await GetIncrementValueAsync(table.Name, token).ConfigureAwait(false);
+          CreateTablePrimaryKey(table, primaryKeyItems, incrementValue);
+        }
       }
+    }
+
+    private void ReadTableColumnData(IDataReader reader, Table table, Dictionary<int, TableColumn> primaryKeyItems)
+    {
+      // Column Name
+      var tableColumn = table.CreateColumn(reader.GetString(1));
+
+      // Column Type
+      tableColumn.DataType = ParseValueType(reader.GetString(2));
+
+      // IsNullable
+      tableColumn.IsNullable = ReadInt(reader, 3) == 0;
+
+      // Default Value
+      var defaultValue = ReadStringOrNull(reader, 4);
+      if (!string.IsNullOrEmpty(defaultValue)
+        && !string.Equals("NULL", defaultValue, StringComparison.OrdinalIgnoreCase)) {
+        tableColumn.DefaultValue = defaultValue;
+      }
+
+      var primaryKeyPosition = ReadInt(reader, 5);
+      if (primaryKeyPosition > 0) {
+        primaryKeyItems.Add(primaryKeyPosition, tableColumn);
+      }
+    }
+
+    private static void CreateTablePrimaryKey(
+      Table table, Dictionary<int, TableColumn> primaryKeyItems, int? incrementValue)
+    {
+      if (primaryKeyItems.TryGetValue(1, out var tableColumn)) {
+        if (incrementValue != null) {
+          tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn, incrementValue, 1);
+        }
+      }
+
+      table.CreatePrimaryKey(PrimaryKeyName,
+        primaryKeyItems.OrderBy(i => i.Key).Select(i => i.Value).ToArray());
     }
 
     private void ExtractViews()
     {
-      const string select = "SELECT [name], sql FROM [Main].[sqlite_master] WHERE type = 'view' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
-      using (var reader = ExecuteReader(select)) {
-        while (reader.Read()) {
-          string view = reader.GetString(0);
-          string definition = ReadStringOrNull(reader, 1);
-          if (string.IsNullOrEmpty(definition))
-            schema.CreateView(view);
-          else
-            schema.CreateView(view, SqlDml.Native(definition));
-        }
+      using var reader = ExecuteReader(ExtractViewsQuery);
+      while (reader.Read()) {
+        ReadViewData(reader);
       }
     }
+
+    private async Task ExtractViewsAsync(CancellationToken token)
+    {
+      await using var reader = await ExecuteReaderAsync(ExtractViewsQuery, token).ConfigureAwait(false);
+      while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+        ReadViewData(reader);
+      }
+    }
+
+    private void ReadViewData(DbDataReader reader)
+    {
+      var view = reader.GetString(0);
+      var definition = ReadStringOrNull(reader, 1);
+      if (string.IsNullOrEmpty(definition)) {
+        schema.CreateView(view);
+      }
+      else {
+        schema.CreateView(view, SqlDml.Native(definition));
+      }
+    }
+
+    private static string BuildExtractIndexQuery(string tableName) => $"PRAGMA index_list([{tableName}])";
 
     private void ExtractIndexes()
     {
       foreach (var table in schema.Tables) {
-        var select = string.Format("PRAGMA index_list([{0}])", table.Name);
-        using (var cmd = Connection.CreateCommand(select))
-        using (IDataReader reader = cmd.ExecuteReader()) {
-          while (reader.Read()) {
-            var tableSchema = table.Schema;
-            var tableName = table.Name;
-            var indexName = ReadStringOrNull(reader, 1);
-            if (indexName.StartsWith("sqlite_autoindex_")) {
-              // Special index used for primary keys
-              // It should be hidden here, because PK are already extracted in ExtractColumns()
-              continue;
-            }
-            var unique = reader.GetBoolean(2);
-            var index = table.CreateIndex(indexName);
-            index.IsUnique = unique;
-            foreach (var columnName in ColumnNamesFromIndex(indexName))
-              index.CreateIndexColumn(table.TableColumns[columnName]);
+        var query = BuildExtractIndexQuery(table.Name);
+        using var cmd = Connection.CreateCommand(query);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+          if (ReadIndexData(reader, table, out var index)) {
+            ExtractIndexColumns(table, index);
           }
         }
       }
     }
+
+    private async Task ExtractIndexesAsync(CancellationToken token)
+    {
+      foreach (var table in schema.Tables) {
+        var query = BuildExtractIndexQuery(table.Name);
+        var cmd = Connection.CreateCommand(query);
+        await using (cmd.ConfigureAwait(false)) {
+          await using var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            if (ReadIndexData(reader, table, out var index)) {
+              await ExtractIndexColumnsAsync(table, index, token).ConfigureAwait(false);
+            }
+          }
+        }
+      }
+    }
+
+    private static bool ReadIndexData(IDataReader reader, Table table, out Index index)
+    {
+      index = null;
+      var indexName = ReadStringOrNull(reader, 1);
+      if (indexName.StartsWith("sqlite_autoindex_", StringComparison.Ordinal)) {
+        // Special index used for primary keys
+        // It should be hidden here, because PK are already extracted in ExtractColumns()
+        return false;
+      }
+
+      var unique = reader.GetBoolean(2);
+      index = table.CreateIndex(indexName);
+      index.IsUnique = unique;
+      return true;
+    }
+
+    private static string BuildExtractIndexColumnsQuery(string indexName) => $"PRAGMA index_info([{indexName}])";
+
+    private void ExtractIndexColumns(Table table, Index index)
+    {
+      var query = BuildExtractIndexColumnsQuery(index.Name);
+      using var cmd = Connection.CreateCommand(query);
+      using IDataReader reader = cmd.ExecuteReader();
+      while (reader.Read()) {
+        index.CreateIndexColumn(table.TableColumns[ReadStringOrNull(reader, 2)]);
+      }
+    }
+
+    private async Task ExtractIndexColumnsAsync(Table table, Index index, CancellationToken token)
+    {
+      var query = BuildExtractIndexColumnsQuery(index.Name);
+      var cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false)) {
+        await using var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        while (await reader.ReadAsync(token)) {
+          index.CreateIndexColumn(table.TableColumns[ReadStringOrNull(reader, 2)]);
+        }
+      }
+    }
+
+    private static string BuildExtractForeignKeysQuery(string tableName) => $"PRAGMA foreign_key_list([{tableName}])";
 
     private void ExtractForeignKeys()
     {
       foreach (var table in schema.Tables) {
-        var select = string.Format("PRAGMA foreign_key_list([{0}])", table.Name);
+        var query = BuildExtractForeignKeysQuery(table.Name);
 
-        int lastColumnPosition = int.MaxValue;
-        ForeignKey constraint = null;
-        Table referencingTable = null;
-        Table referencedTable = null;
+        var state = new ForeignKeyReaderState(table);
+        using var cmd = Connection.CreateCommand(query);
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read()) {
+          ReadForeignKeyColumnData(reader, table, ref state);
+        }
+      }
+    }
 
-        using (var cmd = Connection.CreateCommand(select))
-        using (IDataReader reader = cmd.ExecuteReader()) {
-          ForeignKey foreignKey = null;
-          while (reader.Read()) {
-            var foreignKeyName = String.Format(CultureInfo.InvariantCulture, "FK_{0}_{1}", referencingTable.Name, ReadStringOrNull(reader, 2));
+    private async Task ExtractForeignKeysAsync(CancellationToken token)
+    {
+      foreach (var table in schema.Tables) {
+        var query = BuildExtractForeignKeysQuery(table.Name);
 
-            int columnPosition = ReadInt(reader, 5);
-            if (columnPosition <= lastColumnPosition) {
-              referencingTable = table;
-              constraint = referencingTable.CreateForeignKey(foreignKeyName);
-
-              ReadCascadeAction(constraint, reader, 7);
-              var referencedSchema = table.Schema; //Schema same as current
-              referencedTable = referencedSchema.Tables[ReadStringOrNull(reader, 2)];
-              constraint.ReferencedTable = referencedTable;
-            }
-            var referencingColumn = referencingTable.TableColumns[reader.GetString(3)];
-            var referencedColumn = referencedTable.TableColumns[reader.GetString(4)];
-            constraint.Columns.Add(referencingColumn);
-            constraint.ReferencedColumns.Add(referencedColumn);
-            lastColumnPosition = columnPosition;
+        var state = new ForeignKeyReaderState(table);
+        var cmd = Connection.CreateCommand(query);
+        await using (cmd.ConfigureAwait(false))
+        await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadForeignKeyColumnData(reader, table, ref state);
           }
         }
       }
     }
 
-    private ReferentialAction GetReferentialAction(string actionName)
+    private static void ReadForeignKeyColumnData(DbDataReader reader, Table table, ref ForeignKeyReaderState state)
     {
-      if (actionName.ToUpper()=="SET NULL")
-        return ReferentialAction.SetNull;
-      if (actionName.ToUpper()=="SET DEFAULT")
-        return ReferentialAction.SetDefault;
-      if (actionName.StartsWith("CASCADE"))
-        return ReferentialAction.Cascade;
-      return ReferentialAction.NoAction;
+      var foreignKeyName = string.Format(
+        CultureInfo.InvariantCulture, "FK_{0}_{1}", state.ReferencingTable.Name, ReadStringOrNull(reader, 2));
+
+      var columnIndex = ReadInt(reader, 5);
+      if (columnIndex <= state.LastColumnIndex) {
+        state.ForeignKey = state.ReferencingTable.CreateForeignKey(foreignKeyName);
+
+        ReadCascadeAction(state.ForeignKey, reader, 7);
+        var referencedSchema = table.Schema; //Schema same as current
+        var referencedTable = referencedSchema.Tables[ReadStringOrNull(reader, 2)];
+        state.ReferencedTable = referencedTable;
+        state.ForeignKey.ReferencedTable = referencedTable;
+      }
+
+      var referencingColumn = state.ReferencingTable.TableColumns[reader.GetString(3)];
+      var referencedColumn = state.ReferencedTable.TableColumns[reader.GetString(4)];
+      state.ForeignKey.Columns.Add(referencingColumn);
+      state.ForeignKey.ReferencedColumns.Add(referencedColumn);
+      state.LastColumnIndex = columnIndex;
     }
 
     private SqlValueType ParseValueType(string typeDefinition)
     {
-      string typeName = ParseTypeName(typeDefinition);
+      var typeName = ParseTypeName(typeDefinition);
 
       // First try predefined names first
       var typeInfo = Driver.ServerInfo.DataTypes[typeName];
-      if (typeInfo!=null)
+      if (typeInfo!=null) {
         return new SqlValueType(typeInfo.Type);
-     
+      }
+
       // If it didn't succeed use generic matching algorithm
       // (rules are taken from sqlite docs)
 
       // (1) If the declared type contains the string "INT" then it is assigned INTEGER affinity.
-      if (typeName.Contains("int"))
+      if (typeName.Contains("int")) {
         return new SqlValueType(SqlType.Int64);
+      }
 
       // (2) If the declared type of the column contains any of the strings "CHAR", "CLOB", or "TEXT"
       // then that column has TEXT affinity.
-      if (typeName.Contains("char") || typeName.Contains("clob") || typeName.Contains("text"))
+      if (typeName.Contains("char") || typeName.Contains("clob") || typeName.Contains("text")) {
         return new SqlValueType(SqlType.VarCharMax);
+      }
 
       // (3) If the declared type for a column contains the string "BLOB"
       // or if no type is specified then the column has affinity NONE.
-      if (typeName.Contains("blob") || typeName==string.Empty)
+      if (typeName.Contains("blob") || typeName==string.Empty) {
         return new SqlValueType(SqlType.VarBinaryMax);
+      }
 
       // (4) If the declared type for a column contains any of the strings
       // "REAL", "FLOA", or "DOUB" then the column has REAL affinity.
-      if (typeName.Contains("real") || typeName.Contains("floa") || typeName.Contains("doub"))
+      if (typeName.Contains("real") || typeName.Contains("floa") || typeName.Contains("doub")) {
         return new SqlValueType(SqlType.Double);
+      }
 
       // (5) Otherwise, the affinity is NUMERIC.
       return new SqlValueType(SqlType.Decimal);
     }
 
-    private string ParseTypeName(string typeDefinition)
+    private static string ParseTypeName(string typeDefinition)
     {
       var result = typeDefinition
         .SkipWhile(char.IsWhiteSpace)
@@ -272,19 +457,15 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static int ReadInt(IDataRecord row, int index)
     {
-      decimal value = row.GetDecimal(index);
+      var value = row.GetDecimal(index);
       return value > int.MaxValue ? int.MaxValue : (int) value;
     }
 
-    private static string ReadStringOrNull(IDataRecord row, int index)
-    {
-      return row.IsDBNull(index) ? null : row.GetString(index);
-    }
+    private static string ReadStringOrNull(IDataRecord row, int index) =>
+      row.IsDBNull(index) ? null : row.GetString(index);
 
-    private static int? ReadNullableInt(IDataRecord reader, string column)
-    {
-      return Convert.IsDBNull(reader[column]) ? null : (int?) Convert.ToInt32(reader[column]);
-    }
+    private static int? ReadNullableInt(IDataRecord reader, string column) =>
+      Convert.IsDBNull(reader[column]) ? null : (int?) Convert.ToInt32(reader[column]);
 
     private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
     {
