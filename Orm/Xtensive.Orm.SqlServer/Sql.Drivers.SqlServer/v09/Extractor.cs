@@ -6,8 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Globalization;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -24,32 +27,43 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private readonly Dictionary<int, Domain> domainIndex = new Dictionary<int, Domain>();
     private readonly Dictionary<int, string> typeNameIndex = new Dictionary<int, string>();
     private readonly Dictionary<int, ColumnResolver> columnResolverIndex = new Dictionary<int, ColumnResolver>();
-    protected readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
+    private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
     protected const string SysTablesFilterPlaceholder = "{SYSTABLE_FILTER}";
     protected const string CatalogPlaceholder = "{CATALOG}";
     protected const string SchemaFilterPlaceholder = "{SCHEMA_FILTER}";
 
-    protected Catalog catalog;
-    protected HashSet<string> targetSchemes = new HashSet<string>();
-    //protected Dictionary<string, Schema> targetSchemes = new Dictionary<string, Schema>();
+    private Catalog catalog;
+    private readonly HashSet<string> targetSchemes = new HashSet<string>();
 
-    public override Catalog ExtractCatalog(string catalogName)
+    public override Catalog ExtractCatalog(string catalogName) =>
+      ExtractSchemes(catalogName, Array.Empty<string>());
+
+    public override Task<Catalog> ExtractCatalogAsync(string catalogName, CancellationToken token = default) =>
+      ExtractSchemesAsync(catalogName, Array.Empty<string>(), token);
+
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
-      catalog = new Catalog(catalogName);
+      CreateCatalog(catalogName, schemaNames);
       ExtractCatalogContents();
       return catalog;
     }
 
-    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
+    public override async Task<Catalog> ExtractSchemesAsync(
+      string catalogName, string[] schemaNames, CancellationToken token = default)
+    {
+      CreateCatalog(catalogName, schemaNames);
+      await ExtractCatalogContentsAsync(token);
+      return catalog;
+    }
+
+    private void CreateCatalog(string catalogName, string[] schemaNames)
     {
       catalog = new Catalog(catalogName);
+      targetSchemes.UnionWith(schemaNames);
       foreach (var schemaName in schemaNames) {
-        targetSchemes.Add(schemaName);
         catalog.CreateSchema(schemaName);
       }
-      ExtractCatalogContents();
-      return catalog;
     }
 
     protected virtual void ExtractCatalogContents()
@@ -63,10 +77,50 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       ExtractFulltextIndexes();
     }
 
+    protected virtual async Task ExtractCatalogContentsAsync(CancellationToken token)
+    {
+      await ExtractSchemasAsync(token).ConfigureAwait(false);
+      await ExtractTypesAsync(token).ConfigureAwait(false);
+      await ExtractTablesAndViewsAsync(token).ConfigureAwait(false);
+      await ExtractColumnsAsync(token).ConfigureAwait(false);
+      await ExtractIndexesAsync(token).ConfigureAwait(false);
+      await ExtractForeignKeysAsync(token).ConfigureAwait(false);
+      await ExtractFulltextIndexesAsync(token).ConfigureAwait(false);
+    }
+
     // All schemas
     private void ExtractSchemas()
     {
-      string query = @"
+      var query = BuildExtractSchemasQuery();
+
+      using (var cmd = Connection.CreateCommand(query))
+      using (var reader = cmd.ExecuteReader()) {
+        while (reader.Read()) {
+          ReadSchemaData(reader);
+        }
+      }
+
+      RegisterReplacements(replacementsRegistry);
+    }
+
+    private async Task ExtractSchemasAsync(CancellationToken token)
+    {
+      var query = BuildExtractSchemasQuery();
+
+      var cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadSchemaData(reader);
+        }
+      }
+
+      RegisterReplacements(replacementsRegistry);
+    }
+
+    private string BuildExtractSchemasQuery()
+    {
+      var query = @"
   SELECT
     s.schema_id,
     s.name,
@@ -77,37 +131,48 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   WHERE s.schema_id < 16384";
       RegisterReplacements(replacementsRegistry);
       query = PerformReplacements(query);
+      return query;
+    }
 
-      using (var cmd = Connection.CreateCommand(query))
-      using (var reader = cmd.ExecuteReader())
-        while (reader.Read()) {
-          Schema currentSchema;
-          int identifier = reader.GetInt32(0);
-          string name = reader.GetString(1);
-          // if we've already had the schema we mustn't create schema
-          if (!targetSchemes.Contains(name))
-            currentSchema = catalog.CreateSchema(name);
-          else
-            currentSchema = catalog.Schemas[name];
-          schemaIndex[identifier] = currentSchema;
-          reversedSchemaIndex[currentSchema] = identifier;
-          currentSchema.Owner = reader.GetString(2);
+    private void ReadSchemaData(DbDataReader reader)
+    {
+      var identifier = reader.GetInt32(0);
+      var name = reader.GetString(1);
+      var schema = !targetSchemes.Contains(name) ? catalog.CreateSchema(name) : catalog.Schemas[name];
 
-          //if (schema!=null && schema.Name==name) {
-          //  currentSchema = schema;
-          //  schemaId = identifier;  
-          //}
-          //else
-          //  currentSchema = catalog.CreateSchema(name);
-          
-        }
-      RegisterReplacements(replacementsRegistry);
+      schemaIndex[identifier] = schema;
+      reversedSchemaIndex[schema] = identifier;
+      schema.Owner = reader.GetString(2);
     }
 
     // Types & domains must be extracted for all schemas
     private void ExtractTypes()
     {
-      string query = @"
+      var query = BuildExtractTypesQuery();
+
+      using var command = Connection.CreateCommand(query);
+      using var reader = command.ExecuteReader();
+      while (reader.Read()) {
+        ReadTypeData(reader);
+      }
+    }
+
+    private async Task ExtractTypesAsync(CancellationToken token)
+    {
+      var query = BuildExtractTypesQuery();
+
+      var command = Connection.CreateCommand(query);
+      await using (command.ConfigureAwait(false))
+      await using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadTypeData(reader);
+        }
+      }
+    }
+
+    private string BuildExtractTypesQuery()
+    {
+      var query = @"
   SELECT 
     schema_id,
     user_type_id,
@@ -122,37 +187,59 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     is_user_defined,
     user_type_id";
       query = PerformReplacements(query);
+      return query;
+    }
 
-      //int currentSchemaId = schemaId;
-      //Schema currentSchema = schema;
-      using (var command = Connection.CreateCommand(query))
-      using (var reader = command.ExecuteReader())
-        while (reader.Read()) {
+    private void ReadTypeData(DbDataReader reader)
+    {
+      var userTypeId = reader.GetInt32(1);
+      int systemTypeId = reader.GetByte(2);
+      var name = reader.GetString(3);
+      typeNameIndex[userTypeId] = name;
 
-          int userTypeId = reader.GetInt32(1);
-          int systemTypeId = reader.GetByte(2);
-          string name = reader.GetString(3);
-          typeNameIndex[userTypeId] = name;
+      // Type is not user-defined
+      if (!reader.GetBoolean(7)) {
+        return;
+      }
 
-          // Type is not user-defined
-          if (!reader.GetBoolean(7))
-            continue;
+      // Unknown system type
+      if (!typeNameIndex.TryGetValue(systemTypeId, out _)) {
+        return;
+      }
 
-          // Unknown system type
-          string systemName;
-          if (!typeNameIndex.TryGetValue(systemTypeId, out systemName))
-            continue;
-
-          var currentSchema = GetSchema(reader.GetInt32(0));
-          var dataType = GetValueType(typeNameIndex[systemTypeId], reader.GetByte(4), reader.GetByte(5), reader.GetInt16(6));
-          var domain = currentSchema.CreateDomain(name, dataType);
-          domainIndex[userTypeId] = domain;
-        }
+      var currentSchema = GetSchema(reader.GetInt32(0));
+      var dataType = GetValueType(typeNameIndex[systemTypeId], reader.GetByte(4), reader.GetByte(5), reader.GetInt16(6));
+      var domain = currentSchema.CreateDomain(name, dataType);
+      domainIndex[userTypeId] = domain;
     }
 
     private void ExtractTablesAndViews()
     {
-      string query = @"
+      var query = BuildExtractTablesAndViewsQuery();
+
+      using var cmd = Connection.CreateCommand(query);
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read()) {
+        ReadTableOrViewData(reader);
+      }
+    }
+
+    private async Task ExtractTablesAndViewsAsync(CancellationToken token)
+    {
+      var query = BuildExtractTablesAndViewsQuery();
+
+      var cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadTableOrViewData(reader);
+        }
+      }
+    }
+
+    private string BuildExtractTablesAndViewsQuery()
+    {
+      var query = @"
   SELECT
     t.schema_id,
     t.object_id,
@@ -177,26 +264,75 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   WHERE t.schema_id {SCHEMA_FILTER}
   ORDER BY t.schema_id, t.object_id";
       query = PerformReplacements(query);
+      return query;
+    }
 
-      //var currentSchemaId = schemaId;
-      //var currentSchema = schema;
-      using (var cmd = Connection.CreateCommand(query))
-      using (var reader = cmd.ExecuteReader())
-        while (reader.Read()) {
-          var currentSchema = GetSchema(reader.GetInt32(0));
-          int tableType = reader.GetInt32(3);
-          DataTable dataTable;
-          if (tableType==0)
-            dataTable = currentSchema.CreateTable(reader.GetString(2));
-          else
-            dataTable = currentSchema.CreateView(reader.GetString(2));
-          columnResolverIndex[reader.GetInt32(1)] = new ColumnResolver(dataTable);
-        }
+    private void ReadTableOrViewData(DbDataReader reader)
+    {
+      var currentSchema = GetSchema(reader.GetInt32(0));
+      var tableType = reader.GetInt32(3);
+      DataTable dataTable;
+      if (tableType == 0) {
+        dataTable = currentSchema.CreateTable(reader.GetString(2));
+      }
+      else {
+        dataTable = currentSchema.CreateView(reader.GetString(2));
+      }
+
+      columnResolverIndex[reader.GetInt32(1)] = new ColumnResolver(dataTable);
     }
 
     private void ExtractColumns()
     {
-      string query = @"
+      var query = BuildExtractColumnsQuery();
+
+      var currentTableId = 0;
+      ColumnResolver columnResolver = null;
+      using (var cmd = Connection.CreateCommand(query))
+      using (var reader = cmd.ExecuteReader()) {
+        while (reader.Read()) {
+          ReadColumnData(reader, ref currentTableId, ref columnResolver);
+        }
+      }
+
+      query = BuildExtractIdentityColumnsQuery();
+
+      using (var cmd = Connection.CreateCommand(query))
+      using (var reader = cmd.ExecuteReader()) {
+        while (reader.Read()) {
+          ReadIdentityColumnData(reader);
+        }
+      }
+    }
+
+    private async Task ExtractColumnsAsync(CancellationToken token)
+    {
+      var query = BuildExtractColumnsQuery();
+
+      var currentTableId = 0;
+      ColumnResolver columnResolver = null;
+      var cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadColumnData(reader, ref currentTableId, ref columnResolver);
+        }
+      }
+
+      query = BuildExtractIdentityColumnsQuery();
+
+      cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadIdentityColumnData(reader);
+        }
+      }
+    }
+
+    private string BuildExtractColumnsQuery()
+    {
+      var query = @"
   SELECT
     t.schema_id,
     c.object_id,
@@ -240,64 +376,60 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     c.object_id,
     c.column_id";
       query = PerformReplacements(query);
+      return query;
+    }
 
-      int currentTableId = 0;
-      ColumnResolver columnResolver = null;
-      //int currentSchemaId = schemaId;
-      //Schema currentSchema = schema;
-      using (var cmd = Connection.CreateCommand(query))
-      using (var reader = cmd.ExecuteReader()) {
-        while (reader.Read()) {
-          
-          int tableId = reader.GetInt32(1);
-          int columnId = reader.GetInt32(2);
-          GetDataTable(tableId, ref currentTableId, ref columnResolver);
-          var table = columnResolver.Table as Table;
-          // Table column
-          if (table != null) {
-            var typeId = reader.GetInt32(4);
-            var sqlDataType = GetValueType(typeNameIndex[typeId], reader.GetByte(5), reader.GetByte(6), reader.GetInt16(7));
-            var column = table.CreateColumn(reader.GetString(3), sqlDataType);
-            int count = table.TableColumns.Count;
-            
-            // <-db column index is not equal to column position in table.Columns. This is common after column removals or insertions.
-            columnResolver.RegisterColumnMapping(columnId, count - 1);
+    private void ReadColumnData(DbDataReader reader, ref int currentTableId, ref ColumnResolver columnResolver)
+    {
+      var tableId = reader.GetInt32(1);
+      var columnId = reader.GetInt32(2);
+      GetDataTable(tableId, ref currentTableId, ref columnResolver);
+      // Table column
+      if (columnResolver.Table is Table table) {
+        var typeId = reader.GetInt32(4);
+        var sqlDataType = GetValueType(typeNameIndex[typeId], reader.GetByte(5), reader.GetByte(6), reader.GetInt16(7));
+        var column = table.CreateColumn(reader.GetString(3), sqlDataType);
+        var count = table.TableColumns.Count;
 
-            // Domain
-            Domain domain;
-            if (domainIndex.TryGetValue(typeId, out domain))
-              column.Domain = domain;
+        // <-db column index is not equal to column position in table.Columns. This is common after column removals or insertions.
+        columnResolver.RegisterColumnMapping(columnId, count - 1);
 
-            // Collation
-            if (!reader.IsDBNull(8)) {
-              var currentSchema = GetSchema(reader.GetInt32(0));
-              string collationName = reader.GetString(8);
-              column.Collation = currentSchema.Collations[collationName] ?? currentSchema.CreateCollation(collationName);
-            }
+        // Domain
+        if (domainIndex.TryGetValue(typeId, out var domain)) {
+          column.Domain = domain;
+        }
 
-            // Nullability
-            column.IsNullable = reader.GetBoolean(9);
+        // Collation
+        if (!reader.IsDBNull(8)) {
+          var currentSchema = GetSchema(reader.GetInt32(0));
+          var collationName = reader.GetString(8);
+          column.Collation = currentSchema.Collations[collationName] ?? currentSchema.CreateCollation(collationName);
+        }
 
-            // Default constraint
-            if (!reader.IsDBNull(11)) {
-              table.CreateDefaultConstraint(reader.GetString(11), column);
-              column.DefaultValue = reader.GetString(12).StripRoundBrackets();
-            }
+        // Nullability
+        column.IsNullable = reader.GetBoolean(9);
 
-            // Computed column
-            if (!reader.IsDBNull(13)) {
-              column.IsPersisted = reader.GetBoolean(13);
-              column.Expression = SqlDml.Native(reader.GetString(14));
-            }
-          }
-          else {
-            var view = (View) columnResolver.Table;
-            view.CreateColumn(reader.GetString(3));
-          }
+        // Default constraint
+        if (!reader.IsDBNull(11)) {
+          table.CreateDefaultConstraint(reader.GetString(11), column);
+          column.DefaultValue = reader.GetString(12).StripRoundBrackets();
+        }
+
+        // Computed column
+        if (!reader.IsDBNull(13)) {
+          column.IsPersisted = reader.GetBoolean(13);
+          column.Expression = SqlDml.Native(reader.GetString(14));
         }
       }
+      else {
+        var view = (View) columnResolver.Table;
+        view.CreateColumn(reader.GetString(3));
+      }
+    }
 
-      query = @"
+    private string BuildExtractIdentityColumnsQuery()
+    {
+      var query = @"
   SELECT
     t.schema_id,
     ic.object_id,
@@ -316,22 +448,26 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     t.schema_id,
     ic.object_id";
       query = PerformReplacements(query);
+      return query;
+    }
 
-      using (var cmd = Connection.CreateCommand(query))
-        using (var reader = cmd.ExecuteReader())
-          while (reader.Read()) {
+    private void ReadIdentityColumnData(DbDataReader reader)
+    {
+      var dataColumn = columnResolverIndex[reader.GetInt32(1)].GetColumn(reader.GetInt32(2));
 
-            var dataColumn = columnResolverIndex[reader.GetInt32(1)].GetColumn(reader.GetInt32(2));
+      var tableColumn = (TableColumn) dataColumn;
+      tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn);
+      if (!reader.IsDBNull(3)) {
+        tableColumn.SequenceDescriptor.StartValue = Convert.ToInt64(reader.GetValue(3));
+      }
 
-            var tableColumn = (TableColumn)dataColumn;
-            tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn);
-            if (!reader.IsDBNull(3))
-              tableColumn.SequenceDescriptor.StartValue = Convert.ToInt64(reader.GetValue(3));
-            if (!reader.IsDBNull(4))
-              tableColumn.SequenceDescriptor.Increment = Convert.ToInt64(reader.GetValue(4));
-            if (!reader.IsDBNull(5))
-              tableColumn.SequenceDescriptor.LastValue = Convert.ToInt64(reader.GetValue(5));
-          }
+      if (!reader.IsDBNull(4)) {
+        tableColumn.SequenceDescriptor.Increment = Convert.ToInt64(reader.GetValue(4));
+      }
+
+      if (!reader.IsDBNull(5)) {
+        tableColumn.SequenceDescriptor.LastValue = Convert.ToInt64(reader.GetValue(5));
+      }
     }
 
     public void ExtractCheckConstraints()
@@ -339,9 +475,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       // TODO: Implement
     }
 
-    protected virtual string GetIndexQuery()
+    protected virtual string BuildExtractIndexesQuery()
     {
-      string query = @"
+      var query = @"
   SELECT
     t.schema_id,
     t.object_id,
@@ -394,84 +530,152 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     private void ExtractIndexes()
     {
-      string query = GetIndexQuery();
+      var query = BuildExtractIndexesQuery();
       const int spatialIndexType = 4;
 
-      int tableId = 0;
+      var tableId = 0;
       ColumnResolver table = null;
       Index index = null;
       PrimaryKey primaryKey = null;
       UniqueConstraint uniqueConstraint = null;
-      using (var cmd = Connection.CreateCommand(query))
-      using (var reader = cmd.ExecuteReader())
-        while (reader.Read()) {
+      using var cmd = Connection.CreateCommand(query);
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read()) {
+        ReadIndexColumnData(
+          reader, ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
+      }
+    }
 
-          int columnId = reader.GetInt32(10);
-          int indexType = reader.GetByte(5);
+    private async Task ExtractIndexesAsync(CancellationToken token)
+    {
+      var query = BuildExtractIndexesQuery();
+      const int spatialIndexType = 4;
 
-          // First column in index => new index or index is spatial (always has exactly one column)
-          if (reader.GetByte(12) == 1 || indexType == spatialIndexType) {
-            primaryKey = null;
-            uniqueConstraint = null;
-            index = null;
-            // Table could be changed only on new index creation
-            GetDataTable(reader.GetInt32(1), ref tableId, ref table);
-            var indexId = reader.GetInt32(3);
-            var indexName = reader.GetString(4);
+      var tableId = 0;
+      ColumnResolver table = null;
+      Index index = null;
+      PrimaryKey primaryKey = null;
+      UniqueConstraint uniqueConstraint = null;
+      var cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadIndexColumnData(
+            reader, ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
+        }
+      }
+    }
 
-            // Index is a part of primary key constraint
-            if (reader.GetBoolean(6)) {
-              primaryKey = ((Table) table.Table).CreatePrimaryKey(indexName);
-              if (Driver.ServerInfo.PrimaryKey.Features.Supports(PrimaryKeyConstraintFeatures.Clustered))
-                primaryKey.IsClustered = reader.GetByte(5)==1;
-            }
-            else {
-              // Spatial index
-              if (indexType == spatialIndexType) {
-                index = table.Table.CreateSpatialIndex(indexName);
-                index.FillFactor = reader.GetByte(9);
-              }
-              else {
-                index = table.Table.CreateIndex(indexName);
-                index.IsUnique = reader.GetBoolean(7);
-                if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Clustered))
-                  index.IsClustered = reader.GetByte(5)==1;
-                index.FillFactor = reader.GetByte(9);
-                if (!reader.IsDBNull(15) && reader.GetBoolean(15))
-                  index.Where = SqlDml.Native(reader.GetString(16));
+    private void ReadIndexColumnData(DbDataReader reader, ref int tableId, int spatialIndexType, ref PrimaryKey primaryKey,
+      ref UniqueConstraint uniqueConstraint, ref Index index, ref ColumnResolver table)
+    {
+      var columnId = reader.GetInt32(10);
+      int indexType = reader.GetByte(5);
 
-                // Index is a part of unique constraint
-                if (reader.GetBoolean(8)) {
-                  uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(indexName);
-                  if (index.IsClustered && Driver.ServerInfo.UniqueConstraint.Features.Supports(UniqueConstraintFeatures.Clustered))
-                    uniqueConstraint.IsClustered = true;
-                }
-              }
-            }
+      // First column in index => new index or index is spatial (always has exactly one column)
+      if (reader.GetByte(12) == 1 || indexType == spatialIndexType) {
+        primaryKey = null;
+        uniqueConstraint = null;
+        index = null;
+        // Table could be changed only on new index creation
+        GetDataTable(reader.GetInt32(1), ref tableId, ref table);
+        var indexId = reader.GetInt32(3);
+        var indexName = reader.GetString(4);
+
+        // Index is a part of primary key constraint
+        if (reader.GetBoolean(6)) {
+          primaryKey = ((Table) table.Table).CreatePrimaryKey(indexName);
+          if (Driver.ServerInfo.PrimaryKey.Features.Supports(PrimaryKeyConstraintFeatures.Clustered)) {
+            primaryKey.IsClustered = reader.GetByte(5) == 1;
           }
-
-          // Column is a part of a primary index
-          if (reader.GetBoolean(6))
-            primaryKey.Columns.Add((TableColumn)table.GetColumn(columnId));
+        }
+        else {
+          // Spatial index
+          if (indexType == spatialIndexType) {
+            index = table.Table.CreateSpatialIndex(indexName);
+            index.FillFactor = reader.GetByte(9);
+          }
           else {
-            // Column is a part of unique constraint
-            if (reader.GetBoolean(8))
-              uniqueConstraint.Columns.Add((TableColumn) table.GetColumn(columnId));
+            index = table.Table.CreateIndex(indexName);
+            index.IsUnique = reader.GetBoolean(7);
+            if (Driver.ServerInfo.Index.Features.Supports(IndexFeatures.Clustered)) {
+              index.IsClustered = reader.GetByte(5) == 1;
+            }
 
-            if (index != null) {
-              // Column is non key column
-              if (reader.GetBoolean(14))
-                index.NonkeyColumns.Add(table.GetColumn(columnId));
-              else
-                index.CreateIndexColumn(table.GetColumn(columnId), !reader.GetBoolean(13));
+            index.FillFactor = reader.GetByte(9);
+            if (!reader.IsDBNull(15) && reader.GetBoolean(15)) {
+              index.Where = SqlDml.Native(reader.GetString(16));
+            }
+
+            // Index is a part of unique constraint
+            if (reader.GetBoolean(8)) {
+              uniqueConstraint = ((Table) table.Table).CreateUniqueConstraint(indexName);
+              if (index.IsClustered
+                && Driver.ServerInfo.UniqueConstraint.Features.Supports(UniqueConstraintFeatures.Clustered)) {
+                uniqueConstraint.IsClustered = true;
+              }
             }
           }
         }
+      }
+
+      // Column is a part of a primary index
+      if (reader.GetBoolean(6)) {
+        primaryKey.Columns.Add((TableColumn) table.GetColumn(columnId));
+      }
+      else {
+        // Column is a part of unique constraint
+        if (reader.GetBoolean(8)) {
+          uniqueConstraint.Columns.Add((TableColumn) table.GetColumn(columnId));
+        }
+
+        if (index != null) {
+          // Column is non key column
+          if (reader.GetBoolean(14)) {
+            index.NonkeyColumns.Add(table.GetColumn(columnId));
+          }
+          else {
+            index.CreateIndexColumn(table.GetColumn(columnId), !reader.GetBoolean(13));
+          }
+        }
+      }
     }
 
     private void ExtractForeignKeys()
     {
-      string query = @"
+      var query = BuildExtractForeignKeysQuery();
+
+      int tableId = 0, constraintId = 0;
+      ColumnResolver referencingTable = null;
+      ColumnResolver referencedTable = null;
+      ForeignKey foreignKey = null;
+      using var cmd = Connection.CreateCommand(query);
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read()) {
+        ReadForeignKeyColumnData(reader, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
+      }
+    }
+
+    private async Task ExtractForeignKeysAsync(CancellationToken token)
+    {
+      var query = BuildExtractForeignKeysQuery();
+
+      int tableId = 0, constraintId = 0;
+      ColumnResolver referencingTable = null;
+      ColumnResolver referencedTable = null;
+      ForeignKey foreignKey = null;
+      var cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadForeignKeyColumnData(reader, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
+        }
+      }
+    }
+
+    private string BuildExtractForeignKeysQuery()
+    {
+      var query = @"
   SELECT
     fk.schema_id,
     fk.object_id,
@@ -493,33 +697,59 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     fk.object_id,
     fkc.constraint_column_id";
       query = PerformReplacements(query);
+      return query;
+    }
 
-      int tableId = 0, constraintId = 0;
-      ColumnResolver referencingTable = null;
-      ColumnResolver referencedTable = null;
-      ForeignKey foreignKey = null;
-      using (var cmd = Connection.CreateCommand(query))
-      using (var reader = cmd.ExecuteReader()) {
-        while (reader.Read()) {
-          // First column in constraint => new constraint
-          if (reader.GetInt32(5) == 1) {
-            GetDataTable(reader.GetInt32(6), ref tableId, ref referencingTable);
-            foreignKey = ((Table)referencingTable.Table).CreateForeignKey(reader.GetString(2));
-            referencedTable = columnResolverIndex[reader.GetInt32(8)];
-            foreignKey.ReferencedTable = (Table) referencedTable.Table;
-            foreignKey.OnDelete = GetReferentialAction(reader.GetByte(3));
-            foreignKey.OnUpdate = GetReferentialAction(reader.GetByte(4));
-          }
-
-          foreignKey.Columns.Add((TableColumn) referencingTable.GetColumn(reader.GetInt32(7)));
-          foreignKey.ReferencedColumns.Add((TableColumn) referencedTable.GetColumn(reader.GetInt32(9)));
-        }
+    private void ReadForeignKeyColumnData(DbDataReader reader, ref int tableId, ref ForeignKey foreignKey,
+      ref ColumnResolver referencingTable, ref ColumnResolver referencedTable)
+    {
+      // First column in constraint => new constraint
+      if (reader.GetInt32(5) == 1) {
+        GetDataTable(reader.GetInt32(6), ref tableId, ref referencingTable);
+        foreignKey = ((Table) referencingTable.Table).CreateForeignKey(reader.GetString(2));
+        referencedTable = columnResolverIndex[reader.GetInt32(8)];
+        foreignKey.ReferencedTable = (Table) referencedTable.Table;
+        foreignKey.OnDelete = GetReferentialAction(reader.GetByte(3));
+        foreignKey.OnUpdate = GetReferentialAction(reader.GetByte(4));
       }
+
+      foreignKey.Columns.Add((TableColumn) referencingTable.GetColumn(reader.GetInt32(7)));
+      foreignKey.ReferencedColumns.Add((TableColumn) referencedTable.GetColumn(reader.GetInt32(9)));
     }
 
     protected virtual void ExtractFulltextIndexes()
     {
-      string query = @"
+      var query = BuildExtractFullTextIndexesQuery();
+
+      var currentTableId = 0;
+      ColumnResolver table = null;
+      FullTextIndex index = null;
+      using var cmd = Connection.CreateCommand(query);
+      using var reader = cmd.ExecuteReader();
+      while (reader.Read()) {
+        ReadFullTextIndexColumnData(reader, ref currentTableId, ref table, ref index);
+      }
+    }
+
+    protected virtual async Task ExtractFulltextIndexesAsync(CancellationToken token)
+    {
+      var query = BuildExtractFullTextIndexesQuery();
+
+      var currentTableId = 0;
+      ColumnResolver table = null;
+      FullTextIndex index = null;
+      var cmd = Connection.CreateCommand(query);
+      await using (cmd.ConfigureAwait(false))
+      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadFullTextIndexColumnData(reader, ref currentTableId, ref table, ref index);
+        }
+      }
+    }
+
+    private string BuildExtractFullTextIndexesQuery()
+    {
+      var query = @"
   SELECT
     t.schema_id,
     fic.object_id,
@@ -551,61 +781,52 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     fic.object_id,
     fic.column_id";
       query = PerformReplacements(query);
+      return query;
+    }
 
-      int currentTableId = 0;
-      ColumnResolver table = null;
-      FullTextIndex index = null;
-      using (var cmd = Connection.CreateCommand(query))
-      using (var reader = cmd.ExecuteReader())
-        while (reader.Read()) {
-          int nextTableId = reader.GetInt32(1);
-          if (currentTableId != nextTableId) {
-            GetDataTable(nextTableId, ref currentTableId, ref table);
-            index = table.Table.CreateFullTextIndex(string.Empty);
-            index.FullTextCatalog = reader.GetBoolean(4)
-              ? null
-              : reader.GetString(3);
-            index.UnderlyingUniqueIndex = reader.GetString(8);
-            index.ChangeTrackingMode = GetChangeTrackingMode(reader.GetString(9), reader.IsDBNull(10));
-          }
-          var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(5)));
-          column.TypeColumn = (reader.IsDBNull(6)) ? null : table.GetColumn(reader.GetInt32(6));
-          column.Languages.Add(new Language(reader.GetString(7)));
-        }
+    private void ReadFullTextIndexColumnData(DbDataReader reader, ref int currentTableId, ref ColumnResolver table,
+      ref FullTextIndex index)
+    {
+      var nextTableId = reader.GetInt32(1);
+      if (currentTableId != nextTableId) {
+        GetDataTable(nextTableId, ref currentTableId, ref table);
+        index = table.Table.CreateFullTextIndex(string.Empty);
+        index.FullTextCatalog = reader.GetBoolean(4)
+          ? null
+          : reader.GetString(3);
+        index.UnderlyingUniqueIndex = reader.GetString(8);
+        index.ChangeTrackingMode = GetChangeTrackingMode(reader.GetString(9), reader.IsDBNull(10));
+      }
+
+      var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(5)));
+      column.TypeColumn = (reader.IsDBNull(6)) ? null : table.GetColumn(reader.GetInt32(6));
+      column.Languages.Add(new Language(reader.GetString(7)));
     }
 
     protected string PerformReplacements(string query)
     {
-      foreach (var registry in replacementsRegistry)
+      foreach (var registry in replacementsRegistry) {
         query = query.Replace(registry.Key, registry.Value);
+      }
+
       return query;
     }
 
-    private static ReferentialAction GetReferentialAction(int actionCode)
-    {
-      switch (actionCode) {
-        case 0:
-          return ReferentialAction.NoAction;
-        case 1:
-          return ReferentialAction.Cascade;
-        case 2:
-          return ReferentialAction.SetNull;
-      }
-      return ReferentialAction.SetDefault;
-    }
+    private static ReferentialAction GetReferentialAction(int actionCode) =>
+      actionCode switch {
+        0 => ReferentialAction.NoAction,
+        1 => ReferentialAction.Cascade,
+        2 => ReferentialAction.SetNull,
+        _ => ReferentialAction.SetDefault
+      };
 
-    private static ChangeTrackingMode GetChangeTrackingMode(string mode, bool isPopulationOff)
-    {
-      switch (mode) {
-        case "A":
-          return ChangeTrackingMode.Auto;
-        case "M":
-          return ChangeTrackingMode.Manual;
-        case "O":
-          return (isPopulationOff) ? ChangeTrackingMode.OffWithNoPopulation : ChangeTrackingMode.Off;
-      }
-      return ChangeTrackingMode.Default;
-    }
+    private static ChangeTrackingMode GetChangeTrackingMode(string mode, bool isPopulationOff) =>
+      mode switch {
+        "A" => ChangeTrackingMode.Auto,
+        "M" => ChangeTrackingMode.Manual,
+        "O" => isPopulationOff ? ChangeTrackingMode.OffWithNoPopulation : ChangeTrackingMode.Off,
+        _ => ChangeTrackingMode.Default
+      };
 
     // Do not touch this!!! The author is Denis Krjuchkov
     private SqlValueType GetValueType(string dataType, int numericPrecision, int numericScale, int maxLength)
@@ -617,8 +838,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         type = typeInfo.Type;
         typeName = null;
       }
-      else
+      else {
         type = SqlType.Unknown;
+      }
 
       int? precision = numericPrecision;
       int? scale = numericScale;
@@ -629,41 +851,45 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         scale = null;
       }
 
-      if (numericPrecision > 0 || numericScale > 0)
+      if (numericPrecision > 0 || numericScale > 0) {
         maxLength = 0;
+      }
 
       int? size = maxLength;
       if (size <= 0) {
         size = null;
-        if (type==SqlType.VarChar)
+        if (type==SqlType.VarChar) {
           type = SqlType.VarCharMax;
-        if (type==SqlType.VarBinary)
+        }
+
+        if (type==SqlType.VarBinary) {
           type = SqlType.VarBinaryMax;
+        }
       }
       if (typeInfo!=null) {
         if (typeInfo.MaxLength==null) {
           // resetting length for types that do not require specifying it
           size = null;
         }
-        else if (size!=null && size > 1)
+        else if (size!=null && size > 1) {
           if (type==SqlType.Char ||
             type==SqlType.VarChar ||
-            type==SqlType.VarCharMax)
+            type==SqlType.VarCharMax) {
             size /= 2;
+          }
+        }
       }
 
       return new SqlValueType(type, typeName, size, precision, scale);
     }
 
-    protected Schema GetSchema(int id)
-    {
-      return schemaIndex[id];
-    }
+    protected Schema GetSchema(int id) => schemaIndex[id];
 
     private void GetDataTable(int id, ref int currentId, ref ColumnResolver currentObj)
     {
-      if (id == currentId)
+      if (id == currentId) {
         return;
+      }
 
       currentObj = columnResolverIndex[id];
       currentId = id;
@@ -682,21 +908,23 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       replacements[CatalogPlaceholder] = catalogRef;
     }
 
-    protected virtual string MakeSchemaFilter()
+    private string MakeSchemaFilter()
     {
-      if (targetSchemes.Count==0)
+      if (targetSchemes.Count==0) {
         return " > 0";
-      StringBuilder builder = new StringBuilder();
-      foreach (var targetScheme in targetSchemes) {
-        int schemaId;
-        if (!reversedSchemaIndex.TryGetValue(catalog.Schemas[targetScheme], out schemaId))
-          continue;
-        if (builder.Length==0)
-          builder.Append(schemaId.ToString(CultureInfo.InvariantCulture));
-        else
-          builder.Append(string.Format(", {0}", schemaId.ToString(CultureInfo.InvariantCulture)));
       }
-      return string.Format(" IN ({0})", builder);
+
+      var builder = new StringBuilder();
+      foreach (var targetScheme in targetSchemes) {
+        if (!reversedSchemaIndex.TryGetValue(catalog.Schemas[targetScheme], out var schemaId)) {
+          continue;
+        }
+
+        builder.Append(builder.Length == 0
+          ? schemaId.ToString(CultureInfo.InvariantCulture)
+          : $", {schemaId.ToString(CultureInfo.InvariantCulture)}");
+      }
+      return $" IN ({builder})";
     }
 
     // Constructors

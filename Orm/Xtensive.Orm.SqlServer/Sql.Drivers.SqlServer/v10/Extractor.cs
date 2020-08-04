@@ -8,9 +8,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Extractor : v09.Extractor
   {
-    protected override string GetIndexQuery()
+    protected override string BuildExtractIndexesQuery()
     {
-      string query = @"
+      var query = @"
   SELECT
     t.schema_id,
     t.object_id,
