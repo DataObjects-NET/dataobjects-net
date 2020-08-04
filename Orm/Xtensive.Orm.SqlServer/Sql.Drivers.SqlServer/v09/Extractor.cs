@@ -53,7 +53,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       string catalogName, string[] schemaNames, CancellationToken token = default)
     {
       CreateCatalog(catalogName, schemaNames);
-      await ExtractCatalogContentsAsync(token);
+      await ExtractCatalogContentsAsync(token).ConfigureAwait(false);
       return catalog;
     }
 
@@ -108,10 +108,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var query = BuildExtractSchemasQuery();
 
       var cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadSchemaData(reader);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadSchemaData(reader);
+          }
         }
       }
 
@@ -162,10 +164,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var query = BuildExtractTypesQuery();
 
       var command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadTypeData(reader);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadTypeData(reader);
+          }
         }
       }
     }
@@ -229,10 +233,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var query = BuildExtractTablesAndViewsQuery();
 
       var cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadTableOrViewData(reader);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadTableOrViewData(reader);
+          }
         }
       }
     }
@@ -312,20 +318,24 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var currentTableId = 0;
       ColumnResolver columnResolver = null;
       var cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadColumnData(reader, ref currentTableId, ref columnResolver);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadColumnData(reader, ref currentTableId, ref columnResolver);
+          }
         }
       }
 
       query = BuildExtractIdentityColumnsQuery();
 
       cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadIdentityColumnData(reader);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadIdentityColumnData(reader);
+          }
         }
       }
     }
@@ -557,11 +567,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       PrimaryKey primaryKey = null;
       UniqueConstraint uniqueConstraint = null;
       var cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadIndexColumnData(
-            reader, ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadIndexColumnData(
+              reader, ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
+          }
         }
       }
     }
@@ -665,10 +677,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       ColumnResolver referencedTable = null;
       ForeignKey foreignKey = null;
       var cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadForeignKeyColumnData(reader, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadForeignKeyColumnData(reader, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
+          }
         }
       }
     }
@@ -739,10 +753,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       ColumnResolver table = null;
       FullTextIndex index = null;
       var cmd = Connection.CreateCommand(query);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadFullTextIndexColumnData(reader, ref currentTableId, ref table, ref index);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadFullTextIndexColumnData(reader, ref currentTableId, ref table, ref index);
+          }
         }
       }
     }
