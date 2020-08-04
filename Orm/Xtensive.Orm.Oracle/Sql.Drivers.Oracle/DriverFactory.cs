@@ -7,6 +7,8 @@
 using System;
 using System.Data.Common;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Oracle.ManagedDataAccess.Client;
 using Xtensive.Core;
 using Xtensive.Orm;
@@ -41,23 +43,26 @@ namespace Xtensive.Sql.Drivers.Oracle
 
       // host, port, database
       if (!string.IsNullOrEmpty(url.Host)) {
-        int port = url.Port!=0 ? url.Port : DefaultPort;
+        var port = url.Port!=0 ? url.Port : DefaultPort;
         builder.DataSource = string.Format(DataSourceFormat, url.Host, port, url.Resource);
       }
-      else
+      else {
         builder.DataSource = url.Resource; // Plain TNS name
+      }
 
       // user, password
       if (!string.IsNullOrEmpty(url.User)) {
         builder.UserID = url.User;
         builder.Password = url.Password;
       }
-      else
+      else {
         builder.UserID = "/";
+      }
 
       // custom options
-      foreach (var parameter in url.Params)
+      foreach (var parameter in url.Params) {
         builder.Add(parameter.Key, parameter.Value);
+      }
 
       return builder.ToString();
     }
@@ -65,35 +70,59 @@ namespace Xtensive.Sql.Drivers.Oracle
     /// <inheritdoc/>
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
-      using (var connection = new OracleConnection(connectionString)) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
-        var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
-          ? ParseVersion(connection.ServerVersion)
-          : new Version(configuration.ForcedServerVersion);
-        var dataSource = new OracleConnectionStringBuilder(connectionString).DataSource;
-        var defaultSchema = GetDefaultSchema(connection);
-        var coreServerInfo = new CoreServerInfo {
-          ServerVersion = version,
-          ConnectionString = connectionString,
-          MultipleActiveResultSets = true,
-          DatabaseName = defaultSchema.Database,
-          DefaultSchemaName = defaultSchema.Schema,
-        };
-        if (version.Major < 9 || version.Major==9 && version.Minor < 2)
-          throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
-        if (version.Major==9)
-          return new v09.Driver(coreServerInfo);
-        if (version.Major==10)
-          return new v10.Driver(coreServerInfo);
-        return new v11.Driver(coreServerInfo);
-      }
+      using var connection = new OracleConnection(connectionString);
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+      var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
+        ? ParseVersion(connection.ServerVersion)
+        : new Version(configuration.ForcedServerVersion);
+      var defaultSchema = GetDefaultSchema(connection);
+      return CreateDriverInstance(connectionString, version, defaultSchema);
     }
 
     /// <inheritdoc/>
-    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
+    protected override async Task<SqlDriver> CreateDriverAsync(
+      string connectionString, SqlDriverConfiguration configuration, CancellationToken token)
     {
-      return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+      var connection = new OracleConnection(connectionString);
+      await using (connection.ConfigureAwait(false)) {
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, token).ConfigureAwait(false);
+        var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
+          ? ParseVersion(connection.ServerVersion)
+          : new Version(configuration.ForcedServerVersion);
+        var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwait(false);
+        return CreateDriverInstance(connectionString, version, defaultSchema);
+      }
     }
+
+    private static SqlDriver CreateDriverInstance(string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+    {
+      var coreServerInfo = new CoreServerInfo {
+        ServerVersion = version,
+        ConnectionString = connectionString,
+        MultipleActiveResultSets = true,
+        DatabaseName = defaultSchema.Database,
+        DefaultSchemaName = defaultSchema.Schema,
+      };
+      if (version.Major < 9 || (version.Major == 9 && version.Minor < 2)) {
+        throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
+      }
+
+      return version.Major switch {
+        9 => new v09.Driver(coreServerInfo),
+        10 => new v10.Driver(coreServerInfo),
+        _ => new v11.Driver(coreServerInfo)
+      };
+    }
+
+    /// <inheritdoc/>
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction) =>
+      SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+
+    /// <inheritdoc/>
+    protected override Task<DefaultSchemaInfo> ReadDefaultSchemaAsync(
+      DbConnection connection, DbTransaction transaction, CancellationToken token) =>
+      SqlHelper.ReadDatabaseAndSchemaAsync(DatabaseAndSchemaQuery, connection, transaction, token);
   }
 }
