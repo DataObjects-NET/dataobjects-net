@@ -163,9 +163,11 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       var query = GetExtractTablesQuery();
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
-        await using var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadTableData(reader);
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadTableData(reader);
+          }
         }
       }
     }
@@ -199,11 +201,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractTableColumnsAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractTableColumnsQuery());
-      await using (command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        var readerState = new ColumnReaderState<Table>(theCatalog.DefaultSchema);
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadTableColumnData(reader, ref readerState);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          var readerState = new ColumnReaderState<Table>(theCatalog.DefaultSchema);
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadTableColumnData(reader, ref readerState);
+          }
         }
       }
     }
@@ -236,10 +240,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractViewsAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractViewsQuery());
-      await using(command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadViewData(reader);
+      await using(command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadViewData(reader);
+          }
         }
       }
     }
@@ -270,11 +276,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractViewColumnsAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractViewColumnsQuery());
-      await using(command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        var readerState = new ColumnReaderState<View>(theCatalog.DefaultSchema);
-        while (await reader.ReadAsync(token)) {
-          ReadViewColumnData(reader, ref readerState);
+      await using(command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          var readerState = new ColumnReaderState<View>(theCatalog.DefaultSchema);
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadViewColumnData(reader, ref readerState);
+          }
         }
       }
     }
@@ -302,11 +310,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractIndexesAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractIndexesQuery());
-      await using (command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        var readerState = new IndexReaderState(theCatalog.DefaultSchema);
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadIndexColumnData(reader, ref readerState);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          var readerState = new IndexReaderState(theCatalog.DefaultSchema);
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadIndexColumnData(reader, ref readerState);
+          }
         }
       }
     }
@@ -353,11 +363,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractForeignKeysAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractForeignKeysQuery());
-      await using (command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        var state = new ForeignKeyReaderState(theCatalog.DefaultSchema, theCatalog.DefaultSchema);
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadForeignKeyColumnData(reader, ref state);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          var state = new ForeignKeyReaderState(theCatalog.DefaultSchema, theCatalog.DefaultSchema);
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadForeignKeyColumnData(reader, ref state);
+          }
         }
       }
     }
@@ -396,14 +408,16 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractUniqueAndPrimaryKeyConstraintsAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
-      await using (command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        var state = new PrimaryKeyReaderState(theCatalog.DefaultSchema);
-        bool readingCompleted;
-        do {
-          readingCompleted = !await reader.ReadAsync(token).ConfigureAwait(false);
-          ReadPrimaryKeyColumn(reader, readingCompleted, ref state);
-        } while (!readingCompleted);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          var state = new PrimaryKeyReaderState(theCatalog.DefaultSchema);
+          bool readingCompleted;
+          do {
+            readingCompleted = !await reader.ReadAsync(token).ConfigureAwait(false);
+            ReadPrimaryKeyColumn(reader, readingCompleted, ref state);
+          } while (!readingCompleted);
+        }
       }
     }
 
@@ -444,10 +458,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractCheckConstraintsAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractCheckConstraintsQuery());
-      await using (command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadCheckConstraintData(reader);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadCheckConstraintData(reader);
+          }
         }
       }
     }
@@ -483,20 +499,24 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     private async Task ExtractSequencesAsync(CancellationToken token)
     {
       var command = Connection.CreateCommand(GetExtractSequencesQuery());
-      await using (command.ConfigureAwait(false))
-      await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadSequenceData(reader);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadSequenceData(reader);
+          }
         }
       }
 
       foreach (var sequence in theCatalog.DefaultSchema.Sequences) {
         var query = string.Format(GetExtractSequenceValueQuery(), Driver.Translator.QuoteIdentifier(sequence.Name));
         command = Connection.CreateCommand(query);
-        await using (command.ConfigureAwait(false))
-        await using (var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false)) {
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            sequence.SequenceDescriptor.MinValue = reader.GetInt64(0);
+        await using (command.ConfigureAwait(false)) {
+          var reader = await command.ExecuteReaderAsync(CommandBehavior.SingleResult, token).ConfigureAwait(false);
+          await using (reader.ConfigureAwait(false)) {
+            while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+              sequence.SequenceDescriptor.MinValue = reader.GetInt64(0);
+            }
           }
         }
       }
