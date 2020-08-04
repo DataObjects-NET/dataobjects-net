@@ -106,10 +106,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private async Task ExtractTablesAsync(CancellationToken token)
     {
       var cmd = Connection.CreateCommand(ExtractTablesQuery);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          schema.CreateTable(reader.GetString(0));
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            schema.CreateTable(reader.GetString(0));
+          }
         }
       }
     }
@@ -129,9 +131,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       var select = BuildTableExistenceCheckQuery(tableName);
       var cmd = Connection.CreateCommand(select);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        return await reader.ReadAsync(token).ConfigureAwait(false);
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          return await reader.ReadAsync(token).ConfigureAwait(false);
+        }
       }
     }
 
@@ -162,13 +166,15 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
       var select = BuildIncrementValueQuery(tableName);
       var cmd = Connection.CreateCommand(select);
-      await using (cmd.ConfigureAwait(false))
-      await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          return ReadNullableInt(reader, "seq");
-        }
+      await using (cmd.ConfigureAwait(false)) {
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            return ReadNullableInt(reader, "seq");
+          }
 
-        return null;
+          return null;
+        }
       }
     }
 
@@ -199,10 +205,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         var primaryKeyItems = new Dictionary<int, TableColumn>();
         var select = BuildExtractTableColumnsQuery(table.Name);
         var cmd = Connection.CreateCommand(select);
-        await using (cmd.ConfigureAwait(false))
-        await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadTableColumnData(reader, table, primaryKeyItems);
+        await using (cmd.ConfigureAwait(false)) {
+          var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+          await using (reader.ConfigureAwait(false)) {
+            while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+              ReadTableColumnData(reader, table, primaryKeyItems);
+            }
           }
         }
 
@@ -261,9 +269,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private async Task ExtractViewsAsync(CancellationToken token)
     {
-      await using var reader = await ExecuteReaderAsync(ExtractViewsQuery, token).ConfigureAwait(false);
-      while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-        ReadViewData(reader);
+      var reader = await ExecuteReaderAsync(ExtractViewsQuery, token).ConfigureAwait(false);
+      await using (reader.ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadViewData(reader);
+        }
       }
     }
 
@@ -301,10 +311,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         var query = BuildExtractIndexQuery(table.Name);
         var cmd = Connection.CreateCommand(query);
         await using (cmd.ConfigureAwait(false)) {
-          await using var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            if (ReadIndexData(reader, table, out var index)) {
-              await ExtractIndexColumnsAsync(table, index, token).ConfigureAwait(false);
+          var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+          await using (reader.ConfigureAwait(false)) {
+            while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+              if (ReadIndexData(reader, table, out var index)) {
+                await ExtractIndexColumnsAsync(table, index, token).ConfigureAwait(false);
+              }
             }
           }
         }
@@ -344,9 +356,11 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       var query = BuildExtractIndexColumnsQuery(index.Name);
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
-        await using var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
-        while (await reader.ReadAsync(token)) {
-          index.CreateIndexColumn(table.TableColumns[ReadStringOrNull(reader, 2)]);
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            index.CreateIndexColumn(table.TableColumns[ReadStringOrNull(reader, 2)]);
+          }
         }
       }
     }
@@ -374,10 +388,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
         var state = new ForeignKeyReaderState(table);
         var cmd = Connection.CreateCommand(query);
-        await using (cmd.ConfigureAwait(false))
-        await using (var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadForeignKeyColumnData(reader, table, ref state);
+        await using (cmd.ConfigureAwait(false)) {
+          var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+          await using (reader.ConfigureAwait(false)) {
+            while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+              ReadForeignKeyColumnData(reader, table, ref state);
+            }
           }
         }
       }
