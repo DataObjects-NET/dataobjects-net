@@ -190,12 +190,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       var cmd = Connection.CreateCommand(q);
       await using (cmd.ConfigureAwait(false)) {
-        await using var dr = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
-        while (await dr.ReadAsync(token)) {
-          var oid = Convert.ToInt64(dr[0]);
-          var name = dr.GetString(1);
-          if (name == "pg_class") {
-            PgClassOid = oid;
+        var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            var oid = Convert.ToInt64(reader[0]);
+            var name = reader.GetString(1);
+            if (name == "pg_class") {
+              PgClassOid = oid;
+            }
           }
         }
       }
@@ -384,10 +386,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
 
       command = Connection.CreateCommand("SELECT usename, usesysid FROM pg_user");
-      await using (command.ConfigureAwait(false))
-      await using (var dr = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dr.ReadAsync(token).ConfigureAwait(false)) {
-          ReadUserData(dr, context, me);
+      await using (command.ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
+          while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadUserData(reader, context, me);
+          }
         }
       }
     }
@@ -470,10 +474,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var query = BuildExtractSchemasQuery(context);
 
       var command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadSchemaData(dataReader, context);
+      await using (command.ConfigureAwait(false)) {
+        var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (dataReader.ConfigureAwait(false)) {
+          while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadSchemaData(dataReader, context);
+          }
         }
       }
     }
@@ -545,10 +551,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var query = BuildExtractSchemaContentsQuery(context);
 
       var command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadSchemaContentData(dataReader, context);
+      await using (command.ConfigureAwait(false)) {
+        var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (dataReader.ConfigureAwait(false)) {
+          while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadSchemaContentData(dataReader, context);
+          }
         }
       }
     }
@@ -649,10 +657,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var query = BuildExtractTableAndViewColumnsQuery(context);
 
       var command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadColumnData(dataReader, context);
+      await using (command.ConfigureAwait(false)) {
+        var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (dataReader.ConfigureAwait(false)) {
+          while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadColumnData(dataReader, context);
+          }
         }
       }
     }
@@ -773,10 +783,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       var maxColumnNumber = 0;
       var command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
-          maxColumnNumber = Math.Max(maxColumnNumber, ReadTableIndexData(dataReader, context));
+      await using (command.ConfigureAwait(false)) {
+        var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (dataReader.ConfigureAwait(false)) {
+          while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+            maxColumnNumber = Math.Max(maxColumnNumber, ReadTableIndexData(dataReader, context));
+          }
         }
       }
 
@@ -787,10 +799,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       query = BuildExtractIndexColumnsQuery(context, maxColumnNumber);
 
       command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadIndexColumnsData(dataReader, context);
+      await using (command.ConfigureAwait(false)) {
+        var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (dataReader.ConfigureAwait(false)) {
+          while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadIndexColumnsData(dataReader, context);
+          }
         }
       }
     }
@@ -983,10 +997,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var query = BuildExtractDomainsQuery(context);
 
       var command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadDomainData(dataReader, context);
+      await using (command.ConfigureAwait(false)) {
+        var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (dataReader.ConfigureAwait(false)) {
+          while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadDomainData(dataReader, context);
+          }
         }
       }
     }
@@ -1065,10 +1081,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var query = BuildExtractTableAndDomainConstraintsQuery(context);
 
       var command = Connection.CreateCommand(query);
-      await using (command.ConfigureAwait(false))
-      await using (var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-        while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadConstraintData(dataReader, context);
+      await using (command.ConfigureAwait(false)) {
+        var dataReader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (dataReader.ConfigureAwait(false)) {
+          while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+            ReadConstraintData(dataReader, context);
+          }
         }
       }
     }
@@ -1210,10 +1228,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         var query = BuildExtractSequencesQuery(context);
 
         var cmd = Connection.CreateCommand(query);
-        await using (cmd.ConfigureAwait(false))
-        await using (var dr = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false)) {
-          while (await dr.ReadAsync(token).ConfigureAwait(false)) {
-            ReadSequenceDescriptor(dr, context);
+        await using (cmd.ConfigureAwait(false)) {
+          var dataReader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
+          await using (dataReader.ConfigureAwait(false)) {
+            while (await dataReader.ReadAsync(token).ConfigureAwait(false)) {
+              ReadSequenceDescriptor(dataReader, context);
+            }
           }
         }
       }
