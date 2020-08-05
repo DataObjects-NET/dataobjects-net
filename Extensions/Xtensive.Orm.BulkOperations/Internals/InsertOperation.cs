@@ -36,7 +36,7 @@ namespace Xtensive.Orm.BulkOperations
       Bindings = new List<QueryParameterBinding>();
 
       var command = CreateCommand();
-      return await command.ExecuteNonQueryAsync(token);
+      return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
     }
 
     private QueryCommand CreateCommand()

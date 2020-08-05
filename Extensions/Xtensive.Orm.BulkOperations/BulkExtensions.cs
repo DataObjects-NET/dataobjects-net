@@ -156,7 +156,7 @@ namespace Xtensive.Orm.BulkOperations
       CancellationToken token = default) where T : Entity
     {
       var operation = new InsertOperation<T>(queryEndpoint.Provider, evaluator);
-      await operation.ExecuteAsync(token);
+      await operation.ExecuteAsync(token).ConfigureAwait(false);
       return operation.Key;
     }
   }
