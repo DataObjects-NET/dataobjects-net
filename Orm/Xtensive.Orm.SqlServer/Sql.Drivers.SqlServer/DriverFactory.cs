@@ -70,7 +70,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
       command = connection.CreateCommand();
       await using (command.ConfigureAwait(false)) {
         command.CommandText = MessagesQuery;
-        await using (var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false)) {
+        var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+        await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadMessageTemplate(reader, templates);
           }

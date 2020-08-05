@@ -166,7 +166,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
         cancellationToken.ThrowIfCancellationRequested();
         await base.OpenAsync(cancellationToken).ConfigureAwait(false);
         try {
-          using (var command = underlyingConnection.CreateCommand()) {
+          var command = underlyingConnection.CreateCommand();
+          await using (command.ConfigureAwait(false)) {
             command.CommandText = checkQueryString;
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
           }
