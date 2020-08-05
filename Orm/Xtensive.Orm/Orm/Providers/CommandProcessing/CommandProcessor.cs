@@ -76,11 +76,11 @@ namespace Xtensive.Orm.Providers
     /// registered query requests.</param>
     /// <param name="token">Token to cancel this operation</param>
     /// <returns>A task preforming this operation.</returns>
-    public virtual async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
+    public virtual Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
     {
       token.ThrowIfCancellationRequested();
       ExecuteTasks(context);
-      await Task.Yield();
+      return Task.CompletedTask;
     }
 
     protected void AllocateCommand(CommandProcessorContext context)

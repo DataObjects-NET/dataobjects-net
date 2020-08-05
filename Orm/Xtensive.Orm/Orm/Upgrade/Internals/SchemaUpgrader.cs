@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Upgrade
     private async Task ExecuteNonTransactionallyAsync(IEnumerable<string> batch, CancellationToken token)
     {
       driver.CommitTransaction(null, connection);
-      await executor.ExecuteManyAsync(batch, token);
+      await executor.ExecuteManyAsync(batch, token).ConfigureAwait(false);
       driver.BeginTransaction(null, connection, null);
     }
 

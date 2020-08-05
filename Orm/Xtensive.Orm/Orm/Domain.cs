@@ -419,7 +419,7 @@ namespace Xtensive.Orm
             .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
-          session.DisposeSafely();
+          await session.DisposeSafelyAsync().ConfigureAwait(false);
           throw;
         }
       }

@@ -448,7 +448,7 @@ namespace Xtensive.Sql
     private async Task<Extractor> BuildExtractorAsync(SqlConnection connection, CancellationToken token = default)
     {
       var extractor = CreateExtractor();
-      await extractor.InitializeAsync(connection, token);
+      await extractor.InitializeAsync(connection, token).ConfigureAwait(false);
       return extractor;
     }
 
@@ -471,7 +471,7 @@ namespace Xtensive.Sql
       SqlConnection connection, string databaseName, string schemaName, CancellationToken token = default)
     {
       var task = new SqlExtractionTask(databaseName, schemaName);
-      return (await ExtractAsync(connection, new[] {task}, token))
+      return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwait(false))
         .Catalogs[databaseName].Schemas.FirstOrDefault(el=>el.Name==schemaName);
     }
 

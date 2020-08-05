@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
     public async Task<CommandWithDataReader> ExecuteReaderAsync(
       ISqlCompileUnit statement, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
       return await ExecuteReaderAsync(connection.CreateCommand(Compile(statement)), token).ConfigureAwait(false);
     }
 
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Providers
 
     public async Task<int> ExecuteNonQueryAsync(ISqlCompileUnit statement, CancellationToken token = default)
     {
-      await EnsureConnectionIsOpenAsync(token);
+      await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
       var command = connection.CreateCommand(Compile(statement));
       await using (command.ConfigureAwait(false)) {
         return await driver.ExecuteNonQueryAsync(session, command, token).ConfigureAwait(false);
@@ -259,10 +259,10 @@ namespace Xtensive.Orm.Providers
     {
       DbDataReader reader;
       try {
-        reader = await driver.ExecuteReaderAsync(session, command, token);
+        reader = await driver.ExecuteReaderAsync(session, command, token).ConfigureAwait(false);
       }
       catch {
-        await command.DisposeAsync();
+        await command.DisposeAsync().ConfigureAwait(false);
         throw;
       }
       return new CommandWithDataReader(command, reader);

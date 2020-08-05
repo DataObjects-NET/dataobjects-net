@@ -193,7 +193,8 @@ namespace Xtensive.Orm.Upgrade
       var sqlAsyncWorker = StartSchemaExtractSqlAsyncWorker(token);
       await using (sqlAsyncWorker.ConfigureAwait(false)) {
         var domainBuilder = CreateDomainBuilder(UpgradeStage.Final);
-        await using (var finalDomainResult = CreateResult(domainBuilder)) {
+        var finalDomainResult = CreateResult(domainBuilder);
+        await using (finalDomainResult.ConfigureAwait(false)) {
           OnConfigureUpgradeDomain();
           using (var upgradeDomain = CreateDomainBuilder(UpgradeStage.Upgrading).Invoke()) {
             await CompleteSchemaExtractSqlWorkerAsync().ConfigureAwait(false);
@@ -253,7 +254,7 @@ namespace Xtensive.Orm.Upgrade
         services.NameBuilder = handlers.NameBuilder;
       }
 
-      await CreateConnection(services, isAsync, token);
+      await CreateConnection(services, isAsync, token).ConfigureAwait(false);
       context.DefaultSchemaInfo = defaultSchemaInfo = isAsync
         ? await services.StorageDriver.GetDefaultSchemaAsync(services.Connection, token).ConfigureAwait(false)
         : services.StorageDriver.GetDefaultSchema(services.Connection);
@@ -274,7 +275,7 @@ namespace Xtensive.Orm.Upgrade
 
       try {
         if (isAsync) {
-          await driver.OpenConnectionAsync(null, connection, token);
+          await driver.OpenConnectionAsync(null, connection, token).ConfigureAwait(false);
         }
         else {
           driver.OpenConnection(null, connection);
@@ -284,7 +285,7 @@ namespace Xtensive.Orm.Upgrade
       }
       catch {
         if (isAsync) {
-          await connection.DisposeAsync();
+          await connection.DisposeAsync().ConfigureAwait(false);
         }
         else {
           connection.Dispose();
@@ -421,16 +422,20 @@ namespace Xtensive.Orm.Upgrade
 
       await OnBeforeStageAsync(token).ConfigureAwait(false);
 
-      await using var session = await domain.OpenSessionAsync(SessionType.System, token).ConfigureAwait(false);
-      using (session.Activate())
-      await using (var transaction = session.OpenTransaction()) {
-        var upgrader = new SchemaUpgrader(context, session);
-        var extractor = new SchemaExtractor(context, session);
-        await SynchronizeSchemaAsync(domain, upgrader, extractor, GetUpgradeMode(stage), token).ConfigureAwait(false);
-        var storageNode = BuildStorageNode(domain, await extractor.GetSqlSchemaAsync(token).ConfigureAwait(false));
-        session.SetStorageNode(storageNode);
-        await OnStageAsync(session, token);
-        transaction.Complete();
+      var session = await domain.OpenSessionAsync(SessionType.System, token).ConfigureAwait(false);
+      await using (session.ConfigureAwait(false)) {
+        using (session.Activate()) {
+          var transaction = session.OpenTransaction();
+          await using (transaction.ConfigureAwait(false)) {
+            var upgrader = new SchemaUpgrader(context, session);
+            var extractor = new SchemaExtractor(context, session);
+            await SynchronizeSchemaAsync(domain, upgrader, extractor, GetUpgradeMode(stage), token).ConfigureAwait(false);
+            var storageNode = BuildStorageNode(domain, await extractor.GetSqlSchemaAsync(token).ConfigureAwait(false));
+            session.SetStorageNode(storageNode);
+            await OnStageAsync(session, token).ConfigureAwait(false);
+            transaction.Complete();
+          }
+        }
       }
     }
 
@@ -741,7 +746,7 @@ namespace Xtensive.Orm.Upgrade
     private async ValueTask OnPrepareAsync(CancellationToken token)
     {
       foreach (var handler in context.OrderedUpgradeHandlers) {
-        await handler.OnPrepareAsync(token);
+        await handler.OnPrepareAsync(token).ConfigureAwait(false);
       }
     }
 
@@ -800,7 +805,7 @@ namespace Xtensive.Orm.Upgrade
     private async ValueTask OnBeforeStageAsync(CancellationToken token)
     {
       foreach (var handler in context.OrderedUpgradeHandlers) {
-        await handler.OnBeforeStageAsync(token);
+        await handler.OnBeforeStageAsync(token).ConfigureAwait(false);
       }
     }
 
@@ -822,7 +827,7 @@ namespace Xtensive.Orm.Upgrade
       context.Session = session;
       try {
         foreach (var handler in context.OrderedUpgradeHandlers) {
-          await handler.OnStageAsync(token);
+          await handler.OnStageAsync(token).ConfigureAwait(false);
         }
       }
       finally {
@@ -844,7 +849,7 @@ namespace Xtensive.Orm.Upgrade
     private async ValueTask OnCompleteAsync(Domain domain, CancellationToken token)
     {
       foreach (var handler in context.OrderedUpgradeHandlers) {
-        await handler.OnCompleteAsync(domain, token);
+        await handler.OnCompleteAsync(domain, token).ConfigureAwait(false);
       }
 
       foreach (var module in context.Modules) {
