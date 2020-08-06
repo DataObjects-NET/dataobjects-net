@@ -35,15 +35,11 @@ namespace Xtensive.Orm.Providers
       CompilableProvider origin, params ExecutableProvider[] sources)
     {
       var allowBatching = true;
-      var parameterBindings = Enumerable.Empty<QueryParameterBinding>();
+      var parameterBindings = extraBindings ?? Enumerable.Empty<QueryParameterBinding>();
       foreach (var provider in sources.OfType<SqlProvider>()) {
         var queryRequest = provider.Request;
         allowBatching &= queryRequest.CheckOptions(QueryRequestOptions.AllowOptimization);
         parameterBindings = parameterBindings.Concat(queryRequest.ParameterBindings);
-      }
-
-      if (extraBindings != null) {
-        parameterBindings = parameterBindings.Concat(extraBindings);
       }
 
       var tupleDescriptor = origin.Header.TupleDescriptor;
