@@ -10,6 +10,20 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class SkipTakeRewriterState
   {
+    internal readonly ref struct SkipTakeRewriterScope
+    {
+      private readonly SkipTakeRewriter rewriter;
+      private readonly SkipTakeRewriterState prevState;
+
+      public void Dispose() => rewriter.State = prevState;
+
+      public SkipTakeRewriterScope(SkipTakeRewriter rewriter, SkipTakeRewriterState prevState)
+      {
+        this.rewriter = rewriter;
+        this.prevState = prevState;
+      }
+    }
+
     private readonly SkipTakeRewriter rewriter;
 
     public Func<int> Skip { get; private set; }
@@ -52,20 +66,6 @@ namespace Xtensive.Orm.Rse.Transformation
         var value = valueSelector();
         return value > 0 ? value : 0;
       };
-    }
-
-    internal readonly ref struct SkipTakeRewriterScope
-    {
-      private readonly SkipTakeRewriter rewriter;
-      private readonly SkipTakeRewriterState prevState;
-
-      public void Dispose() => rewriter.State = prevState;
-
-      public SkipTakeRewriterScope(SkipTakeRewriter rewriter, SkipTakeRewriterState prevState)
-      {
-        this.rewriter = rewriter;
-        this.prevState = prevState;
-      }
     }
 
     public SkipTakeRewriterScope CreateScope()
