@@ -15,6 +15,26 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal class LinqBindingCollection : BindingCollection<ParameterExpression, ProjectionExpression>
   {
+    internal readonly ref struct ParameterScope
+    {
+      private readonly LinqBindingCollection owner;
+      private readonly IReadOnlyCollection<ParameterExpression> parameters;
+
+      public void Dispose()
+      {
+        var linkedParameters = owner.linkedParameters;
+        foreach (var parameter in parameters) {
+          linkedParameters.Remove(parameter);
+        }
+      }
+
+      public ParameterScope(LinqBindingCollection owner, IReadOnlyCollection<ParameterExpression> parameters)
+      {
+        this.owner = owner;
+        this.parameters = parameters;
+      }
+    }
+
     private readonly Dictionary<ParameterExpression, IEnumerable<ParameterExpression>> linkedParameters
       = new Dictionary<ParameterExpression, IEnumerable<ParameterExpression>>();
 
@@ -54,26 +74,6 @@ namespace Xtensive.Orm.Linq
             base.ReplaceBound(parameter, newProjection);
           }
         }
-      }
-    }
-
-    internal readonly ref struct ParameterScope
-    {
-      private readonly LinqBindingCollection owner;
-      private readonly IReadOnlyCollection<ParameterExpression> parameters;
-
-      public void Dispose()
-      {
-        var linkedParameters = owner.linkedParameters;
-        foreach (var parameter in parameters) {
-          linkedParameters.Remove(parameter);
-        }
-      }
-
-      public ParameterScope(LinqBindingCollection owner, IReadOnlyCollection<ParameterExpression> parameters)
-      {
-        this.owner = owner;
-        this.parameters = parameters;
       }
     }
 
