@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
@@ -57,9 +57,15 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Unable to cancel changes for non-disconnected session. Use transaction boundaries to control the state.</exception>
     public void CancelChanges()
     {
+      SystemEvents.NotifyChangesCanceling();
+      Events.NotifyChangesCanceling();
+
       CancelEntitySetsChanges();
       CancelEntitiesChanges();
       NonPairedReferencesRegistry.Clear();
+
+      SystemEvents.NotifyChangesCanceled();
+      Events.NotifyChangesCanceled();
     }
 
     internal void Persist(PersistReason reason)

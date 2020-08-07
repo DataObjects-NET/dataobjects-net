@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2009.10.08
 
@@ -44,6 +44,9 @@ namespace Xtensive.Orm.Tests.Storage
 
     private EventArgs persistingArgs;
     private EventArgs persistedArgs;
+
+    private EventArgs changesCancelingArgs;
+    private EventArgs changesCanceledArgs;
 
     private EntityEventArgs entityCreatedArgs;
     private EntityEventArgs entityRemoving;
@@ -100,6 +103,9 @@ namespace Xtensive.Orm.Tests.Storage
         session.Events.Persisting += (sender, e) => persistingArgs = e;
         session.Events.Persisted += (sender, e) => persistedArgs = e;
 
+        session.Events.ChangesCanceling += (sender, e) => changesCancelingArgs = e;
+        session.Events.ChangesCanceled += (sender, e) => changesCanceledArgs = e;
+
         session.Events.EntityCreated += (sender, e) => entityCreatedArgs = e;
         session.Events.EntityRemoving += (sender, e) => entityRemoving = e;
         session.Events.EntityRemove += (sender, e) => entityRemoved = e;
@@ -113,6 +119,7 @@ namespace Xtensive.Orm.Tests.Storage
         RollbackTransaction();
         ErrorOnCommit();
         EditEntity();
+        CancelChanges();
       }
     }
 
@@ -220,6 +227,27 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNotNull(entityRemoved);
         Assert.AreEqual(entity, entityRemoved.Entity);
       }
+    }
+
+    private void CancelChanges()
+    {
+      var session = Session.Demand();
+      using (var transactionScope = session.OpenTransaction()) {
+        ClearEvents();
+
+        var megaEntity = new MegaEntity { Value = 1 };
+
+        session.CancelChanges();
+      }
+
+      Assert.IsNotNull(transactionRollbackingArgs);
+      Assert.IsNotNull(transactionRollbackedArgs);
+      Assert.IsNotNull(changesCancelingArgs);
+      Assert.IsNotNull(changesCanceledArgs);
+      Assert.IsNull(persistingArgs);
+      Assert.IsNull(persistedArgs);
+      Assert.IsNull(transactionCommitingArgs);
+      Assert.IsNull(transactionCommitedArgs);
     }
   }
 }
