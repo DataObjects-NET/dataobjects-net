@@ -213,17 +213,14 @@ namespace Xtensive.Orm.Providers
     private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
     {
       var sourceSelect = compiledSource.Request.Statement;
-      if (sourceSelect.From==null)
+      if (sourceSelect.From == null) {
         return false;
+      }
 
       var calculatedColumnIndexes = sourceSelect.Columns
         .Select((c, i) => IsCalculatedColumn(c) ? i : -1)
         .Where(i => i >= 0)
         .ToList();
-      var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
-      var typeIdIsOnlyCalculatedColumn = (calculatedColumnIndexes.Count == 1)
-        ? IsTypeIdColumn(sourceSelect.Columns[calculatedColumnIndexes[0]])
-        : false;
 
       var rowNumberIsUsed = calculatedColumnIndexes.Count > 0 && sourceSelect.Columns
         .Select((c, i) => new { c, i })
@@ -233,21 +230,22 @@ namespace Xtensive.Orm.Providers
       var distinctIsUsed = sourceSelect.Distinct;
       var filterIsUsed = !sourceSelect.Where.IsNullReference();
 
-      if (origin.Type==ProviderType.Filter) {
+      if (origin.Type == ProviderType.Filter) {
         var filterProvider = (FilterProvider) origin;
         var usedColumnIndexes = new TupleAccessGatherer().Gather(filterProvider.Predicate.Body);
         return pagingIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
-      if (origin.Type==ProviderType.Select)
+      if (origin.Type == ProviderType.Select) {
         return distinctIsUsed;
+      }
 
-      if (origin.Type==ProviderType.RowNumber) {
+      if (origin.Type == ProviderType.RowNumber) {
         var usedColumnIndexes = origin.Header.Order.Select(o => o.Key);
         return pagingIsUsed || groupByIsUsed || distinctIsUsed || usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
       }
 
-      if (origin.Type==ProviderType.Calculate) {
+      if (origin.Type == ProviderType.Calculate) {
         var calculateProvider = (CalculateProvider) origin;
         var columnGatherer = new TupleAccessGatherer();
         var usedColumnIndexes = new List<int>();
@@ -278,13 +276,17 @@ namespace Xtensive.Orm.Providers
         return distinctIsUsed || pagingIsUsed || groupByIsUsed || orderingOverCalculatedColumn;
       }
 
-      if (origin.Type == ProviderType.Apply)
+      var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
+
+      if (origin.Type == ProviderType.Apply) {
         return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+      }
 
       if (origin.Type == ProviderType.Join) {
         var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
-        if (shouldUseQueryReference)
+        if (shouldUseQueryReference) {
           return true;
+        }
         var joinProvider = (JoinProvider) origin;
         var isRight = joinProvider.Right == compiledSource.Origin;
         var indexes = joinProvider.EqualIndexes.Select(p => isRight ? p.Second : p.First);
@@ -294,8 +296,9 @@ namespace Xtensive.Orm.Providers
 
       if (origin.Type == ProviderType.PredicateJoin) {
         var shouldUseQueryReference = distinctIsUsed || pagingIsUsed || groupByIsUsed;
-        if (shouldUseQueryReference)
+        if (shouldUseQueryReference) {
           return true;
+        }
         var joinProvider = (PredicateJoinProvider) origin;
         var isRight = joinProvider.Right == compiledSource.Origin;
         var indexes = new TupleAccessGatherer().Gather(joinProvider.Predicate.Body, joinProvider.Predicate.Parameters[isRight ? 1 : 0]);
@@ -304,13 +307,17 @@ namespace Xtensive.Orm.Providers
       }
 
       if (origin.Type == ProviderType.Sort) {
-        if (distinctIsUsed)
+        if (distinctIsUsed) {
           return true;
+        }
         var orderingOverCalculatedColumn = origin.Header.Order
           .Select(order => order.Key)
           .Any(calculatedColumnIndexes.Contains);
         return orderingOverCalculatedColumn;
       }
+
+      var typeIdIsOnlyCalculatedColumn = (calculatedColumnIndexes.Count == 1)
+        && IsTypeIdColumn(sourceSelect.Columns[calculatedColumnIndexes[0]]);
 
       return (containsCalculatedColumns && !typeIdIsOnlyCalculatedColumn) || distinctIsUsed || pagingIsUsed || groupByIsUsed;
     }
