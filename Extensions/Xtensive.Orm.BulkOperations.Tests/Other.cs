@@ -1,4 +1,10 @@
-﻿using System;
+// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+// Created by: Alexander Ovchinnikov
+// Created:    2012.02.29
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -238,6 +244,35 @@ namespace Xtensive.Orm.BulkOperations.Tests
         Assert.That(bar3.Count, Is.EqualTo(5));
         Assert.That(bar5.Count, Is.EqualTo(5));
         Assert.That(bar6.Count, Is.EqualTo(0));
+
+        trx.Complete();
+      }
+    }
+
+    [Test]
+    public void InWithCombinationWithFieldUsageUpdate()
+    {
+      using (Session session = Domain.OpenSession())
+      using (TransactionScope trx = session.OpenTransaction()) {
+        var idsToUpdate = new[] { 99, 100, 102 };
+        var prefix = "abc";
+
+        var bar1 = new Bar(session, 100) { Name = "test1", Count = 3 };
+        var bar2 = new Bar(session, 101) { Name = "test2", Count = 4 };
+        var bar3 = new Bar(session, 102) { Name = "test3", Count = 5 };
+        session.SaveChanges();
+
+        var updatedCount =  session.Query.All<Bar>()
+          .Where(b => b.Id.In(IncludeAlgorithm.ComplexCondition, idsToUpdate))
+          .Update(bar => new Bar(session) { Name = prefix + bar.Name });
+        Assert.That(updatedCount, Is.EqualTo(2));
+
+        var all = session.Query.All<Bar>().Where(b=> b.Id == 100 || b.Id == 101 || b.Id == 102).ToList();
+        var updatedEntities = all.Where(b => b.Id.In(idsToUpdate));
+        Assert.That(updatedEntities.All(e => e.Name.StartsWith(prefix)), Is.True);
+
+        var leftEntities = all.Where(b => !b.Id.In(idsToUpdate));
+        Assert.That(leftEntities.All(e => e.Name.StartsWith(prefix)), Is.False);
 
         trx.Complete();
       }
