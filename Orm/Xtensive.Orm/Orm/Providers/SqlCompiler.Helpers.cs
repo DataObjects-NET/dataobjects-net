@@ -166,6 +166,16 @@ namespace Xtensive.Orm.Providers
       return column is SqlColumnRef columnRef && columnRef.SqlColumn is SqlColumnStub;
     }
 
+    private static bool IsTypeIdColumn(SqlColumn column)
+    {
+      if (column is SqlUserColumn)
+        return string.Equals(column.Name, "TypeId", StringComparison.OrdinalIgnoreCase);
+      var cRef = column as SqlColumnRef;
+      if (!ReferenceEquals(null, cRef))
+        return string.Equals(cRef.Name, "TypeId", StringComparison.OrdinalIgnoreCase);
+      return false;
+    }
+
     private static SqlColumnStub ExtractColumnStub(SqlColumn column) =>
       column switch {
         SqlColumnRef columnRef => (SqlColumnStub) columnRef.SqlColumn,
@@ -280,7 +290,9 @@ namespace Xtensive.Orm.Providers
           return orderingOverCalculatedColumn;
         }
         default:
-          return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+          var typeIdIsOnlyCalculatedColumn = containsCalculatedColumns && (calculatedColumnIndexes.Count == 1)
+            && IsTypeIdColumn(sourceSelect.Columns[calculatedColumnIndexes[0]]);
+          return (containsCalculatedColumns && !typeIdIsOnlyCalculatedColumn) || distinctIsUsed || pagingIsUsed || groupByIsUsed;
       }
     }
 

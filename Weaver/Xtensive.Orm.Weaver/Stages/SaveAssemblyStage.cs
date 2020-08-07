@@ -5,9 +5,7 @@
 // Created:    2013.08.19
 
 using System.IO;
-using System.Reflection;
 using Mono.Cecil;
-using Mono.Cecil.Cil;
 
 namespace Xtensive.Orm.Weaver.Stages
 {
@@ -27,13 +25,19 @@ namespace Xtensive.Orm.Weaver.Stages
       var outputIsInput = inputFile==outputFile;
 
       if (context.SkipProcessing) {
-        if (!outputIsInput)
+        if (!outputIsInput) {
           FileHelper.CopyWithPdb(context, inputFile, outputFile);
+        }
         return ActionResult.Success;
       }
 
-      if (!context.TranformationPerformed && context.Configuration.MakeBackup && outputIsInput)
+      if (!context.TranformationPerformed && context.Configuration.MakeBackup && outputIsInput) {
         FileHelper.CopyWithPdb(context, inputFile, FileHelper.GetBackupFile(inputFile));
+      }
+
+      if (context.ShouldAddReferenceToOrm) {
+        context.TargetModule.AssemblyReferences.Add(context.References.OrmAssembly);
+      }
 
       var writerParameters = new WriterParameters {
         WriteSymbols = configuration.ProcessDebugSymbols
@@ -41,8 +45,9 @@ namespace Xtensive.Orm.Weaver.Stages
 
       var strongNameKey = configuration.StrongNameKey;
       if (!string.IsNullOrEmpty(strongNameKey)) {
-        if (File.Exists(strongNameKey))
+        if (File.Exists(strongNameKey)) {
           writerParameters.StrongNameKeyBlob = File.ReadAllBytes(strongNameKey);
+        }
         else {
           context.Logger.Write(MessageCode.ErrorStrongNameKeyIsNotFound);
           return ActionResult.Failure;
