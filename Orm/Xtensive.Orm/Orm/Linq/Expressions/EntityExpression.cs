@@ -1,15 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.05
 
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Core;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Linq.Expressions
@@ -71,7 +69,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
 
       var keyExpression = (KeyExpression) Key.Remap(map, processedExpressions);
-      if (keyExpression==null) {
+      if (keyExpression == null) {
         return null;
       }
 
@@ -139,9 +137,10 @@ namespace Xtensive.Orm.Linq.Expressions
       var typeInfo = entityExpression.PersistentType;
       foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfType<FieldExpression>().Select(field=>field.Field))) {
         var nestedFieldExpression = BuildNestedFieldExpression(nestedField, offset);
-        var fieldExpression = nestedFieldExpression as FieldExpression;
-        if (fieldExpression!=null)
+        if (nestedFieldExpression is FieldExpression fieldExpression) {
           fieldExpression.Owner = entityExpression;
+        }
+
         entityExpression.fields.Add(nestedFieldExpression);
       }
     }
@@ -200,14 +199,22 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
     {
-      if (nestedField.IsPrimitive)
+      if (nestedField.IsPrimitive) {
         return FieldExpression.CreateField(nestedField, offset);
-      if (nestedField.IsStructure)
+      }
+
+      if (nestedField.IsStructure) {
         return StructureFieldExpression.CreateStructure(nestedField, offset);
-      if (nestedField.IsEntity)
+      }
+
+      if (nestedField.IsEntity) {
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
-      if (nestedField.IsEntitySet)
-          return EntitySetExpression.CreateEntitySet(nestedField);
+      }
+
+      if (nestedField.IsEntitySet) {
+        return EntitySetExpression.CreateEntitySet(nestedField);
+      }
+
       throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 

@@ -1,6 +1,6 @@
 // Copyright (C) 2020 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2020.02.18
 
