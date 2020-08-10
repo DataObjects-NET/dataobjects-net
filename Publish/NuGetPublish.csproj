@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <NoBuild>true</NoBuild>
@@ -21,7 +21,8 @@
   <!-- Force Release Configuration build and check env variables / User.Directory.Build.props -->
   <Target Name="_CheckConfiguration" BeforeTargets="CoreBuild">
     <Error Condition="'$(Configuration)' != 'Release'" Text="You should build this project only in 'Release' configuration. Use `dotnet build -c Release`" />
-    <Error Condition="'$(DoNugetFeedApiKey)' == ''" Text="You should set 'DoNugetFeedApiKey' property in User.Directory.Build.props or in env variable" />
+    <Error Condition="'$(DoNugetFeedUserName)' == ''" Text="You should set 'DoNugetFeedUserName' property in User.Directory.Build.props or in env variable" />
+    <Error Condition="'$(DoNugetFeedPassword)' == ''" Text="You should set 'DoNugetFeedPassword' property in User.Directory.Build.props or in env variable" />
     <Error Condition="'$(DoNugetFeedUrl)' == ''" Text="You should set 'DoNugetFeedUrl' property in User.Directory.Build.props or in env variable" />
   </Target>
 
@@ -43,6 +44,11 @@
   <!-- If package-lock.json has changed, perform an NPM install -->
   <Target Name="PublishToNuget" AfterTargets="Pack" DependsOnTargets="Pack">
     <Message Importance="high" Text="Publish nupkg %(NugetPublishInput.Identity) to server" />
-    <Exec Command="dotnet nuget push %(NugetPublishInput.Identity) --force-english-output --timeout 60 --api-key $(DoNugetFeedApiKey) --source $(DoNugetFeedUrl)" WorkingDirectory="$(SolutionDir)_Build\Release\packages" />
+    <!-- Create empty valid NuGet.Config file and add credentials there -->
+    <WriteLinesToFile File="$(SolutionDir)_Build\Release\packages\NuGet.Config" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;configuration&gt;&lt;/configuration&gt;" Overwrite="True" />
+    <Exec Command="dotnet nuget add source $(DoNugetFeedUrl) --username $(DoNugetFeedUserName) --password $(DoNugetFeedPassword) --store-password-in-clear-text --configfile NuGet.Config" WorkingDirectory="$(SolutionDir)_Build\Release\packages" />
+    <!-- Push packages using credentials from NuGet.Config file and then delete NuGet.Config  -->
+    <Exec Command="dotnet nuget push %(NugetPublishInput.Identity) --force-english-output --timeout 60 --api-key az --source $(DoNugetFeedUrl)" WorkingDirectory="$(SolutionDir)_Build\Release\packages" />
+    <Delete Files="$(SolutionDir)_Build\Release\packages\NuGet.Config" />
   </Target>
 </Project>
