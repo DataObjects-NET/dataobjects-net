@@ -71,9 +71,10 @@ namespace Xtensive.Sql
     {
       get => commandTimeout;
       set {
-        if (value!=null) {
+        if (value != null) {
           ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, nameof(value));
         }
+
         EnsureIsNotDisposed();
 
         commandTimeout = value;
@@ -93,7 +94,7 @@ namespace Xtensive.Sql
     {
       EnsureIsNotDisposed();
       var command = CreateNativeCommand();
-      if (commandTimeout!=null) {
+      if (commandTimeout != null) {
         command.CommandTimeout = commandTimeout.Value;
       }
 
@@ -175,8 +176,10 @@ namespace Xtensive.Sql
     public virtual void OpenAndInitialize(string initializationScript)
     {
       UnderlyingConnection.Open();
-      if (string.IsNullOrEmpty(initializationScript))
+      if (string.IsNullOrEmpty(initializationScript)) {
         return;
+      }
+
       using (var command = UnderlyingConnection.CreateCommand()) {
         command.CommandText = initializationScript;
         command.ExecuteNonQuery();
@@ -204,8 +207,10 @@ namespace Xtensive.Sql
     {
       cancellationToken.ThrowIfCancellationRequested();
       await UnderlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
-      if (string.IsNullOrEmpty(initializationScript))
+      if (string.IsNullOrEmpty(initializationScript)) {
         return;
+      }
+
       try {
         using (var command = UnderlyingConnection.CreateCommand()) {
           command.CommandText = initializationScript;
@@ -342,7 +347,7 @@ namespace Xtensive.Sql
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void EnsureTransactionIsActive()
     {
-      if (ActiveTransaction==null) {
+      if (ActiveTransaction == null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldBeActive);
       }
     }
@@ -352,7 +357,7 @@ namespace Xtensive.Sql
     /// </summary>
     protected void EnsureTransactionIsNotActive()
     {
-      if (ActiveTransaction!=null) {
+      if (ActiveTransaction != null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
       }
     }
