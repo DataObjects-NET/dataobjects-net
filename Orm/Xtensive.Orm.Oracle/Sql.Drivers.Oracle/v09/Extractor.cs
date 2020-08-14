@@ -80,11 +80,31 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
+    protected class ExtractionContext
+    {
+      private readonly Dictionary<string, string> replacementsRegistry;
+
+      public readonly Catalog Catalog;
+
+      public string PerformReplacements(string query)
+      {
+        foreach (var registry in replacementsRegistry) {
+          query = query.Replace(registry.Key, registry.Value);
+        }
+        return query;
+      }
+
+      public ExtractionContext(Catalog catalog, Dictionary<string, string> replacementRegistry)
+      {
+        Catalog = catalog;
+        this.replacementsRegistry = replacementRegistry;
+      }
+    }
+
     private const int DefaultPrecision = 38;
     private const int DefaultScale = 0;
 
-    private readonly HashSet<string> targetSchemes = new HashSet<string>();
-    private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
+    private readonly object accessGuard = new object();
 
     private string nonSystemSchemasFilter;
 
@@ -96,64 +116,64 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
-      var catalog = CreateCatalog(catalogName, schemaNames);
+      var context = CreateContext(catalogName, schemaNames);
 
-      RegisterReplacements(replacementsRegistry);
-      ExtractSchemas(catalog);
-      EnsureSchemasExist(catalog, schemaNames);
-      ExtractCatalogContents(catalog);
-      return catalog;
+      ExtractSchemas(context);
+      EnsureSchemasExist(context.Catalog, schemaNames);
+      ExtractCatalogContents(context);
+      return context.Catalog;
     }
 
     public override async Task<Catalog> ExtractSchemesAsync(string catalogName, string[] schemaNames,
       CancellationToken token = default)
     {
-      var catalog = CreateCatalog(catalogName, schemaNames);
+      var context = CreateContext(catalogName, schemaNames);
 
-      RegisterReplacements(replacementsRegistry);
-      await ExtractSchemasAsync(catalog, token).ConfigureAwait(false);
-      EnsureSchemasExist(catalog, schemaNames);
-      await ExtractCatalogContentsAsync(catalog, token).ConfigureAwait(false);
-      return catalog;
+      await ExtractSchemasAsync(context, token).ConfigureAwait(false);
+      EnsureSchemasExist(context.Catalog, schemaNames);
+      await ExtractCatalogContentsAsync(context, token).ConfigureAwait(false);
+      return context.Catalog;
     }
 
-    private Catalog CreateCatalog(string catalogName, string[] schemaNames)
+    private ExtractionContext CreateContext(string catalogName, string[] schemaNames)
     {
       var catalog = new Catalog(catalogName);
-      targetSchemes.Clear();
-      foreach (var schemaName in schemaNames) {
-        var targetSchema = schemaName.ToUpperInvariant();
-        targetSchemes.Add(targetSchema);
+      for(var i = 0; i < schemaNames.Length; i++) {
+        schemaNames[i] = schemaNames[i].ToUpperInvariant();
       }
-      return catalog;
+
+      var replacements = new Dictionary<string, string>();
+      RegisterReplacements(replacements, schemaNames);
+
+      return new ExtractionContext(catalog, replacements);
     }
 
-    private void ExtractSchemas(Catalog catalog)
+    private void ExtractSchemas(ExtractionContext context)
     {
       // oracle does not clearly distinct users and schemas.
       // so we extract just users.
-      using (var reader = ExecuteReader(GetExtractSchemasQuery())) {
+      using (var reader = ExecuteReader(context.PerformReplacements(GetExtractSchemasQuery()))) {
         while (reader.Read()) {
-          catalog.CreateSchema(reader.GetString(0));
+          context.Catalog.CreateSchema(reader.GetString(0));
         }
       }
 
-      AssignCatalogDefaultSchema(catalog);
+      AssignCatalogDefaultSchema(context.Catalog);
     }
 
-    private async Task ExtractSchemasAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractSchemasAsync(ExtractionContext context, CancellationToken token)
     {
       // oracle does not clearly distinct users and schemas.
       // so we extract just users.
-      var query = GetExtractSchemasQuery();
+      var query = context.PerformReplacements(GetExtractSchemasQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          catalog.CreateSchema(reader.GetString(0));
+          context.Catalog.CreateSchema(reader.GetString(0));
         }
       }
 
-      AssignCatalogDefaultSchema(catalog);
+      AssignCatalogDefaultSchema(context.Catalog);
     }
 
     private void AssignCatalogDefaultSchema(Catalog catalog)
@@ -164,47 +184,47 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       catalog.DefaultSchema = defaultSchema;
     }
 
-    private void ExtractCatalogContents(Catalog catalog)
+    private void ExtractCatalogContents(ExtractionContext context)
     {
-      ExtractTables(catalog);
-      ExtractTableColumns(catalog);
-      ExtractViews(catalog);
-      ExtractViewColumns(catalog);
-      ExtractIndexes(catalog);
-      ExtractForeignKeys(catalog);
-      ExtractCheckConstraints(catalog);
-      ExtractUniqueAndPrimaryKeyConstraints(catalog);
-      ExtractSequences(catalog);
+      ExtractTables(context);
+      ExtractTableColumns(context);
+      ExtractViews(context);
+      ExtractViewColumns(context);
+      ExtractIndexes(context);
+      ExtractForeignKeys(context);
+      ExtractCheckConstraints(context);
+      ExtractUniqueAndPrimaryKeyConstraints(context);
+      ExtractSequences(context);
     }
 
-    private async Task ExtractCatalogContentsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractCatalogContentsAsync(ExtractionContext context, CancellationToken token)
     {
-      await ExtractTablesAsync(catalog, token).ConfigureAwait(false);
-      await ExtractTableColumnsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractViewsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractViewColumnsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractIndexesAsync(catalog, token).ConfigureAwait(false);
-      await ExtractForeignKeysAsync(catalog, token).ConfigureAwait(false);
-      await ExtractCheckConstraintsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractUniqueAndPrimaryKeyConstraintsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractSequencesAsync(catalog, token).ConfigureAwait(false);
+      await ExtractTablesAsync(context, token).ConfigureAwait(false);
+      await ExtractTableColumnsAsync(context, token).ConfigureAwait(false);
+      await ExtractViewsAsync(context, token).ConfigureAwait(false);
+      await ExtractViewColumnsAsync(context, token).ConfigureAwait(false);
+      await ExtractIndexesAsync(context, token).ConfigureAwait(false);
+      await ExtractForeignKeysAsync(context, token).ConfigureAwait(false);
+      await ExtractCheckConstraintsAsync(context, token).ConfigureAwait(false);
+      await ExtractUniqueAndPrimaryKeyConstraintsAsync(context, token).ConfigureAwait(false);
+      await ExtractSequencesAsync(context, token).ConfigureAwait(false);
     }
 
-    private void ExtractTables(Catalog catalog)
+    private void ExtractTables(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractTablesQuery());
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractTablesQuery()));
       while (reader.Read()) {
-        ReadTableData(reader, catalog);
+        ReadTableData(reader, context.Catalog);
       }
     }
 
-    private async Task ExtractTablesAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractTablesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractTablesQuery();
+      var query = context.PerformReplacements(GetExtractTablesQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadTableData(reader, catalog);
+          ReadTableData(reader, context.Catalog);
         }
       }
     }
@@ -224,21 +244,21 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private void ExtractTableColumns(Catalog catalog)
+    private void ExtractTableColumns(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractTableColumnsQuery());
-      var state = new ColumnReaderState<Table>(catalog);
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractTableColumnsQuery()));
+      var state = new ColumnReaderState<Table>(context.Catalog);
       while (reader.Read()) {
         ReadTableColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractTableColumnsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractTableColumnsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractTableColumnsQuery();
+      var query = context.PerformReplacements(GetExtractTableColumnsQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
-        var state = new ColumnReaderState<Table>(catalog);
+        var state = new ColumnReaderState<Table>(context.Catalog);
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
           ReadTableColumnData(reader, ref state);
         }
@@ -264,21 +284,21 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       state.LastColumnIndex = columnIndex;
     }
 
-    private void ExtractViews(Catalog catalog)
+    private void ExtractViews(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractViewsQuery());
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractViewsQuery()));
       while (reader.Read()) {
-        ReadViewData(reader, catalog);
+        ReadViewData(reader, context.Catalog);
       }
     }
 
-    private async Task ExtractViewsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractViewsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractViewsQuery();
+      var query = context.PerformReplacements(GetExtractViewsQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadViewData(reader, catalog);
+          ReadViewData(reader, context.Catalog);
         }
       }
     }
@@ -296,21 +316,21 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private void ExtractViewColumns(Catalog catalog)
+    private void ExtractViewColumns(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractViewColumnsQuery());
-      var state = new ColumnReaderState<View>(catalog);
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractViewColumnsQuery()));
+      var state = new ColumnReaderState<View>(context.Catalog);
       while (reader.Read()) {
         ReadViewColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractViewColumnsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractViewColumnsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractViewColumnsQuery();
+      var query = context.PerformReplacements(GetExtractViewColumnsQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
-        var state = new ColumnReaderState<View>(catalog);
+        var state = new ColumnReaderState<View>(context.Catalog);
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
           ReadViewColumnData(reader, ref state);
         }
@@ -329,21 +349,22 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       state.LastColumnIndex = columnId;
     }
 
-    private void ExtractIndexes(Catalog catalog)
+    private void ExtractIndexes(ExtractionContext context)
     {
-      using var reader = (OracleDataReader) ExecuteReader(GetExtractIndexesQuery());
-      var state = new IndexColumnReaderState(catalog);
+      var query = context.PerformReplacements(GetExtractIndexesQuery());
+      using var reader = (OracleDataReader) ExecuteReader(query);
+      var state = new IndexColumnReaderState(context.Catalog);
       while (reader.Read()) {
         ReadIndexColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractIndexesAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractIndexesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractIndexesQuery();
+      var query = context.PerformReplacements(GetExtractIndexesQuery());
       var reader = (OracleDataReader) await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
-        var state = new IndexColumnReaderState(catalog);
+        var state = new IndexColumnReaderState(context.Catalog);
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
           ReadIndexColumnData(reader, ref state);
         }
@@ -375,21 +396,21 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       state.LastColumnIndex = columnIndex;
     }
 
-    private void ExtractForeignKeys(Catalog catalog)
+    private void ExtractForeignKeys(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractForeignKeysQuery());
-      var state = new ForeignKeyReaderState(catalog);
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractForeignKeysQuery()));
+      var state = new ForeignKeyReaderState(context.Catalog);
       while (reader.Read()) {
         ReadForeignKeyColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractForeignKeysAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractForeignKeysAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractForeignKeysQuery();
+      var query = context.PerformReplacements(GetExtractForeignKeysQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
-        var state = new ForeignKeyReaderState(catalog);
+        var state = new ForeignKeyReaderState(context.Catalog);
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
           ReadForeignKeyColumnData(reader, ref state);
         }
@@ -417,10 +438,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       state.LastColumnIndex = lastColumnIndex;
     }
 
-    private void ExtractUniqueAndPrimaryKeyConstraints(Catalog catalog)
+    private void ExtractUniqueAndPrimaryKeyConstraints(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
-      var state = new IndexBasedConstraintReaderState(catalog);
+      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
+      using var reader = ExecuteReader(query);
+      var state = new IndexBasedConstraintReaderState(context.Catalog);
       bool readingCompleted;
       do {
         readingCompleted = !reader.Read();
@@ -428,12 +450,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       } while (!readingCompleted);
     }
 
-    private async Task ExtractUniqueAndPrimaryKeyConstraintsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractUniqueAndPrimaryKeyConstraintsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractUniqueAndPrimaryKeyConstraintsQuery();
+      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
-        var state = new IndexBasedConstraintReaderState(catalog);
+        var state = new IndexBasedConstraintReaderState(context.Catalog);
         bool readingCompleted;
         do {
           readingCompleted = !await reader.ReadAsync(token).ConfigureAwait(false);
@@ -469,21 +491,21 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private void ExtractCheckConstraints(Catalog catalog)
+    private void ExtractCheckConstraints(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractCheckConstraintsQuery());
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractCheckConstraintsQuery()));
       while (reader.Read()) {
-        ReadCheckConstraintData(reader, catalog);
+        ReadCheckConstraintData(reader, context.Catalog);
       }
     }
 
-    private async Task ExtractCheckConstraintsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractCheckConstraintsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractCheckConstraintsQuery();
+      var query = context.PerformReplacements(GetExtractCheckConstraintsQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadCheckConstraintData(reader, catalog);
+          ReadCheckConstraintData(reader, context.Catalog);
         }
       }
     }
@@ -502,21 +524,21 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       ReadConstraintProperties(constraint, reader, 4, 5);
     }
 
-    private void ExtractSequences(Catalog catalog)
+    private void ExtractSequences(ExtractionContext context)
     {
-      using var reader = ExecuteReader(GetExtractSequencesQuery());
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractSequencesQuery()));
       while (reader.Read()) {
-        ReadSequenceData(reader, catalog);
+        ReadSequenceData(reader, context.Catalog);
       }
     }
 
-    private async Task ExtractSequencesAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractSequencesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = GetExtractSequencesQuery();
+      var query = context.PerformReplacements(GetExtractSequencesQuery());
       var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadSequenceData(reader, catalog);
+          ReadSequenceData(reader, context.Catalog);
         }
       }
     }
@@ -654,10 +676,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
     
-    protected virtual void RegisterReplacements(Dictionary<string, string> replacements)
+    protected virtual void RegisterReplacements(Dictionary<string, string> replacements, IReadOnlyCollection<string> targetSchemes)
     {
       var schemaFilter = targetSchemes!=null && targetSchemes.Count!=0
-        ? MakeSchemaFilter()
+        ? MakeSchemaFilter(targetSchemes)
         //? "= " + SqlHelper.QuoteString(targetSchema)
         : GetNonSystemSchemasFilter();
       replacements[SchemaFilterPlaceholder] = schemaFilter;
@@ -665,16 +687,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       replacements[TableFilterPlaceholder] = "IS NOT NULL";
     }
 
-    private string PerformReplacements(string query)
-    {
-      foreach (var registry in replacementsRegistry) {
-        query = query.Replace(registry.Key, registry.Value);
-      }
-
-      return query;
-    }
-
-    private string MakeSchemaFilter()
+    private static string MakeSchemaFilter(IReadOnlyCollection<string> targetSchemes)
     {
       var schemaStrings = targetSchemes.Select(SqlHelper.QuoteString);
       var schemaList = string.Join(",", schemaStrings);
@@ -683,8 +696,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     protected override DbDataReader ExecuteReader(string commandText)
     {
-      var realCommandText = PerformReplacements(commandText);
-      using var command = (OracleCommand) Connection.CreateCommand(realCommandText);
+      using var command = (OracleCommand) Connection.CreateCommand(commandText);
       // This option is required to access LONG columns
       command.InitialLONGFetchSize = -1;
       return command.ExecuteReader();
@@ -692,8 +704,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     protected override async Task<DbDataReader> ExecuteReaderAsync(string commandText, CancellationToken token = default)
     {
-      var realCommandText = PerformReplacements(commandText);
-      var command = (OracleCommand) Connection.CreateCommand(realCommandText);
+      var command = (OracleCommand) Connection.CreateCommand(commandText);
       await using (command.ConfigureAwait(false)) {
         // This option is required to access LONG columns
         command.InitialLONGFetchSize = -1;
@@ -751,10 +762,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private string GetNonSystemSchemasFilter()
     {
-      if (nonSystemSchemasFilter==null) {
-        var schemaStrings = GetSystemSchemas().Select(SqlHelper.QuoteString).ToArray();
-        var schemaList = string.Join(",", schemaStrings);
-        nonSystemSchemasFilter = $"NOT IN ({schemaList})";
+      if (nonSystemSchemasFilter == null) {
+        lock (accessGuard) {
+          if (nonSystemSchemasFilter == null) {
+            var schemaStrings = GetSystemSchemas().Select(SqlHelper.QuoteString).ToArray();
+            var schemaList = string.Join(",", schemaStrings);
+            nonSystemSchemasFilter = $"NOT IN ({schemaList})";
+          }
+        }
       }
       return nonSystemSchemasFilter;
     }
