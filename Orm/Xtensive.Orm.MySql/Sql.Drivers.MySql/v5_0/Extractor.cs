@@ -78,10 +78,41 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
+    private class ExtractionContext
+    {
+      private readonly Dictionary<string, string> replacementsRegistry;
+
+      public readonly Catalog Catalog;
+
+      public string PerformReplacements(string query)
+      {
+        foreach (var registry in replacementsRegistry) {
+          query = query.Replace(registry.Key, registry.Value);
+        }
+        return query;
+      }
+
+      private static void RegisterReplacements(string targetSchema, Dictionary<string, string> replacements)
+      {
+        var schemaFilter = targetSchema != null
+          ? "= " + SqlHelper.QuoteString(targetSchema)
+          : "NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA')";
+
+        replacements[SchemaFilterPlaceholder] = schemaFilter;
+        replacements[IndexesFilterPlaceholder] = "1 > 0";
+        replacements[TableFilterPlaceholder] = "IS NOT NULL";
+      }
+
+      public ExtractionContext(Catalog catalog, string targetSchema)
+      {
+        Catalog = catalog;
+        replacementsRegistry = new Dictionary<string, string>();
+        RegisterReplacements(targetSchema, replacementsRegistry);
+      }
+    }
+
     private const int DefaultPrecision = 38;
     private const int DefaultScale = 0;
-
-    private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
 
     /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName) =>
@@ -94,78 +125,76 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
-      var catalog = CreateCatalog(catalogName, schemaNames);
-      ExtractCatalogContents(catalog);
-      return catalog;
+      var context = CreateContext(catalogName, schemaNames);
+      ExtractCatalogContents(context);
+      return context.Catalog;
     }
 
     /// <inheritdoc/>
     public override async Task<Catalog> ExtractSchemesAsync(
       string catalogName, string[] schemaNames, CancellationToken token = default)
     {
-      var catalog = CreateCatalog(catalogName, schemaNames);
-      await ExtractCatalogContentsAsync(catalog, token).ConfigureAwait(false);
-      return catalog;
+      var context = CreateContext(catalogName, schemaNames);
+      await ExtractCatalogContentsAsync(context, token).ConfigureAwait(false);
+      return context.Catalog;
     }
 
-    private Catalog CreateCatalog(string catalogName, string[] schemaNames)
+    private ExtractionContext CreateContext(string catalogName, string[] schemaNames)
     {
       var catalog = new Catalog(catalogName);
       if (schemaNames.Length == 0) {
-        RegisterReplacements(null, replacementsRegistry);
+        return new ExtractionContext(catalog, null);
       }
       else {
         var targetSchema = schemaNames[0];
-        catalog.CreateSchema(targetSchema);
-        RegisterReplacements(targetSchema, replacementsRegistry);
+        _ = catalog.CreateSchema(targetSchema);
+        return new ExtractionContext(catalog, targetSchema);
       }
-
-      return catalog;
     }
 
-    private void ExtractCatalogContents(Catalog catalog)
+    private void ExtractCatalogContents(ExtractionContext context)
     {
-      ExtractTables(catalog);
-      ExtractTableColumns(catalog);
-      ExtractViews(catalog);
-      ExtractViewColumns(catalog);
-      ExtractIndexes(catalog);
-      ExtractForeignKeys(catalog);
-      ExtractCheckConstraints(catalog);
-      ExtractUniqueAndPrimaryKeyConstraints(catalog);
+      ExtractTables(context);
+      ExtractTableColumns(context);
+      ExtractViews(context);
+      ExtractViewColumns(context);
+      ExtractIndexes(context);
+      ExtractForeignKeys(context);
+      ExtractCheckConstraints(context);
+      ExtractUniqueAndPrimaryKeyConstraints(context);
     }
 
-    private async Task ExtractCatalogContentsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractCatalogContentsAsync(ExtractionContext context, CancellationToken token)
     {
-      await ExtractTablesAsync(catalog, token).ConfigureAwait(false);
-      await ExtractTableColumnsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractViewsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractViewColumnsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractIndexesAsync(catalog, token).ConfigureAwait(false);
-      await ExtractForeignKeysAsync(catalog, token).ConfigureAwait(false);
-      await ExtractCheckConstraintsAsync(catalog, token).ConfigureAwait(false);
-      await ExtractUniqueAndPrimaryKeyConstraintsAsync(catalog, token).ConfigureAwait(false);
+      await ExtractTablesAsync(context, token).ConfigureAwait(false);
+      await ExtractTableColumnsAsync(context, token).ConfigureAwait(false);
+      await ExtractViewsAsync(context, token).ConfigureAwait(false);
+      await ExtractViewColumnsAsync(context, token).ConfigureAwait(false);
+      await ExtractIndexesAsync(context, token).ConfigureAwait(false);
+      await ExtractForeignKeysAsync(context, token).ConfigureAwait(false);
+      await ExtractCheckConstraintsAsync(context, token).ConfigureAwait(false);
+      await ExtractUniqueAndPrimaryKeyConstraintsAsync(context, token).ConfigureAwait(false);
     }
 
-    private void ExtractTables(Catalog catalog)
+    private void ExtractTables(ExtractionContext context)
     {
-      var query = PerformReplacements(GetExtractTablesQuery());
+      var query = context.PerformReplacements(GetExtractTablesQuery());
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
       while (reader.Read()) {
-        ReadTableData(reader, catalog);
+        ReadTableData(reader, context.Catalog);
       }
     }
 
-    private async Task ExtractTablesAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractTablesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = PerformReplacements(GetExtractTablesQuery());
+      var query = context.PerformReplacements(GetExtractTablesQuery());
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadTableData(reader, catalog);
+            ReadTableData(reader, context.Catalog);
           }
         }
       }
@@ -183,25 +212,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       schema.CreateTable(tableName);
     }
 
-    private void ExtractTableColumns(Catalog catalog)
+    private void ExtractTableColumns(ExtractionContext context)
     {
-      var query = PerformReplacements(GetExtractTableColumnsQuery());
+      var query = context.PerformReplacements(GetExtractTableColumnsQuery());
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
-      var state = new ColumnReaderState<Table>(catalog);
+      var state = new ColumnReaderState<Table>(context.Catalog);
       while (reader.Read()) {
         ReadTableColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractTableColumnsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractTableColumnsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = PerformReplacements(GetExtractTableColumnsQuery());
+      var query = context.PerformReplacements(GetExtractTableColumnsQuery());
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
-          var state = new ColumnReaderState<Table>(catalog);
+          var state = new ColumnReaderState<Table>(context.Catalog);
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadTableColumnData(reader, ref state);
           }
@@ -265,25 +294,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       state.LastColumnIndex = columnIndex;
     }
 
-    private void ExtractViews(Catalog catalog)
+    private void ExtractViews(ExtractionContext context)
     {
-      var query = PerformReplacements(GetExtractViewsQuery());
+      var query = context.PerformReplacements(GetExtractViewsQuery());
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
       while (reader.Read()) {
-        ReadViewData(reader, catalog);
+        ReadViewData(reader, context.Catalog);
       }
     }
 
-    private async Task ExtractViewsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractViewsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = PerformReplacements(GetExtractViewsQuery());
+      var query = context.PerformReplacements(GetExtractViewsQuery());
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadViewData(reader, catalog);
+            ReadViewData(reader, context.Catalog);
           }
         }
       }
@@ -306,25 +335,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    private void ExtractViewColumns(Catalog catalog)
+    private void ExtractViewColumns(ExtractionContext context)
     {
-      var query = PerformReplacements(GetExtractViewColumnsQuery());
+      var query = context.PerformReplacements(GetExtractViewColumnsQuery());
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
-      var state = new ColumnReaderState<View>(catalog);
+      var state = new ColumnReaderState<View>(context.Catalog);
       while (reader.Read()) {
         ReadViewColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractViewColumnsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractViewColumnsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = PerformReplacements(GetExtractViewColumnsQuery());
+      var query = context.PerformReplacements(GetExtractViewColumnsQuery());
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
-          var state = new ColumnReaderState<View>(catalog);
+          var state = new ColumnReaderState<View>(context.Catalog);
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadViewColumnData(reader, ref state);
           }
@@ -350,25 +379,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       state.LastColumnIndex = columnIndex;
     }
 
-    private void ExtractIndexes(Catalog catalog)
+    private void ExtractIndexes(ExtractionContext context)
     {
-      var query = PerformReplacements(GetExtractIndexesQuery());
+      var query = context.PerformReplacements(GetExtractIndexesQuery());
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
-      var state = new IndexColumnReaderState(catalog);
+      var state = new IndexColumnReaderState(context.Catalog);
       while (reader.Read()) {
         ReadIndexColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractIndexesAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractIndexesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = PerformReplacements(GetExtractIndexesQuery());
+      var query = context.PerformReplacements(GetExtractIndexesQuery());
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
-          var state = new IndexColumnReaderState(catalog);
+          var state = new IndexColumnReaderState(context.Catalog);
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadIndexColumnData(reader, ref state);
           }
@@ -408,25 +437,25 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       state.LastColumnIndex = columnIndex;
     }
 
-    private void ExtractForeignKeys(Catalog catalog)
+    private void ExtractForeignKeys(ExtractionContext context)
     {
-      var query = PerformReplacements(GetExtractForeignKeysQuery());
+      var query = context.PerformReplacements(GetExtractForeignKeysQuery());
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
-      var state = new ForeignKeyReaderState(catalog);
+      var state = new ForeignKeyReaderState(context.Catalog);
       while (reader.Read()) {
         ReadForeignKeyColumnData(reader, ref state);
       }
     }
 
-    private async Task ExtractForeignKeysAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractForeignKeysAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = PerformReplacements(GetExtractForeignKeysQuery());
+      var query = context.PerformReplacements(GetExtractForeignKeysQuery());
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
-          var state = new ForeignKeyReaderState(catalog);
+          var state = new ForeignKeyReaderState(context.Catalog);
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
             ReadForeignKeyColumnData(reader, ref state);
           }
@@ -464,12 +493,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       state.LastColumnIndex = columnIndex;
     }
 
-    private void ExtractUniqueAndPrimaryKeyConstraints(Catalog catalog)
+    private void ExtractUniqueAndPrimaryKeyConstraints(ExtractionContext context)
     {
-      var query = PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
+      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
-      var state = new IndexBasedConstraintReaderState(catalog);
+      var state = new IndexBasedConstraintReaderState(context.Catalog);
       bool readingCompleted;
       do {
         readingCompleted = !reader.Read();
@@ -477,14 +506,14 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       } while (!readingCompleted);
     }
 
-    private async Task ExtractUniqueAndPrimaryKeyConstraintsAsync(Catalog catalog, CancellationToken token)
+    private async Task ExtractUniqueAndPrimaryKeyConstraintsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
+      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
-          var state = new IndexBasedConstraintReaderState(catalog);
+          var state = new IndexBasedConstraintReaderState(context.Catalog);
           bool readingCompleted;
           do {
             readingCompleted = !await reader.ReadAsync(token).ConfigureAwait(false);
@@ -544,7 +573,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //  2   -   table_schema,
     //  3   -   table_name,
     //  4   -   constraint_type
-    private static void ExtractCheckConstraints(Catalog catalog)
+    private static void ExtractCheckConstraints(ExtractionContext context)
     {
       #region Commented Code
 
@@ -569,7 +598,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       #endregion
     }
 
-    private static Task ExtractCheckConstraintsAsync(Catalog catalog, CancellationToken token) => Task.CompletedTask;
+    private static Task ExtractCheckConstraintsAsync(ExtractionContext context, CancellationToken token) => Task.CompletedTask;
 
     private SqlValueType CreateValueType(IDataRecord row,
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
@@ -746,26 +775,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           foreignKey.OnDelete = ReferentialAction.NoAction;
           return;
       }
-    }
-
-    private static void RegisterReplacements(string targetSchema, Dictionary<string, string> replacements)
-    {
-      var schemaFilter = targetSchema!=null
-        ? "= " + SqlHelper.QuoteString(targetSchema)
-        : "NOT IN ('INFORMATION_SCHEMA', 'MYSQL', 'PERFORMANCE_SCHEMA')";
-
-      replacements[SchemaFilterPlaceholder] = schemaFilter;
-      replacements[IndexesFilterPlaceholder] = "1 > 0";
-      replacements[TableFilterPlaceholder] = "IS NOT NULL";
-    }
-
-    private string PerformReplacements(string query)
-    {
-      foreach (var registry in replacementsRegistry) {
-        query = query.Replace(registry.Key, registry.Value);
-      }
-
-      return query;
     }
 
     // Constructors
