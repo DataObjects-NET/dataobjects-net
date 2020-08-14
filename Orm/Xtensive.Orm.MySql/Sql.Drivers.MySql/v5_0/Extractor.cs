@@ -200,18 +200,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    // ---- ReadTableData
-    //  0   table_schema,
-    //  1   table_name,
-    //  2   table_type
-    private static void ReadTableData(DbDataReader reader, Catalog catalog)
-    {
-      var schemaName = reader.GetString(0);
-      var schema = catalog.Schemas[schemaName];
-      var tableName = reader.GetString(1);
-      schema.CreateTable(tableName);
-    }
-
     private void ExtractTableColumns(ExtractionContext context)
     {
       var query = context.PerformReplacements(GetExtractTableColumnsQuery());
@@ -238,62 +226,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    // ---- ReadTableColumnData
-    //    0     table_schema
-    //    1     table_name
-    //    2     ordinal_position
-    //    3     column_name
-    //    4     data_type
-    //    5     is_nullable
-    //    6     column_type
-    //    7     character_maximum_length
-    //    8     numeric_precision
-    //    9     numeric_scale
-    //   10    collation_name
-    //   11    column_key
-    //   12    column_default
-    //   13    Extra
-    private void ReadTableColumnData(DbDataReader reader, ref ColumnReaderState<Table> state)
-    {
-      var columnIndex = ReadInt(reader, 2);
-      if (columnIndex <= state.LastColumnIndex) {
-        //Schema
-        state.Schema = state.Catalog.Schemas[reader.GetString(0)];
-
-        //Table
-        state.Owner = state.Schema.Tables[reader.GetString(1)];
-      }
-
-      //Column
-      var column = state.Owner.CreateColumn(reader.GetString(3));
-
-      //Collation
-      var collationName = ReadStringOrNull(reader, 10);
-      if (!string.IsNullOrEmpty(collationName)) {
-        column.Collation = state.Schema.Collations[collationName] ?? state.Schema.CreateCollation(collationName);
-      }
-
-      //Data type
-      column.DataType = CreateValueType(reader, 4, 8, 9, 7);
-
-      //Nullable
-      column.IsNullable = ReadBool(reader, 5);
-
-      //Default
-      var defaultValue = ReadStringOrNull(reader, 12);
-      if (!string.IsNullOrEmpty(defaultValue)) {
-        column.DefaultValue = SqlDml.Native(defaultValue);
-      }
-
-      // AutoIncrement
-      if (ReadAutoIncrement(reader, 13)) {
-        column.SequenceDescriptor = new SequenceDescriptor(column, ReadInt(reader, 14), 1);
-      }
-
-      //Column number.
-      state.LastColumnIndex = columnIndex;
-    }
-
     private void ExtractViews(ExtractionContext context)
     {
       var query = context.PerformReplacements(GetExtractViewsQuery());
@@ -315,23 +247,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             ReadViewData(reader, context.Catalog);
           }
         }
-      }
-    }
-
-    //---- ReadViewData
-    //   0      table_schema,
-    //   1      table_name,
-    //   2      view_definition
-    private static void ReadViewData(DbDataReader reader, Catalog catalog)
-    {
-      var schema = catalog.Schemas[reader.GetString(0)];
-      var view = reader.GetString(1);
-      var definition = ReadStringOrNull(reader, 2);
-      if (string.IsNullOrEmpty(definition)) {
-        schema.CreateView(view);
-      }
-      else {
-        schema.CreateView(view, SqlDml.Native(definition));
       }
     }
 
@@ -361,24 +276,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    //---- ReadViewColumnData
-    //   0      table_schema,
-    //   1      table_name,
-    //   2      column_name,
-    //   3      ordinal_position,
-    //   4      view_definition
-    private static void ReadViewColumnData(DbDataReader reader, ref ColumnReaderState<View> state)
-    {
-      var columnIndex = ReadInt(reader, 3);
-      if (columnIndex <= state.LastColumnIndex) {
-        var schema = state.Catalog.Schemas[reader.GetString(0)];
-        state.Owner = schema.Views[reader.GetString(1)];
-      }
-
-      state.Owner.CreateColumn(reader.GetString(2));
-      state.LastColumnIndex = columnIndex;
-    }
-
     private void ExtractIndexes(ExtractionContext context)
     {
       var query = context.PerformReplacements(GetExtractIndexesQuery());
@@ -405,38 +302,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    //---- ReadIndexColumnData
-    //  0       table_schema,
-    //  1       table_name,
-    //  2       index_name,
-    //  3       non_unique,
-    //  4       index_type,
-    //  5       seq_in_index,
-    //  6       column_name,
-    //  7       cardinality,
-    //  8       sub_part,
-    //  9       nullable
-    private static void ReadIndexColumnData(DbDataReader reader, ref IndexColumnReaderState state)
-    {
-      var columnIndex = ReadInt(reader, 5);
-      if (columnIndex <= state.LastColumnIndex) {
-        var schema = state.Catalog.Schemas[reader.GetString(0)];
-        state.Table = schema.Tables[reader.GetString(1)];
-        if (IsFullTextIndex(reader, 4)) {
-          state.Table.CreateFullTextIndex(reader.GetString(2));
-        }
-        else {
-          state.Index = state.Table.CreateIndex(reader.GetString(2));
-          state.Index.IsUnique = reader.GetInt32(3) == 0;
-        }
-      }
-
-      var column = state.Table.TableColumns[reader.GetString(6)];
-      state.Index.CreateIndexColumn(column);
-
-      state.LastColumnIndex = columnIndex;
-    }
-
     private void ExtractForeignKeys(ExtractionContext context)
     {
       var query = context.PerformReplacements(GetExtractForeignKeysQuery());
@@ -461,36 +326,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           }
         }
       }
-    }
-
-    //----  ReadForeignKeyColumnData
-    //  0       constraint_schema,
-    //  1       table_name,
-    //  2       constraint_name,
-    //  3       delete_rule,
-    //  4       column_name,
-    //  5       ordinal_position,
-    //  6       referenced_table_schema,
-    //  7       referenced_table_name,
-    //  8       referenced_column_name
-    private static void ReadForeignKeyColumnData(DbDataReader reader, ref ForeignKeyReaderState state)
-    {
-      var columnIndex = ReadInt(reader, 5);
-      if (columnIndex <= state.LastColumnIndex) {
-        var referencingSchema = state.Catalog.Schemas[reader.GetString(0)];
-        state.ReferencingTable = referencingSchema.Tables[reader.GetString(1)];
-        state.ForeignKey = state.ReferencingTable.CreateForeignKey(reader.GetString(2));
-        ReadCascadeAction(state.ForeignKey, reader, 3);
-        var referencedSchema = state.Catalog.Schemas[reader.GetString(0)]; //Schema same as current
-        state.ReferencedTable = referencedSchema.Tables[reader.GetString(7)];
-        state.ForeignKey.ReferencedTable = state.ReferencedTable;
-      }
-
-      var referencingColumn = state.ReferencingTable.TableColumns[reader.GetString(4)];
-      var referencedColumn = state.ReferencedTable.TableColumns[reader.GetString(8)];
-      state.ForeignKey.Columns.Add(referencingColumn);
-      state.ForeignKey.ReferencedColumns.Add(referencedColumn);
-      state.LastColumnIndex = columnIndex;
     }
 
     private void ExtractUniqueAndPrimaryKeyConstraints(ExtractionContext context)
@@ -599,6 +434,172 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     private static Task ExtractCheckConstraintsAsync(ExtractionContext context, CancellationToken token) => Task.CompletedTask;
+
+
+    // ---- ReadTableData
+    //  0   table_schema,
+    //  1   table_name,
+    //  2   table_type
+    private static void ReadTableData(DbDataReader reader, Catalog catalog)
+    {
+      var schemaName = reader.GetString(0);
+      var schema = catalog.Schemas[schemaName];
+      var tableName = reader.GetString(1);
+      schema.CreateTable(tableName);
+    }
+
+    // ---- ReadTableColumnData
+    //    0     table_schema
+    //    1     table_name
+    //    2     ordinal_position
+    //    3     column_name
+    //    4     data_type
+    //    5     is_nullable
+    //    6     column_type
+    //    7     character_maximum_length
+    //    8     numeric_precision
+    //    9     numeric_scale
+    //   10    collation_name
+    //   11    column_key
+    //   12    column_default
+    //   13    Extra
+    private void ReadTableColumnData(DbDataReader reader, ref ColumnReaderState<Table> state)
+    {
+      var columnIndex = ReadInt(reader, 2);
+      if (columnIndex <= state.LastColumnIndex) {
+        //Schema
+        state.Schema = state.Catalog.Schemas[reader.GetString(0)];
+
+        //Table
+        state.Owner = state.Schema.Tables[reader.GetString(1)];
+      }
+
+      //Column
+      var column = state.Owner.CreateColumn(reader.GetString(3));
+
+      //Collation
+      var collationName = ReadStringOrNull(reader, 10);
+      if (!string.IsNullOrEmpty(collationName)) {
+        column.Collation = state.Schema.Collations[collationName] ?? state.Schema.CreateCollation(collationName);
+      }
+
+      //Data type
+      column.DataType = CreateValueType(reader, 4, 8, 9, 7);
+
+      //Nullable
+      column.IsNullable = ReadBool(reader, 5);
+
+      //Default
+      var defaultValue = ReadStringOrNull(reader, 12);
+      if (!string.IsNullOrEmpty(defaultValue)) {
+        column.DefaultValue = SqlDml.Native(defaultValue);
+      }
+
+      // AutoIncrement
+      if (ReadAutoIncrement(reader, 13)) {
+        column.SequenceDescriptor = new SequenceDescriptor(column, ReadInt(reader, 14), 1);
+      }
+
+      //Column number.
+      state.LastColumnIndex = columnIndex;
+    }
+
+    //---- ReadViewData
+    //   0      table_schema,
+    //   1      table_name,
+    //   2      view_definition
+    private static void ReadViewData(DbDataReader reader, Catalog catalog)
+    {
+      var schema = catalog.Schemas[reader.GetString(0)];
+      var view = reader.GetString(1);
+      var definition = ReadStringOrNull(reader, 2);
+      if (string.IsNullOrEmpty(definition)) {
+        schema.CreateView(view);
+      }
+      else {
+        schema.CreateView(view, SqlDml.Native(definition));
+      }
+    }
+
+    //---- ReadViewColumnData
+    //   0      table_schema,
+    //   1      table_name,
+    //   2      column_name,
+    //   3      ordinal_position,
+    //   4      view_definition
+    private static void ReadViewColumnData(DbDataReader reader, ref ColumnReaderState<View> state)
+    {
+      var columnIndex = ReadInt(reader, 3);
+      if (columnIndex <= state.LastColumnIndex) {
+        var schema = state.Catalog.Schemas[reader.GetString(0)];
+        state.Owner = schema.Views[reader.GetString(1)];
+      }
+
+      state.Owner.CreateColumn(reader.GetString(2));
+      state.LastColumnIndex = columnIndex;
+    }
+
+    //---- ReadIndexColumnData
+    //  0       table_schema,
+    //  1       table_name,
+    //  2       index_name,
+    //  3       non_unique,
+    //  4       index_type,
+    //  5       seq_in_index,
+    //  6       column_name,
+    //  7       cardinality,
+    //  8       sub_part,
+    //  9       nullable
+    private static void ReadIndexColumnData(DbDataReader reader, ref IndexColumnReaderState state)
+    {
+      var columnIndex = ReadInt(reader, 5);
+      if (columnIndex <= state.LastColumnIndex) {
+        var schema = state.Catalog.Schemas[reader.GetString(0)];
+        state.Table = schema.Tables[reader.GetString(1)];
+        if (IsFullTextIndex(reader, 4)) {
+          state.Table.CreateFullTextIndex(reader.GetString(2));
+        }
+        else {
+          state.Index = state.Table.CreateIndex(reader.GetString(2));
+          state.Index.IsUnique = reader.GetInt32(3) == 0;
+        }
+      }
+
+      var column = state.Table.TableColumns[reader.GetString(6)];
+      state.Index.CreateIndexColumn(column);
+
+      state.LastColumnIndex = columnIndex;
+    }
+
+    //----  ReadForeignKeyColumnData
+    //  0       constraint_schema,
+    //  1       table_name,
+    //  2       constraint_name,
+    //  3       delete_rule,
+    //  4       column_name,
+    //  5       ordinal_position,
+    //  6       referenced_table_schema,
+    //  7       referenced_table_name,
+    //  8       referenced_column_name
+    private static void ReadForeignKeyColumnData(DbDataReader reader, ref ForeignKeyReaderState state)
+    {
+      var columnIndex = ReadInt(reader, 5);
+      if (columnIndex <= state.LastColumnIndex) {
+        var referencingSchema = state.Catalog.Schemas[reader.GetString(0)];
+        state.ReferencingTable = referencingSchema.Tables[reader.GetString(1)];
+        state.ForeignKey = state.ReferencingTable.CreateForeignKey(reader.GetString(2));
+        ReadCascadeAction(state.ForeignKey, reader, 3);
+        var referencedSchema = state.Catalog.Schemas[reader.GetString(0)]; //Schema same as current
+        state.ReferencedTable = referencedSchema.Tables[reader.GetString(7)];
+        state.ForeignKey.ReferencedTable = state.ReferencedTable;
+      }
+
+      var referencingColumn = state.ReferencingTable.TableColumns[reader.GetString(4)];
+      var referencedColumn = state.ReferencedTable.TableColumns[reader.GetString(8)];
+      state.ForeignKey.Columns.Add(referencingColumn);
+      state.ForeignKey.ReferencedColumns.Add(referencedColumn);
+      state.LastColumnIndex = columnIndex;
+    }
 
     private SqlValueType CreateValueType(IDataRecord row,
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
