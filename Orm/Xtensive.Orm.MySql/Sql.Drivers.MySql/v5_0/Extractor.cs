@@ -358,50 +358,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    //---- ReadIndexBasedConstraintData
-    //   0      constraint_schema,
-    //   1      table_name,
-    //   2      constraint_name,
-    //  3       constraint_type,
-    //  4       column_name,
-    //  5       ordinal_position
-    private static void ReadIndexBasedConstraintData(DbDataReader reader, ref IndexBasedConstraintReaderState state,
-      bool readingCompleted)
-    {
-      if (readingCompleted) {
-        if (state.Columns.Count > 0) {
-          CreateIndexBasedConstraint(ref state);
-        }
-      }
-      else {
-        var columnIndex = ReadInt(reader, 5);
-        if (columnIndex <= state.LastColumnIndex) {
-          CreateIndexBasedConstraint(ref state);
-          state.Columns.Clear();
-        }
-
-        if (state.Columns.Count == 0) {
-          var schemaName = reader.GetString(0);
-          var tableName = reader.GetString(1);
-          var schema = state.Catalog.Schemas[schemaName];
-          if (schema == null) {
-            throw new InvalidOperationException($"Schema '{schemaName}' is not found");
-          }
-
-          state.Table = schema.Tables[tableName];
-          if (state.Table == null) {
-            throw new InvalidOperationException($"Table '{tableName}' is not found in schema '{schemaName}'");
-          }
-
-          state.ConstraintName = reader.GetString(2);
-          state.ConstraintType = reader.GetString(3);
-        }
-
-        state.Columns.Add(state.Table.TableColumns[reader.GetString(4)]);
-        state.LastColumnIndex = columnIndex;
-      }
-    }
-
     //--- ExtractCheckConstraints
     //  0   -   constraint_schema,
     //  1   -   constraint_name,
@@ -434,7 +390,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     private static Task ExtractCheckConstraintsAsync(ExtractionContext context, CancellationToken token) => Task.CompletedTask;
-
 
     // ---- ReadTableData
     //  0   table_schema,
@@ -601,6 +556,50 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       state.LastColumnIndex = columnIndex;
     }
 
+    //---- ReadIndexBasedConstraintData
+    //   0      constraint_schema,
+    //   1      table_name,
+    //   2      constraint_name,
+    //  3       constraint_type,
+    //  4       column_name,
+    //  5       ordinal_position
+    private static void ReadIndexBasedConstraintData(DbDataReader reader, ref IndexBasedConstraintReaderState state,
+      bool readingCompleted)
+    {
+      if (readingCompleted) {
+        if (state.Columns.Count > 0) {
+          CreateIndexBasedConstraint(ref state);
+        }
+      }
+      else {
+        var columnIndex = ReadInt(reader, 5);
+        if (columnIndex <= state.LastColumnIndex) {
+          CreateIndexBasedConstraint(ref state);
+          state.Columns.Clear();
+        }
+
+        if (state.Columns.Count == 0) {
+          var schemaName = reader.GetString(0);
+          var tableName = reader.GetString(1);
+          var schema = state.Catalog.Schemas[schemaName];
+          if (schema == null) {
+            throw new InvalidOperationException($"Schema '{schemaName}' is not found");
+          }
+
+          state.Table = schema.Tables[tableName];
+          if (state.Table == null) {
+            throw new InvalidOperationException($"Table '{tableName}' is not found in schema '{schemaName}'");
+          }
+
+          state.ConstraintName = reader.GetString(2);
+          state.ConstraintType = reader.GetString(3);
+        }
+
+        state.Columns.Add(state.Table.TableColumns[reader.GetString(4)]);
+        state.LastColumnIndex = columnIndex;
+      }
+    }
+
     private SqlValueType CreateValueType(IDataRecord row,
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
@@ -610,8 +609,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       var precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
       var scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
 
-      var decimalAssignedNames = new List<string>(){"DECIMAL", "NUMERIC", "NUMBER"};
-      var doubleAssignedNames = new List<string>(){"DOUBLE", "REAL"};
+      var decimalAssignedNames = new List<string>() { "DECIMAL", "NUMERIC", "NUMBER" };
+      var doubleAssignedNames = new List<string>() { "DOUBLE", "REAL" };
 
       if (decimalAssignedNames.Contains(typeName)) {
         return new SqlValueType(SqlType.Decimal, precision, scale);
@@ -621,7 +620,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         return new SqlValueType(SqlType.Double);
       }
 
-      if (columnName=="TINYINT(1)") {
+      if (columnName == "TINYINT(1)") {
         return new SqlValueType(SqlType.Boolean);
       }
 
@@ -678,18 +677,18 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         return new SqlValueType(SqlType.VarBinaryMax);
       }
 
-      if (typeName=="VARBINARY") {
+      if (typeName == "VARBINARY") {
         var length = ReadInt(row, charLengthIndex);
         return new SqlValueType(SqlType.VarBinary, length);
       }
 
-      if (typeName=="VARCHAR" || typeName=="CHAR") {
+      if (typeName == "VARCHAR" || typeName == "CHAR") {
         var length = Convert.ToInt32(row[charLengthIndex]);
         var sqlType = typeName.Length==4 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
       }
       var typeInfo = Driver.ServerInfo.DataTypes[typeName];
-      return typeInfo!=null
+      return typeInfo != null
         ? new SqlValueType(typeInfo.Type)
         : new SqlValueType(typeName);
     }
@@ -698,10 +697,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
       switch (state.ConstraintType) {
         case "PRIMARY KEY":
-          state.Table.CreatePrimaryKey(state.ConstraintName, state.Columns.ToArray());
+          _ = state.Table.CreatePrimaryKey(state.ConstraintName, state.Columns.ToArray());
           return;
         case "UNIQUE":
-          state.Table.CreateUniqueConstraint(state.ConstraintName, state.Columns.ToArray());
+          _ = state.Table.CreateUniqueConstraint(state.ConstraintName, state.Columns.ToArray());
           return;
         default:
           throw new ArgumentOutOfRangeException(nameof(IndexBasedConstraintReaderState.ConstraintType));
@@ -732,7 +731,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       var value = ReadStringOrNull(row, index);
       if (!string.IsNullOrEmpty(value)) {
         value = value.ToUpperInvariant();
-        return value=="FULLTEXT";
+        return value == "FULLTEXT";
       }
       return false;
     }
@@ -742,7 +741,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       var value = ReadStringOrNull(row, index);
       if (!string.IsNullOrEmpty(value)) {
         value = value.ToUpperInvariant();
-        return value=="AUTO_INCREMENT";
+        return value == "AUTO_INCREMENT";
       }
       return false;
     }
