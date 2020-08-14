@@ -408,7 +408,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         table.IsGlobal = true;
       }
       else {
-        schema.CreateTable(tableName);
+        _ = schema.CreateTable(tableName);
       }
     }
 
@@ -437,10 +437,10 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       var view = reader.GetString(1);
       var definition = ReadStringOrNull(reader, 2);
       if (string.IsNullOrEmpty(definition)) {
-        schema.CreateView(view);
+        _ = schema.CreateView(view);
       }
       else {
-        schema.CreateView(view, SqlDml.Native(definition));
+        _ = schema.CreateView(view, SqlDml.Native(definition));
       }
     }
 
@@ -452,7 +452,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         state.Owner = schema.Views[reader.GetString(1)];
       }
 
-      state.Owner.CreateColumn(reader.GetString(2));
+      _ = state.Owner.CreateColumn(reader.GetString(2));
       state.LastColumnIndex = columnId;
     }
 
@@ -477,7 +477,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       columnName = columnName.Trim('"');
       var column = state.Table.TableColumns[columnName];
       var isAscending = reader.GetString(8) == "ASC";
-      state.Index.CreateIndexColumn(column, isAscending);
+      _ = state.Index.CreateIndexColumn(column, isAscending);
       state.LastColumnIndex = columnIndex;
     }
 
@@ -558,7 +558,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       int typeNameIndex, int precisionIndex, int scaleIndex, int charLengthIndex)
     {
       var typeName = row.GetString(typeNameIndex);
-      if (typeName=="NUMBER") {
+      if (typeName == "NUMBER") {
         var precision = row.IsDBNull(precisionIndex) ? DefaultPrecision : ReadInt(row, precisionIndex);
         var scale = row.IsDBNull(scaleIndex) ? DefaultScale : ReadInt(row, scaleIndex);
         return new SqlValueType(SqlType.Decimal, precision, scale);
@@ -576,13 +576,13 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
         return new SqlValueType(SqlType.DateTime);
       }
-      if (typeName=="NVARCHAR2" || typeName=="NCHAR") {
+      if (typeName == "NVARCHAR2" || typeName == "NCHAR") {
         var length = ReadInt(row, charLengthIndex);
-        var sqlType = typeName.Length==5 ? SqlType.Char : SqlType.VarChar;
+        var sqlType = typeName.Length == 5 ? SqlType.Char : SqlType.VarChar;
         return new SqlValueType(sqlType, length);
       }
       var typeInfo = Driver.ServerInfo.DataTypes[typeName];
-      return typeInfo!=null
+      return typeInfo != null
         ? new SqlValueType(typeInfo.Type)
         : new SqlValueType(typeName);
     }
@@ -590,33 +590,33 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     private static void CreateIndexBasedConstraint(ref IndexBasedConstraintReaderState state)
     {
       switch (state.ConstraintType) {
-      case "P":
-        state.Table.CreatePrimaryKey(state.ConstraintName, state.Columns.ToArray());
-        return;
-      case "U":
-        state.Table.CreateUniqueConstraint(state.ConstraintName, state.Columns.ToArray());
-        return;
-      default:
-        throw new ArgumentOutOfRangeException(nameof(IndexBasedConstraintReaderState.ConstraintType));
+        case "P":
+          _ = state.Table.CreatePrimaryKey(state.ConstraintName, state.Columns.ToArray());
+          return;
+        case "U":
+          _ = state.Table.CreateUniqueConstraint(state.ConstraintName, state.Columns.ToArray());
+          return;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(IndexBasedConstraintReaderState.ConstraintType));
       }
     }
-    
+
     private static bool ReadBool(IDataRecord row, int index)
     {
       var value = row.GetString(index);
       switch (value) {
-      case "Y":
-      case "YES":
-      case "ENABLED":
-      case "UNIQUE":
-        return true;
-      case "N":
-      case "NO":
-      case "DISABLED":
-      case "NONUNIQUE":
-        return false;
-      default:
-        throw new ArgumentOutOfRangeException(string.Format(Strings.ExInvalidBooleanStringX, value));
+        case "Y":
+        case "YES":
+        case "ENABLED":
+        case "UNIQUE":
+          return true;
+        case "N":
+        case "NO":
+        case "DISABLED":
+        case "NONUNIQUE":
+          return false;
+        default:
+          throw new ArgumentOutOfRangeException(string.Format(Strings.ExInvalidBooleanStringX, value));
       }
     }
 
@@ -632,7 +632,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         return long.MinValue;
       }
 
-      return (long)value;
+      return (long) value;
     }
 
     private static int ReadInt(IDataRecord row, int index)
@@ -647,38 +647,38 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         return int.MinValue;
       }
 
-      return (int)value;
+      return (int) value;
     }
 
     private static string ReadStringOrNull(IDataRecord row, int index) =>
       row.IsDBNull(index) ? null : row.GetString(index);
 
     private static void ReadConstraintProperties(Constraint constraint,
-      IDataRecord row, int isDeferrableIndex,  int isInitiallyDeferredIndex)
+      IDataRecord row, int isDeferrableIndex, int isInitiallyDeferredIndex)
     {
-      constraint.IsDeferrable = row.GetString(isDeferrableIndex)=="DEFERRABLE";
-      constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex)=="DEFERRED";
+      constraint.IsDeferrable = row.GetString(isDeferrableIndex) == "DEFERRABLE";
+      constraint.IsInitiallyDeferred = row.GetString(isInitiallyDeferredIndex) == "DEFERRED";
     }
 
     private static void ReadCascadeAction(ForeignKey foreignKey, IDataRecord row, int deleteRuleIndex)
     {
       var deleteRule = row.GetString(deleteRuleIndex);
       switch (deleteRule) {
-      case "CASCADE":
-        foreignKey.OnDelete = ReferentialAction.Cascade;
-        return;
-      case "SET NULL":
-        foreignKey.OnDelete = ReferentialAction.SetNull;
-        return;
-      case "NO ACTION":
-        foreignKey.OnDelete = ReferentialAction.NoAction;
-        return;
+        case "CASCADE":
+          foreignKey.OnDelete = ReferentialAction.Cascade;
+          return;
+        case "SET NULL":
+          foreignKey.OnDelete = ReferentialAction.SetNull;
+          return;
+        case "NO ACTION":
+          foreignKey.OnDelete = ReferentialAction.NoAction;
+          return;
       }
     }
-    
+
     protected virtual void RegisterReplacements(Dictionary<string, string> replacements, IReadOnlyCollection<string> targetSchemes)
     {
-      var schemaFilter = targetSchemes!=null && targetSchemes.Count!=0
+      var schemaFilter = targetSchemes != null && targetSchemes.Count != 0
         ? MakeSchemaFilter(targetSchemes)
         //? "= " + SqlHelper.QuoteString(targetSchema)
         : GetNonSystemSchemasFilter();
@@ -724,6 +724,20 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return ExecuteReaderAsync(commandText, token);
     }
 
+    private string GetNonSystemSchemasFilter()
+    {
+      if (nonSystemSchemasFilter == null) {
+        lock (accessGuard) {
+          if (nonSystemSchemasFilter == null) {
+            var schemaStrings = GetSystemSchemas().Select(SqlHelper.QuoteString).ToArray();
+            var schemaList = string.Join(",", schemaStrings);
+            nonSystemSchemasFilter = $"NOT IN ({schemaList})";
+          }
+        }
+      }
+      return nonSystemSchemasFilter;
+    }
+
     private static IEnumerable<string> GetSystemSchemas() =>
       new[] {
         "ANONYMOUS",
@@ -759,20 +773,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         "XDB",
         "XS$NULL",
       };
-
-    private string GetNonSystemSchemasFilter()
-    {
-      if (nonSystemSchemasFilter == null) {
-        lock (accessGuard) {
-          if (nonSystemSchemasFilter == null) {
-            var schemaStrings = GetSystemSchemas().Select(SqlHelper.QuoteString).ToArray();
-            var schemaList = string.Join(",", schemaStrings);
-            nonSystemSchemasFilter = $"NOT IN ({schemaList})";
-          }
-        }
-      }
-      return nonSystemSchemasFilter;
-    }
 
     private static void EnsureSchemasExist(Catalog catalog, string[] schemaNames)
     {
