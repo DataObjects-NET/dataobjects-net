@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -13,45 +13,45 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 {
   internal class Extractor : v10.Extractor
   {
-    protected override void ExtractCatalogContents()
+    protected override void ExtractCatalogContents(ExtractionContext context)
     {
-      base.ExtractCatalogContents();
-      ExtractSequences();
+      base.ExtractCatalogContents(context);
+      ExtractSequences(context);
     }
 
-    protected override async Task ExtractCatalogContentsAsync(CancellationToken token)
+    protected override async Task ExtractCatalogContentsAsync(ExtractionContext context, CancellationToken token)
     {
-      await base.ExtractCatalogContentsAsync(token).ConfigureAwait(false);
-      await ExtractSequencesAsync(token).ConfigureAwait(false);
+      await base.ExtractCatalogContentsAsync(context, token).ConfigureAwait(false);
+      await ExtractSequencesAsync(context, token).ConfigureAwait(false);
     }
 
-    private void ExtractSequences()
+    private void ExtractSequences(ExtractionContext context)
     {
-      var query = BuildExtractSequencesQuery();
+      var query = BuildExtractSequencesQuery(context);
 
       using var cmd = Connection.CreateCommand(query);
       using var reader = cmd.ExecuteReader();
       while (reader.Read()) {
-        ReadSequenceData(reader);
+        ReadSequenceData(reader, context);
       }
     }
 
-    private async Task ExtractSequencesAsync(CancellationToken token)
+    private async Task ExtractSequencesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractSequencesQuery();
+      var query = BuildExtractSequencesQuery(context);
 
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadSequenceData(reader);
+            ReadSequenceData(reader, context);
           }
         }
       }
     }
 
-    private string BuildExtractSequencesQuery()
+    private string BuildExtractSequencesQuery(ExtractionContext context)
     {
       var query = @"
   SELECT
@@ -68,13 +68,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
   ORDER BY
     schema_id,
     object_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ReadSequenceData(DbDataReader reader)
+    private void ReadSequenceData(DbDataReader reader, ExtractionContext context)
     {
-      var currentSchema = GetSchema(reader.GetInt32(0));
+      var currentSchema = context.SchemaIndex[reader.GetInt32(0)];
       var sequence = currentSchema.CreateSequence(reader.GetString(1));
       var descriptor = sequence.SequenceDescriptor;
       descriptor.StartValue = reader.GetInt64(2);
@@ -86,10 +86,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
     }
 
 
-    protected override void RegisterReplacements(Dictionary<string, string> replacements)
+    protected override void RegisterReplacements(ExtractionContext context)
     {
-      base.RegisterReplacements(replacements);
-      replacements[SysTablesFilterPlaceholder] = "is_filetable = 0";
+      base.RegisterReplacements(context);
+      context.RegisterReplacement(SysTablesFilterPlaceholder, "is_filetable = 0");
     }
 
     public Extractor(SqlDriver driver)
