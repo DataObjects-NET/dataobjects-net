@@ -40,9 +40,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const string SqliteSequence = "sqlite_sequence";
     private const string SqliteMaster = "sqlite_master";
 
-    private Schema schema;
-    private Catalog catalog;
-
     /// <inheritdoc/>
     public override Catalog ExtractCatalog(string catalogName) =>
       ExtractSchemes(catalogName, new[] {DefaultSchemaName});
@@ -54,9 +51,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
-      catalog = new Catalog(catalogName);
-      schema = catalog.CreateSchema(schemaNames[0]);
-      ExtractCatalogContents();
+      var catalog = new Catalog(catalogName);
+      var schema = catalog.CreateSchema(schemaNames[0]);
+      ExtractCatalogContents(schema);
       return catalog;
     }
 
@@ -64,28 +61,28 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override async Task<Catalog> ExtractSchemesAsync(
       string catalogName, string[] schemaNames, CancellationToken token = default)
     {
-      catalog = new Catalog(catalogName);
-      schema = catalog.CreateSchema(schemaNames[0]);
-      await ExtractCatalogContentsAsync(token).ConfigureAwait(false);
+      var catalog = new Catalog(catalogName);
+      var schema = catalog.CreateSchema(schemaNames[0]);
+      await ExtractCatalogContentsAsync(schema, token).ConfigureAwait(false);
       return catalog;
     }
 
-    private void ExtractCatalogContents()
+    private void ExtractCatalogContents(Schema schema)
     {
-      ExtractTables();
-      ExtractViews();
-      ExtractColumns();
-      ExtractIndexes();
-      ExtractForeignKeys();
+      ExtractTables(schema);
+      ExtractViews(schema);
+      ExtractColumns(schema);
+      ExtractIndexes(schema);
+      ExtractForeignKeys(schema);
     }
 
-    private async Task ExtractCatalogContentsAsync(CancellationToken token)
+    private async Task ExtractCatalogContentsAsync(Schema schema, CancellationToken token)
     {
-      await ExtractTablesAsync(token).ConfigureAwait(false);
-      await ExtractViewsAsync(token).ConfigureAwait(false);
-      await ExtractColumnsAsync(token).ConfigureAwait(false);
-      await ExtractIndexesAsync(token).ConfigureAwait(false);
-      await ExtractForeignKeysAsync(token).ConfigureAwait(false);
+      await ExtractTablesAsync(schema, token).ConfigureAwait(false);
+      await ExtractViewsAsync(schema, token).ConfigureAwait(false);
+      await ExtractColumnsAsync(schema, token).ConfigureAwait(false);
+      await ExtractIndexesAsync(schema, token).ConfigureAwait(false);
+      await ExtractForeignKeysAsync(schema, token).ConfigureAwait(false);
     }
 
     private const string ExtractTablesQuery =
@@ -94,23 +91,23 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const string ExtractViewsQuery =
       "SELECT [name], sql FROM [Main].[sqlite_master] WHERE type = 'view' AND name NOT LIKE 'sqlite?_%' ESCAPE '?'";
 
-    private void ExtractTables()
+    private void ExtractTables(Schema schema)
     {
       using var cmd = Connection.CreateCommand(ExtractTablesQuery);
       using var reader = cmd.ExecuteReader();
       while (reader.Read()) {
-        schema.CreateTable(reader.GetString(0));
+        _ = schema.CreateTable(reader.GetString(0));
       }
     }
 
-    private async Task ExtractTablesAsync(CancellationToken token)
+    private async Task ExtractTablesAsync(Schema schema, CancellationToken token)
     {
       var cmd = Connection.CreateCommand(ExtractTablesQuery);
       await using (cmd.ConfigureAwait(false)) {
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            schema.CreateTable(reader.GetString(0));
+            _ = schema.CreateTable(reader.GetString(0));
           }
         }
       }
@@ -180,7 +177,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static string BuildExtractTableColumnsQuery(string tableName) => $"PRAGMA table_info([{tableName}])";
 
-    private void ExtractColumns()
+    private void ExtractColumns(Schema schema)
     {
       foreach (var table in schema.Tables) {
         var primaryKeyItems = new Dictionary<int, TableColumn>();
@@ -199,7 +196,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
-    private async Task ExtractColumnsAsync(CancellationToken token)
+    private async Task ExtractColumnsAsync(Schema schema, CancellationToken token)
     {
       foreach (var table in schema.Tables) {
         var primaryKeyItems = new Dictionary<int, TableColumn>();
@@ -259,39 +256,39 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         primaryKeyItems.OrderBy(i => i.Key).Select(i => i.Value).ToArray());
     }
 
-    private void ExtractViews()
+    private void ExtractViews(Schema schema)
     {
       using var reader = ExecuteReader(ExtractViewsQuery);
       while (reader.Read()) {
-        ReadViewData(reader);
+        ReadViewData(reader, schema);
       }
     }
 
-    private async Task ExtractViewsAsync(CancellationToken token)
+    private async Task ExtractViewsAsync(Schema schema, CancellationToken token)
     {
       var reader = await ExecuteReaderAsync(ExtractViewsQuery, token).ConfigureAwait(false);
       await using (reader.ConfigureAwait(false)) {
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadViewData(reader);
+          ReadViewData(reader, schema);
         }
       }
     }
 
-    private void ReadViewData(DbDataReader reader)
+    private void ReadViewData(DbDataReader reader, Schema schema)
     {
       var view = reader.GetString(0);
       var definition = ReadStringOrNull(reader, 1);
       if (string.IsNullOrEmpty(definition)) {
-        schema.CreateView(view);
+        _ = schema.CreateView(view);
       }
       else {
-        schema.CreateView(view, SqlDml.Native(definition));
+        _ = schema.CreateView(view, SqlDml.Native(definition));
       }
     }
 
     private static string BuildExtractIndexQuery(string tableName) => $"PRAGMA index_list([{tableName}])";
 
-    private void ExtractIndexes()
+    private void ExtractIndexes(Schema schema)
     {
       foreach (var table in schema.Tables) {
         var query = BuildExtractIndexQuery(table.Name);
@@ -305,7 +302,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
-    private async Task ExtractIndexesAsync(CancellationToken token)
+    private async Task ExtractIndexesAsync(Schema schema, CancellationToken token)
     {
       foreach (var table in schema.Tables) {
         var query = BuildExtractIndexQuery(table.Name);
@@ -367,7 +364,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static string BuildExtractForeignKeysQuery(string tableName) => $"PRAGMA foreign_key_list([{tableName}])";
 
-    private void ExtractForeignKeys()
+    private void ExtractForeignKeys(Schema schema)
     {
       foreach (var table in schema.Tables) {
         var query = BuildExtractForeignKeysQuery(table.Name);
@@ -381,7 +378,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
     }
 
-    private async Task ExtractForeignKeysAsync(CancellationToken token)
+    private async Task ExtractForeignKeysAsync(Schema schema,CancellationToken token)
     {
       foreach (var table in schema.Tables) {
         var query = BuildExtractForeignKeysQuery(table.Name);
