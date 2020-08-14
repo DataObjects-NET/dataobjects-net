@@ -229,21 +229,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private void ReadTableData(DbDataReader reader, Catalog catalog)
-    {
-      var schema = catalog.Schemas[reader.GetString(0)];
-      var tableName = reader.GetString(1);
-      var isTemporary = ReadBool(reader, 2);
-      if (isTemporary) {
-        var table = schema.CreateTemporaryTable(tableName);
-        table.PreserveRows = reader.GetString(3) == "SYS$SESSION";
-        table.IsGlobal = true;
-      }
-      else {
-        schema.CreateTable(tableName);
-      }
-    }
-
     private void ExtractTableColumns(ExtractionContext context)
     {
       using var reader = ExecuteReader(context.PerformReplacements(GetExtractTableColumnsQuery()));
@@ -265,25 +250,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private void ReadTableColumnData(DbDataReader reader, ref ColumnReaderState<Table> state)
-    {
-      var columnIndex = ReadInt(reader, 9);
-      if (columnIndex <= state.LastColumnIndex) {
-        var schema = state.Catalog.Schemas[reader.GetString(0)];
-        state.Owner = schema.Tables[reader.GetString(1)];
-      }
-
-      var column = state.Owner.CreateColumn(reader.GetString(2));
-      column.DataType = CreateValueType(reader, 3, 4, 5, 6);
-      column.IsNullable = ReadBool(reader, 7);
-      var defaultValue = ReadStringOrNull(reader, 8);
-      if (!string.IsNullOrEmpty(defaultValue)) {
-        column.DefaultValue = SqlDml.Native(defaultValue);
-      }
-
-      state.LastColumnIndex = columnIndex;
-    }
-
     private void ExtractViews(ExtractionContext context)
     {
       using var reader = ExecuteReader(context.PerformReplacements(GetExtractViewsQuery()));
@@ -300,19 +266,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {
           ReadViewData(reader, context.Catalog);
         }
-      }
-    }
-
-    private static void ReadViewData(DbDataReader reader, Catalog catalog)
-    {
-      var schema = catalog.Schemas[reader.GetString(0)];
-      var view = reader.GetString(1);
-      var definition = ReadStringOrNull(reader, 2);
-      if (string.IsNullOrEmpty(definition)) {
-        schema.CreateView(view);
-      }
-      else {
-        schema.CreateView(view, SqlDml.Native(definition));
       }
     }
 
@@ -337,18 +290,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private static void ReadViewColumnData(DbDataReader reader, ref ColumnReaderState<View> state)
-    {
-      var columnId = ReadInt(reader, 3);
-      if (columnId <= state.LastColumnIndex) {
-        var schema = state.Catalog.Schemas[reader.GetString(0)];
-        state.Owner = schema.Views[reader.GetString(1)];
-      }
-
-      state.Owner.CreateColumn(reader.GetString(2));
-      state.LastColumnIndex = columnId;
-    }
-
     private void ExtractIndexes(ExtractionContext context)
     {
       var query = context.PerformReplacements(GetExtractIndexesQuery());
@@ -369,6 +310,150 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
           ReadIndexColumnData(reader, ref state);
         }
       }
+    }
+
+    private void ExtractForeignKeys(ExtractionContext context)
+    {
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractForeignKeysQuery()));
+      var state = new ForeignKeyReaderState(context.Catalog);
+      while (reader.Read()) {
+        ReadForeignKeyColumnData(reader, ref state);
+      }
+    }
+
+    private async Task ExtractForeignKeysAsync(ExtractionContext context, CancellationToken token)
+    {
+      var query = context.PerformReplacements(GetExtractForeignKeysQuery());
+      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
+      await using (reader.ConfigureAwait(false)) {
+        var state = new ForeignKeyReaderState(context.Catalog);
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadForeignKeyColumnData(reader, ref state);
+        }
+      }
+    }
+
+    private void ExtractUniqueAndPrimaryKeyConstraints(ExtractionContext context)
+    {
+      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
+      using var reader = ExecuteReader(query);
+      var state = new IndexBasedConstraintReaderState(context.Catalog);
+      bool readingCompleted;
+      do {
+        readingCompleted = !reader.Read();
+        ReadIndexBasedConstraintData(reader, ref state, readingCompleted);
+      } while (!readingCompleted);
+    }
+
+    private async Task ExtractUniqueAndPrimaryKeyConstraintsAsync(ExtractionContext context, CancellationToken token)
+    {
+      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
+      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
+      await using (reader.ConfigureAwait(false)) {
+        var state = new IndexBasedConstraintReaderState(context.Catalog);
+        bool readingCompleted;
+        do {
+          readingCompleted = !await reader.ReadAsync(token).ConfigureAwait(false);
+          ReadIndexBasedConstraintData(reader, ref state, readingCompleted);
+        } while (!readingCompleted);
+      }
+    }
+
+    private void ExtractCheckConstraints(ExtractionContext context)
+    {
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractCheckConstraintsQuery()));
+      while (reader.Read()) {
+        ReadCheckConstraintData(reader, context.Catalog);
+      }
+    }
+
+    private async Task ExtractCheckConstraintsAsync(ExtractionContext context, CancellationToken token)
+    {
+      var query = context.PerformReplacements(GetExtractCheckConstraintsQuery());
+      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
+      await using (reader.ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadCheckConstraintData(reader, context.Catalog);
+        }
+      }
+    }
+
+    private void ExtractSequences(ExtractionContext context)
+    {
+      using var reader = ExecuteReader(context.PerformReplacements(GetExtractSequencesQuery()));
+      while (reader.Read()) {
+        ReadSequenceData(reader, context.Catalog);
+      }
+    }
+
+    private async Task ExtractSequencesAsync(ExtractionContext context, CancellationToken token)
+    {
+      var query = context.PerformReplacements(GetExtractSequencesQuery());
+      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
+      await using (reader.ConfigureAwait(false)) {
+        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
+          ReadSequenceData(reader, context.Catalog);
+        }
+      }
+    }
+
+    private void ReadTableData(DbDataReader reader, Catalog catalog)
+    {
+      var schema = catalog.Schemas[reader.GetString(0)];
+      var tableName = reader.GetString(1);
+      var isTemporary = ReadBool(reader, 2);
+      if (isTemporary) {
+        var table = schema.CreateTemporaryTable(tableName);
+        table.PreserveRows = reader.GetString(3) == "SYS$SESSION";
+        table.IsGlobal = true;
+      }
+      else {
+        schema.CreateTable(tableName);
+      }
+    }
+
+    private void ReadTableColumnData(DbDataReader reader, ref ColumnReaderState<Table> state)
+    {
+      var columnIndex = ReadInt(reader, 9);
+      if (columnIndex <= state.LastColumnIndex) {
+        var schema = state.Catalog.Schemas[reader.GetString(0)];
+        state.Owner = schema.Tables[reader.GetString(1)];
+      }
+
+      var column = state.Owner.CreateColumn(reader.GetString(2));
+      column.DataType = CreateValueType(reader, 3, 4, 5, 6);
+      column.IsNullable = ReadBool(reader, 7);
+      var defaultValue = ReadStringOrNull(reader, 8);
+      if (!string.IsNullOrEmpty(defaultValue)) {
+        column.DefaultValue = SqlDml.Native(defaultValue);
+      }
+
+      state.LastColumnIndex = columnIndex;
+    }
+
+    private static void ReadViewData(DbDataReader reader, Catalog catalog)
+    {
+      var schema = catalog.Schemas[reader.GetString(0)];
+      var view = reader.GetString(1);
+      var definition = ReadStringOrNull(reader, 2);
+      if (string.IsNullOrEmpty(definition)) {
+        schema.CreateView(view);
+      }
+      else {
+        schema.CreateView(view, SqlDml.Native(definition));
+      }
+    }
+
+    private static void ReadViewColumnData(DbDataReader reader, ref ColumnReaderState<View> state)
+    {
+      var columnId = ReadInt(reader, 3);
+      if (columnId <= state.LastColumnIndex) {
+        var schema = state.Catalog.Schemas[reader.GetString(0)];
+        state.Owner = schema.Views[reader.GetString(1)];
+      }
+
+      state.Owner.CreateColumn(reader.GetString(2));
+      state.LastColumnIndex = columnId;
     }
 
     private static void ReadIndexColumnData(OracleDataReader reader, ref IndexColumnReaderState state)
@@ -396,27 +481,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       state.LastColumnIndex = columnIndex;
     }
 
-    private void ExtractForeignKeys(ExtractionContext context)
-    {
-      using var reader = ExecuteReader(context.PerformReplacements(GetExtractForeignKeysQuery()));
-      var state = new ForeignKeyReaderState(context.Catalog);
-      while (reader.Read()) {
-        ReadForeignKeyColumnData(reader, ref state);
-      }
-    }
-
-    private async Task ExtractForeignKeysAsync(ExtractionContext context, CancellationToken token)
-    {
-      var query = context.PerformReplacements(GetExtractForeignKeysQuery());
-      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
-      await using (reader.ConfigureAwait(false)) {
-        var state = new ForeignKeyReaderState(context.Catalog);
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadForeignKeyColumnData(reader, ref state);
-        }
-      }
-    }
-
     private static void ReadForeignKeyColumnData(DbDataReader reader, ref ForeignKeyReaderState state)
     {
       var lastColumnIndex = ReadInt(reader, 7);
@@ -436,32 +500,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       state.ForeignKey.Columns.Add(referencingColumn);
       state.ForeignKey.ReferencedColumns.Add(referencedColumn);
       state.LastColumnIndex = lastColumnIndex;
-    }
-
-    private void ExtractUniqueAndPrimaryKeyConstraints(ExtractionContext context)
-    {
-      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
-      using var reader = ExecuteReader(query);
-      var state = new IndexBasedConstraintReaderState(context.Catalog);
-      bool readingCompleted;
-      do {
-        readingCompleted = !reader.Read();
-        ReadIndexBasedConstraintData(reader, ref state, readingCompleted);
-      } while (!readingCompleted);
-    }
-
-    private async Task ExtractUniqueAndPrimaryKeyConstraintsAsync(ExtractionContext context, CancellationToken token)
-    {
-      var query = context.PerformReplacements(GetExtractUniqueAndPrimaryKeyConstraintsQuery());
-      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
-      await using (reader.ConfigureAwait(false)) {
-        var state = new IndexBasedConstraintReaderState(context.Catalog);
-        bool readingCompleted;
-        do {
-          readingCompleted = !await reader.ReadAsync(token).ConfigureAwait(false);
-          ReadIndexBasedConstraintData(reader, ref state, readingCompleted);
-        } while (!readingCompleted);
-      }
     }
 
     private static void ReadIndexBasedConstraintData(DbDataReader reader, ref IndexBasedConstraintReaderState state,
@@ -491,25 +529,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    private void ExtractCheckConstraints(ExtractionContext context)
-    {
-      using var reader = ExecuteReader(context.PerformReplacements(GetExtractCheckConstraintsQuery()));
-      while (reader.Read()) {
-        ReadCheckConstraintData(reader, context.Catalog);
-      }
-    }
-
-    private async Task ExtractCheckConstraintsAsync(ExtractionContext context, CancellationToken token)
-    {
-      var query = context.PerformReplacements(GetExtractCheckConstraintsQuery());
-      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
-      await using (reader.ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadCheckConstraintData(reader, context.Catalog);
-        }
-      }
-    }
-
     private static void ReadCheckConstraintData(DbDataReader reader, Catalog catalog)
     {
       var schema = catalog.Schemas[reader.GetString(0)];
@@ -522,25 +541,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         : SqlDml.Native(reader.GetString(3));
       var constraint = table.CreateCheckConstraint(name, condition);
       ReadConstraintProperties(constraint, reader, 4, 5);
-    }
-
-    private void ExtractSequences(ExtractionContext context)
-    {
-      using var reader = ExecuteReader(context.PerformReplacements(GetExtractSequencesQuery()));
-      while (reader.Read()) {
-        ReadSequenceData(reader, context.Catalog);
-      }
-    }
-
-    private async Task ExtractSequencesAsync(ExtractionContext context, CancellationToken token)
-    {
-      var query = context.PerformReplacements(GetExtractSequencesQuery());
-      var reader = await ExecuteReaderAsync(query, token).ConfigureAwait(false);
-      await using (reader.ConfigureAwait(false)) {
-        while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-          ReadSequenceData(reader, context.Catalog);
-        }
-      }
     }
 
     private static void ReadSequenceData(DbDataReader reader, Catalog catalog)
