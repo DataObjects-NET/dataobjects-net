@@ -11,11 +11,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.Azure
 {
   internal class Extractor : v12.Extractor
   {
-    protected override void ExtractFulltextIndexes()
+    protected override void ExtractFulltextIndexes(ExtractionContext context)
     {
     }
 
-    protected override Task ExtractFulltextIndexesAsync(CancellationToken token) => Task.CompletedTask;
+    protected override Task ExtractFulltextIndexesAsync(ExtractionContext context, CancellationToken token) => Task.CompletedTask;
 
 
     // Constructors

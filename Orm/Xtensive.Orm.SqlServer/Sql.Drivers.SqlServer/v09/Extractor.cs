@@ -22,19 +22,58 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class Extractor : Model.Extractor
   {
-    private readonly Dictionary<int, Schema> schemaIndex = new Dictionary<int, Schema>();
-    private readonly Dictionary<Schema, int> reversedSchemaIndex = new Dictionary<Schema, int>();
-    private readonly Dictionary<int, Domain> domainIndex = new Dictionary<int, Domain>();
-    private readonly Dictionary<int, string> typeNameIndex = new Dictionary<int, string>();
-    private readonly Dictionary<int, ColumnResolver> columnResolverIndex = new Dictionary<int, ColumnResolver>();
-    private readonly Dictionary<string, string> replacementsRegistry = new Dictionary<string, string>();
+    protected class ExtractionContext
+    {
+      private readonly Dictionary<string, string> replacementsRegistry;
+
+      public readonly Catalog Catalog;
+      public readonly string QuotedCatalogName;
+
+      public readonly IReadOnlyCollection<string> TargetSchemas;
+      public readonly Dictionary<int, Schema> SchemaIndex;
+      public readonly Dictionary<Schema, int> ReversedSchemaIndex;
+      public readonly Dictionary<int, Domain> DomainIndex;
+      public readonly Dictionary<int, string> TypeNameIndex;
+      public readonly Dictionary<int, ColumnResolver> ColumnResolverIndex;
+
+      public void RegisterReplacement(string placeholder, string value)
+      {
+        if (placeholder == CatalogPlaceholder)
+          throw new ArgumentException("Cannot override catalog name placeholder.");
+        replacementsRegistry[placeholder] = value;
+      }
+
+      public string PerformReplacements(string rawQueryText)
+      {
+        foreach (var registry in replacementsRegistry) {
+          rawQueryText = rawQueryText.Replace(registry.Key, registry.Value);
+        }
+        return rawQueryText;
+      }
+
+      public ExtractionContext(Catalog catalog, IReadOnlyCollection<string> targetSchemas)
+      {
+        ArgumentValidator.EnsureArgumentNotNull(catalog, nameof(catalog));
+        ArgumentValidator.EnsureArgumentNotNull(targetSchemas, nameof(targetSchemas));
+
+        Catalog = catalog;
+        TargetSchemas = targetSchemas;
+        QuotedCatalogName = SqlHelper.QuoteIdentifierWithBrackets(new[] { catalog.Name });
+
+        SchemaIndex = new Dictionary<int, Schema>();
+        ReversedSchemaIndex = new Dictionary<Schema, int>();
+        DomainIndex = new Dictionary<int, Domain>();
+        TypeNameIndex = new Dictionary<int, string>();
+        ColumnResolverIndex = new Dictionary<int, ColumnResolver>();
+        replacementsRegistry = new Dictionary<string, string>();
+
+        replacementsRegistry[CatalogPlaceholder] = QuotedCatalogName;
+      }
+    }
 
     protected const string SysTablesFilterPlaceholder = "{SYSTABLE_FILTER}";
     protected const string CatalogPlaceholder = "{CATALOG}";
     protected const string SchemaFilterPlaceholder = "{SCHEMA_FILTER}";
-
-    private Catalog catalog;
-    private readonly HashSet<string> targetSchemes = new HashSet<string>();
 
     public override Catalog ExtractCatalog(string catalogName) =>
       ExtractSchemes(catalogName, Array.Empty<string>());
@@ -44,137 +83,141 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
-      CreateCatalog(catalogName, schemaNames);
-      ExtractCatalogContents();
-      return catalog;
+      var context = CreateContext(catalogName, schemaNames);
+      ExtractCatalogContents(context);
+      return context.Catalog;
     }
 
     public override async Task<Catalog> ExtractSchemesAsync(
       string catalogName, string[] schemaNames, CancellationToken token = default)
     {
-      CreateCatalog(catalogName, schemaNames);
-      await ExtractCatalogContentsAsync(token).ConfigureAwait(false);
-      return catalog;
+      var context = CreateContext(catalogName, schemaNames);
+      await ExtractCatalogContentsAsync(context, token).ConfigureAwait(false);
+      return context.Catalog;
     }
 
-    private void CreateCatalog(string catalogName, string[] schemaNames)
+    protected virtual void ExtractCatalogContents(ExtractionContext context)
     {
-      catalog = new Catalog(catalogName);
-      targetSchemes.UnionWith(schemaNames);
+      ExtractSchemas(context);
+      RegisterReplacements(context);
+      ExtractTypes(context);
+      ExtractTablesAndViews(context);
+      ExtractColumns(context);
+      ExtractIndexes(context);
+      ExtractForeignKeys(context);
+      ExtractFulltextIndexes(context);
+    }
+
+    protected virtual async Task ExtractCatalogContentsAsync(ExtractionContext context, CancellationToken token)
+    {
+      await ExtractSchemasAsync(context, token).ConfigureAwait(false);
+      RegisterReplacements(context);
+      await ExtractTypesAsync(context, token).ConfigureAwait(false);
+      await ExtractTablesAndViewsAsync(context, token).ConfigureAwait(false);
+      await ExtractColumnsAsync(context, token).ConfigureAwait(false);
+      await ExtractIndexesAsync(context, token).ConfigureAwait(false);
+      await ExtractForeignKeysAsync(context, token).ConfigureAwait(false);
+      await ExtractFulltextIndexesAsync(context, token).ConfigureAwait(false);
+    }
+
+    protected virtual void RegisterReplacements(ExtractionContext context)
+    {
+      context.RegisterReplacement(SchemaFilterPlaceholder, MakeSchemaFilter(context));
+      context.RegisterReplacement(SysTablesFilterPlaceholder, "1 > 0");
+    }
+
+    private ExtractionContext CreateContext(string catalogName, string[] schemaNames)
+    {
+      var catalog = new Catalog(catalogName);
+      var context = new ExtractionContext(catalog, schemaNames);
       foreach (var schemaName in schemaNames) {
-        catalog.CreateSchema(schemaName);
+        _ = catalog.CreateSchema(schemaName);
       }
-    }
-
-    protected virtual void ExtractCatalogContents()
-    {
-      ExtractSchemas();
-      ExtractTypes();
-      ExtractTablesAndViews();
-      ExtractColumns();
-      ExtractIndexes();
-      ExtractForeignKeys();
-      ExtractFulltextIndexes();
-    }
-
-    protected virtual async Task ExtractCatalogContentsAsync(CancellationToken token)
-    {
-      await ExtractSchemasAsync(token).ConfigureAwait(false);
-      await ExtractTypesAsync(token).ConfigureAwait(false);
-      await ExtractTablesAndViewsAsync(token).ConfigureAwait(false);
-      await ExtractColumnsAsync(token).ConfigureAwait(false);
-      await ExtractIndexesAsync(token).ConfigureAwait(false);
-      await ExtractForeignKeysAsync(token).ConfigureAwait(false);
-      await ExtractFulltextIndexesAsync(token).ConfigureAwait(false);
+      return context;
     }
 
     // All schemas
-    private void ExtractSchemas()
+    private void ExtractSchemas(ExtractionContext context)
     {
-      var query = BuildExtractSchemasQuery();
+      var query = BuildExtractSchemasQuery(context);
 
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
-          ReadSchemaData(reader);
+          ReadSchemaData(reader, context);
         }
       }
-
-      RegisterReplacements(replacementsRegistry);
     }
 
-    private async Task ExtractSchemasAsync(CancellationToken token)
+    private async Task ExtractSchemasAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractSchemasQuery();
+      var query = BuildExtractSchemasQuery(context);
 
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadSchemaData(reader);
+            ReadSchemaData(reader, context);
           }
         }
       }
-
-      RegisterReplacements(replacementsRegistry);
     }
 
-    private string BuildExtractSchemasQuery()
+    private string BuildExtractSchemasQuery(ExtractionContext context)
     {
-      var query = @"
+      var query = $@"
   SELECT
     s.schema_id,
     s.name,
     dp.name
-  FROM {CATALOG}.sys.schemas AS s
-  INNER JOIN {CATALOG}.sys.database_principals AS dp
+  FROM {context.QuotedCatalogName}.sys.schemas AS s
+  INNER JOIN {context.QuotedCatalogName}.sys.database_principals AS dp
     ON s.principal_id = dp.principal_id
   WHERE s.schema_id < 16384";
-      RegisterReplacements(replacementsRegistry);
-      query = PerformReplacements(query);
+
       return query;
     }
 
-    private void ReadSchemaData(DbDataReader reader)
+    private void ReadSchemaData(DbDataReader reader, ExtractionContext context)
     {
       var identifier = reader.GetInt32(0);
       var name = reader.GetString(1);
-      var schema = !targetSchemes.Contains(name) ? catalog.CreateSchema(name) : catalog.Schemas[name];
+      var schema = context.Catalog.Schemas[name] ?? context.Catalog.CreateSchema(name);
 
-      schemaIndex[identifier] = schema;
-      reversedSchemaIndex[schema] = identifier;
+      context.SchemaIndex[identifier] = schema;
+      context.ReversedSchemaIndex[schema] = identifier;
       schema.Owner = reader.GetString(2);
     }
 
     // Types & domains must be extracted for all schemas
-    private void ExtractTypes()
+    private void ExtractTypes(ExtractionContext context)
     {
-      var query = BuildExtractTypesQuery();
+      var query = BuildExtractTypesQuery(context);
 
       using var command = Connection.CreateCommand(query);
       using var reader = command.ExecuteReader();
       while (reader.Read()) {
-        ReadTypeData(reader);
+        ReadTypeData(reader, context);
       }
     }
 
-    private async Task ExtractTypesAsync(CancellationToken token)
+    private async Task ExtractTypesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractTypesQuery();
+      var query = BuildExtractTypesQuery(context);
 
       var command = Connection.CreateCommand(query);
       await using (command.ConfigureAwait(false)) {
         var reader = await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadTypeData(reader);
+            ReadTypeData(reader, context);
           }
         }
       }
     }
 
-    private string BuildExtractTypesQuery()
+    private string BuildExtractTypesQuery(ExtractionContext context)
     {
       var query = @"
   SELECT 
@@ -190,16 +233,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   ORDER BY 
     is_user_defined,
     user_type_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ReadTypeData(DbDataReader reader)
+    private void ReadTypeData(DbDataReader reader, ExtractionContext context)
     {
       var userTypeId = reader.GetInt32(1);
       int systemTypeId = reader.GetByte(2);
       var name = reader.GetString(3);
-      typeNameIndex[userTypeId] = name;
+      context.TypeNameIndex[userTypeId] = name;
 
       // Type is not user-defined
       if (!reader.GetBoolean(7)) {
@@ -207,43 +250,44 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
 
       // Unknown system type
-      if (!typeNameIndex.TryGetValue(systemTypeId, out _)) {
+      string systemTypeName;
+      if (!context.TypeNameIndex.TryGetValue(systemTypeId, out systemTypeName)) {
         return;
       }
 
-      var currentSchema = GetSchema(reader.GetInt32(0));
-      var dataType = GetValueType(typeNameIndex[systemTypeId], reader.GetByte(4), reader.GetByte(5), reader.GetInt16(6));
+      var currentSchema = context.SchemaIndex[reader.GetInt32(0)];
+      var dataType = GetValueType(systemTypeName, reader.GetByte(4), reader.GetByte(5), reader.GetInt16(6));
       var domain = currentSchema.CreateDomain(name, dataType);
-      domainIndex[userTypeId] = domain;
+      context.DomainIndex[userTypeId] = domain;
     }
 
-    private void ExtractTablesAndViews()
+    private void ExtractTablesAndViews(ExtractionContext context)
     {
-      var query = BuildExtractTablesAndViewsQuery();
+      var query = BuildExtractTablesAndViewsQuery(context);
 
       using var cmd = Connection.CreateCommand(query);
       using var reader = cmd.ExecuteReader();
       while (reader.Read()) {
-        ReadTableOrViewData(reader);
+        ReadTableOrViewData(reader, context);
       }
     }
 
-    private async Task ExtractTablesAndViewsAsync(CancellationToken token)
+    private async Task ExtractTablesAndViewsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractTablesAndViewsQuery();
+      var query = BuildExtractTablesAndViewsQuery(context);
 
       var cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadTableOrViewData(reader);
+            ReadTableOrViewData(reader, context);
           }
         }
       }
     }
 
-    private string BuildExtractTablesAndViewsQuery()
+    private string BuildExtractTablesAndViewsQuery(ExtractionContext context)
     {
       var query = @"
   SELECT
@@ -269,13 +313,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     ) AS t
   WHERE t.schema_id {SCHEMA_FILTER}
   ORDER BY t.schema_id, t.object_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ReadTableOrViewData(DbDataReader reader)
+    private void ReadTableOrViewData(DbDataReader reader, ExtractionContext context)
     {
-      var currentSchema = GetSchema(reader.GetInt32(0));
+      var currentSchema = context.SchemaIndex[reader.GetInt32(0)];
       var tableType = reader.GetInt32(3);
       DataTable dataTable;
       if (tableType == 0) {
@@ -285,62 +329,62 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         dataTable = currentSchema.CreateView(reader.GetString(2));
       }
 
-      columnResolverIndex[reader.GetInt32(1)] = new ColumnResolver(dataTable);
+      context.ColumnResolverIndex[reader.GetInt32(1)] = new ColumnResolver(dataTable);
     }
 
-    private void ExtractColumns()
+    private void ExtractColumns(ExtractionContext context)
     {
-      var query = BuildExtractColumnsQuery();
+      var query = BuildExtractColumnsQuery(context);
 
       var currentTableId = 0;
       ColumnResolver columnResolver = null;
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
-          ReadColumnData(reader, ref currentTableId, ref columnResolver);
+          ReadColumnData(context, reader, ref currentTableId, ref columnResolver);
         }
       }
 
-      query = BuildExtractIdentityColumnsQuery();
+      query = BuildExtractIdentityColumnsQuery(context);
 
       using (var cmd = Connection.CreateCommand(query))
       using (var reader = cmd.ExecuteReader()) {
         while (reader.Read()) {
-          ReadIdentityColumnData(reader);
+          ReadIdentityColumnData(reader, context);
         }
       }
     }
 
-    private async Task ExtractColumnsAsync(CancellationToken token)
+    private async Task ExtractColumnsAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractColumnsQuery();
+      var query = BuildExtractColumnsQuery(context);
 
       var currentTableId = 0;
-      ColumnResolver columnResolver = null;
       var cmd = Connection.CreateCommand(query);
+      ColumnResolver columnResolver = null;
       await using (cmd.ConfigureAwait(false)) {
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadColumnData(reader, ref currentTableId, ref columnResolver);
+            ReadColumnData(context, reader, ref currentTableId, ref columnResolver);
           }
         }
       }
 
-      query = BuildExtractIdentityColumnsQuery();
+      query = BuildExtractIdentityColumnsQuery(context);
 
       cmd = Connection.CreateCommand(query);
       await using (cmd.ConfigureAwait(false)) {
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadIdentityColumnData(reader);
+            ReadIdentityColumnData(reader, context);
           }
         }
       }
     }
 
-    private string BuildExtractColumnsQuery()
+    private string BuildExtractColumnsQuery(ExtractionContext context)
     {
       var query = @"
   SELECT
@@ -385,19 +429,21 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     t.schema_id,
     c.object_id,
     c.column_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ReadColumnData(DbDataReader reader, ref int currentTableId, ref ColumnResolver columnResolver)
+    private void ReadColumnData(ExtractionContext context, DbDataReader reader, ref int currentTableId, ref ColumnResolver columnResolver)
     {
       var tableId = reader.GetInt32(1);
       var columnId = reader.GetInt32(2);
-      GetDataTable(tableId, ref currentTableId, ref columnResolver);
+      GetDataTable(tableId, context, ref currentTableId, ref columnResolver);
+
+
       // Table column
       if (columnResolver.Table is Table table) {
         var typeId = reader.GetInt32(4);
-        var sqlDataType = GetValueType(typeNameIndex[typeId], reader.GetByte(5), reader.GetByte(6), reader.GetInt16(7));
+        var sqlDataType = GetValueType(context.TypeNameIndex[typeId], reader.GetByte(5), reader.GetByte(6), reader.GetInt16(7));
         var column = table.CreateColumn(reader.GetString(3), sqlDataType);
         var count = table.TableColumns.Count;
 
@@ -405,13 +451,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         columnResolver.RegisterColumnMapping(columnId, count - 1);
 
         // Domain
-        if (domainIndex.TryGetValue(typeId, out var domain)) {
+        if (context.DomainIndex.TryGetValue(typeId, out var domain)) {
           column.Domain = domain;
         }
 
         // Collation
         if (!reader.IsDBNull(8)) {
-          var currentSchema = GetSchema(reader.GetInt32(0));
+          var currentSchema = context.SchemaIndex[reader.GetInt32(0)];
           var collationName = reader.GetString(8);
           column.Collation = currentSchema.Collations[collationName] ?? currentSchema.CreateCollation(collationName);
         }
@@ -421,7 +467,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
         // Default constraint
         if (!reader.IsDBNull(11)) {
-          table.CreateDefaultConstraint(reader.GetString(11), column);
+          _ = table.CreateDefaultConstraint(reader.GetString(11), column);
           column.DefaultValue = reader.GetString(12).StripRoundBrackets();
         }
 
@@ -433,11 +479,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
       else {
         var view = (View) columnResolver.Table;
-        view.CreateColumn(reader.GetString(3));
+        _ = view.CreateColumn(reader.GetString(3));
       }
     }
 
-    private string BuildExtractIdentityColumnsQuery()
+    private string BuildExtractIdentityColumnsQuery(ExtractionContext context)
     {
       var query = @"
   SELECT
@@ -457,13 +503,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   ORDER BY
     t.schema_id,
     ic.object_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ReadIdentityColumnData(DbDataReader reader)
+    private void ReadIdentityColumnData(DbDataReader reader, ExtractionContext context)
     {
-      var dataColumn = columnResolverIndex[reader.GetInt32(1)].GetColumn(reader.GetInt32(2));
+      var dataColumn = context.ColumnResolverIndex[reader.GetInt32(1)].GetColumn(reader.GetInt32(2));
 
       var tableColumn = (TableColumn) dataColumn;
       tableColumn.SequenceDescriptor = new SequenceDescriptor(tableColumn);
@@ -480,12 +526,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    public void ExtractCheckConstraints()
+    private void ExtractCheckConstraints()
     {
       // TODO: Implement
     }
 
-    protected virtual string BuildExtractIndexesQuery()
+    protected virtual string BuildExtractIndexesQuery(ExtractionContext context)
     {
       var query = @"
   SELECT
@@ -534,13 +580,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     ic.is_included_column,
     ic.key_ordinal,
     ic.index_column_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ExtractIndexes()
+    private void ExtractIndexes(ExtractionContext context)
     {
-      var query = BuildExtractIndexesQuery();
+      var query = BuildExtractIndexesQuery(context);
       const int spatialIndexType = 4;
 
       var tableId = 0;
@@ -551,14 +597,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       using var cmd = Connection.CreateCommand(query);
       using var reader = cmd.ExecuteReader();
       while (reader.Read()) {
-        ReadIndexColumnData(
-          reader, ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
+        ReadIndexColumnData(reader, context,
+          ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
       }
     }
 
-    private async Task ExtractIndexesAsync(CancellationToken token)
+    private async Task ExtractIndexesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractIndexesQuery();
+      var query = BuildExtractIndexesQuery(context);
       const int spatialIndexType = 4;
 
       var tableId = 0;
@@ -571,14 +617,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadIndexColumnData(
-              reader, ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
+            ReadIndexColumnData(reader, context,
+              ref tableId, spatialIndexType, ref primaryKey, ref uniqueConstraint, ref index, ref table);
           }
         }
       }
     }
 
-    private void ReadIndexColumnData(DbDataReader reader, ref int tableId, int spatialIndexType, ref PrimaryKey primaryKey,
+    private void ReadIndexColumnData(DbDataReader reader, ExtractionContext context,
+      ref int tableId, int spatialIndexType, ref PrimaryKey primaryKey,
       ref UniqueConstraint uniqueConstraint, ref Index index, ref ColumnResolver table)
     {
       var columnId = reader.GetInt32(10);
@@ -590,7 +637,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         uniqueConstraint = null;
         index = null;
         // Table could be changed only on new index creation
-        GetDataTable(reader.GetInt32(1), ref tableId, ref table);
+        GetDataTable(reader.GetInt32(1), context, ref tableId, ref table);
         var indexId = reader.GetInt32(3);
         var indexName = reader.GetString(4);
 
@@ -647,15 +694,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
             index.NonkeyColumns.Add(table.GetColumn(columnId));
           }
           else {
-            index.CreateIndexColumn(table.GetColumn(columnId), !reader.GetBoolean(13));
+            _ = index.CreateIndexColumn(table.GetColumn(columnId), !reader.GetBoolean(13));
           }
         }
       }
     }
 
-    private void ExtractForeignKeys()
+    private void ExtractForeignKeys(ExtractionContext context)
     {
-      var query = BuildExtractForeignKeysQuery();
+      var query = BuildExtractForeignKeysQuery(context);
 
       int tableId = 0, constraintId = 0;
       ColumnResolver referencingTable = null;
@@ -664,13 +711,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       using var cmd = Connection.CreateCommand(query);
       using var reader = cmd.ExecuteReader();
       while (reader.Read()) {
-        ReadForeignKeyColumnData(reader, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
+        ReadForeignKeyColumnData(reader, context, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
       }
     }
 
-    private async Task ExtractForeignKeysAsync(CancellationToken token)
+    private async Task ExtractForeignKeysAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractForeignKeysQuery();
+      var query = BuildExtractForeignKeysQuery(context);
 
       int tableId = 0, constraintId = 0;
       ColumnResolver referencingTable = null;
@@ -681,13 +728,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadForeignKeyColumnData(reader, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
+            ReadForeignKeyColumnData(reader, context, ref tableId, ref foreignKey, ref referencingTable, ref referencedTable);
           }
         }
       }
     }
 
-    private string BuildExtractForeignKeysQuery()
+    private string BuildExtractForeignKeysQuery(ExtractionContext context)
     {
       var query = @"
   SELECT
@@ -710,18 +757,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     fkc.parent_object_id,
     fk.object_id,
     fkc.constraint_column_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ReadForeignKeyColumnData(DbDataReader reader, ref int tableId, ref ForeignKey foreignKey,
+    private void ReadForeignKeyColumnData(DbDataReader reader, ExtractionContext context, ref int tableId, ref ForeignKey foreignKey,
       ref ColumnResolver referencingTable, ref ColumnResolver referencedTable)
     {
       // First column in constraint => new constraint
       if (reader.GetInt32(5) == 1) {
-        GetDataTable(reader.GetInt32(6), ref tableId, ref referencingTable);
+        GetDataTable(reader.GetInt32(6), context, ref tableId, ref referencingTable);
         foreignKey = ((Table) referencingTable.Table).CreateForeignKey(reader.GetString(2));
-        referencedTable = columnResolverIndex[reader.GetInt32(8)];
+        referencedTable = context.ColumnResolverIndex[reader.GetInt32(8)];
         foreignKey.ReferencedTable = (Table) referencedTable.Table;
         foreignKey.OnDelete = GetReferentialAction(reader.GetByte(3));
         foreignKey.OnUpdate = GetReferentialAction(reader.GetByte(4));
@@ -731,9 +778,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       foreignKey.ReferencedColumns.Add((TableColumn) referencedTable.GetColumn(reader.GetInt32(9)));
     }
 
-    protected virtual void ExtractFulltextIndexes()
+    protected virtual void ExtractFulltextIndexes(ExtractionContext context)
     {
-      var query = BuildExtractFullTextIndexesQuery();
+      var query = BuildExtractFullTextIndexesQuery(context);
 
       var currentTableId = 0;
       ColumnResolver table = null;
@@ -741,13 +788,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       using var cmd = Connection.CreateCommand(query);
       using var reader = cmd.ExecuteReader();
       while (reader.Read()) {
-        ReadFullTextIndexColumnData(reader, ref currentTableId, ref table, ref index);
+        ReadFullTextIndexColumnData(reader, context, ref currentTableId, ref table, ref index);
       }
     }
 
-    protected virtual async Task ExtractFulltextIndexesAsync(CancellationToken token)
+    protected virtual async Task ExtractFulltextIndexesAsync(ExtractionContext context, CancellationToken token)
     {
-      var query = BuildExtractFullTextIndexesQuery();
+      var query = BuildExtractFullTextIndexesQuery(context);
 
       var currentTableId = 0;
       ColumnResolver table = null;
@@ -757,13 +804,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         var reader = await cmd.ExecuteReaderAsync(token).ConfigureAwait(false);
         await using (reader.ConfigureAwait(false)) {
           while (await reader.ReadAsync(token).ConfigureAwait(false)) {
-            ReadFullTextIndexColumnData(reader, ref currentTableId, ref table, ref index);
+            ReadFullTextIndexColumnData(reader, context, ref currentTableId, ref table, ref index);
           }
         }
       }
     }
 
-    private string BuildExtractFullTextIndexesQuery()
+    private string BuildExtractFullTextIndexesQuery(ExtractionContext context)
     {
       var query = @"
   SELECT
@@ -796,16 +843,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     t.schema_id,
     fic.object_id,
     fic.column_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 
-    private void ReadFullTextIndexColumnData(DbDataReader reader, ref int currentTableId, ref ColumnResolver table,
-      ref FullTextIndex index)
+    private void ReadFullTextIndexColumnData(DbDataReader reader, ExtractionContext context,
+      ref int currentTableId, ref ColumnResolver table, ref FullTextIndex index)
     {
       var nextTableId = reader.GetInt32(1);
       if (currentTableId != nextTableId) {
-        GetDataTable(nextTableId, ref currentTableId, ref table);
+        GetDataTable(nextTableId, context, ref currentTableId, ref table);
         index = table.Table.CreateFullTextIndex(string.Empty);
         index.FullTextCatalog = reader.GetBoolean(4)
           ? null
@@ -817,15 +864,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var column = index.CreateIndexColumn(table.GetColumn(reader.GetInt32(5)));
       column.TypeColumn = (reader.IsDBNull(6)) ? null : table.GetColumn(reader.GetInt32(6));
       column.Languages.Add(new Language(reader.GetString(7)));
-    }
-
-    protected string PerformReplacements(string query)
-    {
-      foreach (var registry in replacementsRegistry) {
-        query = query.Replace(registry.Key, registry.Value);
-      }
-
-      return query;
     }
 
     private static ReferentialAction GetReferentialAction(int actionCode) =>
@@ -899,44 +937,33 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       return new SqlValueType(type, typeName, size, precision, scale);
     }
 
-    protected Schema GetSchema(int id) => schemaIndex[id];
-
-    private void GetDataTable(int id, ref int currentId, ref ColumnResolver currentObj)
+    private void GetDataTable(int id, ExtractionContext context, ref int currentId, ref ColumnResolver currentObj)
     {
       if (id == currentId) {
         return;
       }
 
-      currentObj = columnResolverIndex[id];
+      currentObj = context.ColumnResolverIndex[id];
       currentId = id;
     }
 
-    protected virtual void RegisterReplacements(Dictionary<string, string> replacements)
+    private string MakeSchemaFilter(ExtractionContext context)
     {
-      var catalogRef = Driver.Translator.QuoteIdentifier(catalog.Name);
-
-      //string schemaFilter = (this.schema)!=null
-      //  ? " = " + schemaId
-      //  : " > 0";
-
-      replacements[SchemaFilterPlaceholder] = MakeSchemaFilter();
-      replacements[SysTablesFilterPlaceholder] = "1 > 0";
-      replacements[CatalogPlaceholder] = catalogRef;
-    }
-
-    private string MakeSchemaFilter()
-    {
-      if (targetSchemes.Count==0) {
+      if (context.TargetSchemas.Count == 0) {
         return " > 0";
       }
 
       var builder = new StringBuilder();
-      foreach (var targetScheme in targetSchemes) {
-        if (!reversedSchemaIndex.TryGetValue(catalog.Schemas[targetScheme], out var schemaId)) {
+      foreach (var targetSchemaName in context.TargetSchemas) {
+        var schema = context.Catalog.Schemas[targetSchemaName];
+        if (schema == null) {
+          throw new InvalidOperationException("Cannot build schema filter because schemas haven't been extracted yet. Extract schemas first.");
+        }
+        if (!context.ReversedSchemaIndex.TryGetValue(schema, out var schemaId)) {
           continue;
         }
 
-        builder.Append(builder.Length == 0
+        _ = builder.Append(builder.Length == 0
           ? schemaId.ToString(CultureInfo.InvariantCulture)
           : $", {schemaId.ToString(CultureInfo.InvariantCulture)}");
       }

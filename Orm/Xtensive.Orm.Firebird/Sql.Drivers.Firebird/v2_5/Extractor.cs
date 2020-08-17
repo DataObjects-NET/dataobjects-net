@@ -146,7 +146,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     private void ExtractSchemas(Catalog catalog, string targetSchema)
     {
-      if (targetSchema==null) {
+      if (targetSchema == null) {
         var defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
         var defaultSchema = catalog.CreateSchema(defaultSchemaName);
         catalog.DefaultSchema = defaultSchema;
@@ -431,7 +431,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       var view = reader.GetString(1).Trim();
       var definition = ReadStringOrNull(reader, 2);
       if (string.IsNullOrEmpty(definition)) {
-        schema.CreateView(view);
+        _ = schema.CreateView(view);
       }
       else {
         _ = schema.CreateView(view, SqlDml.Native(definition));
@@ -467,11 +467,11 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       if (expression == null) {
         var column = state.Table.TableColumns[reader.GetString(6).Trim()];
         var isDescending = ReadBool(reader, 4);
-        state.Index.CreateIndexColumn(column, !isDescending);
+        _ = state.Index.CreateIndexColumn(column, !isDescending);
       }
       else {
         var isDescending = ReadBool(reader, 4);
-        state.Index.CreateIndexColumn(expression, !isDescending);
+        _ = state.Index.CreateIndexColumn(expression, !isDescending);
       }
 
       state.LastIndexName = state.IndexName;
@@ -579,10 +579,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (constraintType.Trim()) {
         case "PRIMARY KEY":
-          table.CreatePrimaryKey(constraintName, columns.ToArray());
+          _ = table.CreatePrimaryKey(constraintName, columns.ToArray());
           return;
         case "UNIQUE":
-          table.CreateUniqueConstraint(constraintName, columns.ToArray());
+          _ = table.CreateUniqueConstraint(constraintName, columns.ToArray());
           return;
         default:
           throw new ArgumentOutOfRangeException(nameof(constraintType));
