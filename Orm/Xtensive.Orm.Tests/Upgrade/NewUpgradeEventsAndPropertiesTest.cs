@@ -1,12 +1,17 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.09.28
 
 using System;
+using System.Collections.Generic;
 using System.Data;
+using System.Runtime.CompilerServices;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
+using Xtensive.Orm.Tests.Upgrade.NewUpgradeEventsAndPropertiesTestModel;
 using Xtensive.Orm.Upgrade;
 using V1 = Xtensive.Orm.Tests.Upgrade.NewUpgradeEventsAndPropertiesTestModel.Version1;
 using V2 = Xtensive.Orm.Tests.Upgrade.NewUpgradeEventsAndPropertiesTestModel.Version2;
@@ -18,22 +23,50 @@ namespace Xtensive.Orm.Tests.Upgrade
     public enum ExpectedEvent
     {
       OnPrepare,
+      OnPrepareAsync,
       OnBeforeStage,
+      OnBeforeStageAsync,
       OnStage,
+      OnStageAsync,
       OnBeforeExecuteActions,
+      OnBeforeExecuteActionsAsync,
       OnSchemaReady,
+      OnSchemaReadyAsync,
       OnComplete,
+      OnCompleteAsync,
       None,
+    }
+
+    public class EventExecutionSequenceInfo
+    {
+      public readonly IReadOnlyCollection<ExpectedEvent> ExecutionSequence;
+
+      public EventExecutionSequenceInfo(IReadOnlyCollection<ExpectedEvent> executionSequence)
+      {
+        ExecutionSequence = executionSequence;
+      }
     }
 
     public abstract class CheckingUpgradeHandler : UpgradeHandler
     {
       private ExpectedEvent expectedEvent = ExpectedEvent.OnPrepare;
+      private ExpectedEvent expectedEventAsync = ExpectedEvent.OnPrepareAsync;
+
+      private readonly List<ExpectedEvent> executionSequence = new List<ExpectedEvent>();
 
       public override void OnPrepare()
       {
         CheckExpectedEvent(ExpectedEvent.OnPrepare, ExpectedEvent.OnBeforeStage);
         CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnPrepare);
+      }
+
+      public async ValueTask OnPrepareAsync(CancellationToken token = default)
+      {
+        CheckExpectedEventForAsync(ExpectedEvent.OnPrepareAsync, ExpectedEvent.OnBeforeStageAsync);
+        CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnPrepareAsync);
+        _ = await Task.FromResult(0);
       }
 
       public override void OnBeforeStage()
@@ -42,12 +75,30 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         CheckExpectedEvent(ExpectedEvent.OnBeforeStage, ExpectedEvent.OnSchemaReady);
         CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnBeforeStage);
+      }
+
+      public async ValueTask OnBeforeStageAsync(CancellationToken token = default)
+      {
+        CheckExpectedEventForAsync(ExpectedEvent.OnBeforeStageAsync, ExpectedEvent.OnSchemaReadyAsync);
+        CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnBeforeStageAsync);
+        _ = await Task.FromResult(0);
       }
 
       public override void OnSchemaReady()
       {
         CheckExpectedEvent(ExpectedEvent.OnSchemaReady, ExpectedEvent.OnBeforeExecuteActions);
         CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnSchemaReady);
+      }
+
+      public async ValueTask OnSchemaReadyAsync(CancellationToken token = default)
+      {
+        CheckExpectedEventForAsync(ExpectedEvent.OnSchemaReadyAsync, ExpectedEvent.OnBeforeExecuteActionsAsync);
+        CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnSchemaReadyAsync);
+        _ = await Task.FromResult(0);
       }
 
       public override void OnBeforeExecuteActions(UpgradeActionSequence actions)
@@ -55,6 +106,16 @@ namespace Xtensive.Orm.Tests.Upgrade
         Assert.That(actions, Is.Not.Null);
         CheckExpectedEvent(ExpectedEvent.OnBeforeExecuteActions, ExpectedEvent.OnStage);
         CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnBeforeExecuteActions);
+      }
+
+      public async ValueTask OnBeforeExecuteActionsAsync(UpgradeActionSequence actions, CancellationToken token = default)
+      {
+        Assert.That(actions, Is.Not.Null);
+        CheckExpectedEventForAsync(ExpectedEvent.OnBeforeExecuteActionsAsync, ExpectedEvent.OnStageAsync);
+        CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnBeforeExecuteActionsAsync);
+        _ = await Task.FromResult(0);
       }
 
       public override void OnStage()
@@ -67,6 +128,19 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         CheckExpectedEvent(ExpectedEvent.OnStage, nextEvent);
         CheckStageEvent();
+        executionSequence.Add(ExpectedEvent.OnStage);
+      }
+
+      public async ValueTask OnStageAsync(CancellationToken token = default)
+      {
+        var nextEvent = UpgradeContext.Stage == UpgradeStage.Upgrading
+          ? ExpectedEvent.OnBeforeStageAsync
+          : ExpectedEvent.OnCompleteAsync;
+
+        CheckExpectedEventForAsync(ExpectedEvent.OnStageAsync, nextEvent);
+        CheckStageEvent();
+        executionSequence.Add(ExpectedEvent.OnStageAsync);
+        _ = await Task.FromResult(0);
       }
 
       public override void OnComplete(Domain domain)
@@ -74,6 +148,18 @@ namespace Xtensive.Orm.Tests.Upgrade
         Assert.That(domain, Is.Not.Null);
         CheckExpectedEvent(ExpectedEvent.OnComplete, ExpectedEvent.None);
         CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnComplete);
+        domain.Extensions.Set(new EventExecutionSequenceInfo(executionSequence));
+      }
+
+      public async ValueTask OnCompleteAsync(Domain domain, CancellationToken token = default)
+      {
+        Assert.That(domain, Is.Not.Null);
+        CheckExpectedEventForAsync(ExpectedEvent.OnCompleteAsync, ExpectedEvent.None);
+        CheckNonStageEvent();
+        executionSequence.Add(ExpectedEvent.OnCompleteAsync);
+        domain.Extensions.Set(new EventExecutionSequenceInfo(executionSequence));
+        _ = await Task.FromResult(0);
       }
 
       private void CheckNonStageEvent()
@@ -98,6 +184,12 @@ namespace Xtensive.Orm.Tests.Upgrade
       {
         Assert.That(actual, Is.EqualTo(expectedEvent));
         expectedEvent = next;
+      }
+
+      private void CheckExpectedEventForAsync(ExpectedEvent actual, ExpectedEvent next)
+      {
+        Assert.That(actual, Is.EqualTo(expectedEventAsync));
+        expectedEventAsync = next;
       }
     }
 
@@ -158,15 +250,80 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
+    public async Task ParallelAsyncTest()
+    {
+      await RunAsyncTest(true);
+    }
+
+    [Test]
     public void SequentalTest()
     {
       RunTest(false);
     }
 
+    [Test]
+    public async Task SequentalAsyncTest()
+    {
+      await RunAsyncTest(false);
+    }
+
     private void RunTest(bool buildInParallel)
     {
-      BuildInitialDomain(buildInParallel).Dispose();
-      BuildUpgradedDomain(buildInParallel).Dispose();
+      var initialDomain = BuildInitialDomain(buildInParallel);
+      using (initialDomain) {
+        var sequenceInfo = initialDomain.Extensions.Get<EventExecutionSequenceInfo>();
+        CheckAllSync(sequenceInfo.ExecutionSequence);
+      }
+
+      var upgradedDomain = BuildUpgradedDomain(buildInParallel);
+      using (upgradedDomain) {
+        var sequenceInfo = initialDomain.Extensions.Get<EventExecutionSequenceInfo>();
+        CheckAllSync(sequenceInfo.ExecutionSequence);
+      }
+    }
+
+    private async Task RunAsyncTest(bool buildInParallel)
+    {
+      var initialDomain = await BuildInitialDomainAsync(buildInParallel);
+      using (initialDomain) {
+        var sequenceInfo = initialDomain.Extensions.Get<EventExecutionSequenceInfo>();
+        CheckAllAsync(sequenceInfo.ExecutionSequence);
+      }
+      var upgradedDomain = await BuildUpgradedDomainAsync(buildInParallel);
+      using (upgradedDomain) {
+        var sequenceInfo = initialDomain.Extensions.Get<EventExecutionSequenceInfo>();
+        CheckAllAsync(sequenceInfo.ExecutionSequence);
+      }
+    }
+
+    private void CheckAllAsync(IReadOnlyCollection<ExpectedEvent> sequence)
+    {
+      foreach (var item in sequence) {
+        switch (item) {
+          case ExpectedEvent.OnPrepare:
+          case ExpectedEvent.OnBeforeStage:
+          case ExpectedEvent.OnStage:
+          case ExpectedEvent.OnBeforeExecuteActions:
+          case ExpectedEvent.OnSchemaReady:
+          case ExpectedEvent.OnComplete:
+            throw new AssertionException("Not all events executed asynchronously.");
+        }
+      }
+    }
+
+    private void CheckAllSync(IReadOnlyCollection<ExpectedEvent> sequence)
+    {
+      foreach (var item in sequence) {
+        switch (item) {
+          case ExpectedEvent.OnPrepareAsync:
+          case ExpectedEvent.OnBeforeStageAsync:
+          case ExpectedEvent.OnStageAsync:
+          case ExpectedEvent.OnBeforeExecuteActionsAsync:
+          case ExpectedEvent.OnSchemaReadyAsync:
+          case ExpectedEvent.OnCompleteAsync:
+            throw new AssertionException("Not all events executed synchronously.");
+        }
+      }
     }
 
     private Domain BuildInitialDomain(bool buildInParallel)
@@ -174,9 +331,19 @@ namespace Xtensive.Orm.Tests.Upgrade
       return BuildDomain(DomainUpgradeMode.Recreate, typeof (V1.MyEntity), buildInParallel);
     }
 
+    private async Task<Domain> BuildInitialDomainAsync(bool buildInParallel)
+    {
+      return await BuildDomainAsync(DomainUpgradeMode.Recreate, typeof(V1.MyEntity), buildInParallel);
+    }
+
     private Domain BuildUpgradedDomain(bool inParallel)
     {
       return BuildDomain(DomainUpgradeMode.PerformSafely, typeof (V2.MyEntity), inParallel);
+    }
+
+    private async Task<Domain> BuildUpgradedDomainAsync(bool inParallel)
+    {
+      return await BuildDomainAsync(DomainUpgradeMode.PerformSafely, typeof(V2.MyEntity), inParallel);
     }
 
     private Domain BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType, bool buildInParallel)
@@ -186,6 +353,15 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
       configuration.BuildInParallel = buildInParallel;
       return Domain.Build(configuration);
+    }
+
+    private async Task<Domain> BuildDomainAsync(DomainUpgradeMode upgradeMode, Type sampleType, bool buildInParallel)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = upgradeMode;
+      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      configuration.BuildInParallel = buildInParallel;
+      return await Domain.BuildAsync(configuration);
     }
   }
 }
