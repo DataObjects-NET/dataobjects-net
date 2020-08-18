@@ -28,6 +28,8 @@ namespace Xtensive.Orm.Tests.Upgrade
       OnBeforeStageAsync,
       OnStage,
       OnStageAsync,
+      OnUpgrade,
+      OnUpgradeAsync,
       OnBeforeExecuteActions,
       OnBeforeExecuteActionsAsync,
       OnSchemaReady,
@@ -61,7 +63,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         executionSequence.Add(ExpectedEvent.OnPrepare);
       }
 
-      public async ValueTask OnPrepareAsync(CancellationToken token = default)
+      public override async ValueTask OnPrepareAsync(CancellationToken token = default)
       {
         CheckExpectedEventForAsync(ExpectedEvent.OnPrepareAsync, ExpectedEvent.OnBeforeStageAsync);
         CheckNonStageEvent();
@@ -78,7 +80,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         executionSequence.Add(ExpectedEvent.OnBeforeStage);
       }
 
-      public async ValueTask OnBeforeStageAsync(CancellationToken token = default)
+      public override async ValueTask OnBeforeStageAsync(CancellationToken token = default)
       {
         CheckExpectedEventForAsync(ExpectedEvent.OnBeforeStageAsync, ExpectedEvent.OnSchemaReadyAsync);
         CheckNonStageEvent();
@@ -93,7 +95,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         executionSequence.Add(ExpectedEvent.OnSchemaReady);
       }
 
-      public async ValueTask OnSchemaReadyAsync(CancellationToken token = default)
+      public override async ValueTask OnSchemaReadyAsync(CancellationToken token = default)
       {
         CheckExpectedEventForAsync(ExpectedEvent.OnSchemaReadyAsync, ExpectedEvent.OnBeforeExecuteActionsAsync);
         CheckNonStageEvent();
@@ -109,7 +111,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         executionSequence.Add(ExpectedEvent.OnBeforeExecuteActions);
       }
 
-      public async ValueTask OnBeforeExecuteActionsAsync(UpgradeActionSequence actions, CancellationToken token = default)
+      public override async ValueTask OnBeforeExecuteActionsAsync(UpgradeActionSequence actions, CancellationToken token = default)
       {
         Assert.That(actions, Is.Not.Null);
         CheckExpectedEventForAsync(ExpectedEvent.OnBeforeExecuteActionsAsync, ExpectedEvent.OnStageAsync);
@@ -120,26 +122,43 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public override void OnStage()
       {
-        base.OnStage();
-
         var nextEvent = UpgradeContext.Stage==UpgradeStage.Upgrading
-          ? ExpectedEvent.OnBeforeStage
+          ? ExpectedEvent.OnUpgrade
           : ExpectedEvent.OnComplete;
 
         CheckExpectedEvent(ExpectedEvent.OnStage, nextEvent);
         CheckStageEvent();
+        base.OnStage();
+
         executionSequence.Add(ExpectedEvent.OnStage);
       }
 
-      public async ValueTask OnStageAsync(CancellationToken token = default)
+      public override async ValueTask OnStageAsync(CancellationToken token = default)
       {
         var nextEvent = UpgradeContext.Stage == UpgradeStage.Upgrading
-          ? ExpectedEvent.OnBeforeStageAsync
+          ? ExpectedEvent.OnUpgradeAsync
           : ExpectedEvent.OnCompleteAsync;
 
         CheckExpectedEventForAsync(ExpectedEvent.OnStageAsync, nextEvent);
         CheckStageEvent();
         executionSequence.Add(ExpectedEvent.OnStageAsync);
+        await base.OnStageAsync();
+        _ = await Task.FromResult(0);
+      }
+
+      public override void OnUpgrade()
+      {
+        base.OnUpgrade();
+        CheckExpectedEvent(ExpectedEvent.OnUpgrade, ExpectedEvent.OnBeforeStage);
+        CheckStageEvent();
+        executionSequence.Add(ExpectedEvent.OnUpgrade);
+      }
+
+      protected override async ValueTask OnUpgradeAsync(CancellationToken token = default)
+      {
+        CheckExpectedEventForAsync(ExpectedEvent.OnUpgradeAsync, ExpectedEvent.OnBeforeStageAsync);
+        CheckStageEvent();
+        executionSequence.Add(ExpectedEvent.OnUpgradeAsync);
         _ = await Task.FromResult(0);
       }
 
@@ -152,7 +171,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         domain.Extensions.Set(new EventExecutionSequenceInfo(executionSequence));
       }
 
-      public async ValueTask OnCompleteAsync(Domain domain, CancellationToken token = default)
+      public override async ValueTask OnCompleteAsync(Domain domain, CancellationToken token = default)
       {
         Assert.That(domain, Is.Not.Null);
         CheckExpectedEventForAsync(ExpectedEvent.OnCompleteAsync, ExpectedEvent.None);
@@ -303,6 +322,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           case ExpectedEvent.OnPrepare:
           case ExpectedEvent.OnBeforeStage:
           case ExpectedEvent.OnStage:
+          case ExpectedEvent.OnUpgrade:
           case ExpectedEvent.OnBeforeExecuteActions:
           case ExpectedEvent.OnSchemaReady:
           case ExpectedEvent.OnComplete:
@@ -318,6 +338,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           case ExpectedEvent.OnPrepareAsync:
           case ExpectedEvent.OnBeforeStageAsync:
           case ExpectedEvent.OnStageAsync:
+          case ExpectedEvent.OnUpgradeAsync:
           case ExpectedEvent.OnBeforeExecuteActionsAsync:
           case ExpectedEvent.OnSchemaReadyAsync:
           case ExpectedEvent.OnCompleteAsync:
