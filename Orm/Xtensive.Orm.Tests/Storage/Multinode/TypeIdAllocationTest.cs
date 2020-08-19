@@ -1,6 +1,13 @@
-﻿using System;
+// Copyright (C) 2015-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+// Created by: Alexey Kulakov
+// Created:    2015.12.01
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -16,6 +23,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     private const string FirstSchema = "Model1";
     private const string SecondSchema = "Model2";
 
+    [OneTimeSetUp]
+    public void TestFixtureSetup() => CheckRequirements();
+
     [Test]
     public void RecreateTest()
     {
@@ -25,6 +35,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       MainTest(domain);
 
       domain = BuildMultinodeDomain(mode, mode, SecondSchema, FirstSchema);
+      MainTest(domain);
+    }
+
+    [Test]
+    public async Task RecreateAsyncTest()
+    {
+      var mode = DomainUpgradeMode.Recreate;
+      BuildInitialDomains();
+      var domain = await BuildMultinodeDomainAsync(mode, mode, FirstSchema, SecondSchema);
+      MainTest(domain);
+
+      domain = await BuildMultinodeDomainAsync(mode, mode, SecondSchema, FirstSchema);
       MainTest(domain);
     }
 
@@ -41,6 +63,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     }
 
     [Test]
+    public async Task ValidateAsyncTest()
+    {
+      var mode = DomainUpgradeMode.Validate;
+      BuildInitialDomains();
+      var domain = await BuildMultinodeDomainAsync(mode, mode, FirstSchema, SecondSchema);
+      MainTest(domain);
+
+      domain = await BuildMultinodeDomainAsync(mode, mode, SecondSchema, FirstSchema);
+      MainTest(domain);
+    }
+
+    [Test]
     public void SkipTest()
     {
       var mode = DomainUpgradeMode.Skip;
@@ -49,6 +83,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       MainTest(domain);
 
       domain = BuildMultinodeDomain(mode, mode, SecondSchema, FirstSchema);
+      MainTest(domain);
+    }
+
+    [Test]
+    public async Task SkipAsyncTest()
+    {
+      var mode = DomainUpgradeMode.Skip;
+      BuildInitialDomains();
+      var domain = await BuildMultinodeDomainAsync(mode, mode, FirstSchema, SecondSchema);
+      MainTest(domain);
+
+      domain = await BuildMultinodeDomainAsync(mode, mode, SecondSchema, FirstSchema);
       MainTest(domain);
     }
 
@@ -65,6 +111,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     }
 
     [Test]
+    public async Task PerformAsyncTest()
+    {
+      var mode = DomainUpgradeMode.Perform;
+      BuildInitialDomains();
+      var domain = await BuildMultinodeDomainAsync(mode, mode, FirstSchema, SecondSchema);
+      MainTest(domain);
+
+      domain = await BuildMultinodeDomainAsync(mode, mode, SecondSchema, FirstSchema);
+      MainTest(domain);
+    }
+
+    [Test]
     public void PerformSafelyTest()
     {
       var mode = DomainUpgradeMode.PerformSafely;
@@ -76,42 +134,60 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       MainTest(domain);
     }
 
-
-    [OneTimeSetUp]
-    public void TestFixtureSetup()
+    [Test]
+    public async Task PerformSafelyAsyncTest()
     {
-      CheckRequirements();
-    }
+      var mode = DomainUpgradeMode.PerformSafely;
+      BuildInitialDomains();
+      var domain = await BuildMultinodeDomainAsync(mode, mode, FirstSchema, SecondSchema);
+      MainTest(domain);
 
+      domain = await BuildMultinodeDomainAsync(mode, mode, SecondSchema, FirstSchema);
+      MainTest(domain);
+    }
 
     public void MainTest(Domain domain)
     {
-      var isRecreate = domain.Configuration.UpgradeMode==DomainUpgradeMode.Recreate;
+      var isRecreate = domain.Configuration.UpgradeMode == DomainUpgradeMode.Recreate;
       var domainModel = domain.Model;
       var defaultNode = domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId);
       var additionalNode = domain.StorageNodeManager.GetNode(FirstSchema) ?? domain.StorageNodeManager.GetNode(SecondSchema);
       var additionalNodeSchema = additionalNode.Id;
-      var defaultNodeSchema = additionalNode.Id==FirstSchema ? SecondSchema : FirstSchema;
+      var defaultNodeSchema = additionalNode.Id == FirstSchema ? SecondSchema : FirstSchema;
 
       if (!isRecreate) {
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => e.TypeId==defaultNode.TypeIdRegistry[e]), Is.True);
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, defaultNodeSchema)==defaultNode.TypeIdRegistry[e]));
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => e.TypeId!=additionalNode.TypeIdRegistry[e]), Is.True);
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, additionalNodeSchema)==additionalNode.TypeIdRegistry[e]));
+        Assert.That(domainModel.Types.Entities
+          .Where(e => !e.IsSystem).All(e => e.TypeId == defaultNode.TypeIdRegistry[e]), Is.True);
+        Assert.That(domainModel.Types.Entities
+          .Where(e => !e.IsSystem).All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, defaultNodeSchema) == defaultNode.TypeIdRegistry[e]));
+        Assert.That(domainModel.Types.Entities
+          .Where(e => !e.IsSystem).All(e => e.TypeId != additionalNode.TypeIdRegistry[e]), Is.True);
+        Assert.That(domainModel.Types.Entities
+          .Where(e => !e.IsSystem).All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, additionalNodeSchema) == additionalNode.TypeIdRegistry[e]));
       }
       else {
-        Assert.That(domainModel.Types.Entities.All(e => e.TypeId==defaultNode.TypeIdRegistry[e]), Is.True);
+        Assert.That(domainModel.Types.Entities.All(e => e.TypeId == defaultNode.TypeIdRegistry[e]), Is.True);
         Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => defaultNode.TypeIdRegistry[e] < 300));
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => e.TypeId==additionalNode.TypeIdRegistry[e]), Is.True);
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => additionalNode.TypeIdRegistry[e]<300));
+        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => e.TypeId == additionalNode.TypeIdRegistry[e]), Is.True);
+        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => additionalNode.TypeIdRegistry[e] < 300));
       }
     }
 
-    private Domain BuildMultinodeDomain(DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
+    private Domain BuildMultinodeDomain(
+      DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
     {
       var pair = BuildMultitnodeConfiguration(domainUpgradeMode, nodeUpgradeMode, masterSchema, slaveSchema);
       var domain = Domain.Build(pair.First);
-      domain.StorageNodeManager.AddNode(pair.Second);
+      _ = domain.StorageNodeManager.AddNode(pair.Second);
+      return domain;
+    }
+
+    private async Task<Domain> BuildMultinodeDomainAsync(
+      DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
+    {
+      var pair = BuildMultitnodeConfiguration(domainUpgradeMode, nodeUpgradeMode, masterSchema, slaveSchema);
+      var domain = await Domain.BuildAsync(pair.First);
+      _ = await domain.StorageNodeManager.AddNodeAsync(pair.Second);
       return domain;
     }
 
@@ -119,7 +195,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       foreach (var buildInitialConfiguration in BuildInitialConfigurations()) {
         using (var domain = Domain.Build(buildInitialConfiguration)) {
-          var verificationResult = domain.Model.Types.Entities.Where(e => !e.IsSystem).All(el => el.TypeId==TypeIdentifierMapper.GetTypeId(el.UnderlyingType, buildInitialConfiguration.DefaultSchema));
+          var verificationResult = domain.Model.Types.Entities
+            .Where(e => !e.IsSystem)
+            .All(el => el.TypeId == TypeIdentifierMapper.GetTypeId(el.UnderlyingType, buildInitialConfiguration.DefaultSchema));
           Assert.That(verificationResult, Is.True);
         }
       }
@@ -136,14 +214,14 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (Laptop).Assembly, typeof (Laptop).Namespace);
+      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.Name = "FirstSingleSchemaDomain";
       configuration.DefaultSchema = "Model1";
       configurations[0] = configuration;
 
       configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (Laptop).Assembly, typeof (Laptop).Namespace);
+      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.Name = "SecondSingleSchemaDomain";
       configuration.DefaultSchema = "Model2";
       configurations[1] = configuration;
@@ -151,11 +229,12 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       return configurations;
     }
 
-    private Pair<DomainConfiguration, NodeConfiguration> BuildMultitnodeConfiguration(DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
+    private Pair<DomainConfiguration, NodeConfiguration> BuildMultitnodeConfiguration(
+      DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.DefaultSchema = masterSchema;
-      configuration.Types.Register(typeof (Laptop).Assembly, typeof (Laptop).Namespace);
+      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.UpgradeMode = domainUpgradeMode;
       configuration.Name = "MultiNodeDomain";
 
@@ -184,8 +263,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.TypeIdExtractionTestModel
     {
       var typeIdBase = typeIdOffsetMap[model];
       int typeIdOffset;
-        if (!typeIdOffsets.TryGetValue(type, out typeIdOffset))
-          throw new InvalidOperationException();
+      if (!typeIdOffsets.TryGetValue(type, out typeIdOffset)) {
+        throw new InvalidOperationException();
+      }
       return typeIdBase + typeIdOffset;
     }
 
@@ -447,30 +527,27 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.TypeIdExtractionTestModel
 
   public class CustomUpgradeHandler : UpgradeHandler
   {
-    public override bool IsEnabled
-    {
-      get{ return UpgradeContext.Configuration.Name=="SecondSingleSchemaDomain" || UpgradeContext.Configuration.Name=="FirstSingleSchemaDomain";}
-    }
-    public override bool CanUpgradeFrom(string oldVersion)
-    {
-      return true;
-    }
+    public override bool IsEnabled =>
+      UpgradeContext.Configuration.Name == "SecondSingleSchemaDomain"
+      || UpgradeContext.Configuration.Name == "FirstSingleSchemaDomain";
+
+    public override bool CanUpgradeFrom(string oldVersion) => true;
 
     public override void OnPrepare()
     {
-      var isNodeBuilding = UpgradeContext.ParentDomain!=null;
+      var isNodeBuilding = UpgradeContext.ParentDomain != null;
       var schemaName = (isNodeBuilding)
         ? UpgradeContext.NodeConfiguration.SchemaMapping.Apply(UpgradeContext.Configuration.DefaultSchema)
         : UpgradeContext.Configuration.DefaultSchema;
 
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (Laptop).FullName, TypeIdentifierMapper.GetTypeId(typeof (Laptop), schemaName));
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (Manufacturer).FullName, TypeIdentifierMapper.GetTypeId(typeof (Manufacturer), schemaName));
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (DisplayInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof (DisplayInfo), schemaName));
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (CPUInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof (CPUInfo), schemaName));
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (IOPortsInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof (IOPortsInfo), schemaName));
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (KeyboardInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof (KeyboardInfo), schemaName));
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (StorageInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof (StorageInfo), schemaName));
-      UpgradeContext.UserDefinedTypeMap.Add(typeof (GraphicsCardInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof (GraphicsCardInfo), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(Laptop).FullName, TypeIdentifierMapper.GetTypeId(typeof(Laptop), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(Manufacturer).FullName, TypeIdentifierMapper.GetTypeId(typeof(Manufacturer), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(DisplayInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof(DisplayInfo), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(CPUInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof(CPUInfo), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(IOPortsInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof(IOPortsInfo), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(KeyboardInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof(KeyboardInfo), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(StorageInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof(StorageInfo), schemaName));
+      UpgradeContext.UserDefinedTypeMap.Add(typeof(GraphicsCardInfo).FullName, TypeIdentifierMapper.GetTypeId(typeof(GraphicsCardInfo), schemaName));
     }
   }
 }
