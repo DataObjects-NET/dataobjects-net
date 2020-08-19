@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      var exception = Assert.Throws<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
@@ -135,16 +135,16 @@ namespace Xtensive.Orm.Tests.Upgrade
     public async Task AsyncTest04()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Perform, true);
       (await Domain.BuildAsync(configuration)).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
@@ -170,13 +170,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Perform, false);
       (await Domain.BuildAsync(configuration)).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
@@ -202,13 +202,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.PerformSafely, true);
       (await Domain.BuildAsync(configuration)).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
@@ -234,13 +234,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.PerformSafely, false);
       (await Domain.BuildAsync(configuration)).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      Domain.BuildAsync(configuration).Dispose();
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
@@ -282,7 +282,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      var exception = Assert.Throws<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }

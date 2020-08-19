@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.FullTextChangeTrackingMode = FullTextChangeTrackingMode.Off;
+      configuration.Types.Register(typeof(Article));
       Domain.Build(configuration).Dispose();
     }
 
@@ -45,6 +46,7 @@ namespace Xtensive.Orm.Tests.Upgrade.FullText
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
       configuration.FullTextChangeTrackingMode = FullTextChangeTrackingMode.Off;
+      configuration.Types.Register(typeof(Article));
       (await Domain.BuildAsync(configuration)).Dispose();
     }
   }
