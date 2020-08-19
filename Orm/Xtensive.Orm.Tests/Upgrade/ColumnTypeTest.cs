@@ -56,14 +56,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void ValidateModeTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FInt", typeof (string), "1", Mode.Validate, null, null, null));
+      _ = Assert.Throws<SchemaSynchronizationException>(() =>
+        ChangeFieldTypeTest("FInt", typeof(string), "1", Mode.Validate, null, null, null));
     }
 
     [Test]
     public void ValidateModeAsyncTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(async () =>
+      _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
         await ChangeFieldTypeAsyncTest("FInt", typeof(string), "1", Mode.Validate, null, null, null));
     }
 
@@ -108,11 +108,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int32ToShortStringSafelyTest()
     {
-      if (ignoreColumnPrecision)
-        ChangeFieldTypeTest("FInt2", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
-      else
-        AssertEx.Throws<SchemaSynchronizationException>(() => 
-          ChangeFieldTypeTest("FInt2", typeof (string), null, Mode.PerformSafely, 3, null, null));
+      if (ignoreColumnPrecision) {
+        ChangeFieldTypeTest("FInt2", typeof(string), "12345", Mode.PerformSafely, 3, null, null);
+      }
+      else {
+        _ = Assert.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FInt2", typeof(string), null, Mode.PerformSafely, 3, null, null));
+      }
     }
 
     [Test]
@@ -140,8 +142,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void StringToInt32SafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-        ChangeFieldTypeTest("FString1", typeof (int), 0, Mode.PerformSafely, null, null, null));
+      _ = Assert.Throws<SchemaSynchronizationException>(() =>
+        ChangeFieldTypeTest("FString1", typeof(int), 0, Mode.PerformSafely, null, null, null));
     }
 
     [Test]
@@ -184,11 +186,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void StringToShortStringSafelyTest()
     {
-      if (ignoreColumnPrecision)
-        ChangeFieldTypeTest("FString5", typeof (string), "12345", Mode.PerformSafely, 3, null, null);
-      else
-        AssertEx.Throws<SchemaSynchronizationException>(() =>
-          ChangeFieldTypeTest("FString5", typeof (string), string.Empty, Mode.PerformSafely, 3, null, null));
+      if (ignoreColumnPrecision) {
+        ChangeFieldTypeTest("FString5", typeof(string), "12345", Mode.PerformSafely, 3, null, null);
+      }
+      else {
+        _ = Assert.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FString5", typeof(string), string.Empty, Mode.PerformSafely, 3, null, null));
+      }
     }
 
     [Test]
@@ -242,11 +246,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void BoolToStringSafelyTest()
     {
-      if (canConvertBoolToString)
-        ChangeFieldTypeTest("FBool", typeof (string), "1", Mode.PerformSafely, 100, null, null);
-      else
-        AssertEx.Throws<SchemaSynchronizationException>(() =>
-          ChangeFieldTypeTest("FBool", typeof (string), string.Empty, Mode.PerformSafely, 100, null, null));
+      if (canConvertBoolToString) {
+        ChangeFieldTypeTest("FBool", typeof(string), "1", Mode.PerformSafely, 100, null, null);
+      }
+      else {
+        _ = Assert.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FBool", typeof(string), string.Empty, Mode.PerformSafely, 100, null, null));
+      }
     }
 
     [Test]
@@ -298,8 +304,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int64ToInt32SafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() => 
-       ChangeFieldTypeTest("FLong", typeof (int), 12345, Mode.PerformSafely, null, null, null));
+      _ = Assert.Throws<SchemaSynchronizationException>(() =>
+       ChangeFieldTypeTest("FLong", typeof(int), 12345, Mode.PerformSafely, null, null, null));
     }
 
     [Test]
@@ -350,11 +356,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToShortDecimalSafelyTest()
     {
-      if (ignoreColumnPrecision)
-        ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0);
-      else
-        AssertEx.Throws<SchemaSynchronizationException>(() =>
-          ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
+      if (ignoreColumnPrecision) {
+        ChangeFieldTypeTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0);
+      }
+      else {
+        _ = Assert.Throws<SchemaSynchronizationException>(() =>
+          ChangeFieldTypeTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
+      }
     }
 
     [Test]
@@ -406,8 +414,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void NullableDecimalToDecimalSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() =>
-        ChangeFieldTypeTest("FNullableDecimal", typeof (decimal), new decimal(123), Mode.PerformSafely, null, null, null));
+      _ = Assert.Throws<SchemaSynchronizationException>(() =>
+        ChangeFieldTypeTest("FNullableDecimal", typeof(decimal), new decimal(123), Mode.PerformSafely, null, null, null));
     }
 
     [Test]
@@ -456,14 +464,14 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void NullableStringToStringSafelyTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(() =>
-        ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.PerformSafely, 1, null, null, false));
+      _ = Assert.Throws<SchemaSynchronizationException>(() =>
+        ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.PerformSafely, 1, null, null, false));
     }
 
     [Test]
     public void NullableStringToStringSafelyAsyncTest()
     {
-      AssertEx.Throws<SchemaSynchronizationException>(async () => await
+      Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await
         ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.PerformSafely, 1, null, null, false));
     }
 
