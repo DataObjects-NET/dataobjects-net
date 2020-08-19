@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2012.07.05
 
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Services;
@@ -14,17 +15,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class PerformSafelyFromEmptyDatabaseTest
   {
     [OneTimeSetUp]
-    public void TestFixtureSetUp()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer, "Server-specific SQL is used");
-    }
-
-    private Domain BuildDomain(DomainUpgradeMode mode)
-    {
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = mode;
-      return Domain.Build(configuration);
-    }
+    public void TestFixtureSetUp() => Require.ProviderIs(StorageProvider.SqlServer, "Server-specific SQL is used");
 
     [Test]
     public void MainTest()
@@ -38,7 +29,7 @@ namespace Xtensive.Orm.Tests.Upgrade
             "drop table [Metadata.Assembly]; " +
             "drop table [Metadata.Type]; " +
             "drop table [Metadata.Extension]";
-          command.ExecuteNonQuery();
+          _ = command.ExecuteNonQuery();
         }
         tx.Complete();
       }
@@ -46,6 +37,42 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildDomain(DomainUpgradeMode.PerformSafely).Dispose();
 
       BuildDomain(DomainUpgradeMode.Validate).Dispose();
+    }
+
+    [Test]
+    public async Task MainAsyncTest()
+    {
+      using (var domain = BuildDomain(DomainUpgradeMode.Recreate))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var accessor = session.Services.Demand<DirectSqlAccessor>();
+        using (var command = accessor.CreateCommand()) {
+          command.CommandText =
+            "drop table [Metadata.Assembly]; " +
+            "drop table [Metadata.Type]; " +
+            "drop table [Metadata.Extension]";
+          _ = command.ExecuteNonQuery();
+        }
+        tx.Complete();
+      }
+
+      (await BuildDomainAsync(DomainUpgradeMode.PerformSafely)).Dispose();
+
+      (await BuildDomainAsync(DomainUpgradeMode.Validate)).Dispose();
+    }
+
+    private Domain BuildDomain(DomainUpgradeMode mode)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = mode;
+      return Domain.Build(configuration);
+    }
+
+    private Task<Domain> BuildDomainAsync(DomainUpgradeMode mode)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = mode;
+      return Domain.BuildAsync(configuration);
     }
   }
 }

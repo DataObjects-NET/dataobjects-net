@@ -1,10 +1,12 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2012.09.28
 
 using System;
+using System.Threading;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
@@ -56,15 +58,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public class Upgrader : UpgradeHandler
       {
-        public override bool CanUpgradeFrom(string oldVersion)
-        {
-          return true;
-        }
+        public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override string DetectAssemblyVersion()
-        {
-          return "2";
-        }
+        protected override string DetectAssemblyVersion() => "2";
 
         public override void OnStage()
         {
@@ -77,9 +73,14 @@ namespace Xtensive.Orm.Tests.Upgrade
           KeyGeneratorTableCleanUpTestTest.CheckKeyGeneratorTableIsEmpty(UpgradeContext);
         }
 
+        public override async ValueTask OnCompleteAsync(Domain domain, CancellationToken token = default)
+        {
+          await KeyGeneratorTableCleanUpTestTest.CheckKeyGeneratorTableIsEmptyAsync(UpgradeContext);
+        }
+
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new RenameTypeHint(typeof (V1.MyEntity).FullName, typeof (MyEntity)));
+          _ = hints.Add(new RenameTypeHint(typeof (V1.MyEntity).FullName, typeof (MyEntity)));
         }
       }
     }
@@ -116,15 +117,33 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    private Domain BuildInitialDomain()
+    [Test]
+    public async Task MainAsyncTest()
     {
-      return BuildDomain(DomainUpgradeMode.Recreate, typeof (V1.MyEntity));
+      using (var domain = BuildInitialDomain())
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        // One entity is created in OnStage method which is called once
+        Assert.That(session.Query.All<V1.MyEntity>().Count(), Is.EqualTo(1));
+        tx.Complete();
+      }
+
+      using (var domain = await BuildUpgradedDomainAsync())
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        // On entity is created in OnStage method which is called twice
+        // plus one entity from previous domain build.
+        Assert.That(session.Query.All<V2.MyEntity>().Count(), Is.EqualTo(3));
+        tx.Complete();
+      }
     }
 
-    private Domain BuildUpgradedDomain()
-    {
-      return BuildDomain(DomainUpgradeMode.PerformSafely, typeof (V2.MyEntity));
-    }
+    private Domain BuildInitialDomain() => BuildDomain(DomainUpgradeMode.Recreate, typeof(V1.MyEntity));
+
+    private Domain BuildUpgradedDomain() => BuildDomain(DomainUpgradeMode.PerformSafely, typeof(V2.MyEntity));
+
+    private Task<Domain> BuildUpgradedDomainAsync() =>
+      BuildDomainAsync(DomainUpgradeMode.PerformSafely, typeof(V2.MyEntity));
 
     private Domain BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType)
     {
@@ -132,6 +151,14 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);
+    }
+
+    private Task<Domain> BuildDomainAsync(DomainUpgradeMode upgradeMode, Type sampleType)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = upgradeMode;
+      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      return Domain.BuildAsync(configuration);
     }
 
     public static void CheckKeyGeneratorTableIsEmpty(UpgradeContext context)
@@ -144,6 +171,21 @@ namespace Xtensive.Orm.Tests.Upgrade
         command.Transaction = transaction;
         command.CommandText = "select count(*) from [Int64-Generator]";
         count = Convert.ToInt32(command.ExecuteScalar());
+      }
+
+      Assert.That(count, Is.EqualTo(0));
+    }
+
+    public static async Task CheckKeyGeneratorTableIsEmptyAsync(UpgradeContext context)
+    {
+      var connection = context.Connection;
+      var transaction = context.Transaction;
+
+      int count;
+      using (var command = connection.CreateCommand()) {
+        command.Transaction = transaction;
+        command.CommandText = "select count(*) from [Int64-Generator]";
+        count = Convert.ToInt32(await command.ExecuteScalarAsync());
       }
 
       Assert.That(count, Is.EqualTo(0));

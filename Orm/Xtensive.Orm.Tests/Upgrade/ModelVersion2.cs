@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version2
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("OrderId: {0}; OrderDate: {1}.", Id, OrderDate);
+      return $"OrderId: {Id}; OrderDate: {OrderDate}.";
     }
   }
 

@@ -187,10 +187,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         CheckConnection();
       }
 
-      private void CheckStageEvent()
-      {
-        Assert.That(UpgradeContext.Session, Is.Not.Null);
-      }
+      private void CheckStageEvent() => Assert.That(UpgradeContext.Session, Is.Not.Null);
 
       private void CheckConnection()
       {
@@ -223,10 +220,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public class Upgrader : CheckingUpgradeHandler
       {
-        protected override string DetectAssemblyVersion()
-        {
-          return "1";
-        }
+        protected override string DetectAssemblyVersion() => "1";
       }
     }
 
@@ -241,19 +235,13 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public class Upgrader : CheckingUpgradeHandler
       {
-        public override bool CanUpgradeFrom(string oldVersion)
-        {
-          return true;
-        }
+        public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override string DetectAssemblyVersion()
-        {
-          return "2";
-        }
+        protected override string DetectAssemblyVersion() => "2";
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new RenameTypeHint(typeof (V1.MyEntity).FullName, typeof (MyEntity)));
+          _ = hints.Add(new RenameTypeHint(typeof (V1.MyEntity).FullName, typeof (MyEntity)));
         }
       }
     }
@@ -263,28 +251,16 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class NewUpgradeEventsAndPropertiesTest
   {
     [Test]
-    public void ParallelTest()
-    {
-      RunTest(true);
-    }
+    public void ParallelTest() => RunTest(true);
 
     [Test]
-    public async Task ParallelAsyncTest()
-    {
-      await RunAsyncTest(true);
-    }
+    public async Task ParallelAsyncTest() => await RunAsyncTest(true);
 
     [Test]
-    public void SequentalTest()
-    {
-      RunTest(false);
-    }
+    public void SequentalTest() => RunTest(false);
 
     [Test]
-    public async Task SequentalAsyncTest()
-    {
-      await RunAsyncTest(false);
-    }
+    public async Task SequentalAsyncTest() => await RunAsyncTest(false);
 
     private void RunTest(bool buildInParallel)
     {

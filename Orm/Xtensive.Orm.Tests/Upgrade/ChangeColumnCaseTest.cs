@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,7 +6,9 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Upgrade;
 using V1 = Xtensive.Orm.Tests.Upgrade.ChangeColumnCaseTestModel.Version1;
 using V2 = Xtensive.Orm.Tests.Upgrade.ChangeColumnCaseTestModel.Version2;
@@ -84,7 +86,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildUpgradedDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var newEntity = new V2.MyEntity {Name = "V2"};
+        var newEntity = new V2.MyEntity { Name = "V2" };
         session.SaveChanges(); // saving new object
         var existingObject = session.Query.All<V2.MyEntity>().Single(e => e.Name=="V1");
         existingObject.Name += "Changed";
@@ -95,22 +97,54 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    private Domain BuildInitialDomain()
+    [Test]
+    public async Task MainAsyncTest()
     {
-      return BuildDomain(DomainUpgradeMode.Recreate, typeof (V1.MyEntity));
+      using (var domain = BuildInitialDomain())
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        new V1.MyEntity { NAme = "V1" };
+        tx.Complete();
+      }
+
+      using (var domain = await BuildUpgradedDomainAsync())
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var newEntity = new V2.MyEntity { Name = "V2" };
+        session.SaveChanges(); // saving new object
+        var existingObject = session.Query.All<V2.MyEntity>().Single(e => e.Name == "V1");
+        existingObject.Name += "Changed";
+        session.SaveChanges(); // saving modified object
+        existingObject.Remove();
+        session.SaveChanges(); // removing object
+        tx.Complete();
+      }
     }
 
-    private Domain BuildUpgradedDomain()
-    {
-      return BuildDomain(DomainUpgradeMode.PerformSafely, typeof (V2.MyEntity));
-    }
+    private Domain BuildInitialDomain() => BuildDomain(DomainUpgradeMode.Recreate, typeof(V1.MyEntity));
+
+    private Domain BuildUpgradedDomain() => BuildDomain(DomainUpgradeMode.PerformSafely, typeof(V2.MyEntity));
+
+    private Task<Domain> BuildUpgradedDomainAsync() => BuildDomainAsync(DomainUpgradeMode.PerformSafely, typeof(V2.MyEntity));
 
     private Domain BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType)
+    {
+      var configuration = BuildDomainConfiguration(upgradeMode, sampleType);
+      return Domain.Build(configuration);
+    }
+
+    private Task<Domain> BuildDomainAsync(DomainUpgradeMode upgradeMode, Type sampleType)
+    {
+      var configuration = BuildDomainConfiguration(upgradeMode, sampleType);
+      return Domain.BuildAsync(configuration);
+    }
+
+    private static DomainConfiguration BuildDomainConfiguration(DomainUpgradeMode upgradeMode, Type sampleType)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
-      return Domain.Build(configuration);
+      return configuration;
     }
   }
 }

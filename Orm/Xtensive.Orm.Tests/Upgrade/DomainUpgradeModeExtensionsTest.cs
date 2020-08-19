@@ -12,22 +12,16 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class DomainUpgradeModeExtensionsTest
   {
     [Test]
-    public void SkipModeTest()
-    {
-      Assert.That(DomainUpgradeMode.Skip.GetSqlWorkerTask()==SqlWorkerTask.ExtractMetadataTypes, Is.True);
-    }
+    public void SkipModeTest() =>
+      Assert.That(DomainUpgradeMode.Skip.GetSqlWorkerTask() == SqlWorkerTask.ExtractMetadataTypes, Is.True);
 
     [Test]
-    public void LegacySkip()
-    {
-      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask()==SqlWorkerTask.ExtractSchema, Is.True);
-    }
+    public void LegacySkip() =>
+      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask() == SqlWorkerTask.ExtractSchema, Is.True);
 
     [Test]
-    public void LegacyValidate()
-    {
-      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask()==SqlWorkerTask.ExtractSchema, Is.True);
-    }
+    public void LegacyValidate() =>
+      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask() == SqlWorkerTask.ExtractSchema, Is.True);
 
     [Test]
     public void ValidateTest()

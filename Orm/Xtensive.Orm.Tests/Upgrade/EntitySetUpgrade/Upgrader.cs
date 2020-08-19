@@ -24,8 +24,9 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
     public static IDisposable Enable(string version)
     {
-      if (isEnabled)
+      if (isEnabled) {
         throw new InvalidOperationException();
+      }
       isEnabled = true;
       runningVersion = version;
       return new Disposable(_ => {
@@ -34,26 +35,17 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       });
     }
 
-    public override bool IsEnabled {
-      get {
-        return isEnabled;
-      }
-    }
-    
-    protected override string DetectAssemblyVersion()
-    {
-      return runningVersion;
-    }
+    public override bool IsEnabled => isEnabled;
 
-    public override bool CanUpgradeFrom(string oldVersion)
-    {
-      return true;
-    }
+    protected override string DetectAssemblyVersion() => runningVersion;
+
+    public override bool CanUpgradeFrom(string oldVersion) => true;
 
     protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
     {
-      if (runningVersion=="2")
+      if (runningVersion == "2") {
         Version1To2Hints.ForEach(hint => hints.Add(hint));
+      }
     }
 
     public override void OnUpgrade()
@@ -64,8 +56,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 
     private static List<UpgradeHint> Version1To2Hints {
       get {
-        var hints = GetTypeRenameHints("Version1", "Version2");
-        return hints;
+        return GetTypeRenameHints("Version1", "Version2");
       }
     }
 
@@ -77,16 +68,18 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       foreach (var type in oldTypes) {
         var fullName = type.UnderlyingType;
         int lastDotIndex = fullName.LastIndexOf(".");
-        if (lastDotIndex<0)
+        if (lastDotIndex < 0) {
           lastDotIndex = 1;
+        }
         var ns = fullName.Substring(0, lastDotIndex);
         var name = fullName.Substring(lastDotIndex + 1);
         if (ns.EndsWith(oldVersionSuffix)) {
           string newNs = ns.Substring(0, ns.Length - oldVersionSuffix.Length) + newVersionSuffix;
           string newFullName = newNs + "." + name;
           Type newType = upgradeContext.Configuration.Types.SingleOrDefault(t => t.FullName==newFullName);
-          if (newType!=null)
+          if (newType != null) {
             hints.Add(new RenameTypeHint(fullName, newType));
+          }
         }
       }
       return hints;
@@ -97,7 +90,7 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       string suffix = ".Version" + runningVersion;
       var originalNamespace = type.Namespace;
       var nameSpace = originalNamespace.TryCutSuffix(suffix);
-      return nameSpace!=originalNamespace 
+      return nameSpace != originalNamespace
         && base.IsTypeAvailable(type, upgradeStage);
     }
   }

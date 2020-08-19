@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -57,47 +58,57 @@ namespace Xtensive.Orm.Tests.Upgrade
   {
     private readonly DateTimeOffset defaultDateTimeOffset = new DateTimeOffset(2016, 01, 02, 13, 14, 15, TimeSpan.FromHours(8)); // TimeSpan.FromMinutes(-170));
 
-    [Test]
-    public void ValidateWithoutChangesTest()
-    {
-      TestWithoutChanges(DomainUpgradeMode.Validate);
-    }
-
-    [Test]
-    public void PerformSafelyWithoutChangesTest()
-    {
-      TestWithoutChanges(DomainUpgradeMode.PerformSafely);
-    }
-
-    [Test]
-    public void PerformWithoutChangesTest()
-    {
-      TestWithoutChanges(DomainUpgradeMode.Perform);
-    }
-
-    [Test]
-    public void ValidateWithChanges()
-    {
-      TestWithChanges(DomainUpgradeMode.Validate, true);
-    }
-
-    [Test]
-    public void PerformSafelyWithChanges()
-    {
-      TestWithChanges(DomainUpgradeMode.PerformSafely, false);
-    }
-
-    [Test]
-    public void PerformWithChanges()
-    {
-      TestWithChanges(DomainUpgradeMode.Perform, false);
-    }
-
     [OneTimeSetUp]
-    public void FixtureSetUp()
-    {
-      Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
-    }
+    public void FixtureSetUp() => Require.AnyFeatureSupported(ProviderFeatures.DateTimeOffset | ProviderFeatures.DateTimeOffsetEmulation);
+
+
+    [Test]
+    public void ValidateWithoutChangesTest() =>
+      TestWithoutChanges(DomainUpgradeMode.Validate);
+
+    [Test]
+    public async Task ValidateWithoutChangesAsyncTest() =>
+      await TestWithoutChangesAsync(DomainUpgradeMode.Validate);
+
+    [Test]
+    public void PerformSafelyWithoutChangesTest() =>
+      TestWithoutChanges(DomainUpgradeMode.PerformSafely);
+
+    [Test]
+    public async Task PerformSafelyWithoutChangesAsyncTest() =>
+      await TestWithoutChangesAsync(DomainUpgradeMode.PerformSafely);
+
+    [Test]
+    public void PerformWithoutChangesTest() =>
+      TestWithoutChanges(DomainUpgradeMode.Perform);
+
+    [Test]
+    public async Task PerformWithoutChangesAsyncTest() =>
+      await TestWithoutChangesAsync(DomainUpgradeMode.Perform);
+
+    [Test]
+    public void ValidateWithChangesTest() =>
+      TestWithChanges(DomainUpgradeMode.Validate, true);
+
+    [Test]
+    public async Task ValidateWithChangesAsyncTest() =>
+      await TestWithChangesAsync(DomainUpgradeMode.Validate, true);
+
+    [Test]
+    public void PerformSafelyWithChangesTest() =>
+      TestWithChanges(DomainUpgradeMode.PerformSafely, false);
+
+    [Test]
+    public async Task PerformSafelyWithChangesAsyncTest() =>
+      await TestWithChangesAsync(DomainUpgradeMode.PerformSafely, false);
+
+    [Test]
+    public void PerformWithChangesTest() =>
+      TestWithChanges(DomainUpgradeMode.Perform, false);
+
+    [Test]
+    public async Task PerformWithChangesAsyncTest() =>
+      await TestWithChangesAsync(DomainUpgradeMode.Perform, false);
 
     private void TestWithoutChanges(DomainUpgradeMode secondBuildUpgradeMode)
     {
@@ -118,9 +129,9 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    private void TestWithChanges(DomainUpgradeMode secondBuildUpgradeMode, bool isExceptionExpected)
+    private async Task TestWithoutChangesAsync(DomainUpgradeMode secondBuildUpgradeMode)
     {
-      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, typeof (FirstModel.TestEntity));
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, typeof(FirstModel.TestEntity));
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -128,21 +139,63 @@ namespace Xtensive.Orm.Tests.Upgrade
         tx.Complete();
       }
 
-      configuration = BuildConfiguration(secondBuildUpgradeMode, typeof (SecondModel.TestEntity));
+      configuration = BuildConfiguration(secondBuildUpgradeMode, typeof(FirstModel.TestEntity));
+      using (var domain = await Domain.BuildAsync(configuration))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        CheckTestEntity<FirstModel.TestEntity>();
+        tx.Complete();
+      }
+    }
 
-      Action buildAction = () => {
+    private void TestWithChanges(DomainUpgradeMode secondBuildUpgradeMode, bool isExceptionExpected)
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, typeof (FirstModel.TestEntity));
+
+      using (var domain = Domain.Build(configuration))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
+        tx.Complete();
+      }
+
+      configuration = BuildConfiguration(secondBuildUpgradeMode, typeof(SecondModel.TestEntity));
+      if (isExceptionExpected) {
+        _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      }
+      else {
         using (var domain = Domain.Build(configuration))
         using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           CheckTestEntity<SecondModel.TestEntity>();
           tx.Complete();
         }
-      };
+      }
+    }
 
-      if (isExceptionExpected)
-        Assert.Throws<SchemaSynchronizationException>(() => buildAction());
-      else
-        buildAction();
+    private async Task TestWithChangesAsync(DomainUpgradeMode secondBuildUpgradeMode, bool isExceptionExpected)
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, typeof(FirstModel.TestEntity));
+
+      using (var domain = Domain.Build(configuration))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        new FirstModel.TestEntity { FirstDateTimeOffset = defaultDateTimeOffset };
+        tx.Complete();
+      }
+
+      configuration = BuildConfiguration(secondBuildUpgradeMode, typeof(SecondModel.TestEntity));
+      if (isExceptionExpected) {
+        _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      }
+      else {
+        using (var domain = await Domain.BuildAsync(configuration))
+        using (var session = domain.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          CheckTestEntity<SecondModel.TestEntity>();
+          tx.Complete();
+        }
+      }
     }
 
     private DomainConfiguration BuildConfiguration(DomainUpgradeMode upgradeMode, Type type)
@@ -173,8 +226,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     private DateTimeOffset TryMoveToLocalTimeZone(DateTimeOffset dateTimeOffset)
     {
       var providerInfo = StorageProviderInfo.Instance.Info;
-      if (providerInfo.ProviderName==WellKnown.Provider.PostgreSql)
+      if (providerInfo.ProviderName == WellKnown.Provider.PostgreSql) {
         return dateTimeOffset.ToLocalTime();
+      }
       return dateTimeOffset;
     }
   }

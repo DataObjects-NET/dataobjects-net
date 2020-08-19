@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -29,9 +29,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void MainTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (UpgradeHandler1));
-      configuration.Types.Register(typeof (UpgradeHandler2));
-      AssertEx.Throws<DomainBuilderException>(() => Domain.Build(configuration));
+      configuration.Types.Register(typeof(UpgradeHandler1));
+      configuration.Types.Register(typeof(UpgradeHandler2));
+      _ = Assert.Throws<DomainBuilderException>(() => Domain.Build(configuration));
+    }
+
+    [Test]
+    public void MainAsyncTest()
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.Types.Register(typeof(UpgradeHandler1));
+      configuration.Types.Register(typeof(UpgradeHandler2));
+      _ = Assert.ThrowsAsync<DomainBuilderException>(async () => await Domain.BuildAsync(configuration));
     }
   }
 }

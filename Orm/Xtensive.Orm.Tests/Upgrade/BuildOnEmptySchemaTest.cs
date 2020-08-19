@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -76,16 +77,137 @@ namespace Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
+  public sealed class SimpleTest : BuildOnEmptySchemaBase
+  {
+    protected override void EnsureDomainWorksCorrectly(Domain domain)
+    {
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        foreach (var intValue in Enumerable.Range(1000, 10)) {
+          Symbol.Intern(session, intValue.ToString());
+        }
+        transaction.Complete();
+      }
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var symbols = session.Query.All<Symbol>().ToArray();
+        Assert.That(symbols.Length, Is.EqualTo(10));
+      }
+    }
+  }
+
+  public sealed class MultischemaTest : BuildOnEmptySchemaBase
+  {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
+    }
+
+    protected override void EnsureDomainWorksCorrectly(Domain domain)
+    {
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        foreach (var intValue in Enumerable.Range(1000, 10)) {
+          Symbol.Intern(session, intValue.ToString());
+        }
+        transaction.Complete();
+      }
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var symbols = session.Query.All<Symbol>().ToArray();
+        Assert.That(symbols.Length, Is.EqualTo(10));
+      }
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof(Symbol).Namespace).ToSchema("Model1");
+      configuration.MappingRules.Map(typeof(Symbol2).Namespace).ToSchema("Model2");
+      return configuration;
+    }
+
+    protected override DomainConfiguration BuildInitialConfiguration()
+    {
+      var configuration = base.BuildInitialConfiguration();
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof(Symbol).Namespace).ToSchema("Model1");
+      configuration.MappingRules.Map(typeof(Symbol2).Namespace).ToSchema("Model2");
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
+    }
+  }
+
+  public sealed class MultiDatabaseTest : BuildOnEmptySchemaBase
+  {
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
+    }
+
+    protected override void EnsureDomainWorksCorrectly(Domain domain)
+    {
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        foreach (var intValue in Enumerable.Range(1000, 10)) {
+          Symbol.Intern(session, intValue.ToString());
+        }
+        transaction.Complete();
+      }
+
+      using (var session = domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var symbols = session.Query.All<Symbol>().ToArray();
+        Assert.That(symbols.Length, Is.EqualTo(10));
+      }
+    }
+
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.DefaultDatabase = "DO-Tests";
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof(Symbol).Namespace).ToDatabase("DO-Tests");
+      configuration.MappingRules.Map(typeof(Symbol2).Namespace).ToDatabase("DO-Tests-1");
+      return configuration;
+    }
+
+    protected override DomainConfiguration BuildInitialConfiguration()
+    {
+      var configuration = base.BuildInitialConfiguration();
+      configuration.DefaultDatabase = "DO-Tests";
+      configuration.DefaultSchema = "Model1";
+      configuration.MappingRules.Map(typeof(Symbol).Namespace).ToDatabase("DO-Tests");
+      configuration.MappingRules.Map(typeof(Symbol2).Namespace).ToDatabase("DO-Tests-1");
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      return configuration;
+    }
+  }
+
   [TestFixture]
   public abstract class BuildOnEmptySchemaBase
   {
+    [OneTimeSetUp]
+    protected void TestFixtureSetUp() => CheckRequirements();
+
     [Test]
     public void PerformTest()
     {
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
-      Domain domain = null;
-      Assert.DoesNotThrow(() => domain = RebuildDomain(configuration));
+      using var domain = BuildDomain(configuration);
+      EnsureDomainWorksCorrectly(domain);
+    }
+
+    [Test]
+    public async Task PerformAsyncTest()
+    {
+      var configuration = BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Perform;
+      using var domain = await BuildDomainAsync(configuration);
       EnsureDomainWorksCorrectly(domain);
     }
 
@@ -94,8 +216,16 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      Domain domain = null;
-      Assert.DoesNotThrow(() => domain = RebuildDomain(configuration));
+      using var domain = BuildDomain(configuration);
+      EnsureDomainWorksCorrectly(domain);
+    }
+
+    [Test]
+    public async Task RecreateAsyncTest()
+    {
+      var configuration = BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      using var domain = await BuildDomainAsync(configuration);
       EnsureDomainWorksCorrectly(domain);
     }
 
@@ -104,16 +234,20 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Skip;
-      Assert.DoesNotThrow(() => RebuildDomain(configuration));
+      using var domain = BuildDomain(configuration);
+      EnsureDomainWorksCorrectly(domain);
     }
 
-    [OneTimeSetUp]
-    protected void TestFixtureSetUp()
+    [Test]
+    public async Task SkipAsyncTest()
     {
-      CheckRequirements();
+      var configuration = BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Skip;
+      using var domain = await BuildDomainAsync(configuration);
+      EnsureDomainWorksCorrectly(domain);
     }
 
-    protected Domain RebuildDomain(DomainConfiguration configuration)
+    protected Domain BuildDomain(DomainConfiguration configuration)
     {
       try {
         ClearSchema();
@@ -126,15 +260,30 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
+    protected async Task<Domain> BuildDomainAsync(DomainConfiguration configuration)
+    {
+      try {
+        ClearSchema();
+        return await Domain.BuildAsync(configuration);
+      }
+      catch (Exception e) {
+        TestLog.Error(GetType().GetFullName());
+        TestLog.Error(e);
+        throw;
+      }
+    }
+
     protected abstract void EnsureDomainWorksCorrectly(Domain domain);
 
     protected virtual void RegisterTypes(DomainConfiguration configuration)
     {
-      configuration.Types.Register(typeof (Symbol));
-      configuration.Types.Register(typeof (Symbol2));
+      configuration.Types.Register(typeof(Symbol));
+      configuration.Types.Register(typeof(Symbol2));
     }
 
-    protected virtual void CheckRequirements(){}
+    protected virtual void CheckRequirements()
+    {
+    }
 
     protected virtual DomainConfiguration BuildConfiguration()
     {
@@ -151,125 +300,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       return configuration;
     }
 
-    private void ClearSchema()
-    {
-      using (Domain.Build(BuildInitialConfiguration())) {}
-    }
-  }
-
-  public sealed class SimpleTest : BuildOnEmptySchemaBase
-  {
-    protected override void EnsureDomainWorksCorrectly(Domain domain)
-    {
-      using (domain) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          foreach (var intValue in Enumerable.Range(1000, 10)) {
-            Symbol.Intern(session, intValue.ToString());
-          }
-          transaction.Complete();
-        }
-      
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var symbols = session.Query.All<Symbol>().ToArray();
-          Assert.That(symbols.Length, Is.EqualTo(10));
-        }
-      }
-    }
-  }
-
-  public sealed class MultischemaTest : BuildOnEmptySchemaBase
-  {
-    protected override void EnsureDomainWorksCorrectly(Domain domain)
-    {
-      using (domain) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          foreach (var intValue in Enumerable.Range(1000, 10)) {
-            Symbol.Intern(session, intValue.ToString());
-          }
-          transaction.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var symbols = session.Query.All<Symbol>().ToArray();
-          Assert.That(symbols.Length, Is.EqualTo(10));
-        }
-      }
-    }
-
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
-    }
-
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
-      return configuration;
-    }
-
-    protected override DomainConfiguration BuildInitialConfiguration()
-    {
-      var configuration = base.BuildInitialConfiguration();
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      return configuration;
-    }
-  }
-
-  public sealed class MultiDatabaseTest : BuildOnEmptySchemaBase
-  {
-    protected override void EnsureDomainWorksCorrectly(Domain domain)
-    {
-      using (domain) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          foreach (var intValue in Enumerable.Range(1000, 10)) {
-            Symbol.Intern(session, intValue.ToString());
-          }
-          transaction.Complete();
-        }
-
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var symbols = session.Query.All<Symbol>().ToArray();
-          Assert.That(symbols.Length, Is.EqualTo(10));
-        }
-      }
-    }
-
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
-    }
-
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.DefaultDatabase = "DO-Tests";
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToDatabase("DO-Tests-1");
-      return configuration;
-    }
-
-    protected override DomainConfiguration BuildInitialConfiguration()
-    {
-      var configuration = base.BuildInitialConfiguration();
-      configuration.DefaultDatabase = "DO-Tests";
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToDatabase("DO-Tests-1");
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      return configuration;
-    }
+    private void ClearSchema() => Domain.Build(BuildInitialConfiguration()).Dispose();
   }
 }
