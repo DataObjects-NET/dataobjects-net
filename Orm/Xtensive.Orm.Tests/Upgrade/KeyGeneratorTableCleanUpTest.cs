@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         public override void OnComplete(Domain domain)
         {
-          KeyGeneratorTableCleanUpTestTest.CheckKeyGeneratorTableIsEmpty(UpgradeContext);
+          KeyGeneratorTableCleanUpTest.CheckKeyGeneratorTableIsEmpty(UpgradeContext);
         }
       }
     }
@@ -70,12 +70,12 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         public override void OnComplete(Domain domain)
         {
-          KeyGeneratorTableCleanUpTestTest.CheckKeyGeneratorTableIsEmpty(UpgradeContext);
+          KeyGeneratorTableCleanUpTest.CheckKeyGeneratorTableIsEmpty(UpgradeContext);
         }
 
         public override async ValueTask OnCompleteAsync(Domain domain, CancellationToken token = default)
         {
-          await KeyGeneratorTableCleanUpTestTest.CheckKeyGeneratorTableIsEmptyAsync(UpgradeContext);
+          await KeyGeneratorTableCleanUpTest.CheckKeyGeneratorTableIsEmptyAsync(UpgradeContext);
         }
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Upgrade
   }
 
   [TestFixture]
-  public class KeyGeneratorTableCleanUpTestTest
+  public class KeyGeneratorTableCleanUpTest
   {
     [OneTimeSetUp]
     public void TestFixtureSetUp()
