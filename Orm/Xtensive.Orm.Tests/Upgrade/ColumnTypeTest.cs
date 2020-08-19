@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int32ToStringTest()
     {
-      ChangeFieldTypeTest("FInt", typeof (string), "1", Mode.Perform, null, null, null);
+      ChangeFieldTypeTest("FInt", typeof(string), "1", Mode.Perform, null, null, null);
     }
 
     [Test]
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int32ToStringSafelyTest()
     {
-      ChangeFieldTypeTest("FInt", typeof (string), "1", Mode.PerformSafely, null, null, null);      
+      ChangeFieldTypeTest("FInt", typeof(string), "1", Mode.PerformSafely, null, null, null);      
     }
 
     [Test]
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Int32ToShortStringTest()
     {
       var expectedValue = ignoreColumnPrecision ? "12345" : null;
-      ChangeFieldTypeTest("FInt2", typeof (string), expectedValue, Mode.Perform, 3, null, null);
+      ChangeFieldTypeTest("FInt2", typeof(string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
@@ -120,17 +120,19 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public async Task Int32ToShortStringSafelyAsyncTest()
     {
-      if (ignoreColumnPrecision)
+      if (ignoreColumnPrecision) {
         await ChangeFieldTypeAsyncTest("FInt2", typeof(string), "12345", Mode.PerformSafely, 3, null, null);
-      else
+      }
+      else {
         _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
           await ChangeFieldTypeAsyncTest("FInt2", typeof(string), null, Mode.PerformSafely, 3, null, null));
+      }
     }
 
     [Test]
     public void StringToInt32Test()
     {
-      ChangeFieldTypeTest("FString1", typeof (int), 0, Mode.Perform, null, null, null);
+      ChangeFieldTypeTest("FString1", typeof(int), 0, Mode.Perform, null, null, null);
     }
 
     [Test]
@@ -156,8 +158,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void StringToInt32WithHintTest()
     {
-      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof (X), "FString5"))) {
-        ChangeFieldTypeTest("FString5", typeof (int), 12345, Mode.PerformSafely, null, null, null);
+      using (TestUpgrader.Enable(new ChangeFieldTypeHint(typeof(X), "FString5"))) {
+        ChangeFieldTypeTest("FString5", typeof(int), 12345, Mode.PerformSafely, null, null, null);
       }
     }
 
@@ -173,7 +175,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void StringToShortStringTest()
     {
       var expectedValue = ignoreColumnPrecision ? "12345" : "123";
-      ChangeFieldTypeTest("FString5", typeof (string), expectedValue, Mode.Perform, 3, null, null);
+      ChangeFieldTypeTest("FString5", typeof(string), expectedValue, Mode.Perform, 3, null, null);
     }
 
     [Test]
@@ -198,17 +200,19 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public async Task StringToShortStringSafelyAsyncTest()
     {
-      if (ignoreColumnPrecision)
+      if (ignoreColumnPrecision) {
         await ChangeFieldTypeAsyncTest("FString5", typeof(string), "12345", Mode.PerformSafely, 3, null, null);
-      else
+      }
+      else {
         Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
           await ChangeFieldTypeAsyncTest("FString5", typeof(string), string.Empty, Mode.PerformSafely, 3, null, null));
+      }
     }
 
     [Test]
     public void StringToLongStringTest()
     {
-      ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.Perform, 3, null, null);
+      ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.Perform, 3, null, null);
     }
 
     [Test]
@@ -220,7 +224,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public async Task StringToLongStringSafelyTest()
     {
-      ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.PerformSafely, 3, null, null);
+      ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.PerformSafely, 3, null, null);
     }
 
     [Test]
@@ -233,7 +237,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void BoolToStringTest()
     {
       var expectedValue = canConvertBoolToString ? "1" : null;
-      ChangeFieldTypeTest("FBool", typeof (string), expectedValue, Mode.Perform, 100, null, null);
+      ChangeFieldTypeTest("FBool", typeof(string), expectedValue, Mode.Perform, 100, null, null);
     }
 
     [Test]
@@ -258,17 +262,19 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public async Task BoolToStringSafelyAsyncTest()
     {
-      if (canConvertBoolToString)
+      if (canConvertBoolToString) {
         await ChangeFieldTypeAsyncTest("FBool", typeof(string), "1", Mode.PerformSafely, 100, null, null);
-      else
+      }
+      else {
         _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
           await ChangeFieldTypeAsyncTest("FBool", typeof(string), string.Empty, Mode.PerformSafely, 100, null, null));
+      }
     }
 
     [Test]
     public void Int32ToInt64Test()
     {
-      ChangeFieldTypeTest("FInt2", typeof (long), 12345L, Mode.Perform, null, null, null);
+      ChangeFieldTypeTest("FInt2", typeof(long), 12345L, Mode.Perform, null, null, null);
     }
 
     [Test]
@@ -280,7 +286,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int32ToInt64SafelyTest()
     {
-      ChangeFieldTypeTest("FInt2", typeof (long), 12345L, Mode.PerformSafely, null, null, null);
+      ChangeFieldTypeTest("FInt2", typeof(long), 12345L, Mode.PerformSafely, null, null, null);
     }
 
     [Test]
@@ -292,7 +298,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void Int64ToInt32Test()
     {
-      ChangeFieldTypeTest("FLong", typeof (int), 0, Mode.Perform, null, null, null);
+      ChangeFieldTypeTest("FLong", typeof(int), 0, Mode.Perform, null, null, null);
     }
 
     [Test]
@@ -312,13 +318,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Int64ToInt32SafelyAsyncTest()
     {
       _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
-        ChangeFieldTypeAsyncTest("FLong", typeof(int), 12345, Mode.PerformSafely, null, null, null));
+        await ChangeFieldTypeAsyncTest("FLong", typeof(int), 12345, Mode.PerformSafely, null, null, null));
     }
 
     [Test]
     public void DecimalToLongDecimalTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.Perform, null, 3, 2);
+      ChangeFieldTypeTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.Perform, null, 3, 2);
     }
 
     [Test]
@@ -330,7 +336,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToLongDecimalSafelyTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof (decimal), new decimal(1.2), Mode.PerformSafely, null, 3, 2);
+      ChangeFieldTypeTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.PerformSafely, null, 3, 2);
     }
 
     [Test]
@@ -343,7 +349,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void DecimalToShortDecimalTest()
     {
       var expectedValue = ignoreColumnPrecision ? 1.2m : 1m;
-      ChangeFieldTypeTest("FDecimal", typeof (decimal), expectedValue, Mode.Perform, null, 2, 0);
+      ChangeFieldTypeTest("FDecimal", typeof(decimal), expectedValue, Mode.Perform, null, 2, 0);
     }
 
     [Test]
@@ -368,17 +374,19 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public async Task DecimalToShortDecimalSafelyAsyncTest()
     {
-      if (ignoreColumnPrecision)
+      if (ignoreColumnPrecision) {
         await ChangeFieldTypeAsyncTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0);
-      else
+      }
+      else {
         _ = Assert.ThrowsAsync<SchemaSynchronizationException>(async () =>
           await ChangeFieldTypeAsyncTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.PerformSafely, null, 2, 0));
+      }
     }
 
     [Test]
     public void DecimalToNullableDecimalSafelyTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof (decimal?), new decimal(1.2), Mode.PerformSafely, null, 2, 1);
+      ChangeFieldTypeTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.PerformSafely, null, 2, 1);
     }
 
     [Test]
@@ -390,7 +398,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void DecimalToNullableDecimalTest()
     {
-      ChangeFieldTypeTest("FDecimal", typeof (decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
+      ChangeFieldTypeTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
     }
 
     [Test]
@@ -452,7 +460,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void NullableStringToStringTest()
     {
-      ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.Perform, 1, null, null, false);
+      ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.Perform, 1, null, null, false);
     }
 
     [Test]
@@ -478,13 +486,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void AddNonNullableColumnTest()
     {
-      AddFieldTest(typeof (Guid));
-      AddFieldTest(typeof (bool));
-      AddFieldTest(typeof (int));
-      AddFieldTest(typeof (long));
-      AddFieldTest(typeof (float));
-      AddFieldTest(typeof (TimeSpan));
-      AddFieldTest(typeof (DateTime));
+      AddFieldTest(typeof(Guid));
+      AddFieldTest(typeof(bool));
+      AddFieldTest(typeof(int));
+      AddFieldTest(typeof(long));
+      AddFieldTest(typeof(float));
+      AddFieldTest(typeof(TimeSpan));
+      AddFieldTest(typeof(DateTime));
     }
 
     [Test]
@@ -611,10 +619,10 @@ namespace Xtensive.Orm.Tests.Upgrade
         domain.DisposeSafely();
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
-      configuration.Types.Register(typeof (X));
-      configuration.Types.Register(typeof (TestUpgrader));
-      configuration.Types.Register(typeof (FieldTypeChanger));
-      configuration.Types.Register(typeof (AddColumnBuilder));
+      configuration.Types.Register(typeof(X));
+      configuration.Types.Register(typeof(TestUpgrader));
+      configuration.Types.Register(typeof(FieldTypeChanger));
+      configuration.Types.Register(typeof(AddColumnBuilder));
       AddColumnBuilder.NewColumnType = newColumnType;
       AddColumnBuilder.IsEnabled = true;
       domain = Domain.Build(configuration);
