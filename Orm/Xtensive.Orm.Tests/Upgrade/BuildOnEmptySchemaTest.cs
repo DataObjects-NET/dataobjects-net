@@ -235,7 +235,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Skip;
       using var domain = BuildDomain(configuration);
-      EnsureDomainWorksCorrectly(domain);
     }
 
     [Test]
@@ -244,7 +243,6 @@ namespace Xtensive.Orm.Tests.Upgrade
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Skip;
       using var domain = await BuildDomainAsync(configuration);
-      EnsureDomainWorksCorrectly(domain);
     }
 
     protected Domain BuildDomain(DomainConfiguration configuration)
