@@ -34,11 +34,11 @@ namespace Xtensive.Orm
   /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-  public sealed class Domain : IDisposable, IHasExtensions
+  public sealed class Domain : IDisposable, IAsyncDisposable, IHasExtensions
   {
     private readonly object disposeGuard = new object();
     private readonly object singleConnectionGuard = new object();
-    
+
     private bool isDisposed;
     private Session singleConnectionOwner;
 
@@ -474,11 +474,17 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public void Dispose()
+    public void Dispose() => InnerDispose(false).GetAwaiter().GetResult();
+
+    public ValueTask DisposeAsync() => InnerDispose(true);
+
+    public ValueTask InnerDispose(bool isAsync)
     {
       lock (disposeGuard) {
-        if (isDisposed)
-          return;
+        if (isDisposed) {
+          return default;
+        }
+
         isDisposed = true;
 
         if (IsDebugEventLoggingEnabled) {
@@ -488,20 +494,25 @@ namespace Xtensive.Orm
         NotifyDisposing();
         Services.Dispose();
 
-        if (SingleConnection==null)
-          return;
+        if (SingleConnection==null) {
+          return default;
+        }
 
+        // TODO: implement async dispose of the SingleConnection
         lock (singleConnectionGuard) {
           if (singleConnectionOwner==null) {
             var driver = Handlers.StorageDriver;
             driver.CloseConnection(null, SingleConnection);
             driver.DisposeConnection(null, SingleConnection);
           }
-          else
+          else {
             OrmLog.Warning(
               Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
               singleConnectionOwner);
+          }
         }
+
+        return default;
       }
     }
   }
