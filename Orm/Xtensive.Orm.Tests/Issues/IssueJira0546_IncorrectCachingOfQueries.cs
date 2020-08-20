@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -54,16 +54,16 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0546_IncorrectCachingOfQueriesModel
 
 namespace Xtensive.Orm.Tests.Issues
 { 
-  internal class BaseTask
+  internal class IssueJira0546BaseTask
   {
     public int StartValue { get; set; }
 
-    public BaseTask(int startValue)
+    public IssueJira0546BaseTask(int startValue)
     {
       StartValue = startValue;
     }
   }
-  internal class Task: BaseTask
+  internal class IssueJira0546Task : IssueJira0546BaseTask
   {
     public Session Session { get; private set; }
     
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Issues
       return result;
     }
 
-    public Task(Session session, int startValue)
+    public IssueJira0546Task (Session session, int startValue)
       : base(startValue)
     {
       this.Session = session;
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Tests.Issues
       var currentId = 1;
       var iterationsCount = 0;
       while (currentId<80) {
-        var task = new Task(session, currentId);
+        var task = new IssueJira0546Task (session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdDelayedApi();
         Assert.AreEqual(previousId+1, currentId);
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Issues
       currentId = 1;
       iterationsCount = 0;
       while (currentId < 80) {
-        var task = new Task(session, currentId);
+        var task = new IssueJira0546Task (session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdFutureApi();
         Assert.AreEqual(previousId + 1, currentId);

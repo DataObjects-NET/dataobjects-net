@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.01.28
 
@@ -66,10 +66,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.QueryCachingTestModel
     public static Dictionary<string, int> TypeIdPerNode = new Dictionary<string, int>();
     public static string CurrentNodeId = WellKnown.DefaultNodeId;
 
-    public override bool CanUpgradeFrom(string oldVersion)
-    {
-      return true;
-    }
+    public override bool CanUpgradeFrom(string oldVersion) => true;
 
     public override void OnPrepare()
     {
@@ -100,10 +97,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private int initialQueriesCached = 0;
 
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Multischema);
-    }
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Multischema);
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -111,7 +105,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       CustomUpgradeHandler.TypeIdPerNode.Add(TestNodeId3, 300);
 
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (BaseTestEntity).Assembly, typeof (BaseTestEntity).Namespace);
+      configuration.Types.Register(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.DefaultSchema = "dbo";
       return configuration;
@@ -123,13 +117,13 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var nodeConfiguration = new NodeConfiguration(TestNodeId2);
       nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
       nodeConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      Domain.StorageNodeManager.AddNode(nodeConfiguration);
+      _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
 
       CustomUpgradeHandler.CurrentNodeId = TestNodeId3;
       nodeConfiguration = new NodeConfiguration(TestNodeId3);
       nodeConfiguration.SchemaMapping.Add("dbo", "Model2");
       nodeConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      Domain.StorageNodeManager.AddNode(nodeConfiguration);
+      _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
     }
 
     protected override void PopulateData()
@@ -207,10 +201,10 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
             #endregion
 
             //puts query to cache
-            ExecuteSimpleQueryCaching(session);
+            _ = ExecuteSimpleQueryCaching(session);
             var expectedTypeId = GetExpectedTypeId(nodeId);
-            ExecuteFilterByTypeIdCaching(session, expectedTypeId);
-            ExecuteFilterBySeveralTypeIdsCaching(session, new[] { expectedTypeId, expectedTypeId });
+            _ = ExecuteFilterByTypeIdCaching(session, expectedTypeId);
+            _ = ExecuteFilterBySeveralTypeIdsCaching(session, new[] { expectedTypeId, expectedTypeId });
 
             tx.Complete();
           }
@@ -256,7 +250,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
           var allResults = ExecuteSimpleQueryNoCache(session).OrderBy(e => e.TypeId).ToList();
           Assert.That(allResults.Count, Is.EqualTo(3));
-          Assert.That(allResults.All(e => e.BaseOwnerNodeId==nodeId), Is.True);
+          Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
           Assert.That(allResults[0].BaseName, Is.EqualTo("C"));
           Assert.That(allResults[0].TypeId, Is.EqualTo(expectedTypeId));
           Assert.That(allResults[1].BaseName, Is.EqualTo("CC"));
@@ -266,7 +260,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
           var middles = allResults.OfType<MiddleTestEntity>().ToList();
           Assert.That(middles.Count, Is.EqualTo(2));
-          Assert.That(middles.All(e => e.MiddleOwnerNodeId==nodeId), Is.True);
+          Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
           Assert.That(middles[0].MiddleName, Is.EqualTo("CCM"));
           Assert.That(middles[1].MiddleName, Is.EqualTo("CCCM"));
 
@@ -277,7 +271,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
           allResults = ExecuteSimpleQueryCaching(session);
           Assert.That(allResults.Count, Is.EqualTo(3));
-          Assert.That(allResults.All(e => e.BaseOwnerNodeId==nodeId), Is.True);
+          Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
           Assert.That(allResults[0].BaseName, Is.EqualTo("B"));
           Assert.That(allResults[0].TypeId, Is.EqualTo(expectedTypeId));
           Assert.That(allResults[1].BaseName, Is.EqualTo("BB"));
@@ -287,7 +281,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
           middles = allResults.OfType<MiddleTestEntity>().ToList();
           Assert.That(middles.Count, Is.EqualTo(2));
-          Assert.That(middles.All(e => e.MiddleOwnerNodeId==nodeId), Is.True);
+          Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
           Assert.That(middles[0].MiddleName, Is.EqualTo("BBM"));
           Assert.That(middles[1].MiddleName, Is.EqualTo("BBBM"));
 
@@ -308,48 +302,48 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
           var resultWithoutCache = ExecuteFilterByTypeIdNoCache(session, expectedTypeId);
           Assert.That(resultWithoutCache.Count, Is.EqualTo(4));
-          Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId==nodeId));
-          Assert.That(resultWithoutCache.All(e => e.TypeId==expectedTypeId), Is.True);
+          Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeId));
+          Assert.That(resultWithoutCache.All(e => e.TypeId == expectedTypeId), Is.True);
           Assert.That(resultWithoutCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithoutCache.OfType<MiddleTestEntity>().Any(), Is.False);
           Assert.That(resultWithoutCache.OfType<LeafTestEntity>().Any(), Is.False);
 
           resultWithoutCache = ExecuteFilterByTypeIdNoCache(session, expectedTypeId + 1);
           Assert.That(resultWithoutCache.Count, Is.EqualTo(4));
-          Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId==nodeId));
-          Assert.That(resultWithoutCache.All(e => e.TypeId==expectedTypeId + 1), Is.True);
+          Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeId));
+          Assert.That(resultWithoutCache.All(e => e.TypeId == expectedTypeId + 1), Is.True);
           Assert.That(resultWithoutCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithoutCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithoutCache.OfType<LeafTestEntity>().Any(), Is.False);
 
           resultWithoutCache = ExecuteFilterByTypeIdNoCache(session, expectedTypeId + 2);
           Assert.That(resultWithoutCache.Count, Is.EqualTo(4));
-          Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId==nodeId));
-          Assert.That(resultWithoutCache.All(e => e.TypeId==expectedTypeId + 2), Is.True);
+          Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeId));
+          Assert.That(resultWithoutCache.All(e => e.TypeId == expectedTypeId + 2), Is.True);
           Assert.That(resultWithoutCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithoutCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithoutCache.OfType<LeafTestEntity>().Count(), Is.EqualTo(4));
 
           var resultWithCache = ExecuteFilterByTypeIdCaching(session, expectedTypeId);
           Assert.That(resultWithCache.Count, Is.EqualTo(4));
-          Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId==nodeId));
-          Assert.That(resultWithCache.All(e => e.TypeId==expectedTypeId), Is.True);
+          Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeId));
+          Assert.That(resultWithCache.All(e => e.TypeId == expectedTypeId), Is.True);
           Assert.That(resultWithCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithCache.OfType<MiddleTestEntity>().Any(), Is.False);
           Assert.That(resultWithCache.OfType<LeafTestEntity>().Any(), Is.False);
 
           resultWithCache = ExecuteFilterByTypeIdCaching(session, expectedTypeId + 1);
           Assert.That(resultWithCache.Count, Is.EqualTo(4));
-          Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId==nodeId));
-          Assert.That(resultWithCache.All(e => e.TypeId==expectedTypeId + 1), Is.True);
+          Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeId));
+          Assert.That(resultWithCache.All(e => e.TypeId == expectedTypeId + 1), Is.True);
           Assert.That(resultWithCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithCache.OfType<LeafTestEntity>().Any(), Is.False);
 
           resultWithCache = ExecuteFilterByTypeIdCaching(session, expectedTypeId + 2);
           Assert.That(resultWithCache.Count, Is.EqualTo(4));
-          Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId==nodeId));
-          Assert.That(resultWithCache.All(e => e.TypeId==expectedTypeId + 2), Is.True);
+          Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeId));
+          Assert.That(resultWithCache.All(e => e.TypeId == expectedTypeId + 2), Is.True);
           Assert.That(resultWithCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
           Assert.That(resultWithCache.OfType<LeafTestEntity>().Count(), Is.EqualTo(4));
@@ -375,23 +369,23 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
             .OrderBy(e => e.TypeId)
             .ToList();
           Assert.That(allResults.Count, Is.EqualTo(8));
-          Assert.That(allResults.All(e => e.BaseOwnerNodeId==nodeId), Is.True);
-          Assert.That(allResults.Count(e => e.TypeId==expectedTypeId), Is.EqualTo(4));
-          Assert.That(allResults.Count(e => e.TypeId==expectedTypeId + 1), Is.EqualTo(4));
+          Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
+          Assert.That(allResults.Count(e => e.TypeId == expectedTypeId), Is.EqualTo(4));
+          Assert.That(allResults.Count(e => e.TypeId == expectedTypeId + 1), Is.EqualTo(4));
 
           var middles = allResults.OfType<MiddleTestEntity>().ToList();
           Assert.That(middles.Count, Is.EqualTo(4));
-          Assert.That(middles.All(e => e.MiddleOwnerNodeId==nodeId), Is.True);
+          Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
 
           allResults = ExecuteFilterBySeveralTypeIdsCaching(session, new[] { expectedTypeId, expectedTypeId + 1 });
           Assert.That(allResults.Count, Is.EqualTo(8));
           Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
-          Assert.That(allResults.Count(e => e.TypeId==expectedTypeId), Is.EqualTo(4));
-          Assert.That(allResults.Count(e => e.TypeId==expectedTypeId + 1), Is.EqualTo(4));
+          Assert.That(allResults.Count(e => e.TypeId == expectedTypeId), Is.EqualTo(4));
+          Assert.That(allResults.Count(e => e.TypeId == expectedTypeId + 1), Is.EqualTo(4));
 
           middles = allResults.OfType<MiddleTestEntity>().ToList();
           Assert.That(middles.Count, Is.EqualTo(4));
-          Assert.That(middles.All(e => e.MiddleOwnerNodeId==nodeId), Is.True);
+          Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
 
           var unexpectedTypeIds = GetUnexpectedTypeIds(nodeId);
           allResults = ExecuteFilterBySeveralTypeIdsNoCache(session, unexpectedTypeIds);
@@ -405,35 +399,31 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private int GetExpectedTypeId(string nodeId)
     {
-      return (nodeId==WellKnown.DefaultNodeId)
+      return (nodeId == WellKnown.DefaultNodeId)
         ? 100
         : CustomUpgradeHandler.TypeIdPerNode[nodeId];
     }
 
     private int GetUnexpectedTypeId(string nodeId)
     {
-      return (nodeId==WellKnown.DefaultNodeId)
+      return (nodeId == WellKnown.DefaultNodeId)
         ? CustomUpgradeHandler.TypeIdPerNode.First().Value
         : 100;
     }
 
     private int[] GetUnexpectedTypeIds(string nodeId)
     {
-      return (nodeId==WellKnown.DefaultNodeId)
+      return (nodeId == WellKnown.DefaultNodeId)
         ? CustomUpgradeHandler.TypeIdPerNode.Values.ToArray()
-        : CustomUpgradeHandler.TypeIdPerNode.Where(i => i.Key!=nodeId)
+        : CustomUpgradeHandler.TypeIdPerNode.Where(i => i.Key != nodeId)
             .Select(i => i.Value).Union(EnumerableUtils.One(100)).ToArray();
     }
 
-    private List<BaseTestEntity> ExecuteSimpleQueryCaching(Session session)
-    {
-      return session.Query.Execute(SimpleQueryKey, q => q.All<BaseTestEntity>().Where(e => e.BaseName.Contains("B"))).ToList();
-    }
+    private List<BaseTestEntity> ExecuteSimpleQueryCaching(Session session) =>
+      session.Query.Execute(SimpleQueryKey, q => q.All<BaseTestEntity>().Where(e => e.BaseName.Contains("B"))).ToList();
 
-    private List<BaseTestEntity> ExecuteFilterByTypeIdCaching(Session session, int typeId)
-    {
-      return session.Query.Execute(FilterByIdQueryKey, q => q.All<BaseTestEntity>().Where(e => e.TypeId==typeId)).ToList();
-    }
+    private List<BaseTestEntity> ExecuteFilterByTypeIdCaching(Session session, int typeId) =>
+      session.Query.Execute(FilterByIdQueryKey, q => q.All<BaseTestEntity>().Where(e => e.TypeId == typeId)).ToList();
 
     private List<BaseTestEntity> ExecuteFilterBySeveralTypeIdsCaching(Session session, int[] typeIds)
     {
@@ -443,19 +433,13 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         .ToList();
     }
 
-    private List<BaseTestEntity> ExecuteSimpleQueryNoCache(Session session)
-    {
-      return session.Query.All<BaseTestEntity>().Where(e => e.BaseName.Contains("C")).ToList();
-    }
+    private List<BaseTestEntity> ExecuteSimpleQueryNoCache(Session session) =>
+      session.Query.All<BaseTestEntity>().Where(e => e.BaseName.Contains("C")).ToList();
 
-    private List<BaseTestEntity> ExecuteFilterByTypeIdNoCache(Session session, int typeId)
-    {
-      return session.Query.All<BaseTestEntity>().Where(e => e.TypeId==typeId).ToList();
-    }
+    private List<BaseTestEntity> ExecuteFilterByTypeIdNoCache(Session session, int typeId) =>
+      session.Query.All<BaseTestEntity>().Where(e => e.TypeId == typeId).ToList();
 
-    private List<BaseTestEntity> ExecuteFilterBySeveralTypeIdsNoCache(Session session, int[] typeIds)
-    {
-      return session.Query.All<BaseTestEntity>().Where(e => e.TypeId.In(typeIds)).ToList();
-    }
+    private List<BaseTestEntity> ExecuteFilterBySeveralTypeIdsNoCache(Session session, int[] typeIds) =>
+      session.Query.All<BaseTestEntity>().Where(e => e.TypeId.In(typeIds)).ToList();
   }
 }

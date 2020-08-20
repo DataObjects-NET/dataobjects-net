@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2017-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2017.07.12
 
@@ -10,6 +10,7 @@ using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Tests.Upgrade.ChangeFulltextCatalogTestModel;
+using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade.ChangeFulltextCatalogTestModel
 {
@@ -26,15 +27,10 @@ namespace Xtensive.Orm.Tests.Upgrade.ChangeFulltextCatalogTestModel
 
   public class CustomFullTextCatalogNameBuilder : FullTextCatalogNameBuilder
   {
-    public override bool IsEnabled
-    {
-      get { return true; }
-    }
+    public override bool IsEnabled => true;
 
-    protected override string Build(TypeInfo typeInfo, string databaseName, string schemaName, string tableName)
-    {
-      return string.Format("{0}_{1}", databaseName, schemaName);
-    }
+    protected override string Build(TypeInfo typeInfo,
+      string databaseName, string schemaName, string tableName) => $"{databaseName}_{schemaName}";
   }
 
 }
@@ -55,148 +51,264 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void Test01()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
-      using (Domain.Build(configuration)){ }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
+    }
+
+    [Test]
+    public async Task AsyncTest01()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
+      (await Domain.BuildAsync(configuration)).Dispose();
     }
 
     [Test]
     public void Test02()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      Domain domain = null;
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => domain = Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
+    }
 
-      if (domain!=null)
-        domain.Dispose();
+    [Test]
+    public void AsyncTest02()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
+      Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
     [Test]
     public void Test03()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      Domain domain = null;
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => domain = Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
+    }
 
-      if (domain != null)
-        domain.Dispose();
+    [Test]
+    public void AsyncTest03()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
+      Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
     [Test]
     public void Test04()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Perform, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
+    }
+
+    [Test]
+    public async Task AsyncTest04()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Perform, true);
+      (await Domain.BuildAsync(configuration)).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
     public void Test05()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Perform, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
+    }
+
+    [Test]
+    public async Task AsyncTest05()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Perform, false);
+      (await Domain.BuildAsync(configuration)).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
     public void Test06()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.PerformSafely, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
+    }
+
+    [Test]
+    public async Task AsyncTest06()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.PerformSafely, true);
+      (await Domain.BuildAsync(configuration)).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
     public void Test07()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.PerformSafely, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
+    }
+
+    [Test]
+    public async Task AsyncTest07()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.PerformSafely, false);
+      (await Domain.BuildAsync(configuration)).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
+      Domain.Build(configuration).Dispose();
     }
 
     [Test]
     public void Test08()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.LegacyValidate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
+    }
+
+    [Test]
+    public async Task AsyncTest08()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.LegacyValidate, false);
+      (await Domain.BuildAsync(configuration)).Dispose();
     }
 
     [Test]
     public void Test09()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
-      Domain domain = null;
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => domain = Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
+    }
 
-      if (domain != null)
-        domain.Dispose();
+    [Test]
+    public async Task AsyncTest09()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, false);
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
+      Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
     [Test]
     public void Test10()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
-      using (Domain.Build(configuration)) { }
+      Domain.Build(configuration).Dispose();
 
       configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
-      Domain domain = null;
-      var exception = Assert.Throws<SchemaSynchronizationException>(() => domain = Domain.Build(configuration));
+      var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(configuration));
       Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
       Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
+    }
 
-      if (domain != null)
-        domain.Dispose();
+    [Test]
+    public async Task AsyncTest10()
+    {
+      var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
+      Domain.Build(configuration).Dispose();
+
+      configuration = BuildConfiguration(DomainUpgradeMode.Validate, true);
+      var exception = Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await Domain.BuildAsync(configuration));
+      Assert.That(exception.ComparisonResult.SchemaComparisonStatus, Is.EqualTo(SchemaComparisonStatus.TargetIsSuperset));
+      Assert.That(exception.ComparisonResult.Difference.HasChanges, Is.True);
     }
 
     private DomainConfiguration BuildConfiguration(DomainUpgradeMode upgradeMode, bool withCustomResolver)

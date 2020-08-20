@@ -42,11 +42,6 @@ namespace Xtensive.Orm.Upgrade
     UpgradeContext UpgradeContext { get; }
 
     /// <summary>
-    /// Override this method to perform actions before upgrade domain is created.
-    /// </summary>
-    void OnConfigureUpgradeDomain();
-
-    /// <summary>
     /// Determines whether handler is enabled autodetect of types, which moved from one namespace to another.
     /// <para>
     /// Detection is enabled by default.
@@ -72,6 +67,11 @@ namespace Xtensive.Orm.Upgrade
       OnPrepare();
       return default;
     }
+
+    /// <summary>
+    /// Override this method to perform actions before upgrade domain is created.
+    /// </summary>
+    void OnConfigureUpgradeDomain();
 
     /// <summary>
     /// Override this method to perform actions before schemas are compared

@@ -172,12 +172,12 @@ namespace Xtensive.Orm.Upgrade
     private Domain BuildMultistageDomain()
     {
       Domain finalDomain;
-      using (StartSchemaExtractSqlWorker()) {
+      using (StartSqlWorker()) {
         var domainBuilder = CreateDomainBuilder(UpgradeStage.Final);
         using (var finalDomainResult = CreateResult(domainBuilder)) {
           OnConfigureUpgradeDomain();
           using (var upgradeDomain = CreateDomainBuilder(UpgradeStage.Upgrading).Invoke()) {
-            CompleteSchemaExtractSqlWorker();
+            CompleteSqlWorker();
             PerformUpgrade(upgradeDomain, UpgradeStage.Upgrading);
           }
           finalDomain = finalDomainResult.Get();
@@ -190,14 +190,14 @@ namespace Xtensive.Orm.Upgrade
     private async Task<Domain> BuildMultistageDomainAsync(CancellationToken token)
     {
       Domain finalDomain;
-      var sqlAsyncWorker = StartSchemaExtractSqlAsyncWorker(token);
+      var sqlAsyncWorker = StartSqlAsyncWorker(token);
       await using (sqlAsyncWorker.ConfigureAwait(false)) {
         var domainBuilder = CreateDomainBuilder(UpgradeStage.Final);
         var finalDomainResult = CreateResult(domainBuilder);
         await using (finalDomainResult.ConfigureAwait(false)) {
           OnConfigureUpgradeDomain();
           using (var upgradeDomain = CreateDomainBuilder(UpgradeStage.Upgrading).Invoke()) {
-            await CompleteSchemaExtractSqlWorkerAsync().ConfigureAwait(false);
+            await CompleteSqlWorkerAsync().ConfigureAwait(false);
             await PerformUpgradeAsync(upgradeDomain, UpgradeStage.Upgrading, token).ConfigureAwait(false);
           }
           finalDomain = await finalDomainResult.GetAsync().ConfigureAwait(false);
@@ -209,9 +209,9 @@ namespace Xtensive.Orm.Upgrade
 
     private Domain BuildSingleStageDomain()
     {
-      using (StartSchemaExtractSqlWorker()) {
+      using (StartSqlWorker()) {
         var domain = CreateDomainBuilder(UpgradeStage.Final).Invoke();
-        CompleteSchemaExtractSqlWorker();
+        CompleteSqlWorker();
         PerformUpgrade(domain, UpgradeStage.Final);
         return domain;
       }
@@ -219,10 +219,10 @@ namespace Xtensive.Orm.Upgrade
 
     private async Task<Domain> BuildSingleStageDomainAsync(CancellationToken token)
     {
-      var sqlAsyncWorker = StartSchemaExtractSqlAsyncWorker(token);
+      var sqlAsyncWorker = StartSqlAsyncWorker(token);
       await using (sqlAsyncWorker.ConfigureAwait(false)) {
         var domain = CreateDomainBuilder(UpgradeStage.Final).Invoke();
-        await CompleteSchemaExtractSqlWorkerAsync().ConfigureAwait(false);
+        await CompleteSqlWorkerAsync().ConfigureAwait(false);
         await PerformUpgradeAsync(domain, UpgradeStage.Final, token).ConfigureAwait(false);
         return domain;
       }
@@ -641,7 +641,7 @@ namespace Xtensive.Orm.Upgrade
           }
           var builder = ExtractedModelBuilderFactory.GetBuilder(context);
           context.ExtractedSqlModelCache = builder.Run();
-          OnSchemaReady();
+          await OnSchemaReadyAsync(token);
           return; // Skipping comparison completely
         }
 
@@ -660,7 +660,7 @@ namespace Xtensive.Orm.Upgrade
           UpgradeLog.Info(Strings.LogTargetSchema);
           targetSchema.Dump();
         }
-        OnSchemaReady();
+        await OnSchemaReadyAsync(token);
 
         var briefExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
@@ -736,6 +736,13 @@ namespace Xtensive.Orm.Upgrade
         handler.OnSchemaReady();
     }
 
+    private async ValueTask OnSchemaReadyAsync(CancellationToken token)
+    {
+      foreach (var handler in context.OrderedUpgradeHandlers) {
+        await handler.OnSchemaReadyAsync(token);
+      }
+    }
+
     private void OnPrepare()
     {
       foreach (var handler in context.OrderedUpgradeHandlers) {
@@ -755,21 +762,21 @@ namespace Xtensive.Orm.Upgrade
         ? (FutureResult<T>) new AsyncFutureResult<T>(action, UpgradeLog.Instance)
         : new SynchronousFutureResult<T>(action);
 
-    private FutureResult<SqlWorkerResult> StartSchemaExtractSqlWorker()
+    private FutureResult<SqlWorkerResult> StartSqlWorker()
     {
       var result = CreateResult(SqlWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask()));
       workerResult = result;
       return result;
     }
 
-    private FutureResult<SqlWorkerResult> StartSchemaExtractSqlAsyncWorker(CancellationToken token)
+    private FutureResult<SqlWorkerResult> StartSqlAsyncWorker(CancellationToken token)
     {
       var worker = SqlAsyncWorker.Create(context.Services, upgradeMode.GetSqlWorkerTask(), token);
       return workerResult =
         new AsyncFutureResult<SqlWorkerResult>(worker, UpgradeLog.Instance, context.Configuration.BuildInParallel);
     }
 
-    private void CompleteSchemaExtractSqlWorker()
+    private void CompleteSqlWorker()
     {
       if (!workerResult.IsAvailable) {
         return;
@@ -782,7 +789,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private async Task CompleteSchemaExtractSqlWorkerAsync()
+    private async Task CompleteSqlWorkerAsync()
     {
       if (!workerResult.IsAvailable) {
         return;

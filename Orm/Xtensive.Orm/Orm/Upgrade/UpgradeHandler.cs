@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.04.30
 
@@ -10,6 +10,8 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using System.Linq;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -95,6 +97,13 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
+    public virtual ValueTask OnPrepareAsync(CancellationToken token = default)
+    {
+      OnPrepare();
+      return default;
+    }
+
+    /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnBeforeStage()
     {
@@ -111,12 +120,55 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    /// <summary>
+    /// Override this method to perform actions before schemas are compared
+    /// and synchronized. Note that database schema and metadata are already extracted here.
+    /// </summary>
+    /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
+    public virtual ValueTask OnBeforeStageAsync(CancellationToken token = default)
+    {
+      var context = UpgradeContext;
+      switch (context.Stage) {
+        case UpgradeStage.Upgrading:
+          AddUpgradeHints(context.Hints);
+          AddAutoHints(context.Hints);
+          break;
+        case UpgradeStage.Final:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("context.Stage");
+      }
+      return default;
+    }
+
+
     /// <inheritdoc/>
     public virtual void OnSchemaReady()
     {
     }
 
     /// <inheritdoc/>
+    public virtual ValueTask OnSchemaReadyAsync(CancellationToken token = default)
+    {
+      OnSchemaReady();
+      return default;
+    }
+
+    /// <inheritdoc/>
+    public virtual void OnBeforeExecuteActions(UpgradeActionSequence actions)
+    {
+    }
+
+    /// <inheritdoc/>
+    public virtual ValueTask OnBeforeExecuteActionsAsync(UpgradeActionSequence actions, CancellationToken token = default)
+    {
+      OnBeforeExecuteActions(actions);
+      return default;
+    }
+
+    /// <inheritdoc/>
+    /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
     public virtual void OnStage()
     {
       var context = UpgradeContext;
@@ -131,14 +183,35 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    /// <summary>
+    /// Override this method to handle "at upgrade stage" event.
+    /// </summary>
+    /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
+    public virtual async ValueTask OnStageAsync(CancellationToken token = default)
+    {
+      var context = UpgradeContext;
+      switch (context.Stage) {
+        case UpgradeStage.Upgrading:
+          await OnUpgradeAsync(token);
+          break;
+        case UpgradeStage.Final:
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("context.Stage");
+      }
+    }
+
     /// <inheritdoc/>
     public virtual void OnComplete(Domain domain)
     {
     }
 
     /// <inheritdoc/>
-    public virtual void OnBeforeExecuteActions(UpgradeActionSequence actions)
+    public virtual ValueTask OnCompleteAsync(Domain domain, CancellationToken token = default)
     {
+      OnComplete(domain);
+      return default;
     }
 
     /// <inheritdoc/>
@@ -181,6 +254,19 @@ namespace Xtensive.Orm.Upgrade
     public virtual void OnUpgrade()
     {
       // OnUpgrade is public instead of protected, WTF?
+    }
+
+    /// <summary>
+    /// Override this method to implement custom asynchronous persistent data migration logic.
+    /// </summary>
+    /// <remarks>
+    /// Default implementation calls <see cref="OnUpgrade"/> method and completes synchronously.
+    /// </remarks>
+    /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
+    protected virtual ValueTask OnUpgradeAsync(CancellationToken token = default)
+    {
+      OnUpgrade();
+      return default;
     }
 
     #region Protected methods
@@ -343,7 +429,7 @@ namespace Xtensive.Orm.Upgrade
 
     #endregion
 
-    
+
     // Constructors
 
     /// <summary>
