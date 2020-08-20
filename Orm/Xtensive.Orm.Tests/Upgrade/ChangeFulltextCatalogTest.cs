@@ -276,7 +276,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public async Task AsyncTest09()
+    public void AsyncTest09()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, true);
       Domain.Build(configuration).Dispose();
@@ -300,7 +300,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public async Task AsyncTest10()
+    public void AsyncTest10()
     {
       var configuration = BuildConfiguration(DomainUpgradeMode.Recreate, false);
       Domain.Build(configuration).Dispose();

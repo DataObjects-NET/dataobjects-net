@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public async Task StringToLongStringSafelyTest()
     {
-      ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.PerformSafely, 3, null, null);
+      await ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.PerformSafely, 3, null, null);
     }
 
     [Test]
