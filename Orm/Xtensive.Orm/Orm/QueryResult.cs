@@ -14,6 +14,20 @@ namespace Xtensive.Orm
   /// <typeparam name="TItem">The type of items in the sequence.</typeparam>
   public readonly struct QueryResult<TItem> : IEnumerable<TItem>
   {
+    private class EnumerableReader : IMaterializingReader<TItem>
+    {
+      private readonly IEnumerable<TItem> items;
+
+      public IEnumerator<TItem> AsEnumerator() => items.GetEnumerator();
+
+      public IAsyncEnumerator<TItem> AsAsyncEnumerator() => throw new System.NotSupportedException();
+
+      public EnumerableReader(IEnumerable<TItem> items)
+      {
+        this.items = items;
+      }
+    }
+
     private readonly IMaterializingReader<TItem> reader;
 
     /// <inheritdoc/>
@@ -36,20 +50,6 @@ namespace Xtensive.Orm
     internal QueryResult(IMaterializingReader<TItem> reader)
     {
       this.reader = reader;
-    }
-
-    private class EnumerableReader: IMaterializingReader<TItem>
-    {
-      private readonly IEnumerable<TItem> items;
-
-      public IEnumerator<TItem> AsEnumerator() => items.GetEnumerator();
-
-      public IAsyncEnumerator<TItem> AsAsyncEnumerator() => throw new System.NotSupportedException();
-
-      public EnumerableReader(IEnumerable<TItem> items)
-      {
-        this.items = items;
-      }
     }
 
     internal QueryResult(IEnumerable<TItem> items)
