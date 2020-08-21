@@ -21,6 +21,19 @@ namespace Xtensive.Orm
   /// </summary>
   public static partial class QueryableExtensions
   {
+    /// <summary>
+    /// Asynchronously determines whether all the elements of a sequence satisfy a condition.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of <paramref name="source"/>.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> whose elements to test for a condition.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains true
+    /// if every element of the source sequence passes the test in the specified predicate;
+    /// otherwise, false. </returns>
+    /// <remarks>Multiple active operations on the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     public static Task<bool> AllAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -30,6 +43,17 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.All, source, predicate, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously determines whether a sequence contains any elements.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to check for being empty.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains true
+    /// if the source sequence contains any elements; otherwise, false.</returns>
+    /// <remarks>Multiple active operations on the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -38,6 +62,19 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, bool>(WellKnownMembers.Queryable.Any, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously determines whether any element of a sequence satisfies a condition.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> whose elements to test for a condition.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/> to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains true
+    /// if any elements in the source sequence pass the test in the specified predicate;
+    /// otherwise, false.</returns>
+    /// Multiple active operations on the same context instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method on this context.
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -50,6 +87,16 @@ namespace Xtensive.Orm
 
     // Average<int>
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> AverageAsync(this IQueryable<int> source,
       CancellationToken cancellationToken = default)
     {
@@ -59,6 +106,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> AverageAsync(this IQueryable<int?> source,
       CancellationToken cancellationToken = default)
     {
@@ -68,6 +125,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
     {
@@ -79,6 +149,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
     {
@@ -92,6 +175,16 @@ namespace Xtensive.Orm
 
     // Average<long>
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> AverageAsync(this IQueryable<long> source,
       CancellationToken cancellationToken = default)
     {
@@ -101,6 +194,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> AverageAsync(this IQueryable<long?> source,
       CancellationToken cancellationToken = default)
     {
@@ -110,6 +213,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
     {
@@ -121,6 +237,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
     {
@@ -134,6 +263,16 @@ namespace Xtensive.Orm
 
     // Average<double>
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> AverageAsync(this IQueryable<double> source,
       CancellationToken cancellationToken = default)
     {
@@ -143,6 +282,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Double], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> AverageAsync(this IQueryable<double?> source,
       CancellationToken cancellationToken = default)
     {
@@ -152,6 +301,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
     {
@@ -163,6 +325,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
     {
@@ -176,6 +351,16 @@ namespace Xtensive.Orm
 
     // Average<float>
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float> AverageAsync(this IQueryable<float> source,
       CancellationToken cancellationToken = default)
     {
@@ -185,6 +370,15 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Single], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns></returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float?> AverageAsync(this IQueryable<float?> source,
       CancellationToken cancellationToken = default)
     {
@@ -194,6 +388,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableSingle], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
     {
@@ -205,6 +412,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
     {
@@ -218,6 +438,16 @@ namespace Xtensive.Orm
 
     // Average<decimal>
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal> AverageAsync(this IQueryable<decimal> source,
       CancellationToken cancellationToken = default)
     {
@@ -227,6 +457,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the sequence of values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal?> AverageAsync(this IQueryable<decimal?> source,
       CancellationToken cancellationToken = default)
     {
@@ -236,6 +476,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.AverageMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
     {
@@ -247,6 +500,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the average of a sequence of values that is obtained
+    /// by invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values to calculate the average of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// average of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal?> AverageAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
     {
@@ -260,6 +526,18 @@ namespace Xtensive.Orm
 
     // Contains
 
+    /// <summary>
+    /// Asynchronously determines whether a sequence contains a specified element.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the ssingle element of.</param>
+    /// <param name="item">The object to locate in the sequence.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains true
+    /// if the input sequence contains the specified value; otherwise, false.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<bool> ContainsAsync<TSource>(this IQueryable<TSource> source, TSource item,
       CancellationToken cancellationToken = default)
     {
@@ -271,6 +549,17 @@ namespace Xtensive.Orm
 
     // Count
 
+    /// <summary>
+    /// Asynchronously returns the number of elements in a sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains elements to be counted.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// number of elements in the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -279,6 +568,18 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, int>(WellKnownMembers.Queryable.Count, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns the number of elements in a sequence that satisfy a condition.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains elements to be counted.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// number of elements in the sequence that satisfy the condition in the predicate function.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<int> CountAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -291,6 +592,17 @@ namespace Xtensive.Orm
 
     // First
 
+    /// <summary>
+    /// Asynchronously returns the first element of a sequence
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    //  first element in source.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -299,6 +611,18 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.First, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns the first element of a sequence that satisfies a specified condition.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    ///  first element in source that passes the test in predicate.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> FirstAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -311,6 +635,18 @@ namespace Xtensive.Orm
 
     // FirstOrDefault
 
+    /// <summary>
+    /// Asynchronously returns the first element of a sequence, or a default value if
+    /// the sequence contains no elements.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains default
+    /// (TSource) if source is empty; otherwise, the first element in source.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -319,6 +655,20 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.FirstOrDefault, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns the first element of a sequence that satisfies a specified
+    /// condition or a default value if no such element is found.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains default
+    /// (TSource) if source is empty or if no element passes the test specified by predicate;
+    /// otherwise, the first element in source that passes the test specified by predicate.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> FirstOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -331,6 +681,17 @@ namespace Xtensive.Orm
 
     // Last
 
+    /// <summary>
+    /// Asynchronously returns the last element of a sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// last element in source.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -339,6 +700,18 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Last, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns the last element of a sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// last element in source.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> LastAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -351,6 +724,18 @@ namespace Xtensive.Orm
 
     // LastOrDefault
 
+    /// <summary>
+    /// Asynchronously returns the last element of a sequence, or a default value if
+    /// the sequence contains no elements.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains default
+    /// (TSource) if source is empty; otherwise, the last element in source.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -359,6 +744,20 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.LastOrDefault, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns the last element of a sequence that satisfies a specified
+    /// condition or a default value if no such element is found.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the last element of.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains default
+    /// (TSource) if source is empty or if no element passes the test specified by predicate;
+    /// otherwise, the last element in source that passes the test specified by predicate.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> LastOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -371,6 +770,18 @@ namespace Xtensive.Orm
 
     // LongCount
 
+    /// <summary>
+    /// Asynchronously returns an System.Int64 that represents the number of elements
+    /// in a sequence that satisfy a condition.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements to be counted.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// number of elements in the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -379,6 +790,20 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, long>(WellKnownMembers.Queryable.LongCount, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns an System.Int64 that represents the number of elements
+    /// in a sequence that satisfy a condition.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements to be counted.</param>
+    /// <param name="predicate">A function to test each element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// number of elements in the sequence that satisfy the condition in the predicate
+    /// function.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<long> LongCountAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -391,6 +816,17 @@ namespace Xtensive.Orm
 
     // Max
 
+    /// <summary>
+    /// Asynchronously returns the maximum value of a sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the maximum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// maximum value in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> MaxAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -399,6 +835,20 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Max, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously invokes a projection function on each element of a sequence and
+    /// returns the maximum resulting value.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <typeparam name="TResult">he type of the value returned by the function represented by selector.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the maximum of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// maximum value in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TResult> MaxAsync<TSource, TResult>(this IQueryable<TSource> source,
       Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
     {
@@ -411,6 +861,16 @@ namespace Xtensive.Orm
 
     // Min
 
+    /// <summary>
+    /// Asynchronously returns the minimum value of a sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the minimum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> MinAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -419,6 +879,19 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Min, source, cancellationToken);
     }
 
+    /// <summary>
+    /// synchronously invokes a projection function on each element of a sequence and
+    /// returns the minimum resulting value.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <typeparam name="TResult">The type of the value returned by the function represented by selector.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> that contains the elements ot determine the minimum of.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns></returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TResult> MinAsync<TSource, TResult>(this IQueryable<TSource> source,
       Expression<Func<TSource, TResult>> selector, CancellationToken cancellationToken = default)
     {
@@ -431,6 +904,18 @@ namespace Xtensive.Orm
 
     // Single
 
+    /// <summary>
+    /// Asynchronously returns the only element of a sequence that satisfies a specified
+    /// condition, and throws an exception if more than one such element exists.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// single element of the input sequence that satisfies the condition in predicate.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -439,6 +924,19 @@ namespace Xtensive.Orm
       return ExecuteScalarAsync<TSource, TSource>(WellKnownMembers.Queryable.Single, source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns the only element of a sequence that satisfies a specified
+    /// condition, and throws an exception if more than one such element exists.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
+    /// <param name="predicate">A function to test an element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// single element of the input sequence that satisfies the condition in predicate.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> SingleAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -451,6 +949,20 @@ namespace Xtensive.Orm
 
     // SingleOrDefault
 
+    /// <summary>
+    /// Asynchronously returns the only element of a sequence, or a default value if
+    /// the sequence is empty; this method throws an exception if there is more than
+    /// one element in the sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// single element of the input sequence, or default (TSource) if the sequence contains
+    /// no elements.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -460,6 +972,21 @@ namespace Xtensive.Orm
         cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously returns the only element of a sequence, or a default value if
+    /// the sequence is empty; this method throws an exception if there is more than
+    /// one element in the sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the single element of.</param>
+    /// <param name="predicate">A function to test an element for a condition.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// single element of the input sequence that satisfies the condition in predicate,
+    /// or default (TSource) if no such element is found.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<TSource> SingleOrDefaultAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -472,6 +999,15 @@ namespace Xtensive.Orm
 
     // Sum<int>
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns></returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<int> SumAsync(this IQueryable<int> source,
       CancellationToken cancellationToken = default)
     {
@@ -481,6 +1017,15 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int32], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns></returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<int?> SumAsync(this IQueryable<int?> source,
       CancellationToken cancellationToken = default)
     {
@@ -490,6 +1035,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt32], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<int> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int>> selector, CancellationToken cancellationToken = default)
     {
@@ -501,6 +1059,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<int?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, int?>> selector, CancellationToken cancellationToken = default)
     {
@@ -514,6 +1085,16 @@ namespace Xtensive.Orm
 
     // Sum<long>
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<long> SumAsync(this IQueryable<long> source,
       CancellationToken cancellationToken = default)
     {
@@ -523,6 +1104,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Int64], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<long?> SumAsync(this IQueryable<long?> source,
       CancellationToken cancellationToken = default)
     {
@@ -532,6 +1123,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableInt64], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<long> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long>> selector, CancellationToken cancellationToken = default)
     {
@@ -543,6 +1147,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<long?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, long?>> selector, CancellationToken cancellationToken = default)
     {
@@ -556,6 +1173,16 @@ namespace Xtensive.Orm
 
     // Sum<double>
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> SumAsync(this IQueryable<double> source,
       CancellationToken cancellationToken = default)
     {
@@ -565,6 +1192,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Double], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> SumAsync(this IQueryable<double?> source,
       CancellationToken cancellationToken = default)
     {
@@ -574,6 +1211,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDouble], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double>> selector, CancellationToken cancellationToken = default)
     {
@@ -585,6 +1235,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<double?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, double?>> selector, CancellationToken cancellationToken = default)
     {
@@ -598,6 +1261,16 @@ namespace Xtensive.Orm
 
     // Sum<float>
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float> SumAsync(this IQueryable<float> source,
       CancellationToken cancellationToken = default)
     {
@@ -607,6 +1280,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Single], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float?> SumAsync(this IQueryable<float?> source,
       CancellationToken cancellationToken = default)
     {
@@ -616,6 +1299,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableSingle], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float>> selector, CancellationToken cancellationToken = default)
     {
@@ -627,6 +1323,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<float?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, float?>> selector, CancellationToken cancellationToken = default)
     {
@@ -640,6 +1349,16 @@ namespace Xtensive.Orm
 
     // Sum<decimal>
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal> SumAsync(this IQueryable<decimal> source,
       CancellationToken cancellationToken = default)
     {
@@ -649,6 +1368,16 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.Decimal], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of a sequence of values.
+    /// </summary>
+    /// <param name="source">A sequence of values to calculate the sum of.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the values in the sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal?> SumAsync(this IQueryable<decimal?> source,
       CancellationToken cancellationToken = default)
     {
@@ -658,6 +1387,19 @@ namespace Xtensive.Orm
         WellKnownMembers.Queryable.SumMethodInfos[WellKnownTypes.NullableDecimal], source, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal>> selector, CancellationToken cancellationToken = default)
     {
@@ -669,6 +1411,19 @@ namespace Xtensive.Orm
         source, selector, cancellationToken);
     }
 
+    /// <summary>
+    /// Asynchronously computes the sum of the sequence of values that is obtained by
+    /// invoking a projection function on each element of the input sequence.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">A sequence of values of type <typeparamref name="TSource"/>.</param>
+    /// <param name="selector">A projection function to apply to each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains the
+    /// sum of the projected values.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static Task<decimal?> SumAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, decimal?>> selector, CancellationToken cancellationToken = default)
     {
@@ -686,6 +1441,18 @@ namespace Xtensive.Orm
       typeof(Tuple).GetMethods(BindingFlags.Public | BindingFlags.Static)
         .Single(mi => mi.Name == nameof(Tuple.Create) && mi.GetGenericArguments().Length == 2);
 
+    /// <summary>
+    /// Asynchronously creates a <see cref="List{TSource}"/> from an <see cref="IQueryable{TSource}"/>
+    /// by enumerating it asynchronously.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="List{TSource}"/> from.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a
+    /// <see cref="List{TSource}"/> that contains values from the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static async Task<List<TSource>> ToListAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -698,10 +1465,37 @@ namespace Xtensive.Orm
       return list;
     }
 
-    public static async Task<TSource[]>
-      ToArrayAsync<TSource>(this IQueryable<TSource> source, CancellationToken cancellationToken = default) =>
+    /// <summary>
+    /// Asynchronously creates an array from an <see cref="IQueryable{TSource}"/> System.Linq.IQueryable`1
+    /// by enumerating it asynchronously.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to create an array from.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains an
+    /// array that contains values from the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
+    public static async Task<TSource[]> ToArrayAsync<TSource>(this IQueryable<TSource> source,
+      CancellationToken cancellationToken = default) =>
       (await source.ToListAsync(cancellationToken).ConfigureAwait(false)).ToArray();
 
+    /// <summary>
+    /// Creates a <see cref="Dictionary{TKey, TSource}"/> from an <see cref="IQueryable{TSource}"/>
+    /// by enumerating it asynchronously according to a specified key selector function.
+    /// </summary>
+    /// <typeparam name="TKey">>The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="Dictionary{TKey, TSource}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a
+    /// <see cref="Dictionary{TKey, TValue}"/> that contains values of type <typeparamref name="TSource"/>
+    /// selected from the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static async Task<Dictionary<TKey, TSource>> ToDictionaryAsync<TKey, TSource>(
       this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
@@ -721,6 +1515,23 @@ namespace Xtensive.Orm
       return dictionary;
     }
 
+    /// <summary>
+    /// Creates a <see cref="Dictionary{TKey, TValue}"/> from an <see cref="IQueryable{TSource}"/>
+    /// by enumerating it asynchronously according to a specified key selector and value selector functions.
+    /// </summary>
+    /// <typeparam name="TKey">>The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+    /// <typeparam name="TValue">>The type of the key returned by <paramref name="valueSelector"/>.</typeparam>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="valueSelector">A function to extract a value from each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a
+    /// <see cref="Dictionary{TKey, TValue}"/> that contains values of type <typeparamref name="TValue"/>
+    /// selected from the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static async Task<Dictionary<TKey, TValue>> ToDictionaryAsync<TKey, TValue, TSource>(
       this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector,
@@ -742,6 +1553,18 @@ namespace Xtensive.Orm
       return dictionary;
     }
 
+    /// <summary>
+    /// Asynchronously creates a <see cref="HashSet{TSource}"/> from an <see cref="IQueryable{TSource}"/>
+    /// by enumerating it asynchronously.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="HashSet{TSource}"/> from.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a
+    /// <see cref="HashSet{TSource}"/> that contains values of type <typeparamref name="TSource"/> from the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static async Task<HashSet<TSource>> ToHashSetAsync<TSource>(this IQueryable<TSource> source,
       CancellationToken cancellationToken = default)
     {
@@ -754,6 +1577,21 @@ namespace Xtensive.Orm
       return hashSet;
     }
 
+    /// <summary>
+    /// Asynchronously creates a <see cref="ILookup{TKey, TSource}"/> from an <see cref="IQueryable{T}"/>
+    /// by enumerating it asynchronously according to a specified key selector function.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="ILookup{TKey, TSource}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a
+    /// <see cref="ILookup{TKey, TSource}"/> that contains values of type <typeparamref name="TSource"/>
+    /// selected from the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
     public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
@@ -767,8 +1605,25 @@ namespace Xtensive.Orm
       return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
     }
 
-  public static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(
-      this IQueryable<TSource> source,
+    /// <summary>
+    /// Asynchronously creates a <see cref="ILookup{TKey, TValue}"/> from an <see cref="IQueryable{T}"/>
+    /// by enumerating it asynchronously according to a specified key selector and an
+    /// element selector function.
+    /// </summary>
+    /// <typeparam name="TKey">The type of the key returned by <paramref name="keySelector"/>.</typeparam>
+    /// <typeparam name="TValue">The type of the value returned by <paramref name="valueSelector"/>.</typeparam>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to create a <see cref="ILookup{TKey, TValue}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="valueSelector">A function to extract a value from each element.</param>
+    /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
+    /// <returns>A task that represents the asynchronous operation. The task result contains a
+    /// <see cref="ILookup{TKey, TElement}"/> that contains values of type <typeparamref name="TValue"/>
+    /// selected from the input sequence.</returns>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in same session.</remarks>
+    public static async Task<ILookup<TKey, TValue>> ToLookupAsync<TKey, TValue, TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector,
       Expression<Func<TSource, TValue>> valueSelector,
       CancellationToken cancellationToken = default)
@@ -783,6 +1638,15 @@ namespace Xtensive.Orm
       return queryResult.ToLookup(tuple => tuple.Item1, tuple => tuple.Item2);
     }
 
+    /// <summary>
+    /// Returns an <see cref="IAsyncEnumerable{TSource}"/> which can be enumerated asynchronously.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <param name="source">An <see cref="IQueryable{T}"/> to enumerate.</param>
+    /// <returns>The query results.</returns>
+    /// <remarks>Multiple active operations on the same context instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method on this context.</remarks>
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
@@ -793,6 +1657,17 @@ namespace Xtensive.Orm
 
       throw new InvalidOperationException("Query can't be executed asynchronously.");
     }
+
+
+
+
+
+
+
+
+
+
+
 
     // Private methods
 
