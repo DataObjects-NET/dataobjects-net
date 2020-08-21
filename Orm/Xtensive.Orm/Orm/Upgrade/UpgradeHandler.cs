@@ -193,7 +193,7 @@ namespace Xtensive.Orm.Upgrade
       var context = UpgradeContext;
       switch (context.Stage) {
         case UpgradeStage.Upgrading:
-          await OnUpgradeAsync(token);
+          await OnUpgradeAsync(token).ConfigureAwait(false);
           break;
         case UpgradeStage.Final:
           break;

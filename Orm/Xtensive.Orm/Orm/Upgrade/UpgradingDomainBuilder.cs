@@ -641,7 +641,7 @@ namespace Xtensive.Orm.Upgrade
           }
           var builder = ExtractedModelBuilderFactory.GetBuilder(context);
           context.ExtractedSqlModelCache = builder.Run();
-          await OnSchemaReadyAsync(token);
+          await OnSchemaReadyAsync(token).ConfigureAwait(false);
           return; // Skipping comparison completely
         }
 
@@ -660,7 +660,7 @@ namespace Xtensive.Orm.Upgrade
           UpgradeLog.Info(Strings.LogTargetSchema);
           targetSchema.Dump();
         }
-        await OnSchemaReadyAsync(token);
+        await OnSchemaReadyAsync(token).ConfigureAwait(false);
 
         var briefExceptionFormat = domain.Configuration.SchemaSyncExceptionFormat==SchemaSyncExceptionFormat.Brief;
         var result = SchemaComparer.Compare(extractedSchema, targetSchema,
@@ -739,7 +739,7 @@ namespace Xtensive.Orm.Upgrade
     private async ValueTask OnSchemaReadyAsync(CancellationToken token)
     {
       foreach (var handler in context.OrderedUpgradeHandlers) {
-        await handler.OnSchemaReadyAsync(token);
+        await handler.OnSchemaReadyAsync(token).ConfigureAwait(false);
       }
     }
 
