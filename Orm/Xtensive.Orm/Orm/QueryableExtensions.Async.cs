@@ -72,9 +72,9 @@ namespace Xtensive.Orm
     /// <returns>A task that represents the asynchronous operation. The task result contains true
     /// if any elements in the source sequence pass the test in the specified predicate;
     /// otherwise, false.</returns>
-    /// Multiple active operations on the same context instance are not supported. Use
+    /// Multiple active operations in the same session instance are not supported. Use
     /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method on this context.
+    /// another method in this session.
     public static Task<bool> AnyAsync<TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, bool>> predicate, CancellationToken cancellationToken = default)
     {
@@ -599,7 +599,7 @@ namespace Xtensive.Orm
     /// <param name="source">An <see cref="IQueryable{TSource}"/> to return the first element of.</param>
     /// <param name="cancellationToken">A <see cref="CancellationToken"/>to observe while waiting for the task to complete.</param>
     /// <returns>A task that represents the asynchronous operation. The task result contains the
-    //  first element in source.</returns>
+    ///  first element in source.</returns>
     /// <remarks>Multiple active operations in the same session instance are not supported. Use
     /// 'await' to ensure that any asynchronous operations have completed before calling
     /// another method in same session.</remarks>
@@ -1644,9 +1644,9 @@ namespace Xtensive.Orm
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <param name="source">An <see cref="IQueryable{T}"/> to enumerate.</param>
     /// <returns>The query results.</returns>
-    /// <remarks>Multiple active operations on the same context instance are not supported. Use
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
     /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method on this context.</remarks>
+    /// another method in this session.</remarks>
     public static IAsyncEnumerable<TSource> AsAsyncEnumerable<TSource>(this IQueryable<TSource> source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
@@ -1657,17 +1657,6 @@ namespace Xtensive.Orm
 
       throw new InvalidOperationException("Query can't be executed asynchronously.");
     }
-
-
-
-
-
-
-
-
-
-
-
 
     // Private methods
 

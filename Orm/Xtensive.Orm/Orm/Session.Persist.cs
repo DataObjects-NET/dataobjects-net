@@ -58,6 +58,11 @@ namespace Xtensive.Orm
     /// </summary>
     /// <remarks>
     /// <para>
+    /// Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in this session.
+    /// </para>
+    /// <para>
     /// This method should be called to ensure that all delayed
     /// updates are flushed to the storage.
     /// </para>
