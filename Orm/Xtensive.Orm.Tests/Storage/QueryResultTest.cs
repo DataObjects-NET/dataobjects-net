@@ -232,8 +232,13 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = session.Query.Execute(q => q.All<Order>());
         }
-        var ex = Assert.Throws<StorageException>(() => result.ToList());
-        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        if (SupportsMars()) {
+          var ex = Assert.Throws<StorageException>(() => result.ToList());
+          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        }
+        else {
+          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
+        }
       }
     }
 
@@ -245,8 +250,13 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = await session.Query.ExecuteAsync(q => q.All<Order>());
         }
-        var ex = Assert.Throws<StorageException>(() => result.ToList());
-        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        if (SupportsMars()) {
+          var ex = Assert.Throws<StorageException>(() => result.ToList());
+          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        }
+        else {
+          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
+        }
       }
     }
 
@@ -280,8 +290,13 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = session.Query.Execute(q => q.All<Order>());
         }
-        var ex = Assert.Throws<StorageException>(() => result.ToList());
-        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        if (SupportsMars()) {
+          var ex = Assert.Throws<StorageException>(() => result.ToList());
+          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        }
+        else {
+          _ = result.ToList();
+        }
       }
     }
 
@@ -294,8 +309,13 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = await session.Query.ExecuteAsync(q => q.All<Order>());
         }
-        var ex = Assert.Throws<StorageException>(() => result.ToList());
-        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        if (SupportsMars()) {
+          var ex = Assert.Throws<StorageException>(() => result.ToList());
+          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        }
+        else {
+          _ = result.ToList();
+        }
       }
     }
 
@@ -307,8 +327,13 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         result = session.Query.Execute(q => q.All<Order>());
       }
-      var ex = Assert.Throws<StorageException>(() => result.ToList());
-      Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+      if (SupportsMars()) {
+        var ex = Assert.Throws<StorageException>(() => result.ToList());
+        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+      }
+      else {
+        var ex = Assert.Throws<ObjectDisposedException>(() => result.ToList());
+      }
     }
 
     [Test]
@@ -319,14 +344,21 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         result = await session.Query.ExecuteAsync(q => q.All<Order>());
       }
-      var ex = Assert.Throws<StorageException>(() => result.ToList());
-      Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+
+      if (SupportsMars()) {
+        var ex = Assert.Throws<StorageException>(() => result.ToList());
+        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+      }
+      else {
+        var ex = Assert.Throws<ObjectDisposedException>(() => result.ToList());
+      }
     }
 
     [Test]
     public void NewTransactionWithOpenedReaderTest()
     {
       Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
+      Require.ProviderIs(StorageProvider.SqlServer);
 
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
@@ -341,12 +373,48 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task NewTransactionWithOpenedReaderAsyncTest()
     {
       Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
+      Require.ProviderIs(StorageProvider.SqlServer);
 
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
         using (var outerTx = session.OpenTransaction()) {
           result = await session.Query.ExecuteAsync(q => q.All<Order>());
           _ = Assert.Throws<StorageException>(() => session.OpenTransaction(TransactionOpenMode.New));
+        }
+      }
+    }
+
+    [Test]
+    public void EnumerationInInnerTransactionTest()
+    {
+      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
+      Require.ProviderIsNot(StorageProvider.SqlServer);
+
+      using (var session = Domain.OpenSession()) {
+        QueryResult<Order> result;
+        using (var outerTx = session.OpenTransaction()) {
+          result = session.Query.Execute(q => q.All<Order>());
+          using (var inner = session.OpenTransaction(TransactionOpenMode.New)) {
+            _ = result.ToList();
+          }
+          
+        }
+      }
+    }
+
+    [Test]
+    public async Task EnumerationInInnerTransactionAsyncTest()
+    {
+      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
+      Require.ProviderIsNot(StorageProvider.SqlServer);
+
+      using (var session = Domain.OpenSession()) {
+        QueryResult<Order> result;
+        using (var outerTx = session.OpenTransaction()) {
+          result = await session.Query.ExecuteAsync(q => q.All<Order>());
+          using (var inner = session.OpenTransaction(TransactionOpenMode.New)) {
+            _ = result.ToList();
+          }
         }
       }
     }
@@ -505,6 +573,11 @@ namespace Xtensive.Orm.Tests.Storage
           _ = result.ToList();
         }
       }
+    }
+
+    private bool SupportsMars()
+    {
+      return StorageProviderInfo.Instance.CheckAllFeaturesSupported(Orm.Providers.ProviderFeatures.MultipleActiveResultSets);
     }
   }
 }
