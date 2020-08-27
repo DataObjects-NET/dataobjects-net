@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -72,10 +72,222 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       }
     }
 
+    [Test]
+    public async Task MultipleReadersTest()
+    {
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration))
+      await using (var tx = GetTransactionScope(session)) {
+
+        foreach (var query1 in await session.Query.CreateDelayedQuery(q => q.All<Discepline>()).ExecuteAsync()) {
+          foreach (var query2 in await session.Query.CreateDelayedQuery(q => q.All<Discepline>().OrderBy(e => e.Name)).ExecuteAsync()) {
+
+          }
+        }
+      }
+    }
+
+    [Test]
+    public async Task EventTest()
+    {
+      bool queryExecuting = false;
+      bool queryExecuted = false;
+      bool commandExecuting = false;
+      bool commandExecuted = false;
+
+      void Events_QueryExecuting(object sender, QueryEventArgs e) => queryExecuting = true;
+      void Events_QueryExecuted(object sender, QueryEventArgs e) => queryExecuted = true;
+      void Events_DbCommandExecuting(object sender, DbCommandEventArgs e) => commandExecuting = true;
+      void Events_DbCommandExecuted(object sender, DbCommandEventArgs e) => commandExecuted = true;
+
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration))
+      await using (var tx = GetTransactionScope(session)) {
+        session.Events.QueryExecuting += Events_QueryExecuting;
+        session.Events.QueryExecuted += Events_QueryExecuted;
+        session.Events.DbCommandExecuting += Events_DbCommandExecuting;
+        session.Events.DbCommandExecuted += Events_DbCommandExecuted;
+
+        _ = await session.Query.CreateDelayedQuery(q => q.All<Discepline>()).ExecuteAsync();
+
+        Assert.That(queryExecuting, Is.False);
+        Assert.That(queryExecuted, Is.False);
+        Assert.That(commandExecuting, Is.True);
+        Assert.That(commandExecuted, Is.True);
+
+        queryExecuted = queryExecuting = commandExecuting = commandExecuted = false;
+
+        _ = await session.Query.CreateDelayedQuery(new object(),
+          q => q.All<Discepline>())
+          .ExecuteAsync();
+
+        Assert.That(queryExecuting, Is.False);
+        Assert.That(queryExecuted, Is.False);
+        Assert.That(commandExecuting, Is.True);
+        Assert.That(commandExecuted, Is.True);
+
+        queryExecuted = queryExecuting = commandExecuting = commandExecuted = false;
+
+        _ = await session.Query.CreateDelayedQuery(q => q.All<Discepline>().OrderBy(e => e.Name))
+          .ExecuteAsync();
+
+        Assert.That(queryExecuting, Is.False);
+        Assert.That(queryExecuted, Is.False);
+        Assert.That(commandExecuting, Is.True);
+        Assert.That(commandExecuted, Is.True);
+
+        queryExecuted = queryExecuting = commandExecuting = commandExecuted = false;
+
+        _ = await session.Query.CreateDelayedQuery(new object(),
+          q => q.All<Discepline>().OrderBy(e => e.Name))
+          .ExecuteAsync();
+
+        Assert.That(queryExecuting, Is.False);
+        Assert.That(queryExecuted, Is.False);
+        Assert.That(commandExecuting, Is.True);
+        Assert.That(commandExecuted, Is.True);
+
+        session.Events.QueryExecuting -= Events_QueryExecuting;
+        session.Events.QueryExecuted -= Events_QueryExecuted;
+        session.Events.DbCommandExecuting -= Events_DbCommandExecuting;
+        session.Events.DbCommandExecuted -= Events_DbCommandExecuted;
+      }
+    }
+
+    [Test]
+    public async Task EnumerationOutsideSessionTest()
+    {
+      QueryResult<Discepline> result;
+      await using (var session = Domain.OpenSession(SessionConfiguration))
+      using (var tx = GetTransactionScope(session)) {
+        result =await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+          .ExecuteAsync();
+      }
+
+      // we didn't get StorageException here because we cache results and close db reader so
+      // we materialize cached tuples to entity states which needs a session.
+      // But the session is disposed so we have an exeption
+
+      var ex = Assert.Throws<ObjectDisposedException>(() => result.ToList());
+    }
+
+    [Test]
+    public async Task EnumerationInInnerTransactionTest()
+    {
+      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
+
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
+        QueryResult<Discepline> result;
+        using (var outerTx = session.OpenTransaction()) {
+          result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+            .ExecuteAsync();
+          using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+            // this is kind of valid behavior but just logically, I'd say that it is on the edge.
+            // we cached results in the outer transaction then created a savepoint
+            // and materialized the results after that.
+
+            // logically after savepoint we should have an acces to everything what's made before
+            // but i guess it may cause some problems
+            _ = result.ToList();
+          }
+        }
+      }
+    }
+
+    [Test]
+    public async Task EnumerationInInnerVoidTransactionAsyncTest()
+    {
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
+        QueryResult<Discepline> result;
+        using (var outerTx = session.OpenTransaction()) {
+          result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+            .ExecuteAsync();
+          using (var innerTx = session.OpenTransaction(TransactionOpenMode.Auto)) {
+            _ = result.ToList();
+          }
+        }
+      }
+    }
+
+    [Test]
+    public async Task EnumerationInOuterTransactionAfterInnerRollbackTest()
+    {
+      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
+
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
+        QueryResult<Discepline> result;
+        using (var outerTx = session.OpenTransaction()) {
+          using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+            result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+              .ExecuteAsync();
+          }
+
+          // this is tricky. we've read results in one transaction, rollbacked it
+          // and materialize results in another thansaction, which is not cool
+          // because the data which existed in the inner transaction may not exist in the outer
+          // so we can get "ghost" data.
+
+          // some exception has to appear.
+          var ex = Assert.Throws<StorageException>(() => result.ToList());
+          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        }
+      }
+    }
+
+    [Test]
+    public async Task EnumerationInOuterTransactionAfterVoidInnerRollbackTest()
+    {
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
+        QueryResult<Discepline> result;
+        using (var outerTx = session.OpenTransaction()) {
+          using (var innerTx = session.OpenTransaction(TransactionOpenMode.Auto)) {
+            result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+              .ExecuteAsync();
+          }
+          _ = result.ToList();
+        }
+      }
+    }
+
+    [Test]
+    public async Task EnumerationInOuterTransactionAfterInnerCommitTest()
+    {
+      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
+
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
+        QueryResult<Discepline> result;
+        using (var outerTx = session.OpenTransaction()) {
+          using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+            result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+              .ExecuteAsync();
+            innerTx.Complete();
+          }
+
+          _ = result.ToList();
+        }
+      }
+    }
+
+    [Test]
+    public async Task EnumerationInOuterTransactionAfterVoidInnerCommitTest()
+    {
+      await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
+        QueryResult<Discepline> result;
+        using (var outerTx = session.OpenTransaction()) {
+          using (var innerTx = session.OpenTransaction(TransactionOpenMode.Auto)) {
+            result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+              .ExecuteAsync();
+            innerTx.Complete();
+          }
+
+          _ = result.ToList();
+        }
+      }
+    }
+
     private TransactionScope GetTransactionScope(Session session)
     {
-      if (SessionConfiguration.Supports(SessionOptions.ServerProfile))
+      if (SessionConfiguration.Supports(SessionOptions.ServerProfile)) {
         return session.OpenTransaction();
+      }
       return null;
     }
   }
