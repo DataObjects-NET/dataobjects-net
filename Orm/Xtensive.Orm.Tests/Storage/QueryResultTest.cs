@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -231,7 +232,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NewTransactionWithOpenedReaderTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
       Require.ProviderIs(StorageProvider.SqlServer);
 
       using (var session = Domain.OpenSession()) {
@@ -246,7 +246,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task NewTransactionWithOpenedReaderAsyncTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
       Require.ProviderIs(StorageProvider.SqlServer);
 
       using (var session = Domain.OpenSession()) {
@@ -261,7 +260,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EnumerationInInnerTransactionTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
       Require.ProviderIsNot(StorageProvider.SqlServer);
 
       using (var session = Domain.OpenSession()) {
@@ -279,7 +277,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task EnumerationInInnerTransactionAsyncTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
       Require.ProviderIsNot(StorageProvider.SqlServer);
 
       using (var session = Domain.OpenSession()) {
@@ -324,8 +321,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EnumerationInOuterTransactionAfterInnerRollbackTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
-
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
         using (var outerTx = session.OpenTransaction()) {
@@ -341,8 +336,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task EnumerationInOuterTransactionAfterInnerRollbackAsyncTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
-
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
         using (var outerTx = session.OpenTransaction()) {
@@ -386,8 +379,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EnumerationInOuterTransactionAfterInnerCommitTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
-
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
         using (var outerTx = session.OpenTransaction()) {
@@ -420,8 +411,6 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EnumerationInOuterTransactionAfterVoidInnerCommitTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
-
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
         using (var outerTx = session.OpenTransaction()) {

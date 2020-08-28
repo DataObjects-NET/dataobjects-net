@@ -106,8 +106,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async Task EnumerationInInnerTransactionTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
-
       await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
         QueryResult<Discepline> result;
         using (var outerTx = session.OpenTransaction()) {
@@ -144,8 +142,6 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
     [Test]
     public async Task EnumerationInOuterTransactionAfterInnerRollbackTest()
     {
-      Require.AllFeaturesSupported(Orm.Providers.ProviderFeatures.Savepoints);
-
       await using (var session = await Domain.OpenSessionAsync(SessionConfiguration)) {
         QueryResult<Discepline> result;
         using (var outerTx = session.OpenTransaction()) {
