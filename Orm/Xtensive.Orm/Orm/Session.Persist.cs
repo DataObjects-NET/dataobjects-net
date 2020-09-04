@@ -111,8 +111,6 @@ namespace Xtensive.Orm
         return;
       }
 
-      EnsureAllAsyncQueriesFinished();
-
       var performPinning = pinner.RootCount > 0;
       if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) {
         switch (reason) {
@@ -337,12 +335,6 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
-    }
-
-    private void EnsureAllAsyncQueriesFinished()
-    {
-      if (CommandProcessorContextProvider.AliveContextCount > 0)
-        throw new InvalidOperationException(Strings.ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete);
     }
   }
 }
