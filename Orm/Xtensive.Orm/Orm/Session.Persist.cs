@@ -58,6 +58,11 @@ namespace Xtensive.Orm
     /// </summary>
     /// <remarks>
     /// <para>
+    /// Multiple active operations in the same session instance are not supported. Use
+    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// another method in this session.
+    /// </para>
+    /// <para>
     /// This method should be called to ensure that all delayed
     /// updates are flushed to the storage.
     /// </para>
@@ -105,8 +110,6 @@ namespace Xtensive.Orm
       if (IsPersisting || EntityChangeRegistry.Count==0) {
         return;
       }
-
-      EnsureAllAsyncQueriesFinished();
 
       var performPinning = pinner.RootCount > 0;
       if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) {
@@ -332,12 +335,6 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
-    }
-
-    private void EnsureAllAsyncQueriesFinished()
-    {
-      if (CommandProcessorContextProvider.AliveContextCount > 0)
-        throw new InvalidOperationException(Strings.ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete);
     }
   }
 }
