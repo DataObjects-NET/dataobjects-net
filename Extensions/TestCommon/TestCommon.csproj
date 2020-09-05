@@ -4,7 +4,6 @@
     <DocumentationFile />
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>

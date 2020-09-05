@@ -5,7 +5,6 @@
     <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests.Manual</AssemblyName>
     <SignAssembly>true</SignAssembly>
@@ -14,10 +13,10 @@
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <DefineConstants>TRACE;NETCOREAPP</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>

@@ -3,10 +3,9 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <IsPackable>false</IsPackable>
     <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
-    <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Xtensive</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>

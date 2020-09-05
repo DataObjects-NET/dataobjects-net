@@ -8,7 +8,6 @@
     <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
     <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
     <CopyDocumentationFileToOutputDirectory>false</CopyDocumentationFileToOutputDirectory>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageId>tmp</PackageId>
     <PackageOutputPath>$(BaseIntermediateOutputPath)</PackageOutputPath>

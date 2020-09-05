@@ -5,7 +5,6 @@
     <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>Xtensive</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
@@ -13,10 +12,10 @@
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>TRACE;DEBUG;NETCOREAPP</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
-    <DefineConstants>TRACE;NETCOREAPP</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />

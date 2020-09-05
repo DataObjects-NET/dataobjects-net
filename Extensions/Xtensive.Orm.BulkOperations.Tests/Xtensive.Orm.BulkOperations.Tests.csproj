@@ -3,9 +3,6 @@
     <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
     <DocumentationFile />
   </PropertyGroup>
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-  </PropertyGroup>
   <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />

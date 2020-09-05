@@ -6,7 +6,6 @@
     <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
