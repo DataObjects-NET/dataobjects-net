@@ -66,8 +66,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
-    <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
+    <None Include="$(DoPackageIcon)" Visible="false" >
+      <PackagePath>.</PackagePath>
+      <Pack>true</Pack>
+    </None>
+    <None Include="$(DoRevFile)" Visible="false" Condition="Exists('$(DoRevFile)')" >
+      <PackagePath>.</PackagePath>
+      <Pack>true</Pack>
+    </None>
   </ItemGroup>
   <Target Name="ExportRev" Condition="Exists('.git\index') AND '$(Configuration)' == 'Release'">
     <MakeDir Directories="_Build" />
