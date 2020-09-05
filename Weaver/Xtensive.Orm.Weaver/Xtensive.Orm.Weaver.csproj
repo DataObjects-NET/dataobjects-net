@@ -4,8 +4,8 @@
     <IsPackable>false</IsPackable>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\..\Orm\Orm.snk</AssemblyOriginatorKeyFile>
-    <OutputPath>..\..\_Build\$(Configuration)\tools\weaver\</OutputPath>
+    <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
+    <OutputPath>$(SolutionDir)_Build\$(Configuration)\tools\weaver\</OutputPath>
     <RollForward>Major</RollForward>
   </PropertyGroup>
   <ItemGroup>

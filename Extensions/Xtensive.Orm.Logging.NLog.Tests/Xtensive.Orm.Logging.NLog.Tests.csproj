@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
+    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
     <DocumentationFile />
   </PropertyGroup>
   <ItemGroup>

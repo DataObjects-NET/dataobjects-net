@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\$(Configuration)\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
+    <DocumentationFile>$(SolutionDir)_Build\$(Configuration)\lib\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <PackageId>Xtensive.Orm.Tracking</PackageId>
@@ -10,7 +10,7 @@
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds tracking functionality for $(DoProductName)-powered projects</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Extensions.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />

@@ -3,15 +3,15 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
     <IsPackable>false</IsPackable>
-    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
+    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
-  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
+  <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <!-- <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.3.0" /> -->
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />

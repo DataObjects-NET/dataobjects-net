@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\$(Configuration)\lib\$(TargetFramework)\Xtensive.Orm.SqlServer.xml</DocumentationFile>
+    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
+    <DocumentationFile>$(SolutionDir)_Build\$(Configuration)\lib\$(TargetFramework)\Xtensive.Orm.SqlServer.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Xtensive</RootNamespace>
@@ -11,7 +11,7 @@
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for MS SQL Server to $(DoProductName)</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>

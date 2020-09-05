@@ -2,13 +2,13 @@
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <IsPackable>false</IsPackable>
-    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
+    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Xtensive</RootNamespace>
     <AssemblyName>Xtensive.Orm.Tests.Manual</AssemblyName>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
@@ -18,7 +18,7 @@
   <PropertyGroup Condition="'$(Configuration)' == 'Release'">
     <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
-  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
+  <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
