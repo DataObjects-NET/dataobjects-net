@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.27
 
@@ -924,13 +924,16 @@ namespace Xtensive.Orm.Linq
 
       var result = new List<Expression>();
       foreach (PersistentFieldExpression fieldExpression in structureFields) {
-        if (!structureType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Contains(fieldExpression.UnderlyingProperty))
-          if (!context.Model.Types[structureType].Fields[fieldExpression.Name].IsDynalicallyDefined)
+        if (!structureType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Contains(fieldExpression.UnderlyingProperty)) {
+          if (!context.Model.Types[structureType].Fields[fieldExpression.Name].IsDynamicallyDefined) {
             continue;
+          }
+        }
         Type nullableType = fieldExpression.Type.ToNullable();
         Expression propertyAccessorExpression;
-        if (fieldExpression.UnderlyingProperty!=null)
+        if (fieldExpression.UnderlyingProperty!=null) {
           propertyAccessorExpression = Expression.MakeMemberAccess(Expression.Convert(expression, structureType), fieldExpression.UnderlyingProperty);
+        }
         else {
           var attributes = structureType.GetCustomAttributes(typeof(DefaultMemberAttribute), true);
           var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
@@ -945,23 +948,23 @@ namespace Xtensive.Orm.Linq
             nullableType));
 
         switch (fieldExpression.GetMemberType()) {
-        case MemberType.Entity:
-          IEnumerable<Type> keyFieldTypes = context
-            .Model
-            .Types[fieldExpression.Type]
-            .Key
-            .TupleDescriptor;
-          result.AddRange(GetEntityFields(memberExpression, keyFieldTypes));
-          break;
-        case MemberType.Structure:
-          var structureFieldExpression = (StructureFieldExpression) fieldExpression;
-          result.AddRange(GetStructureFields(memberExpression, structureFieldExpression.Fields, structureFieldExpression.Type));
-          break;
-        case MemberType.Primitive:
-          result.Add(memberExpression);
-          break;
-        default:
-          throw new NotSupportedException();
+          case MemberType.Entity:
+            IEnumerable<Type> keyFieldTypes = context
+              .Model
+              .Types[fieldExpression.Type]
+              .Key
+              .TupleDescriptor;
+            result.AddRange(GetEntityFields(memberExpression, keyFieldTypes));
+            break;
+          case MemberType.Structure:
+            var structureFieldExpression = (StructureFieldExpression) fieldExpression;
+            result.AddRange(GetStructureFields(memberExpression, structureFieldExpression.Fields, structureFieldExpression.Type));
+            break;
+          case MemberType.Primitive:
+            result.Add(memberExpression);
+            break;
+          default:
+            throw new NotSupportedException();
         }
       }
       return result;
