@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.08.10
 
@@ -66,6 +66,16 @@ namespace Xtensive.Orm
     /// Occurs when <see cref="Session"/> persisted.
     /// </summary>
     public event EventHandler Persisted;
+
+    /// <summary>
+    /// Occurs when <see cref="Session"/> is about to <see cref="Orm.Session.CancelChanges()"/> changes.
+    /// </summary>
+    public event EventHandler ChangesCanceling;
+
+    /// <summary>
+    /// Occurs when changes are canceled.
+    /// </summary>
+    public event EventHandler ChangesCanceled;
 
     /// <summary>
     /// Occurs when local <see cref="Key"/> created.
@@ -277,6 +287,18 @@ namespace Xtensive.Orm
     {
       if (Persisted!=null && AreNotificationsEnabled())
         Persisted(this, EventArgs.Empty);
+    }
+
+    internal void NotifyChangesCanceling()
+    {
+      if (ChangesCanceling != null && AreNotificationsEnabled())
+        ChangesCanceling(this, EventArgs.Empty);
+    }
+
+    internal void NotifyChangesCanceled()
+    {
+      if (ChangesCanceled != null && AreNotificationsEnabled())
+        ChangesCanceled(this, EventArgs.Empty);
     }
 
     internal void NotifyKeyGenerated(Key key)

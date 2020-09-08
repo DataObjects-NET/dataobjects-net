@@ -5,6 +5,7 @@
 // Created:    2013.08.20
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using Mono.Cecil;
 
@@ -115,12 +116,15 @@ namespace Xtensive.Orm.Weaver.Stages
       assemblyNameReference = context.TargetModule.AssemblyReferences
         .FirstOrDefault(r => comparer.Equals(r.FullName, WellKnown.OrmAssemblyFullName));
 
-      if (assemblyNameReference!=null)
+      if (assemblyNameReference != null) {
         return true;
+      }
 
-      // check whether project had reference to Xtensive.Orm assembly.
-      if (!context.Configuration.ReferencedAssemblies.Reverse().Any(ra => ra.EndsWith(WellKnown.OrmAssemblyShortName + ".dll", StringComparison.InvariantCultureIgnoreCase)))
+      // check whether project had reference to Xtensive.Orm assembly
+      // but omitted during project compilation as not used.
+      if (!IsOrmReferenceOmmitedByCompiler(context.Configuration.ReferencedAssemblies)) {
         return false;
+      }
 
       // if target module has't got reference to the assembly and there was reference to the assembly in project
       // then probably some of target module referenses references the assembly.
@@ -131,8 +135,27 @@ namespace Xtensive.Orm.Weaver.Stages
         .SelectMany(m => m.AssemblyReferences)
         .FirstOrDefault(ar => comparer.Equals(ar.FullName, WellKnown.OrmAssemblyFullName));
 
-      if (assemblyNameReference!=null)
+      if (assemblyNameReference != null) {
+        context.ShouldAddReferenceToOrm = true;
         return true;
+      }
+      return false;
+    }
+
+    private bool IsOrmReferenceOmmitedByCompiler(IList<string> projectReferences)
+    {
+      if (projectReferences.Count == 0) {
+        return false;
+      }
+      var lastItemIndex = projectReferences.Count - 1;
+
+      // Orm assembly tends to be at the end of the list
+      string searchCreteria = WellKnown.OrmAssemblyShortName + ".dll";
+      for (int i = lastItemIndex; i >= 0; i--) {
+        if (projectReferences[i].EndsWith(searchCreteria, StringComparison.OrdinalIgnoreCase)) {
+          return true;
+        }
+      }
       return false;
     }
 

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.09.29
 
@@ -53,6 +53,7 @@ namespace Xtensive.Orm.Linq.Expressions
         // Do not convert to LINQ. We intentionally avoiding closure creation here
         processedFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
       }
+
       result.Fields = processedFields;
       result.isNullable = isNullable;
       return result;
@@ -111,6 +112,7 @@ namespace Xtensive.Orm.Linq.Expressions
         // Do not convert to LINQ. We intentionally avoiding closure creation here
         processedFields.Add((PersistentFieldExpression) field.BindParameter(parameter, processedExpressions));
       }
+
       result.Fields = processedFields;
       return result;
     }
@@ -146,17 +148,24 @@ namespace Xtensive.Orm.Linq.Expressions
         // Do not convert to LINQ. We intentionally avoiding closure creation here
         destinationFields.Add(BuildNestedFieldExpression(field, mapping.Offset));
       }
+
       return result;
     }
 
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
     {
-      if (nestedField.IsPrimitive)
+      if (nestedField.IsPrimitive) {
         return FieldExpression.CreateField(nestedField, offset);
-      if (nestedField.IsStructure)
+      }
+
+      if (nestedField.IsStructure) {
         return StructureFieldExpression.CreateStructure(nestedField, offset);
-      if (nestedField.IsEntity)
+      }
+
+      if (nestedField.IsEntity) {
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
+      }
+
       throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 

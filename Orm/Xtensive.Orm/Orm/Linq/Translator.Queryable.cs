@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.27
 
@@ -26,6 +26,9 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
+    private static readonly Type KeyType = typeof(Key);
+    private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
+
     public TranslatorState state;
     private readonly TranslatorContext context;
 
@@ -1268,11 +1271,9 @@ namespace Xtensive.Orm.Linq
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
       using (state.CreateScope()) {
-        if (source.IsLocalCollection(context) &&
-            (source.Type.IsGenericType && source.Type.GetGenericArguments()[0].IsAssignableFrom(typeof (Key))) ||
-            (source.Type.IsAssignableFrom(typeof (Key)))) {
-          var localCollecctionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression)predicate.Body);
-          state.TypeOfEntityStoredInKey = localCollecctionKeyType;
+        if (source.IsLocalCollection(context) && IsKeyCollection(source.Type)) {
+          var localCollectionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body);
+          state.TypeOfEntityStoredInKey = localCollectionKeyType;
         }
         state.IncludeAlgorithm = IncludeAlgorithm.Auto;
         visitedSource = VisitSequence(source);
@@ -1576,6 +1577,12 @@ namespace Xtensive.Orm.Linq
         var lambda = FastExpression.Lambda(Expression.Not(Expression.Call(containsMethod, setA, parameter)), parameter);
         return VisitAll(setB, lambda, isRoot);
       }
+    }
+
+    private bool IsKeyCollection(Type localCollectionType)
+    {
+      return (localCollectionType.IsArray && localCollectionType.GetElementType() == KeyType)
+        || IEnumerableOfKeyType.IsAssignableFrom(localCollectionType);
     }
   }
 }
