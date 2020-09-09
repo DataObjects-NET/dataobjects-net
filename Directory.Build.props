@@ -70,5 +70,5 @@
     <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
   </Target>
 
-
+  <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
 </Project>
