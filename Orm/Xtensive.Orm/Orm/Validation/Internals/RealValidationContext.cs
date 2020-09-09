@@ -1,6 +1,6 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.09.12
 
@@ -148,19 +148,23 @@ namespace Xtensive.Orm.Validation
     private void GetValidationErrors(Entity target, List<ValidationResult> output, ValidationReason? validationReason = null)
     {
       foreach (var field in target.TypeInfo.Fields) {
-        var value = target.GetFieldValue(field);
+        if (!field.HasValidators)
+          continue;
+
+        object value = null;
+        bool isValueRetrieved = false;
         foreach (var validator in field.Validators) {
           if (validationReason.HasValue && validationReason.Value==ValidationReason.Commit && validator.SkipOnTransactionCommit)
             continue;
           if (validator.ValidateOnlyIfModified) {
-            if(changedFields==null)
-              continue;
-            HashSet<FieldInfo> fieldSet;
-            if (!changedFields.TryGetValue(target, out fieldSet))
-              continue;
-            if(!fieldSet.Contains(field))
+            if (ShouldSkipModifiedOnlyValidator(target, field))
               continue;
           }
+          if (!isValueRetrieved) {
+            value = target.GetFieldValue(field);
+            isValueRetrieved = true;
+          }
+
           var result = validator.Validate(target, value);
           if (result.IsError)
             output.Add(result);
@@ -184,6 +188,13 @@ namespace Xtensive.Orm.Validation
       default:
         throw new ArgumentOutOfRangeException("reason");
       }
+    }
+
+    private bool ShouldSkipModifiedOnlyValidator(Entity target, FieldInfo field)
+    {
+      return changedFields==null ||
+        !changedFields.TryGetValue(target, out var fieldSet) ||
+        !fieldSet.Contains(field);
     }
   }
 }

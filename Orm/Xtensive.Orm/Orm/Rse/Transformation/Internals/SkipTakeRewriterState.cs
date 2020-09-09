@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2010.01.21
 
@@ -10,6 +10,20 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class SkipTakeRewriterState
   {
+    internal readonly ref struct SkipTakeRewriterScope
+    {
+      private readonly SkipTakeRewriter rewriter;
+      private readonly SkipTakeRewriterState prevState;
+
+      public void Dispose() => rewriter.State = prevState;
+
+      public SkipTakeRewriterScope(SkipTakeRewriter rewriter, SkipTakeRewriterState prevState)
+      {
+        this.rewriter = rewriter;
+        this.prevState = prevState;
+      }
+    }
+
     private readonly SkipTakeRewriter rewriter;
 
     public Func<int> Skip { get; private set; }
@@ -52,20 +66,6 @@ namespace Xtensive.Orm.Rse.Transformation
         var value = valueSelector();
         return value > 0 ? value : 0;
       };
-    }
-
-    internal readonly ref struct SkipTakeRewriterScope
-    {
-      private readonly SkipTakeRewriter rewriter;
-      private readonly SkipTakeRewriterState prevState;
-
-      public void Dispose() => rewriter.State = prevState;
-
-      public SkipTakeRewriterScope(SkipTakeRewriter rewriter, SkipTakeRewriterState prevState)
-      {
-        this.rewriter = rewriter;
-        this.prevState = prevState;
-      }
     }
 
     public SkipTakeRewriterScope CreateScope()

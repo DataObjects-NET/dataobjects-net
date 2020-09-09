@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.06.30
 
@@ -15,6 +15,26 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal class LinqBindingCollection : BindingCollection<ParameterExpression, ProjectionExpression>
   {
+    internal readonly ref struct ParameterScope
+    {
+      private readonly LinqBindingCollection owner;
+      private readonly IReadOnlyCollection<ParameterExpression> parameters;
+
+      public void Dispose()
+      {
+        var linkedParameters = owner.linkedParameters;
+        foreach (var parameter in parameters) {
+          linkedParameters.Remove(parameter);
+        }
+      }
+
+      public ParameterScope(LinqBindingCollection owner, IReadOnlyCollection<ParameterExpression> parameters)
+      {
+        this.owner = owner;
+        this.parameters = parameters;
+      }
+    }
+
     private readonly Dictionary<ParameterExpression, IEnumerable<ParameterExpression>> linkedParameters
       = new Dictionary<ParameterExpression, IEnumerable<ParameterExpression>>();
 
@@ -54,26 +74,6 @@ namespace Xtensive.Orm.Linq
             base.ReplaceBound(parameter, newProjection);
           }
         }
-      }
-    }
-
-    internal readonly ref struct ParameterScope
-    {
-      private readonly LinqBindingCollection owner;
-      private readonly IReadOnlyCollection<ParameterExpression> parameters;
-
-      public void Dispose()
-      {
-        var linkedParameters = owner.linkedParameters;
-        foreach (var parameter in parameters) {
-          linkedParameters.Remove(parameter);
-        }
-      }
-
-      public ParameterScope(LinqBindingCollection owner, IReadOnlyCollection<ParameterExpression> parameters)
-      {
-        this.owner = owner;
-        this.parameters = parameters;
       }
     }
 

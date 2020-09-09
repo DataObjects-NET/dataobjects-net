@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Linq
       if (association.Multiplicity==Multiplicity.OneToMany) {
         var targetField = association.TargetType.Fields[association.Reversed.OwnerField.Name];
         var whereParameter = Expression.Parameter(elementType, "p");
-        var expression = BuildExpressionForFieldRecursively(targetField, whereParameter);
+        var expression = BuildExpressionForFieldRecursivly(targetField, whereParameter);
         var whereExpression = Expression.Equal(
           Expression.Property(
             expression,
@@ -188,10 +188,10 @@ namespace Xtensive.Orm.Linq
       return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
     }
 
-    private static Expression BuildExpressionForFieldRecursively(FieldInfo field, Expression parameter)
+    private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)
     {
       if (field.IsNested) {
-        var expression = BuildExpressionForFieldRecursively(field.Parent, parameter);
+        var expression = BuildExpressionForFieldRecursivly(field.Parent, parameter);
         return Expression.Property(expression, field.DeclaringField.UnderlyingProperty);
       }
       return Expression.Property(parameter, field.DeclaringField.UnderlyingProperty);
