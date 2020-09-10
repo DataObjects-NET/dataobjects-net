@@ -28,28 +28,25 @@ namespace Xtensive.Orm
     /// <summary>
     /// <see cref="TransactionScope"/> instance that is used for all <see cref="IsVoid">nested</see> scopes.
     /// </summary>
-    public static TransactionScope VoidScopeInstance { get { return VoidScope; } }
+    public static TransactionScope VoidScopeInstance => VoidScope;
 
     /// <summary>
     /// Gets the transaction this scope controls.
     /// </summary>
-    public Transaction Transaction { get; private set; }
+    public Transaction Transaction { get; }
 
     /// <summary>
     /// Gets a value indicating whether this scope is void,
     /// i.e. is included into another <see cref="TransactionScope"/> 
     /// and therefore does nothing on opening and disposing.
     /// </summary>
-    public bool IsVoid { get { return this==VoidScopeInstance; } }
+    public bool IsVoid => this == VoidScopeInstance;
 
     /// <summary>
     /// Completes this scope. 
     /// This method can be called multiple times; if so, only the first call makes sense.
     /// </summary>
-    public void Complete()
-    {
-      IsCompleted = true;
-    }
+    public void Complete() => IsCompleted = true;
 
     /// <inheritdoc/>
     public void Dispose() => DisposeImpl(false).GetAwaiter().GetResult();
@@ -65,7 +62,7 @@ namespace Xtensive.Orm
 
       isDisposed = true;
       try {
-        if (Transaction==null || !Transaction.State.IsActive()) {
+        if (Transaction == null || !Transaction.State.IsActive()) {
           return;
         }
 
