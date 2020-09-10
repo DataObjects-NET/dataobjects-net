@@ -18,37 +18,38 @@ namespace Xtensive.Orm.Linq.Rewriters
   {
     private readonly CompiledQueryProcessingScope compiledQueryScope;
 
-    protected override Expression VisitUnknown(Expression e)
-    {
-      return e;
-    }
+    protected override Expression VisitUnknown(Expression e) => e;
 
     protected override Expression VisitMemberAccess(MemberExpression memberExpression)
     {
       if (memberExpression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
-        && memberExpression.Expression!=null
-        && memberExpression.Expression.NodeType==ExpressionType.Constant
-        && memberExpression.Member!=null
+        && memberExpression.Expression != null
+        && memberExpression.Expression.NodeType == ExpressionType.Constant
+        && memberExpression.Member != null
         && memberExpression.Member.ReflectedType.IsClosure()
-        && memberExpression.Member.MemberType==MemberTypes.Field) {
+        && memberExpression.Member.MemberType == MemberTypes.Field) {
         var fieldInfo = (FieldInfo) memberExpression.Member;
         if (!fieldInfo.FieldType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
-          if (compiledQueryScope!=null)
-            throw new InvalidOperationException(String.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement, fieldInfo.Name));
+          if (compiledQueryScope != null) {
+            throw new InvalidOperationException(string.Format(Strings.ExUnableToUseIQueryableXInQueryExecuteStatement,
+              fieldInfo.Name));
+          }
+
           var constantValue = ((ConstantExpression) memberExpression.Expression).Value;
           var queryable = (IQueryable) fieldInfo.GetValue(constantValue);
-          if (queryable.Expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT))
+          if (queryable.Expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)) {
             return Visit(queryable.Expression);
+          }
+
           return queryable.Expression;
         }
       }
+
       return base.VisitMemberAccess(memberExpression);
     }
 
-    public static Expression Rewrite(Expression e, CompiledQueryProcessingScope compiledQueryScope)
-    {
-      return new ClosureAccessRewriter(compiledQueryScope).Visit(e);
-    }
+    public static Expression Rewrite(Expression e, CompiledQueryProcessingScope compiledQueryScope) =>
+      new ClosureAccessRewriter(compiledQueryScope).Visit(e);
 
     // Constructors
 
