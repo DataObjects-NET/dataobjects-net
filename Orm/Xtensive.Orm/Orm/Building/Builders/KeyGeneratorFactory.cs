@@ -31,40 +31,40 @@ namespace Xtensive.Orm.Building.Builders
       .Concat(new[] { WellKnownTypes.Guid, WellKnownTypes.String })
       .ToArray();
 
-    public static bool IsSupported(Type valueType)
-    {
-      return SupportedTypes.Contains(valueType);
-    }
+    public static bool IsSupported(Type valueType) => SupportedTypes.Contains(valueType);
 
-    public static bool IsSequenceBacked(Type valueType)
-    {
-      return SupportedNumericTypes.Contains(valueType);
-    }
+    public static bool IsSequenceBacked(Type valueType) => SupportedNumericTypes.Contains(valueType);
 
     private static Type GetGeneratorType(Type valueType)
     {
-      if (IsSequenceBacked(valueType))
-        return typeof (StorageSequentalGenerator<>).MakeGenericType(valueType);
+      if (IsSequenceBacked(valueType)) {
+        return typeof(StorageSequentalGenerator<>).MakeGenericType(valueType);
+      }
 
-      if (valueType==WellKnownTypes.Guid)
-        return typeof (GuidGenerator);
+      if (valueType == WellKnownTypes.Guid) {
+        return typeof(GuidGenerator);
+      }
 
-      if (valueType==WellKnownTypes.String)
-        return typeof (StringGenerator);
+      if (valueType == WellKnownTypes.String) {
+        return typeof(StringGenerator);
+      }
 
       throw TypeNotSupported(valueType);
     }
 
     private static Type GetTemporaryGeneratorType(Type valueType)
     {
-      if (IsSequenceBacked(valueType))
-        return typeof (TemporarySequentalGenerator<>).MakeGenericType(valueType);
+      if (IsSequenceBacked(valueType)) {
+        return typeof(TemporarySequentalGenerator<>).MakeGenericType(valueType);
+      }
 
-      if (valueType==WellKnownTypes.Guid)
-        return typeof (GuidGenerator);
+      if (valueType == WellKnownTypes.Guid) {
+        return typeof(GuidGenerator);
+      }
 
-      if (valueType==WellKnownTypes.String)
-        return typeof (StringGenerator);
+      if (valueType == WellKnownTypes.String) {
+        return typeof(StringGenerator);
+      }
 
       throw TypeNotSupported(valueType);
     }
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Building.Builders
     public static IEnumerable<ServiceRegistration> GetRegistrations(BuildingContext context)
     {
       var standardRegistrations = context.Model.Hierarchies.Select(h => h.Key)
-        .Where(key => key.GeneratorKind==KeyGeneratorKind.Default && key.IsFirstAmongSimilarKeys)
+        .Where(key => key.GeneratorKind == KeyGeneratorKind.Default && key.IsFirstAmongSimilarKeys)
         .SelectMany(key => GetStandardRegistrations(key.GeneratorName, key.SingleColumnType));
 
       var userRegistrations = context.Configuration.Types.KeyGenerators
@@ -90,10 +90,7 @@ namespace Xtensive.Orm.Building.Builders
       return userRegistrations.Concat(standardRegistrations);
     }
 
-    private static NotSupportedException TypeNotSupported(Type valueType)
-    {
-      return new NotSupportedException(String.Format(
-        "Type '{0}' is not supported by standard key generators", valueType));
-    }
+    private static NotSupportedException TypeNotSupported(Type valueType) =>
+      new NotSupportedException($"Type '{valueType}' is not supported by standard key generators");
   }
 }
