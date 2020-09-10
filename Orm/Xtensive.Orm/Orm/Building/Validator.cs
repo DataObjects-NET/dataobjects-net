@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text.RegularExpressions;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Internals;
@@ -17,10 +16,10 @@ namespace Xtensive.Orm.Building
 {
   internal class Validator
   {
-    private readonly HashSet<Type> ValidFieldTypes = new HashSet<Type>();
-    private readonly Regex ColumnNamingRule;
-    private readonly Regex TypeNamingRule;
-    private readonly Regex FieldNamingRule;
+    private readonly HashSet<Type> validFieldTypes;
+    private readonly Regex columnNamingRule;
+    private readonly Regex typeNamingRule;
+    private readonly Regex fieldNamingRule;
 
     /// <summary>
     /// Determines whether the specified name is valid.
@@ -32,8 +31,9 @@ namespace Xtensive.Orm.Building
     /// </returns>
     public void ValidateName(string name, ValidationRule rule)
     {
-      if (String.IsNullOrEmpty(name))
-        throw new DomainBuilderException(String.Format(Strings.ExXNameCantBeEmpty, rule));
+      if (string.IsNullOrEmpty(name)) {
+        throw new DomainBuilderException(string.Format(Strings.ExXNameCantBeEmpty, rule));
+      }
 
       Regex namingRule;
       switch (rule) {
@@ -41,71 +41,82 @@ namespace Xtensive.Orm.Building
         case ValidationRule.Type:
         case ValidationRule.Schema:
         case ValidationRule.Database:
-          namingRule = TypeNamingRule;
+          namingRule = typeNamingRule;
           break;
         case ValidationRule.Field:
-          namingRule = FieldNamingRule;
+          namingRule = fieldNamingRule;
           break;
         case ValidationRule.Column:
-          namingRule = ColumnNamingRule;
+          namingRule = columnNamingRule;
           break;
         default:
           throw new ArgumentOutOfRangeException();
       }
-      if (!namingRule.IsMatch(name))
+
+      if (!namingRule.IsMatch(name)) {
         throw new DomainBuilderException(string.Format(Strings.ExXIsNotValidNameForX, name, rule));
+      }
     }
 
     public void ValidateHierarchyRoot(DomainModelDef modelDef, TypeDef typeDef)
     {
       // Ensures that typeDef doesn't belong to another hierarchy
-      TypeDef root = modelDef.FindRoot(typeDef);
-      if (root!=null && typeDef!=root)
+      var root = modelDef.FindRoot(typeDef);
+      if (root != null && typeDef != root) {
         throw new DomainBuilderException(
-          String.Format(Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,
+          string.Format(Strings.ExTypeDefXIsAlreadyBelongsToHierarchyWithTheRootY,
             typeDef.UnderlyingType.GetFullName(), root.UnderlyingType.GetFullName()));
+      }
 
       // Ensures that typeDef is not an ancestor of any other hierarchy root
-      foreach (HierarchyDef hierarchy in modelDef.Hierarchies)
-        if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType))
+      foreach (var hierarchy in modelDef.Hierarchies) {
+        if (hierarchy.Root.UnderlyingType.IsSubclassOf(typeDef.UnderlyingType)) {
           throw new DomainBuilderException(string.Format(
             Strings.ExXDescendantIsAlreadyARootOfAnotherHierarchy, hierarchy.Root.UnderlyingType));
+        }
+      }
     }
 
     public void ValidateHierarchy(HierarchyDef hierarchyDef)
     {
       var keyFields = hierarchyDef.KeyFields;
 
-      if (keyFields.Count==0)
+      if (keyFields.Count == 0) {
         throw new DomainBuilderException(string.Format(
           Strings.ExHierarchyXDoesntContainAnyKeyFields, hierarchyDef.Root.Name));
+      }
 
       var root = hierarchyDef.Root;
 
-      if (hierarchyDef.KeyGeneratorKind==KeyGeneratorKind.Default) {
+      if (hierarchyDef.KeyGeneratorKind == KeyGeneratorKind.Default) {
         // Default key generator can't produce values with 2 or more fields
-        if (keyFields.Count > 2)
+        if (keyFields.Count > 2) {
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
+        }
+
         // if one of key fields is TypeId field and number of fields == 2 then it is OK
-        if (keyFields.Count==2 && keyFields.Find(f => f.Name==WellKnown.TypeIdFieldName)!=null)
+        if (keyFields.Count == 2 && keyFields.Find(f => f.Name == WellKnown.TypeIdFieldName) != null) {
           throw new DomainBuilderException(Strings.ExDefaultGeneratorCanServeHierarchyWithExactlyOneKeyField);
-        var field = keyFields.FirstOrDefault(f => f.Name!=WellKnown.TypeIdFieldName);
+        }
       }
 
       foreach (var keyField in keyFields) {
 
-        if (keyField==null)
-          throw new DomainBuilderException(String.Format(Strings.ExKeyStructureForXContainsNULLValue, root.Name));
+        if (keyField == null) {
+          throw new DomainBuilderException(string.Format(Strings.ExKeyStructureForXContainsNULLValue, root.Name));
+        }
 
-        FieldDef fieldDef = root.Fields[keyField.Name];
-        if (fieldDef==null)
+        var fieldDef = root.Fields[keyField.Name];
+        if (fieldDef == null) {
           throw new DomainBuilderException(string.Format(Strings.ExKeyFieldXXIsNotFound, root.Name, keyField.Name));
+        }
 
         ValidateFieldType(root, fieldDef.ValueType, true);
 
-        if (fieldDef.IsLazyLoad)
+        if (fieldDef.IsLazyLoad) {
           throw new DomainBuilderException(string.Format(
             Strings.ExFieldXCannotBeLazyLoadAsItIsIncludedInPrimaryKey, fieldDef.Name));
+        }
       }
     }
 
@@ -118,63 +129,88 @@ namespace Xtensive.Orm.Building
         return;
       }
 
-      if (fieldType.IsArray && isKeyField)
-        throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+      if (fieldType.IsArray && isKeyField) {
+        throw new DomainBuilderException(string.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+      }
 
-      if (fieldType.IsPrimitive || fieldType.IsEnum || ValidFieldTypes.Contains(fieldType))
+      if (fieldType.IsPrimitive || fieldType.IsEnum || validFieldTypes.Contains(fieldType)) {
         return;
+      }
 
-      if (fieldType.IsSubclassOf(WellKnownOrmTypes.Entity))
+      if (fieldType.IsSubclassOf(WellKnownOrmTypes.Entity)) {
         return;
+      }
 
       if (fieldType.IsInterface && WellKnownOrmInterfaces.Entity.IsAssignableFrom(fieldType)
-        && fieldType!=WellKnownOrmInterfaces.Entity)
+        && fieldType != WellKnownOrmInterfaces.Entity) {
         return;
+      }
 
       if (fieldType.IsSubclassOf(WellKnownOrmTypes.Structure)) {
-        if (isKeyField)
-          throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+        if (isKeyField) {
+          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+        }
+
         return;
       }
 
       if (fieldType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
-        if (declaringType.IsStructure)
+        if (declaringType.IsStructure) {
           throw new DomainBuilderException(
-            String.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, fieldType.Name));
-        if (isKeyField)
-          throw new DomainBuilderException(String.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+            string.Format(Strings.ExStructuresDoNotSupportFieldsOfTypeX, fieldType.Name));
+        }
+
+        if (isKeyField) {
+          throw new DomainBuilderException(string.Format(Strings.ExKeyFieldCantBeOfXType, fieldType.GetShortName()));
+        }
+
         return;
       }
 
-      throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
+      throw new DomainBuilderException(string.Format(Strings.ExUnsupportedType, fieldType.GetShortName()));
     }
 
     internal void ValidateVersionField(FieldDef field, bool isKeyField)
     {
-      if (isKeyField)
+      if (isKeyField) {
         throw new DomainBuilderException(string.Format(
           Strings.ExPrimaryKeyFieldXCanTBeMarkedAsVersion, field.Name));
-      if (field.IsLazyLoad)
+      }
+
+      if (field.IsLazyLoad) {
         throw new DomainBuilderException(string.Format(
           Strings.ExVersionFieldXCanTBeLazyLoadField, field.Name));
-      if (field.IsEntitySet)
+      }
+
+      if (field.IsEntitySet) {
         throw new DomainBuilderException(string.Format(
           Strings.ExVersionFieldXCanTBeOfYType, field.Name, field.ValueType.GetShortName()));
-      if (field.ValueType.IsArray)
+      }
+
+      if (field.ValueType.IsArray) {
         throw new DomainBuilderException(string.Format(
           Strings.ExVersionFieldXCanTBeOfYType, field.Name, field.ValueType.GetShortName()));
-      if (field.IsSystem)
+      }
+
+      if (field.IsSystem) {
         throw new DomainBuilderException(string.Format(
           Strings.ExVersionFieldXCanTBeSystemField, field.Name));
-      if (field.IsTypeId)
+      }
+
+      if (field.IsTypeId) {
         throw new DomainBuilderException(string.Format(
           Strings.VersionFieldXCanTBeTypeIdField, field.Name));
-      if (field.IsTypeDiscriminator)
+      }
+
+      if (field.IsTypeDiscriminator) {
         throw new DomainBuilderException(string.Format(
           Strings.VersionFieldXCanTBeTypeIdField, field.Name));
-      if ((field.Attributes & (FieldAttributes.AutoVersion | FieldAttributes.ManualVersion )) > 0 && field.IsStructure)
+      }
+
+      if ((field.Attributes & (FieldAttributes.AutoVersion | FieldAttributes.ManualVersion)) > 0 && field.IsStructure) {
         throw new DomainBuilderException(string.Format(
           Strings.ExUnableToApplyVersionOnFieldXOfTypeY, field.Name, field.ValueType.GetShortName()));
+      }
     }
 
     internal void ValidateType(TypeDef typeDef, HierarchyDef hierarchyDef)
@@ -183,70 +219,80 @@ namespace Xtensive.Orm.Building
 
     public void EnsureTypeIsPersistent(Type type)
     {
-      if (type.IsClass && type.IsSubclassOf(WellKnownOrmTypes.Persistent))
+      if (type.IsClass && type.IsSubclassOf(WellKnownOrmTypes.Persistent)) {
         return;
+      }
 
-      if (type.IsInterface && WellKnownOrmInterfaces.Entity.IsAssignableFrom(type))
+      if (type.IsInterface && WellKnownOrmInterfaces.Entity.IsAssignableFrom(type)) {
         return;
+      }
 
-      throw new DomainBuilderException(String.Format(Strings.ExUnsupportedType, type));
+      throw new DomainBuilderException(string.Format(Strings.ExUnsupportedType, type));
     }
 
     public void ValidateStructureField(TypeDef typeDef, FieldDef fieldDef)
     {
-      if (fieldDef.ValueType==typeDef.UnderlyingType)
-        throw new DomainBuilderException(String.Format(Strings.ExStructureXCantContainFieldOfTheSameType, typeDef.Name));
+      if (fieldDef.ValueType == typeDef.UnderlyingType) {
+        throw new DomainBuilderException(
+          string.Format(Strings.ExStructureXCantContainFieldOfTheSameType, typeDef.Name));
+      }
     }
 
     public void ValidateEntitySetField(TypeDef typeDef, FieldDef fieldDef)
     {
       // Restriction for EntitySet properties only
-      if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade || fieldDef.OnTargetRemove == OnRemoveAction.None)
+      if (fieldDef.OnTargetRemove == OnRemoveAction.Cascade || fieldDef.OnTargetRemove == OnRemoveAction.None) {
         throw new DomainBuilderException(string.Format(
           Strings.ExValueIsNotAcceptableForOnTargetRemoveProperty, typeDef.Name, fieldDef.Name, fieldDef.OnTargetRemove));
+      }
     }
 
     /// <exception cref="DomainBuilderException">Field cannot be nullable.</exception>
     internal void EnsureIsNullable(Type valueType)
     {
-      if (!(WellKnownOrmInterfaces.Entity.IsAssignableFrom(valueType) || valueType==WellKnownTypes.String || valueType==WellKnownTypes.ByteArray))
+      if (!(WellKnownOrmInterfaces.Entity.IsAssignableFrom(valueType) || valueType == WellKnownTypes.String
+        || valueType == WellKnownTypes.ByteArray)) {
         throw new DomainBuilderException(string.Format(
           Strings.ExFieldOfTypeXCannotBeNullableForValueTypesConsiderUsingNullableT, valueType));
+      }
     }
 
     // Type initializer
 
     public Validator(IEnumerable<Type> validFieldTypes)
     {
-      ColumnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-      TypeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
-      FieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      columnNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      typeNamingRule = new Regex(@"^[\w][\w\-\.\(\),]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
+      fieldNamingRule = new Regex(@"^[\w][\w\-\.]*$", RegexOptions.Compiled | RegexOptions.CultureInvariant);
 
-      ValidFieldTypes = new HashSet<Type>(validFieldTypes) {WellKnownOrmTypes.Key};
+      this.validFieldTypes = new HashSet<Type>(validFieldTypes) {WellKnownOrmTypes.Key};
     }
 
     public void ValidateHierarchyEquality(TypeDef @interface, HierarchyDef first, HierarchyDef second)
     {
       // TypeId mode must match
-      if (first.IncludeTypeId != second.IncludeTypeId)
+      if (first.IncludeTypeId != second.IncludeTypeId) {
         throw new DomainBuilderException(string.Format(
           Strings.ExImplementorsOfXInterfaceBelongToHierarchiesOneOfWhichIncludesTypeIdButAnotherDoesntYZ,
           @interface.Name, first.Root.Name, second.Root.Name));
+      }
 
       // Number of key fields must match
-      if (first.KeyFields.Count != second.KeyFields.Count)
+      if (first.KeyFields.Count != second.KeyFields.Count) {
         throw new DomainBuilderException(string.Format(
           Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
           @interface.Name, first.Root.Name, second.Root.Name));
+      }
 
       // Type of each key field must match
-      for (int i = 0; i < first.KeyFields.Count; i++) {
+      for (var i = 0; i < first.KeyFields.Count; i++) {
         var masterField = first.Root.Fields[first.KeyFields[i].Name];
         var candidateField = second.Root.Fields[second.KeyFields[i].Name];
-        if (masterField.ValueType != candidateField.ValueType)
+        if (masterField.ValueType != candidateField.ValueType) {
           throw new DomainBuilderException(string.Format(
             Strings.ExImplementorsOfXInterfaceBelongToHierarchiesWithDifferentKeyStructureYZ,
             @interface.Name, first.Root.Name, second.Root.Name));
+        }
       }
     }
   }
