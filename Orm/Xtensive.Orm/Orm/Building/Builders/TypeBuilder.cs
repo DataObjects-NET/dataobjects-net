@@ -45,22 +45,25 @@ namespace Xtensive.Orm.Building.Builders
           MappingName = typeDef.MappingName,
           MappingDatabase = typeDef.MappingDatabase,
           MappingSchema = typeDef.MappingSchema,
-          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type==typeof (IHasVersionRoots)),
+          HasVersionRoots = typeDef.UnderlyingType.GetInterfaces().Any(type => type == typeof(IHasVersionRoots)),
           Validators = typeDef.Validators,
         };
 
-        if (typeInfo.IsEntity && DeclaresOnValidate(typeInfo.UnderlyingType))
+        if (typeInfo.IsEntity && DeclaresOnValidate(typeInfo.UnderlyingType)) {
           typeInfo.Validators.Add(new EntityValidator());
+        }
 
-        if (typeDef.StaticTypeId!=null)
+        if (typeDef.StaticTypeId != null) {
           typeInfo.TypeId = typeDef.StaticTypeId.Value;
+        }
 
         context.Model.Types.Add(typeInfo);
 
         // Registering connections between type & its ancestors
         var node = context.DependencyGraph.TryGetNode(typeDef);
-        if (node!=null) {
-          foreach (var edge in node.OutgoingEdges.Where(e => e.Kind==EdgeKind.Implementation || e.Kind==EdgeKind.Inheritance)) {
+        if (node != null) {
+          foreach (var edge in node.OutgoingEdges.Where(e =>
+            e.Kind == EdgeKind.Implementation || e.Kind == EdgeKind.Inheritance)) {
             var baseType = context.Model.Types[edge.Head.Value.UnderlyingType];
             switch (edge.Kind) {
               case EdgeKind.Inheritance:
@@ -77,18 +80,20 @@ namespace Xtensive.Orm.Building.Builders
           var hierarchyDef = context.ModelDef.FindHierarchy(typeDef);
 
           // Is type a hierarchy root?
-          if (typeInfo.UnderlyingType==hierarchyDef.Root.UnderlyingType) {
+          if (typeInfo.UnderlyingType == hierarchyDef.Root.UnderlyingType) {
             foreach (var keyField in hierarchyDef.KeyFields) {
               var fieldInfo = BuildDeclaredField(typeInfo, typeDef.Fields[keyField.Name]);
               fieldInfo.IsPrimaryKey = true;
             }
+
             typeInfo.Hierarchy = BuildHierarchyInfo(typeInfo, hierarchyDef);
           }
           else {
             var root = context.Model.Types[hierarchyDef.Root.UnderlyingType];
             typeInfo.Hierarchy = root.Hierarchy;
-            foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent==null))
+            foreach (var fieldInfo in root.Fields.Where(f => f.IsPrimaryKey && f.Parent == null)) {
               BuildInheritedField(typeInfo, fieldInfo);
+            }
           }
         }
         else if (typeDef.IsInterface) {
@@ -105,20 +110,25 @@ namespace Xtensive.Orm.Building.Builders
 
     public void BuildTypeDiscriminatorMap(TypeDef typeDef, TypeInfo typeInfo)
     {
-      if (typeDef.TypeDiscriminatorValue!=null) {
-        var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent==null);
-        if (targetField==null)
+      if (typeDef.TypeDiscriminatorValue != null) {
+        var targetField = typeInfo.Fields.SingleOrDefault(f => f.IsTypeDiscriminator && f.Parent == null);
+        if (targetField == null) {
           throw new DomainBuilderException(string.Format(Strings.ExTypeDiscriminatorIsNotFoundForXType, typeInfo.Name));
+        }
+
         if (targetField.IsEntity) {
           targetField = targetField.Fields.First();
           targetField.IsTypeDiscriminator = true;
         }
-        typeInfo.TypeDiscriminatorValue = ValueTypeBuilder.AdjustValue(targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
+
+        typeInfo.TypeDiscriminatorValue =
+          ValueTypeBuilder.AdjustValue(targetField, targetField.ValueType, typeDef.TypeDiscriminatorValue);
         typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterTypeMapping(typeInfo, typeInfo.TypeDiscriminatorValue);
       }
 
-      if (typeDef.IsDefaultTypeInHierarchy)
+      if (typeDef.IsDefaultTypeInHierarchy) {
         typeInfo.Hierarchy.TypeDiscriminatorMap.RegisterDefaultType(typeInfo);
+      }
     }
 
     public void BuildFields(TypeDef typeDef, TypeInfo typeInfo)
@@ -128,49 +138,59 @@ namespace Xtensive.Orm.Building.Builders
           .SelectMany(i => i.Fields)
           .Where(f => !f.IsPrimaryKey && f.Parent == null);
         foreach (var srcField in sourceFields) {
-          if (!typeInfo.Fields.Contains(srcField.Name))
+          if (!typeInfo.Fields.Contains(srcField.Name)) {
             BuildInheritedField(typeInfo, srcField);
+          }
         }
       }
       else {
         var ancestor = typeInfo.GetAncestor();
         if (ancestor != null) {
           foreach (var srcField in ancestor.Fields.Where(f => !f.IsPrimaryKey && f.Parent == null)) {
-            FieldDef fieldDef;
-            if (typeDef.Fields.TryGetValue(srcField.Name, out fieldDef)) {
-              if (fieldDef.UnderlyingProperty == null)
+            if (typeDef.Fields.TryGetValue(srcField.Name, out var fieldDef)) {
+              if (fieldDef.UnderlyingProperty == null) {
                 throw new DomainBuilderException(
-                  String.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, fieldDef.Name, typeInfo.Name));
+                  string.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, fieldDef.Name, typeInfo.Name));
+              }
+
               var getMethod = fieldDef.UnderlyingProperty.GetGetMethod()
                 ?? fieldDef.UnderlyingProperty.GetGetMethod(true);
-              if ((getMethod.Attributes & MethodAttributes.NewSlot) == MethodAttributes.NewSlot)
+              if ((getMethod.Attributes & MethodAttributes.NewSlot) == MethodAttributes.NewSlot) {
                 BuildDeclaredField(typeInfo, fieldDef);
-              else
+              }
+              else {
                 BuildInheritedField(typeInfo, srcField);
+              }
             }
-            else
+            else {
               BuildInheritedField(typeInfo, srcField);
+            }
           }
-          foreach (var pair in ancestor.FieldMap)
+
+          foreach (var pair in ancestor.FieldMap) {
             typeInfo.FieldMap.Add(pair.Key, typeInfo.Fields[pair.Value.Name]);
+          }
         }
       }
 
       foreach (var fieldDef in typeDef.Fields) {
-        FieldInfo field;
-        if (typeInfo.Fields.TryGetValue(fieldDef.Name, out field)) {
-          if (field.ValueType!=fieldDef.ValueType)
+        if (typeInfo.Fields.TryGetValue(fieldDef.Name, out var field)) {
+          if (field.ValueType != fieldDef.ValueType) {
             throw new DomainBuilderException(
-              String.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, fieldDef.Name, typeInfo.Name));
+              string.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, fieldDef.Name, typeInfo.Name));
+          }
         }
-        else
+        else {
           BuildDeclaredField(typeInfo, fieldDef);
+        }
       }
-      typeInfo.Columns.AddRange(typeInfo.Fields.Where(f => f.Column!=null).Select(f => f.Column));
+
+      typeInfo.Columns.AddRange(typeInfo.Fields.Where(f => f.Column != null).Select(f => f.Column));
 
       if (typeInfo.IsEntity && !IsAuxiliaryType(typeInfo)) {
-        foreach (var @interface in typeInfo.GetInterfaces())
+        foreach (var @interface in typeInfo.GetInterfaces()) {
           BuildFieldMap(@interface, typeInfo);
+        }
       }
     }
 
@@ -179,29 +199,33 @@ namespace Xtensive.Orm.Building.Builders
     private void BuildFieldMap(TypeInfo @interface, TypeInfo implementor)
     {
       foreach (var field in @interface.Fields.Where(f => f.IsDeclared)) {
-        string explicitName = context.NameBuilder.BuildExplicitFieldName(field.DeclaringType, field.Name);
-        FieldInfo implField;
-        if (implementor.Fields.TryGetValue(explicitName, out implField))
+        var explicitName = context.NameBuilder.BuildExplicitFieldName(field.DeclaringType, field.Name);
+        if (implementor.Fields.TryGetValue(explicitName, out var implField)) {
           implField.IsExplicit = true;
+        }
         else {
-          if (!implementor.Fields.TryGetValue(field.Name, out implField))
+          if (!implementor.Fields.TryGetValue(field.Name, out implField)) {
             throw new DomainBuilderException(
-              String.Format(Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));
+              string.Format(Strings.TypeXDoesNotImplementYZField, implementor.Name, @interface.Name, field.Name));
+          }
         }
 
         implField.IsInterfaceImplementation = true;
 
-        if (!implementor.FieldMap.ContainsKey(field))
+        if (!implementor.FieldMap.ContainsKey(field)) {
           implementor.FieldMap.Add(field, implField);
-        else
+        }
+        else {
           implementor.FieldMap.Override(field, implField);
+        }
 
         var declaringType = implField.DeclaringType;
         var declaringField = implField.DeclaringField;
         if (implField.IsInherited && declaringType.IsEntity) {
           declaringField.IsInterfaceImplementation = true;
-          if (!declaringType.FieldMap.ContainsKey(field))
+          if (!declaringType.FieldMap.ContainsKey(field)) {
             declaringType.FieldMap.Add(field, declaringField);
+          }
         }
       }
     }
@@ -223,11 +247,13 @@ namespace Xtensive.Orm.Building.Builders
         Validators = fieldDef.Validators,
       };
 
-      if (fieldInfo.IsStructure && DeclaresOnValidate(fieldInfo.ValueType))
+      if (fieldInfo.IsStructure && DeclaresOnValidate(fieldInfo.ValueType)) {
         fieldInfo.Validators.Add(new StructureFieldValidator());
+      }
 
-      if (fieldInfo.IsEntitySet && DeclaresOnValidate(fieldInfo.ValueType))
+      if (fieldInfo.IsEntitySet && DeclaresOnValidate(fieldInfo.ValueType)) {
         fieldInfo.Validators.Add(new EntitySetFieldValidator());
+      }
 
       type.Fields.Add(fieldInfo);
 
@@ -240,39 +266,44 @@ namespace Xtensive.Orm.Building.Builders
         var fields = context.Model.Types[fieldInfo.ValueType].Fields.Where(f => f.IsPrimaryKey);
         // Adjusting default value if any
         if (fields.Count() == 1 && fieldDef.DefaultValue != null) {
-          fieldInfo.DefaultValue = ValueTypeBuilder.AdjustValue(fieldInfo, fields.First().ValueType, fieldDef.DefaultValue);
+          fieldInfo.DefaultValue =
+            ValueTypeBuilder.AdjustValue(fieldInfo, fields.First().ValueType, fieldDef.DefaultValue);
         }
+
         BuildNestedFields(null, fieldInfo, fields);
 
-        if (!IsAuxiliaryType(type))
+        if (!IsAuxiliaryType(type)) {
           AssociationBuilder.BuildAssociation(context, fieldDef, fieldInfo);
+        }
 
         // Adjusting type discriminator field for references
-        if (fieldDef.IsTypeDiscriminator)
+        if (fieldDef.IsTypeDiscriminator) {
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo.Fields.First();
+        }
       }
 
       if (fieldInfo.IsStructure) {
         BuildNestedFields(null, fieldInfo, context.Model.Types[fieldInfo.ValueType].Fields);
         var structureFullTextIndex = context.ModelDef.FullTextIndexes.TryGetValue(fieldInfo.ValueType);
-        if (structureFullTextIndex!=null) {
+        if (structureFullTextIndex != null) {
           var hierarchyTypeInfo = context.Model.Types[fieldInfo.DeclaringType.UnderlyingType];
           var structureTypeInfo = context.Model.Types[fieldInfo.ValueType];
           var currentIndex = context.ModelDef.FullTextIndexes.TryGetValue(hierarchyTypeInfo.UnderlyingType);
-          if (currentIndex==null) {
+          if (currentIndex == null) {
             currentIndex = new FullTextIndexDef(context.ModelDef.Types.TryGetValue(type.UnderlyingType));
             context.ModelDef.FullTextIndexes.Add(currentIndex);
           }
+
           currentIndex.Fields.AddRange(structureFullTextIndex.Fields
             .Select(f => new {
-              fieldInfo.DeclaringType.StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
+              fieldInfo.DeclaringType
+                .StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
               f.IsAnalyzed,
               f.Configuration,
               f.TypeFieldName
             })
             .Select(g => new FullTextFieldDef(g.Name, g.IsAnalyzed) {
-              Configuration = g.Configuration,
-              TypeFieldName = g.TypeFieldName
+              Configuration = g.Configuration, TypeFieldName = g.TypeFieldName
             }));
         }
       }
@@ -281,9 +312,11 @@ namespace Xtensive.Orm.Building.Builders
         fieldInfo.DefaultValue = fieldDef.DefaultValue;
         fieldInfo.DefaultSqlExpression = fieldDef.DefaultSqlExpression;
         fieldInfo.Column = BuildDeclaredColumn(fieldInfo);
-        if (fieldDef.IsTypeDiscriminator)
+        if (fieldDef.IsTypeDiscriminator) {
           type.Hierarchy.TypeDiscriminatorMap.Field = fieldInfo;
+        }
       }
+
       return fieldInfo;
     }
 
@@ -298,8 +331,9 @@ namespace Xtensive.Orm.Building.Builders
 
       BuildNestedFields(inheritedField, field, inheritedField.Fields);
 
-      if (inheritedField.Column!=null)
+      if (inheritedField.Column != null) {
         field.Column = BuildInheritedColumn(field, inheritedField.Column);
+      }
     }
 
     private void BuildNestedFields(FieldInfo source, FieldInfo target, IEnumerable<FieldInfo> fields)
@@ -308,8 +342,10 @@ namespace Xtensive.Orm.Building.Builders
 
       foreach (var field in buffer) {
         var clone = field.Clone();
-        if (target.SkipVersion)
+        if (target.SkipVersion) {
           clone.SkipVersion = true;
+        }
+
         clone.IsSystem = false;
         clone.IsLazyLoad = field.IsLazyLoad || target.IsLazyLoad;
         if (target.IsDeclared) {
@@ -320,39 +356,48 @@ namespace Xtensive.Orm.Building.Builders
             clone.MappingName = target.MappingName;
             clone.DefaultValue = target.DefaultValue;
           }
-          else
+          else {
             clone.MappingName = context.NameBuilder.BuildMappingName(target, field);
+          }
         }
-        if (target.Fields.Contains(clone.Name))
+        if (target.Fields.Contains(clone.Name)) {
           continue;
+        }
+
         clone.Parent = target;
         target.ReflectedType.Fields.Add(clone);
 
         if (field.IsStructure || field.IsEntity) {
           BuildNestedFields(source, clone, field.Fields);
-          foreach (FieldInfo clonedFields in clone.Fields)
+          foreach (var clonedFields in clone.Fields) {
             target.Fields.Add(clonedFields);
+          }
         }
         else {
-          if (field.Column!=null)
+          if (field.Column != null) {
             clone.Column = BuildInheritedColumn(clone, field.Column);
+          }
         }
+
         if (target.IsStructure && clone.IsEntity && !IsAuxiliaryType(clone.ReflectedType)) {
           var origin = context.Model.Associations
             .Find(context.Model.Types[field.ValueType], true)
             .FirstOrDefault(a => a.OwnerField.Equals(field));
-          if (origin!=null && !clone.IsInherited) {
+          if (origin != null && !clone.IsInherited) {
             AssociationBuilder.BuildAssociation(context, origin, clone);
             context.DiscardedAssociations.Add(origin);
           }
         }
-        if (!clone.IsStructure && !clone.IsEntitySet && !target.ReflectedType.IsInterface && 0!=(clone.Attributes & FieldAttributes.Indexed)) {
+
+        if (!clone.IsStructure && !clone.IsEntitySet && !target.ReflectedType.IsInterface
+          && 0 != (clone.Attributes & FieldAttributes.Indexed)) {
           var typeDef = context.ModelDef.Types[target.DeclaringType.UnderlyingType];
           var attribute = new IndexAttribute(clone.Name);
           var index = context.ModelDefBuilder.DefineIndex(typeDef, attribute);
-          if (typeDef.Indexes.Contains(index.Name))
+          if (typeDef.Indexes.Contains(index.Name)) {
             throw new DomainBuilderException(
               string.Format(Strings.ExIndexWithNameXIsAlreadyRegistered, index.Name));
+          }
 
           typeDef.Indexes.Add(index);
           BuildLog.Info(Strings.LogIndexX, index.Name);
@@ -360,23 +405,28 @@ namespace Xtensive.Orm.Building.Builders
       }
     }
 
-    private bool IsAuxiliaryType(TypeInfo type)
+    private static bool IsAuxiliaryType(TypeInfo type)
     {
-      if (!type.IsEntity)
+      if (!type.IsEntity) {
         return false;
+      }
+
       var underlyingBaseType = type.UnderlyingType.BaseType;
-      return underlyingBaseType!=null
+      return underlyingBaseType != null
         && underlyingBaseType.IsGenericType
-          && underlyingBaseType.GetGenericTypeDefinition()==WellKnownOrmTypes.EntitySetItemOfT1T2;
+        && underlyingBaseType.GetGenericTypeDefinition() == WellKnownOrmTypes.EntitySetItemOfT1T2;
     }
 
     private ColumnInfo BuildDeclaredColumn(FieldInfo field)
     {
       ColumnInfo column;
-      if (field.ValueType==WellKnownOrmTypes.Key)
+      if (field.ValueType == WellKnownOrmTypes.Key) {
         column = new ColumnInfo(field, WellKnownTypes.String);
-      else
+      }
+      else {
         column = new ColumnInfo(field);
+      }
+
       column.Name = context.NameBuilder.BuildColumnName(field, column);
       column.IsNullable = field.IsNullable;
 
@@ -397,11 +447,14 @@ namespace Xtensive.Orm.Building.Builders
       object defaultValue = null;
       if (field.IsEnum) {
         var underlyingType = Enum.GetUnderlyingType(field.ValueType.StripNullable());
-        if (field.DefaultValue!=null)
+        if (field.DefaultValue != null) {
           defaultValue = Convert.ChangeType(field.DefaultValue, underlyingType);
+        }
       }
-      else 
+      else {
         defaultValue = field.DefaultValue;
+      }
+
       column.DefaultValue = defaultValue;
 
       return column;
@@ -416,12 +469,13 @@ namespace Xtensive.Orm.Building.Builders
       if (schema != InheritanceSchema.ConcreteTable) {
         var node = context.DependencyGraph.TryGetNode(hierarchyDef.Root);
         // No dependencies => no descendants
-        if (node == null || node.IncomingEdges.Where(e => e.Kind == EdgeKind.Inheritance).Count() == 0)
+        if (node == null || node.IncomingEdges.Count(e => e.Kind == EdgeKind.Inheritance) == 0) {
           schema = InheritanceSchema.ConcreteTable;
+        }
       }
 
-      var typeDiscriminatorField = hierarchyDef.Root.Fields.Where(f => f.IsTypeDiscriminator).FirstOrDefault();
-      var typeDiscriminatorMap = typeDiscriminatorField!=null ? new TypeDiscriminatorMap() : null;
+      var typeDiscriminatorField = hierarchyDef.Root.Fields.FirstOrDefault(f => f.IsTypeDiscriminator);
+      var typeDiscriminatorMap = typeDiscriminatorField != null ? new TypeDiscriminatorMap() : null;
 
       var hierarchy = new HierarchyInfo(root, key, schema, typeDiscriminatorMap) {
         Name = root.Name,
@@ -439,33 +493,38 @@ namespace Xtensive.Orm.Building.Builders
         .ToList();
 
       var keyColumns = keyFields
-        .Where(field => field.Column!=null)
+        .Where(field => field.Column != null)
         .Select(field => field.Column)
         .ToList();
 
       var keyTupleDescriptor = TupleDescriptor.Create(
         keyColumns.Select(c => c.ValueType).ToArray(keyColumns.Count));
       var typeIdColumnIndex = -1;
-      if (hierarchyDef.IncludeTypeId)
-        for (int i = 0; i < keyColumns.Count; i++)
-          if (keyColumns[i].Field.IsTypeId)
+      if (hierarchyDef.IncludeTypeId) {
+        for (var i = 0; i < keyColumns.Count; i++) {
+          if (keyColumns[i].Field.IsTypeId) {
             typeIdColumnIndex = i;
+          }
+        }
+      }
 
       var key = new KeyInfo(root.Name, keyFields, keyColumns, keyTupleDescriptor, typeIdColumnIndex);
       var generatorKind = hierarchyDef.KeyGeneratorKind;
 
       // Force absence of key generator if key is a reference.
-      if (key.ContainsForeignKeys)
+      if (key.ContainsForeignKeys) {
         generatorKind = KeyGeneratorKind.None;
-
-      if (generatorKind==KeyGeneratorKind.Default) {
-        var canBeHandled = key.SingleColumnType!=null && KeyGeneratorFactory.IsSupported(key.SingleColumnType);
-        // Force absence of key generator if key can not be handled by standard keygen.
-        if (!canBeHandled)
-          generatorKind = KeyGeneratorKind.None;
       }
 
-      if (generatorKind==KeyGeneratorKind.None) {
+      if (generatorKind == KeyGeneratorKind.Default) {
+        var canBeHandled = key.SingleColumnType != null && KeyGeneratorFactory.IsSupported(key.SingleColumnType);
+        // Force absence of key generator if key can not be handled by standard keygen.
+        if (!canBeHandled) {
+          generatorKind = KeyGeneratorKind.None;
+        }
+      }
+
+      if (generatorKind == KeyGeneratorKind.None) {
         // No key generator is attached.
         // Each hierarchy has it's own equality identifier.
         key.IsFirstAmongSimilarKeys = true;
@@ -483,13 +542,15 @@ namespace Xtensive.Orm.Building.Builders
         ? key.GeneratorBaseName
         : key.GeneratorName;
 
-      // Equality indentifier is the same if and only if key generator names match.
+      // Equality identifier is the same if and only if key generator names match.
       key.IsFirstAmongSimilarKeys = !processedKeyGenerators.Contains(key.GeneratorName);
-      if (key.IsFirstAmongSimilarKeys)
+      if (key.IsFirstAmongSimilarKeys) {
         processedKeyGenerators.Add(key.GeneratorName);
-      object equalityIdentifier;
-      if (keyEqualityIdentifiers.TryGetValue(generatorIdentity, out equalityIdentifier))
+      }
+
+      if (keyEqualityIdentifiers.TryGetValue(generatorIdentity, out var equalityIdentifier)) {
         key.EqualityIdentifier = equalityIdentifier;
+      }
       else {
         key.EqualityIdentifier = new object();
         keyEqualityIdentifiers.Add(generatorIdentity, key.EqualityIdentifier);
@@ -497,17 +558,20 @@ namespace Xtensive.Orm.Building.Builders
 
       // Don't create sequences for user key generators
       // and for key generators that are not sequence-backed (such as GuidGenerator).
-      if (key.GeneratorKind==KeyGeneratorKind.Custom || !IsSequenceBacked(key))
+      if (key.GeneratorKind == KeyGeneratorKind.Custom || !IsSequenceBacked(key)) {
         return key;
+      }
 
       // Generate backing sequence.
-      SequenceInfo sequence;
-      if (sequences.TryGetValue(key.GeneratorName, out sequence))
+      if (sequences.TryGetValue(key.GeneratorName, out var sequence)) {
         key.Sequence = sequence;
+      }
       else {
         var newSequence = BuildSequence(hierarchyDef, key);
-        if (context.Configuration.MultidatabaseKeys)
+        if (context.Configuration.MultidatabaseKeys) {
           EnsureSequenceSeedIsUnique(newSequence);
+        }
+
         key.Sequence = newSequence;
         sequences.Add(key.GeneratorName, key.Sequence);
       }
@@ -521,8 +585,7 @@ namespace Xtensive.Orm.Building.Builders
       var cacheSize = (long) context.Configuration.KeyGeneratorCacheSize;
 
       var generatorName = key.GeneratorName;
-      KeyGeneratorConfiguration configuration;
-      if (keyGeneratorConfigurations.TryGetValue(generatorName, out configuration)) {
+      if (keyGeneratorConfigurations.TryGetValue(generatorName, out var configuration)) {
         seed = configuration.Seed;
         cacheSize = configuration.CacheSize;
       }
@@ -538,19 +601,19 @@ namespace Xtensive.Orm.Building.Builders
       return sequence;
     }
 
-    private bool IsSequenceBacked(KeyInfo key)
+    private static bool IsSequenceBacked(KeyInfo key)
     {
       var valueType = key.SingleColumnType;
-      return valueType!=null && KeyGeneratorFactory.IsSequenceBacked(valueType);
+      return valueType != null && KeyGeneratorFactory.IsSequenceBacked(valueType);
     }
 
     private bool DeclaresOnValidate(Type type)
     {
       try {
         var method = type.GetMethod("OnValidate", BindingFlags.Instance | BindingFlags.NonPublic);
-        return method!=null && method.DeclaringType!=null && method.DeclaringType.Assembly!=GetType().Assembly;
+        return method != null && method.DeclaringType != null && method.DeclaringType.Assembly != GetType().Assembly;
       }
-      catch(AmbiguousMatchException) {
+      catch (AmbiguousMatchException) {
         // Many OnValidate methods, assume OnValidate() is overridden
         return true;
       }
@@ -558,15 +621,15 @@ namespace Xtensive.Orm.Building.Builders
 
     private void EnsureSequenceSeedIsUnique(SequenceInfo sequenceToCheck)
     {
-      var conflictingSequence = sequences.Values
-        .FirstOrDefault(sequence =>
-          sequence.Seed==sequenceToCheck.Seed
-            && sequence.MappingName==sequenceToCheck.MappingName
-            && sequence.MappingSchema==sequenceToCheck.MappingSchema);
+      var conflictingSequence = sequences.Values.FirstOrDefault(sequence =>
+        sequence.Seed == sequenceToCheck.Seed
+        && sequence.MappingName == sequenceToCheck.MappingName
+        && sequence.MappingSchema == sequenceToCheck.MappingSchema);
 
-      if (conflictingSequence!=null)
+      if (conflictingSequence != null) {
         throw new DomainBuilderException(string.Format(Strings.ExKeyGeneratorsXAndYHaveTheSameSeedValue,
           conflictingSequence.Name, sequenceToCheck.Name));
+      }
     }
 
     #endregion
