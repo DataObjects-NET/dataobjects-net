@@ -14,13 +14,13 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal class SetNode : BaseFieldNode, IHasNestedNodes
   {
-    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; private set; }
+    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; }
 
-    public TypeInfo ElementType { get; private set; }
+    public TypeInfo ElementType { get; }
 
     public IReadOnlyCollection<Key> ExtractKeys(object target)
     {
-      if (target==null) {
+      if (target == null) {
         return Array.Empty<Key>();
       }
 
@@ -30,15 +30,10 @@ namespace Xtensive.Orm.Internals.Prefetch
       return fetchedKeys.ToArray(fetchedKeys.Count);
     }
 
-    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes)
-    {
-      return new SetNode(Path, Field, ElementType, NestedNodes);
-    }
+    public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes) =>
+      new SetNode(Path, Field, ElementType, NestedNodes);
 
-    public override Node Accept(NodeVisitor visitor)
-    {
-      return visitor.VisitSetNode(this);
-    }
+    public override Node Accept(NodeVisitor visitor) => visitor.VisitSetNode(this);
 
     // Constructors
 
