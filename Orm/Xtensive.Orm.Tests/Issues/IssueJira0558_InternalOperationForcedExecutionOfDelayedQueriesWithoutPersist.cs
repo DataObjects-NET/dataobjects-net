@@ -118,8 +118,10 @@ namespace Xtensive.Orm.Tests.Issues
         var firstCustomer = session.Query.All<Customer>().First();
         var allMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>());
         var countOfMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>().Count());
-        var allActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>().Where(el => el.Status==MembershipStatus.Active));
-        var countOfActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint => queryEndpoint.All<Membership>().Count(el => el.Status==MembershipStatus.Active));
+        var allActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint =>
+          queryEndpoint.All<Membership>().Where(el => el.Status == MembershipStatus.Active));
+        var countOfActiveMemberships = session.Query.CreateDelayedQuery(queryEndpoint =>
+          queryEndpoint.All<Membership>().Count(el => el.Status == MembershipStatus.Active));
         var userDefinedQueryTasks = GetUserDefinedQueryTasks(session);
         Assert.AreEqual(4, userDefinedQueryTasks.Count);
         //must be fetching without execution of user defined queries
