@@ -20,84 +20,53 @@ namespace Xtensive.Orm.Configuration
   [Serializable]
   public class DomainTypeRegistry : TypeRegistry
   {
-    private readonly static Type iDomainServiceType = typeof (IDomainService);
-    private readonly static Type iSessionServiceType = typeof (ISessionService);
-    private readonly static Type iModuleType = typeof (IModule);
-    private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
-    private readonly static Type keyGeneratorType = typeof (KeyGenerator);
-    private static readonly Type ifulltextCatalogNameBuilder = typeof (IFullTextCatalogNameBuilder);
+    private readonly static Type iDomainServiceType = typeof(IDomainService);
+    private readonly static Type iSessionServiceType = typeof(ISessionService);
+    private readonly static Type iModuleType = typeof(IModule);
+    private readonly static Type iUpgradeHandlerType = typeof(IUpgradeHandler);
+    private readonly static Type keyGeneratorType = typeof(KeyGenerator);
+    private static readonly Type ifulltextCatalogNameBuilder = typeof(IFullTextCatalogNameBuilder);
 
     /// <summary>
     /// Gets all the registered persistent types.
     /// </summary>
-    public IEnumerable<Type> PersistentTypes { 
-      get {
-        return this.Where(IsPersistentType);
-      }
-    }
+    public IEnumerable<Type> PersistentTypes => this.Where(IsPersistentType);
 
     /// <summary>
     /// Gets all the registered <see cref="Domain"/>-level service types.
     /// </summary>
-    public IEnumerable<Type> DomainServices { 
-      get {
-        return this.Where(IsDomainService);
-      }
-    }
+    public IEnumerable<Type> DomainServices => this.Where(IsDomainService);
 
     /// <summary>
     /// Gets all the registered <see cref="Session"/>-level service types.
     /// </summary>
-    public IEnumerable<Type> SessionServices { 
-      get {
-        return this.Where(IsSessionService);
-      }
-    }
+    public IEnumerable<Type> SessionServices => this.Where(IsSessionService);
 
     /// <summary>
     /// Gets all the registered <see cref="IModule"/> implementations.
     /// </summary>
-    public IEnumerable<Type> Modules { 
-      get {
-        return this.Where(IsModule);
-      }
-    }
+    public IEnumerable<Type> Modules => this.Where(IsModule);
 
     /// <summary>
     /// Gets all the registered <see cref="IUpgradeHandler"/> implementations.
     /// </summary>
-    public IEnumerable<Type> UpgradeHandlers { 
-      get {
-        return this.Where(IsUpgradeHandler);
-      }
-    }
+    public IEnumerable<Type> UpgradeHandlers => this.Where(IsUpgradeHandler);
 
     /// <summary>
     /// Gets all the registered <see cref="KeyGenerator"/>
     /// and <see cref="TemporaryKeyGenerator"/>.
     /// </summary>
-    public IEnumerable<Type> KeyGenerators { 
-      get {
-        return this.Where(IsKeyGenerator);
-      }
-    }
+    public IEnumerable<Type> KeyGenerators => this.Where(IsKeyGenerator);
 
     /// <summary>
     /// Gets all the registered compiler containers.
     /// </summary>
-    public IEnumerable<Type> CompilerContainers { 
-      get {
-        return this.Where(IsCompilerContainer);
-      }
-    }
+    public IEnumerable<Type> CompilerContainers => this.Where(IsCompilerContainer);
 
     /// <summary>
     /// Gets all the registered catalog resolvers of full-text indexes.
     /// </summary>
-    public IEnumerable<Type> FullTextCatalogResolvers
-    {
-      get { return this.Where(IsFullTextCatalogNameBuilder); }
-    }
+    public IEnumerable<Type> FullTextCatalogResolvers => this.Where(IsFullTextCatalogNameBuilder);
 
     #region IsXxx method group
 
@@ -108,18 +77,15 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <returns>Check result.</returns>
-    public static bool IsInterestingType(Type type)
-    {
-      return 
-        IsPersistentType(type) ||
-        IsDomainService(type) ||
-        IsSessionService(type) ||
-        IsModule(type) ||
-        IsUpgradeHandler(type) ||
-        IsKeyGenerator(type) ||
-        IsCompilerContainer(type) ||
-        IsFullTextCatalogNameBuilder(type);
-    }
+    public static bool IsInterestingType(Type type) =>
+      IsPersistentType(type) ||
+      IsDomainService(type) ||
+      IsSessionService(type) ||
+      IsModule(type) ||
+      IsUpgradeHandler(type) ||
+      IsKeyGenerator(type) ||
+      IsCompilerContainer(type) ||
+      IsFullTextCatalogNameBuilder(type);
 
     /// <summary>
     /// Determines whether a <paramref name="type"/>
@@ -129,11 +95,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsPersistentType(Type type)
     {
-      if (WellKnownOrmTypes.Persistent.IsAssignableFrom(type) && WellKnownOrmTypes.Persistent!=type)
+      if (WellKnownOrmTypes.Persistent.IsAssignableFrom(type) && WellKnownOrmTypes.Persistent != type) {
         return true;
-      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(type))
-        return true;
-      return false;
+      }
+
+      return WellKnownOrmInterfaces.Entity.IsAssignableFrom(type);
     }
 
     /// <summary>
@@ -144,11 +110,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsDomainService(Type type)
     {
-      if (type.IsAbstract)
+      if (type.IsAbstract) {
         return false;
-      if (iDomainServiceType.IsAssignableFrom(type) && iDomainServiceType!=type)
-        return true;
-      return false;
+      }
+
+      return iDomainServiceType.IsAssignableFrom(type) && iDomainServiceType != type;
     }
 
     /// <summary>
@@ -159,11 +125,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsSessionService(Type type)
     {
-      if (type.IsAbstract)
+      if (type.IsAbstract) {
         return false;
-      if (iSessionServiceType.IsAssignableFrom(type) && iSessionServiceType!=type)
-        return true;
-      return false;
+      }
+
+      return iSessionServiceType.IsAssignableFrom(type) && iSessionServiceType != type;
     }
 
     /// <summary>
@@ -174,11 +140,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsModule(Type type)
     {
-      if (type.IsAbstract)
+      if (type.IsAbstract) {
         return false;
-      if (iModuleType.IsAssignableFrom(type) && iModuleType!=type)
-        return true;
-      return false;
+      }
+
+      return iModuleType.IsAssignableFrom(type) && iModuleType != type;
     }
 
     /// <summary>
@@ -189,11 +155,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsUpgradeHandler(Type type)
     {
-      if (type.IsAbstract)
+      if (type.IsAbstract) {
         return false;
-      if (iUpgradeHandlerType.IsAssignableFrom(type) && iUpgradeHandlerType!=type)
-        return true;
-      return false;
+      }
+
+      return iUpgradeHandlerType.IsAssignableFrom(type) && iUpgradeHandlerType != type;
     }
 
     /// <summary>
@@ -204,11 +170,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsKeyGenerator(Type type)
     {
-      if (type.IsAbstract)
+      if (type.IsAbstract) {
         return false;
-      if (keyGeneratorType.IsAssignableFrom(type))
-        return true;
-      return false;
+      }
+
+      return keyGeneratorType.IsAssignableFrom(type);
     }
 
     /// <summary>
@@ -217,10 +183,8 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <returns>Check result.</returns>
-    public static bool IsCompilerContainer(Type type)
-    {
-      return type.IsDefined(typeof (CompilerContainerAttribute), false);
-    }
+    public static bool IsCompilerContainer(Type type) =>
+      type.IsDefined(typeof(CompilerContainerAttribute), false);
 
     /// <summary>
     /// Determines whether a <paramref name="type"/>
@@ -230,11 +194,11 @@ namespace Xtensive.Orm.Configuration
     /// <returns>Check result.</returns>
     public static bool IsFullTextCatalogNameBuilder(Type type)
     {
-      if (type.IsAbstract)
+      if (type.IsAbstract) {
         return false;
-      if (ifulltextCatalogNameBuilder.IsAssignableFrom(type) && ifulltextCatalogNameBuilder!=type)
-        return true;
-      return false;
+      }
+
+      return ifulltextCatalogNameBuilder.IsAssignableFrom(type) && ifulltextCatalogNameBuilder != type;
     }
 
     #endregion
@@ -242,10 +206,7 @@ namespace Xtensive.Orm.Configuration
     #region ICloneable members
 
     /// <inheritdoc/>
-    public override object Clone()
-    {
-      return new DomainTypeRegistry(this);
-    }
+    public override object Clone() => new DomainTypeRegistry(this);
 
     #endregion
 
