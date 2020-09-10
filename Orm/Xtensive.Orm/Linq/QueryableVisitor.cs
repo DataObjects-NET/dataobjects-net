@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Linq;
 using Xtensive.Reflection;
 
 namespace Xtensive.Linq
@@ -22,12 +21,14 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Arguments.Count > 0 && mc.Arguments[0].Type==WellKnownTypes.String)
+      if (mc.Arguments.Count > 0 && mc.Arguments[0].Type == WellKnownTypes.String) {
         return base.VisitMethodCall(mc);
+      }
 
       var method = GetQueryableMethod(mc);
-      if (method==null)
+      if (method == null) {
         return base.VisitMethodCall(mc);
+      }
 
       return VisitQueryableMethod(mc, method.Value);
     }
@@ -47,19 +48,24 @@ namespace Xtensive.Linq
     /// or null if method is not a LINQ method.</returns>
     public static QueryableMethodKind? GetQueryableMethod(MethodCallExpression call)
     {
-      if (call==null)
+      if (call == null) {
         return null;
+      }
+
       var declaringType = call.Method.DeclaringType;
-      if (declaringType==WellKnownTypes.Queryable || declaringType==WellKnownTypes.Enumerable)
+      if (declaringType == WellKnownTypes.Queryable || declaringType == WellKnownTypes.Enumerable) {
         return ParseQueryableMethodKind(call.Method.Name);
+      }
+
       return null;
     }
 
     private static QueryableMethodKind? ParseQueryableMethodKind(string methodName)
     {
-      QueryableMethodKind result;
-      if (Enum.TryParse(methodName, out result))
+      if (Enum.TryParse(methodName, out QueryableMethodKind result)) {
         return result;
+      }
+
       return null;
     }
   }
