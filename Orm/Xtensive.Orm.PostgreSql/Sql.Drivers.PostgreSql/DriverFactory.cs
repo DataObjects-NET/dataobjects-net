@@ -33,7 +33,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       // host, port, database
       builder.Host = url.Host;
-      if (url.Port!=0) {
+      if (url.Port != 0) {
         builder.Port = url.Port;
       }
 

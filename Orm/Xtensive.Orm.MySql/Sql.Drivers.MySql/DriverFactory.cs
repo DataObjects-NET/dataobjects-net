@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Drivers.MySql
 
       // host, port, database
       builder.Server = url.Host;
-      if (url.Port!=0) {
+      if (url.Port != 0) {
         builder.Port = (uint) url.Port;
       }
 

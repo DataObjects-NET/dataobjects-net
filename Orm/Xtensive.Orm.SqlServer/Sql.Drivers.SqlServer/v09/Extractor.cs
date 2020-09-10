@@ -888,7 +888,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var typeName = dataType;
       var typeInfo = Connection.Driver.ServerInfo.DataTypes[typeName];
       SqlType type;
-      if (typeInfo!=null) {
+      if (typeInfo != null) {
         type = typeInfo.Type;
         typeName = null;
       }
@@ -899,7 +899,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       int? precision = numericPrecision;
       int? scale = numericScale;
 
-      if (typeInfo!=null && typeInfo.MaxPrecision==null) {
+      if (typeInfo != null && typeInfo.MaxPrecision == null) {
         // resetting precision & scale for types that do not require specifying them
         precision = null;
         scale = null;
@@ -912,23 +912,24 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       int? size = maxLength;
       if (size <= 0) {
         size = null;
-        if (type==SqlType.VarChar) {
+        if (type == SqlType.VarChar) {
           type = SqlType.VarCharMax;
         }
 
-        if (type==SqlType.VarBinary) {
+        if (type == SqlType.VarBinary) {
           type = SqlType.VarBinaryMax;
         }
       }
-      if (typeInfo!=null) {
-        if (typeInfo.MaxLength==null) {
+
+      if (typeInfo != null) {
+        if (typeInfo.MaxLength == null) {
           // resetting length for types that do not require specifying it
           size = null;
         }
-        else if (size!=null && size > 1) {
-          if (type==SqlType.Char ||
-            type==SqlType.VarChar ||
-            type==SqlType.VarCharMax) {
+        else if (size != null && size > 1) {
+          if (type == SqlType.Char ||
+            type == SqlType.VarChar ||
+            type == SqlType.VarCharMax) {
             size /= 2;
           }
         }
