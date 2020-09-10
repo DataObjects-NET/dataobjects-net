@@ -42,6 +42,8 @@ namespace Xtensive.Linq
 
     private static readonly object _lock = new object();
     private static volatile LambdaExpressionFactory instance;
+    private static readonly Type FastFactoryType = typeof(FastFactory);
+    private static readonly Type SlowFactoryType = typeof(SlowFactory);
 
     public static LambdaExpressionFactory Instance {
       get {
@@ -54,8 +56,6 @@ namespace Xtensive.Linq
     private readonly ThreadSafeDictionary<Type, Factory> cache;
     private readonly Func<Type, Factory> createHandler;
     private readonly MethodInfo slowFactoryMethod;
-    private static readonly Type FastFactoryType = typeof(FastFactory);
-    private static readonly Type SlowFactoryType = typeof(SlowFactory);
 
     public LambdaExpression CreateLambda(Type delegateType, Expression body, ParameterExpression[] parameters)
     {
