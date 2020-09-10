@@ -23,17 +23,20 @@ namespace Xtensive.Orm.Providers
 
     public void ApplyNodeConfiguration(SqlConnection connection, NodeConfiguration nodeConfiguration)
     {
-      if (nodeConfiguration.ConnectionInfo!=null)
+      if (nodeConfiguration.ConnectionInfo != null) {
         connection.ConnectionInfo = nodeConfiguration.ConnectionInfo;
+      }
 
-      if (!string.IsNullOrEmpty(nodeConfiguration.ConnectionInitializationSql))
+      if (!string.IsNullOrEmpty(nodeConfiguration.ConnectionInitializationSql)) {
         SetInitializationSql(connection, nodeConfiguration.ConnectionInitializationSql);
+      }
     }
 
     public SqlConnection CreateConnection(Session session)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXCreatingConnection, session.ToStringSafely());
+      }
 
       SqlConnection connection;
       try {
@@ -44,20 +47,24 @@ namespace Xtensive.Orm.Providers
       }
 
       var sessionConfiguration = GetConfiguration(session);
-      if (sessionConfiguration.ConnectionInfo!=null)
+      if (sessionConfiguration.ConnectionInfo != null) {
         connection.ConnectionInfo = sessionConfiguration.ConnectionInfo;
+      }
+
       connection.CommandTimeout = sessionConfiguration.DefaultCommandTimeout;
 
-      if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+      if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
         SetInitializationSql(connection, configuration.ConnectionInitializationSql);
+      }
 
       return connection;
     }
 
     public void OpenConnection(Session session, SqlConnection connection)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+      }
 
       try {
         connection.Open();
@@ -67,28 +74,32 @@ namespace Xtensive.Orm.Providers
       }
 
       var extension = connection.Extensions.Get<InitializationSqlExtension>();
-      if (!string.IsNullOrEmpty(extension?.Script))
-        using (var command = connection.CreateCommand(extension.Script))
+      if (!string.IsNullOrEmpty(extension?.Script)) {
+        using (var command = connection.CreateCommand(extension.Script)) {
           ExecuteNonQuery(session, command);
+        }
+      }
     }
 
-    public Task OpenConnectionAsync(Session session, SqlConnection connection)
-    {
-      return OpenConnectionAsync(session, connection, CancellationToken.None);
-    }
+    public Task OpenConnectionAsync(Session session, SqlConnection connection) =>
+      OpenConnectionAsync(session, connection, CancellationToken.None);
 
-    public async Task OpenConnectionAsync(Session session, SqlConnection connection, CancellationToken cancellationToken)
+    public async Task OpenConnectionAsync(Session session, SqlConnection connection,
+      CancellationToken cancellationToken)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+      }
 
       var extension = connection.Extensions.Get<InitializationSqlExtension>();
 
       try {
-        if (!string.IsNullOrEmpty(extension?.Script))
+        if (!string.IsNullOrEmpty(extension?.Script)) {
           await connection.OpenAndInitializeAsync(extension.Script, cancellationToken).ConfigureAwait(false);
-        else
+        }
+        else {
           await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        }
       }
       catch (OperationCanceledException) {
         throw;
@@ -100,25 +111,28 @@ namespace Xtensive.Orm.Providers
 
     public void EnsureConnectionIsOpen(Session session, SqlConnection connection)
     {
-      if (connection.State!=ConnectionState.Open)
+      if (connection.State != ConnectionState.Open) {
         OpenConnection(session, connection);
+      }
     }
 
     public async Task EnsureConnectionIsOpenAsync(
       Session session, SqlConnection connection, CancellationToken cancellationToken)
     {
-      if (connection.State!=ConnectionState.Open) {
+      if (connection.State != ConnectionState.Open) {
         await OpenConnectionAsync(session, connection, cancellationToken).ConfigureAwait(false);
       }
     }
 
     public void CloseConnection(Session session, SqlConnection connection)
     {
-      if (connection.State!=ConnectionState.Open)
+      if (connection.State != ConnectionState.Open) {
         return;
+      }
 
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXClosingConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
+      }
 
       try {
         connection.Close();
@@ -130,7 +144,7 @@ namespace Xtensive.Orm.Providers
 
     public async Task CloseConnectionAsync(Session session, SqlConnection connection)
     {
-      if (connection.State!=ConnectionState.Open) {
+      if (connection.State != ConnectionState.Open) {
         return;
       }
 
@@ -148,8 +162,9 @@ namespace Xtensive.Orm.Providers
 
     public void DisposeConnection(Session session, SqlConnection connection)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXDisposingConnection, session.ToStringSafely());
+      }
 
       try {
         connection.Dispose();
@@ -175,11 +190,14 @@ namespace Xtensive.Orm.Providers
 
     public void BeginTransaction(Session session, SqlConnection connection, IsolationLevel? isolationLevel)
     {
-      if (isLoggingEnabled)
-        SqlLog.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(), isolationLevel);
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(),
+          isolationLevel);
+      }
 
-      if (isolationLevel==null)
+      if (isolationLevel == null) {
         isolationLevel = IsolationLevelConverter.Convert(GetConfiguration(session).DefaultIsolationLevel);
+      }
 
       try {
         connection.BeginTransaction(isolationLevel.Value);
@@ -191,8 +209,9 @@ namespace Xtensive.Orm.Providers
 
     public void CommitTransaction(Session session, SqlConnection connection)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
+      }
 
       try {
         connection.Commit();
@@ -204,8 +223,9 @@ namespace Xtensive.Orm.Providers
 
     public void RollbackTransaction(Session session, SqlConnection connection)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
+      }
 
       try {
         connection.Rollback();
@@ -217,11 +237,13 @@ namespace Xtensive.Orm.Providers
 
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
+      }
 
-      if (!hasSavepoints)
+      if (!hasSavepoints) {
         return; // Driver does not support savepoints, so let's fail later (on rollback)
+      }
 
       try {
         connection.MakeSavepoint(name);
@@ -233,11 +255,13 @@ namespace Xtensive.Orm.Providers
 
     public void RollbackToSavepoint(Session session, SqlConnection connection, string name)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
+      }
 
-      if (!hasSavepoints)
+      if (!hasSavepoints) {
         throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
+      }
 
       try {
         connection.RollbackToSavepoint(name);
@@ -249,8 +273,9 @@ namespace Xtensive.Orm.Providers
  
     public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
+      }
 
       try {
         connection.ReleaseSavepoint(name);
@@ -262,67 +287,50 @@ namespace Xtensive.Orm.Providers
 
     #region Sync Execute methods
 
-    public int ExecuteNonQuery(Session session, DbCommand command)
-    {
-      return ExecuteCommand(session, command, c => c.ExecuteNonQuery());
-    }
+    public int ExecuteNonQuery(Session session, DbCommand command) =>
+      ExecuteCommand(session, command, c => c.ExecuteNonQuery());
 
-    public object ExecuteScalar(Session session, DbCommand command)
-    {
-      return ExecuteCommand(session, command, c => c.ExecuteScalar());
-    }
+    public object ExecuteScalar(Session session, DbCommand command) =>
+      ExecuteCommand(session, command, c => c.ExecuteScalar());
 
-    public DbDataReader ExecuteReader(Session session, DbCommand command)
-    {
-      return ExecuteCommand(session, command, c => c.ExecuteReader());
-    }
+    public DbDataReader ExecuteReader(Session session, DbCommand command) =>
+      ExecuteCommand(session, command, c => c.ExecuteReader());
 
     #endregion
 
     #region Async Execute methods
 
-    public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command)
-    {
-      return ExecuteCommandAsync(session, command, CancellationToken.None,
+    public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command) =>
+      ExecuteCommandAsync(session, command, CancellationToken.None,
         (c, ct) => c.ExecuteNonQueryAsync(ct));
-    }
 
-    public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken cancellationToken)
-    {
-      return ExecuteCommandAsync(session, command, cancellationToken,
+    public Task<int> ExecuteNonQueryAsync(Session session, DbCommand command, CancellationToken cancellationToken) =>
+      ExecuteCommandAsync(session, command, cancellationToken,
         (c, ct) => c.ExecuteNonQueryAsync(ct));
-    }
 
-    public Task<object> ExecuteScalarAsync(Session session, DbCommand command)
-    {
-      return ExecuteCommandAsync(session, command, CancellationToken.None,
+    public Task<object> ExecuteScalarAsync(Session session, DbCommand command) =>
+      ExecuteCommandAsync(session, command, CancellationToken.None,
         (c, ct) => c.ExecuteScalarAsync(ct));
-    }
 
-    public Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken cancellationToken)
-    {
-      return ExecuteCommandAsync(session, command, cancellationToken,
+    public Task<object> ExecuteScalarAsync(Session session, DbCommand command, CancellationToken cancellationToken) =>
+      ExecuteCommandAsync(session, command, cancellationToken,
         (c, ct) => c.ExecuteScalarAsync(ct));
-    }
 
-    public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command)
-    {
-      return ExecuteCommandAsync(session, command, CancellationToken.None,
+    public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command) =>
+      ExecuteCommandAsync(session, command, CancellationToken.None,
         (c, ct) => c.ExecuteReaderAsync(ct));
-    }
 
-    public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command, CancellationToken cancellationToken)
-    {
-      return ExecuteCommandAsync(session, command, cancellationToken, 
+    public Task<DbDataReader> ExecuteReaderAsync(Session session, DbCommand command, CancellationToken cancellationToken) =>
+      ExecuteCommandAsync(session, command, cancellationToken,
         (c, ct) => c.ExecuteReaderAsync(ct));
-    }
 
     #endregion
 
     private TResult ExecuteCommand<TResult>(Session session, DbCommand command, Func<DbCommand, TResult> action)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+      }
 
       session?.Events.NotifyDbCommandExecuting(command);
 
@@ -341,10 +349,12 @@ namespace Xtensive.Orm.Providers
       return result;
     }
 
-    private async Task<TResult> ExecuteCommandAsync<TResult>(Session session, DbCommand command, CancellationToken cancellationToken, Func<DbCommand, CancellationToken, Task<TResult>> action)
+    private async Task<TResult> ExecuteCommandAsync<TResult>(Session session, DbCommand command,
+      CancellationToken cancellationToken, Func<DbCommand, CancellationToken, Task<TResult>> action)
     {
-      if (isLoggingEnabled)
+      if (isLoggingEnabled) {
         SqlLog.Info(Strings.LogSessionXQueryY, session.ToStringSafely(), command.ToHumanReadableString());
+      }
 
       cancellationToken.ThrowIfCancellationRequested();
       session?.Events.NotifyDbCommandExecuting(command);
@@ -370,16 +380,15 @@ namespace Xtensive.Orm.Providers
     private void SetInitializationSql(SqlConnection connection, string script)
     {
       var extension = connection.Extensions.Get<InitializationSqlExtension>();
-      if (extension==null) {
+      if (extension == null) {
         extension = new InitializationSqlExtension();
         connection.Extensions.Set(extension);
       }
+
       extension.Script = script;
     }
 
-    private SessionConfiguration GetConfiguration(Session session)
-    {
-      return session!=null ? session.Configuration : configuration.Sessions.System;
-    }
+    private SessionConfiguration GetConfiguration(Session session) =>
+      session != null ? session.Configuration : configuration.Sessions.System;
   }
 }
