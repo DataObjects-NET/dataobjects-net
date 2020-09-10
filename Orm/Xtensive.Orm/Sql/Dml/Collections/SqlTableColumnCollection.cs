@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Sql.Dml
 {
@@ -50,34 +51,42 @@ namespace Xtensive.Sql.Dml
           return null;
         }
 
-        if (columnLookup != null) {
-          return columnLookup.TryGetValue(name, out var column) ? column : null;
-        }
-
         var count = columnList.Count;
-        if (count <= 16) {
-          foreach (var column in columnList) {
-            if (Comparer.Equals(column.Name, name)) {
-              return column;
-            }
-          }
-
-          return null;
-        }
-
-        SqlTableColumn result = null;
-        columnLookup = new Dictionary<string, SqlTableColumn>(count, Comparer);
-        for (var index = count - 1; index >= 0; index--) {
-          var column = columnList[index];
-          var columnName = column.Name;
-          columnLookup[columnName] = column;
-          if (Comparer.Equals(columnName, name)) {
-            result = column;
-          }
-        }
-
-        return result;
+        return count <= 16 ? FindColumnInList(name) : FindColumnInDictionaryLookup(name, count);
       }
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SqlTableColumn FindColumnInList(string name)
+    {
+      foreach (var column in columnList) {
+        if (Comparer.Equals(column.Name, name)) {
+          return column;
+        }
+      }
+
+      return null;
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private SqlTableColumn FindColumnInDictionaryLookup(string name, int count)
+    {
+      if (columnLookup != null) {
+        return columnLookup.TryGetValue(name, out var column) ? column : null;
+      }
+
+      SqlTableColumn result = null;
+      columnLookup = new Dictionary<string, SqlTableColumn>(count, Comparer);
+      for (var index = count - 1; index >= 0; index--) {
+        var column = columnList[index];
+        var columnName = column.Name;
+        columnLookup[columnName] = column;
+        if (Comparer.Equals(columnName, name)) {
+          result = column;
+        }
+      }
+
+      return result;
     }
 
     /// <summary>

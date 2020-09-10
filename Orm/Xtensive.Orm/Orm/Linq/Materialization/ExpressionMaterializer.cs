@@ -479,7 +479,7 @@ namespace Xtensive.Orm.Linq.Materialization
         var owner = field.Owner;
         var materializedOwner = MaterializeThroughOwner((Expression) owner, tuple, defaultIfEmpty);
         Expression fieldExpression;
-        if (field.Field.IsDynalicallyDefined) {
+        if (field.Field.IsDynamicallyDefined) {
           var attributes = materializedOwner.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
           var indexerPropertyName = ((DefaultMemberAttribute) attributes.Single()).MemberName;
           var methodInfo = materializedOwner.Type.GetProperty(indexerPropertyName).GetGetMethod();

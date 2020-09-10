@@ -44,6 +44,9 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     public EventArgs PersistingArgs;
     public EventArgs PersistedArgs;
 
+    public EventArgs ChangesCancelingArgs;
+    public EventArgs ChangesCanceledArgs;
+
     public EntityEventArgs EntityCreatedArgs;
     public EntityEventArgs EntityRemoving;
     public EntityEventArgs EntityRemoved;
@@ -71,6 +74,9 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
 
       PersistingArgs = null;
       PersistedArgs = null;
+
+      ChangesCancelingArgs = null;
+      ChangesCanceledArgs = null;
 
       EntityCreatedArgs = null;
       EntityRemoving = null;
@@ -101,6 +107,8 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     private void OnTransactionRollbacked(object sender, TransactionEventArgs e) => TransactionRollbackedArgs = e;
     private void OnPersisting(object sender, EventArgs e) => PersistingArgs = e;
     private void OnPersisted(object sender, EventArgs e) => PersistedArgs = e;
+    private void OnChangesCanceling(object sender, EntityEventArgs e) => ChangesCancelingArgs = e;
+    private void OnChangesCanceled(object sender, EntityEventArgs e) => ChangesCanceledArgs = e;
     private void OnEntityCreated(object sender, EntityEventArgs e) => EntityCreatedArgs = e;
     private void OnEntityRemoving(object sender, EntityEventArgs e) => EntityRemoving = e;
     private void OnEntityRemove(object sender, EntityEventArgs e) => EntityRemoved = e;
@@ -126,6 +134,9 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
 
       Session.Events.Persisting -= OnPersisting;
       Session.Events.Persisted -= OnPersisted;
+
+      Session.Events.ChangesCanceling -= OnChangesCanceling;
+      Session.Events.ChangesCanceled -= OnChangesCanceled;
 
       Session.Events.EntityCreated -= OnEntityCreated;
       Session.Events.EntityRemoving -= OnEntityRemoving;
@@ -158,6 +169,9 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
 
       Session.Events.Persisting += OnPersisting;
       Session.Events.Persisted += OnPersisted;
+
+      Session.Events.ChangesCanceling += OnChangesCanceling;
+      Session.Events.ChangesCanceled += OnChangesCanceled;
 
       Session.Events.EntityCreated += OnEntityCreated;
       Session.Events.EntityRemoving += OnEntityRemoving;
@@ -1004,6 +1018,30 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsNotNull(eventInfo.DbCommandExecuted.Command);
 
         Assert.AreEqual(eventInfo.DbCommandExecuting.Command, eventInfo.DbCommandExecuted.Command);
+      }
+    }
+
+    [Test]
+    public void CancelChangesTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var eventInfo = new EventInfo(session)) {
+
+        using (var transactionScope = session.OpenTransaction()) {
+
+          var megaEntity = new MegaEntity { Value = 1 };
+
+          session.CancelChanges();
+        }
+
+        Assert.IsNotNull(eventInfo.TransactionRollbackingArgs);
+        Assert.IsNotNull(eventInfo.TransactionRollbackedArgs);
+        Assert.IsNotNull(eventInfo.ChangesCancelingArgs);
+        Assert.IsNotNull(eventInfo.ChangesCanceledArgs);
+        Assert.IsNull(eventInfo.PersistingArgs);
+        Assert.IsNull(eventInfo.PersistedArgs);
+        Assert.IsNull(eventInfo.TransactionCommitingArgs);
+        Assert.IsNull(eventInfo.TransactionCommitedArgs);
       }
     }
   }

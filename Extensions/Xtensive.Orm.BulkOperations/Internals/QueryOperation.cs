@@ -26,31 +26,44 @@ namespace Xtensive.Orm.BulkOperations
     protected override int ExecuteInternal()
     {
       var e = query.Expression.Visit((MethodCallExpression ex) => {
-        if (ex.Method.DeclaringType == WellKnownMembers.QueryableExtensionsType
-          && string.Equals(ex.Method.Name, WellKnownMembers.InMethodName, StringComparison.Ordinal)
-          && ex.Arguments.Count > 1) {
-          if (ex.Arguments[1].Type == WellKnownMembers.IncludeAlgorithmType) {
-            var v = (IncludeAlgorithm) ex.Arguments[1].Invoke();
-            if (v == IncludeAlgorithm.TemporaryTable) {
-              throw new NotSupportedException("IncludeAlgorithm.TemporaryTable is not supported");
-            }
 
-            if (v == IncludeAlgorithm.Auto) {
+          var methodInfo = ex.Method;
+          //rewrite localCollection.Contains(entity.SomeField) -> entity.SomeField.In(localCollection)
+          if (methodInfo.DeclaringType == WellKnownMembers.EnumerableType &&
+              string.Equals(methodInfo.Name, "Contains", StringComparison.Ordinal) &&
+              ex.Arguments.Count == 2) {
+            var localCollection = ex.Arguments[0];//IEnumerable<T>
+            var valueToCheck = ex.Arguments[1];
+            var genericInMethod = WellKnownMembers.InMethod.MakeGenericMethod(new[] { valueToCheck.Type });
+            ex = Expression.Call(genericInMethod, valueToCheck, Expression.Constant(IncludeAlgorithm.ComplexCondition), localCollection);
+            methodInfo = ex.Method;
+          }
+
+          if (methodInfo.DeclaringType == WellKnownMembers.QueryableExtensionsType &&
+              string.Equals(methodInfo.Name, WellKnownMembers.InMethodName, StringComparison.Ordinal) &&
+              ex.Arguments.Count > 1) {
+            if (ex.Arguments[1].Type == WellKnownMembers.IncludeAlgorithmType) {
+              var algorithm = (IncludeAlgorithm) ex.Arguments[1].Invoke();
+              if (algorithm == IncludeAlgorithm.TemporaryTable) {
+                throw new NotSupportedException("IncludeAlgorithm.TemporaryTable is not supported");
+              }
+
+              if (algorithm == IncludeAlgorithm.Auto) {
+                var arguments = ex.Arguments.ToList();
+                arguments[1] = Expression.Constant(IncludeAlgorithm.ComplexCondition);
+                ex = Expression.Call(methodInfo, arguments);
+              }
+            }
+            else {
               var arguments = ex.Arguments.ToList();
-              arguments[1] = Expression.Constant(IncludeAlgorithm.ComplexCondition);
-              ex = Expression.Call(ex.Method, arguments);
+              arguments.Insert(1, Expression.Constant(IncludeAlgorithm.ComplexCondition));
+              ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(methodInfo.GetGenericArguments()),
+                arguments.ToArray());
             }
           }
-          else {
-            var arguments = ex.Arguments.ToList();
-            arguments.Insert(1, Expression.Constant(IncludeAlgorithm.ComplexCondition));
-            ex = Expression.Call(WellKnownMembers.InMethod.MakeGenericMethod(ex.Method.GetGenericArguments()),
-              arguments.ToArray());
-          }
-        }
 
-        return ex;
-      });
+          return ex;
+        });
       query = QueryProvider.CreateQuery<T>(e);
       return 0;
     }

@@ -1,12 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.06
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -51,7 +50,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var entity = (EntityExpression) Entity?.Remap(offset, processedExpressions);
       result = new EntityFieldExpression(
         PersistentType, Field, newFields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
-      if (Owner==null) {
+      if (Owner == null) {
         return result;
       }
 
@@ -83,7 +82,7 @@ namespace Xtensive.Orm.Linq.Expressions
         }
       }
 
-      if (newFields.Count!=Fields.Count) {
+      if (newFields.Count != Fields.Count) {
         processedExpressions.Add(this, null);
         return null;
       }
@@ -96,7 +95,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
       result = new EntityFieldExpression(
         PersistentType, Field, newFields, keyExpression.Mapping, keyExpression, entity, OuterParameter, DefaultIfEmpty);
-      if (Owner==null) {
+      if (Owner == null) {
         return result;
       }
 
@@ -121,7 +120,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var entity = (EntityExpression) Entity?.BindParameter(parameter, processedExpressions);
       result = new EntityFieldExpression(
         PersistentType, Field, newFields, Mapping, keyExpression, entity, parameter, DefaultIfEmpty);
-      if (Owner==null) {
+      if (Owner == null) {
         return result;
       }
 
@@ -145,7 +144,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var entity = (EntityExpression) Entity?.RemoveOuterParameter(processedExpressions);
       result = new EntityFieldExpression(
         PersistentType, Field, newFields, Mapping, keyExpression, entity, null, DefaultIfEmpty);
-      if (Owner==null) {
+      if (Owner == null) {
         return result;
       }
 
@@ -154,10 +153,8 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public override FieldExpression RemoveOwner()
-    {
-      return new EntityFieldExpression(PersistentType, Field, Fields, Mapping, Key, Entity, OuterParameter, DefaultIfEmpty);
-    }
+    public override FieldExpression RemoveOwner() =>
+      new EntityFieldExpression(PersistentType, Field, Fields, Mapping, Key, Entity, OuterParameter, DefaultIfEmpty);
 
     public static EntityFieldExpression CreateEntityField(FieldInfo entityField, int offset)
     {
@@ -174,6 +171,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var keyExpression = KeyExpression.Create(persistentType, offset + mappingInfo.Offset);
       var fields = new List<PersistentFieldExpression>(keyFields.Count + 1) {keyExpression};
       foreach (var field in keyFields) {
+        // Do not convert to LINQ. We want to avoid a closure creation here.
         fields.Add(BuildNestedFieldExpression(field, offset + mappingInfo.Offset));
       }
 
@@ -182,10 +180,14 @@ namespace Xtensive.Orm.Linq.Expressions
 
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
     {
-      if (nestedField.IsPrimitive)
+      if (nestedField.IsPrimitive) {
         return CreateField(nestedField, offset);
-      if (nestedField.IsEntity)
+      }
+
+      if (nestedField.IsEntity) {
         return CreateEntityField(nestedField, offset);
+      }
+
       throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 

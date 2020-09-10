@@ -86,9 +86,9 @@ namespace Xtensive.Orm.Linq
       var wrapper = Activator.CreateInstance(
         typeof (OwnerWrapper<>).MakeGenericType(owner.GetType()), owner);
       var wrappedOwner = Expression.Property(Expression.Constant(wrapper), "Owner");
-      if (!entitySet.Field.IsDynalicallyDefined)
+      if (!entitySet.Field.IsDynamicallyDefined) {
         return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
-      
+      }
       var indexers = owner.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
         .Where(p => p.GetIndexParameters().Any())
         .Select(p => p.GetGetMethod());
@@ -97,17 +97,19 @@ namespace Xtensive.Orm.Linq
 
     public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
     {
-      if (!field.IsDynalicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT))
+      if (!field.IsDynamicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
-      if (field.IsDynalicallyDefined && !field.ValueType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT))
+      }
+      if (field.IsDynamicallyDefined && !field.ValueType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
+      }
 
       var elementType = field.ItemType;
       var association = field.Associations.Last();
       if (association.Multiplicity==Multiplicity.OneToMany) {
         var targetField = association.TargetType.Fields[association.Reversed.OwnerField.Name];
         var whereParameter = Expression.Parameter(elementType, "p");
-        var expression = BuildExpressionForFieldRecursively(targetField, whereParameter);
+        var expression = BuildExpressionForFieldRecursivly(targetField, whereParameter);
         var whereExpression = Expression.Equal(
           Expression.Property(
             expression,
@@ -191,10 +193,10 @@ namespace Xtensive.Orm.Linq
       return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
     }
 
-    private static Expression BuildExpressionForFieldRecursively(FieldInfo field, Expression parameter)
+    private static Expression BuildExpressionForFieldRecursivly(FieldInfo field, Expression parameter)
     {
       if (field.IsNested) {
-        var expression = BuildExpressionForFieldRecursively(field.Parent, parameter);
+        var expression = BuildExpressionForFieldRecursivly(field.Parent, parameter);
         return Expression.Property(expression, field.DeclaringField.UnderlyingProperty);
       }
       return Expression.Property(parameter, field.DeclaringField.UnderlyingProperty);

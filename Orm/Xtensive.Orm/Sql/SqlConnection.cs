@@ -5,6 +5,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Collections;
@@ -24,6 +25,14 @@ namespace Xtensive.Sql
     private ConnectionInfo connectionInfo;
     private IExtensionCollection extensions;
     private bool isDisposed;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    protected void EnsureIsNotDisposed()
+    {
+      if (isDisposed) {
+        throw new InvalidOperationException("Connection is disposed.");
+      }
+    }
 
     /// <summary>
     /// Gets the underlying connection.
@@ -48,6 +57,8 @@ namespace Xtensive.Sql
       get => connectionInfo;
       set {
         ArgumentValidator.EnsureArgumentNotNull(value, nameof(value));
+        EnsureIsNotDisposed();
+
         UnderlyingConnection.ConnectionString = Driver.GetConnectionString(value);
         connectionInfo = value;
       }
@@ -60,9 +71,11 @@ namespace Xtensive.Sql
     {
       get => commandTimeout;
       set {
-        if (value!=null) {
+        if (value != null) {
           ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, nameof(value));
         }
+
+        EnsureIsNotDisposed();
 
         commandTimeout = value;
       }
@@ -79,8 +92,9 @@ namespace Xtensive.Sql
     /// <returns>Created command.</returns>
     public DbCommand CreateCommand()
     {
+      EnsureIsNotDisposed();
       var command = CreateNativeCommand();
-      if (commandTimeout!=null) {
+      if (commandTimeout != null) {
         command.CommandTimeout = commandTimeout.Value;
       }
 
@@ -96,6 +110,8 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
+      EnsureIsNotDisposed();
+
       var command = CreateCommand();
       command.CommandText = Driver.Compile(statement).GetCommandText();
       return command;
@@ -109,6 +125,8 @@ namespace Xtensive.Sql
     public DbCommand CreateCommand(string commandText)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(commandText, nameof(commandText));
+      EnsureIsNotDisposed();
+
       var command = CreateCommand();
       command.CommandText = commandText;
       return command;
@@ -145,7 +163,11 @@ namespace Xtensive.Sql
     /// <summary>
     /// Opens the connection.
     /// </summary>
-    public virtual void Open() => UnderlyingConnection.Open();
+    public virtual void Open()
+    {
+      EnsureIsNotDisposed();
+      UnderlyingConnection.Open();
+    }
 
     /// <summary>
     /// Opens the connection and initialize it with given script.
@@ -204,12 +226,20 @@ namespace Xtensive.Sql
     /// <summary>
     /// Closes the connection.
     /// </summary>
-    public virtual void Close() => UnderlyingConnection.Close();
+    public virtual void Close()
+    {
+      EnsureIsNotDisposed();
+      UnderlyingConnection.Close();
+    }
 
     /// <summary>
     /// Closes the connection.
     /// </summary>
-    public virtual Task CloseAsync() => UnderlyingConnection.CloseAsync();
+    public virtual Task CloseAsync()
+    {
+      EnsureIsNotDisposed();
+      await UnderlyingConnection.CloseAsync();
+    }
 
     /// <summary>
     /// Begins the transaction.
@@ -248,7 +278,9 @@ namespace Xtensive.Sql
     /// </summary>
     public virtual void Commit()
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
+
       try {
         ActiveTransaction.Commit();
       }
@@ -263,6 +295,7 @@ namespace Xtensive.Sql
     /// </summary>
     public virtual async Task CommitAsync(CancellationToken token = default)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
         await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
@@ -278,14 +311,16 @@ namespace Xtensive.Sql
     /// </summary>
     public virtual void Rollback()
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
+
       try {
         ActiveTransaction.Rollback();
       }
       finally {
         ActiveTransaction.Dispose();
         ClearActiveTransaction();
-      }      
+      }
     }
 
     /// <summary>
@@ -293,6 +328,7 @@ namespace Xtensive.Sql
     /// </summary>
     public virtual async Task RollbackAsync(CancellationToken token = default)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       try {
         await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
@@ -309,7 +345,8 @@ namespace Xtensive.Sql
     /// <param name="name">The name of the savepoint.</param>
     public virtual void MakeSavepoint(string name)
     {
-      // That's ok to make a savepoint even if they aren't supported - 
+      EnsureIsNotDisposed();
+      // That's ok to make a savepoint even if they aren't supported -
       // default impl. will fail on rollback
     }
 
@@ -317,10 +354,7 @@ namespace Xtensive.Sql
     /// Rollbacks current transaction to the specified savepoint.
     /// </summary>
     /// <param name="name">The name of the savepoint.</param>
-    public virtual void RollbackToSavepoint(string name)
-    {
-      throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
-    }
+    public virtual void RollbackToSavepoint(string name) => throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
 
     /// <summary>
     /// Releases the savepoint with the specfied name.
@@ -328,6 +362,7 @@ namespace Xtensive.Sql
     /// <param name="name">The name of the savepoint.</param>
     public virtual void ReleaseSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       // That's ok to release a savepoint even if they aren't supported - 
       // default impl. will fail on rollback
     }
@@ -340,11 +375,17 @@ namespace Xtensive.Sql
       }
 
       isDisposed = true;
-      if (ActiveTransaction!=null) {
-        ActiveTransaction.Dispose();
-        ClearActiveTransaction();
+
+      try {
+        if (ActiveTransaction != null) {
+          ActiveTransaction.Dispose();
+          ClearActiveTransaction();
+        }
       }
-      UnderlyingConnection.Dispose();
+      finally {
+        UnderlyingConnection.DisposeSafely();
+        ClearUnderlyingConnection();
+      }
     }
 
     /// <inheritdoc/>
@@ -355,18 +396,28 @@ namespace Xtensive.Sql
       }
 
       isDisposed = true;
-      if (ActiveTransaction!=null) {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
-        ClearActiveTransaction();
+      try {
+        if (ActiveTransaction != null) {
+          await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+          ClearActiveTransaction();
+        }
       }
-      await UnderlyingConnection.DisposeAsync().ConfigureAwait(false);
+      finally {
+        await UnderlyingConnection.DisposeAsync().ConfigureAwait(false);
+        ClearUnderlyingConnection();
+      }
     }
 
     /// <summary>
     /// Clears the active transaction (i.e. sets <see cref="ActiveTransaction"/> to <see langword="null"/>.
     /// </summary>
     protected abstract void ClearActiveTransaction();
-    
+
+    /// <summary>
+    /// Clears underlying connection (i.e. sets <see cref="UnderlyingConnection"/> to <see langword="null"/>.
+    /// </summary>
+    protected abstract void ClearUnderlyingConnection();
+
     /// <summary>
     /// Creates the native command.
     /// </summary>
@@ -376,9 +427,10 @@ namespace Xtensive.Sql
     /// <summary>
     /// Ensures the transaction is active (i.e. <see cref="ActiveTransaction"/> is not <see langword="null"/>).
     /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void EnsureTransactionIsActive()
     {
-      if (ActiveTransaction==null) {
+      if (ActiveTransaction == null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldBeActive);
       }
     }
@@ -388,11 +440,10 @@ namespace Xtensive.Sql
     /// </summary>
     protected void EnsureTransactionIsNotActive()
     {
-      if (ActiveTransaction!=null) {
+      if (ActiveTransaction != null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
       }
     }
-
 
     // Constructors
 

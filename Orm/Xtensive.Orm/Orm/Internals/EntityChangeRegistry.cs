@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.11.03
 
@@ -49,11 +49,12 @@ namespace Xtensive.Orm.Internals
       }
       else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
         modified.Remove(item);
+        count--;
       }
 
       var container = GetContainer(item.PersistenceState);
-      container.Add(item);
-      count++;
+      if (container.Add(item))
+        count++;
     }
 
     /// <summary>

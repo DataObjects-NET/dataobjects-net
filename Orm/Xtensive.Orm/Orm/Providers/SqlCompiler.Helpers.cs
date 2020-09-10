@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Transformation;
@@ -23,31 +22,27 @@ namespace Xtensive.Orm.Providers
   partial class SqlCompiler 
   {
     protected SqlProvider CreateProvider(SqlSelect statement,
-      CompilableProvider origin, params ExecutableProvider[] sources)
-    {
-      return CreateProvider(statement, (IEnumerable<QueryParameterBinding>) null, origin, sources);
-    }
+      CompilableProvider origin, params ExecutableProvider[] sources) =>
+      CreateProvider(statement, (IEnumerable<QueryParameterBinding>) null, origin, sources);
 
     protected SqlProvider CreateProvider(SqlSelect statement, QueryParameterBinding extraBinding,
       CompilableProvider origin, params ExecutableProvider[] sources)
     {
-      var extraBindings = extraBinding!=null ? EnumerableUtils.One(extraBinding) : null;
+      var extraBindings = extraBinding!=null ? Enumerable.Repeat(extraBinding, 1) : null;
       return CreateProvider(statement, extraBindings, origin, sources);
     }
 
     protected SqlProvider CreateProvider(SqlSelect statement, IEnumerable<QueryParameterBinding> extraBindings,
       CompilableProvider origin, params ExecutableProvider[] sources)
     {
-      var sqlSources = sources.OfType<SqlProvider>();
-
-      var parameterBindings = sqlSources.SelectMany(p => p.Request.ParameterBindings);
-      if (extraBindings!=null) {
-        parameterBindings = parameterBindings.Concat(extraBindings);
+      var allowBatching = true;
+      var parameterBindings = extraBindings ?? Enumerable.Empty<QueryParameterBinding>();
+      foreach (var provider in sources.OfType<SqlProvider>()) {
+        var queryRequest = provider.Request;
+        allowBatching &= queryRequest.CheckOptions(QueryRequestOptions.AllowOptimization);
+        parameterBindings = parameterBindings.Concat(queryRequest.ParameterBindings);
       }
 
-      var allowBatching = sqlSources
-        .Aggregate(true, (current, provider) =>
-          current && provider.Request.CheckOptions(QueryRequestOptions.AllowOptimization));
       var tupleDescriptor = origin.Header.TupleDescriptor;
 
       var options = QueryRequestOptions.Empty;
@@ -64,10 +59,7 @@ namespace Xtensive.Orm.Providers
       return new SqlProvider(Handlers, request, origin, sources);
     }
 
-    protected virtual string ProcessAliasedName(string name)
-    {
-      return name;
-    }
+    protected virtual string ProcessAliasedName(string name) => name;
 
     protected Pair<SqlExpression, IEnumerable<QueryParameterBinding>> ProcessExpression(LambdaExpression le,
       params IReadOnlyList<SqlExpression>[] sourceColumns)
@@ -102,22 +94,13 @@ namespace Xtensive.Orm.Providers
       SqlExpression expression;
       if (IsColumnStub(column)) {
         expression = stubColumnMap[ExtractColumnStub(column)];
-        var subQuery = expression as SqlSubQuery;
-        if (!subQuery.IsNullReference()) {
-          var subSelect = subQuery.Query as SqlSelect;
-          if (subSelect!=null) {
-            if (subSelect.Columns.Count==1 && subSelect.From==null) {
-              var userColumn = subSelect.Columns[0] as SqlUserColumn;
-              if (!userColumn.IsNullReference()) {
-                var cast = userColumn.Expression as SqlCast;
-                if (!cast.IsNullReference() && cast.Type.Type==SqlType.Boolean) {
-                  var sqlCase = cast.Operand as SqlCase;
-                  if (!sqlCase.IsNullReference() && sqlCase.Count==1) {
-                    var pair = sqlCase.First();
-                    var key = pair.Key as SqlUnary;
-                    if (!key.IsNullReference() && pair.Value is SqlLiteral<int>)
-                      expression = cast;
-                  }
+        if (expression is SqlSubQuery subQuery && subQuery.Query is SqlSelect subSelect && subSelect.From == null) {
+          if (subSelect.Columns.Count == 1 && subSelect.Columns[0] is SqlUserColumn userColumn) {
+            if (userColumn.Expression is SqlCast cast && cast.Type.Type == SqlType.Boolean) {
+              if (cast.Operand is SqlCase sqlCase && sqlCase.Count == 1) {
+                var pair = sqlCase.First();
+                if (pair.Key is SqlUnary && pair.Value is SqlLiteral<int>) {
+                  expression = cast;
                 }
               }
             }
@@ -128,8 +111,7 @@ namespace Xtensive.Orm.Providers
         expression = column;
       }
 
-      var columnRef = expression as SqlColumnRef;
-      if (!columnRef.IsNullReference()) {
+      if (expression is SqlColumnRef columnRef) {
         expression = columnRef.SqlColumn;
       }
 
@@ -151,12 +133,10 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression)
-    {
-      return providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)
+    protected SqlExpression GetBooleanColumnExpression(SqlExpression originalExpression) =>
+      providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)
         ? originalExpression
         : booleanExpressionConverter.BooleanToInt(originalExpression);
-    }
 
     protected QueryRequest CreateQueryRequest(StorageDriver driver, SqlSelect statement,
       IEnumerable<QueryParameterBinding> parameterBindings,
@@ -174,8 +154,8 @@ namespace Xtensive.Orm.Providers
       if (column is SqlUserColumn) {
         return true;
       }
-      var cRef = column as SqlColumnRef;
-      return cRef?.SqlColumn is SqlUserColumn;
+
+      return column is SqlColumnRef columnRef && columnRef.SqlColumn is SqlUserColumn;
     }
 
     private static bool IsColumnStub(SqlColumn column)
@@ -184,38 +164,32 @@ namespace Xtensive.Orm.Providers
         return true;
       }
 
-      var cRef = column as SqlColumnRef;
-      return cRef?.SqlColumn is SqlColumnStub;
+      return column is SqlColumnRef columnRef && columnRef.SqlColumn is SqlColumnStub;
     }
 
-    private static SqlColumnStub ExtractColumnStub(SqlColumn column)
-    {
-      switch (column) {
-        case SqlColumnStub columnStub:
-          return columnStub;
-        case SqlColumnRef columnRef:
-          return (SqlColumnStub) columnRef.SqlColumn;
-        default:
-          return (SqlColumnStub) column;
-      }
-    }
+    private static bool IsTypeIdColumn(SqlColumn column) =>
+      column switch {
+        SqlUserColumn _ => string.Equals(column.Name, "TypeId", StringComparison.OrdinalIgnoreCase),
+        SqlColumnRef cRef => string.Equals(cRef.Name, "TypeId", StringComparison.OrdinalIgnoreCase),
+        _ => false
+      };
 
-    private static SqlUserColumn ExtractUserColumn(SqlColumn column)
-    {
-      switch (column) {
-        case SqlUserColumn userColumn:
-          return userColumn;
-        case SqlColumnRef columnRef:
-          return (SqlUserColumn) columnRef.SqlColumn;
-        default:
-          return (SqlUserColumn) column;
-      }
-    }
+    private static SqlColumnStub ExtractColumnStub(SqlColumn column) =>
+      column switch {
+        SqlColumnRef columnRef => (SqlColumnStub) columnRef.SqlColumn,
+        _ => (SqlColumnStub) column
+      };
+
+    private static SqlUserColumn ExtractUserColumn(SqlColumn column) =>
+      column switch {
+        SqlColumnRef columnRef => (SqlUserColumn) columnRef.SqlColumn,
+        _ => (SqlUserColumn) column
+      };
 
     private static bool ShouldUseQueryReference(CompilableProvider origin, SqlProvider compiledSource)
     {
       var sourceSelect = compiledSource.Request.Statement;
-      if (sourceSelect.From==null) {
+      if (sourceSelect.From == null) {
         return false;
       }
 
@@ -227,8 +201,10 @@ namespace Xtensive.Orm.Providers
           calculatedColumnIndexes.Add(columnIndex);
           rowNumberIsUsed = rowNumberIsUsed || ExtractUserColumn(column).Expression is SqlRowNumber;
         }
+
         columnIndex++;
       }
+
       var containsCalculatedColumns = calculatedColumnIndexes.Count > 0;
       var pagingIsUsed = rowNumberIsUsed
         || !sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference();
@@ -261,7 +237,7 @@ namespace Xtensive.Orm.Providers
           return usedColumnIndexes.Any(calculatedColumnIndexes.Contains);
         }
         case ProviderType.Aggregate: {
-          var aggregateProvider = (AggregateProvider)origin;
+          var aggregateProvider = (AggregateProvider) origin;
           var usedColumnIndexes = (aggregateProvider.AggregateColumns ?? Enumerable.Empty<AggregateColumn>())
             .Select(ac => ac.SourceIndex)
             .Concat(aggregateProvider.GroupColumnIndexes);
@@ -312,7 +288,9 @@ namespace Xtensive.Orm.Providers
           return orderingOverCalculatedColumn;
         }
         default:
-          return containsCalculatedColumns || distinctIsUsed || pagingIsUsed || groupByIsUsed;
+          var typeIdIsOnlyCalculatedColumn = containsCalculatedColumns && calculatedColumnIndexes.Count == 1
+            && IsTypeIdColumn(sourceSelect.Columns[calculatedColumnIndexes[0]]);
+          return (containsCalculatedColumns && !typeIdIsOnlyCalculatedColumn) || distinctIsUsed || pagingIsUsed || groupByIsUsed;
       }
     }
 

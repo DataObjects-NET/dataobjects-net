@@ -1,26 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
-    <DocumentationFile>..\..\_Build\$(Configuration)\lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
+    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
+    <DocumentationFile>$(SolutionDir)_Build\$(Configuration)\lib\$(TargetFramework)\Xtensive.Orm.PostgreSql.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
     <RootNamespace>Xtensive</RootNamespace>
     <PackageId>Xtensive.Orm.PostgreSql</PackageId>
     <Title>$(DoProductName) provider for PostgreSQL</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>Adds support for PostgreSQL to $(DoProductName)</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Label="Debug" Condition="'$(Configuration)'=='Debug'">
-    <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
-    <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Npgsql" Version="4.1.3.1" />

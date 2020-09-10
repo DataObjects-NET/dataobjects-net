@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.05
 
@@ -50,6 +50,7 @@ namespace Xtensive.Orm.Linq.Expressions
         // Do not convert to LINQ. We want to avoid a closure creation here.
         processedFields.Add((PersistentFieldExpression) field.Remap(offset, processedExpressions));
       }
+
       if (Owner == null) {
         result.fields = processedFields;
         return result;
@@ -98,6 +99,7 @@ namespace Xtensive.Orm.Linq.Expressions
         result.fields = processedFields;
         return result;
       }
+
       result.Fields = processedFields;
       Owner.Remap(map, processedExpressions);
       return result;
@@ -153,7 +155,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override FieldExpression RemoveOwner()
     {
-      if (Owner==null) {
+      if (Owner == null) {
         return this;
       }
 
@@ -163,6 +165,7 @@ namespace Xtensive.Orm.Linq.Expressions
       foreach (var field in fields) {
         result.fields.Add(((FieldExpression) field).RemoveOwner());
       }
+
       return result;
     }
 
@@ -188,12 +191,18 @@ namespace Xtensive.Orm.Linq.Expressions
 // ReSharper disable RedundantNameQualifier
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)
     {
-      if (nestedField.IsPrimitive)
+      if (nestedField.IsPrimitive) {
         return FieldExpression.CreateField(nestedField, offset);
-      if (nestedField.IsStructure)
+      }
+
+      if (nestedField.IsStructure) {
         return StructureFieldExpression.CreateStructure(nestedField, offset);
-      if (nestedField.IsEntity)
+      }
+
+      if (nestedField.IsEntity) {
         return EntityFieldExpression.CreateEntityField(nestedField, offset);
+      }
+
       throw new NotSupportedException(string.Format(Strings.ExNestedFieldXIsNotSupported, nestedField.Attributes));
     }
 // ReSharper restore RedundantNameQualifier

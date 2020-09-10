@@ -26,6 +26,9 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator : QueryableVisitor
   {
+    private static readonly Type KeyType = typeof(Key);
+    private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
+
     public TranslatorState state;
     private readonly TranslatorContext context;
 
@@ -1224,10 +1227,9 @@ namespace Xtensive.Orm.Linq
         var isOuter = false;
         if (collectionSelector.Body.NodeType == ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
-          var genericMethodDefinition = call.Method.GetGenericMethodDefinition();
-          isOuter = call.Method.IsGenericMethod
-            && (genericMethodDefinition == WellKnownMembers.Queryable.DefaultIfEmpty
-              || genericMethodDefinition == WellKnownMembers.Enumerable.DefaultIfEmpty);
+          var method = call.Method;
+          isOuter = method.IsGenericMethodSpecificationOf(WellKnownMembers.Queryable.DefaultIfEmpty)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Enumerable.DefaultIfEmpty);
           if (isOuter) {
             collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
           }
@@ -1420,9 +1422,7 @@ namespace Xtensive.Orm.Linq
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
       using (state.CreateScope()) {
-        if (source.IsLocalCollection(context) &&
-          (source.Type.IsGenericType && source.Type.GetGenericArguments()[0].IsAssignableFrom(WellKnownOrmTypes.Key)) ||
-          (source.Type.IsAssignableFrom(WellKnownOrmTypes.Key))) {
+        if (source.IsLocalCollection(context) && IsKeyCollection(source.Type)) {
           var localCollectionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body);
           state.TypeOfEntityStoredInKey = localCollectionKeyType;
         }
@@ -1740,6 +1740,12 @@ namespace Xtensive.Orm.Linq
         var lambda = FastExpression.Lambda(Expression.Not(Expression.Call(containsMethod, setA, parameter)), parameter);
         return VisitAll(setB, lambda, isRoot);
       }
+    }
+
+    private bool IsKeyCollection(Type localCollectionType)
+    {
+      return (localCollectionType.IsArray && localCollectionType.GetElementType() == KeyType)
+        || IEnumerableOfKeyType.IsAssignableFrom(localCollectionType);
     }
   }
 }

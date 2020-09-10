@@ -20,17 +20,18 @@ namespace Xtensive.Orm.Linq.Expressions
   internal class ItemProjectorExpression : ExtendedExpression
   {
     public CompilableProvider DataSource { get; set; }
-    public TranslatorContext Context { get; private set; }
-    public Expression Item { get; private set; }
+    public TranslatorContext Context { get; }
+    public Expression Item { get; }
     public AggregateType? AggregateType { get; }
 
-    public bool IsPrimitive { get { return CheckItemIsPrimitive(Item); } }
+    public bool IsPrimitive => CheckItemIsPrimitive(Item);
 
-    private bool CheckItemIsPrimitive(Expression item)
+    private static bool CheckItemIsPrimitive(Expression item)
     {
-      var extendedItem = item.StripCasts() as ExtendedExpression;
-      if (extendedItem==null)
+      if (!(item.StripCasts() is ExtendedExpression extendedItem)) {
         return false;
+      }
+
       switch (extendedItem.ExtendedType) {
         case ExtendedExpressionType.Column:
         case ExtendedExpressionType.Field:
@@ -43,49 +44,46 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public List<int> GetColumns(ColumnExtractionModes columnExtractionModes)
-    {
-      return ColumnGatherer.GetColumns(Item, columnExtractionModes);
-    }
+    public List<int> GetColumns(ColumnExtractionModes columnExtractionModes) =>
+      ColumnGatherer.GetColumns(Item, columnExtractionModes);
 
-    public List<Pair<int, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes)
-    {
-      return ColumnGatherer.GetColumnsAndExpressions(Item, columnExtractionModes);
-    }
+    public List<Pair<int, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>
+      ColumnGatherer.GetColumnsAndExpressions(Item, columnExtractionModes);
 
     public ItemProjectorExpression Remap(CompilableProvider dataSource, int offset)
     {
-      if (offset==0)
+      if (offset == 0) {
         return new ItemProjectorExpression(Item, dataSource, Context, AggregateType);
-      var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(offset, new Dictionary<Expression, Expression>()));
+      }
+
+      var item = GenericExpressionVisitor<IMappedExpression>
+        .Process(Item, mapped => mapped.Remap(offset, new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, dataSource, Context, AggregateType);
     }
 
     public ItemProjectorExpression Remap(CompilableProvider dataSource, int[] columnMap)
     {
-      var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));
+      var item = GenericExpressionVisitor<IMappedExpression>
+        .Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, dataSource, Context, AggregateType);
     }
 
-    public LambdaExpression ToLambda(TranslatorContext context)
-    {
-      return ExpressionMaterializer.MakeLambda(Item, context);
-    }
+    public LambdaExpression ToLambda(TranslatorContext context) => ExpressionMaterializer.MakeLambda(Item, context);
 
-    public MaterializationInfo Materialize(TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters)
-    {
-      return ExpressionMaterializer.MakeMaterialization(this, context, tupleParameters);
-    }
+    public MaterializationInfo Materialize(TranslatorContext context, IEnumerable<Parameter<Tuple>> tupleParameters) =>
+      ExpressionMaterializer.MakeMaterialization(this, context, tupleParameters);
 
     public ItemProjectorExpression BindOuterParameter(ParameterExpression parameter)
     {
-      var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.BindParameter(parameter, new Dictionary<Expression, Expression>()));
+      var item = GenericExpressionVisitor<IMappedExpression>
+        .Process(Item, mapped => mapped.BindParameter(parameter, new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, DataSource, Context, AggregateType);
     }
 
     public ItemProjectorExpression RemoveOuterParameter()
     {
-      var item = GenericExpressionVisitor<IMappedExpression>.Process(Item, mapped => mapped.RemoveOuterParameter(new Dictionary<Expression, Expression>()));
+      var item = GenericExpressionVisitor<IMappedExpression>
+        .Process(Item, mapped => mapped.RemoveOuterParameter(new Dictionary<Expression, Expression>()));
       return new ItemProjectorExpression(item, DataSource, Context, AggregateType);
     }
 
@@ -115,8 +113,7 @@ namespace Xtensive.Orm.Linq.Expressions
     {
       var dataSource = DataSource;
       var newItem = new ExtendedExpressionReplacer(e => {
-        if (e is EntityExpression) {
-          var entityExpression = (EntityExpression) e;
+        if (e is EntityExpression entityExpression) {
           var typeInfo = entityExpression.PersistentType;
 
           // Converted from LINQ to get rid of 2 closure allocations 
@@ -134,8 +131,10 @@ namespace Xtensive.Orm.Linq.Expressions
               break;
             }
           }
-          if (all)
+
+          if (all) {
             return entityExpression;
+          }
 
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
@@ -147,17 +146,19 @@ namespace Xtensive.Orm.Linq.Expressions
             rightIndex++;
           }
           var offset = dataSource.Header.Length;
-          var dataSourceAsJoin = dataSource as JoinProvider;
-          dataSource = entityExpression.IsNullable || (dataSourceAsJoin!=null && dataSourceAsJoin.JoinType==JoinType.LeftOuter)
-            ? dataSource.LeftJoin(joinedRs, keyPairs)
-            : dataSource.Join(joinedRs, keyPairs);
+          dataSource = entityExpression.IsNullable
+            || (dataSource is JoinProvider dataSourceAsJoin && dataSourceAsJoin.JoinType == JoinType.LeftOuter)
+              ? dataSource.LeftJoin(joinedRs, keyPairs)
+              : dataSource.Join(joinedRs, keyPairs);
           EntityExpression.Fill(entityExpression, offset);
           return entityExpression;
         }
-        if (e is EntityFieldExpression) {
-          var entityFieldExpression = (EntityFieldExpression)e;
-          if (entityFieldExpression.Entity != null)
+
+        if (e is EntityFieldExpression entityFieldExpression) {
+          if (entityFieldExpression.Entity != null) {
             return entityFieldExpression.Entity;
+          }
+
           var typeInfo = entityFieldExpression.PersistentType;
           var joinedIndex = typeInfo.Indexes.PrimaryIndex;
           var joinedRs = joinedIndex.GetQuery().Alias(Context.GetNextAlias());
@@ -169,28 +170,26 @@ namespace Xtensive.Orm.Linq.Expressions
             rightIndex++;
           }
           var offset = dataSource.Header.Length;
-          var dataSourceAsJoin = dataSource as JoinProvider;
-          dataSource = entityFieldExpression.IsNullable || (dataSourceAsJoin!=null && dataSourceAsJoin.JoinType==JoinType.LeftOuter)
-            ? dataSource.LeftJoin(joinedRs, keyPairs)
-            : dataSource.Join(joinedRs, keyPairs);
+          dataSource = entityFieldExpression.IsNullable
+            || (dataSource is JoinProvider dataSourceAsJoin && dataSourceAsJoin.JoinType == JoinType.LeftOuter)
+              ? dataSource.LeftJoin(joinedRs, keyPairs)
+              : dataSource.Join(joinedRs, keyPairs);
           entityFieldExpression.RegisterEntityExpression(offset);
           return entityFieldExpression.Entity;
         }
-        if (e is FieldExpression) {
-          var fe = (FieldExpression) e;
-          if (fe.ExtendedType==ExtendedExpressionType.Field)
-            return fe.RemoveOwner();
+
+        if (e is FieldExpression fe && fe.ExtendedType == ExtendedExpressionType.Field) {
+          return fe.RemoveOwner();
         }
+
         return null;
       })
         .Replace(Item);
       return new ItemProjectorExpression(newItem, dataSource, Context, AggregateType);
     }
 
-    public override string ToString()
-    {
-      return string.Format("ItemProjectorExpression: IsPrimitive = {0} Item = {1}, DataSource = {2}", IsPrimitive, Item, DataSource);
-    }
+    public override string ToString() =>
+      $"ItemProjectorExpression: IsPrimitive = {IsPrimitive} Item = {Item}, DataSource = {DataSource}";
 
 
     // Constructors
@@ -204,8 +203,8 @@ namespace Xtensive.Orm.Linq.Expressions
       Context = context;
       var newApplyParameter = Context.GetApplyParameter(dataSource);
       var applyParameterReplacer = new ExtendedExpressionReplacer(ex =>
-        ex is SubQueryExpression
-          ? ((SubQueryExpression) ex).ReplaceApplyParameter(newApplyParameter)
+        ex is SubQueryExpression queryExpression
+          ? queryExpression.ReplaceApplyParameter(newApplyParameter)
           : null);
       Item = applyParameterReplacer.Replace(expression);
       AggregateType = aggregateType;

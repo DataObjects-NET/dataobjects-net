@@ -42,7 +42,7 @@ namespace Xtensive.Orm
     private bool isDisposed;
     private Session singleConnectionOwner;
 
-    private bool IsDebugEventLoggingEnabled { get; set; }
+    private readonly bool isDebugEventLoggingEnabled;
 
     /// <summary>
     /// Occurs when new <see cref="Session"/> is open and activated.
@@ -239,7 +239,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
       configuration.Lock(true);
 
-      if (IsDebugEventLoggingEnabled) {
+      if (isDebugEventLoggingEnabled) {
         OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
       }
 
@@ -390,7 +390,9 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
-      OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+      if (isDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+      }
 
       Session session;
       if (SingleConnection!=null) {
@@ -470,7 +472,7 @@ namespace Xtensive.Orm
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
-      IsDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
+      isDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
     }
 
     /// <inheritdoc/>
@@ -487,7 +489,7 @@ namespace Xtensive.Orm
 
         isDisposed = true;
 
-        if (IsDebugEventLoggingEnabled) {
+        if (isDebugEventLoggingEnabled) {
           OrmLog.Debug(Strings.LogDomainIsDisposing);
         }
 

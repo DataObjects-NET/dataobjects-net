@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Operations
     {
       Type fieldType;
       string fieldName = string.Empty;
-      if (field.IsDynalicallyDefined) {
+      if (field.IsDynamicallyDefined) {
         fieldType = field.ValueType;
         var name = field.Name;
       }

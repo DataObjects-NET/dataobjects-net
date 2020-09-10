@@ -7,6 +7,7 @@
 using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq.Model
 {
@@ -14,29 +15,29 @@ namespace Xtensive.Orm.Linq.Model
   {
     public static GroupByQuery ParseGroupBy(MethodCallExpression mc)
     {
-      var method = mc.Method.GetGenericMethodDefinition();
+      var method = mc.Method;
 
-      if (method==QueryableMethodInfo.GroupBy)
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupBy))
         return new GroupByQuery {
           Source = mc.Arguments[0],
           KeySelector = mc.Arguments[1].StripQuotes(),
         };
 
-      if (method==QueryableMethodInfo.GroupByWithElementSelector)
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementSelector))
         return new GroupByQuery {
           Source = mc.Arguments[0],
           KeySelector = mc.Arguments[1].StripQuotes(),
           ElementSelector = mc.Arguments[2].StripQuotes(),
         };
 
-      if (method==QueryableMethodInfo.GroupByWithResultSelector)
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithResultSelector))
         return new GroupByQuery {
             Source = mc.Arguments[0],
             KeySelector = mc.Arguments[1].StripQuotes(),
             ResultSelector = mc.Arguments[2].StripQuotes(),
           };
 
-      if (method==QueryableMethodInfo.GroupByWithElementAndResultSelectors)
+      if (method.IsGenericMethodSpecificationOf(QueryableMethodInfo.GroupByWithElementAndResultSelectors))
         return new GroupByQuery {
           Source = mc.Arguments[0],
           KeySelector = mc.Arguments[1].StripQuotes(),
