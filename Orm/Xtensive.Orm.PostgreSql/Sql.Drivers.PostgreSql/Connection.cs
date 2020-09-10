@@ -34,7 +34,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     [SecuritySafeCritical]
     public override void BeginTransaction()
     {
-      EnsureTrasactionIsNotActive();
+      EnsureIsNotDisposed();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
@@ -42,13 +43,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     [SecuritySafeCritical]
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      EnsureTrasactionIsNotActive();
+      EnsureIsNotDisposed();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
     }
 
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       var commandText = string.Format("SAVEPOINT {0}", name);
       using (var command = CreateCommand(commandText))
@@ -58,6 +61,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       var commandText = string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
       using (var command = CreateCommand(commandText))
@@ -67,6 +71,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       var commandText = string.Format("RELEASE SAVEPOINT {0}", name);
       using (var command = CreateCommand(commandText))
@@ -79,6 +84,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       activeTransaction = null;
     }
 
+    /// <inheritdoc/>
+    protected override void ClearUnderlyingConnection()
+    {
+      underlyingConnection = null;
+    }
 
     // Constructors
 
