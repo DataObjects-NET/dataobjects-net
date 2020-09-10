@@ -20,13 +20,13 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private readonly PrefetchManager manager;
 
-    public async ValueTask<int> ExecuteTasks(
-      IReadOnlyCollection<GraphContainer> containers, bool skipPersist, bool isAsync, CancellationToken token)
+    public async ValueTask<int> ExecuteTasks(IReadOnlyCollection<GraphContainer> containers, bool skipPersist,
+      bool isAsync, CancellationToken token)
     {
       var batchExecuted = 0;
       try {
         var rootEntityContainers = containers
-          .Where(container => container.RootEntityContainer!=null)
+          .Where(container => container.RootEntityContainer != null)
           .Select(container => container.RootEntityContainer);
         foreach (var container in rootEntityContainers) {
           AddTask(container);
@@ -47,13 +47,13 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         var referencedEntityContainers = containers
           .Select(container => container.ReferencedEntityContainers)
-          .Where(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers!=null)
+          .Where(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers != null)
           .SelectMany(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers);
         foreach (var container in referencedEntityContainers) {
           AddTask(container);
         }
 
-        if (tasks.Count==0) {
+        if (tasks.Count == 0) {
           return batchExecuted;
         }
 
@@ -77,9 +77,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       foreach (var container in containers) {
         var entitySetPrefetchTasks = container.EntitySetTasks;
-        if (entitySetPrefetchTasks!=null) {
-          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks)
+        if (entitySetPrefetchTasks != null) {
+          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
             entitySetPrefetchTask.UpdateCache();
+          }
         }
       }
     }
@@ -88,9 +89,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       foreach (var container in containers) {
         var entitySetPrefetchTasks = container.EntitySetTasks;
-        if (entitySetPrefetchTasks!=null) {
-          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks)
+        if (entitySetPrefetchTasks != null) {
+          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
             entitySetPrefetchTask.RegisterQueryTask();
+          }
         }
       }
     }
@@ -98,12 +100,13 @@ namespace Xtensive.Orm.Internals.Prefetch
     private void AddTask(EntityContainer container)
     {
       var newTask = container.GetTask();
-      if (newTask!=null) {
+      if (newTask != null) {
         var existingTask = tasks[newTask];
         if (existingTask == null) {
           tasks.Add(newTask);
           existingTask = newTask;
         }
+
         existingTask.AddKey(container.Key, container.ExactType);
       }
     }
@@ -118,8 +121,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private void RegisterAllEntityGroupTasks()
     {
-      foreach (var task in tasks)
+      foreach (var task in tasks) {
         task.RegisterQueryTasks();
+      }
     }
 
 
