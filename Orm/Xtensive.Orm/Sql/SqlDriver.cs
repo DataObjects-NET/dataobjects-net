@@ -27,7 +27,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets an instance that provides the most essential information about underlying RDBMS.
     /// </summary>
-    public CoreServerInfo CoreServerInfo { get; private set; }
+    public CoreServerInfo CoreServerInfo { get; }
 
     /// <summary>
     /// Gets an instance that provides complete information about underlying RDBMS.
@@ -85,7 +85,7 @@ namespace Xtensive.Sql
     public DefaultSchemaInfo GetDefaultSchema(SqlConnection connection)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      if (connection.Driver!=this) {
+      if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       }
 
@@ -101,7 +101,7 @@ namespace Xtensive.Sql
     public Task<DefaultSchemaInfo> GetDefaultSchemaAsync(SqlConnection connection, CancellationToken token)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
-      if (connection.Driver!=this) {
+      if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       }
 
@@ -119,7 +119,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
       ArgumentValidator.EnsureArgumentNotNull(tasks, nameof(tasks));
 
-      if (connection.Driver!=this) {
+      if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       }
 
@@ -158,13 +158,13 @@ namespace Xtensive.Sql
     /// <param name="tasks">Connection to use.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns>Extracted catalogs.</returns>
-    public async Task<SqlExtractionResult> ExtractAsync(
-      SqlConnection connection, IEnumerable<SqlExtractionTask> tasks, CancellationToken token = default)
+    public async Task<SqlExtractionResult> ExtractAsync(SqlConnection connection, IEnumerable<SqlExtractionTask> tasks,
+      CancellationToken token = default)
     {
       ArgumentValidator.EnsureArgumentNotNull(connection, nameof(connection));
       ArgumentValidator.EnsureArgumentNotNull(tasks, nameof(tasks));
 
-      if (connection.Driver!=this) {
+      if (connection.Driver != this) {
         throw new ArgumentException(Strings.ExSpecifiedConnectionDoesNotBelongToThisDriver);
       }
 
@@ -464,15 +464,16 @@ namespace Xtensive.Sql
     private Schema ExtractSchema(SqlConnection connection, string databaseName, string schemaName)
     {
       var task = new SqlExtractionTask(databaseName, schemaName);
-      return Extract(connection, new[] {task}).Catalogs[databaseName].Schemas.FirstOrDefault(el=>el.Name==schemaName);
+      return Extract(connection, new[] {task})
+        .Catalogs[databaseName].Schemas.FirstOrDefault(el => el.Name == schemaName);
     }
 
-    private async Task<Schema> ExtractSchemaAsync(
-      SqlConnection connection, string databaseName, string schemaName, CancellationToken token = default)
+    private async Task<Schema> ExtractSchemaAsync(SqlConnection connection, string databaseName, string schemaName,
+      CancellationToken token = default)
     {
       var task = new SqlExtractionTask(databaseName, schemaName);
       return (await ExtractAsync(connection, new[] {task}, token).ConfigureAwait(false))
-        .Catalogs[databaseName].Schemas.FirstOrDefault(el=>el.Name==schemaName);
+        .Catalogs[databaseName].Schemas.FirstOrDefault(el => el.Name == schemaName);
     }
 
     private static void CleanSchemas(Catalog catalog, IEnumerable<string> allowedSchemas)
