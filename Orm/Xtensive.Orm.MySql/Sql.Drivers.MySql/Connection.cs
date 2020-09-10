@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Drivers.MySql
 {
   internal class Connection : SqlConnection
   {
-    private readonly MySqlConnection underlyingConnection;
+    private MySqlConnection underlyingConnection;
     private MySqlTransaction activeTransaction;
 
     /// <inheritdoc/>
@@ -39,7 +39,9 @@ namespace Xtensive.Sql.Drivers.MySql
     [SecuritySafeCritical]
     public override void BeginTransaction()
     {
-      EnsureTrasactionIsNotActive();
+      EnsureIsNotDisposed();
+      EnsureTransactionIsNotActive();
+
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 
@@ -47,14 +49,18 @@ namespace Xtensive.Sql.Drivers.MySql
     [SecuritySafeCritical]
     public override void BeginTransaction(IsolationLevel isolationLevel)
     {
-      EnsureTrasactionIsNotActive();
+      EnsureIsNotDisposed();
+      EnsureTransactionIsNotActive();
+
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
     }
 
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
+
       string commandText = string.Format("SAVEPOINT {0}", name);
       using (DbCommand command = CreateCommand(commandText))
         command.ExecuteNonQuery();
@@ -63,7 +69,9 @@ namespace Xtensive.Sql.Drivers.MySql
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
+
       string commandText = string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
       using (DbCommand command = CreateCommand(commandText))
         command.ExecuteNonQuery();
@@ -72,7 +80,9 @@ namespace Xtensive.Sql.Drivers.MySql
     /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
+      EnsureIsNotDisposed();
       EnsureTransactionIsActive();
+
       string commandText = string.Format("RELEASE SAVEPOINT {0}", name);
       using (DbCommand command = CreateCommand(commandText))
         command.ExecuteNonQuery();
@@ -82,6 +92,12 @@ namespace Xtensive.Sql.Drivers.MySql
     protected override void ClearActiveTransaction()
     {
       activeTransaction = null;
+    }
+
+    /// <inheritdoc/>
+    protected override void ClearUnderlyingConnection()
+    {
+      underlyingConnection = null;
     }
 
     // Constructors
