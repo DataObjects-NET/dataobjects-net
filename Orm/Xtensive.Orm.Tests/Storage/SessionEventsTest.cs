@@ -107,8 +107,8 @@ namespace Xtensive.Orm.Tests.Storage.SessionEventsTestModel
     private void OnTransactionRollbacked(object sender, TransactionEventArgs e) => TransactionRollbackedArgs = e;
     private void OnPersisting(object sender, EventArgs e) => PersistingArgs = e;
     private void OnPersisted(object sender, EventArgs e) => PersistedArgs = e;
-    private void OnChangesCanceling(object sender, EntityEventArgs e) => ChangesCancelingArgs = e;
-    private void OnChangesCanceled(object sender, EntityEventArgs e) => ChangesCanceledArgs = e;
+    private void OnChangesCanceling(object sender, EventArgs e) => ChangesCancelingArgs = e;
+    private void OnChangesCanceled(object sender, EventArgs e) => ChangesCanceledArgs = e;
     private void OnEntityCreated(object sender, EntityEventArgs e) => EntityCreatedArgs = e;
     private void OnEntityRemoving(object sender, EntityEventArgs e) => EntityRemoving = e;
     private void OnEntityRemove(object sender, EntityEventArgs e) => EntityRemoved = e;
