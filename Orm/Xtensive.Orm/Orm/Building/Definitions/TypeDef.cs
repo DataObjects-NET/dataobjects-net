@@ -42,105 +42,78 @@ namespace Xtensive.Orm.Building.Definitions
     /// <summary>
     /// Gets a value indicating whether this instance is entity.
     /// </summary>
-    public bool IsEntity
-    {
-      get { return (attributes & TypeAttributes.Entity) > 0; }
-    }
+    public bool IsEntity => (attributes & TypeAttributes.Entity) > 0;
 
     /// <summary>
     /// Gets a value indicating whether this instance is abstract entity.
     /// </summary>
     public bool IsAbstract
     {
-      get { return (attributes & TypeAttributes.Abstract) > 0; }
+      get => (attributes & TypeAttributes.Abstract) > 0;
       internal set {
         this.EnsureNotLocked();
         Attributes = value
-          ? (Attributes | TypeAttributes.Abstract)
-          : (Attributes & ~TypeAttributes.Abstract);
+          ? Attributes | TypeAttributes.Abstract
+          : Attributes & ~TypeAttributes.Abstract;
       }
     }
 
     /// <summary>
     /// Gets a value indicating whether this instance is system type.
     /// </summary>
-    public bool IsSystem
-    {
-      get { return (attributes & TypeAttributes.System) > 0; }
-    }
+    public bool IsSystem => (attributes & TypeAttributes.System) > 0;
 
     /// <summary>
     /// Gets a value indicating whether this instance is interface.
     /// </summary>
-    public bool IsInterface
-    {
-      get { return (attributes & TypeAttributes.Interface) > 0; }
-    }
+    public bool IsInterface => (attributes & TypeAttributes.Interface) > 0;
 
     /// <summary>
     /// Gets a value indicating whether this instance is structure.
     /// </summary>
-    public bool IsStructure
-    {
-      get { return (attributes & TypeAttributes.Structure) > 0; }
-    }
+    public bool IsStructure => (attributes & TypeAttributes.Structure) > 0;
 
     /// <summary>
     /// Gets a value indicating whether this instance is generic type definition.
     /// </summary>
-    public bool IsGenericTypeDefinition
-    {
-      get { return (attributes & TypeAttributes.GenericTypeDefinition) > 0; }
-    }
+    public bool IsGenericTypeDefinition => (attributes & TypeAttributes.GenericTypeDefinition) > 0;
 
     /// <summary>
     /// Gets a value indicating whether this instance is automatically registered generic type instance.
     /// </summary>
-    public bool IsAutoGenericInstance
-    {
-      get { return (attributes & TypeAttributes.AutoGenericInstance) > 0; }
-    }
+    public bool IsAutoGenericInstance => (attributes & TypeAttributes.AutoGenericInstance) > 0;
 
     /// <summary>
     /// Gets or sets the underlying system type.
     /// </summary>
-    public Type UnderlyingType
-    {
-      get { return underlyingType; }
-    }
+    public Type UnderlyingType => underlyingType;
 
     /// <summary>
     /// Gets the attributes.
     /// </summary>
     public TypeAttributes Attributes
     {
-      get { return attributes; }
-      internal set { attributes = value; }
+      get => attributes;
+      internal set => attributes = value;
     }
 
     /// <summary>
     /// Gets the indexes for this instance.
     /// </summary>
-    public NodeCollection<IndexDef> Indexes
-    {
-      get { return indexes; }
-    }
+    public NodeCollection<IndexDef> Indexes => indexes;
 
     /// <summary>
     /// Gets the fields contained in this instance.
     /// </summary>
-    public NodeCollection<FieldDef> Fields
-    {
-      get { return fields; }
-    }
+    public NodeCollection<FieldDef> Fields => fields;
 
     /// <summary>
     /// Gets the direct implementors of this instance (if this is an interface).
     /// </summary>
     public NodeCollection<TypeDef> Implementors
     {
-      get { return implementors; }
-      internal set { implementors = value; }
+      get => implementors;
+      internal set => implementors = value;
     }
 
     /// <summary>
@@ -184,13 +157,14 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns></returns>
     public FieldDef DefineField(PropertyInfo property)
     {
-      ArgumentValidator.EnsureArgumentNotNull(property, "property");
+      ArgumentValidator.EnsureArgumentNotNull(property, nameof(property));
 
-      if (property.ReflectedType != UnderlyingType)
+      if (property.ReflectedType != UnderlyingType) {
         throw new DomainBuilderException(
           string.Format(Strings.ExPropertyXMustBeDeclaredInTypeY, property.Name, UnderlyingType.GetFullName()));
-            
-      FieldDef fieldDef = builder.DefineField(property);
+      }
+
+      var fieldDef = builder.DefineField(property);
       fields.Add(fieldDef);
       return fieldDef;
     }
@@ -203,10 +177,10 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns></returns>
     public FieldDef DefineField(string name, Type valueType)
     {
-      ArgumentValidator.EnsureArgumentNotNull(valueType, "type");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, nameof(name));
+      ArgumentValidator.EnsureArgumentNotNull(valueType, nameof(valueType));
 
-      FieldDef field = builder.DefineField(UnderlyingType, name, valueType);
+      var field = builder.DefineField(UnderlyingType, name, valueType);
       fields.Add(field);
       return field;
     }
@@ -230,17 +204,21 @@ namespace Xtensive.Orm.Building.Definitions
       underlyingType = type;
       this.validator = validator;
 
-      if (type.IsInterface)
+      if (type.IsInterface) {
         Attributes = TypeAttributes.Interface;
-      else if (type==WellKnownOrmTypes.Structure || type.IsSubclassOf(WellKnownOrmTypes.Structure))
+      }
+      else if (type == WellKnownOrmTypes.Structure || type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
         Attributes = TypeAttributes.Structure;
-      else
+      }
+      else {
         Attributes = type.IsAbstract
           ? TypeAttributes.Entity | TypeAttributes.Abstract
           : TypeAttributes.Entity;
+      }
 
-      if (type.IsGenericTypeDefinition)
+      if (type.IsGenericTypeDefinition) {
         Attributes = Attributes | TypeAttributes.GenericTypeDefinition;
+      }
 
       fields = new NodeCollection<FieldDef>(this, "Fields");
       indexes = new NodeCollection<IndexDef>(this, "Indexes");
