@@ -28,37 +28,45 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       public bool Equals(CacheKey other)
       {
-        if (!Type.Equals(other.Type))
+        if (!Type.Equals(other.Type)) {
           return false;
-        if (ColumnIndexes.Length!=other.ColumnIndexes.Length)
+        }
+
+        if (ColumnIndexes.Length != other.ColumnIndexes.Length) {
           return false;
-        for (var i = ColumnIndexes.Length - 1; i >= 0; i--)
-          if (ColumnIndexes[i]!=other.ColumnIndexes[i])
+        }
+
+        for (var i = ColumnIndexes.Length - 1; i >= 0; i--) {
+          if (ColumnIndexes[i] != other.ColumnIndexes[i]) {
             return false;
+          }
+        }
+
         return true;
       }
 
       public override bool Equals(object obj)
       {
-        if (ReferenceEquals(null, obj))
+        if (ReferenceEquals(null, obj)) {
           return false;
-        if (obj.GetType()!=typeof (CacheKey))
+        }
+
+        if (obj.GetType() != typeof(CacheKey)) {
           return false;
+        }
+
         return Equals((CacheKey) obj);
       }
 
-      public override int GetHashCode()
-      {
-        return cachedHashCode;
-      }
+      public override int GetHashCode() => cachedHashCode;
 
 
       // Constructors
 
       public CacheKey(int[] columnIndexes, TypeInfo type, int cachedHashCode)
       {
-        this.ColumnIndexes = columnIndexes;
-        this.Type = type;
+        ColumnIndexes = columnIndexes;
+        Type = type;
         this.cachedHashCode = cachedHashCode;
       }
     }
@@ -67,13 +75,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private const int MaxKeyCountInOneStatement = 40;
     private static readonly object recordSetCachingRegion = new object();
-    private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private static readonly Parameter<IEnumerable<Tuple>> includeParameter =
       new Parameter<IEnumerable<Tuple>>("Keys");
-    private static readonly IEqualityComparer<HashSet<int>> columnIndexesComparer =
-      HashSet<int>.CreateSetComparer();
 
-    private readonly int[] columnIndexes;
     private Dictionary<Key, bool> keys;
     private readonly TypeInfo type;
     private readonly PrefetchManager manager;
@@ -84,10 +88,14 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void AddKey(Key key, bool exactType)
     {
-      if (keys == null)
+      if (keys == null) {
         keys = new Dictionary<Key, bool>();
-      if (keys.ContainsKey(key))
+      }
+
+      if (keys.ContainsKey(key)) {
         return;
+      }
+
       keys.Add(key, exactType);
     }
 
@@ -99,8 +107,10 @@ namespace Xtensive.Orm.Internals.Prefetch
       var totalCount = 0;
       List<Tuple> currentKeySet = null;
       foreach (var pair in keys) {
-        if (count == 0)
+        if (count == 0) {
           currentKeySet = new List<Tuple>(MaxKeyCountInOneStatement);
+        }
+
         currentKeySet.Add(pair.Key.Value);
         count++;
         totalCount++;
@@ -116,35 +126,36 @@ namespace Xtensive.Orm.Internals.Prefetch
     public void UpdateCache(HashSet<Key> foundKeys)
     {
       var reader = manager.Owner.Session.Domain.EntityDataReader;
-      foreach (var queryTask in queryTasks)
+      foreach (var queryTask in queryTasks) {
         PutLoadedStatesInCache(queryTask.Result, reader, foundKeys);
+      }
+
       HandleMissedKeys(foundKeys);
     }
 
     public bool Equals(EntityGroupTask other)
     {
-      if (ReferenceEquals(null, other))
+      if (ReferenceEquals(null, other)) {
         return false;
-      if (ReferenceEquals(this, other))
-        return true;
-      return other.cacheKey.Equals(cacheKey);
+      }
+
+      return ReferenceEquals(this, other) || other.cacheKey.Equals(cacheKey);
     }
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (ReferenceEquals(null, obj)) {
         return false;
-      if (ReferenceEquals(this, obj))
+      }
+
+      if (ReferenceEquals(this, obj)) {
         return true;
-      if (obj.GetType()!=typeof (EntityGroupTask))
-        return false;
-      return Equals((EntityGroupTask) obj);
+      }
+
+      return obj is EntityGroupTask entityGroupTask && Equals(entityGroupTask);
     }
 
-    public override int GetHashCode()
-    {
-      return cacheKey.GetHashCode();
-    }
+    public override int GetHashCode() => cacheKey.GetHashCode();
 
     private QueryTask CreateQueryTask(List<Tuple> currentKeySet)
     {
@@ -167,6 +178,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
         keyColumnIndexes[index] = index;
       }
+
       var columnCollectionLength = pair.Second.Type.Indexes.PrimaryIndex.Columns.Count;
       return pair.Second.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
         true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
@@ -178,10 +190,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var entityRecords = reader.Read(queryResult, Provider.Header, manager.Owner.Session);
       foreach (var entityRecord in entityRecords) {
-        if (entityRecord!=null) {
+        if (entityRecord != null) {
           var fetchedKey = entityRecord.GetKey();
           var tuple = entityRecord.GetTuple();
-          if (tuple!=null) {
+          if (tuple != null) {
             manager.SaveStrongReference(manager.Owner.UpdateState(fetchedKey, tuple));
             foundedKeys.Add(fetchedKey);
           }
@@ -191,8 +203,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private void HandleMissedKeys(HashSet<Key> foundKeys)
     {
-      if (foundKeys.Count == keys.Count)
+      if (foundKeys.Count == keys.Count) {
         return;
+      }
+
       var countOfHandledKeys = foundKeys.Count;
       var totalCount = keys.Count;
       foreach (var pair in keys) {
@@ -200,20 +214,22 @@ namespace Xtensive.Orm.Internals.Prefetch
           MarkMissedEntityState(pair.Key, pair.Value);
           countOfHandledKeys++;
         }
-        if (countOfHandledKeys == totalCount)
+
+        if (countOfHandledKeys == totalCount) {
           break;
+        }
       }
     }
 
     private void MarkMissedEntityState(Key key, bool exactType)
     {
-      bool isRemoved;
-      var cachedEntityState = manager.GetCachedEntityState(ref key, out isRemoved);
+      var cachedEntityState = manager.GetCachedEntityState(ref key, out var isRemoved);
       if (exactType && !isRemoved
         && (cachedEntityState==null || cachedEntityState.Key.HasExactType && cachedEntityState.Key
-          .TypeReference.Type==type))
+          .TypeReference.Type==type)) {
         // Ensures there will be "removed" EntityState associated with this key
         manager.SaveStrongReference(manager.Owner.UpdateState(key, null));
+      }
     }
 
 
@@ -221,18 +237,19 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public EntityGroupTask(TypeInfo type, int[] columnIndexes, PrefetchManager manager)
     {
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
+      ArgumentValidator.EnsureArgumentNotNull(columnIndexes, nameof(columnIndexes));
       ArgumentValidator.EnsureArgumentIsGreaterThan(columnIndexes.Length, 0, "columnIndexes.Length");
-      ArgumentValidator.EnsureArgumentNotNull(manager, "processor");
+      ArgumentValidator.EnsureArgumentNotNull(manager, nameof(manager));
 
       this.type = type;
-      this.columnIndexes = columnIndexes;
       this.manager = manager;
       var cachedHashCode = 0;
-      for (var i = 0; i < columnIndexes.Length; i++)
-        cachedHashCode = unchecked (379 * cachedHashCode + columnIndexes[i]);
-      cachedHashCode = unchecked (cachedHashCode ^ type.GetHashCode());
+      foreach (var columnIndex in columnIndexes) {
+        cachedHashCode = unchecked (379 * cachedHashCode + columnIndex);
+      }
+
+      cachedHashCode ^= type.GetHashCode();
       cacheKey = new CacheKey(columnIndexes, type, cachedHashCode);
     }
   }
