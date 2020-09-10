@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public IEnumerator<T> GetEnumerator()
     {
-      session.Domain.Model.Types.TryGetValue(typeof (T), out var modelType);
+      session.Domain.Model.Types.TryGetValue(typeof(T), out var modelType);
       var taskCount = session.Handler.PrefetchTaskExecutionCount;
       var container = new StrongReferenceContainer(null);
       var resultQueue = new Queue<Key>();
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         exists = se.MoveNext();
         if (exists) {
           var key = se.Current;
-          var type = key.HasExactType || modelType==null
+          var type = key.HasExactType || modelType == null
             ? key.TypeReference.Type
             : modelType;
           if (!key.HasExactType && !type.IsLeaf) {
@@ -41,7 +41,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           var defaultDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type);
           container.JoinIfPossible(session.Handler.Prefetch(key, type, defaultDescriptors));
         }
-        if (exists && taskCount==session.Handler.PrefetchTaskExecutionCount) {
+
+        if (exists && taskCount == session.Handler.PrefetchTaskExecutionCount) {
           continue;
         }
 
@@ -53,11 +54,14 @@ namespace Xtensive.Orm.Internals.Prefetch
           while (unknownTypeQueue.Count > 0) {
             var unknownKey = unknownTypeQueue.Dequeue();
             var unknownType = session.EntityStateCache[unknownKey, false].Type;
-            var unknownDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
+            var unknownDescriptors =
+              PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
             session.Handler.Prefetch(unknownKey, unknownType, unknownDescriptors);
           }
+
           session.Handler.ExecutePrefetchTasks();
         }
+
         while (resultQueue.Count > 0) {
           yield return (T) (IEntity) session.EntityStateCache[resultQueue.Dequeue(), true].Entity;
         }
@@ -68,7 +72,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public async IAsyncEnumerator<T> GetAsyncEnumerator(CancellationToken token = default)
     {
-      session.Domain.Model.Types.TryGetValue(typeof (T), out var modelType);
+      session.Domain.Model.Types.TryGetValue(typeof(T), out var modelType);
       var taskCount = session.Handler.PrefetchTaskExecutionCount;
       var container = new StrongReferenceContainer(null);
       var resultQueue = new Queue<Key>();
@@ -79,7 +83,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         exists = se.MoveNext();
         if (exists) {
           var key = se.Current;
-          var type = key.HasExactType || modelType==null
+          var type = key.HasExactType || modelType == null
             ? key.TypeReference.Type
             : modelType;
           if (!key.HasExactType && !type.IsLeaf) {
@@ -91,7 +95,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           container.JoinIfPossible(
             await session.Handler.PrefetchAsync(key, type, defaultDescriptors, token).ConfigureAwait(false));
         }
-        if (exists && taskCount==session.Handler.PrefetchTaskExecutionCount) {
+
+        if (exists && taskCount == session.Handler.PrefetchTaskExecutionCount) {
           continue;
         }
 
@@ -109,8 +114,10 @@ namespace Xtensive.Orm.Internals.Prefetch
             await session.Handler.PrefetchAsync(
               unknownKey, unknownType, unknownDescriptors, token).ConfigureAwait(false);
           }
+
           await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false);
         }
+
         while (resultQueue.Count > 0) {
           yield return (T) (IEntity) session.EntityStateCache[resultQueue.Dequeue(), true].Entity;
         }
