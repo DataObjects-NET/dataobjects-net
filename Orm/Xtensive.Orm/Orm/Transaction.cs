@@ -30,7 +30,7 @@ namespace Xtensive.Orm
     public static Transaction Current {
       get {
         var session = Session.Current;
-        return session != null ? session.Transaction : null;
+        return session?.Transaction;
       }
     }
 
@@ -40,12 +40,17 @@ namespace Xtensive.Orm
     /// if active <see cref="Transaction"/> is not found.
     /// </summary>
     /// <returns>Current transaction.</returns>
-    /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
+    /// <exception cref="InvalidOperationException">
+    /// <see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.
+    /// </exception>
     public static Transaction Demand()
     {
       var current = Current;
-      if (current==null)
-        throw new InvalidOperationException(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+      if (current == null) {
+        throw new InvalidOperationException(
+          Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt);
+      }
+
       return current;
     }
 
@@ -56,7 +61,7 @@ namespace Xtensive.Orm
     /// <exception cref="InvalidOperationException"><see cref="Transaction.Current"/> <see cref="Transaction"/> is <see langword="null" />.</exception>
     public static void Require(Session session)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
       session.DemandTransaction();
     }
 
@@ -114,11 +119,11 @@ namespace Xtensive.Orm
     /// Gets the start time of this transaction.
     /// </summary>
     public DateTime TimeStamp { get; private set; }
-    
+
     /// <summary>
     /// Gets a value indicating whether this transaction is a nested transaction.
     /// </summary>
-    public bool IsNested { get { return Outer!=null; } }
+    public bool IsNested => Outer != null;
 
     /// <summary>
     /// Gets <see cref="StateLifetimeToken"/> associated with this transaction.
@@ -128,13 +133,7 @@ namespace Xtensive.Orm
     #region IHasExtensions Members
 
     /// <inheritdoc/>
-    public IExtensionCollection Extensions {
-      get {
-        if (extensions==null)
-          extensions = new ExtensionCollection();
-        return extensions;
-      }
-    }
+    public IExtensionCollection Extensions => extensions ??= new ExtensionCollection();
 
     #endregion
 
@@ -155,22 +154,28 @@ namespace Xtensive.Orm
     public bool AreChangesVisibleTo(Transaction otherTransaction)
     {
       ArgumentValidator.EnsureArgumentNotNull(otherTransaction, "otherTransaction");
-      if (Outermost!=otherTransaction.Outermost)
+      if (Outermost != otherTransaction.Outermost) {
         return false;
+      }
+
       var t = this;
       var outermost = t.Outermost;
-      while (t!=outermost && t!=otherTransaction && t.State==TransactionState.Committed)
+      while (t != outermost && t != otherTransaction && t.State == TransactionState.Committed) {
         t = t.Outer;
+      }
+
       return t.State.IsActive();
     }
-  
+
     #region Private / internal methods
-    
+
     internal void Begin()
     {
       Session.BeginTransaction(this);
-      if (Outer!=null)
+      if (Outer != null) {
         Outer.inner = this;
+      }
+
       State = TransactionState.Active;
     }
 
@@ -179,7 +184,7 @@ namespace Xtensive.Orm
       EnsureIsActive();
       State = TransactionState.Committing;
       try {
-        if (inner!=null) {
+        if (inner != null) {
           throw new InvalidOperationException(Strings.ExCanNotCompleteOuterTransactionInnerTransactionIsActive);
         }
 
@@ -189,7 +194,8 @@ namespace Xtensive.Orm
         await Rollback(isAsync).ConfigureAwait(false);
         throw;
       }
-      if (Outer!=null) {
+
+      if (Outer != null) {
         PromoteLifetimeTokens();
       }
       else if (Session.Configuration.Supports(SessionOptions.NonTransactionalReads)) {
@@ -209,7 +215,7 @@ namespace Xtensive.Orm
       State = TransactionState.RollingBack;
       try {
         try {
-          if (inner!=null) {
+          if (inner != null) {
             await inner.Rollback(isAsync).ConfigureAwait(false);
           }
         }
@@ -226,21 +232,26 @@ namespace Xtensive.Orm
 
     private void EndTransaction()
     {
-      if (Outer!=null)
+      if (Outer != null) {
         Outer.inner = null;
+      }
+
       Session.CompleteTransaction(this);
     }
 
     private void EnsureIsActive()
     {
-      if (!State.IsActive())
+      if (!State.IsActive()) {
         throw new InvalidOperationException(Strings.ExTransactionIsNotActive);
+      }
     }
 
     private void ExpireLifetimeTokens()
     {
-      foreach (var token in lifetimeTokens)
+      foreach (var token in lifetimeTokens) {
         token.Expire();
+      }
+
       ClearLifetimeTokens();
     }
 
@@ -266,7 +277,8 @@ namespace Xtensive.Orm
     {
     }
 
-    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer, string savepointName)
+    internal Transaction(Session session, IsolationLevel isolationLevel, bool isAutomatic, Transaction outer,
+      string savepointName)
     {
       lifetimeTokens = new List<StateLifetimeToken>();
 
@@ -280,14 +292,15 @@ namespace Xtensive.Orm
       LifetimeToken = new StateLifetimeToken();
       lifetimeTokens.Add(LifetimeToken);
 
-      if (outer!=null) {
+      if (outer != null) {
         Outer = outer;
         Guid = outer.Guid;
         Outermost = outer.Outermost;
         SavepointName = savepointName;
       }
-      else
+      else {
         Outermost = this;
+      }
     }
   }
 } 
