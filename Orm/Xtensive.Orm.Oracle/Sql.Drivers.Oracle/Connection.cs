@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Drivers.Oracle
     public override void BeginTransaction()
     {
       EnsureIsNotDisposed();
- 	  EnsureTransactionIsNotActive();
+      EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction();
     }
 

@@ -175,6 +175,7 @@ namespace Xtensive.Sql
     /// <param name="initializationScript">Initialization script.</param>
     public virtual void OpenAndInitialize(string initializationScript)
     {
+      EnsureIsNotDisposed();
       UnderlyingConnection.Open();
       if (string.IsNullOrEmpty(initializationScript)) {
         return;
@@ -193,6 +194,7 @@ namespace Xtensive.Sql
     public virtual Task OpenAsync(CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
+      EnsureIsNotDisposed();
       return UnderlyingConnection.OpenAsync(cancellationToken);
     }
 
@@ -205,6 +207,7 @@ namespace Xtensive.Sql
     public virtual async Task OpenAndInitializeAsync(string initializationScript, CancellationToken token = default)
     {
       token.ThrowIfCancellationRequested();
+      EnsureIsNotDisposed();
       await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
       if (string.IsNullOrEmpty(initializationScript)) {
         return;
@@ -238,7 +241,7 @@ namespace Xtensive.Sql
     public virtual Task CloseAsync()
     {
       EnsureIsNotDisposed();
-      await UnderlyingConnection.CloseAsync();
+      return UnderlyingConnection.CloseAsync();
     }
 
     /// <summary>
