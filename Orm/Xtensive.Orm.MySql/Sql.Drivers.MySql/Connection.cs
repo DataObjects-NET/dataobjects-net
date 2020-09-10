@@ -7,6 +7,8 @@
 using System.Data;
 using System.Data.Common;
 using System.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
 
 namespace Xtensive.Sql.Drivers.MySql
@@ -17,23 +19,14 @@ namespace Xtensive.Sql.Drivers.MySql
     private MySqlTransaction activeTransaction;
 
     /// <inheritdoc/>
-    public override DbConnection UnderlyingConnection
-    {
-      get { return underlyingConnection; }
-    }
+    public override DbConnection UnderlyingConnection => underlyingConnection;
 
     /// <inheritdoc/>
-    public override DbTransaction ActiveTransaction
-    {
-      get { return activeTransaction; }
-    }
+    public override DbTransaction ActiveTransaction => activeTransaction;
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public override DbParameter CreateParameter()
-    {
-      return new MySqlParameter();
-    }
+    public override DbParameter CreateParameter() => new MySqlParameter();
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -58,46 +51,76 @@ namespace Xtensive.Sql.Drivers.MySql
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)
     {
-      EnsureIsNotDisposed();
-      EnsureTransactionIsActive();
+      var commandText = GetCreateSavepointCommandText(name);
+      ExecuteNonQuery(commandText);
+    }
 
-      string commandText = string.Format("SAVEPOINT {0}", name);
-      using (DbCommand command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+    /// <inheritdoc/>
+    public override Task MakeSavepointAsync(string name, CancellationToken token = default)
+    {
+      var commandText = GetCreateSavepointCommandText(name);
+      return ExecuteNonQueryAsync(commandText, token);
     }
 
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
-      EnsureIsNotDisposed();
-      EnsureTransactionIsActive();
+      var commandText = GetRollbackToSavepointCommandText(name);
+      ExecuteNonQuery(commandText);
+    }
 
-      string commandText = string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
-      using (DbCommand command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+    /// <inheritdoc/>
+    public override Task RollbackToSavepointAsync(string name, CancellationToken token = default)
+    {
+      var commandText = GetRollbackToSavepointCommandText(name);
+      return ExecuteNonQueryAsync(commandText, token);
     }
 
     /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
+      var commandText = GetReleaseSavepointCommandText(name);
+      ExecuteNonQuery(commandText);
+    }
+
+    /// <inheritdoc/>
+    public override Task ReleaseSavepointAsync(string name, CancellationToken token = default)
+    {
+      var commandText = GetReleaseSavepointCommandText(name);
+      return ExecuteNonQueryAsync(commandText, token);
+    }
+
+    /// <inheritdoc/>
+    protected override void ClearActiveTransaction() => activeTransaction = null;
+
+    /// <inheritdoc/>
+    protected override void ClearUnderlyingConnection() => underlyingConnection = null;
+
+    private static string GetCreateSavepointCommandText(string name) => $"SAVEPOINT {name}";
+
+    private static string GetRollbackToSavepointCommandText(string name) =>
+      string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
+
+    private static string GetReleaseSavepointCommandText(string name) => $"RELEASE SAVEPOINT {name}";
+
+    private void ExecuteNonQuery(string commandText)
+    {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
 
-      string commandText = string.Format("RELEASE SAVEPOINT {0}", name);
-      using (DbCommand command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+      using var command = CreateCommand(commandText);
+      command.ExecuteNonQuery();
     }
 
-    /// <inheritdoc/>
-    protected override void ClearActiveTransaction()
+    private async Task ExecuteNonQueryAsync(string commandText, CancellationToken token)
     {
-      activeTransaction = null;
-    }
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
 
-    /// <inheritdoc/>
-    protected override void ClearUnderlyingConnection()
-    {
-      underlyingConnection = null;
+      var command = CreateCommand(commandText);
+      await using (command.ConfigureAwait(false)) {
+        await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
     }
 
     // Constructors

@@ -8,7 +8,6 @@ using System;
 using System.Data;
 using System.Data.Common;
 using FirebirdSql.Data.FirebirdClient;
-using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.Firebird
 {
@@ -18,28 +17,16 @@ namespace Xtensive.Sql.Drivers.Firebird
     private FbTransaction activeTransaction;
 
     /// <inheritdoc/>
-    public override DbConnection UnderlyingConnection
-    {
-      get { return underlyingConnection; }
-    }
+    public override DbConnection UnderlyingConnection => underlyingConnection;
 
     /// <inheritdoc/>
-    public override DbTransaction ActiveTransaction
-    {
-      get { return activeTransaction; }
-    }
+    public override DbTransaction ActiveTransaction => activeTransaction;
 
     /// <inheritdoc/>
-    public override DbParameter CreateParameter()
-    {
-      return new FbParameter();
-    }
+    public override DbParameter CreateParameter() => new FbParameter();
 
     /// <inheritdoc/>
-    public override void BeginTransaction()
-    {
-      BeginTransaction(IsolationLevel.Serializable);
-    }
+    public override void BeginTransaction() => BeginTransaction(IsolationLevel.Serializable);
 
     /// <inheritdoc/>
     public override void BeginTransaction(IsolationLevel isolationLevel)
@@ -47,34 +34,35 @@ namespace Xtensive.Sql.Drivers.Firebird
       EnsureIsNotDisposed();
       EnsureTransactionIsNotActive();
 
-      var transactionOptions = new FbTransactionOptions {WaitTimeout = TimeSpan.FromSeconds(10)};
-      switch (SqlHelper.ReduceIsolationLevel(isolationLevel)) {
-      case IsolationLevel.ReadCommitted:
-        transactionOptions.TransactionBehavior = FbTransactionBehavior.ReadCommitted
-          | FbTransactionBehavior.NoRecVersion
-          | FbTransactionBehavior.Write
-          | FbTransactionBehavior.NoWait;
-        break;
-      case IsolationLevel.Serializable:
-        transactionOptions.TransactionBehavior = FbTransactionBehavior.Concurrency
-          | FbTransactionBehavior.Write
-          | FbTransactionBehavior.Wait;
-        break;
-      }
+      var transactionOptions = CreateTransactionOptions(isolationLevel);
       activeTransaction = underlyingConnection.BeginTransaction(transactionOptions);
     }
 
-    /// <inheritdoc/>
-    protected override void ClearActiveTransaction()
+    private static FbTransactionOptions CreateTransactionOptions(IsolationLevel isolationLevel)
     {
-      activeTransaction = null;
+      var transactionOptions = new FbTransactionOptions {WaitTimeout = TimeSpan.FromSeconds(10)};
+      switch (SqlHelper.ReduceIsolationLevel(isolationLevel)) {
+        case IsolationLevel.ReadCommitted:
+          transactionOptions.TransactionBehavior = FbTransactionBehavior.ReadCommitted
+            | FbTransactionBehavior.NoRecVersion
+            | FbTransactionBehavior.Write
+            | FbTransactionBehavior.NoWait;
+          break;
+        case IsolationLevel.Serializable:
+          transactionOptions.TransactionBehavior = FbTransactionBehavior.Concurrency
+            | FbTransactionBehavior.Write
+            | FbTransactionBehavior.Wait;
+          break;
+      }
+
+      return transactionOptions;
     }
 
     /// <inheritdoc/>
-    protected override void ClearUnderlyingConnection()
-    {
-      underlyingConnection = null;
-    }
+    protected override void ClearActiveTransaction() => activeTransaction = null;
+
+    /// <inheritdoc/>
+    protected override void ClearUnderlyingConnection() => underlyingConnection = null;
 
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)

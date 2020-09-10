@@ -7,7 +7,6 @@
 using Oracle.ManagedDataAccess.Client;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Orm;
 
 namespace Xtensive.Sql.Drivers.Oracle
 {
@@ -17,16 +16,13 @@ namespace Xtensive.Sql.Drivers.Oracle
     private OracleTransaction activeTransaction;
 
     /// <inheritdoc/>
-    public override DbConnection UnderlyingConnection { get { return underlyingConnection; } }
+    public override DbConnection UnderlyingConnection => underlyingConnection;
 
     /// <inheritdoc/>
-    public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
+    public override DbTransaction ActiveTransaction => activeTransaction;
 
     /// <inheritdoc/>
-    public override DbParameter CreateParameter()
-    {
-      return new OracleParameter();
-    }
+    public override DbParameter CreateParameter() => new OracleParameter();
 
     /// <inheritdoc/>
     public override DbParameter CreateCursorParameter()
@@ -93,22 +89,14 @@ namespace Xtensive.Sql.Drivers.Oracle
     }
 
     /// <inheritdoc/>
-    protected override void ClearActiveTransaction()
-    {
-      activeTransaction = null;
-    }
+    protected override void ClearActiveTransaction() => activeTransaction = null;
 
     /// <inheritdoc/>
-    protected override void ClearUnderlyingConnection()
-    {
-      underlyingConnection = null;
-    }
+    protected override void ClearUnderlyingConnection() => underlyingConnection = null;
 
     /// <inheritdoc/>
-    protected override DbCommand CreateNativeCommand()
-    {
-      return new OracleCommand {Connection = underlyingConnection, BindByName = true};
-    }
+    protected override DbCommand CreateNativeCommand() =>
+      new OracleCommand {Connection = underlyingConnection, BindByName = true};
 
     // Constructors
 
