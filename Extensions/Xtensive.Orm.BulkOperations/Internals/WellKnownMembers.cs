@@ -11,6 +11,7 @@ namespace Xtensive.Orm.BulkOperations
 {
   internal static class WellKnownMembers
   {
+    public static readonly Type EnumerableType = typeof(Enumerable);
     public static readonly Type FuncOfTResultType = typeof(Func<>);
     public static readonly Type FuncOfTArgTResultType = typeof(Func<,>);
 
