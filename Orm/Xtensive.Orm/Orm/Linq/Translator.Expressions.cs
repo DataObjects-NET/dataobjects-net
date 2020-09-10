@@ -327,103 +327,117 @@ namespace Xtensive.Orm.Linq
     {
       using (state.CreateScope()) {
         state.IsTailMethod = mc==context.Query && mc.IsQuery();
-        var customCompiler = context.CustomCompilerProvider.GetCompiler(mc.Method);
-        if (customCompiler!=null)
+        var method = mc.Method;
+        var customCompiler = context.CustomCompilerProvider.GetCompiler(method);
+        if (customCompiler!=null) {
           return Visit(customCompiler.Invoke(mc.Object, mc.Arguments.ToArray()));
+        }
 
         // Visit Query. Deprecated.
 #pragma warning disable 612,618
-        if (mc.Method.DeclaringType==typeof (Query)) {
+        if (method.DeclaringType==typeof (Query)) {
           // Query.All<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.Query.All)
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.All)) {
             return ConstructQueryable(mc);
+          }
+
           // Query.FreeText<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
-            .In(WellKnownMembers.Query.FreeTextString, 
-              WellKnownMembers.Query.FreeTextExpression, 
-              WellKnownMembers.Query.FreeTextExpressionTopNByRank, 
-              WellKnownMembers.Query.FreeTextStringTopNByRank))
-            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextString)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpression)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextExpressionTopNByRank)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.FreeTextStringTopNByRank)) {
+            return ConstructFreeTextQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
+          }
+
           // Query.ContainsTable<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
-            .In(WellKnownMembers.Query.ContainsTableExpr,
-              WellKnownMembers.Query.ContainsTableExprWithColumns,
-              WellKnownMembers.Query.ContainsTableExprTopNByRank,
-              WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRank))
-            return ConstructContainsTableQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExpr)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumns)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprTopNByRank)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.ContainsTableExprWithColumnsTopNByRank)) {
+            return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
+          }
+
           // Query.Single<T> & Query.SingleOrDefault<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
-            WellKnownMembers.Query.SingleKey,
-            WellKnownMembers.Query.SingleOrDefaultKey))
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleKey)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.Query.SingleOrDefaultKey)) {
             return VisitQuerySingle(mc);
+          }
+
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
         // Visit QueryEndpoint.
-        if (mc.Method.DeclaringType == typeof(QueryEndpoint)) {
+        if (method.DeclaringType == typeof(QueryEndpoint)) {
           // Query.All<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition() == WellKnownMembers.QueryEndpoint.All)
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.All)) {
             return ConstructQueryable(mc);
+          }
+
           // Query.FreeText<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
-            .In(WellKnownMembers.QueryEndpoint.FreeTextString, 
-              WellKnownMembers.QueryEndpoint.FreeTextExpression, 
-              WellKnownMembers.Query.FreeTextExpressionTopNByRank, 
-              WellKnownMembers.Query.FreeTextStringTopNByRank))
-            return ConstructFreeTextQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextString)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpression)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextExpressionTopNByRank)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.FreeTextStringTopNByRank)) {
+            return ConstructFreeTextQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
+          }
+
           // Query.ContainsTable<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()
-            .In(WellKnownMembers.QueryEndpoint.ContainsTableExpr,
-              WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumns,
-              WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRank,
-              WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsTopNByRank))
-            return ConstructContainsTableQueryRoot(mc.Method.GetGenericArguments()[0], mc.Arguments);
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExpr)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumns)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprTopNByRank)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.ContainsTableExprWithColumnsTopNByRank)) {
+            return ConstructContainsTableQueryRoot(method.GetGenericArguments()[0], mc.Arguments);
+          }
+
           // Query.Single<T> & Query.SingleOrDefault<T>
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition().In(
-            WellKnownMembers.QueryEndpoint.SingleKey,
-            WellKnownMembers.QueryEndpoint.SingleOrDefaultKey))
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleKey)
+            || method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.SingleOrDefaultKey)) {
             return VisitQuerySingle(mc);
-          if (mc.Method.IsGenericMethod && mc.Method.GetGenericMethodDefinition()==WellKnownMembers.QueryEndpoint.Items)
+          }
+
+          if (method.IsGenericMethodSpecificationOf(WellKnownMembers.QueryEndpoint.Items)) {
             return VisitSequence(mc.Arguments[0].StripQuotes().Body, mc);
+          }
+
           throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         }
 #pragma warning restore 612,618
 
         // Visit Queryable extensions.
-        if (mc.Method.DeclaringType==typeof (QueryableExtensions))
-          if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionLeftJoin.Name)
+        if (method.DeclaringType==typeof (QueryableExtensions))
+          if (method.Name==WellKnownMembers.Queryable.ExtensionLeftJoin.Name)
             return VisitLeftJoin(mc);
-          else if (mc.Method.Name=="In")
+          else if (method.Name=="In")
             return VisitIn(mc);
-          else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionLock.Name)
+          else if (method.Name==WellKnownMembers.Queryable.ExtensionLock.Name)
             return VisitLock(mc);
-          else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionTake.Name)
+          else if (method.Name==WellKnownMembers.Queryable.ExtensionTake.Name)
             return VisitTake(mc.Arguments[0], mc.Arguments[1]);
-          else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionSkip.Name)
+          else if (method.Name==WellKnownMembers.Queryable.ExtensionSkip.Name)
             return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
-          else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionElementAt.Name)
-            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
-          else if (mc.Method.Name==WellKnownMembers.Queryable.ExtensionElementAtOrDefault.Name)
-            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
-          else if (mc.Method.Name == WellKnownMembers.Queryable.ExtensionCount.Name)
-            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
+          else if (method.Name==WellKnownMembers.Queryable.ExtensionElementAt.Name)
+            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, false);
+          else if (method.Name==WellKnownMembers.Queryable.ExtensionElementAtOrDefault.Name)
+            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, true);
+          else if (method.Name == WellKnownMembers.Queryable.ExtensionCount.Name)
+            return VisitAggregate(mc.Arguments[0], method, null, context.IsRoot(mc), mc);
           else
             throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         // Visit Collection extensions
-        if (mc.Method.DeclaringType==typeof (CollectionExtensions))
-          if (mc.Method.Name==WellKnownMembers.Collection.ExtensionContainsAny.Name)
-            return VisitContainsAny(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.GetGenericArguments()[0]);
-          else if (mc.Method.Name==WellKnownMembers.Collection.ExtensionContainsAll.Name)
-            return VisitContainsAll(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.GetGenericArguments()[0]);
-          else if (mc.Method.Name==WellKnownMembers.Collection.ExtensionContainsNone.Name)
-            return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.GetGenericArguments()[0]);
+        if (method.DeclaringType==typeof (CollectionExtensions))
+          if (method.Name==WellKnownMembers.Collection.ExtensionContainsAny.Name)
+            return VisitContainsAny(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
+          else if (method.Name==WellKnownMembers.Collection.ExtensionContainsAll.Name)
+            return VisitContainsAll(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
+          else if (method.Name==WellKnownMembers.Collection.ExtensionContainsNone.Name)
+            return VisitContainsNone(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
 
         // Process local collections
         if (mc.Object.IsLocalCollection(context)) {
           // IList.Contains
-          // List.Contains 
+          // List.Contains
           // Array.Contains
-          ParameterInfo[] parameters = mc.Method.GetParameters();
-          if (mc.Method.Name=="Contains" && parameters.Length==1)
+          ParameterInfo[] parameters = method.GetParameters();
+          if (method.Name=="Contains" && parameters.Length==1)
             return VisitContains(mc.Object, mc.Arguments[0], false);
         }
 
