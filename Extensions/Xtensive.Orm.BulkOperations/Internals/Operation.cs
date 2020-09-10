@@ -67,7 +67,7 @@ namespace Xtensive.Orm.BulkOperations
     }
 
     public TypeInfo GetTypeInfo(Type entityType) =>
-      Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(a => a.UnderlyingType==entityType);
+      Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(a => a.UnderlyingType == entityType);
 
     protected QueryCommand ToCommand(SqlStatement statement) =>
       QueryBuilder.CreateCommand(

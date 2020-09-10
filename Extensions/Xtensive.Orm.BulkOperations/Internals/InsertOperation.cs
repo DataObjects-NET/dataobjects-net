@@ -32,7 +32,7 @@ namespace Xtensive.Orm.BulkOperations
       return command.ExecuteNonQuery();
     }
 
-    protected override async Task<int> ExecuteInternalAsync(CancellationToken token = default)
+    protected override Task<int> ExecuteInternalAsync(CancellationToken token = default)
     {
       if (PrimaryIndexes.Length > 1) {
         throw new NotImplementedException("Inheritance is not implemented");
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.BulkOperations
       Bindings = new List<QueryParameterBinding>();
 
       var command = CreateCommand();
-      return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      return command.ExecuteNonQueryAsync(token);
     }
 
     private QueryCommand CreateCommand()
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.BulkOperations
       : base(queryProvider)
     {
       var memberInitCount = 0;
-      var parameter = Expression.Parameter(typeof (T));
+      var parameter = Expression.Parameter(typeof(T));
       List<SetDescriptor> descriptors = null;
       evaluator.Visit(
         delegate(MemberInitExpression ex) {
@@ -90,26 +90,30 @@ namespace Xtensive.Orm.BulkOperations
     {
       var count = descriptors.Count(a => a.Field.IsPrimaryKey);
       int i;
-      if (count==0) {
+      if (count == 0) {
         var key = Key.Generate<T>(Session);
         i = 0;
         foreach (var fieldInfo in TypeInfo.Key.Fields) {
           descriptors.Add(new SetDescriptor(fieldInfo, Expression.Parameter(typeof(T)), Expression.Constant(key.Value.GetValue(i))));
           i++;
         }
+
         Key = key;
         return;
       }
-      if(count<TypeInfo.Key.Fields.Count) {
+
+      if (count < TypeInfo.Key.Fields.Count) {
         throw new InvalidOperationException("You must set 0 or all key fields");
       }
+
       i = 0;
       var keys = new object[TypeInfo.Key.Fields.Count];
-      foreach(var field in TypeInfo.Key.Fields) {
+      foreach (var field in TypeInfo.Key.Fields) {
         var descriptor = descriptors.First(a => a.Field.Equals(field));
         keys[i] = descriptor.Expression.Invoke();
         i++;
       }
+
       Key = Key.Create<T>(Session.Domain, keys);
     }
 
