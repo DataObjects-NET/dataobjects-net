@@ -40,12 +40,20 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'TestCommon'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <IncludeSymbols Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</IncludeSymbols>
-    <IncludeSymbols Condition="$(IncludeSymbols)=='' AND '$(Configuration)' == 'Release'">true</IncludeSymbols>
+
+    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Condition="$(GeneratePackageOnBuild) == 'true'"
+                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
   <!-- Populate standard properties. -->
   <PropertyGroup>
