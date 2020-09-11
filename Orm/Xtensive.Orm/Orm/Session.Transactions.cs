@@ -5,6 +5,7 @@
 // Created:    2008.11.07
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using Xtensive.Orm.Configuration;
@@ -24,7 +25,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Gets the active transaction.
-    /// </summary>    
+    /// </summary>
     public Transaction Transaction { get; private set; }
 
     /// <summary>
@@ -39,6 +40,18 @@ namespace Xtensive.Orm
       OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false);
 
     /// <summary>
+    /// Asynchronously opens a new or joins to the already running transaction.
+    /// </summary>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public ValueTask<TransactionScope> OpenTransactionAsync(CancellationToken token = default) =>
+      OpenTransactionAsync(TransactionOpenMode.Default, IsolationLevel.Unspecified, false, token);
+
+    /// <summary>
     /// Opens a new or already running transaction.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
@@ -47,10 +60,22 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public TransactionScope OpenTransaction(IsolationLevel isolationLevel)
-    {
-      return OpenTransaction(TransactionOpenMode.Default, isolationLevel, false);
-    }
+    public TransactionScope OpenTransaction(IsolationLevel isolationLevel) =>
+      OpenTransaction(TransactionOpenMode.Default, isolationLevel, false);
+
+    /// <summary>
+    /// Asynchronously opens a new or joins to the already running transaction.
+    /// </summary>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public ValueTask<TransactionScope> OpenTransactionAsync(
+      IsolationLevel isolationLevel, CancellationToken token = default) =>
+      OpenTransactionAsync(TransactionOpenMode.Default, isolationLevel, false, token);
 
     /// <summary>
     /// Opens a new or already running transaction.
@@ -61,10 +86,22 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public TransactionScope OpenTransaction(TransactionOpenMode mode)
-    {
-      return OpenTransaction(mode, IsolationLevel.Unspecified, false);
-    }
+    public TransactionScope OpenTransaction(TransactionOpenMode mode) =>
+      OpenTransaction(mode, IsolationLevel.Unspecified, false);
+
+    /// <summary>
+    /// Asynchronously opens a new or joins to the already running transaction.
+    /// </summary>
+    /// <param name="mode">The mode.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public ValueTask<TransactionScope> OpenTransactionAsync(
+      TransactionOpenMode mode, CancellationToken token = default) =>
+      OpenTransactionAsync(mode, IsolationLevel.Unspecified, false, token);
 
     /// <summary>
     /// Opens a new or already running transaction.
@@ -76,32 +113,69 @@ namespace Xtensive.Orm
     /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
     /// </returns>
     /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
-    public TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel)
-    {
-      return OpenTransaction(mode, isolationLevel, false);
-    }
+    public TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel) =>
+      OpenTransaction(mode, isolationLevel, false);
 
-    internal TransactionScope OpenTransaction(TransactionOpenMode mode, IsolationLevel isolationLevel, bool isAutomatic)
+    /// <summary>
+    /// Asynchronously opens a new or joins to the already running transaction.
+    /// </summary>
+    /// <param name="mode">The mode.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>
+    /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
+    /// or rollback of the transaction it controls dependently on <see cref="ICompletableScope.IsCompleted"/> flag.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    public ValueTask<TransactionScope> OpenTransactionAsync(
+      TransactionOpenMode mode, IsolationLevel isolationLevel, CancellationToken token = default) =>
+      OpenTransactionAsync(mode, isolationLevel, false, token);
+
+    internal TransactionScope OpenTransaction(
+      TransactionOpenMode mode, IsolationLevel isolationLevel, bool isAutomatic) =>
+      InnerOpenTransaction(mode, isolationLevel, isAutomatic, false).GetAwaiter().GetResult();
+
+    internal ValueTask<TransactionScope> OpenTransactionAsync(
+      TransactionOpenMode mode, IsolationLevel isolationLevel, bool isAutomatic, CancellationToken token = default) =>
+      InnerOpenTransaction(mode, isolationLevel, isAutomatic, true, token);
+
+    private async ValueTask<TransactionScope> InnerOpenTransaction(
+      TransactionOpenMode mode, IsolationLevel isolationLevel, bool isAutomatic, bool isAsync, CancellationToken token = default)
     {
       var transaction = Transaction;
       switch (mode) {
-      case TransactionOpenMode.Auto:
-        if (transaction!=null) {
-          if (isolationLevel!=IsolationLevel.Unspecified && isolationLevel!=transaction.IsolationLevel)
-            EnsureIsolationLevelCompatibility(transaction.IsolationLevel, isolationLevel);
-          return TransactionScope.VoidScopeInstance;
-        }
-        if (isolationLevel==IsolationLevel.Unspecified)
-          isolationLevel = Configuration.DefaultIsolationLevel;
-        return CreateOutermostTransaction(isolationLevel, isAutomatic);
-      case TransactionOpenMode.New:
-        if (isolationLevel==IsolationLevel.Unspecified)
-          isolationLevel = Configuration.DefaultIsolationLevel;
-        return transaction!=null
-          ? CreateNestedTransaction(isolationLevel, isAutomatic)
-          : CreateOutermostTransaction(isolationLevel, isAutomatic);
-      default:
-        throw new ArgumentOutOfRangeException("mode");
+        case TransactionOpenMode.Auto:
+          if (transaction != null) {
+            if (isolationLevel != IsolationLevel.Unspecified && isolationLevel != transaction.IsolationLevel) {
+              EnsureIsolationLevelCompatibility(transaction.IsolationLevel, isolationLevel);
+            }
+
+            return TransactionScope.VoidScopeInstance;
+          }
+
+          if (isolationLevel == IsolationLevel.Unspecified) {
+            isolationLevel = Configuration.DefaultIsolationLevel;
+          }
+
+          return
+            isAsync
+              ? await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
+              : CreateOutermostTransaction(isolationLevel, isAutomatic);
+        case TransactionOpenMode.New:
+          if (isolationLevel == IsolationLevel.Unspecified) {
+            isolationLevel = Configuration.DefaultIsolationLevel;
+          }
+
+          return
+            isAsync
+              ? transaction != null
+                ? await CreateNestedTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
+                : await CreateOutermostTransactionAsync(isolationLevel, isAutomatic, token).ConfigureAwait(false)
+              : transaction != null
+                ? CreateNestedTransaction(isolationLevel, isAutomatic)
+                : CreateOutermostTransaction(isolationLevel, isAutomatic);
+        default:
+          throw new ArgumentOutOfRangeException(nameof(mode));
       }
     }
 
@@ -141,8 +215,20 @@ namespace Xtensive.Orm
         Persist(PersistReason.NestedTransaction);
         Handler.CreateSavepoint(transaction);
       }
-      else
+      else {
         Handler.BeginTransaction(transaction);
+      }
+    }
+
+    internal async Task BeginTransactionAsync(Transaction transaction, CancellationToken token)
+    {
+      if (transaction.IsNested) {
+        await PersistAsync(PersistReason.NestedTransaction, token).ConfigureAwait(false);
+        await Handler.CreateSavepointAsync(transaction, token).ConfigureAwait(false);
+      }
+      else {
+        Handler.BeginTransaction(transaction);
+      }
     }
 
     internal async ValueTask CommitTransaction(Transaction transaction, bool isAsync)
@@ -168,7 +254,12 @@ namespace Xtensive.Orm
 
       Handler.CompletingTransaction(transaction);
       if (transaction.IsNested) {
-        Handler.ReleaseSavepoint(transaction);
+        if (isAsync) {
+          await Handler.ReleaseSavepointAsync(transaction).ConfigureAwait(false);
+        }
+        else {
+          Handler.ReleaseSavepoint(transaction);
+        }
       }
       else {
         if (isAsync) {
@@ -200,7 +291,12 @@ namespace Xtensive.Orm
               await RollbackWithSuppression(transaction, isAsync).ConfigureAwait(false);
             }
             else {
-              await Rollback(transaction, isAsync).ConfigureAwait(false);
+              if (isAsync) {
+                await RollbackAsync(transaction).ConfigureAwait(false);
+              }
+              else {
+                Rollback(transaction);
+              }
             }
           }
           finally {
@@ -219,25 +315,35 @@ namespace Xtensive.Orm
     private async ValueTask RollbackWithSuppression(Transaction transaction, bool isAsync)
     {
       try {
-        await Rollback(transaction, isAsync).ConfigureAwait(false);
+        if (isAsync) {
+          await RollbackAsync(transaction).ConfigureAwait(false);
+        }
+        else {
+          Rollback(transaction);
+        }
       }
       catch(Exception e) {
         OrmLog.Warning(e);
       }
     }
 
-    private async ValueTask Rollback(Transaction transaction, bool isAsync)
+    private void Rollback(Transaction transaction)
     {
       if (transaction.IsNested) {
         Handler.RollbackToSavepoint(transaction);
       }
       else {
-        if (isAsync) {
-          await Handler.RollbackTransactionAsync(transaction).ConfigureAwait(false);
-        }
-        else {
-          Handler.RollbackTransaction(transaction);
-        }
+        Handler.RollbackTransaction(transaction);
+      }
+    }
+
+    private async ValueTask RollbackAsync(Transaction transaction)
+    {
+      if (transaction.IsNested) {
+        await Handler.RollbackToSavepointAsync(transaction).ConfigureAwait(false);
+      }
+      else {
+        await Handler.RollbackTransactionAsync(transaction).ConfigureAwait(false);
       }
     }
 
@@ -312,16 +418,31 @@ namespace Xtensive.Orm
     private TransactionScope CreateOutermostTransaction(IsolationLevel isolationLevel, bool isAutomatic)
     {
       var transaction = new Transaction(this, isolationLevel, isAutomatic);
-      return OpenTransactionScope(transaction);
+      return OpenTransactionScope(transaction, false).GetAwaiter().GetResult();
+    }
+
+    private ValueTask<TransactionScope> CreateOutermostTransactionAsync(
+      IsolationLevel isolationLevel, bool isAutomatic, CancellationToken token)
+    {
+      var transaction = new Transaction(this, isolationLevel, isAutomatic);
+      return OpenTransactionScope(transaction, true, token);
     }
 
     private TransactionScope CreateNestedTransaction(IsolationLevel isolationLevel, bool isAutomatic)
     {
       var newTransaction = new Transaction(this, isolationLevel, isAutomatic, Transaction, GetNextSavepointName());
-      return OpenTransactionScope(newTransaction);
+      return OpenTransactionScope(newTransaction, false).GetAwaiter().GetResult();
     }
 
-    private TransactionScope OpenTransactionScope(Transaction transaction)
+    private ValueTask<TransactionScope> CreateNestedTransactionAsync(
+      IsolationLevel isolationLevel, bool isAutomatic, CancellationToken token)
+    {
+      var newTransaction = new Transaction(this, isolationLevel, isAutomatic, Transaction, GetNextSavepointName());
+      return OpenTransactionScope(newTransaction, false, token);
+    }
+
+    private async ValueTask<TransactionScope> OpenTransactionScope(
+      Transaction transaction, bool isAsync, CancellationToken token = default)
     {
       if (IsDebugEventLoggingEnabled) {
         OrmLog.Debug(Strings.LogSessionXOpeningTransaction, this);
@@ -331,7 +452,12 @@ namespace Xtensive.Orm
       Events.NotifyTransactionOpening(transaction);
 
       Transaction = transaction;
-      transaction.Begin();
+      if (isAsync) {
+        await transaction.BeginAsync(token).ConfigureAwait(false);
+      }
+      else {
+        transaction.Begin();
+      }
 
       IDisposable logIndentScope = null;
       if (IsDebugEventLoggingEnabled) {

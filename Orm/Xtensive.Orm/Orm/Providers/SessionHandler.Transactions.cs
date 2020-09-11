@@ -4,9 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
-using System;
+using System.Threading;
 using System.Threading.Tasks;
-using Xtensive.Orm;
 
 
 namespace Xtensive.Orm.Providers
@@ -72,13 +71,40 @@ namespace Xtensive.Orm.Providers
     public abstract void CreateSavepoint(Transaction transaction);
 
     /// <summary>
+    /// Asynchronously creates the savepoint.
+    /// </summary>
+    public virtual ValueTask CreateSavepointAsync(Transaction transaction, CancellationToken token = default)
+    {
+      CreateSavepoint(transaction);
+      return default;
+    }
+
+    /// <summary>
     /// Releases the savepoint.
     /// </summary>
     public abstract void ReleaseSavepoint(Transaction transaction);
 
     /// <summary>
-    /// Rollbacks to savepoint.
+    /// Asynchronously releases the savepoint.
+    /// </summary>
+    public virtual ValueTask ReleaseSavepointAsync(Transaction transaction, CancellationToken token = default)
+    {
+      ReleaseSavepoint(transaction);
+      return default;
+    }
+
+    /// <summary>
+    /// Rolls backs to the savepoint.
     /// </summary>
     public abstract void RollbackToSavepoint(Transaction transaction);
+
+    /// <summary>
+    /// Asynchronously rolls backs to the savepoint.
+    /// </summary>
+    public virtual ValueTask RollbackToSavepointAsync(Transaction transaction, CancellationToken token = default)
+    {
+      RollbackToSavepoint(transaction);
+      return default;
+    }
   }
 }

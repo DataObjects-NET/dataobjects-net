@@ -64,22 +64,28 @@ namespace Xtensive.Orm.Providers
       ChainedHandler.RollbackTransactionAsync(transaction);
 
     /// <inheritdoc/>
-    public override void CreateSavepoint(Transaction transaction)
-    {
+    public override void CreateSavepoint(Transaction transaction) =>
       ChainedHandler.CreateSavepoint(transaction);
-    }
 
     /// <inheritdoc/>
-    public override void RollbackToSavepoint(Transaction transaction)
-    {
+    public override ValueTask CreateSavepointAsync(Transaction transaction, CancellationToken token = default) =>
+      ChainedHandler.CreateSavepointAsync(transaction, token);
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(Transaction transaction) =>
       ChainedHandler.RollbackToSavepoint(transaction);
-    }
 
     /// <inheritdoc/>
-    public override void ReleaseSavepoint(Transaction transaction)
-    {
+    public override ValueTask RollbackToSavepointAsync(Transaction transaction, CancellationToken token = default) =>
+      ChainedHandler.RollbackToSavepointAsync(transaction, token);
+
+    /// <inheritdoc/>
+    public override void ReleaseSavepoint(Transaction transaction) =>
       ChainedHandler.ReleaseSavepoint(transaction);
-    }
+
+    /// <inheritdoc/>
+    public override ValueTask ReleaseSavepointAsync(Transaction transaction, CancellationToken token = default) =>
+      ChainedHandler.ReleaseSavepointAsync(transaction, token);
 
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)

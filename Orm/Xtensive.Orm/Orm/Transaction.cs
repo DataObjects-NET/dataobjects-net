@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Transactions;
 using JetBrains.Annotations;
@@ -172,6 +173,16 @@ namespace Xtensive.Orm
     internal void Begin()
     {
       Session.BeginTransaction(this);
+      if (Outer != null) {
+        Outer.inner = this;
+      }
+
+      State = TransactionState.Active;
+    }
+
+    internal async ValueTask BeginAsync(CancellationToken token)
+    {
+      await Session.BeginTransactionAsync(this, token).ConfigureAwait(false);
       if (Outer != null) {
         Outer.inner = this;
       }

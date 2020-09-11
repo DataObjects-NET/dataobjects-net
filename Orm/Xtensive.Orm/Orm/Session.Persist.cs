@@ -113,12 +113,13 @@ namespace Xtensive.Orm
     private async ValueTask Persist(PersistReason reason, bool isAsync, CancellationToken token = default)
     {
       EnsureNotDisposed();
-      if (IsPersisting || EntityChangeRegistry.Count==0) {
+      if (IsPersisting || EntityChangeRegistry.Count == 0) {
         return;
       }
 
       var performPinning = pinner.RootCount > 0;
-      if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) {
+      if (performPinning
+        || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) {
         switch (reason) {
           case PersistReason.NestedTransaction:
           case PersistReason.Commit:
@@ -130,76 +131,93 @@ namespace Xtensive.Orm
         return;
       }
 
-      using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)) {
+      var ts = await InnerOpenTransaction(
+        TransactionOpenMode.Default, IsolationLevel.Unspecified, false, isAsync, token);
+      try {
         IsPersisting = true;
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
-        try {
-          using (this.OpenSystemLogicOnlyRegion()) {
-            DemandTransaction();
-            if (IsDebugEventLoggingEnabled) {
-              OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
-            }
+        using (OpenSystemLogicOnlyRegion()) {
+          DemandTransaction();
+          if (IsDebugEventLoggingEnabled) {
+            OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+          }
 
-            EntityChangeRegistry itemsToPersist;
-            if (performPinning) {
-              pinner.Process(EntityChangeRegistry);
-              itemsToPersist = pinner.PersistableItems;
+          EntityChangeRegistry itemsToPersist;
+          if (performPinning) {
+            pinner.Process(EntityChangeRegistry);
+            itemsToPersist = pinner.PersistableItems;
+          }
+          else {
+            itemsToPersist = EntityChangeRegistry;
+          }
+
+          if (LazyKeyGenerationIsEnabled) {
+            await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwait(false);
+          }
+
+          ApplyEntitySetsChanges();
+          var persistIsSuccessful = false;
+          try {
+            if (isAsync) {
+              await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwait(false);
             }
             else {
-              itemsToPersist = EntityChangeRegistry;
+              Handler.Persist(itemsToPersist, reason == PersistReason.Query);
             }
 
-            if (LazyKeyGenerationIsEnabled) {
-              await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwait(false);
-            }
-            ApplyEntitySetsChanges();
-            var persistIsSuccessful = false;
-            try {
-              if (isAsync) {
-                await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwait(false);
+            persistIsSuccessful = true;
+          }
+          catch (Exception) {
+            persistingIsFailed = true;
+            RollbackChangesOfEntitySets();
+            RestoreEntityChangesAfterPersistFailed();
+            throw;
+          }
+          finally {
+            if (persistIsSuccessful || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
+              DropDifferenceBackup();
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.New)) {
+                item.PersistenceState = PersistenceState.Synchronized;
+              }
+
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified)) {
+                item.PersistenceState = PersistenceState.Synchronized;
+              }
+
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed)) {
+                item.Update(null);
+              }
+
+              if (performPinning) {
+                EntityChangeRegistry = pinner.PinnedItems;
+                pinner.Reset();
               }
               else {
-                Handler.Persist(itemsToPersist, reason == PersistReason.Query);
+                EntityChangeRegistry.Clear();
               }
-              persistIsSuccessful = true;
-            }
-            catch(Exception) {
-              persistingIsFailed = true;
-              RollbackChangesOfEntitySets();
-              RestoreEntityChangesAfterPersistFailed();
-              throw;
-            }
-            finally {
-              if (persistIsSuccessful || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
-                DropDifferenceBackup();
-                foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
-                  item.PersistenceState = PersistenceState.Synchronized;
-                foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
-                  item.PersistenceState = PersistenceState.Synchronized;
-                foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
-                  item.Update(null);
 
-                if (performPinning) {
-                  EntityChangeRegistry = pinner.PinnedItems;
-                  pinner.Reset();
-                }
-                else
-                  EntityChangeRegistry.Clear();
-                EntitySetChangeRegistry.Clear();
-                NonPairedReferencesRegistry.Clear();
-              }
-              if (IsDebugEventLoggingEnabled) {
-                OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
-              }
+              EntitySetChangeRegistry.Clear();
+              NonPairedReferencesRegistry.Clear();
+            }
+
+            if (IsDebugEventLoggingEnabled) {
+              OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
           }
-          SystemEvents.NotifyPersisted();
-          Events.NotifyPersisted();
         }
-        finally {
-          IsPersisting = false;
+
+        SystemEvents.NotifyPersisted();
+        Events.NotifyPersisted();
+      }
+      finally {
+        IsPersisting = false;
+        if (isAsync) {
+          await ts.DisposeAsync().ConfigureAwait(false);
+        }
+        else {
+          ts.Dispose();
         }
       }
     }
