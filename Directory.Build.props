@@ -75,9 +75,13 @@
       <Pack>true</Pack>
     </None>
   </ItemGroup>
-  <Target Name="ExportRev" Condition="Exists('.git\index') AND '$(Configuration)' == 'Release'">
-    <MakeDir Directories="_Build" />
-    <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
+  <Target Name="ExportRev"
+          BeforeTargets="Pack"
+          Condition="'$(Configuration)' == 'Release' AND Exists('$(SolutionDir).git\index')"
+          Inputs="$(SolutionDir).git\index"
+          Outputs="$(DoRevFile)">
+    <MakeDir Directories="$(SolutionDir)_Build" />
+    <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="$(SolutionDir)_Build" />
   </Target>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />

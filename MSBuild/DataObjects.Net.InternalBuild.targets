@@ -5,6 +5,6 @@
   <XtensiveOrmPath>$(SolutionDir)_Build\$(Configuration)\</XtensiveOrmPath>
 </PropertyGroup>
 
-<Import Project="$(MSBuildThisFileDirectory)\DataObjects.Net.targets" />
+<Import Project="$(MSBuildThisFileDirectory)DataObjects.Net.targets" />
 
 </Project>
