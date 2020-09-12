@@ -47,9 +47,11 @@
 
     <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
     <PackageReference Condition="$(GeneratePackageOnBuild) == 'true'"
                       Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
   </ItemGroup>
