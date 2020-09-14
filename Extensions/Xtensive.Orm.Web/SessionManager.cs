@@ -194,6 +194,10 @@ namespace Xtensive.Orm.Web
         throw new InvalidOperationException("Session is not provided");
     }
 
+    /// <summary>
+    /// Creates new instance of <see cref="SessionManager"/> middleware.
+    /// </summary>
+    /// <param name="next">Next <see cref="RequestDelegate"/> in pipeline.</param>
     public SessionManager(RequestDelegate next)
     {
       nextMiddlewareRunner = next;

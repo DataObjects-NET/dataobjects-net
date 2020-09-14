@@ -538,7 +538,6 @@ namespace Xtensive.Tuples
     {
       var bound = startIndex + length;
       for (int index = startIndex; index < bound; index++) {
-        TupleFieldState fieldState;
         if (!origin.GetFieldState(index).IsAvailable())
           CopyValue(difference, index, origin, index);
       }
@@ -548,7 +547,6 @@ namespace Xtensive.Tuples
     {
       var bound = startIndex + length;
       for (int index = startIndex; index < bound; index++) {
-        TupleFieldState fieldState;
         if (!origin.GetFieldState(index).IsAvailable())
           CopyPackedValue(difference, index, origin, index);
       }

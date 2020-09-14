@@ -64,6 +64,8 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Loads logging configuration from the specified configuration section.
     /// </summary>
+    /// <param name="configuration">A <see cref="System.Configuration.Configuration"/>
+    /// instance to load from.</param>
     /// <param name="sectionName">Name of configuration section.</param>
     /// <returns>Loaded configuration.</returns>
     public static LoggingConfiguration Load(System.Configuration.Configuration configuration, string sectionName)

@@ -39,7 +39,6 @@ namespace Xtensive.Orm.Rse
     /// <returns>An enumerator that can be used to iterate through the collection.</returns>
     public async Task<IEnumerator<Tuple>> GetEnumeratorAsync(CancellationToken token)
     {
-      IEnumerator<Tuple> enumerator;
       if (Context.CheckOptions(EnumerationContextOptions.GreedyEnumerator))
         return await GetGreedyEnumeratorAsync(token).ConfigureAwait(false);
       return await GetBatchedEnumeratorAsync(token).ConfigureAwait(false);
@@ -111,7 +110,6 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     private async Task<IEnumerator<Tuple>> GetBatchedEnumeratorAsync(CancellationToken token)
     {
-      EnumerationScope currentScope = null;
       var enumerator = await Source.GetEnumeratorAsync(Context, token).ConfigureAwait(false);
       var batched = enumerator.ToEnumerable().Batch(2);
 

@@ -470,7 +470,7 @@ namespace Xtensive.Modelling.Comparison
         EnumerableUtils.Unfold(difference, d => d.Parent).Reverse();
       var currentDiffs = 
         EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse();
-      var commonDiffs = diffs.Zip(currentDiffs).Where(p => p.First==p.Second).Select(p => p.First);
+      var commonDiffs = diffs.Zip(currentDiffs, (first, second) => new Pair<Difference>(first, second)).Where(p => p.First==p.Second).Select(p => p.First);
       var newDiffs = diffs.Except(commonDiffs);
       var query =
         from diff in newDiffs

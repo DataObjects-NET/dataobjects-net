@@ -13,6 +13,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using DataTable=System.Data.DataTable;
+using Index = Xtensive.Sql.Model.Index;
 using UniqueConstraint=Xtensive.Sql.Model.UniqueConstraint;
 
 namespace Xtensive.Orm.Tests.Sql.PostgreSql

@@ -18,11 +18,10 @@
     <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
     <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
     <DoPackageIcon>$(MSBuildThisFileDirectory)do-nuget.png</DoPackageIcon>
-    <DoRevFile>$(MSBuildThisFileDirectory)_Build\rev.txt</DoRevFile>
   </PropertyGroup>
 
   <PropertyGroup>
-    <LangVersion>8.0</LangVersion>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
     <SolutionDir Condition="$(SolutionDir) == ''">$(MSBuildThisFileDirectory.TrimEnd('\').TrimEnd('/'))\</SolutionDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
@@ -36,12 +35,27 @@
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
+    <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
 
   <PropertyGroup>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'TestCommon'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+
+    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+
+  <ItemGroup>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
+    <PackageReference Condition="$(GeneratePackageOnBuild) == 'true'"
+                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
   <!-- Populate standard properties. -->
   <PropertyGroup>
@@ -54,21 +68,19 @@
     <Copyright>$(DoProductCopyright)</Copyright>
     <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
     <PackageIcon>do-nuget.png</PackageIcon>
-    <PackageLicense>Apache-2.0</PackageLicense>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
-    <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages</PackageOutputPath>
+    <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages\</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
-    <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
+    <None Include="$(DoPackageIcon)" Visible="false" >
+      <PackagePath>.</PackagePath>
+      <Pack>true</Pack>
+    </None>
   </ItemGroup>
-  <Target Name="ExportRev" Condition="Exists('.git\index') AND '$(Configuration)' == 'Release'">
-    <MakeDir Directories="_Build" />
-    <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
-  </Target>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
 </Project>

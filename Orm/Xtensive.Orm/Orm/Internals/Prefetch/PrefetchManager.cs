@@ -109,7 +109,6 @@ namespace Xtensive.Orm.Internals.Prefetch
           return null;
         var selectedFields = descriptors;
         var currentType = type;
-        StrongReferenceContainer hierarchyRootContainer = null;
         var isKeyTypeExact = currentKey.HasExactType
           || currentKey.TypeReference.Type.IsLeaf
           || currentKey.TypeReference.Type==type;

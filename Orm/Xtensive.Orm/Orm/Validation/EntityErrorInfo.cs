@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Validation
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="target">Validated entity.</param>
+    /// <param name="errors">A collection of <see cref="ValidationResult"/>s for an errors discovered.</param>
     public EntityErrorInfo(Entity target, IList<ValidationResult> errors)
     {
       ArgumentValidator.EnsureArgumentNotNull(target, "target");

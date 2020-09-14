@@ -19,6 +19,7 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Gets the child node by its path.
     /// </summary>
+    /// <param name="node">An instance implementing <see cref="IPathNode"/> interface.</param>
     /// <param name="path">Path to the node to get.</param>
     /// <param name="throwIfNone">Indicates whether an exception 
     /// must be thrown if there is no node with the specified path, or not.</param>

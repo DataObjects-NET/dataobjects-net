@@ -142,6 +142,7 @@ namespace Xtensive.Orm.Validation
     /// Throws configuration error with specified message.
     /// </summary>
     /// <param name="message">Configuration error message.</param>
+    /// <param name="innerException">An <see cref="Exception"/> instance to be used as inner exception.</param>
     protected void ThrowConfigurationError(string message, Exception innerException = null)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(message, "message");

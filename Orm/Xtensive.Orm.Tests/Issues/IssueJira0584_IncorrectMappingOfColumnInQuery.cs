@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0584_IncorrectMappingOfColumnInQuer
   public class PacioliAccount : EntityBase
   {
     [Field, Key]
-    public Guid Id { get; set; }
+    public new Guid Id { get; set; }
 
     [Field]
     public PacioliAccount Parent { get; set; }

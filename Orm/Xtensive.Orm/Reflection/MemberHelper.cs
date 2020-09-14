@@ -159,6 +159,8 @@ namespace Xtensive.Reflection
     /// Gets the interface member implementation in its implementor.
     /// </summary>
     /// <param name="member">The member to get the implementation member for.</param>
+    /// <param name="implementor">A <see cref="Type"/> implementing an <see langword="interface"/>
+    /// where the specified <paramref name="member"/> is declared.</param>
     /// <returns>Implementation member;
     /// <see langword="null" />, if no implementation member maps to the specified one.</returns>
     public static MemberInfo GetImplementation(this MemberInfo member, Type implementor)

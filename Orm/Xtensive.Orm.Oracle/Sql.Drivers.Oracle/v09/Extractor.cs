@@ -15,6 +15,7 @@ using Xtensive.Core;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Drivers.Oracle.Resources;
 using Constraint=Xtensive.Sql.Model.Constraint;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.Oracle.v09
 {
@@ -39,20 +40,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       ExtractSchemas();
       ExtractCatalogContents();
       return theCatalog;
-    }
-
-    public override Schema ExtractSchema(string catalogName, string schemaName)
-    {
-      targetSchemes.Clear();
-      theCatalog = new Catalog(catalogName);
-      var targetSchema = schemaName.ToUpperInvariant();
-      targetSchemes.Add(targetSchema);
-
-      RegisterReplacements(replacementsRegistry);
-      ExtractSchemas();
-      EnsureShemasExists(theCatalog, new []{schemaName});
-      ExtractCatalogContents();
-      return theCatalog.Schemas[targetSchema];
     }
 
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)

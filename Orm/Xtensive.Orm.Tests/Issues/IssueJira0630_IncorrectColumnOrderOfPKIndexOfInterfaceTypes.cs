@@ -792,7 +792,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0630_IncorrectColumnOrderOfPKIndexO
     SimpleTestEntity HEAEntityField { get; set; }
 
     [Field]
-    SimpleStructure AStructureField { get; set; }
+    new SimpleStructure AStructureField { get; set; }
   }
 
 #endregion

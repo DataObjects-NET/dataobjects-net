@@ -2,9 +2,9 @@
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="15.0">
 
 <PropertyGroup>
-  <XtensiveOrmPath>$(MSBuildThisFileDirectory)\..\_Build\$(Configuration)\</XtensiveOrmPath>
+  <XtensiveOrmPath>$(SolutionDir)_Build\$(Configuration)\</XtensiveOrmPath>
 </PropertyGroup>
 
-<Import Project="$(MSBuildThisFileDirectory)\DataObjects.Net.targets" />
+<Import Project="$(MSBuildThisFileDirectory)DataObjects.Net.targets" />
 
 </Project>

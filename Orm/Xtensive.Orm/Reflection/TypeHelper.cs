@@ -590,7 +590,7 @@ namespace Xtensive.Reflection
         var constructor = type.GetConstructor(bindingFlags, argumentTypes);
         return constructor == null ? null : constructor.Invoke(arguments);
       }
-      catch (Exception error) {
+      catch (Exception) {
         return null;
       }
     }

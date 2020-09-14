@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Orm.Upgrade.Internals
 {

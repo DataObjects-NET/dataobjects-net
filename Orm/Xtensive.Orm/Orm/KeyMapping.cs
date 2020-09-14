@@ -99,7 +99,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="info">The info.</param>
     /// <param name="context">The context.</param>
-    protected KeyMapping(SerializationInfo info, StreamingContext context)
+    private KeyMapping(SerializationInfo info, StreamingContext context)
     {
       var serializedMapping = (Dictionary<Ref<Entity>, Ref<Entity>>)
         info.GetValue("Map", typeof(Dictionary<Ref<Entity>, Ref<Entity>>));

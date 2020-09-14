@@ -4,7 +4,10 @@ using Microsoft.AspNetCore.Builder;
 
 namespace Xtensive.Orm.Web
 {
-  public static class AplicationBuilderExtensions
+  /// <summary>
+  /// Contains helper methods to apply <see cref="SessionManager"/> middleware to ASP.NET Core pipeline.
+  /// </summary>
+  public static class ApplicationBuilderExtensions
   {
     /// <summary>
     /// Adds <see cref="SessionManager"/> to ASP.NET Core middleware pipeline.

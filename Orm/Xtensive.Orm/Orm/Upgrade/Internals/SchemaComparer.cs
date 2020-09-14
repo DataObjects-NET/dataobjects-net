@@ -31,6 +31,11 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="sourceSchema">The source schema.</param>
     /// <param name="targetSchema">The target schema.</param>
     /// <param name="schemaHints">The upgrade hints.</param>
+    /// <param name="upgradeHints"><see cref="UpgradeHint"/>s to be applied.</param>
+    /// <param name="schemaUpgradeMode">A <see cref="SchemaUpgradeMode"/> being used.</param>
+    /// <param name="model">A <see cref="DomainModel"/> of a storage.</param>
+    /// <param name="briefExceptionFormat">Indicates whether brief or full exception format should be used.</param>
+    /// <param name="upgradeStage">A current <see cref="UpgradeStage"/>.</param>
     /// <returns>Comparison result.</returns>
     public static SchemaComparisonResult Compare(
       StorageModel sourceSchema, StorageModel targetSchema, 

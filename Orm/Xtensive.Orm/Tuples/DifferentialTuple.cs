@@ -90,7 +90,7 @@ namespace Xtensive.Tuples
       difference = null;
     }
 
-    protected internal void RestoreDifference()
+    internal void RestoreDifference()
     {
       if (backupedDifference != null) {
         origin.MergeWith(backupedDifference.Origin, MergeBehavior.PreferDifference);
@@ -102,13 +102,13 @@ namespace Xtensive.Tuples
       }
     }
 
-    protected internal void BackupDifference()
+    internal void BackupDifference()
     {
       if (difference != null)
         backupedDifference = (DifferentialTuple) this.Clone();
     }
 
-    protected internal void DropBackedUpDifference()
+    internal void DropBackedUpDifference()
     {
       backupedDifference = null;
     }

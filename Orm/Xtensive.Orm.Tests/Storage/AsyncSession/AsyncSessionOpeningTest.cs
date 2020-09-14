@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test08()
+    public void Test08()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test09()
+    public void Test09()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test10()
+    public void Test10()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test11()
+    public void Test11()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();
@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
     }
 
     [Test]
-    public async Task Test15()
+    public void Test15()
     {
       var ctSource = new CancellationTokenSource();
       ctSource.Cancel();

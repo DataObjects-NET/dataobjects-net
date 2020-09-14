@@ -34,19 +34,22 @@ namespace Xtensive.Orm.Providers
     public abstract void ClearTasks();
 
     /// <summary>
-    /// Executes all registred requests plus the specified one query,
+    /// Executes all registered requests plus the specified one query,
     /// returning <see cref="IEnumerator{Tuple}"/> for the last query.
     /// </summary>
-    /// <param name="request">The request to execute.</param>
+    /// <param name="request">A <see cref="QueryRequest"/> instance to be executed.</param>
+    /// <param name="context">A contextual information to be used while executing
+    /// the specified <paramref name="request"/>.</param>
     /// <returns>A <see cref="IEnumerator{Tuple}"/> for the specified request.</returns>
     public abstract IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
 
     /// <summary>
-    /// Asynchronously executes all registred requests plus the specified one query.
+    /// Asynchronously executes all registered requests plus the specified one query.
     /// Default implementation is synchronous and returns complete task.
     /// </summary>
     /// <param name="request">The request to execute.</param>
-    /// <param name="context">The context in which the requests are executed.</param>
+    /// <param name="context">A contextual information to be used while executing
+    /// the specified <paramref name="request"/>.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>A task performing this operation.</returns>
     public virtual Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest request,
@@ -57,7 +60,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <summary>
-    /// Executes all registred requests,
+    /// Executes all registered requests,
     /// optionally skipping the last requests according to 
     /// <paramref name="context.AllowPartialExecution"/> argument.
     /// </summary>
@@ -65,12 +68,13 @@ namespace Xtensive.Orm.Providers
     public abstract void ExecuteTasks(CommandProcessorContext context);
 
     /// <summary>
-    /// Asyncronously executes all registered requests,
+    /// Asynchronously executes all registered requests,
     /// optionally skipping the last requests according to
     /// <paramref name="context.AllowPartialExecution"/> argument.
     /// Default implementation executes requests synchronously and returns completed task.
     /// </summary>
-    /// <param name="context">The context in which the requests are executed.</param>
+    /// <param name="context">A contextual information to be used while executing
+    /// registered query requests.</param>
     /// <param name="token">Token to cancel this operation</param>
     /// <returns>A task preforming this operation.</returns>
     public virtual async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)

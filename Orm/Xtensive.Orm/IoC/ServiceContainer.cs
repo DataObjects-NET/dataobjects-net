@@ -225,6 +225,7 @@ namespace Xtensive.IoC
     /// <summary>
     /// Creates <see cref="IServiceContainer"/> by default configuration.
     /// </summary>
+    /// <param name="configuration">An <see cref="AppConfiguration"/> instance.</param>
     /// <returns><see cref="IServiceContainer"/> for the default configuration.</returns>
     public static IServiceContainer Create(AppConfiguration configuration)
     {
@@ -234,6 +235,7 @@ namespace Xtensive.IoC
     /// <summary>
     /// Creates <see cref="IServiceContainer"/> by its configuration.
     /// </summary>
+    /// <param name="configuration">An <see cref="AppConfiguration"/> instance.</param>
     /// <param name="name">The name of container configuration to create container for.</param>
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
     public static IServiceContainer Create(AppConfiguration configuration, string name)
@@ -244,6 +246,7 @@ namespace Xtensive.IoC
     /// <summary>
     /// Creates <see cref="IServiceContainer"/> by its configuration.
     /// </summary>
+    /// <param name="configuration">An <see cref="AppConfiguration"/> instance.</param>
     /// <param name="name">The name of container configuration to create container for.</param>
     /// <param name="parent">The parent container.</param>
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>

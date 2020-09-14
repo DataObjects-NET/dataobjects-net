@@ -423,7 +423,7 @@ namespace Xtensive.Orm.Linq
           else
             throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         // Visit Collection extensions
-        if (method.DeclaringType==typeof (CollectionExtensions))
+        if (method.DeclaringType==typeof(CollectionExtensionsEx))
           if (method.Name==WellKnownMembers.Collection.ExtensionContainsAny.Name)
             return VisitContainsAny(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.GetGenericArguments()[0]);
           else if (method.Name==WellKnownMembers.Collection.ExtensionContainsAll.Name)

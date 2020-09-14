@@ -62,6 +62,8 @@ namespace Xtensive.Orm.Internals
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="dataSource">The data source.</param>
+    /// <param name="lifetimeToken"><see cref="StateLifetimeToken"/> to be associated with the
+    /// newly created <see cref="QueryTask"/>.</param>
     /// <param name="parameterContext">The parameter value context.</param>
     public QueryTask(ExecutableProvider dataSource, StateLifetimeToken lifetimeToken, ParameterContext parameterContext)
     {

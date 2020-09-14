@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     /// </summary>
     public void PopulateValueColumns()
     {
-      var keySet = EnumerableExtensions.ToHashSet(KeyColumns.Select(kc => kc.Value));
+      var keySet = KeyColumns.Select(kc => kc.Value).ToHashSet();
 
       foreach (var column in Parent.Columns.Where(c => !keySet.Contains(c)))
         new ValueColumnRef(this, column);

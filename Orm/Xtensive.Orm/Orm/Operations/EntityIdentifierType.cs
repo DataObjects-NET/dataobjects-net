@@ -10,7 +10,7 @@ using System.Diagnostics;
 namespace Xtensive.Orm.Operations
 {
   /// <summary>
-  /// Possible identifier types for <see cref="IEntity.IdentifyAs"/> method.
+  /// Possible identifier types for <see cref="IEntity.IdentifyAs(Xtensive.Orm.Operations.EntityIdentifierType)"/> method.
   /// </summary>
   public enum EntityIdentifierType
   {

@@ -63,7 +63,6 @@ namespace Xtensive.Orm
     where TItem : IEntity
   {
     private Expression expression;
-    private bool isCountCalculated;
 
     /// <summary>
     /// Determines whether this collection contains the specified item.

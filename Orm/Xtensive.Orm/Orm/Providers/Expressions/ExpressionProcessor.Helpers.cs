@@ -133,7 +133,6 @@ namespace Xtensive.Orm.Providers
 
     private SqlExpression TryTranslateBinaryExpressionSpecialCases(Expression expression, SqlExpression left, SqlExpression right)
     {
-      SqlExpression result;
       switch (expression.NodeType) {
       case ExpressionType.Equal:
         return TryTranslateEqualitySpecialCases(left, right)

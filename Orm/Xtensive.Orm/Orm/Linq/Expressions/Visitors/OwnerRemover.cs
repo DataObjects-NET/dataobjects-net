@@ -63,11 +63,11 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         return expression;
 
       var bindings = expression.Bindings
-        .Zip(newBindings)
-        .ToDictionary(item => item.First.Key, item => item.Second);
+        .Zip(newBindings, (first, second) => (first, second))
+        .ToDictionary(item => item.first.Key, item => item.second);
       var nativeBingings = expression.NativeBindings
-        .Zip(newNativeBindings)
-        .ToDictionary(item => item.First.Key, item => item.Second);
+        .Zip(newNativeBindings, (first, second) => (first, second))
+        .ToDictionary(item => item.first.Key, item => item.second);
       return new ConstructorExpression(expression.Type, bindings, nativeBingings, expression.Constructor, newConstructorArguments);
     }
 

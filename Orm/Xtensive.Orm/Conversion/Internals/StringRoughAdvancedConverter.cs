@@ -38,7 +38,7 @@ namespace Xtensive.Conversion
       try {
         return Byte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return Byte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
@@ -50,7 +50,7 @@ namespace Xtensive.Conversion
       try {
         return SByte.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return SByte.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
@@ -62,7 +62,7 @@ namespace Xtensive.Conversion
       try {
         return short.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return short.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
@@ -74,7 +74,7 @@ namespace Xtensive.Conversion
       try {
         return ushort.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return ushort.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
@@ -86,7 +86,7 @@ namespace Xtensive.Conversion
       try {
         return int.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return int.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
@@ -98,7 +98,7 @@ namespace Xtensive.Conversion
       try {
         return uint.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return uint.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
@@ -110,7 +110,7 @@ namespace Xtensive.Conversion
       try {
         return long.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return long.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;
@@ -122,7 +122,7 @@ namespace Xtensive.Conversion
       try {
         return ulong.Parse(value, NumberStyles.Any, CultureInfo.InvariantCulture);
       }
-      catch (FormatException e) {
+      catch (FormatException) {
         if (value.Substring(0, 2).ToUpper().Equals("0X"))
           return ulong.Parse(value.Substring(2), NumberStyles.HexNumber, CultureInfo.InvariantCulture);
         throw;

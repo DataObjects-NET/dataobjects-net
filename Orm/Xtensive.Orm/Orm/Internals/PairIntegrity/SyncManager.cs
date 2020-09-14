@@ -75,10 +75,6 @@ namespace Xtensive.Orm.PairIntegrity
 
     private static SyncActionSet GetSyncActions(AssociationInfo association)
     {
-      Func<AssociationInfo, IEntity, IEntity> getValue = null;
-      Action<AssociationInfo, IEntity, IEntity> @break = null;
-      Action<AssociationInfo, IEntity, IEntity> create = null;
-
       switch (association.Multiplicity) {
       case Multiplicity.OneToOne:
       case Multiplicity.ManyToOne:

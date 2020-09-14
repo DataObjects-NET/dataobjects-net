@@ -14,10 +14,6 @@ namespace Xtensive.Orm.Internals.Prefetch
   [Serializable]
   internal class PrefetchProcessor<T> : IEnumerable<T>
   {
-    private readonly Session session;
-    private readonly IEnumerable<T> source;
-    private readonly IEnumerable<Key> keySource;
-
     public IEnumerator<T> GetEnumerator()
     {
       throw new NotImplementedException();

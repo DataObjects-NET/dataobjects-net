@@ -34,6 +34,7 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="source">The tuples to process.</param>
     /// <param name="header">The record set header.</param>
+    /// <param name="session">A <see cref="Session"/> instance.</param>
     /// <param name="primaryKeyIndex">Index of primary key within the <see cref="Record"/>.</param>
     /// <returns>
     /// The sequence of <see cref="Entity"/> instances.

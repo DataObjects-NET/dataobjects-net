@@ -8,7 +8,6 @@
     <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
     <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
     <CopyDocumentationFileToOutputDirectory>false</CopyDocumentationFileToOutputDirectory>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageId>tmp</PackageId>
     <PackageOutputPath>$(BaseIntermediateOutputPath)</PackageOutputPath>
@@ -26,9 +25,9 @@
   </Target>
 
   <ItemGroup Label="Build order">
-    <ProjectReference Include="$(SolutionDir)\Extensions\**\*.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
-    <ProjectReference Include="$(SolutionDir)\Orm\**\*.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
-    <ProjectReference Include="$(SolutionDir)\Weaver\**\*.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
+    <ProjectReference Include="$(SolutionDir)Extensions\**\*.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="$(SolutionDir)Orm\**\*.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="$(SolutionDir)Weaver\**\*.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <!-- You can add to this list in User.Directory.Build.props -->
   <ItemGroup>

@@ -781,6 +781,8 @@ namespace Xtensive.Orm.Configuration
     /// with the specified <paramref name="name"/>
     /// from application configuration file (section with <see cref="SectionName"/>).
     /// </summary>
+    /// <param name="configuration">A <see cref="System.Configuration.Configuration"/>
+    /// instance to load from.</param>
     /// <param name="name">Name of the <see cref="Domain"/>.</param>
     /// <returns>
     /// The <see cref="DomainConfiguration"/> for the specified domain.
@@ -798,6 +800,8 @@ namespace Xtensive.Orm.Configuration
     /// with the specified <paramref name="name"/>
     /// from application configuration file (section with <paramref name="sectionName"/>).
     /// </summary>
+    /// <param name="configuration">A <see cref="System.Configuration.Configuration"/>
+    /// instance to load from.</param>
     /// <param name="sectionName">Name of the section.</param>
     /// <param name="name">Name of the <see cref="Domain"/>.</param>
     /// <returns>

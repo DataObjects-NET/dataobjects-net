@@ -4,7 +4,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql.Dml;
 

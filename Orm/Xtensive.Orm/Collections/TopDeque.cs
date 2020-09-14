@@ -98,7 +98,7 @@ namespace Xtensive.Collections
         try {
           map.Add(key, valueContainer);
         }
-        catch (Exception e) {
+        catch (Exception) {
           list.RemoveFirst();
           throw;
         }

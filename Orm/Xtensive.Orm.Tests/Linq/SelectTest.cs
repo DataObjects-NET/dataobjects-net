@@ -834,13 +834,13 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result =
         Session.Query.All<Customer>()
-          .Where(c => c.FirstName.Contains('็'))
+          .Where(c => c.FirstName.Contains('รง'))
           .OrderBy(c => c.FirstName)
           .ToArray();
       var expected =
         Session.Query.All<Customer>()
           .ToList()
-          .Where(c => c.FirstName.Contains('็'))
+          .Where(c => c.FirstName.Contains('รง'))
           .OrderBy(c => c.FirstName)
           .ToArray();
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -912,11 +912,11 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.IsTrue(Math.Abs(timeSpan.TotalMilliseconds - result.TimeSpanTotalMilliSeconds) < 0.1);
       Assert.AreEqual(timeSpan.Ticks, result.TimeSpanTicks);
       Assert.AreEqual(timeSpan.Duration(), result.TimeSpanDuration);
-      Assert.AreEqual(timeSpan, result.TimeSpanFromDays);
-      Assert.AreEqual(timeSpan, result.TimeSpanFromHours);
-      Assert.AreEqual(timeSpan, result.TimeSpanFromMinutes);
-      Assert.AreEqual(timeSpan, result.TimeSpanFromSeconds);
-      Assert.AreEqual(timeSpan, result.TimeSpanFromMilliseconds);
+      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromDays.Ticks) < 2);
+      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromHours.Ticks) < 2);
+      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromMinutes.Ticks) < 2);
+      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromSeconds.Ticks) < 2);
+      Assert.IsTrue(Math.Abs(timeSpan.Ticks - result.TimeSpanFromMilliseconds.Ticks) < 2);
     }
 
     [Test]

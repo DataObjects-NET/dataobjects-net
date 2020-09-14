@@ -39,11 +39,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
 
       // user, password
       if (!String.IsNullOrEmpty(url.User)) {
-#if NETSTANDARD
         builder.Username = url.User;
-#else
-        builder.UserName = url.User;
-#endif
         builder.Password = url.Password;
       }
       else

@@ -54,6 +54,7 @@ namespace Xtensive.Orm
     /// <typeparam name="T">The type of the action argument.</typeparam>
     /// <param name="action">The action.</param>
     /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="argument">An argument to be passed to <paramref name="action"/>.</param>
     [Obsolete("Use InvokeTransactionally<T>(Action<T>, Session, IsolationLevel, T) instead")]
     public static void InvokeTransactionally<T>(this Action<T> action, IsolationLevel isolationLevel, T argument)
     {
@@ -182,6 +183,7 @@ namespace Xtensive.Orm
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="function">The function.</param>
     /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="argument">An argument to be passed to <paramref name="function"/>.</param>
     [Obsolete("Use InvokeTransactionally<T, TResult>(Func<T, TResult>, Session, IsolationLevel, T) instead")]
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, IsolationLevel isolationLevel, T argument)
     {

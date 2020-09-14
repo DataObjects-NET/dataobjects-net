@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq
       throw new NotSupportedException(string.Format(Strings.ExXIsNotSuitableFieldFoFullTextSearch, rootExpression));
     }
 
-    protected FieldInfo VisitMemberAccess(MemberExpression m)
+    private FieldInfo VisitMemberAccess(MemberExpression m)
     {
       Visit(m.Expression);
       var property = m.Member as PropertyInfo;

@@ -6,10 +6,8 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Operations
 {
@@ -18,7 +16,7 @@ namespace Xtensive.Orm.Operations
   /// </summary>
   public sealed class OperationRegistry
   {
-    private ICompletableScope blockingScope;
+    private readonly ICompletableScope blockingScope;
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
     private bool isSystemOperationRegistrationEnabled = true;
@@ -50,7 +48,7 @@ namespace Xtensive.Orm.Operations
 
     /// <summary>
     /// Gets a value indicating whether this instance can register operation
-    /// using <see cref="RegisterOperation"/> method.
+    /// using <see cref="RegisterOperation(Xtensive.Orm.Operation)"/> method.
     /// </summary>
     public bool CanRegisterOperation {
       get {
@@ -113,7 +111,8 @@ namespace Xtensive.Orm.Operations
     /// Registers the operation.
     /// </summary>
     /// <param name="operation">The operation to register.</param>
-    /// <param name="isStarted">If set to <see langword="true"/>, <see cref="NotifyOperationStarting"/> method
+    /// <param name="isStarted">If set to <see langword="true"/>,
+    /// <see cref="NotifyOperationStarting()"/> method
     /// will be called on completion of operation registration.</param>
     public void RegisterOperation(Operation operation, bool isStarted)
     {

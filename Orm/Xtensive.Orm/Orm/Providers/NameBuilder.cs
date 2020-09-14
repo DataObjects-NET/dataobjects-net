@@ -56,6 +56,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the name for <see cref="TypeDef"/> object.
     /// </summary>
+    /// <param name="context">A <see cref="Domain"/> building context.</param>
     /// <param name="type">The <see cref="TypeDef"/> object.</param>
     /// <returns>Type name.</returns>
     public string BuildTypeName(BuildingContext context, TypeDef type)
@@ -570,7 +571,7 @@ namespace Xtensive.Orm.Providers
     /// The length of the resulting hash is 8 characters.
     /// </summary>
     /// <returns>Computed hash.</returns>
-    protected string GetHash(string name)
+    private static string GetHash(string name)
     {
       using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
         byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));

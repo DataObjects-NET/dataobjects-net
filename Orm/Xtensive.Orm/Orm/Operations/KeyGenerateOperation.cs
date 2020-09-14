@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Operations
     }
 
     /// <inheritdoc/>
-    protected KeyGenerateOperation(SerializationInfo info, StreamingContext context)
+    private KeyGenerateOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }

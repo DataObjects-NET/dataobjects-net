@@ -390,7 +390,10 @@ namespace Xtensive.Orm
     /// Fetches multiple instances of specified type  by provided <paramref name="keys"/>.
     /// </summary>
     /// <param name="keys">The source sequence.</param>
-    /// <returns>The sequence of entities of type <typeparam name="T"/> matching provided <paramref name="keys"/>.</returns>
+    /// <typeparam name="T">A type of entities to query; it must be a class implementing
+    /// <see cref="IEntity"/> interface.</typeparam>
+    /// <typeparam name="TElement">A type of keys collection elements.</typeparam>
+    /// <returns>The sequence of entities of type <typeparamref name="T"/> matching provided <paramref name="keys"/>.</returns>
     public IEnumerable<T> Many<T, TElement>(IEnumerable<TElement> keys)
       where T : class, IEntity
     {

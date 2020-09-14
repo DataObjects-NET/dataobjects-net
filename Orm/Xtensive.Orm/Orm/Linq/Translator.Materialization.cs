@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Linq
       if (le.Parameters.Count==2) {
         var indexDataSource = sequence.ItemProjector.DataSource.RowNumber(context.GetNextColumnAlias());
         var columnExpression = ColumnExpression.Create(typeof (long), indexDataSource.Header.Columns.Count - 1);
-        var indexExpression = Expression.Subtract(columnExpression, Expression.Constant(1l));
+        var indexExpression = Expression.Subtract(columnExpression, Expression.Constant(1L));
         var itemExpression = Expression.Convert(indexExpression, typeof (int));
         var indexItemProjector = new ItemProjectorExpression(itemExpression, indexDataSource, context);
         var indexProjectionExpression = new ProjectionExpression(typeof (long), indexItemProjector, sequence.TupleParameterBindings);

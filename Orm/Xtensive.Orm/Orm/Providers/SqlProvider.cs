@@ -89,10 +89,13 @@ namespace Xtensive.Orm.Providers
     
 
     // Constructors
-    
+
     /// <summary>
-    ///	Initializes a new instance of this class.
+    /// Initializes a new instance of this class.
     /// </summary>
+    /// <param name="request">A <see cref="QueryRequest"/> instance associated with
+    /// the newly created <see cref="SqlProvider"/>.
+    /// </param>
     /// <param name="origin">The origin.</param>
     /// <param name="handlers">The handlers.</param>
     /// <param name="sources">The sources.</param>

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.08.19
 
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Weaver.Stages
         // because ModuleReference contains only name of Module.
         throw new InvalidOperationException("Unable to inspect ModuleReference");
       }
-      if (context.AssemblyChecker.IsFrameworkAssembly(reference) || context.AssemblyChecker.IsNetStandardAssembly(reference)) {
+      if (context.AssemblyChecker.IsFrameworkAssembly(reference) || context.AssemblyChecker.IsNetCoreAssembly(reference)) {
         var result = new TypeInfo(type, PersistentTypeKind.None);
         processedTypes.Add(identity, result);
         return result;

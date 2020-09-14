@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
     long Id { get; }
 
     [Field]
-    long Version { get; }
+    new long Version { get; }
 
     [Field]
     DateTime Date { get; set; }
@@ -405,7 +405,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
     long Id { get; }
 
     [Field, Version]
-    int Version { get; }
+    new int Version { get; }
 
     [Field]
     long SpaceNeeded { get; set; }
@@ -612,7 +612,7 @@ namespace Xtensive.Orm.Tests.Storage.VersioningConventionTestModel
     long Id { get; }
 
     [Field, Version]
-    int Version { get; }
+    new int Version { get; }
 
     [Field]
     string FirstName { get; set; }

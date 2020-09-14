@@ -301,8 +301,9 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// 	Initializes a new instance of this class.
     /// </summary>
+    /// <param name="sessionOptions">The session options.</param>
     /// <param name="name">Value for <see cref="Name"/>.</param>
-    public SessionConfiguration(string name, SessionOptions sessionOptions) 
+    public SessionConfiguration(string name, SessionOptions sessionOptions)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 

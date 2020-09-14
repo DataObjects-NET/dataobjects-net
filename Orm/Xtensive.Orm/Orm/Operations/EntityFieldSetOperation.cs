@@ -115,7 +115,7 @@ namespace Xtensive.Orm.Operations
     // Serialization
 
     /// <inheritdoc/>
-    protected EntityFieldSetOperation(SerializationInfo info, StreamingContext context)
+    private EntityFieldSetOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       var session = Session.Demand();

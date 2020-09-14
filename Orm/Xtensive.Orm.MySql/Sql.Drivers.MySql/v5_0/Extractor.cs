@@ -11,6 +11,7 @@ using System.Data.Common;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
@@ -30,19 +31,18 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       theCatalog = new Catalog(catalogName);
       targetSchema = null;
       RegisterReplacements(replacementsRegistry);
-      var schema = ExtractSchema(string.Empty, Driver.CoreServerInfo.DefaultSchemaName);
-      return schema.Catalog;
+      return ExtractSchemes(string.Empty, new[] {Driver.CoreServerInfo.DefaultSchemaName});
     }
 
     /// <inheritdoc/>
-    public override Schema ExtractSchema(string catalogName, string schemaName)
+    public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
     {
       theCatalog = new Catalog(catalogName);
-      targetSchema = schemaName;
-      var result = theCatalog.CreateSchema(targetSchema);
+      targetSchema = schemaNames[0];
+      theCatalog.CreateSchema(targetSchema);
       RegisterReplacements(replacementsRegistry);
       ExtractCatalogContents();
-      return result;
+      return theCatalog;
     }
 
     private void ExtractCatalogContents()
