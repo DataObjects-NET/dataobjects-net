@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Upgrade
         : await BuildSingleStageDomainAsync(token).ConfigureAwait(false);
 
       await OnCompleteAsync(domain, token).ConfigureAwait(false);
-      CompleteUpgradeTransaction();
+      await CompleteUpgradeTransactionAsync(token).ConfigureAwait(false);
       context.Services.ClearTemporaryResources();
 
       return domain;
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Upgrade
       var connection = context.Services.Connection;
       var driver = context.Services.StorageDriver;
 
-      if (connection.ActiveTransaction==null) {
+      if (connection.ActiveTransaction == null) {
         return;
       }
 
@@ -165,6 +165,24 @@ namespace Xtensive.Orm.Upgrade
       }
       catch {
         driver.RollbackTransaction(null, connection);
+        throw;
+      }
+    }
+
+    private async ValueTask CompleteUpgradeTransactionAsync(CancellationToken token)
+    {
+      var connection = context.Services.Connection;
+      var driver = context.Services.StorageDriver;
+
+      if (connection.ActiveTransaction == null) {
+        return;
+      }
+
+      try {
+        await driver.CommitTransactionAsync(null, connection, token);
+      }
+      catch {
+        await driver.RollbackTransactionAsync(null, connection, token);
         throw;
       }
     }
@@ -276,12 +294,12 @@ namespace Xtensive.Orm.Upgrade
       try {
         if (isAsync) {
           await driver.OpenConnectionAsync(null, connection, token).ConfigureAwait(false);
+          await driver.BeginTransactionAsync(null, connection, null, token).ConfigureAwait(false);
         }
         else {
           driver.OpenConnection(null, connection);
+          driver.BeginTransaction(null, connection, null);
         }
-
-        driver.BeginTransaction(null, connection, null);
       }
       catch {
         if (isAsync) {

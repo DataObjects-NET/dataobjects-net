@@ -84,18 +84,21 @@ namespace Xtensive.Orm.Providers
     public override void CommitTransaction(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null && !transactionIsExternal)
+      if (connection.ActiveTransaction != null && !transactionIsExternal) {
         driver.CommitTransaction(Session, connection);
-      if (!connectionIsExternal)
+      }
+
+      if (!connectionIsExternal) {
         driver.CloseConnection(Session, connection);
+      }
     }
 
     /// <inheritdoc/>
     public override async ValueTask CommitTransactionAsync(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null && !transactionIsExternal) {
-        driver.CommitTransaction(Session, connection);
+      if (connection.ActiveTransaction != null && !transactionIsExternal) {
+        await driver.CommitTransactionAsync(Session, connection).ConfigureAwait(false);
       }
 
       if (!connectionIsExternal) {
@@ -107,18 +110,21 @@ namespace Xtensive.Orm.Providers
     public override void RollbackTransaction(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null && !transactionIsExternal)
+      if (connection.ActiveTransaction != null && !transactionIsExternal) {
         driver.RollbackTransaction(Session, connection);
-      if (!connectionIsExternal)
+      }
+
+      if (!connectionIsExternal) {
         driver.CloseConnection(Session, connection);
+      }
     }
 
     /// <inheritdoc/>
     public override async ValueTask RollbackTransactionAsync(Transaction transaction)
     {
       pendingTransaction = null;
-      if (connection.ActiveTransaction!=null && !transactionIsExternal) {
-        driver.RollbackTransaction(Session, connection);
+      if (connection.ActiveTransaction != null && !transactionIsExternal) {
+        await driver.RollbackTransactionAsync(Session, connection).ConfigureAwait(false);
       }
 
       if (!connectionIsExternal) {
@@ -134,6 +140,13 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
+    public override async ValueTask CreateSavepointAsync(Transaction transaction, CancellationToken token = default)
+    {
+      await PrepareAsync(token).ConfigureAwait(false);
+      await driver.MakeSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
     public override void RollbackToSavepoint(Transaction transaction)
     {
       Prepare();
@@ -141,10 +154,24 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
+    public override async ValueTask RollbackToSavepointAsync(Transaction transaction, CancellationToken token = default)
+    {
+      await PrepareAsync(token).ConfigureAwait(false);
+      await driver.RollbackToSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwait(false);
+    }
+
+    /// <inheritdoc/>
     public override void ReleaseSavepoint(Transaction transaction)
     {
       Prepare();
       driver.ReleaseSavepoint(Session, connection, transaction.SavepointName);
+    }
+
+    /// <inheritdoc/>
+    public override async ValueTask ReleaseSavepointAsync(Transaction transaction, CancellationToken token = default)
+    {
+      await PrepareAsync(token).ConfigureAwait(false);
+      await driver.ReleaseSavepointAsync(Session, connection, transaction.SavepointName, token).ConfigureAwait(false);
     }
 
     /// <inheritdoc/>
@@ -173,16 +200,23 @@ namespace Xtensive.Orm.Providers
     {
       Session.EnsureNotDisposed();
       driver.EnsureConnectionIsOpen(Session, connection);
-      foreach (var script in initializationSqlScripts)
-        using (var command = connection.CreateCommand(script))
+      foreach (var script in initializationSqlScripts) {
+        using (var command = connection.CreateCommand(script)) {
           driver.ExecuteNonQuery(Session, command);
+        }
+      }
+
       initializationSqlScripts.Clear();
-      if (pendingTransaction==null)
+      if (pendingTransaction==null) {
         return;
+      }
+
       var transaction = pendingTransaction;
       pendingTransaction = null;
-      if (connection.ActiveTransaction==null) // Handle external transactions
+      if (connection.ActiveTransaction==null) {
+        // Handle external transactions
         driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
+      }
     }
 
     private async Task PrepareAsync(CancellationToken cancellationToken)
@@ -202,14 +236,16 @@ namespace Xtensive.Orm.Providers
         throw;
       }
 
-      if (pendingTransaction==null) {
+      if (pendingTransaction == null) {
         return;
       }
 
       var transaction = pendingTransaction;
       pendingTransaction = null;
-      if (connection.ActiveTransaction==null) { // Handle external transactions
-        driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
+      if (connection.ActiveTransaction == null) {
+        // Handle external transactions
+        var isolationLevel = IsolationLevelConverter.Convert(transaction.IsolationLevel);
+        await driver.BeginTransactionAsync(Session, connection, isolationLevel, cancellationToken).ConfigureAwait(false);
       }
     }
 

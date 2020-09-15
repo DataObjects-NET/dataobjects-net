@@ -354,13 +354,35 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Rollbacks current transaction to the specified savepoint.
+    /// Asynchronously makes the transaction savepoint.
+    /// </summary>
+    /// <param name="name">The name of the savepoint.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    public virtual Task MakeSavepointAsync(string name, CancellationToken token = default)
+    {
+      MakeSavepoint(name);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Rolls back current transaction to the specified savepoint.
     /// </summary>
     /// <param name="name">The name of the savepoint.</param>
     public virtual void RollbackToSavepoint(string name) => throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
 
     /// <summary>
-    /// Releases the savepoint with the specfied name.
+    /// Asynchronously rolls back current transaction to the specified savepoint.
+    /// </summary>
+    /// <param name="name">The name of the savepoint.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    public virtual Task RollbackToSavepointAsync(string name, CancellationToken token = default)
+    {
+      RollbackToSavepoint(name);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Releases the savepoint with the specified name.
     /// </summary>
     /// <param name="name">The name of the savepoint.</param>
     public virtual void ReleaseSavepoint(string name)
@@ -368,6 +390,17 @@ namespace Xtensive.Sql
       EnsureIsNotDisposed();
       // That's ok to release a savepoint even if they aren't supported - 
       // default impl. will fail on rollback
+    }
+
+    /// <summary>
+    /// Asynchronously releases the savepoint with the specified name.
+    /// </summary>
+    /// <param name="name">The name of the savepoint.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    public virtual Task ReleaseSavepointAsync(string name, CancellationToken token = default)
+    {
+      ReleaseSavepoint(name);
+      return Task.CompletedTask;
     }
 
     /// <inheritdoc/>

@@ -195,12 +195,28 @@ namespace Xtensive.Orm.Providers
           isolationLevel);
       }
 
-      if (isolationLevel == null) {
-        isolationLevel = IsolationLevelConverter.Convert(GetConfiguration(session).DefaultIsolationLevel);
-      }
+      isolationLevel ??= IsolationLevelConverter.Convert(GetConfiguration(session).DefaultIsolationLevel);
 
       try {
         connection.BeginTransaction(isolationLevel.Value);
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
+    public async ValueTask BeginTransactionAsync(
+      Session session, SqlConnection connection, IsolationLevel? isolationLevel, CancellationToken token = default)
+    {
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXBeginningTransactionWithYIsolationLevel, session.ToStringSafely(),
+          isolationLevel);
+      }
+
+      isolationLevel ??= IsolationLevelConverter.Convert(GetConfiguration(session).DefaultIsolationLevel);
+
+      try {
+        await connection.BeginTransactionAsync(isolationLevel.Value, token).ConfigureAwait(false);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -221,6 +237,21 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    public async ValueTask CommitTransactionAsync(
+      Session session, SqlConnection connection, CancellationToken token = default)
+    {
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXCommitTransaction, session.ToStringSafely());
+      }
+
+      try {
+        await connection.CommitAsync(token).ConfigureAwait(false);
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
     public void RollbackTransaction(Session session, SqlConnection connection)
     {
       if (isLoggingEnabled) {
@@ -235,6 +266,21 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    public async ValueTask RollbackTransactionAsync(
+      Session session, SqlConnection connection, CancellationToken token = default)
+    {
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXRollbackTransaction, session.ToStringSafely());
+      }
+
+      try {
+        await connection.RollbackAsync(token).ConfigureAwait(false);
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
     public void MakeSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled) {
@@ -242,11 +288,30 @@ namespace Xtensive.Orm.Providers
       }
 
       if (!hasSavepoints) {
-        return; // Driver does not support savepoints, so let's fail later (on rollback)
+        return; // Driver does not support save points, so let's fail later (on rollback)
       }
 
       try {
         connection.MakeSavepoint(name);
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
+    public async ValueTask MakeSavepointAsync(
+      Session session, SqlConnection connection, string name, CancellationToken token = default)
+    {
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXMakeSavepointY, session.ToStringSafely(), name);
+      }
+
+      if (!hasSavepoints) {
+        return; // Driver does not support save points, so let's fail later (on rollback)
+      }
+
+      try {
+        await connection.MakeSavepointAsync(name, token).ConfigureAwait(false);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
@@ -270,7 +335,26 @@ namespace Xtensive.Orm.Providers
         throw ExceptionBuilder.BuildException(exception);
       }
     }
- 
+
+    public async ValueTask RollbackToSavepointAsync(
+      Session session, SqlConnection connection, string name, CancellationToken token = default)
+    {
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXRollbackToSavepointY, session.ToStringSafely(), name);
+      }
+
+      if (!hasSavepoints) {
+        throw new NotSupportedException(Strings.ExCurrentStorageProviderDoesNotSupportSavepoints);
+      }
+
+      try {
+        await connection.RollbackToSavepointAsync(name, token).ConfigureAwait(false);
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
     public void ReleaseSavepoint(Session session, SqlConnection connection, string name)
     {
       if (isLoggingEnabled) {
@@ -279,6 +363,21 @@ namespace Xtensive.Orm.Providers
 
       try {
         connection.ReleaseSavepoint(name);
+      }
+      catch (Exception exception) {
+        throw ExceptionBuilder.BuildException(exception);
+      }
+    }
+
+    public async ValueTask ReleaseSavepointAsync(
+      Session session, SqlConnection connection, string name, CancellationToken token = default)
+    {
+      if (isLoggingEnabled) {
+        SqlLog.Info(Strings.LogSessionXReleaseSavepointY, session.ToStringSafely(), name);
+      }
+
+      try {
+        await connection.ReleaseSavepointAsync(name, token).ConfigureAwait(false);
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
