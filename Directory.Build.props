@@ -5,8 +5,6 @@
 
   <!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
   <PropertyGroup>
-    <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
-    <DoBuildNumber Condition="'$(DoBuildNumber)'==''">0</DoBuildNumber>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
     <DoProductName>DataObjects.Net</DoProductName>
     <DoProductAuthors>Xtensive LLC and contributors</DoProductAuthors>
@@ -15,7 +13,11 @@
     <DoMajor>$([System.Version]::new($(DoVersion)).Major)</DoMajor>
     <DoMinor>$([System.Version]::new($(DoVersion)).Minor)</DoMinor>
     <DoPatch>$([System.Version]::new($(DoVersion)).Build)</DoPatch>
+    <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
+    <DoBuildNumber Condition="'$(DoBuildNumber)'==''">$([System.Version]::new($(DoVersion)).Revision)</DoBuildNumber>
+    <DoBuildNumber Condition="'$(DoBuildNumber)'=='-1'">0</DoBuildNumber>
     <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
+    <DoVersionName Condition="'$(DoBuildNumber)'!='0'">$(DoVersionName).$(DoBuildNumber)</DoVersionName>
     <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
     <DoPackageIcon>$(MSBuildThisFileDirectory)do-nuget.png</DoPackageIcon>
   </PropertyGroup>
