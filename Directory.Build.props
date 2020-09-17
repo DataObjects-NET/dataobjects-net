@@ -20,16 +20,20 @@
     <DoVersionName Condition="'$(DoBuildNumber)'!='0'">$(DoVersionName).$(DoBuildNumber)</DoVersionName>
     <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
     <DoPackageIcon>$(MSBuildThisFileDirectory)do-nuget.png</DoPackageIcon>
+    <DoGeneratePackage>true</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName) == 'TestCommon'">false</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</DoGeneratePackage>
   </PropertyGroup>
 
   <PropertyGroup>
+    <NoLogo>true</NoLogo>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <NoLogo>true</NoLogo>
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <ArtifactsDir Condition="'$(ArtifactsDir)'==''">$(SolutionDir)_Build\</ArtifactsDir>
     <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath('$(ArtifactsDir)obj\$(Configuration)\$(MSBuildProjectName)'))\</BaseIntermediateOutputPath>
     <BaseOutputPath >$([System.IO.Path]::GetFullPath('$(ArtifactsDir)bin\$(Configuration)'))\</BaseOutputPath>
@@ -40,25 +44,6 @@
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
-
-  <PropertyGroup>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'TestCommon'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-
-    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
-    <PackageReference Condition="$(GeneratePackageOnBuild) == 'true'"
-                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
-  </ItemGroup>
 
   <!-- Populate standard properties. -->
   <PropertyGroup>
@@ -76,9 +61,19 @@
     <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages\</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GeneratePackageOnBuild Condition="$(DoGeneratePackage) == 'true' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
+    <SourceRoot Include="$(SolutionDir)"/>
+    <PackageReference Condition="$(DoGeneratePackage) == 'true'"
+                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>
