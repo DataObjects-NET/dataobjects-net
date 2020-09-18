@@ -120,7 +120,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
     /// <inheritdoc/>
     public override Task<Catalog> ExtractCatalogAsync(string catalogName, CancellationToken token = default) =>
-      ExtractSchemesAsync(catalogName, Array.Empty<string>(), token);
+      ExtractSchemesAsync(catalogName, new[] { Driver.CoreServerInfo.DefaultSchemaName }, token);
 
     /// <inheritdoc/>
     public override Catalog ExtractSchemes(string catalogName, string[] schemaNames)
