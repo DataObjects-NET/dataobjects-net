@@ -1,48 +1,40 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
 using System;
+using System.Collections.Concurrent;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
-
 
 namespace Xtensive.Linq
 {
   internal sealed class CachingExpressionCompiler
   {
-    private static readonly object _lock = new object();
-    private static volatile CachingExpressionCompiler instance;
+    public static CachingExpressionCompiler Instance { get; } = new CachingExpressionCompiler();
 
-    public static CachingExpressionCompiler Instance {
-      get {
-        if (instance==null) lock (_lock) if (instance==null)
-          instance = new CachingExpressionCompiler();
-        return instance;
-      }
-    }
+    private readonly ConcurrentDictionary<ExpressionTree, Delegate> cache =
+      new ConcurrentDictionary<ExpressionTree, Delegate>();
 
-    private readonly ThreadSafeDictionary<ExpressionTree, Delegate> cache =
-      ThreadSafeDictionary<ExpressionTree, Delegate>.Create(new object());
+    private static readonly Func<ExpressionTree, Delegate> expressionTreeCompiler = CompileExpressionTree;
+
+    private static Delegate CompileExpressionTree(ExpressionTree tree) =>
+      ((LambdaExpression) tree.ToExpression()).Compile();
 
     public Pair<Delegate, object[]> Compile(LambdaExpression lambda)
     {
       var constantExtractor = new ConstantExtractor(lambda);
-      var tree = constantExtractor.Process().ToExpressionTree();
+      var expressionTree = constantExtractor.Process().ToExpressionTree();
       var constants = constantExtractor.GetConstants();
-      var compiled = cache.GetValue(tree, _tree => ((LambdaExpression) _tree.ToExpression()).Compile());
-//      var compiled = ((LambdaExpression) tree.ToExpression()).Compile();
+
+      var compiled = cache.GetOrAdd(expressionTree, expressionTreeCompiler);
       return new Pair<Delegate, object[]>(compiled, constants);
     }
 
     // For testing only
-    public void ClearCache()
-    {
-      cache.Clear();
-    }
+    public void ClearCache() => cache.Clear();
 
 
     // Constructors
