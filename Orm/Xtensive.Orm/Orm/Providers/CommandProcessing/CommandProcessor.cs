@@ -46,6 +46,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes all registered requests plus the specified one query.
     /// Default implementation is synchronous and returns complete task.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="request">The request to execute.</param>
     /// <param name="context">A contextual information to be used while executing
     /// the specified <paramref name="request"/>.</param>
@@ -72,6 +74,8 @@ namespace Xtensive.Orm.Providers
     /// <paramref name="context.AllowPartialExecution"/> argument.
     /// Default implementation executes requests synchronously and returns completed task.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="context">A contextual information to be used while executing
     /// registered query requests.</param>
     /// <param name="token">Token to cancel this operation</param>

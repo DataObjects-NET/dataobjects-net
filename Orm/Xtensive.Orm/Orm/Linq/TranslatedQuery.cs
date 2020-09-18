@@ -76,6 +76,8 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Asynchronously executes the query in specified parameter context.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="session">The session.</param>
     /// <param name="parameterContext">The parameter context.</param>
     /// <param name="token">The token to cancel this operation</param>
@@ -90,6 +92,8 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Asynchronously executes the query in specified parameter context.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="session">The session.</param>
     /// <param name="parameterContext">The parameter context.</param>
     /// <param name="token">The token to cancel this operation</param>

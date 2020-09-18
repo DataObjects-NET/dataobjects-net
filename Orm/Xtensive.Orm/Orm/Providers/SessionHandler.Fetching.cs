@@ -30,6 +30,9 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Registers a task prefetching field values of the <see cref="Entity"/> with the specified key.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <param name="key">The key.</param>
     /// <param name="type">The type of the <see cref="Entity"/>.</param>
     /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
@@ -50,6 +53,9 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Executes registered prefetch tasks.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <param name="skipPersist">if set to <see langword="true"/> persist is not performed.</param>
     /// <param name="token">The token to cancel this operation</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
@@ -70,6 +76,9 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Executes registered prefetch tasks.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(CancellationToken token = default)

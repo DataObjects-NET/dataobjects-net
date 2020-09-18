@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -28,6 +28,9 @@ namespace Xtensive.Orm.BulkOperations
     /// <summary>
     /// Asynchronously executes bulk delete of entities specified by the query.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="query">The query.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
@@ -105,6 +108,9 @@ namespace Xtensive.Orm.BulkOperations
     /// <summary>
     /// Asynchronously executes the UPDATE operation.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="query">The query.</param>
     /// <param name="evaluator">The expression, that specify new values. Constructor parameters are ignored.</param>
@@ -126,6 +132,9 @@ namespace Xtensive.Orm.BulkOperations
     /// <summary>
     /// Asynchronously executes the UPDATE operation.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="query">The query.</param>
     /// <param name="token">The cancellation token to terminate execution if necessary.</param>
@@ -151,6 +160,9 @@ namespace Xtensive.Orm.BulkOperations
     /// <summary>
     /// Asynchronously executes INSERT operation.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of the entity.</typeparam>
     /// <param name="queryEndpoint">The query endpoint.</param>
     /// <param name="evaluator">The expression, tha specify new values.</param>

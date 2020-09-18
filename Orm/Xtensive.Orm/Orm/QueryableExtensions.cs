@@ -269,6 +269,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <returns>A task which runs query.</returns>
@@ -279,6 +282,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <param name="token">Token to cancel operation.</param>
@@ -290,6 +296,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <returns>A task which runs query.</returns>
@@ -299,6 +308,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <param name="cancellationToken">Token to cancel operation.</param>

@@ -95,6 +95,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection"><see cref="SqlConnection"/> to use.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns><see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.</returns>
@@ -154,6 +156,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously extracts catalogs/schemas according to the specified <paramref name="tasks"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection">Extraction tasks.</param>
     /// <param name="tasks">Connection to use.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
@@ -210,6 +214,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously extracts all schemas from the database.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection">The connection.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns>
@@ -238,6 +244,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously extracts the default schema from the database.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection">The connection.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns>
@@ -267,6 +275,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously extracts the specified schema from the database.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection">The connection.</param>
     /// <param name="schemaName">A name of the schema to be extracted.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>

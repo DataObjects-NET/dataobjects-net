@@ -33,6 +33,8 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Asynchronously extracts all schemes from the database.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="catalogName">Catalog to extract.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns><see cref="Catalog"/> that holds all schemes in the database.</returns>
@@ -49,6 +51,8 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Asynchronously extracts specified schemes from the database
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="catalogName">Catalog to extract</param>
     /// <param name="schemaNames">Names of schemes which must be extracted</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
@@ -70,6 +74,8 @@ namespace Xtensive.Sql.Model
     /// Asynchronously initializes the translator with specified
     /// <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection">The connection.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     public Task InitializeAsync(SqlConnection connection, CancellationToken token = default)
@@ -90,6 +96,8 @@ namespace Xtensive.Sql.Model
     /// Performs custom initialization.
     /// Called within <see cref="InitializeAsync(SqlConnection, CancellationToken)"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     protected virtual Task InitializeAsync(CancellationToken token)
     {
@@ -113,6 +121,8 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Executes the reader against the command created from the specified <paramref name="statement"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="statement">The statement to execute.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns>Executed reader.</returns>
@@ -139,6 +149,8 @@ namespace Xtensive.Sql.Model
     /// <summary>
     /// Asynchronously executes the reader against the command created from the specified <paramref name="commandText"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="commandText">The command text to execute.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns>Executed reader.</returns>

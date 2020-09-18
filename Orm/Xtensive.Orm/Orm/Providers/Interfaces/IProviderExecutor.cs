@@ -29,6 +29,8 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Asynchronously executes the specified request.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="request">The request to execute.</param>
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>

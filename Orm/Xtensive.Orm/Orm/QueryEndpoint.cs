@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -533,12 +533,12 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query) =>
       new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
 
@@ -549,13 +549,13 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token) =>
       new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
 
@@ -565,13 +565,13 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query) =>
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
 
@@ -581,14 +581,14 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IQueryable<TElement>> query, CancellationToken token) =>
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
 
@@ -599,12 +599,12 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
       new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
 
@@ -615,13 +615,13 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token) =>
       new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
 
@@ -631,13 +631,13 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query) =>
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
 
@@ -647,14 +647,14 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<QueryResult<TElement>> ExecuteAsync<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query, CancellationToken token) =>
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
 
@@ -665,12 +665,12 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query) =>
       new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
 
@@ -681,13 +681,13 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<TResult> ExecuteAsync<TResult>(Func<QueryEndpoint, TResult> query, CancellationToken token) =>
       new CompiledQueryRunner(this, query.Method, query.Target).ExecuteCompiledAsync(query, token);
 
@@ -697,13 +697,13 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query) =>
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, CancellationToken.None);
 
@@ -713,14 +713,14 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task performing operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query, CancellationToken token) =>
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
 

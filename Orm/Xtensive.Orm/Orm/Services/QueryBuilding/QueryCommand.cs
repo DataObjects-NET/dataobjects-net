@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -38,6 +38,8 @@ namespace Xtensive.Orm.Services
     /// Executes query and returns <see cref="DbDataReader"/>
     /// for retrieving query results.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The token to cancel current operation if needed.</param>
     /// <returns><see cref="DbDataReader"/> to use.</returns>
     public Task<DbDataReader> ExecuteReaderAsync(CancellationToken token = default) =>
@@ -52,6 +54,8 @@ namespace Xtensive.Orm.Services
     /// <summary>
     /// Asynchronously executes query and returns number of affected rows.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The token to cancel current operation if needed.</param>
     /// <returns>Number of affected rows.</returns>
     public Task<int> ExecuteNonQueryAsync(CancellationToken token = default) =>
@@ -66,6 +70,8 @@ namespace Xtensive.Orm.Services
     /// <summary>
     /// Asynchronously executes query and returns scalar result.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The token to cancel current operation if needed.</param>
     /// <returns>Scalar result of query.</returns>
     public Task<object> ExecuteScalarAsync(CancellationToken token = default) =>

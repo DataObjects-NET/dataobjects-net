@@ -54,6 +54,9 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified query tasks.
     /// Default implementation executes query tasks synchronously.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <param name="queryTasks">The query tasks to execute.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> partial execution is allowed.</param>
     /// <param name="token">Token to cancel operation.</param>
@@ -81,6 +84,9 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously persists changed entities.
     /// Default implementation works synchronously.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <param name="registry">The registry.</param>
     /// <param name="allowPartialExecution">if set to <see langword="true"/> dirty flush is allowed.</param>
     /// <param name="token">The token to cancel this operation</param>

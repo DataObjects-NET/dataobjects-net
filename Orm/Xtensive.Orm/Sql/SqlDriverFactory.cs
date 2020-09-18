@@ -29,6 +29,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously gets driver for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connectionInfo">Connection information to use.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
     /// <returns>Driver for <paramref name="connectionInfo"/>.</returns>
@@ -47,6 +49,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously creates driver from the specified <paramref name="connectionInfo"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connectionInfo">The connection info to create driver from.</param>
     /// <param name="forcedVersion">Forced server version.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
@@ -78,6 +82,8 @@ namespace Xtensive.Sql
     /// Asynchronously creates driver for the specified <paramref name="connectionInfo"/>
     /// and <paramref name="configuration"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connectionInfo">The connection info to create driver from.</param>
     /// <param name="configuration">Additional configuration options for the driver.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
@@ -122,6 +128,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously gets <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection"><see cref="DbConnection"/> to use.</param>
     /// <param name="transaction"><see cref="DbTransaction"/> to use.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
@@ -144,6 +152,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously reads <see cref="DefaultSchemaInfo"/> for the specified <paramref name="connection"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection"><see cref="DbConnection"/> to use.</param>
     /// <param name="transaction"><see cref="DbTransaction"/> to use.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>
@@ -162,6 +172,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously creates the driver from the specified <paramref name="connectionString"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connectionString">The connection string to create driver from.</param>
     /// <param name="configuration">Additional configuration for the driver.</param>
     /// <param name="token">The token to cancel asynchronous operation if needed.</param>

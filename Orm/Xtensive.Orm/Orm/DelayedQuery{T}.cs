@@ -30,11 +30,11 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Asynchronously executes delayed query.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <param name="token">Cancellation token.</param>
     /// <returns>Value representing query execution result.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public ValueTask<QueryResult<TElement>> ExecuteAsync(CancellationToken token = default) =>
       MaterializeAsync<TElement>(token);
 

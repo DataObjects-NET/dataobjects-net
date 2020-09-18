@@ -42,6 +42,8 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously opens a new or joins to the already running transaction.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>
     /// A new <see cref="TransactionScope"/> object. Its disposal will lead to either commit
@@ -66,6 +68,8 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously opens a new or joins to the already running transaction.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="isolationLevel">The isolation level.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>
@@ -92,6 +96,8 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously opens a new or joins to the already running transaction.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="mode">The mode.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>
@@ -119,6 +125,8 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously opens a new or joins to the already running transaction.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="mode">The mode.</param>
     /// <param name="isolationLevel">The isolation level.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>

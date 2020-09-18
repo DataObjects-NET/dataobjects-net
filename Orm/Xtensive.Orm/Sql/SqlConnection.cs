@@ -189,6 +189,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Opens the connection asynchronously.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="cancellationToken">Token to control cancellation.</param>
     /// <returns>Awaitable task.</returns>
     public virtual Task OpenAsync(CancellationToken cancellationToken)
@@ -201,6 +203,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Opens the connection and initialize it with given script asynchronously.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="initializationScript">Initialization script.</param>
     /// <param name="token">Token to control cancellation.</param>
     /// <returns>Awaitable task.</returns>
@@ -238,6 +242,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Closes the connection.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     public virtual Task CloseAsync()
     {
       EnsureIsNotDisposed();
@@ -252,6 +258,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Begins the transaction.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The cancellation token to be used to cancel this operation.</param>
     public virtual ValueTask BeginTransactionAsync(CancellationToken token = default)
     {
@@ -268,6 +276,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Begins the transaction with the specified <see cref="IsolationLevel"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="isolationLevel">The isolation level.</param>
     /// <param name="token">The cancellation token to be used to cancel this operation.</param>
     public virtual ValueTask BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken token = default)
@@ -296,6 +306,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Commits the current transaction.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     public virtual async Task CommitAsync(CancellationToken token = default)
     {
       EnsureIsNotDisposed();
@@ -329,6 +341,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Rollbacks the current transaction.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     public virtual async Task RollbackAsync(CancellationToken token = default)
     {
       EnsureIsNotDisposed();
@@ -356,6 +370,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously makes the transaction savepoint.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="name">The name of the savepoint.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     public virtual Task MakeSavepointAsync(string name, CancellationToken token = default)
@@ -373,6 +389,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously rolls back current transaction to the specified savepoint.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="name">The name of the savepoint.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     public virtual Task RollbackToSavepointAsync(string name, CancellationToken token = default)
@@ -395,6 +413,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Asynchronously releases the savepoint with the specified name.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="name">The name of the savepoint.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     public virtual Task ReleaseSavepointAsync(string name, CancellationToken token = default)

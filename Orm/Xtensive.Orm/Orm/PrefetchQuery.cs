@@ -65,14 +65,19 @@ namespace Xtensive.Orm
     /// Asynchronously executes given <see cref="PrefetchQuery{TElement}"/> instance.
     /// </summary>
     /// <remarks>
+    /// <para>
     /// This method internally puts all elements of the resulting sequence to a list
     /// and then it wraps mentioned list as a <see cref="QueryResult{TItem}"/>.
     /// As a consequence it is more efficient to use asynchronous enumeration over result of
     /// <see cref="AsAsyncEnumerable"/> method call because it can perform lazily
     /// not putting everything into intermediate list.
+    /// </para>
+    /// <para> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.
+    /// </para>
     /// </remarks>
-    /// <param name="token"></param>
-    /// <returns></returns>
+    /// <param name="token">The token to cancel operation if needed.</param>
+    /// <returns>A task performing operation.</returns>
     public async Task<QueryResult<TElement>> ExecuteAsync(CancellationToken token = default)
     {
       var list = new List<TElement>();

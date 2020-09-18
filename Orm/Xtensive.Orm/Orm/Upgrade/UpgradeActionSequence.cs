@@ -113,6 +113,8 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Asynchronously handles action sequence with specified processors.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="regularProcessor">Transactional processor.</param>
     /// <param name="nonTransactionalProcessor">Non-transactional processor.</param>
     /// <param name="token">The cancellation token to interrupt asynchronous execution if needed.</param>
