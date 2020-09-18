@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -11,8 +11,47 @@ using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Storage.ConcurrentCommandProcessorExecutionModel;
-using Xtensive.Orm.Tests.Storage.Prefetch;
+using Xtensive.Orm.Tests.Storage.ExecuteAsyncExtensionTestModel;
+
+namespace Xtensive.Orm.Tests.Storage.ExecuteAsyncExtensionTestModel
+{
+  [HierarchyRoot]
+  public class TestEntity : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Name { get; set; }
+
+    [Field]
+    public DateTime CreationDate { get; set; }
+
+    [Field]
+    public long Value { get; set; }
+
+    public TestEntity(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class EntitySetContainer : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public EntitySet<TestEntity> EntitySet { get; set; }
+
+    public EntitySetContainer(Session session)
+      : base(session)
+    {
+    }
+  }
+}
+
 
 namespace Xtensive.Orm.Tests.Storage
 {
