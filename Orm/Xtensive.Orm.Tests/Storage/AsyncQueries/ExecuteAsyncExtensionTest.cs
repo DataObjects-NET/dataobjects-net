@@ -12,6 +12,7 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ConcurrentCommandProcessorExecutionModel;
+using Xtensive.Orm.Tests.Storage.Prefetch;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -31,7 +32,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         var container = new EntitySetContainer(session);
         foreach (var i in Enumerable.Range(-100, 200)) {
-          container.EntitySet.Add(new TestEntity(session) {Value = i});
+          _ = container.EntitySet.Add(new TestEntity(session) {Value = i});
         }
         transaction.Complete();
       }
@@ -40,15 +41,17 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task QueryableTest()
     {
-      IQueryable<int> queryableEnumeable = new EnumerableQuery<int>(Enumerable.Range(-100, 200).ToArray()).Where(v => v < 5 && v > 0);
-      var task = queryableEnumeable.ExecuteAsync();
-      Assert.That(task.IsCompleted, Is.True);
+      var queryableEnumeable = (IQueryable<int>) new EnumerableQuery<int>(Enumerable.Range(-100, 200).ToArray()).Where(v => v < 5 && v > 0);
+      var result = await queryableEnumeable.ExecuteAsync();
+      
 
-      int before = 1;
-      foreach (var value in await task) {
+      var before = 1;
+      foreach (var value in result) {
         Assert.That(value, Is.EqualTo(before));
         before++;
       }
+
+      _ = Assert.ThrowsAsync<NotSupportedException>(async () => { await foreach (var i in result.AsAsyncEnumerable()) { } });
     }
 
     [Test]
@@ -56,11 +59,10 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var task = session.Query.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0).ExecuteAsync();
-        Assert.That(task.IsCompleted, Is.False);
+        var result = await session.Query.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0).ExecuteAsync();
 
-        int before = 1;
-        foreach (var value in await task) {
+        var before = 1;
+        await foreach (var value in result.AsAsyncEnumerable()) {
           Assert.That(value.Value, Is.EqualTo(before));
           before++;
         }
@@ -73,11 +75,10 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var container = session.Query.All<EntitySetContainer>().First();
-        var task = container.EntitySet.Where(e => e.Value < 5 && e.Value > 0).ExecuteAsync();
-        Assert.That(task.IsCompleted, Is.False);
+        var result = await container.EntitySet.Where(e => e.Value < 5 && e.Value > 0).ExecuteAsync();
 
-        int before = 1;
-        foreach (var value in await task) {
+        var before = 1;
+        await foreach (var value in result.AsAsyncEnumerable()) {
           Assert.That(value.Value, Is.EqualTo(before));
           before++;
         }
@@ -91,10 +92,10 @@ namespace Xtensive.Orm.Tests.Storage
       await using (var transaction = session.OpenTransaction()) {
         var delayed = session.Query.CreateDelayedQuery(
           q => q.All<TestEntity>().Where(e => e.Value < 5 && e.Value > 0));
-        var task = delayed.ExecuteAsync();
+        var result = await delayed.ExecuteAsync();
 
-        int before = 1;
-        foreach (var value in await task) {
+        var before = 1;
+        await foreach (var value in result.AsAsyncEnumerable()) {
           Assert.That(value.Value, Is.EqualTo(before));
           before++;
         }
