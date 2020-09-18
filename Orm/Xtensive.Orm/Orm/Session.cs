@@ -585,6 +585,8 @@ namespace Xtensive.Orm
         return;
       }
 
+      sessionLifetimeToken.Expire();
+
       try {
         if (IsDebugEventLoggingEnabled) {
           OrmLog.Debug(Strings.LogSessionXDisposing, this);
