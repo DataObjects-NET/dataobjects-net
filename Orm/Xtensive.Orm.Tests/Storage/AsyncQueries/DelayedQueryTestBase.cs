@@ -92,15 +92,11 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
       QueryResult<Discepline> result;
       await using (var session = Domain.OpenSession(SessionConfiguration))
       using (var tx = GetTransactionScope(session)) {
-        result =await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
+        result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
           .ExecuteAsync();
       }
 
-      // we didn't get StorageException here because we cache results and close db reader so
-      // we materialize cached tuples to entity states which needs a session.
-      // But the session is disposed so we have an exeption
-
-      var ex = Assert.Throws<ObjectDisposedException>(() => result.ToList());
+      var ex = Assert.Throws<InvalidOperationException>(() => result.ToList());
     }
 
     [Test]
@@ -150,14 +146,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
               .ExecuteAsync();
           }
 
-          // this is tricky. we've read results in one transaction, rollbacked it
-          // and materialize results in another thansaction, which is not cool
-          // because the data which existed in the inner transaction may not exist in the outer
-          // so we can get "ghost" data.
-
-          // some exception has to appear.
-          var ex = Assert.Throws<StorageException>(() => result.ToList());
-          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
         }
       }
     }

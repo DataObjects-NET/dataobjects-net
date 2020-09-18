@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
             .ExecuteAsync();
         }
-        _ = result.ToList();
+        _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
       }
     }
   }
