@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.03.20
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -40,8 +41,8 @@ namespace Xtensive.Orm.Tests.Storage
       customerIdIndex = customerPrimary.Header.IndexOf(customerIdColumn);
       invoiceCustomerIndex = orderPrimary.Header.IndexOf(invoiceCustomerColumn);
 
-      allCustomers = customerPrimary.GetRecordSet(session).ToEntities<Customer>(0).ToList();
-      allInvoices = orderPrimary.GetRecordSet(session).ToEntities<Invoice>(0).ToList();      
+      allCustomers = customerPrimary.GetRecordSetReader(session, new ParameterContext()).ToEntities<Customer>(0).ToList();
+      allInvoices = orderPrimary.GetRecordSetReader(session, new ParameterContext()).ToEntities<Invoice>(0).ToList();
     }
 
     [Test]
@@ -103,7 +104,8 @@ namespace Xtensive.Orm.Tests.Storage
             .Existence("LALALA");
           var result = customerPrimary
             .Apply(parameter, subquery, false, ApplySequenceType.Single, JoinType.Inner)
-            .GetRecordSet(Session.Current)
+            .GetRecordSetReader(Session.Current, new ParameterContext())
+            .ToEnumerable()
             .Count(t => (bool) t.GetValue(t.Count-1));
           Assert.AreEqual(total, result);
         }

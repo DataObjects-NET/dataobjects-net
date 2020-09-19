@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.08.14
 
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Seek parameter.
     /// </summary>
-    public Func<Tuple> Key { get; private set; }
+    public Func<ParameterContext, Tuple> Key { get; private set; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="key">The <see cref="Key"/> property value.</param>
-    public SeekProvider(CompilableProvider source, Func<Tuple> key)
+    public SeekProvider(CompilableProvider source, Func<ParameterContext, Tuple> key)
       : base(ProviderType.Seek, source)
     {
       Key = key;
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse.Providers
     public SeekProvider(CompilableProvider source, Tuple key)
       : base(ProviderType.Seek, source)
     {
-      Key = () => key;
+      Key = context => key;
       Initialize();
     }
   }

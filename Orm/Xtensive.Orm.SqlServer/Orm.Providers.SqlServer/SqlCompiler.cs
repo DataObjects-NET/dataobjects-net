@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers.SqlServer
       }
       else {
         var intTypeMapping = Driver.GetTypeMapping(typeof(int));
-        var topNBinding = new QueryParameterBinding(intTypeMapping, () => provider.TopN.Invoke(), QueryParameterBindingType.Regular);
+        var topNBinding = new QueryParameterBinding(intTypeMapping, context => provider.TopN.Invoke(context), QueryParameterBindingType.Regular);
         fromTable = SqlDml.FreeTextTable(table, criteriaBinding.ParameterReference, columns, topNBinding.ParameterReference);
         bindings = new[] { criteriaBinding, topNBinding };
       }
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Providers.SqlServer
       }
       else {
         var intTypeMapping = Driver.GetTypeMapping(typeof(int));
-        var topNBinding = new QueryParameterBinding(intTypeMapping, () => provider.TopN.Invoke(), QueryParameterBindingType.Regular);
+        var topNBinding = new QueryParameterBinding(intTypeMapping, context => provider.TopN.Invoke(context), QueryParameterBindingType.Regular);
         fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, targetColumnNames, topNBinding.ParameterReference);
         bindings = new[] { criteriaBinding, topNBinding };
       }

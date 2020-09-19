@@ -12,8 +12,10 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
+using Activator = System.Activator;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -34,8 +36,9 @@ namespace Xtensive.Orm.Linq
     public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IReadOnlyList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
-      var tupleParameter = Expression.Parameter(typeof (Tuple), "tuple");
-      var valueProperty = typeof (Parameter<Tuple>).GetProperty("Value", typeof (Tuple));
+      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+      var valueProperty = WellKnownOrmTypes.ParameterOfTuple
+        .GetProperty(nameof(Parameter<Tuple>.Value), WellKnownOrmTypes.Tuple);
       var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
       for (var i = 0; i < keyColumnTypes.Count; i++) {
         var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);
@@ -94,10 +97,10 @@ namespace Xtensive.Orm.Linq
 
     public static Expression CreateEntitySetQuery(Expression ownerEntity, FieldInfo field)
     {
-      if (!field.IsDynamicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(typeof(EntitySet<>))) {
+      if (!field.IsDynamicallyDefined && !field.UnderlyingProperty.PropertyType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
       }
-      if (field.IsDynamicallyDefined && !field.ValueType.IsOfGenericType(typeof(EntitySet<>))) {
+      if (field.IsDynamicallyDefined && !field.ValueType.IsOfGenericType(WellKnownOrmTypes.EntitySetOfT)) {
         throw Exceptions.InternalError(Strings.ExFieldMustBeOfEntitySetType, OrmLog.Instance);
       }
 
@@ -155,7 +158,7 @@ namespace Xtensive.Orm.Linq
       var resultSelector = FastExpression.Lambda(innerSelectorParameter, outerSelectorParameter, innerSelectorParameter);
 
       var innerQuery = CreateEntityQuery(elementType);
-      var joinMethodInfo = typeof (Queryable).GetMethods()
+      var joinMethodInfo = WellKnownTypes.Queryable.GetMethods()
         .Single(mi => mi.Name==Xtensive.Reflection.WellKnown.Queryable.Join && mi.IsGenericMethod && mi.GetParameters().Length==5)
         .MakeGenericMethod(new[] {
           connectorType,
@@ -178,7 +181,7 @@ namespace Xtensive.Orm.Linq
         return;
       if (!baseType.IsAssignableFrom(elementType) || baseType==elementType)
         return;
-      var castMethod = source.Type.IsOfGenericInterface(typeof (IQueryable<>))
+      var castMethod = source.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
         ? WellKnownMembers.Queryable.Cast
         : WellKnownMembers.Enumerable.Cast;
       source = Expression.Call(castMethod.MakeGenericMethod(baseType), source);
@@ -186,7 +189,7 @@ namespace Xtensive.Orm.Linq
 
     public static Type GetSequenceElementType(Type type)
     {
-      var sequenceType = type.GetGenericInterface(typeof (IEnumerable<>));
+      var sequenceType = type.GetGenericInterface(WellKnownInterfaces.EnumerableOfT);
       return sequenceType!=null ? sequenceType.GetGenericArguments()[0] : null;
     }
 

@@ -1,12 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.11.02
 
 using System;
 using Xtensive.Core;
 using Xtensive.IoC;
+using Xtensive.Orm.Internals;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -33,9 +34,9 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
-        if (!typeof (Entity).IsAssignableFrom(entityType))
+        if (!WellKnownOrmTypes.Entity.IsAssignableFrom(entityType))
           throw new InvalidOperationException(
-            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
+            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, WellKnownOrmTypes.Entity));
 
         var key = Key.Generate(Session, entityType);
         return Session.CreateOrInitializeExistingEntity(entityType, key);
@@ -53,9 +54,9 @@ namespace Xtensive.Orm.Services
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(entityType, "entityType");
         ArgumentValidator.EnsureArgumentNotNull(tuple, "tuple");
-        if (!typeof (Entity).IsAssignableFrom(entityType))
+        if (!WellKnownOrmTypes.Entity.IsAssignableFrom(entityType))
           throw new InvalidOperationException(
-            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, typeof (Entity)));
+            string.Format(Strings.TypeXIsNotAnYDescendant, entityType, WellKnownOrmTypes.Entity));
 
         var domain = Session.Domain;
         var key = Key.Create(domain, Session.StorageNodeId, domain.Model.Types[entityType], TypeReferenceAccuracy.ExactType, tuple);
@@ -102,8 +103,10 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(structureType, "structureType");
-        if (!typeof(Structure).IsAssignableFrom(structureType))
-          throw new InvalidOperationException(string.Format(Strings.TypeXIsNotAnYDescendant, structureType, typeof(Structure)));
+        if (!WellKnownOrmTypes.Structure.IsAssignableFrom(structureType)) {
+          throw new InvalidOperationException(
+            string.Format(Strings.TypeXIsNotAnYDescendant, structureType, WellKnownOrmTypes.Structure));
+        }
 
         return Activator.CreateStructure(Session, structureType, structureData);
       }

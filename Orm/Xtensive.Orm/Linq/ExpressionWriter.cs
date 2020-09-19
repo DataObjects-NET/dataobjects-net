@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.11.25
 
@@ -11,7 +11,6 @@ using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Runtime.CompilerServices;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 using Xtensive.Reflection;
@@ -23,8 +22,8 @@ namespace Xtensive.Linq
   /// </summary>
   public class ExpressionWriter : ExpressionVisitor
   {
-    private static readonly char[] special = new[] {'\n', '\n', '\\'};
-    private static readonly char[] splitters = new[] {'\n', '\r'};
+    private static readonly char[] special = {'\n', '\n', '\\'};
+    private static readonly char[] splitters = {'\n', '\r'};
     private readonly TextWriter writer;
     private readonly int indentSize;
     private int currentDepth;
@@ -55,26 +54,20 @@ namespace Xtensive.Linq
     /// <summary>
     /// Gets the writer used by the instance.
     /// </summary>
-    public TextWriter Writer { 
-      get { return writer; }
-    }
+    public TextWriter Writer => writer;
 
     /// <summary>
     /// Gets the size of the indent.
     /// </summary>
-    public int IndentSize {
-      get { return indentSize; }
-    }
+    public int IndentSize => indentSize;
 
     /// <summary>
     /// Writes the expression to the specified writer.
     /// </summary>
     /// <param name="writer">The writer to use.</param>
     /// <param name="expression">The expression to write.</param>
-    public static void Write(TextWriter writer, Expression expression)
-    {
+    public static void Write(TextWriter writer, Expression expression) =>
       new ExpressionWriter(writer).Visit(expression);
-    }
 
     /// <summary>
     /// Writes the expression to string.
@@ -107,10 +100,12 @@ namespace Xtensive.Linq
     /// <param name="text">The text to write.</param>
     protected void Write(string text)
     {
-      if (text.IsNullOrEmpty()) 
+      if (text.IsNullOrEmpty()) {
         return;
+      }
+
       if (text.IndexOf('\n') >= 0) {
-        string[] lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
+        var lines = text.Split(splitters, StringSplitOptions.RemoveEmptyEntries);
         for (int i = 0, n = lines.Length; i < n; i++) {
           Write(lines[i]);
           if (i < n - 1) {
@@ -132,11 +127,15 @@ namespace Xtensive.Linq
     protected void WriteArguments(string prefix, System.Collections.ObjectModel.ReadOnlyCollection<Expression> arguments, string suffix)
     {
       Write(prefix);
-      if (arguments.Count > 1)
+      if (arguments.Count > 1) {
         WriteLine(IndentType.Inner);
+      }
+
       VisitExpressionList(arguments);
-      if (arguments.Count > 1)
+      if (arguments.Count > 1) {
         WriteLine(IndentType.Outer);
+      }
+
       Write(suffix);
     }
 
@@ -146,10 +145,10 @@ namespace Xtensive.Linq
     /// <param name="indentType">New type of the indent.</param>
     protected void ChangeIndent(IndentType indentType)
     {
-      if (indentType==IndentType.Inner) {
+      if (indentType == IndentType.Inner) {
         currentDepth++;
       }
-      else if (indentType==IndentType.Outer) {
+      else if (indentType == IndentType.Outer) {
         currentDepth--;
         Debug.Assert(currentDepth >= 0);
       }
@@ -163,53 +162,53 @@ namespace Xtensive.Linq
     protected virtual string GetOperator(ExpressionType type)
     {
       switch (type) {
-      case ExpressionType.Not:
-        return "!";
-      case ExpressionType.Add:
-      case ExpressionType.AddChecked:
-        return "+";
-      case ExpressionType.Negate:
-      case ExpressionType.NegateChecked:
-      case ExpressionType.Subtract:
-      case ExpressionType.SubtractChecked:
-        return "-";
-      case ExpressionType.Multiply:
-      case ExpressionType.MultiplyChecked:
-        return "*";
-      case ExpressionType.Divide:
-        return "/";
-      case ExpressionType.Modulo:
-        return "%";
-      case ExpressionType.And:
-        return "&";
-      case ExpressionType.AndAlso:
-        return "&&";
-      case ExpressionType.Or:
-        return "|";
-      case ExpressionType.OrElse:
-        return "||";
-      case ExpressionType.LessThan:
-        return "<";
-      case ExpressionType.LessThanOrEqual:
-        return "<=";
-      case ExpressionType.GreaterThan:
-        return ">";
-      case ExpressionType.GreaterThanOrEqual:
-        return ">=";
-      case ExpressionType.Equal:
-        return "==";
-      case ExpressionType.NotEqual:
-        return "!=";
-      case ExpressionType.Coalesce:
-        return "??";
-      case ExpressionType.RightShift:
-        return ">>";
-      case ExpressionType.LeftShift:
-        return "<<";
-      case ExpressionType.ExclusiveOr:
-        return "^";
-      default:
-        return null;
+        case ExpressionType.Not:
+          return "!";
+        case ExpressionType.Add:
+        case ExpressionType.AddChecked:
+          return "+";
+        case ExpressionType.Negate:
+        case ExpressionType.NegateChecked:
+        case ExpressionType.Subtract:
+        case ExpressionType.SubtractChecked:
+          return "-";
+        case ExpressionType.Multiply:
+        case ExpressionType.MultiplyChecked:
+          return "*";
+        case ExpressionType.Divide:
+          return "/";
+        case ExpressionType.Modulo:
+          return "%";
+        case ExpressionType.And:
+          return "&";
+        case ExpressionType.AndAlso:
+          return "&&";
+        case ExpressionType.Or:
+          return "|";
+        case ExpressionType.OrElse:
+          return "||";
+        case ExpressionType.LessThan:
+          return "<";
+        case ExpressionType.LessThanOrEqual:
+          return "<=";
+        case ExpressionType.GreaterThan:
+          return ">";
+        case ExpressionType.GreaterThanOrEqual:
+          return ">=";
+        case ExpressionType.Equal:
+          return "==";
+        case ExpressionType.NotEqual:
+          return "!=";
+        case ExpressionType.Coalesce:
+          return "??";
+        case ExpressionType.RightShift:
+          return ">>";
+        case ExpressionType.LeftShift:
+          return "<<";
+        case ExpressionType.ExclusiveOr:
+          return "^";
+        default:
+          return null;
       }
     }
 
@@ -217,29 +216,30 @@ namespace Xtensive.Linq
     protected override Expression VisitBinary(BinaryExpression b)
     {
       switch (b.NodeType) {
-      case ExpressionType.ArrayIndex:
-        Visit(b.Left);
-        Write("[");
-        Visit(b.Right);
-        Write("]");
-        break;
-      case ExpressionType.Power:
-        Write("POW(");
-        Visit(b.Left);
-        Write(", ");
-        Visit(b.Right);
-        Write(")");
-        break;
-      default:
-        Write("(");
-        Visit(b.Left);
-        Write(" ");
-        Write(GetOperator(b.NodeType));
-        Write(" ");
-        Visit(b.Right);
-        Write(")");
-        break;
+        case ExpressionType.ArrayIndex:
+          Visit(b.Left);
+          Write("[");
+          Visit(b.Right);
+          Write("]");
+          break;
+        case ExpressionType.Power:
+          Write("POW(");
+          Visit(b.Left);
+          Write(", ");
+          Visit(b.Right);
+          Write(")");
+          break;
+        default:
+          Write("(");
+          Visit(b.Left);
+          Write(" ");
+          Write(GetOperator(b.NodeType));
+          Write(" ");
+          Visit(b.Right);
+          Write(")");
+          break;
       }
+
       return b;
     }
 
@@ -247,38 +247,39 @@ namespace Xtensive.Linq
     protected override Expression VisitUnary(UnaryExpression u)
     {
       switch (u.NodeType) {
-      case ExpressionType.Convert:
-      case ExpressionType.ConvertChecked:
-        Write("((");
-        Write(GetTypeName(u.Type));
-        Write(")");
-        Visit(u.Operand);
-        Write(")");
-        break;
-      case ExpressionType.ArrayLength:
-        Visit(u.Operand);
-        Write(".Length");
-        break;
-      case ExpressionType.Quote:
-        Visit(u.Operand);
-        break;
-      case ExpressionType.TypeAs:
-        Write("(");
-        Visit(u.Operand);
-        Write(" as ");
-        Write(GetTypeName(u.Type));
-        Write(")");
-        break;
-      case ExpressionType.UnaryPlus:
-        Visit(u.Operand);
-        break;
-      default:
-        Write(GetOperator(u.NodeType));
-        Write("(");
-        Visit(u.Operand);
-        Write(")");
-        break;
+        case ExpressionType.Convert:
+        case ExpressionType.ConvertChecked:
+          Write("((");
+          Write(GetTypeName(u.Type));
+          Write(")");
+          Visit(u.Operand);
+          Write(")");
+          break;
+        case ExpressionType.ArrayLength:
+          Visit(u.Operand);
+          Write(".Length");
+          break;
+        case ExpressionType.Quote:
+          Visit(u.Operand);
+          break;
+        case ExpressionType.TypeAs:
+          Write("(");
+          Visit(u.Operand);
+          Write(" as ");
+          Write(GetTypeName(u.Type));
+          Write(")");
+          break;
+        case ExpressionType.UnaryPlus:
+          Visit(u.Operand);
+          break;
+        default:
+          Write(GetOperator(u.NodeType));
+          Write("(");
+          Visit(u.Operand);
+          Write(")");
+          break;
       }
+
       return u;
     }
 
@@ -289,17 +290,19 @@ namespace Xtensive.Linq
     /// <returns>The name of the type.</returns>
     protected virtual string GetTypeName(Type type)
     {
-      string name = type.GetShortName();
+      var name = type.GetShortName();
       name = name.Replace('+', '.');
-      
-      if (name.IndexOf("__DisplayClass")>0 && 
-          type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0)
-        return "@";
 
-      if (name.IndexOf("__AnonymousType")>0 && 
-          type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0)
+      if (name.IndexOf("__DisplayClass", StringComparison.Ordinal) > 0 &&
+        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
+        return "@";
+      }
+
+      if (name.IndexOf("__AnonymousType", StringComparison.Ordinal) > 0 &&
+        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
         return string.Format("@<{0}>",
           (from pi in type.GetProperties() select pi.Name).ToCommaDelimitedString());
+      }
 
       return name;
     }
@@ -328,46 +331,49 @@ namespace Xtensive.Linq
           WriteLine(IndentType.Same);
         }
       }
+
       return original;
     }
 
     /// <inheritdoc/>
     protected override Expression VisitConstant(ConstantExpression c)
     {
-      Type type = c.Type;
-      if (type.Name.IndexOf("__DisplayClass")>0 && 
-          type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
+      var type = c.Type;
+      if (type.Name.IndexOf("__DisplayClass", StringComparison.Ordinal) > 0 &&
+        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
         // A constant of display class type
         Write("@");
       }
-      else if (c.Value==null) {
+      else if (c.Value == null) {
         Write("null");
       }
-      else if (type==typeof (string)) {
-        string value = c.Value.ToString();
-        if (value.IndexOfAny(special) >= 0)
+      else if (type == WellKnownTypes.String) {
+        var value = c.Value.ToString();
+        if (value.IndexOfAny(special) >= 0) {
           Write("@");
+        }
+
         Write("\"");
         Write(c.Value.ToString());
         Write("\"");
       }
-      else if (type==typeof (DateTime)) {
+      else if (type == WellKnownTypes.DateTime) {
         Write("new DateTime(\"");
         Write(c.Value.ToString());
         Write("\")");
       }
-      else if (c.Value is Type) {
+      else if (c.Value is Type typeValue) {
         Write("typeof(");
-        Write(GetTypeName(c.Value as Type));
+        Write(GetTypeName(typeValue));
         Write(")");
       }
       else if (type.IsArray) {
-        Type elementType = type.GetElementType();
+        var elementType = type.GetElementType();
         VisitNewArray(
           Expression.NewArrayInit(
             elementType,
             ((IEnumerable) c.Value).OfType<object>().Select(v => (Expression) Expression.Constant(v, elementType))
-            ));
+          ));
       }
       else if (type.IsPrimitive) {
         Write(c.Value.ToString());
@@ -379,6 +385,7 @@ namespace Xtensive.Linq
         Write(c.Value.ToString());
         Write(")");
       }
+
       return c;
     }
 
@@ -393,16 +400,19 @@ namespace Xtensive.Linq
             Write(", ");
           }
         }
+
         Write("}");
       }
       else {
         Visit(initializer.Arguments[0]);
       }
+
       return initializer;
     }
 
     /// <inheritdoc/>
-    protected override System.Collections.ObjectModel.ReadOnlyCollection<ElementInit> VisitElementInitializerList(System.Collections.ObjectModel.ReadOnlyCollection<ElementInit> original)
+    protected override System.Collections.ObjectModel.ReadOnlyCollection<ElementInit> VisitElementInitializerList(
+      System.Collections.ObjectModel.ReadOnlyCollection<ElementInit> original)
     {
       for (int i = 0, n = original.Count; i < n; i++) {
         VisitElementInitializer(original[i]);
@@ -411,11 +421,13 @@ namespace Xtensive.Linq
           WriteLine(IndentType.Same);
         }
       }
+
       return original;
     }
 
     /// <inheritdoc/>
-    protected override System.Collections.ObjectModel.ReadOnlyCollection<Expression> VisitExpressionList(System.Collections.ObjectModel.ReadOnlyCollection<Expression> expressions)
+    protected override System.Collections.ObjectModel.ReadOnlyCollection<Expression> VisitExpressionList(
+      System.Collections.ObjectModel.ReadOnlyCollection<Expression> expressions)
     {
       for (int i = 0, n = expressions.Count; i < n; i++) {
         Visit(expressions[i]);
@@ -424,6 +436,7 @@ namespace Xtensive.Linq
           WriteLine(IndentType.Same);
         }
       }
+
       return expressions;
     }
 
@@ -453,13 +466,16 @@ namespace Xtensive.Linq
             Write(", ");
           }
         }
+
         Write(")");
       }
       else if (l.Parameters.Count == 1) {
         Write(l.Parameters[0].Name);
       }
-      else
+      else {
         Write("()");
+      }
+
       Write(" => ");
       Visit(l.Body);
       return l;
@@ -535,18 +551,21 @@ namespace Xtensive.Linq
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
       var arguments = mc.Arguments;
-      if (mc.Object!=null)
+      if (mc.Object != null) {
         Visit(mc.Object);
+      }
       else {
         // Static method
-        if (mc.Method.GetAttributes<ExtensionAttribute>(AttributeSearchOptions.InheritNone).Length>0) {
+        if (mc.Method.GetAttributes<ExtensionAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
           // A special case: extension method
           Visit(mc.Arguments[0]);
           arguments = new System.Collections.ObjectModel.ReadOnlyCollection<Expression>(mc.Arguments.Skip(1).ToList());
         }
-        else
+        else {
           Write(GetTypeName(mc.Method.DeclaringType));
+        }
       }
+
       Write(".");
       Write(mc.Method.Name);
       WriteArguments("(", arguments, ")");

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.11.16
 
@@ -8,6 +8,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse;
 using Xtensive.Tuples;
 
@@ -91,7 +92,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
     private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
     {
-      calculatedColumnParameter = Expression.Parameter(typeof (Tuple), "filteredRow");
+      calculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
 
       this.filterDataTuple = filterDataTuple;
       this.filteredTuple = filteredTuple;

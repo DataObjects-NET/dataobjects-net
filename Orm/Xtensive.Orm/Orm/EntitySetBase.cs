@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
 // Created:    2008.09.10
 
@@ -800,13 +800,15 @@ namespace Xtensive.Orm
 
     private void EnsureCountIsLoaded()
     {
-      if (State.TotalItemCount!=null)
+      if (State.TotalItemCount!=null) {
         return;
-      using (new ParameterContext().Activate()) {
-        ownerParameter.Value = owner;
-        var cachedState = GetEntitySetTypeState();
-        State.TotalItemCount = Session.Query.Execute(cachedState, cachedState.ItemCountQuery);
       }
+
+      var parameterContext = new ParameterContext();
+      parameterContext.SetValue(ownerParameter, owner);
+
+      var cachedState = GetEntitySetTypeState();
+      State.TotalItemCount = Session.Query.Execute(cachedState, cachedState.ItemCountQuery, parameterContext);
     }
 
     private bool Contains(Key key, Entity item)
@@ -841,12 +843,15 @@ namespace Xtensive.Orm
         return false;
 
       bool foundInDatabase;
-      using (new ParameterContext().Activate()) {
-        var entitySetTypeState = GetEntitySetTypeState();
-        keyParameter.Value = entitySetTypeState.SeekTransform
-          .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
-        foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session).FirstOrDefault()!=null;
+      var entitySetTypeState = GetEntitySetTypeState();
+
+      var parameterContext = new ParameterContext();
+      parameterContext.SetValue(keyParameter, entitySetTypeState.SeekTransform
+        .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value));
+      using (var recordSetReader = entitySetTypeState.SeekProvider.GetRecordSetReader(Session, parameterContext)) {
+        foundInDatabase = recordSetReader.MoveNext();
       }
+
       if (foundInDatabase)
         State.Register(key);
       return foundInDatabase;
@@ -872,7 +877,7 @@ namespace Xtensive.Orm
     {
       var field = ((Pair<object, FieldInfo>) key).Second;
       var association = field.Associations.Last();
-      var query = association.UnderlyingIndex.GetQuery().Seek(() => keyParameter.Value);
+      var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
       var seek = entitySet.Session.Compile(query);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
@@ -986,7 +991,7 @@ namespace Xtensive.Orm
       else
         skipOwnerVersionChange = Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
 
-      Initialize(typeof (EntitySetBase));
+      Initialize(WellKnownOrmTypes.EntitySetBase);
     }
 
     /// <summary>

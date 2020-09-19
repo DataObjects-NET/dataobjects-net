@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Data.Common;
@@ -10,8 +10,10 @@ using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {
+  /// <inheritdoc/>
   internal class Extractor : v8_1.Extractor
   {
+    /// <inheritdoc/>
     protected override void BuildPgCatalogSchema(Schema schema)
     {
       base.BuildPgCatalogSchema(schema);
@@ -52,24 +54,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
     protected virtual void ReadRelOption(string optionName, string optionValue, RelOptions options)
     {
       if (optionName=="fillfactor") {
-        byte value = 0;
-        Byte.TryParse(optionValue, out value);
-        if (value > 0)
+        byte.TryParse(optionValue, out var value);
+        if (value > 0) {
           options.FillFactor = value;
+        }
       }
     }
 
 
+    /// <inheritdoc/>
     protected override void AddSpecialIndexQueryColumns(SqlSelect query, SqlTableRef spc, SqlTableRef rel, SqlTableRef ind, SqlTableRef depend)
     {
       query.Columns.Add(rel["reloptions"]);
     }
 
+    /// <inheritdoc/>
     protected override void ReadSpecialIndexProperties(DbDataReader dr, Index i)
     {
       base.ReadSpecialIndexProperties(dr, i);
       if (dr["reloptions"]!=DBNull.Value) {
-        RelOptions ro = ParseRelOptions(dr["reloptions"]);
+        var ro = ParseRelOptions(dr["reloptions"]);
         i.FillFactor = ro.FillFactor;
       }
     }

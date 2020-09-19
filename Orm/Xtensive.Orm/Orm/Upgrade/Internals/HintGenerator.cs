@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.06.04
 
@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Upgrade
     private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes, bool isMovedToAnotherHierarchy)
     {
       if (!isMovedToAnotherHierarchy)
-        removedTypes.ForEach(GenerateCleanupByForegnKeyHints);
+        removedTypes.ForEach(GenerateCleanupByForeignKeyHints);
       removedTypes.ForEach(type => GenerateCleanupByPrimaryKeyHints(type, isMovedToAnotherHierarchy));
     }
 
@@ -229,9 +229,10 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private void GenerateCleanupByForegnKeyHints(StoredTypeInfo removedType)
+    private void GenerateCleanupByForeignKeyHints(StoredTypeInfo removedType)
     {
-      var removedTypeAndAncestors = removedType.AllAncestors.AddOne(removedType).ToHashSet();
+      var removedTypeAndAncestors = removedType.AllAncestors.ToHashSet();
+      removedTypeAndAncestors.Add(removedType);
       var affectedAssociations = (
         from association in extractedModel.Associations
         let requiresInverseCleanup =

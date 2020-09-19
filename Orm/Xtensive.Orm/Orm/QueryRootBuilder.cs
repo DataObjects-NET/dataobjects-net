@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.23
 
@@ -15,6 +15,8 @@ namespace Xtensive.Orm
   /// </summary>
   public abstract class QueryRootBuilder : IQueryRootBuilder
   {
+    private static readonly Type InvokerOfTType = typeof (Invoker<>);
+
     private abstract class Invoker
     {
       public abstract Expression Invoke(QueryRootBuilder builder);
@@ -37,7 +39,7 @@ namespace Xtensive.Orm
 
     private Invoker CreateInvoker(Type entityType)
     {
-      return (Invoker) Activator.CreateInstance(typeof (Invoker<>).MakeGenericType(entityType));
+      return (Invoker) Activator.CreateInstance(InvokerOfTType.MakeGenericType(entityType));
     }
 
     /// <summary>

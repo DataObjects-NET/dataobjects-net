@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.12
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
@@ -22,7 +23,7 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public ReadOnlyList<TypeMapping> RowTypeMapping { get; private set; }
 
-    public QueryRowFilterParameterBinding(IEnumerable<TypeMapping> rowTypeMapping, Func<object> valueAccessor)
+    public QueryRowFilterParameterBinding(IEnumerable<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor)
       : base(null, valueAccessor, QueryParameterBindingType.RowFilter)
     {
       RowTypeMapping = new ReadOnlyList<TypeMapping>(rowTypeMapping.ToList());

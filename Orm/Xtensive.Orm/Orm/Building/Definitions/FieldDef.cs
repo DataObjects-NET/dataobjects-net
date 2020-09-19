@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.09.10
 
@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
 using Xtensive.Orm.Model;
@@ -319,21 +320,21 @@ namespace Xtensive.Orm.Building.Definitions
     internal FieldDef(Type valueType, Validator validator)
     {
       this.validator = validator;
-      IsStructure = valueType.IsSubclassOf(typeof(Structure)) || valueType == typeof(Structure);
-      IsEntity = typeof(IEntity).IsAssignableFrom(valueType);
+      IsStructure = valueType.IsSubclassOf(WellKnownOrmTypes.Structure) || valueType == WellKnownOrmTypes.Structure;
+      IsEntity = WellKnownOrmInterfaces.Entity.IsAssignableFrom(valueType);
       if ((valueType.IsClass || valueType.IsInterface) && !IsStructure)
         attributes |= FieldAttributes.Nullable;
       ValueType = valueType;
       Validators = new List<IPropertyValidator>();
 
       // Nullable<T>
-      if (valueType.IsGenericType && valueType.GetGenericTypeDefinition()==typeof (Nullable<>)) {
+      if (valueType.IsNullable()) {
         attributes |= FieldAttributes.Nullable;
         return;
       }
 
       // EntitySet<TEntity>
-      var genericTypeDefinition = valueType.GetGenericType(typeof (EntitySet<>));
+      var genericTypeDefinition = valueType.GetGenericType(WellKnownOrmTypes.EntitySetOfT);
       if (genericTypeDefinition != null) {
         IsEntitySet = true;
         ItemType = genericTypeDefinition.GetGenericArguments()[0];

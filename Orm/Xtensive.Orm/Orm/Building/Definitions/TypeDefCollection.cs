@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.27
 
@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Definitions
 {
@@ -17,7 +18,6 @@ namespace Xtensive.Orm.Building.Definitions
   /// </summary>
   public sealed class TypeDefCollection : NodeCollection<TypeDef>
   {
-    private readonly Type baseType = typeof (object);
     private readonly Dictionary<Type, TypeDef> typeIndex;
 
     /// <summary>
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private TypeDef FindAncestor(Type type)
     {
-      if (type == baseType || type.BaseType == null)
+      if (type == WellKnownTypes.Object || type.BaseType == null)
         return null;
       return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
     }

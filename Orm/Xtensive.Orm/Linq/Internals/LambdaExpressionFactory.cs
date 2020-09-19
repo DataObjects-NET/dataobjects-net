@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.05.07
 
@@ -37,11 +37,13 @@ namespace Xtensive.Linq
   internal sealed class LambdaExpressionFactory
   {
     private static readonly Type[] internalFactorySignature = new[] {
-      typeof(Expression), typeof(string), typeof(bool), typeof(IReadOnlyList<ParameterExpression>)
+      WellKnownTypes.Expression, WellKnownTypes.String, WellKnownTypes.Bool, typeof(IReadOnlyList<ParameterExpression>)
     };
 
     private static readonly object _lock = new object();
     private static volatile LambdaExpressionFactory instance;
+    private static readonly Type FastFactoryType = typeof(FastFactory);
+    private static readonly Type SlowFactoryType = typeof(SlowFactory);
 
     public static LambdaExpressionFactory Instance {
       get {
@@ -72,21 +74,21 @@ namespace Xtensive.Linq
     internal Factory CreateFactorySlow(Type delegateType)
     {
       var factory = (SlowFactory) Delegate.CreateDelegate(
-        typeof(SlowFactory), slowFactoryMethod.MakeGenericMethod(delegateType));
+        SlowFactoryType, slowFactoryMethod.MakeGenericMethod(delegateType));
 
       return (body, parameters) => factory.Invoke(body, parameters);
     }
 
     internal static Factory CreateFactoryFast(Type delegateType)
     {
-      var method = typeof(Expression<>).MakeGenericType(delegateType).GetMethod(
+      var method = WellKnownTypes.ExpressionOfT.MakeGenericType(delegateType).GetMethod(
         "Create", BindingFlags.Static | BindingFlags.NonPublic, null, internalFactorySignature, null);
 
       if (method == null) {
         return null;
       }
 
-      var factory = (FastFactory) Delegate.CreateDelegate(typeof(FastFactory), null, method);
+      var factory = (FastFactory) Delegate.CreateDelegate(FastFactoryType, null, method);
       return (body, parameters) => factory.Invoke(body, null, false, parameters);
     }
 
@@ -108,7 +110,7 @@ namespace Xtensive.Linq
     {
       cache = ThreadSafeDictionary<Type, Factory>.Create(new object());
 
-      slowFactoryMethod = typeof(Expression).GetMethods().Single(m =>
+      slowFactoryMethod = WellKnownTypes.Expression.GetMethods().Single(m =>
         m.IsGenericMethod &&
         m.Name == "Lambda" &&
         m.GetParameters()[1].ParameterType == typeof(IEnumerable<ParameterExpression>));

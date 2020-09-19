@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.05.15
 
@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Tuple = Xtensive.Tuples.Tuple;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
@@ -24,7 +25,7 @@ namespace Xtensive.Orm.Rse.Transformation
       ColumnCollection predicateColumns, ColumnCollection currentColumns)
     {
       Initialize(predicate, predicateColumns, currentColumns);
-      leftTupleParameter = Expression.Parameter(typeof (Tuple), "leftTuple");
+      leftTupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "leftTuple");
       var visited = Visit(predicate.Body);
       return (Expression<Func<Tuple, Tuple, bool>>) FastExpression
         .Lambda(visited, leftTupleParameter, predicate.Parameters[0]);

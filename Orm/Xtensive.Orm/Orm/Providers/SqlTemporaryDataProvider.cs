@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
         return;
       storageContext.SetValue(this, TemporaryTableLockName, tableLock);
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      executor.Store(tableDescriptor, data);
+      executor.Store(tableDescriptor, data, storageContext.ParameterContext);
     }
 
     protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
         return false;
       var storageContext = (EnumerationContext) context;
       using (tableLock)
-        storageContext.Session.Services.Demand<IProviderExecutor>().Clear(tableDescriptor);
+        storageContext.Session.Services.Demand<IProviderExecutor>().Clear(tableDescriptor, storageContext.ParameterContext);
       return true;
     }
 

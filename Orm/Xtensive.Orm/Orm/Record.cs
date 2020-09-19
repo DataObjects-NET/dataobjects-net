@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.12.30
 
@@ -14,7 +14,7 @@ using Tuple = Xtensive.Tuples.Tuple;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// A single item in <see cref="RecordSetReader.Read"/> result 
+  /// A single item in <see cref="EntityDataReader.Read"/> result
   /// containing both raw <see cref="Source"/> and parsed primary keys.
   /// </summary>
   public sealed class Record

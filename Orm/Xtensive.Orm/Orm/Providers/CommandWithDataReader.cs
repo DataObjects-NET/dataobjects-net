@@ -1,16 +1,17 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.03.01
 
 using System;
 using System.Data.Common;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
-  public sealed class CommandWithDataReader : IDisposable
+  public sealed class CommandWithDataReader : IDisposable, IAsyncDisposable
   {
     public DbCommand Command { get; private set; }
     public DbDataReader Reader { get; private set; }
@@ -22,12 +23,19 @@ namespace Xtensive.Orm.Providers
       Command.Dispose();
     }
 
+    public async ValueTask DisposeAsync()
+    {
+      // Dispose the reader first, at least firebird provider requires it
+      await Reader.DisposeAsync().ConfigureAwait(false);
+      await Command.DisposeAsync().ConfigureAwait(false);
+    }
+
     // Constructors
 
     internal CommandWithDataReader(DbCommand command, DbDataReader reader)
     {
-      ArgumentValidator.EnsureArgumentNotNull(command, "command");
-      ArgumentValidator.EnsureArgumentNotNull(reader, "reader");
+      ArgumentValidator.EnsureArgumentNotNull(command, nameof(command));
+      ArgumentValidator.EnsureArgumentNotNull(reader, nameof(reader));
 
       Command = command;
       Reader = reader;

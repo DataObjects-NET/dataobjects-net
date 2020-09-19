@@ -1,10 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.07.06
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
@@ -47,34 +49,43 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void CommitTransaction(Transaction transaction)
-    {
-      ChainedHandler.CommitTransaction(transaction);
-    }
+    public override void CommitTransaction(Transaction transaction) => ChainedHandler.CommitTransaction(transaction);
 
     /// <inheritdoc/>
-    public override void RollbackTransaction(Transaction transaction)
-    {
+    public override ValueTask CommitTransactionAsync(Transaction transaction) =>
+      ChainedHandler.CommitTransactionAsync(transaction);
+
+    /// <inheritdoc/>
+    public override void RollbackTransaction(Transaction transaction) =>
       ChainedHandler.RollbackTransaction(transaction);
-    }
 
     /// <inheritdoc/>
-    public override void CreateSavepoint(Transaction transaction)
-    {
+    public override ValueTask RollbackTransactionAsync(Transaction transaction) =>
+      ChainedHandler.RollbackTransactionAsync(transaction);
+
+    /// <inheritdoc/>
+    public override void CreateSavepoint(Transaction transaction) =>
       ChainedHandler.CreateSavepoint(transaction);
-    }
 
     /// <inheritdoc/>
-    public override void RollbackToSavepoint(Transaction transaction)
-    {
+    public override ValueTask CreateSavepointAsync(Transaction transaction, CancellationToken token = default) =>
+      ChainedHandler.CreateSavepointAsync(transaction, token);
+
+    /// <inheritdoc/>
+    public override void RollbackToSavepoint(Transaction transaction) =>
       ChainedHandler.RollbackToSavepoint(transaction);
-    }
 
     /// <inheritdoc/>
-    public override void ReleaseSavepoint(Transaction transaction)
-    {
+    public override ValueTask RollbackToSavepointAsync(Transaction transaction, CancellationToken token = default) =>
+      ChainedHandler.RollbackToSavepointAsync(transaction, token);
+
+    /// <inheritdoc/>
+    public override void ReleaseSavepoint(Transaction transaction) =>
       ChainedHandler.ReleaseSavepoint(transaction);
-    }
+
+    /// <inheritdoc/>
+    public override ValueTask ReleaseSavepointAsync(Transaction transaction, CancellationToken token = default) =>
+      ChainedHandler.ReleaseSavepointAsync(transaction, token);
 
     /// <inheritdoc/>
     public override void ExecuteQueryTasks(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution)
@@ -83,20 +94,42 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
+    public override Task ExecuteQueryTasksAsync(IEnumerable<QueryTask> queryTasks, bool allowPartialExecution, CancellationToken token) =>
+      ChainedHandler.ExecuteQueryTasksAsync(queryTasks, allowPartialExecution, token);
+
+    /// <inheritdoc/>
     public override void Persist(EntityChangeRegistry registry, bool allowPartialExecution)
     {
       ChainedHandler.Persist(registry, allowPartialExecution);
     }
 
+    /// <inheritdoc/>
+    public override Task PersistAsync(EntityChangeRegistry registry, bool allowPartialExecution, CancellationToken token) =>
+      ChainedHandler.PersistAsync(registry, allowPartialExecution, token);
+
+    /// <inheritdoc/>
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return ChainedHandler.Prefetch(key, type, descriptors);
     }
 
     /// <inheritdoc/>
+    public override Task<StrongReferenceContainer> PrefetchAsync(
+      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+    {
+      return ChainedHandler.PrefetchAsync(key, type, descriptors, token);
+    }
+
+    /// <inheritdoc/>
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
       return ChainedHandler.ExecutePrefetchTasks(skipPersist);
+    }
+
+    /// <inheritdoc/>
+    public override Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(bool skipPersist, CancellationToken token = default)
+    {
+      return ChainedHandler.ExecutePrefetchTasksAsync(skipPersist, token);
     }
 
     /// <inheritdoc/>
@@ -144,10 +177,10 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    public override void Dispose()
-    {
-      ChainedHandler.Dispose();
-    }
+    public override void Dispose() => ChainedHandler.Dispose();
+
+    /// <inheritdoc/>
+    public override ValueTask DisposeAsync() => ChainedHandler.DisposeAsync();
 
     // Constructors
 

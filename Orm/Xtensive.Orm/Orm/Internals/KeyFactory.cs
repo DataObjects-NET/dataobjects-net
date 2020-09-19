@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.10.09
 
@@ -153,8 +153,8 @@ namespace Xtensive.Orm.Internals
     private static GenericKeyFactory BuildGenericKeyFactory(TypeInfo typeInfo)
     {
       var descriptor = typeInfo.Key.TupleDescriptor;
-      var keyTypeName = string.Format(GenericKeyNameFormat, typeof (Key<>).Namespace, typeof (Key).Name, descriptor.Count);
-      var keyType = typeof (Key).Assembly.GetType(keyTypeName);
+      var keyTypeName = string.Format(GenericKeyNameFormat, WellKnownOrmTypes.KeyOfT.Namespace, WellKnownOrmTypes.Key.Name, descriptor.Count);
+      var keyType = WellKnownOrmTypes.Key.Assembly.GetType(keyTypeName);
       keyType = keyType.MakeGenericType(descriptor.ToArray(descriptor.Count));
       var defaultConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(
         null, keyType, "Create", ArrayUtils<Type>.EmptyArray);

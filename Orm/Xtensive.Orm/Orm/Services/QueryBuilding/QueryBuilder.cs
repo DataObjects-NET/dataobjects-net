@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.26
 
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Services
 
       var configuration = Session.CompilationService.CreateConfiguration(Session);
       configuration.PrepareRequest = false;
-      var translated = queryProvider.Translate<TResult>(query.Expression, configuration);
+      var translated = queryProvider.Translate(query.Expression, configuration);
 
       var sqlProvider = translated.DataSource as SqlProvider;
       if (sqlProvider==null)
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Services
     /// <param name="valueType">Value type to use.</param>
     /// <param name="valueAccessor">Value accessor to use.</param>
     /// <returns>Created binding.</returns>
-    public QueryParameterBinding CreateParameterBinding(Type valueType, Func<object> valueAccessor)
+    public QueryParameterBinding CreateParameterBinding(Type valueType, Func<ParameterContext, object> valueAccessor)
     {
       ArgumentValidator.EnsureArgumentNotNull(valueType, "valueType");
       ArgumentValidator.EnsureArgumentNotNull(valueAccessor, "valueAccessor");
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Services
       ArgumentValidator.EnsureArgumentNotNull(request, "request");
 
       var command = commandFactory.CreateCommand();
-      command.AddPart(commandFactory.CreateQueryPart(request.RealRequest));
+      command.AddPart(commandFactory.CreateQueryPart(request.RealRequest, new ParameterContext()));
       return new QueryCommand(driver, Session, command.Prepare());
     }
 

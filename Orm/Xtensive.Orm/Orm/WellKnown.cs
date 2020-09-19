@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.04.21
 
@@ -20,7 +20,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Various well-known constants related to this namespace.
   /// </summary>
-  public static class WellKnown
+  public static partial class WellKnown
   {
     private const string UseDomainStorageProviderInfoSupportedTypesInstead
       = "Use Domain.StorageProviderInfo.SupportedTypes instead.";
@@ -115,14 +115,14 @@ namespace Xtensive.Orm
     public static readonly ReadOnlyHashSet<Type> SupportedIntegerTypes = 
       new ReadOnlyHashSet<Type>(
         new HashSet<Type>{
-          typeof(sbyte),
-          typeof(byte),
-          typeof(short),
-          typeof(ushort),
-          typeof(int),
-          typeof(uint),
-          typeof(long),
-          typeof(ulong),
+          WellKnownTypes.SByte,
+          WellKnownTypes.Byte,
+          WellKnownTypes.Int16,
+          WellKnownTypes.UInt16,
+          WellKnownTypes.Int32,
+          WellKnownTypes.UInt32,
+          WellKnownTypes.Int64,
+          WellKnownTypes.UInt64
           }
         );
 
@@ -133,9 +133,9 @@ namespace Xtensive.Orm
     public static readonly ReadOnlyHashSet<Type> SupportedNumericTypes = 
       new ReadOnlyHashSet<Type>(
         new [] {
-          typeof(decimal),
-          typeof(double),
-          typeof(float),
+          WellKnownTypes.Decimal,
+          WellKnownTypes.Double,
+          WellKnownTypes.Single,
           }.Concat(SupportedIntegerTypes).ToHashSet()
         );
 
@@ -146,12 +146,12 @@ namespace Xtensive.Orm
     public static readonly ReadOnlyHashSet<Type> SupportedPrimitiveTypes = 
       new ReadOnlyHashSet<Type>(
         new [] {
-          typeof(string),
-          typeof(Guid),
-          typeof(DateTime),
-          typeof(DateTimeOffset),
-          typeof(TimeSpan),
-          typeof(byte[]),
+          WellKnownTypes.String,
+          WellKnownTypes.Guid,
+          WellKnownTypes.DateTime,
+          WellKnownTypes.DateTimeOffset,
+          WellKnownTypes.TimeSpan,
+          WellKnownTypes.ByteArray
           }.Concat(SupportedNumericTypes).ToHashSet()
         );
 

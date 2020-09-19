@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.04.17
 
@@ -20,7 +20,7 @@ namespace Xtensive.Reflection
     /// <param name="elementType">Type of the element.</param>
     public static Type GetSequenceType(Type elementType)
     {
-      return typeof (IEnumerable<>).MakeGenericType(elementType);
+      return WellKnownInterfaces.EnumerableOfT.MakeGenericType(elementType);
     }
 
     /// <summary>
@@ -37,13 +37,13 @@ namespace Xtensive.Reflection
 
     private static Type FindIEnumerable(Type sequenceType)
     {
-      if (sequenceType == null || sequenceType == typeof (string))
+      if (sequenceType == null || sequenceType == WellKnownTypes.String)
         return null;
       if (sequenceType.IsArray)
-        return typeof (IEnumerable<>).MakeGenericType(sequenceType.GetElementType());
+        return WellKnownInterfaces.EnumerableOfT.MakeGenericType(sequenceType.GetElementType());
       if (sequenceType.IsGenericType)
         foreach (Type arg in sequenceType.GetGenericArguments()) {
-          Type enumerable = typeof (IEnumerable<>).MakeGenericType(arg);
+          Type enumerable = WellKnownInterfaces.EnumerableOfT.MakeGenericType(arg);
           if (enumerable.IsAssignableFrom(sequenceType))
             return enumerable;
         }
@@ -54,7 +54,7 @@ namespace Xtensive.Reflection
           if (enumerable != null)
             return enumerable;
         }
-      if (sequenceType.BaseType != null && sequenceType.BaseType != typeof (object))
+      if (sequenceType.BaseType != null && sequenceType.BaseType != WellKnownTypes.Object)
         return FindIEnumerable(sequenceType.BaseType);
       return null;
     }

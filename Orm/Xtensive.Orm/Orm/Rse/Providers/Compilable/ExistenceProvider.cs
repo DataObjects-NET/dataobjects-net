@@ -1,13 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.03.20
 
 using System;
 using System.Diagnostics;
 using Xtensive.Collections;
-
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -25,12 +25,13 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public string ExistenceColumnName { get; private set; }
 
+    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
+
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
       return new RecordSetHeader(
-        TupleDescriptor.Create(new[] { typeof(bool) }),
-        new[] { new SystemColumn(ExistenceColumnName, 0, typeof(bool)) });
+        BoolTupleDescriptor, new[] { new SystemColumn(ExistenceColumnName, 0, WellKnownTypes.Bool) });
     }
 
 

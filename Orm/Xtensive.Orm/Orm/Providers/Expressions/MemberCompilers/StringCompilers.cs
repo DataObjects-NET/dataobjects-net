@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.02.13
 
@@ -435,7 +435,7 @@ namespace Xtensive.Orm.Providers
       MemberInfo member, SqlExpression value)
     {
       var method = (MethodInfo) member;
-      if (!method.GetParameters()[0].ParameterType.IsAssignableFrom(typeof (string)))
+      if (!method.GetParameters()[0].ParameterType.IsAssignableFrom(WellKnownTypes.String))
         throw new NotSupportedException(string.Format(Strings.ExTranslationOfXMethodDoesNotSupportAnyTypeOfParameterButY, "EnumearbleExtensions.IsNullOrEmpty()", "IEnumerable<char>"));
       return StringIsNullOrEmpty(value);
     }
@@ -446,7 +446,7 @@ namespace Xtensive.Orm.Providers
     {
       var method = (MethodInfo) member;
       // Try string.Contains first
-      if (method.GetGenericArguments()[0]==typeof (char))
+      if (method.GetGenericArguments()[0]==WellKnownTypes.Char)
         return StringContainsCh(sequence, value);
       // Otherwise translate into general IN clause
       if (!(sequence is SqlContainer container))

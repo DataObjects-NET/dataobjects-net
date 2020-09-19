@@ -1,15 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.10.01
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq.Expressions;
-using System.Reflection;
+using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -19,7 +17,10 @@ namespace Xtensive.Orm.Linq
   [Serializable]
   internal abstract class ItemToTupleConverter
   {
-    public abstract Expression<Func<IEnumerable<Tuple>>> GetEnumerable();
+    private static readonly Type ItemToTupleConverterType = typeof(ItemToTupleConverter<>);
+    protected static readonly Type RefOfTType = typeof(Ref<>);
+
+    public abstract Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable();
 
     public TupleDescriptor TupleDescriptor { get; protected set; }
 
@@ -27,7 +28,7 @@ namespace Xtensive.Orm.Linq
 
     public static ItemToTupleConverter BuildConverter(Type type, Type storedEntityType, object enumerable, DomainModel model, Expression sourceExpression)
     {
-      return (ItemToTupleConverter) typeof (ItemToTupleConverter<>)
+      return (ItemToTupleConverter) ItemToTupleConverterType
         .MakeGenericType(type)
         .GetConstructors()[0]
         .Invoke(new[] { enumerable, model, sourceExpression, storedEntityType });

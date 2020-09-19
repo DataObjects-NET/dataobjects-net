@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.09.26
 
@@ -8,10 +8,12 @@ using System;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
+using TypeMapping = Xtensive.Sql.TypeMapping;
 
 namespace Xtensive.Orm.Providers
 {
@@ -45,8 +47,8 @@ namespace Xtensive.Orm.Providers
       var methodType = method.DeclaringType;
 
       // There no methods in IComparable except CompareTo so checking only DeclatingType.
-      bool isCompareTo = methodType==typeof (IComparable)
-        || methodType.IsGenericType && methodType.GetGenericTypeDefinition()==typeof (IComparable<>);
+      bool isCompareTo = methodType==WellKnownInterfaces.Comparable
+        || (methodType.IsGenericType && methodType.GetGenericTypeDefinition()==WellKnownInterfaces.ComparableOfT);
 
       bool isVbStringCompare = method.DeclaringType.FullName=="Microsoft.VisualBasic.CompilerServices.Operators" 
         && method.Name=="CompareString" 
@@ -189,28 +191,28 @@ namespace Xtensive.Orm.Providers
     {
       return
         e.NodeType==ExpressionType.Convert &&
-        e.Type==typeof (int) &&
-        ((UnaryExpression) e).Operand.Type==typeof (char);
+        e.Type==WellKnownTypes.Int32 &&
+        ((UnaryExpression) e).Operand.Type==WellKnownTypes.Char;
     }
 
     private static bool IsIntConstant(Expression expression)
     {
-      return expression.NodeType==ExpressionType.Constant && expression.Type==typeof (int);
+      return expression.NodeType==ExpressionType.Constant && expression.Type==WellKnownTypes.Int32;
     }
 
     private static bool IsBooleanExpression(Expression expression)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (bool);
+      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.Bool;
     }
 
     private static bool IsDateTimeExpression(Expression expression)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTime);
+      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.DateTime;
     }
 
     private static bool IsDateTimeOffsetExpression(Expression expression)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTimeOffset);
+      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.DateTimeOffset;
     }
 
     private static bool IsComparisonExpression(Expression expression)
@@ -226,7 +228,7 @@ namespace Xtensive.Orm.Providers
 
     private static Expression StripObjectCasts(Expression expression)
     {
-      while (expression.Type==typeof (object) && expression.NodeType==ExpressionType.Convert)
+      while (expression.Type==WellKnownTypes.Object && expression.NodeType==ExpressionType.Convert)
         expression = GetOperand(expression);
       return expression;
     }
@@ -255,23 +257,28 @@ namespace Xtensive.Orm.Providers
       return enumType.IsEnum && Enum.GetUnderlyingType(enumType)==numericType;
     }
 
-    private QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
-      Expression<Func<object>> accessor, QueryParameterBindingType bindingType)
+    private static QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
+      Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
+      Expression operand;
       var expression = accessor.Body;
-
+    
       // Strip cast to object
-      if (expression.NodeType==ExpressionType.Convert)
+      if (expression.NodeType==ExpressionType.Convert) {
         expression = ((UnaryExpression) expression).Operand;
+      }
 
       // Check for closure member access
-      if (expression.NodeType!=ExpressionType.MemberAccess)
+      if (expression.NodeType!=ExpressionType.MemberAccess) {
         return null;
+      }
 
       var memberAccess = (MemberExpression) expression;
-      var operand = memberAccess.Expression;
-      if (operand==null || !operand.Type.IsClosure())
+      operand = memberAccess.Expression;
+      if (operand==null || !operand.Type.IsClosure()) {
         return null;
+      }
+
       var fieldName = memberAccess.Member.Name;
 
       // Check for raw closure
@@ -281,13 +288,16 @@ namespace Xtensive.Orm.Providers
       }
 
       // Check for parameterized closure
-      if (operand.NodeType==ExpressionType.MemberAccess) {
-        memberAccess = (MemberExpression) operand;
-        operand = memberAccess.Expression;
-        var isParameter = operand!=null
-          && operand.NodeType==ExpressionType.Constant
-          && typeof (Parameter).IsAssignableFrom(operand.Type)
-          && memberAccess.Member.Name=="Value";
+      if (operand.NodeType==ExpressionType.Call) {
+        var callExpression = (MethodCallExpression) operand;
+        if (string.Equals(callExpression.Method.Name, nameof(ParameterContext.GetValue), StringComparison.Ordinal)) {
+          operand = callExpression.Object;
+          if (operand!=null && WellKnownOrmTypes.ParameterContext == operand.Type) {
+            operand = callExpression.Arguments[0];
+          }
+        }
+
+        var isParameter = operand != null && operand.NodeType == ExpressionType.Constant;
         if (isParameter) {
           var parameterObject = ((ConstantExpression) operand).Value;
           return new QueryParameterIdentity(mapping, parameterObject, fieldName, bindingType);
@@ -298,7 +308,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private QueryParameterBinding RegisterParameterBinding(TypeMapping mapping,
-      Expression<Func<object>> accessor, QueryParameterBindingType bindingType)
+      Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
       QueryParameterBinding result;
       var identity = GetParameterIdentity(mapping, accessor, bindingType);

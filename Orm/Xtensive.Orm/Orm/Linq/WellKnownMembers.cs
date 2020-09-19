@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.03.24
 
@@ -13,7 +13,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
-using Xtensive.Orm.Model;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
@@ -21,7 +21,7 @@ using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
-  internal static class WellKnownMembers
+  internal static partial class WellKnownMembers
   {
     public static class Query
     {
@@ -46,13 +46,13 @@ namespace Xtensive.Orm.Linq
 
         var freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.FreeText)).ToArray();
         FreeTextString = freetextMethods
-          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==WellKnownTypes.String);
         FreeTextStringTopNByRank = freetextMethods
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(string) && ft.GetParameterTypes()[1]==typeof(int));
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==WellKnownTypes.String && ft.GetParameterTypes()[1]==WellKnownTypes.Int32);
         FreeTextExpression = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>));
         FreeTextExpressionTopNByRank = freetextMethods
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==WellKnownTypes.Int32);
         var containsTableMethods = typeof (Orm.Query).GetMethods()
           .Where(m => m.Name==nameof(Orm.Query.ContainsTable))
           .Select(m => new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
@@ -63,18 +63,18 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray).Method;
         ContainsTableExprTopNByRank = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1]==typeof (int)).Method;
+          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1]==WellKnownTypes.Int32).Method;
         ContainsTableExprWithColumnsTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length==3 &&
                        g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray &&
-                       g.ParameterTypes[2]==typeof(int)).Method;
+                       g.ParameterTypes[2]==WellKnownTypes.Int32).Method;
         var singleMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.Single) && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
-        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
+        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
         var singleOrDefaultMethods = typeof (Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.SingleOrDefault) && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (Orm.Key));
-        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof (object[]));
+        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
 
 #pragma warning restore 612,618
       }
@@ -104,13 +104,13 @@ namespace Xtensive.Orm.Linq
 
         var freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.FreeText)).ToArray();
         FreeTextString = freetextMethods
-          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(string));
+          .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==WellKnownTypes.String);
         FreeTextStringTopNByRank = freetextMethods
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(string) && ft.GetParameterTypes()[1]==typeof(int));
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==WellKnownTypes.String && ft.GetParameterTypes()[1]==WellKnownTypes.Int32);
         FreeTextExpression = freetextMethods
           .Single(ft => ft.GetParameters().Length==1 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>));
         FreeTextExpressionTopNByRank = freetextMethods
-          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==typeof(int));
+          .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==WellKnownTypes.Int32);
         var containsTableMethods = typeof (Orm.QueryEndpoint).GetMethods()
           .Where(m => m.Name==nameof(Orm.QueryEndpoint.ContainsTable))
           .Select(m=> new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
@@ -121,18 +121,18 @@ namespace Xtensive.Orm.Linq
                        g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray).Method;
         ContainsTableExprTopNByRank = containsTableMethods
-          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1]==typeof (int)).Method;
+          .Single(g => g.ParameterTypes.Length==2 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) && g.ParameterTypes[1]==WellKnownTypes.Int32).Method;
         ContainsTableExprWithColumnsTopNByRank = containsTableMethods
           .Single(g => g.ParameterTypes.Length==3 &&
                        g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>) &&
                        g.ParameterTypes[1].IsArray &&
-                       g.ParameterTypes[2]==typeof (int)).Method;
+                       g.ParameterTypes[2]==WellKnownTypes.Int32).Method;
         var singleMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.Single) && m.IsGenericMethod);
         SingleKey = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
-        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
+        SingleArray = singleMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
         var singleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod);
         SingleOrDefaultKey = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(Orm.Key));
-        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==typeof(object[]));
+        SingleOrDefaultArray = singleOrDefaultMethods.Single(ft => ft.GetParameterTypes()[0]==WellKnownTypes.ObjectArray);
         Items = typeof (Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.Items));
 #pragma warning restore 612,618
       }
@@ -140,14 +140,22 @@ namespace Xtensive.Orm.Linq
 
     public static class QueryProvider
     {
-      public static readonly MethodInfo Execute;
+      public static readonly MethodInfo ExecuteScalar;
+      public static readonly MethodInfo ExecuteSequence;
 
       static QueryProvider()
       {
-        Execute = typeof(Linq.QueryProvider)
-          .GetMethods()
-          .Where(mi => mi.Name == nameof(Linq.QueryProvider.Execute) && mi.IsGenericMethod)
-          .Single();
+        var methodInfos = typeof(Linq.QueryProvider).GetMethods(BindingFlags.Instance | BindingFlags.NonPublic);
+        foreach (var methodInfo in methodInfos) {
+          switch (methodInfo.Name) {
+            case nameof(Linq.QueryProvider.ExecuteScalar):
+              ExecuteScalar = methodInfo;
+              break;
+            case nameof(Linq.QueryProvider.ExecuteSequence):
+              ExecuteSequence = methodInfo;
+              break;
+          }
+        }
       }
     }
 
@@ -190,7 +198,7 @@ namespace Xtensive.Orm.Linq
           nameof(Orm.Key.Create),
           BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static,
           null,
-          new[] {typeof (Domain), typeof (string), typeof (TypeInfo), typeof (TypeReferenceAccuracy), typeof (Tuples.Tuple)}, null);
+          new[] {typeof (Domain), WellKnownTypes.String, typeof (TypeInfo), typeof (TypeReferenceAccuracy), typeof (Tuples.Tuple)}, null);
       }
     }
 
@@ -199,6 +207,9 @@ namespace Xtensive.Orm.Linq
       // Enumerable
       public static readonly MethodInfo Select;
       public static readonly MethodInfo First;
+      public static readonly MethodInfo FirstOrDefault;
+      public static readonly MethodInfo Single;
+      public static readonly MethodInfo SingleOrDefault;
       public static readonly Type OfTuple;
       public static readonly MethodInfo DefaultIfEmpty;
       public static readonly MethodInfo Contains;
@@ -210,8 +221,17 @@ namespace Xtensive.Orm.Linq
         Select = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.Select));
         First = typeof (System.Linq.Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
-          .First(m => m.Name==Xtensive.Reflection.WellKnown.Queryable.First && m.GetParameters().Length==1);
-        OfTuple = typeof (IEnumerable<>).MakeGenericType(typeof (Xtensive.Tuples.Tuple));
+          .First(m => m.Name==nameof(System.Linq.Enumerable.First) && m.GetParameters().Length==1);
+        FirstOrDefault = typeof (System.Linq.Enumerable)
+          .GetMethods(BindingFlags.Static | BindingFlags.Public)
+          .First(m => m.Name==nameof(System.Linq.Enumerable.FirstOrDefault) && m.GetParameters().Length==1);
+        Single = typeof (System.Linq.Enumerable)
+          .GetMethods(BindingFlags.Static | BindingFlags.Public)
+          .First(m => m.Name==nameof(System.Linq.Enumerable.Single) && m.GetParameters().Length==1);
+        SingleOrDefault = typeof (System.Linq.Enumerable)
+          .GetMethods(BindingFlags.Static | BindingFlags.Public)
+          .First(m => m.Name==nameof(System.Linq.Enumerable.SingleOrDefault) && m.GetParameters().Length==1);
+        OfTuple = WellKnownInterfaces.EnumerableOfT.MakeGenericType(typeof (Xtensive.Tuples.Tuple));
         DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.DefaultIfEmpty));
         Contains = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Contains), 1, 2);
         Cast = GetMethod(typeof (System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);
@@ -234,76 +254,6 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    public static class Queryable
-    {
-      // Queryable
-      public static readonly MethodInfo AsQueryable;
-      public static readonly MethodInfo DefaultIfEmpty;
-      public static readonly MethodInfo Take;
-      public static readonly MethodInfo Count;
-      public static readonly MethodInfo CountWithPredicate;
-      public static readonly MethodInfo LongCount;
-      public static readonly MethodInfo Where;
-      public static readonly MethodInfo Contains;
-      public static readonly MethodInfo Cast;
-      public static readonly MethodInfo Select;
-
-      // Querable extensions
-      public static readonly MethodInfo ExtensionCount;
-      public static readonly MethodInfo ExtensionLeftJoin;
-      public static readonly MethodInfo ExtensionLock;
-      public static readonly MethodInfo ExtensionTake;
-      public static readonly MethodInfo ExtensionSkip;
-      public static readonly MethodInfo ExtensionElementAt;
-      public static readonly MethodInfo ExtensionElementAtOrDefault;
-
-      static Queryable()
-      {
-        // Queryable
-        AsQueryable = GetQueryableMethod(Reflection.WellKnown.Queryable.AsQueryable, 1, 1);
-        DefaultIfEmpty = GetQueryableMethod(Reflection.WellKnown.Queryable.DefaultIfEmpty, 1, 1);
-        Count = GetQueryableMethod(Reflection.WellKnown.Queryable.Count, 1, 1);
-        CountWithPredicate = GetQueryableMethod(Reflection.WellKnown.Queryable.Count, 1, 2);
-        Take = GetQueryableMethod(Reflection.WellKnown.Queryable.Take, 1, 2);
-        Contains = GetQueryableMethod(Reflection.WellKnown.Queryable.Contains, 1, 2);
-        LongCount = GetQueryableMethod(Reflection.WellKnown.Queryable.LongCount, 1, 1);
-        Cast = GetQueryableMethod(Reflection.WellKnown.Queryable.Cast, 1, 1);
-        Where = typeof (System.Linq.Queryable)
-          .GetMethods()
-          .Where(m => {
-            var parameters = m.GetParameters();
-            return m.Name==Reflection.WellKnown.Queryable.Where
-              && m.IsGenericMethod
-              && parameters.Length==2
-              && parameters[1].ParameterType.IsGenericType
-              && parameters[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
-          })
-          .First();
-
-        Select = typeof (System.Linq.Queryable)
-          .GetMethods()
-          .Where(m => {
-            var parameters = m.GetParameters();
-            return m.Name==Reflection.WellKnown.Queryable.Select
-              && m.IsGenericMethod
-              && parameters.Length==2
-              && parameters[1].ParameterType.IsGenericType
-              && parameters[1].ParameterType.GetGenericArguments()[0].GetGenericArguments().Length==2;
-          })
-          .Single();
-
-
-        // Querable extensions
-        ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
-        ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
-        ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
-        ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
-        ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
-        ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
-        ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
-      }
-    }
-
     // IEntity
     public static readonly PropertyInfo IEntityKey;
     public static readonly PropertyInfo TypeId;
@@ -319,9 +269,6 @@ namespace Xtensive.Orm.Linq
 
     // Record
     public static readonly MethodInfo RecordKey;
-
-    // RecordSet
-    public static readonly MethodInfo RecordSetParse;
 
     // Structure
     public static readonly MethodInfo CreateStructure;
@@ -356,24 +303,21 @@ namespace Xtensive.Orm.Linq
     static WellKnownMembers()
     {
       // IEntity
-      IEntityKey = typeof (IEntity).GetProperty(WellKnown.KeyFieldName);
-      TypeId = typeof(IEntity).GetProperty(WellKnown.TypeIdFieldName);
+      IEntityKey = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.KeyFieldName);
+      TypeId = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.TypeIdFieldName);
 
       // ApplyParameter
-      ApplyParameterValue = typeof (ApplyParameter).GetProperty("Value");
+      ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetProperty("Value");
 
       // Parameter<Tuple>
-      ParameterOfTupleValue = typeof (Parameter<Tuples.Tuple>).GetProperty("Value", typeof (Tuples.Tuple));
+      ParameterOfTupleValue = WellKnownOrmTypes.ParameterOfTuple.GetProperty("Value", typeof (Tuples.Tuple));
 
       // Parameter
-      ParameterValue = typeof (Parameter).GetProperty("Value");
+      ParameterValue = WellKnownOrmTypes.Parameter.GetProperty("Value");
 
       // Record
       RecordKey = typeof (Record).GetMethods()
         .Single(methodInfo => methodInfo.Name=="GetKey" && methodInfo.GetParameters().Length==1);
-
-      // RecordSet
-      RecordSetParse = typeof (RecordSetExtensions).GetMethod("Parse");
 
       // Structure
       CreateStructure = typeof (Internals.Activator)

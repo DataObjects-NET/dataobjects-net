@@ -1,7 +1,12 @@
-﻿using System;
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq.Expressions;
+using Xtensive.Linq;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -234,7 +239,7 @@ namespace Xtensive.Orm.BulkOperations
     {
       Expression body = Visit(lambda.Body);
       if (body!=lambda.Body)
-        return Expression.Lambda(lambda.Type, body, lambda.Parameters);
+        return FastExpression.Lambda(lambda.Type, body, lambda.Parameters);
       return lambda;
     }
 

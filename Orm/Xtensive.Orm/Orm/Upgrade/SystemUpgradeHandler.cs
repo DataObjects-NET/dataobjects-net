@@ -8,6 +8,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
@@ -53,6 +55,12 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
+    public override ValueTask OnBeforeStageAsync(CancellationToken token = default)
+    {
+      OnBeforeStage();
+      return default;
+    }
+
     /// <inheritdoc/>
     public override void OnStage()
     {
@@ -87,6 +95,12 @@ namespace Xtensive.Orm.Upgrade
       default:
         throw new ArgumentOutOfRangeException("context.Stage");
       }
+    }
+
+    public override ValueTask OnStageAsync(CancellationToken token = default)
+    {
+      OnStage();
+      return default;
     }
 
     private void BuildTypeIds(Domain domain)

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.05.06
 
@@ -13,14 +13,16 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm
 {
   /// <summary>
   /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries. 
   /// </summary>
-  public static class QueryableExtensions
+  public static partial class QueryableExtensions
   {
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.
@@ -31,7 +33,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       return (int) source.Provider.Execute(
         Expression.Call(
-          typeof (Queryable), "Count",
+          WellKnownTypes.Queryable, nameof(Queryable.Count),
           new[] {source.ElementType}, source.Expression));
     }
 
@@ -50,7 +52,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTake.MakeGenericMethod(new[] {typeof (TSource)});
@@ -73,7 +75,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionSkip.MakeGenericMethod(new[] {typeof (TSource)});
@@ -96,7 +98,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExElementAtDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionElementAt.MakeGenericMethod(new[] {typeof (TSource)});
@@ -119,7 +121,7 @@ namespace Xtensive.Orm
 
       var errorMessage = Strings.ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.MakeGenericMethod(new[] {typeof (TSource)});
@@ -142,7 +144,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(lockBehavior, "lockBehavior");
       var errorMessage = Strings.ExLockDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLock.MakeGenericMethod(new[] {typeof (TSource)});
@@ -233,7 +235,7 @@ namespace Xtensive.Orm
       var errorMessage = Strings.ExLeftJoinDoesNotSupportQueryProviderOfTypeX;
 
       var outerProviderType = outer.Provider.GetType();
-      if (outerProviderType!=typeof (QueryProvider))
+      if (outerProviderType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, outerProviderType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
@@ -267,52 +269,59 @@ namespace Xtensive.Orm
     /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <returns>A task which runs query.</returns>
-    [Obsolete("Use AsAsync(IQueryable<t>) method instead.")]
-    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source)
-    {
-      return AsAsync(source, CancellationToken.None);
-    }
+    [Obsolete("Use ExecuteAsync(IQueryable<T>) method instead.")]
+    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source) =>
+      await ExecuteAsync(source, CancellationToken.None).ConfigureAwait(false);
 
     /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>A task which runs query.</returns>
+    [Obsolete("Use ExecuteAsync(IQueryable<T>, CancellationToken) method instead.")]
+    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken token) =>
+      await ExecuteAsync(source, token).ConfigureAwait(false);
+
+    /// <summary>
+    /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="T">Type of elements in sequence.</typeparam>
+    /// <param name="source">Query to run asynchronous.</param>
+    /// <returns>A task which runs query.</returns>
+    public static Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source) =>
+      ExecuteAsync(source, CancellationToken.None);
+
+    /// <summary>
+    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="T">Type of elements in sequence.</typeparam>
     /// <param name="source">Query to run asynchronous.</param>
     /// <param name="cancellationToken">Token to cancel operation.</param>
     /// <returns>A task which runs query.</returns>
-    [Obsolete("Use AsAsync(IQueryable<t>, CancellationToken) method instead.")]
-    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IQueryable<T> source, CancellationToken cancellationToken)
+    public static async Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
-      return AsAsync(source, cancellationToken);
-    }
+      if (source.Provider is QueryProvider queryProvider) {
+        return await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwait(false);
+      }
 
-    /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <returns>A task which runs query.</returns>
-    public static Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source)
-    {
-      return AsAsync(source, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <param name="cancellationToken">Token to cancel operation.</param>
-    /// <returns>A task which runs query.</returns>
-    public static Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
-    {
-      var doProvider = source.Provider as QueryProvider;
-      if (doProvider!=null)
-        return doProvider.ExecuteAsync<IEnumerable<T>>(source.Expression, cancellationToken);
-      return Task<IEnumerable<T>>.FromResult(source.AsEnumerable());
+      return new QueryResult<T>(source.AsEnumerable());
     }
 
     #region Private / internal members
@@ -323,7 +332,7 @@ namespace Xtensive.Orm
     {
       
       var providerType = source.Provider.GetType();
-      if (providerType!=typeof (QueryProvider))
+      if (providerType!=WellKnownOrmTypes.QueryProvider)
         throw new NotSupportedException(String.Format(errorMessage, providerType));
 
       var genericMethod = methodInfo.MakeGenericMethod(new[] {typeof (TSource)});

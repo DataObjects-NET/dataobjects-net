@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.10.27
 
@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Linq.MemberCompilation;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -43,7 +44,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void RegisterLinqExtensions()
     {
-      var linqExtensionProvider = (IMemberCompilerProvider<Expression>) GetProvider(typeof (Expression));
+      var linqExtensionProvider = (IMemberCompilerProvider<Expression>) GetProvider(WellKnownTypes.Expression);
       var substitutions = configuration.LinqExtensions.Substitutions
         .Select(item => new KeyValuePair<MemberInfo, Func<MemberInfo, Expression, Expression[], Expression>>(item.Member, CreateCompilerFromSubstitution(item)));
       linqExtensionProvider.RegisterCompilers(substitutions);

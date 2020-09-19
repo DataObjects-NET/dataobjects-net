@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql
@@ -214,25 +215,25 @@ namespace Xtensive.Sql
     {
       supportedTypes = new[]
         {
-          typeof (bool),
-          typeof (char),
-          typeof (sbyte),
-          typeof (byte),
-          typeof (short),
-          typeof (ushort),
-          typeof (int),
-          typeof (uint),
-          typeof (long),
-          typeof (ulong),
-          typeof (string),
-          typeof (float),
-          typeof (double),
-          typeof (decimal),
-          typeof (DateTime),
-          typeof (DateTimeOffset),
-          typeof (TimeSpan),
-          typeof (byte[]),
-          typeof (Guid)
+          WellKnownTypes.Bool,
+          WellKnownTypes.Char,
+          WellKnownTypes.SByte,
+          WellKnownTypes.Byte,
+          WellKnownTypes.Int16,
+          WellKnownTypes.UInt16,
+          WellKnownTypes.Int32,
+          WellKnownTypes.UInt32,
+          WellKnownTypes.Int64,
+          WellKnownTypes.UInt64,
+          WellKnownTypes.String,
+          WellKnownTypes.Single,
+          WellKnownTypes.Double,
+          WellKnownTypes.Decimal,
+          WellKnownTypes.DateTime,
+          WellKnownTypes.DateTimeOffset,
+          WellKnownTypes.TimeSpan,
+          WellKnownTypes.ByteArray,
+          WellKnownTypes.Guid
         }.ToHashSet();
     }
   }

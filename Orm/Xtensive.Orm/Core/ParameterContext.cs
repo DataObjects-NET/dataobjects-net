@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.08.14
 
@@ -9,118 +9,42 @@ using System.Collections.Generic;
 using System.Diagnostics;
 
 
-
 namespace Xtensive.Core
 {
   /// <summary>
   /// Provides storing context-specific <see cref="Parameter{TValue}"/>'s values.
   /// </summary>
-  public sealed class ParameterContext : Context<ParameterScope>
+  public sealed class ParameterContext
   {
-    private readonly Dictionary<Parameter, object> values = 
-      new Dictionary<Parameter, object>();
-    private readonly bool isExpectedValuesContext;
-    private static readonly ParameterContext expectedValues = new ParameterContext(true);
+    private readonly ParameterContext outerContext;
 
-    /// <summary>
-    /// Gets the current <see cref="ParameterContext"/>.
-    /// </summary>        
-    public static ParameterContext Current {
-      [DebuggerStepThrough]
-      get { return Scope<ParameterContext>.CurrentContext; }
-    }
-
-    /// <summary>
-    /// Gets the special singleton <see cref="ParameterContext"/> instance 
-    /// returning <see cref="Parameter.ExpectedValue"/> instead of <see cref="Parameter.Value"/> 
-    /// if <see cref="Parameter.ExpectedValue"/> is set.
-    /// </summary>        
-    public static ParameterContext ExpectedValues {
-      [DebuggerStepThrough]
-      get { return expectedValues; }
-    }
-
-    #region IContext<...> methods
-
-    /// <inheritdoc/>
-    public override bool IsActive {
-      [DebuggerStepThrough]
-      get { return Current == this; }
-    }
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    protected override ParameterScope CreateActiveScope()
-    {
-      return new ParameterScope(this);
-    }
-
-    #endregion
-
-    #region Private \ internal methods
+    private readonly Dictionary<Parameter, object> values = new Dictionary<Parameter, object>();
 
     [DebuggerStepThrough]
-    internal bool TryGetValue(Parameter parameter, out object value)
+    internal bool TryGetValue(Parameter parameter, out object value) =>
+      values.TryGetValue(parameter, out value) || outerContext?.TryGetValue(parameter, out value) == true;
+
+    [DebuggerStepThrough]
+    public TValue GetValue<TValue>(Parameter<TValue> parameter)
     {
-      if (isExpectedValuesContext && parameter.IsExpectedValueSet) {
-        value = parameter.ExpectedValue;
-        return true;
+      if (TryGetValue(parameter, out var result)) {
+        return (TValue) result;
       }
-      return values.TryGetValue(parameter, out value);
-    }
-    
-    [DebuggerStepThrough]
-    internal void SetValue(Parameter parameter, object value)
-    {
-      EnsureIsRegular();
-      values[parameter] = value;
+
+      throw new InvalidOperationException(string.Format(Strings.ExValueForParameterXIsNotSet, parameter));
     }
 
     [DebuggerStepThrough]
-    internal void Clear(Parameter parameter)
-    {
-      EnsureIsRegular();
-      values.Remove(parameter);
-    }
-
-    [DebuggerStepThrough]
-    internal bool HasValue(Parameter parameter)
-    {
-      EnsureIsRegular();
-      return values.ContainsKey(parameter);
-    }
-
-    [DebuggerStepThrough]
-    internal void NotifyParametersOnDisposing()
-    {
-      foreach (var pair in values)
-        pair.Key.OnScopeDisposed(pair.Value);
-    }
-
-    /// <exception cref="InvalidOperationException">Context is <see cref="ExpectedValues"/> context.</exception>
-    [DebuggerStepThrough]
-    private void EnsureIsRegular()
-    {
-      if (isExpectedValuesContext)
-        throw new InvalidOperationException(
-          Strings.ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters);
-    }
-
-    #endregion
-
+    internal void SetValue(Parameter parameter, object value) => values[parameter] = value;
 
     // Constructors
 
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public ParameterContext()
+    public ParameterContext(ParameterContext outerContext = null)
     {
-    }
-
-    private ParameterContext(bool isExpectedValuesContext)
-    {
-      this.isExpectedValuesContext = isExpectedValuesContext;
+      this.outerContext = outerContext;
     }
   }
 }

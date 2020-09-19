@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.12.30
 
@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Linq
 {
@@ -19,7 +20,7 @@ namespace Xtensive.Orm.Linq
     {
       ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
       var expr = VisitBinaryExpession(expression);
-      if (expr.Type.IsSubclassOf(typeof (Entity)))
+      if (expr.Type.IsSubclassOf(WellKnownOrmTypes.Entity))
         return expr.Type;
       throw new NotSupportedException(string.Format(Strings.ExCurrentTypeXIsNotSupported, expr.Type));
     }

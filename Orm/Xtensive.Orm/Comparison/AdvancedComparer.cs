@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.02.08
 
@@ -10,6 +10,7 @@ using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.Comparison
 {
@@ -220,8 +221,8 @@ namespace Xtensive.Comparison
     private AdvancedComparer(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      ComparerImplementation = (IComparer<T>)info.GetValue("ComparerImplementation", typeof(object));
-      EqualityComparerImplementation = (IEqualityComparer<T>)info.GetValue("EqualityComparerImplementation", typeof(object));
+      ComparerImplementation = (IComparer<T>)info.GetValue("ComparerImplementation", WellKnownTypes.Object);
+      EqualityComparerImplementation = (IEqualityComparer<T>)info.GetValue("EqualityComparerImplementation", WellKnownTypes.Object);
       // Below code is the same between both primary constructors
       if (Implementation!=null) {
         Provider = Implementation.Provider;

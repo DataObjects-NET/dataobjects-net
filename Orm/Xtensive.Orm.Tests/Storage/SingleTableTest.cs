@@ -1,11 +1,12 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.10.01
 
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage
         new DerivedNode() {Description = "Node"};
 
         var primaryIndex = Domain.Model.Types[typeof (Base)].Indexes.PrimaryIndex;
-        var rs = primaryIndex.GetQuery().GetRecordSet(session);
+        var rs = primaryIndex.GetQuery().GetRecordSetReader(session, new ParameterContext());
         var result = rs.ToEntities(0).ToList();
         t.Complete();
       }

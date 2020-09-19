@@ -1,12 +1,14 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.11.07
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -58,13 +60,16 @@ namespace Xtensive.Orm
         entitySetsWithInvalidState.Add(entitySet);
     }
 
-    internal void RemapEntityKeys(KeyMapping keyMapping)
+    internal void RemapEntityKeys(KeyMapping keyMapping) =>
+      RemapEntityKeys(keyMapping, false).GetAwaiter().GetResult();
+
+    private async ValueTask RemapEntityKeys(KeyMapping keyMapping, bool isAsync, CancellationToken token = default)
     {
       if (keyMapping.Map.Count==0)
         return;
       using (Activate()) {
         if (!LazyKeyGenerationIsEnabled) {
-          Persist(PersistReason.RemapEntityKeys);
+          await Persist(PersistReason.RemapEntityKeys, isAsync, token).ConfigureAwait(false);
           Invalidate();
         }
         if (IsDebugEventLoggingEnabled) {

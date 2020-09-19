@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.03.18
 
@@ -18,6 +18,8 @@ namespace Xtensive.Modelling
   /// </summary>
   public sealed class PropertyAccessor
   {
+    private static readonly MethodInfo InnerInitializeMethodDefinition;
+
     private Func<object, object> getter;
     private Action<object, object> setter;
     [NonSerialized]
@@ -38,7 +40,7 @@ namespace Xtensive.Modelling
     private Type dependencyRootType;
 
     /// <summary>
-    /// Gets <see cref="System.Reflection.PropertyInfo"/> of property 
+    /// Gets <see cref="System.Reflection.PropertyInfo"/> of property
     /// this accessor is bound to.
     /// </summary>
     public PropertyInfo PropertyInfo { get; private set; }
@@ -81,7 +83,7 @@ namespace Xtensive.Modelling
     }
 
     /// <summary>
-    /// Gets a value indicating whether underlying property must be 
+    /// Gets a value indicating whether underlying property must be
     /// ignored during recreation of parent atomic property.
     /// </summary>
     public bool IsVolatile {
@@ -92,7 +94,7 @@ namespace Xtensive.Modelling
     /// Gets or sets a value indicating whether property owner should be recreated on property value change.
     /// </summary>
     public bool RecreateParent {
-      get { return recreateParent; } 
+      get { return recreateParent; }
     }
 
     /// <summary>
@@ -136,7 +138,7 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Gets the dependency root object.
     /// </summary>
-    public IPathNode GetDependencyRoot(IPathNode source) 
+    public IPathNode GetDependencyRoot(IPathNode source)
     {
       if (source==null)
         return null;
@@ -170,14 +172,9 @@ namespace Xtensive.Modelling
         isImmutable |= pa.IsImmutable;
         recreateParent |= pa.RecreateParent;
         dependencyRootType = pa.DependencyRootType;
-        compareCaseInsensitive = tProperty == typeof (string) && pa.CaseInsensitiveComparison;
+        compareCaseInsensitive = tProperty == WellKnownTypes.String && pa.CaseInsensitiveComparison;
       }
-      this.GetType()
-        .GetMethod("InnerInitialize", 
-            BindingFlags.Instance | 
-            BindingFlags.NonPublic, 
-            null, ArrayUtils<Type>.EmptyArray, null)
-        .GetGenericMethodDefinition()
+      InnerInitializeMethodDefinition
         .MakeGenericMethod(new[] {tType, tProperty})
         .Invoke(this, null);
     }
@@ -200,6 +197,17 @@ namespace Xtensive.Modelling
 
 
     // Constructors
+
+    static PropertyAccessor()
+    {
+      InnerInitializeMethodDefinition = typeof(PropertyAccessor)
+        .GetMethod(nameof(InnerInitialize),
+          BindingFlags.Instance | BindingFlags.NonPublic,
+          null,
+          Array.Empty<Type>(),
+          null)
+        ?.GetGenericMethodDefinition();
+    }
 
     /// <summary>
     /// Initializes new instance of this type.

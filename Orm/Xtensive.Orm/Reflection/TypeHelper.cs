@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
 // Created:    2007.06.13
 
@@ -31,12 +31,8 @@ namespace Xtensive.Reflection
     private const string invokeMethodName = "Invoke";
 
     private static readonly object emitLock = new object();
-    private static readonly Type ObjectType = typeof(object);
-    private static readonly Type ArrayType = typeof(Array);
-    private static readonly Type EnumType = typeof(Enum);
-    private static readonly Type NullableType = typeof(Nullable<>);
-    private static readonly int NullableTypeMetadataToken = NullableType.MetadataToken;
-    private static readonly Module NullableTypeModule = NullableType.Module;
+    private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
+    private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
@@ -150,13 +146,13 @@ namespace Xtensive.Reflection
 
         genericArguments = new[] {elementType};
       }
-      else if (currentForType == EnumType) {
+      else if (currentForType == WellKnownTypes.Enum) {
         // Enum type
         var underlyingType = Enum.GetUnderlyingType(originalForType);
         associateTypePrefix = "Enum`2";
         genericArguments = new[] {originalForType, underlyingType};
       }
-      else if (currentForType == ArrayType) {
+      else if (currentForType == WellKnownTypes.Array) {
         // Untyped Array type
         foundForType = null;
         return null;
@@ -187,7 +183,7 @@ namespace Xtensive.Reflection
       // Nothing is found; trying to find an associate for base type (except Object)
       var forTypeBase = currentForType.BaseType;
       if (forTypeBase != null) {
-        while (forTypeBase != null && forTypeBase != ObjectType) {
+        while (forTypeBase != null && forTypeBase != WellKnownTypes.Object) {
           result = CreateAssociateInternal<T>(originalForType, forTypeBase, out foundForType,
             associateTypeSuffixes, constructorParams, locations, true);
           if (result != null) {
@@ -262,8 +258,8 @@ namespace Xtensive.Reflection
       }
 
       // Nothing is found; trying to find an associate for Object type
-      if (currentForType != ObjectType) {
-        result = CreateAssociateInternal<T>(originalForType, ObjectType, out foundForType,
+      if (currentForType != WellKnownTypes.Object) {
+        result = CreateAssociateInternal<T>(originalForType, WellKnownTypes.Object, out foundForType,
           "Object", associateTypeSuffixes,
           locations, null, constructorParams);
         if (result != null) {
@@ -617,7 +613,7 @@ namespace Xtensive.Reflection
           let parameter = pair.parameter
           let parameterType = parameter.ParameterType
           let argument = pair.argument
-          let argumentType = argument == null ? ObjectType : argument.GetType()
+          let argumentType = argument == null ? WellKnownTypes.Object : argument.GetType()
           select
             !parameter.IsOut && (
               parameterType.IsAssignableFrom(argumentType) ||
@@ -670,7 +666,7 @@ namespace Xtensive.Reflection
           return bases
             .Concat(interfaces)
             .OrderByInheritance()
-            .AddOne(t)
+            .Append(t)
             .ToArray();
         });
 
@@ -936,7 +932,7 @@ namespace Xtensive.Reflection
     {
       var definitionMetadataToken = openGenericBaseType.MetadataToken;
       var definitionModule = openGenericBaseType.Module;
-      while (type != null && !ReferenceEquals(type, ObjectType)) {
+      while (type != null && !ReferenceEquals(type, WellKnownTypes.Object)) {
         if ((type.MetadataToken ^ definitionMetadataToken) == 0 && ReferenceEquals(type.Module, definitionModule)) {
           return type;
         }
@@ -1008,7 +1004,7 @@ namespace Xtensive.Reflection
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return type.IsValueType && !type.IsNullable()
-        ? NullableType.MakeGenericType(type)
+        ? WellKnownTypes.NullableOfT.MakeGenericType(type)
         : type;
     }
 
@@ -1041,7 +1037,7 @@ namespace Xtensive.Reflection
     {
       var typeName = type.Name;
       return (type.Attributes & TypeAttributes.Public) == 0
-        && type.BaseType == ObjectType
+        && type.BaseType == WellKnownTypes.Object
         && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
         && typeName.IndexOf("AnonymousType", StringComparison.Ordinal) >= 0
         && type.IsDefined(CompilerGeneratedAttributeType, false);
@@ -1057,7 +1053,7 @@ namespace Xtensive.Reflection
     public static bool IsClosure(this Type type)
     {
       var typeName = type.Name;
-      return type.BaseType == ObjectType
+      return type.BaseType == WellKnownTypes.Object
         && (typeName.StartsWith("<>", StringComparison.Ordinal) || typeName.StartsWith("VB$", StringComparison.Ordinal))
         && typeName.IndexOf("DisplayClass", StringComparison.Ordinal) >= 0
         && type.IsDefined(CompilerGeneratedAttributeType, false);

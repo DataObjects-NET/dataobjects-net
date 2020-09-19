@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.06.19
 
@@ -14,18 +14,18 @@ using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Tests.Upgrade.IgnoreHints.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Building;
+using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
   [TestFixture, Category("Upgrade")]
   public class IgnoreHintsTest
   {
-    private Domain domain;
-
     [Test]
     public void MainTest()
     {
-      BuildDomain(DomainUpgradeMode.Recreate);
+      var domain = BuildDomain(DomainUpgradeMode.Recreate);
+      using (domain)
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
           new A() {X = "1", Y = "1"};
@@ -36,8 +36,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       using (IgnoreHintsUpgrader.Enable(
         new IgnoreHint("Tables/A/Columns/X"), new IgnoreHint("Tables/B"))) {
-        BuildDomain(DomainUpgradeMode.Perform);
+        domain = BuildDomain(DomainUpgradeMode.Perform);
       }
+      using (domain)
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
           Assert.AreEqual(1, session.Query.All<A>().Count());
@@ -46,7 +47,8 @@ namespace Xtensive.Orm.Tests.Upgrade
         }
       }
 
-      BuildDomain(DomainUpgradeMode.Validate);
+      domain = BuildDomain(DomainUpgradeMode.Validate);
+      using (domain)
       using (var session = domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {
           Assert.AreEqual(1, session.Query.All<A>().Count());
@@ -58,13 +60,60 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    private void BuildDomain(DomainUpgradeMode mode)
+    [Test]
+    public async Task MainAsyncTest()
+    {
+      var domain = BuildDomain(DomainUpgradeMode.Recreate);
+      using (domain)
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          new A() { X = "1", Y = "1" };
+          new B();
+          transaction.Complete();
+        }
+      }
+
+      using (IgnoreHintsUpgrader.Enable(
+        new IgnoreHint("Tables/A/Columns/X"), new IgnoreHint("Tables/B"))) {
+        domain = await BuildDomainAsync(DomainUpgradeMode.Perform);
+      }
+      using (domain)
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.AreEqual(1, session.Query.All<A>().Count());
+          Assert.AreEqual("1", session.Query.All<A>().First().Y);
+          transaction.Complete();
+        }
+      }
+
+      domain = await BuildDomainAsync(DomainUpgradeMode.Validate);
+      using (var session = domain.OpenSession()) {
+        using (var transaction = session.OpenTransaction()) {
+          Assert.AreEqual(1, session.Query.All<A>().Count());
+          Assert.AreEqual("1", session.Query.All<A>().First().X);
+          Assert.AreEqual("1", session.Query.All<A>().First().Y);
+          Assert.AreEqual(1, session.Query.All<B>().Count());
+          transaction.Complete();
+        }
+      }
+    }
+
+    private Domain BuildDomain(DomainUpgradeMode mode)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = mode;
       configuration.Types.Register(typeof (A));
       configuration.Types.Register(typeof (B));
-      domain = Domain.Build(configuration);
+      return Domain.Build(configuration);
+    }
+
+    private Task<Domain> BuildDomainAsync(DomainUpgradeMode mode)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = mode;
+      configuration.Types.Register(typeof(A));
+      configuration.Types.Register(typeof(B));
+      return Domain.BuildAsync(configuration);
     }
 
     private class IgnoreHintsUpgrader : UpgradeHandler, 
@@ -75,8 +124,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public static IDisposable Enable(params IgnoreHint[] ignoreHints)
       {
-        if (isEnabled)
+        if (isEnabled) {
           throw new InvalidOperationException();
+        }
         isEnabled = true;
         hints = ignoreHints;
         return new Disposable(_ => {
@@ -87,15 +137,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public override bool IsEnabled { get { return isEnabled; } }
 
-      protected override string DetectAssemblyVersion()
-      {
-        return "1";
-      }
+      protected override string DetectAssemblyVersion() => "1";
 
-      public override bool CanUpgradeFrom(string oldVersion)
-      {
-        return true;
-      }
+      public override bool CanUpgradeFrom(string oldVersion) => true;
 
       public override void OnSchemaReady()
       {
@@ -118,15 +162,16 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
       {
-        if (!isEnabled || !model.Types.Contains("A"))
+        if (!isEnabled || !model.Types.Contains("A")) {
           return;
+        }
 
         var aType = model.Types["A"];
         var bType = model.Types["B"];
         var xField = aType.Fields["X"];
 
-        aType.Fields.Remove(xField);
-        model.Types.Remove(bType);
+        _ = aType.Fields.Remove(xField);
+        _ = model.Types.Remove(bType);
       }
     }
   }
@@ -155,5 +200,4 @@ namespace Xtensive.Orm.Tests.Upgrade.IgnoreHints.Model
     [Key, Field]
     public int Id { get; private set; }
   }
-
 }

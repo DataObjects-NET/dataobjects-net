@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.25
 
@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using Xtensive.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Linq
 {
@@ -21,12 +21,14 @@ namespace Xtensive.Linq
     /// <inheritdoc/>
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      if (mc.Arguments.Count > 0 && mc.Arguments[0].Type==typeof (string))
+      if (mc.Arguments.Count > 0 && mc.Arguments[0].Type == WellKnownTypes.String) {
         return base.VisitMethodCall(mc);
+      }
 
       var method = GetQueryableMethod(mc);
-      if (method==null)
+      if (method == null) {
         return base.VisitMethodCall(mc);
+      }
 
       return VisitQueryableMethod(mc, method.Value);
     }
@@ -46,19 +48,24 @@ namespace Xtensive.Linq
     /// or null if method is not a LINQ method.</returns>
     public static QueryableMethodKind? GetQueryableMethod(MethodCallExpression call)
     {
-      if (call==null)
+      if (call == null) {
         return null;
+      }
+
       var declaringType = call.Method.DeclaringType;
-      if (declaringType==typeof (Queryable) || declaringType==typeof (Enumerable))
+      if (declaringType == WellKnownTypes.Queryable || declaringType == WellKnownTypes.Enumerable) {
         return ParseQueryableMethodKind(call.Method.Name);
+      }
+
       return null;
     }
 
     private static QueryableMethodKind? ParseQueryableMethodKind(string methodName)
     {
-      QueryableMethodKind result;
-      if (Enum.TryParse(methodName, out result))
+      if (Enum.TryParse(methodName, out QueryableMethodKind result)) {
         return result;
+      }
+
       return null;
     }
   }

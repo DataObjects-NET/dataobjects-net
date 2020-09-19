@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.09.27
 
 using System;
 using System.Diagnostics;
+using System.Runtime.ExceptionServices;
 using System.Security;
 using System.Threading;
 
@@ -143,36 +144,37 @@ namespace Xtensive.Core
     /// <exception cref="InvalidOperationException">Current scope differs from this one.</exception>
     public void Dispose()
     {
-      bool bStop = false;
       Exception error = null;
-      while (!bStop) {
-        try {
-          if (currentScopeAsync==null) {
-            bStop = true;
-            throw new InvalidOperationException(Strings.ExScopeCantBeDisposed);
-          }
-          else if (currentScopeAsync.Value==this) {
-            bStop = true;
-            currentScopeAsync.Value.Dispose(true);
-          }
-          else {
-            currentScopeAsync.Value.Dispose();
-          }
-        }
-        catch (Exception e) {
-          if (error==null)
-            error = e;
+      try {
+        while (true) {
           try {
-            CoreLog.Error(e, Strings.LogScopeDisposeError);
+            var currentScope = currentScopeAsync.Value;
+            if (currentScope == null) {
+              throw new InvalidOperationException(Strings.ExScopeCantBeDisposed);
+            }
+
+            if (currentScope == this) {
+              currentScope.Dispose(true);
+              break;
+            }
+
+            currentScope.Dispose();
           }
-          catch {}
+          catch (Exception e) {
+            error = e;
+            CoreLog.Error(e, Strings.LogScopeDisposeError);
+            break;
+          }
         }
       }
-      currentScopeAsync.Value = outerScope;
-      context = null;
-      outerScope = null;
-      if (error!=null)
-        throw error;
+      finally {
+        currentScopeAsync.Value = outerScope;
+        context = null;
+        outerScope = null;
+        if (error != null) {
+          ExceptionDispatchInfo.Throw(error);
+        }
+      }
     }
   }
 }

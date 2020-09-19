@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.09.09
 
@@ -69,10 +69,6 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static readonly object itemsQueryCachingRegion = new object();
     private static readonly Parameter<Tuple> ownerParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private static readonly Parameter<int> itemCountLimitParameter = new Parameter<int>("ItemCountLimit");
-    private static readonly MethodInfo getValueMethodDefinition = typeof (Tuple)
-      .GetMethods(BindingFlags.Public | BindingFlags.Instance)
-      .Where(method => method.Name=="GetValue" && method.GetParameters().Length == 1
-        && method.IsGenericMethodDefinition).Single();
 
     private readonly Key ownerKey;
     private readonly bool isOwnerCached;
@@ -103,7 +99,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         return;
       var areToNotifyAboutKeys = !manager.Owner.Session.Domain.Model
         .Types[referencingFieldDescriptor.Field.ItemType].IsLeaf;
-      var reader = manager.Owner.Session.Domain.RecordSetReader;
+      var reader = manager.Owner.Session.Domain.EntityDataReader;
       var records = reader.Read(itemsQueryTask.Result, QueryProvider.Header, manager.Owner.Session);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
       List<Pair<Key, Tuple>> auxEntities = null;
@@ -169,17 +165,17 @@ namespace Xtensive.Orm.Internals.Prefetch
     private QueryTask CreateQueryTask()
     {
       var parameterContext = new ParameterContext();
-      using (parameterContext.Activate()) {
-        ownerParameter.Value = ownerKey.Value;
-        if (ItemCountLimit != null)
-          itemCountLimitParameter.Value = ItemCountLimit.Value;
-        object key = new Pair<object, CacheKey>(itemsQueryCachingRegion, cacheKey);
-        Func<object, object> generator = CreateRecordSetLoadingItems;
-        var session = manager.Owner.Session;
-        QueryProvider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-        var executableProvider = session.Compile(QueryProvider);
-        return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
+      parameterContext.SetValue(ownerParameter, ownerKey.Value);
+      if (ItemCountLimit != null) {
+        parameterContext.SetValue(itemCountLimitParameter, ItemCountLimit.Value);
       }
+
+      object key = new Pair<object, CacheKey>(itemsQueryCachingRegion, cacheKey);
+      Func<object, object> generator = CreateRecordSetLoadingItems;
+      var session = manager.Owner.Session;
+      QueryProvider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      var executableProvider = session.Compile(QueryProvider);
+      return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }
 
     private static CompilableProvider CreateRecordSetLoadingItems(object cachingKey)
@@ -195,7 +191,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         result = CreateQueryForAssociationViaAuxType(pair, primaryTargetIndex, resultColumns);
       result = result.Select(resultColumns.ToArray());
       if (pair.Second.ItemCountLimit != null)
-        result = result.Take(() => itemCountLimitParameter.Value);
+        result = result.Take(context => context.GetValue(itemCountLimitParameter));
       return result;
     }
 

@@ -1,16 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
@@ -69,7 +66,7 @@ namespace Xtensive.Orm.Providers
         await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
     }
 
-    public override IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context)
+    public override DataReader ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context)
     {
       context.AllowPartialExecution = false;
       PutTasksForExecution(context);
@@ -77,18 +74,20 @@ namespace Xtensive.Orm.Providers
       while (context.ProcessingTasks.Count >= batchSize)
         ExecuteBatch(batchSize, null, context);
 
-      return ExecuteBatch(context.ProcessingTasks.Count, request, context).AsReaderOf(request);
+      return ExecuteBatch(context.ProcessingTasks.Count, request, context).CreateReader(request.GetAccessor());
     }
 
-    public override async Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
+    public override async Task<DataReader> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
     {
       context.ProcessingTasks = new Queue<SqlTask>(tasks);
       tasks.Clear();
 
-      while (context.ProcessingTasks.Count >= batchSize)
+      while (context.ProcessingTasks.Count >= batchSize) {
         await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+      }
 
-      return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false)).AsReaderOf(request);
+      return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false))
+        .CreateReader(request.GetAccessor());
     }
 
     #region Private / internal methods
@@ -111,7 +110,7 @@ namespace Xtensive.Orm.Providers
           task.ProcessWith(this, context);
         }
         if (shouldReturnReader) {
-          var part = Factory.CreateQueryPart(lastRequest);
+          var part = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
           context.ActiveCommand.AddPart(part);
         }
         if (context.ActiveCommand.Count==0)
@@ -123,13 +122,16 @@ namespace Xtensive.Orm.Providers
         }
         context.ActiveCommand.ExecuteReader();
         if (hasQueryTasks) {
-          int currentQueryTask = 0;
+          var currentQueryTask = 0;
           while (currentQueryTask < context.ActiveTasks.Count) {
             var queryTask = context.ActiveTasks[currentQueryTask];
             var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
-            while (context.ActiveCommand.NextRow())
-              result.Add(context.ActiveCommand.ReadTupleWith(accessor));
+            var reader = context.ActiveCommand.CreateReader(accessor);
+            while (reader.MoveNext()) {
+              result.Add(reader.Current);
+            }
+
             context.ActiveCommand.NextResult();
             currentQueryTask++;
           }
@@ -161,7 +163,7 @@ namespace Xtensive.Orm.Providers
           task.ProcessWith(this, context);
         }
         if (shouldReturnReader)
-          context.ActiveCommand.AddPart(Factory.CreateQueryPart(lastRequest));
+          context.ActiveCommand.AddPart(Factory.CreateQueryPart(lastRequest, context.ParameterContext));
         if (context.ActiveCommand.Count==0)
           return null;
         var hasQueryTasks = context.ActiveTasks.Count > 0;
@@ -176,9 +178,12 @@ namespace Xtensive.Orm.Providers
             var queryTask = context.ActiveTasks[currentQueryTask];
             var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
-            while (context.ActiveCommand.NextRow())
-              result.Add(context.ActiveCommand.ReadTupleWith(accessor));
-            context.ActiveCommand.NextResult();
+            var reader = context.ActiveCommand.CreateReader(accessor);
+            while (reader.MoveNext()) {
+              result.Add(reader.Current);
+            }
+
+            await context.ActiveCommand.NextResultAsync().ConfigureAwait(false);
             currentQueryTask++;
           }
         }
@@ -219,7 +224,7 @@ namespace Xtensive.Orm.Providers
     {
       if (context.AllowPartialExecution) {
         context.ProcessingTasks = new Queue<SqlTask>();
-        var batchesCount = (int)tasks.Count / batchSize;
+        var batchesCount = tasks.Count / batchSize;
         if (batchesCount==0)
           return;
         context.ProcessingTasks = new Queue<SqlTask>();
@@ -244,7 +249,7 @@ namespace Xtensive.Orm.Providers
     public BatchingCommandProcessor(CommandFactory factory, int batchSize)
       : base(factory)
     {
-      ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, "batchSize");
+      ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, nameof(batchSize));
       this.batchSize = batchSize;
       tasks = new Queue<SqlTask>();
     }

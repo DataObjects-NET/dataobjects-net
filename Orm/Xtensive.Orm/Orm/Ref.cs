@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.12.15
 
@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 
 using Xtensive.Reflection;
 
@@ -68,35 +67,22 @@ namespace Xtensive.Orm
     #region Equality members
 
     /// <inheritdoc/>
-    public bool Equals(Ref<T> other)
-    {
-      return other.Key==Key;
-    }
+    public bool Equals(Ref<T> other) => Key == other.Key;
 
     /// <inheritdoc/>
-    public bool Equals(Key other)
-    {
-      return other==Key;
-    }
+    public bool Equals(Key other) => Key == other;
 
     /// <inheritdoc/>
-    public override bool Equals(object other)
-    {
-      if (ReferenceEquals(null, other))
-        return false;
-      if (other.GetType()==typeof (Ref<T>))
-        return Equals((Ref<T>) other);
-      var otherKey = other as Key;
-      if (otherKey!=null)
-        return Equals(otherKey);
-      return false;
-    }
+    public override bool Equals(object other) =>
+      other switch {
+        null => false,
+        Ref<T> otherRef => Equals(otherRef),
+        Key key => Equals(key),
+        _ => false
+      };
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return (Key!=null ? Key.GetHashCode() : 0);
-    }
+    public override int GetHashCode() => Key!=null ? Key.GetHashCode() : 0;
 
     #endregion
 

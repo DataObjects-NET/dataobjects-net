@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.05.08
 
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Rse
       return new SelectProvider(source, columnIndexes);
     }
 
-    public static CompilableProvider Seek(this CompilableProvider source, Func<Tuple> key)
+    public static CompilableProvider Seek(this CompilableProvider source, Func<ParameterContext, Tuple> key)
     {
       return new SeekProvider(source, key);
     }
@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Rse
       return new AggregateProvider(recordQuery, groupIndexes, descriptors);
     }
 
-    public static CompilableProvider Skip(this CompilableProvider source, Func<int> count)
+    public static CompilableProvider Skip(this CompilableProvider source, Func<ParameterContext, int> count)
     {
       return new SkipProvider(source, count);
     }
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Rse
       return new SkipProvider(source, count);
     }
 
-    public static CompilableProvider Take(this CompilableProvider source, Func<int> count)
+    public static CompilableProvider Take(this CompilableProvider source, Func<ParameterContext, int> count)
     {
       return new TakeProvider(source, count);
     }
@@ -156,21 +156,21 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
-      Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, int[] filteredColumns)
     {
       return new IncludeProvider(
         source, IncludeAlgorithm.Auto, false, filterDataSource, resultColumnName, filteredColumns);
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
-      IncludeAlgorithm algorithm, Expression<Func<IEnumerable<Tuple>>> filterDataSource,
+      IncludeAlgorithm algorithm, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
       string resultColumnName, int[] filteredColumns)
     {
       return new IncludeProvider(source, algorithm, false, filterDataSource, resultColumnName, filteredColumns);
     }
 
     public static CompilableProvider Include(this CompilableProvider source,
-      IncludeAlgorithm algorithm, bool isInlined, Expression<Func<IEnumerable<Tuple>>> filterDataSource,
+      IncludeAlgorithm algorithm, bool isInlined, Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource,
       string resultColumnName, int[] filteredColumns)
     {
       return new IncludeProvider(source, algorithm, isInlined, filterDataSource, resultColumnName, filteredColumns);

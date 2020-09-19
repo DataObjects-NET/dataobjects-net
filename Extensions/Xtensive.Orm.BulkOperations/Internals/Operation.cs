@@ -1,14 +1,16 @@
-﻿using System;
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
-using Xtensive.Sql.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using QueryParameterBinding = Xtensive.Orm.Services.QueryParameterBinding;
@@ -19,78 +21,71 @@ namespace Xtensive.Orm.BulkOperations
   internal abstract class Operation<T>
     where T : class, IEntity
   {
-    private static readonly MethodInfo TranslateQueryMethod = typeof(QueryBuilder).GetMethod("TranslateQuery");
     public readonly QueryProvider QueryProvider;
     public List<QueryParameterBinding> Bindings;
-    protected DomainHandler DomainHandler;
-    protected PrimaryIndexMapping[] PrimaryIndexes;
-    public QueryBuilder QueryBuilder;
-    public Session Session;
-    protected TypeInfo TypeInfo;
+    protected readonly DomainHandler DomainHandler;
+    protected readonly PrimaryIndexMapping[] PrimaryIndexes;
+    public readonly QueryBuilder QueryBuilder;
+    public readonly Session Session;
+    protected readonly TypeInfo TypeInfo;
     public SqlTableRef JoinedTableRef;
 
     public int Execute()
     {
       EnsureTransactionIsStarted();
       QueryProvider.Session.SaveChanges();
-      int value = ExecuteInternal();
-      SessionStateAccessor accessor = DirectStateAccessor.Get(QueryProvider.Session);
-      accessor.Invalidate();
+      var value = ExecuteInternal();
+      DirectStateAccessor.Get(QueryProvider.Session).Invalidate();
       return value;
     }
 
-    #region Non-public methods
+    public async Task<int> ExecuteAsync(CancellationToken token = default)
+    {
+      EnsureTransactionIsStarted();
+      await QueryProvider.Session.SaveChangesAsync(token).ConfigureAwait(false);
+      var value = await ExecuteInternalAsync(token).ConfigureAwait(false);
+      DirectStateAccessor.Get(QueryProvider.Session).Invalidate();
+      return value;
+    }
 
-    protected void EnsureTransactionIsStarted()
+    private void EnsureTransactionIsStarted()
     {
       var accessor = QueryProvider.Session.Services.Demand<DirectSqlAccessor>();
-#pragma warning disable 168
-      DbTransaction notUsed = accessor.Transaction;
-#pragma warning restore 168
+      _ = accessor.Transaction;
     }
 
     protected abstract int ExecuteInternal();
 
-    public QueryTranslationResult GetRequest(IQueryable<T> query)
-    {
-      return QueryBuilder.TranslateQuery(query);
-    }
+    protected abstract Task<int> ExecuteInternalAsync(CancellationToken token = default);
+
+    public QueryTranslationResult GetRequest(IQueryable<T> query) => QueryBuilder.TranslateQuery(query);
 
     public QueryTranslationResult GetRequest(Type type, IQueryable query)
     {
-      return
-        (QueryTranslationResult) TranslateQueryMethod.MakeGenericMethod(type).Invoke(QueryBuilder, new object[] {query});
+      var translateQueryMethod = WellKnownMembers.TranslateQueryMethod.MakeGenericMethod(type);
+      return (QueryTranslationResult) translateQueryMethod.Invoke(QueryBuilder, new object[] {query});
     }
 
-    public TypeInfo GetTypeInfo(Type entityType)
-    {
-      return Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(a => a.UnderlyingType==entityType);
-    }
+    public TypeInfo GetTypeInfo(Type entityType) =>
+      Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(a => a.UnderlyingType == entityType);
 
-    #endregion
+    protected QueryCommand ToCommand(SqlStatement statement) =>
+      QueryBuilder.CreateCommand(
+        QueryBuilder.CreateRequest(QueryBuilder.CompileQuery((ISqlCompileUnit) statement), Bindings));
 
     protected Operation(QueryProvider queryProvider)
     {
       QueryProvider = queryProvider;
-      Type entityType = typeof (T);
+      var entityType = typeof (T);
       Session = queryProvider.Session;
       DomainHandler = Session.Domain.Services.Get<DomainHandler>();
-      TypeInfo =
-        queryProvider.Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(
-          a => a.UnderlyingType==entityType);
+      TypeInfo = GetTypeInfo(entityType);
       var mapping = Session.StorageNode.Mapping;
       PrimaryIndexes = TypeInfo.AffectedIndexes
         .Where(i => i.IsPrimary)
         .Select(i => new PrimaryIndexMapping(i, mapping[i.ReflectedType]))
         .ToArray();
       QueryBuilder = Session.Services.Get<QueryBuilder>();
-    }
-
-    protected QueryCommand ToCommand(SqlStatement statement)
-    {
-      return
-        QueryBuilder.CreateCommand(
-          QueryBuilder.CreateRequest(QueryBuilder.CompileQuery((ISqlCompileUnit) statement), Bindings));
     }
   }
 }

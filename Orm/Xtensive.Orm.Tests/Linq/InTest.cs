@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.09.30
 
@@ -113,16 +113,23 @@ namespace Xtensive.Orm.Tests.Linq
     public void ReuseIntContainsTest()
     {
       var list = new List<int> {276192, 349492};
-      var invoices = GetTracks(list);
-      Assert.That(invoices, Is.Not.Empty);
-      foreach (var invoice in invoices)
-        Assert.IsTrue(invoice.Milliseconds.In(list));
+      var tracks = GetTracks(list);
+
+      var tracksExist = false;
+      foreach (var track in tracks) {
+        Assert.IsTrue(track.Milliseconds.In(list));
+        tracksExist = true;
+      }
+      Assert.That(tracksExist, Is.True);
 
       list = new List<int> {232463};
-      invoices = GetTracks(list);
-      Assert.That(invoices, Is.Not.Empty);
-      foreach (var invoice in invoices)
+      tracks = GetTracks(list);
+      tracksExist = false;
+      foreach (var invoice in tracks) {
         Assert.IsTrue(invoice.Milliseconds.In(list));
+        tracksExist = true;
+      }
+      Assert.That(tracksExist, Is.True);
     }
 
     [Test]

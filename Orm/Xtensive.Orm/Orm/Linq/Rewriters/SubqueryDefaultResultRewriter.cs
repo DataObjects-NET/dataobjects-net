@@ -1,3 +1,7 @@
+// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Linq;
 using System.Linq.Expressions;
@@ -9,65 +13,56 @@ namespace Xtensive.Orm.Linq.Rewriters
 {
   internal sealed class SubqueryDefaultResultRewriter : ExpressionVisitor
   {
-    private readonly Expression root;
-
-    protected override Expression VisitUnknown(Expression e)
-    {
-      return e;
-    }
+    protected override Expression VisitUnknown(Expression e) => e;
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
       var left = ApplyCorrection(Visit(b.Left));
       var right = ApplyCorrection(Visit(b.Right));
 
-      if (b.Left==left && b.Right==right)
+      if (b.Left == left && b.Right == right) {
         return b;
+      }
 
       return Expression.MakeBinary(b.NodeType, left, right, b.IsLiftedToNull, b.Method);
     }
 
-    private Expression ApplyCorrection(Expression originalExpression)
+    private static Expression ApplyCorrection(Expression originalExpression)
     {
       var expression = originalExpression;
-      if (expression.NodeType==ExpressionType.Convert)
+      if (expression.NodeType == ExpressionType.Convert) {
         expression = ((UnaryExpression) expression).Operand;
+      }
 
       var methodCall = expression as MethodCallExpression;
-      if (methodCall==null || !IsDefaultingMethod(methodCall.Method) || !HasNonNullDefault(methodCall.Type))
+      if (methodCall == null || !IsDefaultingMethod(methodCall.Method) || !HasNonNullDefault(methodCall.Type)) {
         return originalExpression;
+      }
 
       var methodReturnType = methodCall.Type;
       expression = Expression.Coalesce(
         Expression.Convert(expression, methodReturnType.ToNullable()),
         Expression.Constant(Activator.CreateInstance(methodReturnType)));
 
-      if (expression.Type!=originalExpression.Type)
+      if (expression.Type != originalExpression.Type) {
         expression = Expression.Convert(expression, originalExpression.Type);
+      }
 
       return expression;
     }
 
-    private bool HasNonNullDefault(Type type)
-    {
-      return type.IsValueType && !type.IsNullable();
-    }
+    private static bool HasNonNullDefault(Type type) => type.IsValueType && !type.IsNullable();
 
-    private bool IsDefaultingMethod(MethodInfo method)
-    {
-      return method.DeclaringType==typeof (Queryable)
-        && (method.Name==Reflection.WellKnown.Queryable.FirstOrDefault
-        || method.Name==Reflection.WellKnown.Queryable.SingleOrDefault);
-    }
+    private static bool IsDefaultingMethod(MethodInfo method) =>
+      method.DeclaringType == WellKnownTypes.Queryable
+      && (method.Name == nameof(Queryable.FirstOrDefault)
+        || method.Name == nameof(Queryable.SingleOrDefault));
 
-    public static Expression Rewrite(Expression expression)
-    {
-      return new SubqueryDefaultResultRewriter(expression).Visit(expression);
-    }
+    public static Expression Rewrite(Expression expression) =>
+      new SubqueryDefaultResultRewriter().Visit(expression);
 
-    private SubqueryDefaultResultRewriter(Expression root)
+    private SubqueryDefaultResultRewriter()
     {
-      this.root = root;
     }
   }
 }

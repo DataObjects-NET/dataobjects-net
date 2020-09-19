@@ -1,12 +1,13 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Andrey Turkov
 // Created:    2013.08.21
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Upgrade.RecycledDefinitionTestModel;
 using Xtensive.Orm.Upgrade;
@@ -63,10 +64,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public class Upgrader : UpgradeHandler
       {
-        protected override string DetectAssemblyVersion()
-        {
-          return "1";
-        }
+        protected override string DetectAssemblyVersion() => "1";
       }
     }
 
@@ -90,37 +88,31 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public class Upgrader : UpgradeHandler
       {
-        public override bool CanUpgradeFrom(string oldVersion)
-        {
-          return true;
-        }
+        public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override string DetectAssemblyVersion()
-        {
-          return "2";
-        }
+        protected override string DetectAssemblyVersion() => "2";
 
         protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
-          hints.Add(new RenameTypeHint(typeof (V1.MyEntity).FullName, typeof (MyEntity)));
+          _ = hints.Add(new RenameTypeHint(typeof(V1.MyEntity).FullName, typeof(MyEntity)));
         }
 
         protected override void AddRecycledDefinitions(ICollection<RecycledDefinition> recycledDefinitions)
         {
           //field Recycled with originalName
-          var recycledDefinition = new RecycledFieldDefinition(typeof (MyEntity), "OldName", typeof (string), "Name");
+          var recycledDefinition = new RecycledFieldDefinition(typeof(MyEntity), "OldName", typeof(string), "Name");
           recycledDefinitions.Add(recycledDefinition);
 
           //field Recycled without originalName
-          recycledDefinition = new RecycledFieldDefinition(typeof (MyEntity), "Code", typeof (int));
+          recycledDefinition = new RecycledFieldDefinition(typeof(MyEntity), "Code", typeof(int));
           recycledDefinitions.Add(recycledDefinition);
 
           //link Recycled
-          recycledDefinition = new RecycledFieldDefinition(typeof (MyEntity), "OldPerson", typeof (Person), "Person");
+          recycledDefinition = new RecycledFieldDefinition(typeof(MyEntity), "OldPerson", typeof(Person), "Person");
           recycledDefinitions.Add(recycledDefinition);
 
           //struct Recycled
-          recycledDefinition = new RecycledFieldDefinition(typeof (MyEntity), "OldShape", typeof (Shape), "Shape");
+          recycledDefinition = new RecycledFieldDefinition(typeof(MyEntity), "OldShape", typeof(Shape), "Shape");
           recycledDefinitions.Add(recycledDefinition);
         }
 
@@ -154,14 +146,14 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var tx = session.OpenTransaction()) {
         var entityV1 = new V1.MyEntity {
           Name = "MyName1",
-          Person = new Person {Age = 10},
-          Shape = new Shape {Growth = 100, Weight = 50},
+          Person = new Person { Age = 10 },
+          Shape = new Shape { Growth = 100, Weight = 50 },
           Code = 123,
         };
         var entityV2 = new V1.MyEntity {
           Name = "MyName2",
-          Person = new Person {Age = 20},
-          Shape = new Shape {Growth = 200, Weight = 100},
+          Person = new Person { Age = 20 },
+          Shape = new Shape { Growth = 200, Weight = 100 },
           Code = 123,
         };
         tx.Complete();
@@ -170,12 +162,12 @@ namespace Xtensive.Orm.Tests.Upgrade
       using (var domain = BuildUpgradedDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var entityV1 = session.Query.All<V2.MyEntity>().Single(t => t.Name=="OldMyName1");
+        var entityV1 = session.Query.All<V2.MyEntity>().Single(t => t.Name == "OldMyName1");
         Assert.That(entityV1.Person.Age, Is.EqualTo(20));
         Assert.That(entityV1.Shape.Growth, Is.EqualTo(200));
         Assert.That(entityV1.Shape.Weight, Is.EqualTo(100));
 
-        var entityV2 = session.Query.All<V2.MyEntity>().Single(t => t.Name=="OldMyName2");
+        var entityV2 = session.Query.All<V2.MyEntity>().Single(t => t.Name == "OldMyName2");
         Assert.That(entityV2.Person.Age, Is.EqualTo(40));
         Assert.That(entityV2.Shape.Growth, Is.EqualTo(400));
         Assert.That(entityV2.Shape.Weight, Is.EqualTo(200));
@@ -183,15 +175,51 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    private Domain BuildInitialDomain()
+    [Test]
+    public async Task MainAsyncTest()
     {
-      return BuildDomain(DomainUpgradeMode.Recreate, typeof (V1.MyEntity));
+      using (var domain = BuildInitialDomain())
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var entityV1 = new V1.MyEntity {
+          Name = "MyName1",
+          Person = new Person { Age = 10 },
+          Shape = new Shape { Growth = 100, Weight = 50 },
+          Code = 123,
+        };
+        var entityV2 = new V1.MyEntity {
+          Name = "MyName2",
+          Person = new Person { Age = 20 },
+          Shape = new Shape { Growth = 200, Weight = 100 },
+          Code = 123,
+        };
+        tx.Complete();
+      }
+
+      using (var domain = await BuildUpgradedDomainAsync())
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var entityV1 = session.Query.All<V2.MyEntity>().Single(t => t.Name == "OldMyName1");
+        Assert.That(entityV1.Person.Age, Is.EqualTo(20));
+        Assert.That(entityV1.Shape.Growth, Is.EqualTo(200));
+        Assert.That(entityV1.Shape.Weight, Is.EqualTo(100));
+
+        var entityV2 = session.Query.All<V2.MyEntity>().Single(t => t.Name == "OldMyName2");
+        Assert.That(entityV2.Person.Age, Is.EqualTo(40));
+        Assert.That(entityV2.Shape.Growth, Is.EqualTo(400));
+        Assert.That(entityV2.Shape.Weight, Is.EqualTo(200));
+        tx.Complete();
+      }
     }
 
-    private Domain BuildUpgradedDomain()
-    {
-      return BuildDomain(DomainUpgradeMode.PerformSafely, typeof (V2.MyEntity));
-    }
+    private Domain BuildInitialDomain() =>
+      BuildDomain(DomainUpgradeMode.Recreate, typeof(V1.MyEntity));
+
+    private Domain BuildUpgradedDomain() =>
+      BuildDomain(DomainUpgradeMode.PerformSafely, typeof(V2.MyEntity));
+
+    private Task<Domain> BuildUpgradedDomainAsync() =>
+      BuildDomainAsync(DomainUpgradeMode.PerformSafely, typeof(V2.MyEntity));
 
     private Domain BuildDomain(DomainUpgradeMode upgradeMode, Type sampleType)
     {
@@ -199,6 +227,14 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
       return Domain.Build(configuration);
+    }
+
+    private Task<Domain> BuildDomainAsync(DomainUpgradeMode upgradeMode, Type sampleType)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = upgradeMode;
+      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      return Domain.BuildAsync(configuration);
     }
   }
 }

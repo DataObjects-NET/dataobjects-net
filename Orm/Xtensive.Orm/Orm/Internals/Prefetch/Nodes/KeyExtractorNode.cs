@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2011.01.13
 
@@ -13,16 +13,16 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal class KeyExtractorNode<T> : Node, IHasNestedNodes
   {
-    public Func<T, IEnumerable<Key>> KeyExtractor { get; private set; }
+    public Func<T, IReadOnlyCollection<Key>> KeyExtractor { get; }
 
-    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; private set; }
+    public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; }
 
-    IEnumerable<Key> IHasNestedNodes.ExtractKeys(object target)
+    IReadOnlyCollection<Key> IHasNestedNodes.ExtractKeys(object target)
     {
       return ExtractKeys((T) target);
     }
 
-    public IEnumerable<Key> ExtractKeys(T target)
+    public IReadOnlyCollection<Key> ExtractKeys(T target)
     {
       return KeyExtractor.Invoke(target);
     }
@@ -42,11 +42,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       return string.Format("KeyExtraction<{0}>", typeof (T).Name);
     }
 
-    public KeyExtractorNode(Func<T, IEnumerable<Key>> extractor, ReadOnlyCollection<BaseFieldNode> nestedNodes)
+    public KeyExtractorNode(Func<T, IReadOnlyCollection<Key>> extractor, ReadOnlyCollection<BaseFieldNode> nestedNodes)
       : base("*")
     {
-      ArgumentValidator.EnsureArgumentNotNull(extractor, "extractor");
-      ArgumentValidator.EnsureArgumentNotNull(nestedNodes, "nestedNodes");
+      ArgumentValidator.EnsureArgumentNotNull(extractor, nameof(extractor));
+      ArgumentValidator.EnsureArgumentNotNull(nestedNodes, nameof(nestedNodes));
 
       KeyExtractor = extractor;
       NestedNodes = nestedNodes;

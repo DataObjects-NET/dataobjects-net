@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.10.01
 
@@ -13,6 +13,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -51,36 +52,37 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private readonly Func<IEnumerable<TItem>> enumerableFunc;
+    private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
     private Func<TItem, Tuple> converter;
     private readonly Expression sourceExpression;
     private readonly Type entityTypestoredInKey;
     private readonly bool isKeyConverter;
 
-    public override Expression<Func<IEnumerable<Tuple>>> GetEnumerable()
+    public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method);
-      MethodInfo selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), typeof (Tuple));
+      var paramContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, paramContext);
+      var selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), WellKnownOrmTypes.Tuple);
       var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
-      return FastExpression.Lambda<Func<IEnumerable<Tuple>>>(select);
+      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, paramContext);
     }
 
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private bool IsPersistableType(Type type)
     {
-      if (type==typeof (Entity)
-        || type.IsSubclassOf(typeof (Entity))
-          || type==typeof (Structure)
-            || type.IsSubclassOf(typeof (Structure))
+      if (type==WellKnownOrmTypes.Entity
+        || type.IsSubclassOf(WellKnownOrmTypes.Entity)
+          || type==WellKnownOrmTypes.Structure
+            || type.IsSubclassOf(WellKnownOrmTypes.Structure)
         ) {
         if (!model.Types.Contains(type))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
       }
-      if (type.IsOfGenericType(typeof (Ref<>))) {
-        var entityType = type.GetGenericType(typeof (Ref<>)).GetGenericArguments()[0];
+      if (type.IsOfGenericType(RefOfTType)) {
+        var entityType = type.GetGenericType(RefOfTType).GetGenericArguments()[0];
         if (!model.Types.Contains(entityType))
           throw new InvalidOperationException(String.Format(Strings.ExTypeNotFoundInModel, type.FullName));
         return true;
@@ -91,16 +93,16 @@ namespace Xtensive.Orm.Linq
     private static bool TypeIsStorageMappable(Type type)
     {
       // TODO: AG: Take info from storage!
+      type = type.StripNullable();
       return type.IsPrimitive || 
         type.IsEnum ||
-        type==typeof (byte[]) || 
-        type==typeof (decimal) || 
-        type==typeof (string) || 
-        type==typeof (DateTime) ||
-        type==typeof (DateTimeOffset) ||
-        type==typeof(Guid) || 
-        type==typeof (TimeSpan) || 
-        (type.IsNullable() && TypeIsStorageMappable(type.GetGenericArguments()[0]));
+        type==WellKnownTypes.ByteArray ||
+        type==WellKnownTypes.Decimal ||
+        type==WellKnownTypes.String ||
+        type==WellKnownTypes.DateTime ||
+        type==WellKnownTypes.DateTimeOffset ||
+        type==WellKnownTypes.Guid ||
+        type==WellKnownTypes.TimeSpan;
     }
 
 
@@ -151,8 +153,8 @@ namespace Xtensive.Orm.Linq
 
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types)
     {
-      if (type.IsAssignableFrom(typeof (Key)))
-        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, typeof (Ref<>).GetShortName()));
+      if (type.IsAssignableFrom(WellKnownOrmTypes.Key))
+        throw new InvalidOperationException(String.Format(Strings.ExUnableToStoreUntypedKeyToStorage, RefOfTType.GetShortName()));
       if (!processedTypes.Add(type))
         throw new InvalidOperationException(String.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
@@ -198,7 +200,7 @@ namespace Xtensive.Orm.Linq
 //        return Expression.Convert(entityExpression, type);
 //      }
 
-      if (type.IsSubclassOf(typeof (Entity))) {
+      if (type.IsSubclassOf(WellKnownOrmTypes.Entity)) {
         TypeInfo typeInfo = model.Types[type];
         KeyInfo keyInfo = typeInfo.Key;
         TupleDescriptor keyTupleDescriptor = keyInfo.TupleDescriptor;
@@ -215,7 +217,7 @@ namespace Xtensive.Orm.Linq
         return expression;
       }
 
-      if (type.IsSubclassOf(typeof (Structure))) {
+      if (type.IsSubclassOf(WellKnownOrmTypes.Structure)) {
         TypeInfo typeInfo = model.Types[type];
         TupleDescriptor tupleDescriptor = typeInfo.TupleDescriptor;
         var tupleSegment = new Segment<int>(index, tupleDescriptor.Count);
@@ -261,13 +263,13 @@ namespace Xtensive.Orm.Linq
       };
     }
 
-    public ItemToTupleConverter(Func<IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression, Type storedEntityType)
+    public ItemToTupleConverter(Func<ParameterContext, IEnumerable<TItem>> enumerableFunc, DomainModel model, Expression sourceExpression, Type storedEntityType)
     {
       this.model = model;
       this.enumerableFunc = enumerableFunc;
       this.sourceExpression = sourceExpression;
       this.entityTypestoredInKey = storedEntityType;
-      isKeyConverter = typeof (TItem).IsAssignableFrom(typeof (Key));
+      isKeyConverter = typeof (TItem).IsAssignableFrom(WellKnownOrmTypes.Key);
       BuildConverter();
     }
   }

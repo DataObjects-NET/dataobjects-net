@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Tests.Upgrade.Model.Version3
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("OrderId: {0}; OrderDate: {1}.", Id, OrderDate);
+      return $"OrderId: {Id}; OrderDate: {OrderDate}.";
     }
   }
 }

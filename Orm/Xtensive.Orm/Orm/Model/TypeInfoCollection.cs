@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.27
 
@@ -21,7 +21,6 @@ namespace Xtensive.Orm.Model
     : NodeCollection<TypeInfo>,
       IFilterable<TypeAttributes, TypeInfo>
   {
-    private readonly Type baseType = typeof (object);
     private readonly Dictionary<Type, TypeInfo> typeTable = new Dictionary<Type, TypeInfo>();
     private readonly Dictionary<string, TypeInfo> fullNameTable = new Dictionary<string, TypeInfo>();
     private readonly Dictionary<TypeInfo, TypeInfo> ancestorTable = new Dictionary<TypeInfo, TypeInfo>();
@@ -337,7 +336,7 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private TypeInfo FindAncestor(Type type)
     {
-      if (type == baseType || type.BaseType == null)
+      if (type == WellKnownTypes.Object || type.BaseType == null)
         return null;
       return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
     }

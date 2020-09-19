@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.03.02
 
@@ -69,13 +69,13 @@ namespace Xtensive.Orm.Services
 
     private CommandPart GetCommandPart<T>(IQueryable<T> query)
     {
-      var translatedQuery = Session.Query.Provider.Translate<IEnumerable<T>>(query.Expression);
+      var translatedQuery = Session.Query.Provider.Translate(query.Expression);
       var sqlProvider = translatedQuery.DataSource as SqlProvider;
 
       if (sqlProvider==null)
         return null;
 
-      return commandFactory.CreateQueryPart(sqlProvider.Request);
+      return commandFactory.CreateQueryPart(sqlProvider.Request, null);
     }
 
 

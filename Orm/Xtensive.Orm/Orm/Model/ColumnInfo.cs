@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.07.06
 
@@ -8,6 +8,7 @@ using System;
 using System.Diagnostics;
 using System.Globalization;
 using Xtensive.Core;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Model
 {
@@ -294,9 +295,7 @@ namespace Xtensive.Orm.Model
       IsLazyLoad = field.IsLazyLoad;
       valueType = field.ValueType;
       if (valueType.IsGenericType) {
-        var genericType = valueType.GetGenericTypeDefinition();
-        if (genericType == typeof(Nullable<>))
-          valueType = Nullable.GetUnderlyingType(valueType);
+        valueType = valueType.StripNullable();
       }
       if (field.IsEnum) {
         valueType = Enum.GetUnderlyingType(valueType);

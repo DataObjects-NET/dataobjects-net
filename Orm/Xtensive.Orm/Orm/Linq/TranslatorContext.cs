@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
@@ -8,13 +8,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.MemberCompilation;
 using Xtensive.Orm.Linq.Rewriters;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
-using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -29,27 +29,27 @@ namespace Xtensive.Orm.Linq
     private readonly Dictionary<CompilableProvider, ApplyParameter> applyParameters;
     private readonly Dictionary<ParameterExpression, ItemProjectorExpression> boundItemProjectors;
 
-    public CompilerConfiguration RseCompilerConfiguration { get; private set; }
+    public CompilerConfiguration RseCompilerConfiguration { get; }
 
-    public ProviderInfo ProviderInfo { get; private set; }
+    public ProviderInfo ProviderInfo { get; }
 
-    public Expression Query { get; private set; }
+    public Expression Query { get; }
 
-    public Domain Domain { get; private set; }
+    public Domain Domain { get; }
 
-    public DomainModel Model { get; private set; }
+    public DomainModel Model { get; }
 
-    public TypeIdRegistry TypeIdRegistry { get; private set; }
+    public TypeIdRegistry TypeIdRegistry { get; }
 
-    public IMemberCompilerProvider<Expression> CustomCompilerProvider { get; private set; }
+    public IMemberCompilerProvider<Expression> CustomCompilerProvider { get; }
 
-    public Translator Translator { get; private set; }
+    public Translator Translator { get; }
 
-    public ExpressionEvaluator Evaluator { get; private set; }
+    public ExpressionEvaluator Evaluator { get; }
 
-    public ParameterExtractor ParameterExtractor { get; private set; }
+    public ParameterExtractor ParameterExtractor { get; }
 
-    public LinqBindingCollection Bindings { get; private set; }
+    public LinqBindingCollection Bindings { get; }
 
     public bool IsRoot(Expression expression)
     {
@@ -122,11 +122,12 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query)
+    public TranslatorContext(Session session, CompilerConfiguration rseCompilerConfiguration, Expression query,
+      CompiledQueryProcessingScope compiledQueryScope)
     {
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
-      ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, "rseCompilerConfiguration");
-      ArgumentValidator.EnsureArgumentNotNull(query, "query");
+      ArgumentValidator.EnsureArgumentNotNull(session, nameof(session));
+      ArgumentValidator.EnsureArgumentNotNull(rseCompilerConfiguration, nameof(rseCompilerConfiguration));
+      ArgumentValidator.EnsureArgumentNotNull(query, nameof(query));
 
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;
@@ -137,7 +138,7 @@ namespace Xtensive.Orm.Linq
 
       // Built-in preprocessors
       query = AggregateOptimizer.Rewrite(query);
-      query = ClosureAccessRewriter.Rewrite(query);
+      query = ClosureAccessRewriter.Rewrite(query, compiledQueryScope);
       query = EqualityRewriter.Rewrite(query);
       query = EntitySetAccessRewriter.Rewrite(query);
       query = SubqueryDefaultResultRewriter.Rewrite(query);
@@ -151,7 +152,7 @@ namespace Xtensive.Orm.Linq
       Model = Domain.Model;
       TypeIdRegistry = session.StorageNode.TypeIdRegistry;
       ProviderInfo = Domain.Handlers.ProviderInfo;
-      Translator = new Translator(this);
+      Translator = new Translator(this, compiledQueryScope);
       ParameterExtractor = new ParameterExtractor(Evaluator);
       Bindings = new LinqBindingCollection();
       applyParameters = new Dictionary<CompilableProvider, ApplyParameter>();

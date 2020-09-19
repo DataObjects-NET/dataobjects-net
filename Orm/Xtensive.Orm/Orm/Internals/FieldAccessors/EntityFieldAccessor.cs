@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.05.26
 
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
 
       if (!ReferenceEquals(value, null) && entity==null)
         throw new InvalidOperationException(string.Format(
-          Strings.ExValueShouldBeXDescendant, typeof (Entity)));
+          Strings.ExValueShouldBeXDescendant, WellKnownOrmTypes.Entity));
 
       if (entity!=null && entity.Session!=obj.Session)
         throw new InvalidOperationException(string.Format(

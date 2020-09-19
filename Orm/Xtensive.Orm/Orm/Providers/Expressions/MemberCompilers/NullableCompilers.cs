@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.02.20
 
@@ -17,13 +17,13 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof (SqlExpression))]
   internal static class NullableCompilers
   {
-    [Compiler(typeof (Nullable<>), "Value", TargetKind.PropertyGet)]
+    [Compiler(typeof(Nullable<>), "Value", TargetKind.PropertyGet)]
     public static SqlExpression NullableValue(MemberInfo memberInfo, SqlExpression _this)
     {
       return _this;
     }
 
-    [Compiler(typeof (Nullable<>), "HasValue", TargetKind.PropertyGet)]
+    [Compiler(typeof(Nullable<>), "HasValue", TargetKind.PropertyGet)]
     public static SqlExpression NullableHasValue(MemberInfo memberInfo, SqlExpression _this)
     {
       var context = ExpressionTranslationContext.Current;
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
       return SqlDml.IsNotNull(context.BooleanExpressionConverter.BooleanToInt(_this));
     }
 
-    [Compiler(typeof (Nullable<>), "GetValueOrDefault")]
+    [Compiler(typeof(Nullable<>), "GetValueOrDefault")]
     public static SqlExpression NullableGetValueOrDefault(MemberInfo memberInfo, SqlExpression _this)
     {
       var context = ExpressionTranslationContext.Current;
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Providers
         SqlDml.Coalesce(context.BooleanExpressionConverter.BooleanToInt(_this), defaultValue));
     }
 
-    [Compiler(typeof (Nullable<>), "GetValueOrDefault")]
+    [Compiler(typeof(Nullable<>), "GetValueOrDefault")]
     public static SqlExpression NullableGetValueOrDefault(MemberInfo memberInfo, SqlExpression _this, SqlExpression _default)
     {
       var context = ExpressionTranslationContext.Current;
@@ -66,7 +66,8 @@ namespace Xtensive.Orm.Providers
 
     private static bool IsBooleanSpecialCase(ExpressionTranslationContext context, MemberInfo member)
     {
-      return member.DeclaringType==typeof (bool?) && !context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
+      return member.DeclaringType==WellKnownTypes.NullableBool
+        && !context.ProviderInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions);
     }
   }
 }

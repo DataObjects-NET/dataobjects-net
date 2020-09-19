@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.28
 
@@ -11,145 +11,90 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
+using Xtensive.Reflection;
 using Xtensive.Tuples;
 using Xtensive.Tuples.Transform;
+using EnumerationContext = Xtensive.Orm.Providers.EnumerationContext;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
   internal static class MaterializationHelper
   {
-    public readonly static int BatchFastFirstCount = 2;
-    public readonly static int BatchMinSize = 16;
-    public readonly static int BatchMaxSize = 1024;
-
     public static readonly MethodInfo MaterializeMethodInfo;
     public static readonly MethodInfo GetDefaultMethodInfo;
-    public static readonly MethodInfo CompileItemMaterializerMethodInfo;
+    public static readonly MethodInfo CreateItemMaterializerMethodInfo;
+    public static readonly MethodInfo CreateNullableItemMaterializerMethodInfo;
     public static readonly MethodInfo IsNullMethodInfo;
     public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo;
     public static readonly MethodInfo PrefetchEntitySetMethodInfo;
 
-    #region Nested type: BatchActivator
-
-    class BatchActivator
-    {
-      private readonly Queue<Action> materializationQueue;
-      private readonly ParameterContext parameterContext;
-      private ParameterScope scope;
-
-      public void Activate()
-      {
-        scope = parameterContext.Activate();
-      }
-
-      public void Deactivate()
-      {
-        try { 
-          while (materializationQueue.Count > 0){
-            var materializeSelf = materializationQueue.Dequeue();
-            materializeSelf.Invoke();
-          }
-        }
-        finally {
-          scope.DisposeSafely();
-        }
-      }
-
-      public BatchActivator(Queue<Action> materializationQueue, ParameterContext parameterContext)
-      {
-        this.materializationQueue = materializationQueue;
-        this.parameterContext = parameterContext;
-      }
-    }
-
-    #endregion
-
     public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
     {
       var map = new int[targetLength];
-      for (int i = 0; i < map.Length; i++)
+      for (var i = 0; i < map.Length; i++) {
         map[i] = MapTransform.NoMapping;
+      }
 
-      for (int i = 0; i < remappedColumns.Length; i++) {
+      for (var i = 0; i < remappedColumns.Length; i++) {
         var targetIndex = remappedColumns[i].First;
         var sourceIndex = remappedColumns[i].Second;
         map[targetIndex] = sourceIndex;
       }
+
       return map;
     }
 
-// ReSharper disable UnusedMember.Global
+    public static T GetDefault<T>() => default;
 
-    public static T GetDefault<T>()
-    {
-      return default(T);
-    }
+    public static bool IsNull(Tuple tuple, int[] columns) =>
+      columns.All(column => tuple.GetFieldState(column).IsNull());
 
-    public static bool IsNull(Tuple tuple, int[] columns)
-    {
-      return columns.Aggregate(true, (current, column) => current & tuple.GetFieldState(column).IsNull());
-    }
-
-    public static object ThrowEmptySequenceException()
-    {
+    public static object ThrowEmptySequenceException() =>
       throw new InvalidOperationException(Strings.ExSequenceContainsNoElements);
-    }
 
     /// <summary>
-    /// Materializes the specified data source.
+    /// Wraps <see cref="RecordSetReader"/> by adding <see cref="Tuple"/> to <typeparamref name="TResult"/>
+    /// conversion for individual records.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="dataSource">The data source.</param>
+    /// <param name="recordSetReader">The reader over raw data source.</param>
     /// <param name="context">The context.</param>
     /// <param name="parameterContext">The parameter context.</param>
-    /// <param name="itemMaterializer">The item materializer.</param>
-    /// <param name="tupleParameterBindings">The tuple parameter bindings.</param>
-    public static IEnumerable<TResult> Materialize<TResult>(IEnumerable<Tuple> dataSource, MaterializationContext context, ParameterContext parameterContext, Func<Tuple, ItemMaterializationContext, TResult> itemMaterializer, Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+    /// <param name="itemMaterializer">The materialization delegate performing
+    /// <see cref="Tuple"/> instance to instance of <typeparamref name="TResult"/> type conversion.</param>
+    public static object Materialize<TResult>(
+      RecordSetReader recordSetReader,
+      MaterializationContext context,
+      ParameterContext parameterContext,
+      IItemMaterializer<TResult> itemMaterializer)
     {
-      using (parameterContext.Activate())
-        foreach (var tupleParameterBinding in tupleParameterBindings)
-          tupleParameterBinding.Key.Value = tupleParameterBinding.Value;
-      var session = context.Session;
-      var recordSet = dataSource as RecordSet;
-      if (recordSet != null) {
-        var enumerationContext = (EnumerationContext)recordSet.Context;
+      var enumerationContext = (EnumerationContext) recordSetReader.Context;
+      if (enumerationContext!=null) {
         enumerationContext.MaterializationContext = context;
       }
-      var materializedSequence = dataSource
-        .Select(tuple => itemMaterializer.Invoke(tuple, new ItemMaterializationContext(context, session)));
-      return context.MaterializationQueue == null 
-        ? BatchMaterialize(materializedSequence, context, parameterContext) 
-        : SubqueryMaterialize(materializedSequence, parameterContext);
+
+      return new MaterializingReader<TResult>(recordSetReader, context, parameterContext, itemMaterializer);
     }
 
-    private static IEnumerable<TResult> BatchMaterialize<TResult>(IEnumerable<TResult> materializedSequence, MaterializationContext context, ParameterContext parameterContext)
+    public static IItemMaterializer<TResult> CreateItemMaterializer<TResult>(
+      Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda, AggregateType? aggregateType)
     {
-      var materializationQueue = new Queue<Action>();
-      var batchActivator = new BatchActivator(materializationQueue, parameterContext);
-      context.MaterializationQueue = materializationQueue;
-      var batchSequence = materializedSequence
-        .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
-        .ApplyBeforeAndAfter(batchActivator.Activate, batchActivator.Deactivate);
-      return batchSequence.SelectMany(batch => batch);
+      var materializationDelegate = itemMaterializerLambda.CachingCompile();
+      return aggregateType.HasValue
+        ? new AggregateResultMaterializer<TResult>(materializationDelegate, aggregateType.Value)
+        : new ItemMaterializer<TResult>(materializationDelegate);
     }
 
-    private static IEnumerable<TResult> SubqueryMaterialize<TResult>(IEnumerable<TResult> materializedSequence, ParameterContext parameterContext)
+    public static IItemMaterializer<TResult?> CreateNullableItemMaterializer<TResult>(
+      Expression<Func<Tuple, ItemMaterializationContext, TResult?>> itemMaterializerLambda, AggregateType? aggregateType)
+      where TResult : struct
     {
-      ParameterScope scope = null;
-      var batchSequence = materializedSequence
-        .Batch(BatchFastFirstCount, BatchMinSize, BatchMaxSize)
-        .ApplyBeforeAndAfter(
-          () => scope = parameterContext.Activate(),
-          () => scope.DisposeSafely());
-      return batchSequence.SelectMany(batch => batch);
-    }
-
-    public static Func<Tuple, ItemMaterializationContext, TResult> CompileItemMaterializer<TResult>(Expression<Func<Tuple, ItemMaterializationContext, TResult>> itemMaterializerLambda)
-    {
-      return itemMaterializerLambda.CachingCompile();
+      var materializationDelegate = itemMaterializerLambda.CachingCompile();
+      return aggregateType.HasValue
+        ? new NullableAggregateResultMaterializer<TResult>(materializationDelegate, aggregateType.Value)
+        : new ItemMaterializer<TResult?>(materializationDelegate);
     }
 
     public static TEntitySet PrefetechEntitySet<TEntitySet>(TEntitySet entitySet, ItemMaterializationContext context)
@@ -162,25 +107,24 @@ namespace Xtensive.Orm.Linq.Materialization
       return entitySet;
     }
 
-// ReSharper restore UnusedMember.Global
-
-
     // Type initializer
 
     static MaterializationHelper()
     {
       MaterializeMethodInfo = typeof (MaterializationHelper)
-        .GetMethod("Materialize", BindingFlags.Public | BindingFlags.Static);
-      CompileItemMaterializerMethodInfo = typeof (MaterializationHelper)
-        .GetMethod("CompileItemMaterializer", BindingFlags.Public | BindingFlags.Static);
+        .GetMethod(nameof(Materialize), BindingFlags.Public | BindingFlags.Static);
+      CreateItemMaterializerMethodInfo = typeof (MaterializationHelper)
+        .GetMethod(nameof(CreateItemMaterializer), BindingFlags.Public | BindingFlags.Static);
+      CreateNullableItemMaterializerMethodInfo = typeof (MaterializationHelper)
+        .GetMethod(nameof(CreateNullableItemMaterializer), BindingFlags.Public | BindingFlags.Static);
       GetDefaultMethodInfo = typeof(MaterializationHelper)
-        .GetMethod("GetDefault", BindingFlags.Public | BindingFlags.Static);
+        .GetMethod(nameof(GetDefault), BindingFlags.Public | BindingFlags.Static);
       IsNullMethodInfo = typeof(MaterializationHelper)
-        .GetMethod("IsNull", BindingFlags.Public | BindingFlags.Static);
+        .GetMethod(nameof(IsNull), BindingFlags.Public | BindingFlags.Static);
       ThrowEmptySequenceExceptionMethodInfo = typeof(MaterializationHelper)
-        .GetMethod("ThrowEmptySequenceException", BindingFlags.Public | BindingFlags.Static);
+        .GetMethod(nameof(ThrowEmptySequenceException), BindingFlags.Public | BindingFlags.Static);
       PrefetchEntitySetMethodInfo = typeof(MaterializationHelper)
-        .GetMethod("PrefetechEntitySet", BindingFlags.Public | BindingFlags.Static);
+        .GetMethod(nameof(PrefetechEntitySet), BindingFlags.Public | BindingFlags.Static);
     }
   }
 }

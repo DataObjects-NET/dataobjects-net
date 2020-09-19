@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.12.23
 
@@ -159,12 +159,12 @@ namespace Xtensive.Orm.Manual.Intro.CheatSheet
           Assert.AreSame(dmitri, anotherDmitri);
 
           // Querying the storage using compiled future scalar query
-          var delayedDmitry1 = session.Query.ExecuteDelayed(qe => (
+          var delayedDmitry1 = session.Query.CreateDelayedQuery(qe => (
             from user in qe.All<User>()
             where user.Name=="Dmitri"
             select user
             ).FirstOrDefault());
-          var delayedDmitry2 = session.Query.ExecuteDelayed(qe => (
+          var delayedDmitry2 = session.Query.CreateDelayedQuery(qe => (
             from user in qe.All<User>()
             where user.Id==dmitriId
             select user

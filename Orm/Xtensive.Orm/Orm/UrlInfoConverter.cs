@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.08.07
 
 using System.ComponentModel;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm
 {
@@ -16,7 +17,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override bool CanConvertFrom(ITypeDescriptorContext context, System.Type sourceType)
     {
-      return ((sourceType == typeof(string)) || base.CanConvertFrom(context, sourceType));
+      return sourceType == WellKnownTypes.String || base.CanConvertFrom(context, sourceType);
     }
 
     /// <inheritdoc/>
@@ -31,7 +32,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override object ConvertTo(ITypeDescriptorContext context, System.Globalization.CultureInfo culture, object value, System.Type destinationType)
     {
-      if (destinationType == typeof(string)) {
+      if (destinationType == WellKnownTypes.String) {
         return ((UrlInfo) value).Url;
       }
       return base.ConvertTo(context, culture, value, destinationType);

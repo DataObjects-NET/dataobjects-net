@@ -1,24 +1,23 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.05.26
 
 using System;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Internals.FieldAccessors
 {
   internal class DefaultFieldAccessor<T> : FieldAccessor<T>
   {
-    private static readonly bool isValueType = (typeof (T).IsValueType);
-    private static readonly bool isObject = (typeof (T)==typeof (object));
-    private static readonly bool isString = (typeof (T)==typeof (string));
-    private static readonly bool isByteArray = (typeof (T)==typeof (byte[]));
+    private static readonly bool isValueType = typeof(T).IsValueType;
+    private static readonly bool isString = typeof(T) == WellKnownTypes.String;
 
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)
     {
-      if (isValueType || isString)
+      if (isValueType || isString) {
         // The method of Equals(object, object) wrapped with in a block 'try catch', 
         // because that for data types NpgsqlPath and NpgsqlPolygon which are defined without an initial value it works incorrectly.
         try {
@@ -27,13 +26,15 @@ namespace Xtensive.Orm.Internals.FieldAccessors
         catch (Exception) {
           return false;
         }
+      }
+
       return false;
     }
 
     /// <inheritdoc/>
     public override T GetValue(Persistent obj)
     {
-      int fieldIndex = Field.MappingInfo.Offset;
+      var fieldIndex = Field.MappingInfo.Offset;
       var tuple = obj.Tuple;
       var value = tuple.GetValueOrDefault<T>(fieldIndex);
       return value;
@@ -41,9 +42,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Invalid arguments.</exception>
-    public override void SetValue(Persistent obj, T value)
-    {
+    public override void SetValue(Persistent obj, T value) =>
       obj.Tuple.SetValue(Field.MappingInfo.Offset, value);
-    }
   }
 }

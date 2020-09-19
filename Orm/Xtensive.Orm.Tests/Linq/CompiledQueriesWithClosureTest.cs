@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.12.16
 
@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var zone = TimeZoneInfo.Local;
-        var query = session.Query.ExecuteDelayed(
+        var query = session.Query.CreateDelayedQuery(
           q => q.All<TestEntity>().Select(e => e.Value.GetUserTime(zone)));
         var result = query.ToList();
         tx.Complete();

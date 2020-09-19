@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.10.15
 
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Issues
           Text = "Entity 2"
       }; // Nothing is sent to server yet
 
-      var futureCount = Session.Demand().Query.ExecuteDelayed(qe => qe.All<MyEntity>().Count());
+      var futureCount = Session.Demand().Query.CreateDelayedQuery(qe => qe.All<MyEntity>().Count());
 
       foreach (var e in Session.Demand().Query.All<MyEntity>()) // Batch is sent
         Console.WriteLine("Entity.Text: {0}", e.Text); 

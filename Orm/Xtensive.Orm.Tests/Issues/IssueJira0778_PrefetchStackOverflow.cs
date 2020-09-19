@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.10.24
 
@@ -244,13 +244,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var contactCount = session.Query.ExecuteDelayed(q => q.All<Contact>().Count());
-        var employeeCount = session.Query.ExecuteDelayed(q => q.All<Employee>().Count());
-        var recipientCount = session.Query.ExecuteDelayed(q => q.All<Recipient>().Count());
-        var boss = session.Query.ExecuteDelayed(q => q.All<Employee>().FirstOrDefault(emp => emp.FirstName == "The" && emp.LastName == "Boss"));
-        var As = session.Query.ExecuteDelayed(q => q.All<AAAA>().Count());
-        var Bs = session.Query.ExecuteDelayed(q => q.All<BBBB>().Count());
-        var Cs = session.Query.ExecuteDelayed(q => q.All<CCCC>().Count());
+        var contactCount = session.Query.CreateDelayedQuery(q => q.All<Contact>().Count());
+        var employeeCount = session.Query.CreateDelayedQuery(q => q.All<Employee>().Count());
+        var recipientCount = session.Query.CreateDelayedQuery(q => q.All<Recipient>().Count());
+        var boss = session.Query.CreateDelayedQuery(q => q.All<Employee>().FirstOrDefault(emp => emp.FirstName == "The" && emp.LastName == "Boss"));
+        var As = session.Query.CreateDelayedQuery(q => q.All<AAAA>().Count());
+        var Bs = session.Query.CreateDelayedQuery(q => q.All<BBBB>().Count());
+        var Cs = session.Query.CreateDelayedQuery(q => q.All<CCCC>().Count());
 
         var isValid = recipientCount.Value==CustomerCount &&
           employeeCount.Value== 45 &&

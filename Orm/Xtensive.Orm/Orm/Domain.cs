@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
@@ -34,11 +34,11 @@ namespace Xtensive.Orm
   /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-  public sealed class Domain : IDisposable, IHasExtensions
+  public sealed class Domain : IDisposable, IAsyncDisposable, IHasExtensions
   {
     private readonly object disposeGuard = new object();
     private readonly object singleConnectionGuard = new object();
-    
+
     private bool isDisposed;
     private Session singleConnectionOwner;
 
@@ -107,7 +107,7 @@ namespace Xtensive.Orm
 
     #region Private / internal members
 
-    internal RecordSetReader RecordSetReader { get; private set; }
+    internal EntityDataReader EntityDataReader { get; private set; }
 
     internal Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
 
@@ -372,12 +372,22 @@ namespace Xtensive.Orm
     /// <seealso cref="Session"/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
     {
-      return OpenSessionInternalAsync(configuration, configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
+      SessionScope sessionScope = null;
+      try {
+        if (configuration.Supports(SessionOptions.AutoActivation)) {
+          sessionScope = new SessionScope();
+        }
+        return OpenSessionInternalAsync(configuration, sessionScope, cancellationToken);
+      }
+      catch {
+        sessionScope?.Dispose();
+        throw;
+      }
     }
 
-    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, bool activate, CancellationToken cancellationToken)
+    private async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, SessionScope sessionScope, CancellationToken cancellationToken)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
@@ -402,13 +412,16 @@ namespace Xtensive.Orm
         // connection become opened.
         session = new Session(this, configuration, false);
         try {
-          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith((t) => {
-            if (activate)
-              session.ActivateInternally();
-          }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously).ConfigureAwait(false);
+          await ((SqlSessionHandler) session.Handler).OpenConnectionAsync(cancellationToken)
+            .ContinueWith(t => {
+              if (sessionScope != null) {
+                session.AttachToScope(sessionScope);
+              }
+            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
+            .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
-          session.DisposeSafely();
+          await session.DisposeSafelyAsync().ConfigureAwait(false);
           throw;
         }
       }
@@ -430,10 +443,16 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="configuration">The configuration of domain to build.</param>
     /// <returns>Newly built <see cref="Domain"/>.</returns>
-    public static Domain Build(DomainConfiguration configuration)
-    {
-      return UpgradingDomainBuilder.Build(configuration);
-    }
+    public static Domain Build(DomainConfiguration configuration) => UpgradingDomainBuilder.Build(configuration);
+
+    /// <summary>
+    /// Asynchronously builds the new <see cref="Domain"/> according to the specified <see cref="DomainConfiguration"/>.
+    /// </summary>
+    /// <param name="configuration">The configuration of domain to build.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>Newly built <see cref="Domain"/>.</returns>
+    public static Task<Domain> BuildAsync(DomainConfiguration configuration, CancellationToken token = default) =>
+      UpgradingDomainBuilder.BuildAsync(configuration, token);
 
 
     // Constructors
@@ -443,7 +462,7 @@ namespace Xtensive.Orm
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
-      RecordSetReader = new RecordSetReader(this);
+      EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
@@ -457,11 +476,17 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public void Dispose()
+    public void Dispose() => InnerDispose(false).GetAwaiter().GetResult();
+
+    public ValueTask DisposeAsync() => InnerDispose(true);
+
+    public ValueTask InnerDispose(bool isAsync)
     {
       lock (disposeGuard) {
-        if (isDisposed)
-          return;
+        if (isDisposed) {
+          return default;
+        }
+
         isDisposed = true;
 
         if (isDebugEventLoggingEnabled) {
@@ -471,20 +496,25 @@ namespace Xtensive.Orm
         NotifyDisposing();
         Services.Dispose();
 
-        if (SingleConnection==null)
-          return;
+        if (SingleConnection==null) {
+          return default;
+        }
 
+        // TODO: implement async dispose of the SingleConnection
         lock (singleConnectionGuard) {
           if (singleConnectionOwner==null) {
             var driver = Handlers.StorageDriver;
             driver.CloseConnection(null, SingleConnection);
             driver.DisposeConnection(null, SingleConnection);
           }
-          else
+          else {
             OrmLog.Warning(
               Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
               singleConnectionOwner);
+          }
         }
+
+        return default;
       }
     }
   }

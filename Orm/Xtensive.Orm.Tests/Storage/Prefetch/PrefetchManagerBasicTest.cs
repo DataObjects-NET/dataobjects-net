@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.09.07
 
@@ -370,12 +370,13 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
+        var parameterContext = new ParameterContext();
         var orderPrimaryIndex = OrderType.Indexes.PrimaryIndex;
         var selectedColumns = orderPrimaryIndex.ColumnIndexMap.System
           .Concat(EmployeeField.Columns.Select(column => orderPrimaryIndex.Columns.IndexOf(column))).ToArray();
         var orderQuery = OrderType.Indexes.PrimaryIndex.GetQuery()
           .Filter(t => t.GetValue<int>(0)==orderKey.Value.GetValue<int>(0)).Select(selectedColumns);
-        orderQuery.GetRecordSet(session).ToEntities(0).Single();
+        orderQuery.GetRecordSetReader(session, parameterContext).ToEntities(0).Single();
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));

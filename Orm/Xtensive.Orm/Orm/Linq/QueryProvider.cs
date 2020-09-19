@@ -1,14 +1,14 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.11.26
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -23,123 +23,157 @@ namespace Xtensive.Orm.Linq
   /// </summary>
   public sealed class QueryProvider : IQueryProvider
   {
-    private readonly Session session;
-
     /// <summary>
     /// Gets <see cref="Session"/> this provider is attached to.
     /// </summary>
-    public Session Session { get { return session; } }
-    
+    public Session Session { get; }
+
     /// <inheritdoc/>
     IQueryable IQueryProvider.CreateQuery(Expression expression)
     {
-      Type elementType = SequenceHelper.GetElementType(expression.Type);
+      var elementType = SequenceHelper.GetElementType(expression.Type);
       try {
-        var query = (IQueryable) typeof (Queryable<>).Activate(new[] {elementType}, new object[] {this, expression});
+        var query = (IQueryable) WellKnownTypes.QueryableOfT.Activate(new[] {elementType}, this, expression);
         return query;
       }
       catch (TargetInvocationException e) {
-        throw e.InnerException;
+        if (e.InnerException != null) {
+          ExceptionDispatchInfo.Throw(e.InnerException);
+        }
+
+        throw;
       }
     }
 
     /// <inheritdoc/>
-    public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
-    {
-      return new Queryable<TElement>(this, expression);
-    }
+    public IQueryable<TElement> CreateQuery<TElement>(Expression expression) =>
+      new Queryable<TElement>(this, expression);
 
     /// <inheritdoc/>
     object IQueryProvider.Execute(Expression expression)
     {
-      var resultType = expression.Type.IsOfGenericInterface(typeof (IEnumerable<>))
-        ? typeof (IEnumerable<>).MakeGenericType(expression.Type.GetGenericArguments())
-        : expression.Type;
+      var resultType = expression.Type;
+      var executeMethod = resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
+        ? WellKnownMembers.QueryProvider.ExecuteSequence.MakeGenericMethod(SequenceHelper.GetElementType(resultType))
+        : WellKnownMembers.QueryProvider.ExecuteScalar.MakeGenericMethod(resultType);
       try {
-        var executeMethod = WellKnownMembers.QueryProvider.Execute.MakeGenericMethod(resultType);
-        var result = executeMethod.Invoke(this, new[] {expression});
-        return result;
+        return executeMethod.Invoke(this, new object[] {expression});
       }
-      catch(TargetInvocationException te) {
-        throw te.InnerException;
+      catch (TargetInvocationException e) {
+        if (e.InnerException != null) {
+          ExceptionDispatchInfo.Throw(e.InnerException);
+        }
+
+        throw;
       }
     }
 
     /// <inheritdoc/>
-    public TResult Execute<TResult>(Expression expression)
+    public TResult Execute<TResult>(Expression expression) => ExecuteScalar<TResult>(expression);
+
+    internal TResult ExecuteScalar<TResult>(Expression expression)
     {
-      expression = session.Events.NotifyQueryExecuting(expression);
-      var query = Translate<TResult>(expression);
-      var cachingScope = QueryCachingScope.Current;
+      static TResult ExecuteScalarQuery(TranslatedQuery query, Session session, ParameterContext parameterContext) =>
+        query.ExecuteScalar<TResult>(session, parameterContext);
+
+      return Execute(expression, ExecuteScalarQuery);
+    }
+
+    internal QueryResult<T> ExecuteSequence<T>(Expression expression)
+    {
+      static QueryResult<T> ExecuteSequenceQuery(
+        TranslatedQuery query, Session session, ParameterContext parameterContext)
+      {
+        return query.ExecuteSequence<T>(session, parameterContext);
+      }
+
+      return Execute(expression, ExecuteSequenceQuery);
+    }
+
+    private TResult Execute<TResult>(Expression expression,
+      Func<TranslatedQuery, Session, ParameterContext, TResult> runQuery)
+    {
+      expression = Session.Events.NotifyQueryExecuting(expression);
+      var query = Translate(expression);
       TResult result;
-      if (cachingScope != null && !cachingScope.Execute)
-        result = default(TResult);
+      var compiledQueryScope = CompiledQueryProcessingScope.Current;
+      if (compiledQueryScope != null && !compiledQueryScope.Execute) {
+        result = default;
+      }
       else {
         try {
-          result = query.Execute(session, new ParameterContext());
+          result = runQuery(query, Session, compiledQueryScope?.ParameterContext ?? new ParameterContext());
         }
         catch (Exception exception) {
-          session.Events.NotifyQueryExecuted(expression, exception);
+          Session.Events.NotifyQueryExecuted(expression, exception);
           throw;
         }
       }
-      session.Events.NotifyQueryExecuted(expression);
+      Session.Events.NotifyQueryExecuted(expression);
       return result;
     }
 
-    public Task<TResult> ExecuteAsync<TResult>(Expression expression)
+    internal Task<TResult> ExecuteScalarAsync<TResult>(Expression expression, CancellationToken token)
     {
-      return ExecuteAsync<TResult>(expression, CancellationToken.None);
-    }
-
-    public async Task<TResult> ExecuteAsync<TResult>(Expression expression, CancellationToken token)
-    {
-      expression = session.Events.NotifyQueryExecuting(expression);
-      var query = Translate<TResult>(expression);
-      var cachingScope = QueryCachingScope.Current;
-      TResult result;
-      if (cachingScope != null && !cachingScope.Execute)
-        result = default(TResult);
-      else {
-        try {
-          result = await query.ExecuteAsync(session, new ParameterContext(), token).ConfigureAwait(false);
-        }
-        catch (Exception exception) {
-          session.Events.NotifyQueryExecuted(expression, exception);
-          throw;
-        }
+      static Task<TResult> ExecuteScalarQueryAsync(
+        TranslatedQuery query, Session session, ParameterContext parameterContext, CancellationToken token)
+      {
+        return query.ExecuteScalarAsync<TResult>(session, parameterContext, token);
       }
-      session.Events.NotifyQueryExecuted(expression);
+      return ExecuteAsync(expression, ExecuteScalarQueryAsync, token);
+    }
+
+    internal Task<QueryResult<T>> ExecuteSequenceAsync<T>(Expression expression, CancellationToken token)
+    {
+      static Task<QueryResult<T>> ExecuteSequenceQueryAsync(
+        TranslatedQuery query, Session session, ParameterContext parameterContext, CancellationToken token)
+      {
+        return query.ExecuteSequenceAsync<T>(session, parameterContext, token);
+      }
+      return ExecuteAsync(expression, ExecuteSequenceQueryAsync, token);
+    }
+
+    private async Task<TResult> ExecuteAsync<TResult>(Expression expression,
+      Func<TranslatedQuery, Session, ParameterContext, CancellationToken, Task<TResult>> runQuery, CancellationToken token)
+    {
+      expression = Session.Events.NotifyQueryExecuting(expression);
+      var query = Translate(expression);
+      TResult result;
+      try {
+        result = await runQuery(query, Session, new ParameterContext(), token).ConfigureAwait(false);
+      }
+      catch (Exception exception) {
+        Session.Events.NotifyQueryExecuted(expression, exception);
+        throw;
+      }
+
+      Session.Events.NotifyQueryExecuted(expression);
       return result;
     }
 
-    #region Private / internal methods
+    internal TranslatedQuery Translate(Expression expression) =>
+      Translate(expression, Session.CompilationService.CreateConfiguration(Session));
 
-    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression)
-    {
-      return Translate<TResult>(expression, session.CompilationService.CreateConfiguration(session));
-    }
-
-    internal TranslatedQuery<TResult> Translate<TResult>(Expression expression, CompilerConfiguration compilerConfiguration)
+    internal TranslatedQuery Translate(Expression expression,
+      CompilerConfiguration compilerConfiguration)
     {
       try {
-        var context = new TranslatorContext(session, compilerConfiguration, expression);
-        return context.Translator.Translate<TResult>();
+        var compiledQueryScope = CompiledQueryProcessingScope.Current;
+        var context = new TranslatorContext(Session, compilerConfiguration, expression, compiledQueryScope);
+        return context.Translator.Translate();
       }
       catch (Exception ex) {
-        throw new QueryTranslationException(String.Format(
+        throw new QueryTranslationException(string.Format(
           Strings.ExUnableToTranslateXExpressionSeeInnerExceptionForDetails, expression.ToString(true)), ex);
       }
     }
-
-    #endregion
 
 
     // Constructors
 
     internal QueryProvider(Session session)
     {
-      this.session = session;
+      Session = session;
     }
   }
 }

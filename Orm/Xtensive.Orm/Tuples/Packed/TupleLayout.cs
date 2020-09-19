@@ -1,11 +1,12 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.12.29
 
 using System;
 using System.Runtime.CompilerServices;
+using Xtensive.Reflection;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -33,37 +34,6 @@ namespace Xtensive.Tuples.Packed
 
     private static class ValueFieldAccessorResolver
     {
-      private static readonly Type BoolType = typeof(bool);
-      private static readonly Type NullableBoolType = typeof(bool?);
-      private static readonly Type ByteType = typeof(byte);
-      private static readonly Type NullableByteType = typeof(byte?);
-      private static readonly Type SByteType = typeof(sbyte);
-      private static readonly Type NullableSByteType = typeof(sbyte?);
-      private static readonly Type Int16Type = typeof(short);
-      private static readonly Type NullableInt16Type = typeof(short?);
-      private static readonly Type UInt16Type = typeof(ushort);
-      private static readonly Type NullableUInt16Type = typeof(ushort?);
-      private static readonly Type Int32Type = typeof(int);
-      private static readonly Type NullableInt32Type = typeof(int?);
-      private static readonly Type UInt32Type = typeof(uint);
-      private static readonly Type NullableUInt32Type = typeof(uint?);
-      private static readonly Type Int64Type = typeof(long);
-      private static readonly Type NullableInt64Type = typeof(long?);
-      private static readonly Type UInt64Type = typeof(ulong);
-      private static readonly Type NullableUInt64Type = typeof(ulong?);
-      private static readonly Type SingleType = typeof(float);
-      private static readonly Type NullableSingleType = typeof(float?);
-      private static readonly Type DoubleType = typeof(double);
-      private static readonly Type NullableDoubleType = typeof(double?);
-      private static readonly Type DateTimeType = typeof(DateTime);
-      private static readonly Type NullableDateTimeType = typeof(DateTime?);
-      private static readonly Type TimeSpanType = typeof(TimeSpan);
-      private static readonly Type NullableTimeSpanType = typeof(TimeSpan?);
-      private static readonly Type DecimalType = typeof(decimal);
-      private static readonly Type NullableDecimalType = typeof(decimal?);
-      private static readonly Type GuidType = typeof(Guid);
-      private static readonly Type NullableGuidType = typeof(Guid?);
-
       private static readonly ValueFieldAccessor BoolAccessor = new BooleanFieldAccessor();
       private static readonly ValueFieldAccessor ByteAccessor = new ByteFieldAccessor();
       private static readonly ValueFieldAccessor SByteAccessor = new SByteFieldAccessor();
@@ -80,43 +50,43 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
 
-      private static readonly int NullableTypeMetadataToken = typeof(Nullable<>).MetadataToken;
+      private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
 
       public static ValueFieldAccessor GetValue(Type probeType)
       {
-        ValueFieldAccessor ResolveByType(Type type) =>
-          ReferenceEquals(type, BoolType) ? BoolAccessor :
-          ReferenceEquals(type, ByteType) ? ByteAccessor :
-          ReferenceEquals(type, SByteType) ? SByteAccessor :
-          ReferenceEquals(type, Int16Type) ? Int16Accessor :
-          ReferenceEquals(type, UInt16Type) ? UInt16Accessor :
-          ReferenceEquals(type, Int32Type) ? Int32Accessor :
-          ReferenceEquals(type, UInt32Type) ? UInt32Accessor :
-          ReferenceEquals(type, Int64Type) ? Int64Accessor :
-          ReferenceEquals(type, UInt64Type) ? UInt64Accessor :
-          ReferenceEquals(type, SingleType) ? SingleAccessor :
-          ReferenceEquals(type, DoubleType) ? DoubleAccessor :
-          ReferenceEquals(type, DateTimeType) ? DateTimeAccessor :
-          ReferenceEquals(type, TimeSpanType) ? TimeSpanAccessor :
-          ReferenceEquals(type, DecimalType) ? DecimalAccessor :
-          ReferenceEquals(type, GuidType) ? GuidAccessor : null;
+        static ValueFieldAccessor ResolveByType(Type type) =>
+          ReferenceEquals(type, WellKnownTypes.Bool) ? BoolAccessor :
+          ReferenceEquals(type, WellKnownTypes.Byte) ? ByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.SByte) ? SByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.Int16) ? Int16Accessor :
+          ReferenceEquals(type, WellKnownTypes.UInt16) ? UInt16Accessor :
+          ReferenceEquals(type, WellKnownTypes.Int32) ? Int32Accessor :
+          ReferenceEquals(type, WellKnownTypes.UInt32) ? UInt32Accessor :
+          ReferenceEquals(type, WellKnownTypes.Int64) ? Int64Accessor :
+          ReferenceEquals(type, WellKnownTypes.UInt64) ? UInt64Accessor :
+          ReferenceEquals(type, WellKnownTypes.Single) ? SingleAccessor :
+          ReferenceEquals(type, WellKnownTypes.Double) ? DoubleAccessor :
+          ReferenceEquals(type, WellKnownTypes.DateTime) ? DateTimeAccessor :
+          ReferenceEquals(type, WellKnownTypes.TimeSpan) ? TimeSpanAccessor :
+          ReferenceEquals(type, WellKnownTypes.Decimal) ? DecimalAccessor :
+          ReferenceEquals(type, WellKnownTypes.Guid) ? GuidAccessor : null;
 
-        ValueFieldAccessor ResolveByNullableType(Type type) =>
-          ReferenceEquals(type, NullableBoolType) ? BoolAccessor :
-          ReferenceEquals(type, NullableByteType) ? ByteAccessor :
-          ReferenceEquals(type, NullableSByteType) ? SByteAccessor :
-          ReferenceEquals(type, NullableInt16Type) ? Int16Accessor :
-          ReferenceEquals(type, NullableUInt16Type) ? UInt16Accessor :
-          ReferenceEquals(type, NullableInt32Type) ? Int32Accessor :
-          ReferenceEquals(type, NullableUInt32Type) ? UInt32Accessor :
-          ReferenceEquals(type, NullableInt64Type) ? Int64Accessor :
-          ReferenceEquals(type, NullableUInt64Type) ? UInt64Accessor :
-          ReferenceEquals(type, NullableSingleType) ? SingleAccessor :
-          ReferenceEquals(type, NullableDoubleType) ? DoubleAccessor :
-          ReferenceEquals(type, NullableDateTimeType) ? DateTimeAccessor :
-          ReferenceEquals(type, NullableTimeSpanType) ? TimeSpanAccessor :
-          ReferenceEquals(type, NullableDecimalType) ? DecimalAccessor :
-          ReferenceEquals(type, NullableGuidType) ? GuidAccessor : null;
+        static ValueFieldAccessor ResolveByNullableType(Type type) =>
+          ReferenceEquals(type, WellKnownTypes.NullableBool) ? BoolAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableByte) ? ByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableSByte) ? SByteAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableInt16) ? Int16Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableUInt16) ? UInt16Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableInt32) ? Int32Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableUInt32) ? UInt32Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableInt64) ? Int64Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableUInt64) ? UInt64Accessor :
+          ReferenceEquals(type, WellKnownTypes.NullableSingle) ? SingleAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableDouble) ? DoubleAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableDateTime) ? DateTimeAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableTimeSpan) ? TimeSpanAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableDecimal) ? DecimalAccessor :
+          ReferenceEquals(type, WellKnownTypes.NullableGuid) ? GuidAccessor : null;
 
         return (probeType.MetadataToken ^ NullableTypeMetadataToken) == 0
           ? ResolveByNullableType(probeType)

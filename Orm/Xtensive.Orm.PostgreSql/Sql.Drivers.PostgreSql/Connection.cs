@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
@@ -8,7 +8,8 @@ using System.Security;
 using Npgsql;
 using System.Data;
 using System.Data.Common;
-using Xtensive.Orm;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
@@ -18,17 +19,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     private NpgsqlTransaction activeTransaction;
     
     /// <inheritdoc/>
-    public override DbConnection UnderlyingConnection { get { return underlyingConnection; } }
+    public override DbConnection UnderlyingConnection => underlyingConnection;
 
     /// <inheritdoc/>
-    public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
-    
+    public override DbTransaction ActiveTransaction => activeTransaction;
+
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public override DbParameter CreateParameter()
-    {
-      return new NpgsqlParameter();
-    }
+    public override DbParameter CreateParameter() => new NpgsqlParameter();
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -51,49 +49,82 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     /// <inheritdoc/>
     public override void MakeSavepoint(string name)
     {
-      EnsureIsNotDisposed();
-      EnsureTransactionIsActive();
-      var commandText = string.Format("SAVEPOINT {0}", name);
-      using (var command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+      var commandText = GetCreateSavepointCommandText(name);
+      ExecuteNonQuery(commandText);
+    }
+
+    /// <inheritdoc/>
+    public override Task MakeSavepointAsync(string name, CancellationToken token = default)
+    {
+      var commandText = GetCreateSavepointCommandText(name);
+      return ExecuteNonQueryAsync(commandText, token);
     }
 
     /// <inheritdoc/>
     public override void RollbackToSavepoint(string name)
     {
-      EnsureIsNotDisposed();
-      EnsureTransactionIsActive();
-      var commandText = string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
-      using (var command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+      var commandText = GetRollbackToSavepointCommandText(name);
+      ExecuteNonQuery(commandText);
+    }
+
+    /// <inheritdoc/>
+    public override Task RollbackToSavepointAsync(string name, CancellationToken token = default)
+    {
+      var commandText = GetRollbackToSavepointCommandText(name);
+      return ExecuteNonQueryAsync(commandText, token);
     }
 
     /// <inheritdoc/>
     public override void ReleaseSavepoint(string name)
     {
+      var commandText = GetReleaseSavepointCommandText(name);
+      ExecuteNonQuery(commandText);
+    }
+
+    /// <inheritdoc/>
+    public override Task ReleaseSavepointAsync(string name, CancellationToken token = default)
+    {
+      var commandText = GetReleaseSavepointCommandText(name);
+      return ExecuteNonQueryAsync(commandText, token);
+    }
+
+    /// <inheritdoc/>
+    protected override void ClearActiveTransaction() => activeTransaction = null;
+
+    /// <inheritdoc/>
+    protected override void ClearUnderlyingConnection() => underlyingConnection = null;
+
+    private static string GetCreateSavepointCommandText(string name) => $"SAVEPOINT {name}";
+
+    private static string GetRollbackToSavepointCommandText(string name) =>
+      string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
+
+    private static string GetReleaseSavepointCommandText(string name) => $"RELEASE SAVEPOINT {name}";
+
+    private void ExecuteNonQuery(string commandText)
+    {
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
-      var commandText = string.Format("RELEASE SAVEPOINT {0}", name);
-      using (var command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+
+      using var command = CreateCommand(commandText);
+      command.ExecuteNonQuery();
     }
 
-    /// <inheritdoc/>
-    protected override void ClearActiveTransaction()
+    private async Task ExecuteNonQueryAsync(string commandText, CancellationToken token)
     {
-      activeTransaction = null;
-    }
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
 
-    /// <inheritdoc/>
-    protected override void ClearUnderlyingConnection()
-    {
-      underlyingConnection = null;
+      var command = CreateCommand(commandText);
+      await using (command.ConfigureAwait(false)) {
+        await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
     }
 
     // Constructors
 
-   [SecuritySafeCritical]
-   public Connection(SqlDriver driver)
+    [SecuritySafeCritical]
+    public Connection(SqlDriver driver)
       : base(driver)
     {
       underlyingConnection = new NpgsqlConnection();

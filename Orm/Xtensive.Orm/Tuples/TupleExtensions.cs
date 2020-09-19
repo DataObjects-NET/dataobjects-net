@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.05.31
 
@@ -366,11 +366,11 @@ namespace Xtensive.Tuples
     /// <returns>Fast read-only version of <paramref name="source"/> tuple.</returns>
     public static Tuple ToFastReadOnly(this Tuple source)
     {
-      if (source==null)
+      if (source==null) {
         return null;
-      if (source.GetType()==typeof (FastReadOnlyTuple))
-        return source;
-      return new FastReadOnlyTuple(source);
+      }
+
+      return source is FastReadOnlyTuple ? source : new FastReadOnlyTuple(source);
     }
 
     #endregion

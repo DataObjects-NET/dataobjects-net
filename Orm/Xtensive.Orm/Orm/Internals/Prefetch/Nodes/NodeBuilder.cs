@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.24
 
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public static KeyExtractorNode<T> Build<T, TValue>(DomainModel model, Expression<Func<T, TValue>> expression)
     {
-      if (!typeof (IEntity).IsAssignableFrom(typeof (T)))
+      if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(typeof (T)))
         return null;
       var parameter = expression.Parameters.First();
       if (expression.Body==parameter)
@@ -34,9 +34,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       return new KeyExtractorNode<T>(GetExtractor<T>(), nestedNodes);
     }
 
-    private static Func<T, IEnumerable<Key>> GetExtractor<T>()
+    private static Func<T, IReadOnlyCollection<Key>> GetExtractor<T>()
     {
-      return target => EnumerableUtils.One(((IEntity) target).Key);
+      return target => new[] {((IEntity) target).Key};
     }
 
     private IEnumerable<BaseFieldNode> VisitRoot()
@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var currentType = access.Expression.Type;
 
-      if (!typeof (IEntity).IsAssignableFrom(currentType))
+      if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(currentType))
         throw new NotSupportedException("Only persistent properties are supported");
 
       var currentEntity = model.Types[currentType];

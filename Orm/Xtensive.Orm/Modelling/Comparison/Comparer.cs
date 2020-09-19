@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.04.07
 
@@ -735,15 +735,15 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>The highest common base type.</returns>
     protected static Type GetCommonBase(object source, object target)
     {
-      var sourceAncestors = GetAncestors(source==null ? typeof (object) : source.GetType());
-      var targetAncestors = GetAncestors(target==null ? typeof (object) : target.GetType());
+      var sourceAncestors = GetAncestors(source==null ? WellKnownTypes.Object : source.GetType());
+      var targetAncestors = GetAncestors(target==null ? WellKnownTypes.Object : target.GetType());
       var sourceType = sourceAncestors[sourceAncestors.Count - 1];
       var targetType = targetAncestors[targetAncestors.Count - 1];
       if (sourceType.IsAssignableFrom(targetType))
         return targetType;
       if (targetType.IsAssignableFrom(sourceType))
         return sourceType;
-      var commonBase = typeof (object);
+      var commonBase = WellKnownTypes.Object;
       for (int i = 0; i < Math.Min(sourceAncestors.Count, targetAncestors.Count); i++) {
         var ancestor = sourceAncestors[i];
         if (ancestor!=targetAncestors[i])
@@ -756,11 +756,11 @@ namespace Xtensive.Modelling.Comparison
     private static List<Type> GetAncestors(Type type)
     {
       var list = new List<Type>();
-      while (type!=typeof(object)) {
+      while (type!=WellKnownTypes.Object) {
         list.Insert(0, type);
         type = type.BaseType;
       }
-      list.Insert(0, typeof(object));
+      list.Insert(0, WellKnownTypes.Object);
       return list;
     }
 

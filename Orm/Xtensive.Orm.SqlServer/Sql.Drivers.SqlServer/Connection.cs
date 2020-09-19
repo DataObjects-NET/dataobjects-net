@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
@@ -20,37 +20,37 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     private SqlServerConnection underlyingConnection;
     private SqlTransaction activeTransaction;
-    private bool checkConnectionIsAlive;
+    private readonly bool checkConnectionIsAlive;
 
     /// <inheritdoc/>
-    public override DbConnection UnderlyingConnection { get { return underlyingConnection; } }
+    public override DbConnection UnderlyingConnection => underlyingConnection;
 
     /// <inheritdoc/>
-    public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
+    public override DbTransaction ActiveTransaction => activeTransaction;
 
     /// <inheritdoc/>
-    public override DbParameter CreateParameter()
-    {
-      return new SqlParameter();
-    }
+    public override DbParameter CreateParameter() => new SqlParameter();
 
     /// <inheritdoc/>
     public override void Open()
     {
-      if (!checkConnectionIsAlive)
+      if (!checkConnectionIsAlive) {
         base.Open();
-      else
+      }
+      else {
         OpenWithCheck(DefaultCheckConnectionQuery);
+      }
     }
 
     /// <inheritdoc/>
     public override Task OpenAsync(CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
-      if (!checkConnectionIsAlive)
+      if (!checkConnectionIsAlive) {
         return base.OpenAsync(cancellationToken);
-      else
-        return OpenWithCheckAsync(DefaultCheckConnectionQuery, cancellationToken);
+      }
+
+      return OpenWithCheckAsync(DefaultCheckConnectionQuery, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -68,15 +68,16 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    public override Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
+    public override Task OpenAndInitializeAsync(string initializationScript, CancellationToken token)
     {
-      if (!checkConnectionIsAlive)
-        return base.OpenAndInitializeAsync(initializationScript, cancellationToken);
+      if (!checkConnectionIsAlive) {
+        return base.OpenAndInitializeAsync(initializationScript, token);
+      }
 
       var script = string.IsNullOrEmpty(initializationScript.Trim())
         ? DefaultCheckConnectionQuery
         : initializationScript;
-      return OpenWithCheckAsync(script, cancellationToken);
+      return OpenWithCheckAsync(script, token);
     }
 
     /// <inheritdoc/>
@@ -119,21 +120,15 @@ namespace Xtensive.Sql.Drivers.SqlServer
       // nothing
     }
 
-    protected override void ClearUnderlyingConnection()
-    {
-      underlyingConnection = null;
-    }
+    protected override void ClearUnderlyingConnection() => underlyingConnection = null;
 
     /// <inheritdoc/>
-    protected override void ClearActiveTransaction()
-    {
-      activeTransaction = null;
-    }
+    protected override void ClearActiveTransaction() => activeTransaction = null;
 
     private void OpenWithCheck(string checkQueryString)
     {
-      bool connectionChecked = false;
-      bool restoreTriggered = false;
+      var connectionChecked = false;
+      var restoreTriggered = false;
       while (!connectionChecked) {
         base.Open();
         try {
@@ -145,8 +140,9 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
         catch (Exception exception) {
           if (InternalHelpers.ShouldRetryOn(exception)) {
-            if (restoreTriggered)
+            if (restoreTriggered) {
               throw;
+            }
 
             var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
             try {
@@ -159,22 +155,23 @@ namespace Xtensive.Sql.Drivers.SqlServer
             restoreTriggered = true;
             continue;
           }
-          else
-            throw;
+
+          throw;
         }
       }
     }
 
     private async Task OpenWithCheckAsync(string checkQueryString, CancellationToken cancellationToken)
     {
-      bool connectionChecked = false;
-      bool restoreTriggered = false;
+      var connectionChecked = false;
+      var restoreTriggered = false;
 
       while (!connectionChecked) {
         cancellationToken.ThrowIfCancellationRequested();
         await base.OpenAsync(cancellationToken).ConfigureAwait(false);
         try {
-          using (var command = underlyingConnection.CreateCommand()) {
+          var command = underlyingConnection.CreateCommand();
+          await using (command.ConfigureAwait(false)) {
             command.CommandText = checkQueryString;
             await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
           }
@@ -196,8 +193,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
             restoreTriggered = true;
             continue;
           }
-          else
-            throw;
+
+          throw;
         }
       }
     }

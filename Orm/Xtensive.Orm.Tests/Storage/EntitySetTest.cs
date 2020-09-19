@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2009.03.11
 
@@ -375,7 +375,7 @@ namespace Xtensive.Orm.Tests.Storage
         var books0 = author0.Books;
         author0.Remove();
         AssertEx.Throws<InvalidOperationException>(() =>
-          session.Query.ExecuteDelayed(_ => books0.Where(b => b.Name==0)));
+          session.Query.CreateDelayedQuery(_ => books0.Where(b => b.Name==0)));
       }
     }
 

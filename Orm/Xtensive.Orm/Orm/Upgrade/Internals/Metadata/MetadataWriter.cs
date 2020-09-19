@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.03.22
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Orm.Providers;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -19,8 +20,10 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class MetadataWriter
   {
-    private static readonly TupleDescriptor IntStringDescriptor = TupleDescriptor.Create(new[] {typeof (int), typeof (string)});
-    private static readonly TupleDescriptor StringStringDescriptor = TupleDescriptor.Create(new[] {typeof (string), typeof (string)});
+    private static readonly TupleDescriptor IntStringDescriptor =
+      TupleDescriptor.Create(new[] {WellKnownTypes.Int32, WellKnownTypes.String});
+    private static readonly TupleDescriptor StringStringDescriptor =
+      TupleDescriptor.Create(new[] {WellKnownTypes.String, WellKnownTypes.String});
 
     private sealed class Descriptor : IPersistDescriptor
     {

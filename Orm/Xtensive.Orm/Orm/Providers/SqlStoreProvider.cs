@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
@@ -24,13 +24,13 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
-      LockAndStore(context, Source);
+      LockAndStore(context, Source.ToEnumerable(context));
     }
 
-    protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
       base.OnAfterEnumerate(context);

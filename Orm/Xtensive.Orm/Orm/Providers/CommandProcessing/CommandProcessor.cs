@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
@@ -8,7 +8,6 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
 {
@@ -41,18 +40,20 @@ namespace Xtensive.Orm.Providers
     /// <param name="context">A contextual information to be used while executing
     /// the specified <paramref name="request"/>.</param>
     /// <returns>A <see cref="IEnumerator{Tuple}"/> for the specified request.</returns>
-    public abstract IEnumerator<Tuple> ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
+    public abstract DataReader ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context);
 
     /// <summary>
     /// Asynchronously executes all registered requests plus the specified one query.
     /// Default implementation is synchronous and returns complete task.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="request">The request to execute.</param>
     /// <param name="context">A contextual information to be used while executing
     /// the specified <paramref name="request"/>.</param>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>A task performing this operation.</returns>
-    public virtual Task<IEnumerator<Tuple>> ExecuteTasksWithReaderAsync(QueryRequest request,
+    public virtual Task<DataReader> ExecuteTasksWithReaderAsync(QueryRequest request,
       CommandProcessorContext context, CancellationToken token)
     {
       token.ThrowIfCancellationRequested();
@@ -73,15 +74,17 @@ namespace Xtensive.Orm.Providers
     /// <paramref name="context.AllowPartialExecution"/> argument.
     /// Default implementation executes requests synchronously and returns completed task.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="context">A contextual information to be used while executing
     /// registered query requests.</param>
     /// <param name="token">Token to cancel this operation</param>
     /// <returns>A task preforming this operation.</returns>
-    public virtual async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
+    public virtual Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
     {
       token.ThrowIfCancellationRequested();
       ExecuteTasks(context);
-      await Task.Yield();
+      return Task.CompletedTask;
     }
 
     protected void AllocateCommand(CommandProcessorContext context)

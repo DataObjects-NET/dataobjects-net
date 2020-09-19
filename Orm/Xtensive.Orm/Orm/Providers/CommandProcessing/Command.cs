@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.10.09
 
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Providers
   /// <summary>
   /// A command ready for execution.
   /// </summary>
-  public sealed class Command : IDisposable
+  public sealed class Command : IDisposable, IAsyncDisposable
   {
     private readonly CommandFactory origin;
     private readonly DbCommand underlyingCommand;
@@ -28,25 +28,29 @@ namespace Xtensive.Orm.Providers
     private DisposableSet resources;
     private DbDataReader reader;
 
-    public int Count { get { return statements.Count; } }
+    public int Count => statements.Count;
 
     public void AddPart(CommandPart part)
     {
-      if (prepared)
+      if (prepared) {
         throw new InvalidOperationException("Unable to change command: it is already prepared");
+      }
 
       statements.Add(part.Statement);
 
-      foreach (var parameter in part.Parameters)
+      foreach (var parameter in part.Parameters) {
         underlyingCommand.Parameters.Add(parameter);
+      }
 
-      if (part.Resources.Count==0)
+      if (part.Resources.Count==0) {
         return;
+      }
 
-      if (resources==null)
-        resources = new DisposableSet();
-      foreach (var resource in part.Resources)
+      resources ??= new DisposableSet();
+
+      foreach (var resource in part.Resources) {
         resources.Add(resource);
+      }
     }
 
     public int ExecuteNonQuery()
@@ -73,18 +77,20 @@ namespace Xtensive.Orm.Providers
       reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
     }
 
-    public IEnumerator<Tuple> AsReaderOfAsync(QueryRequest request, CancellationToken token)
-    {
-      var accessor = request.GetAccessor();
-      using (this)
-        while (NextRow())
-          yield return ReadTupleWith(accessor);
-    }
-
     public bool NextResult()
     {
       try {
         return reader.NextResult();
+      }
+      catch(Exception exception) {
+        throw TranslateException(exception);
+      }
+    }
+
+    public async Task<bool> NextResultAsync(CancellationToken token = default)
+    {
+      try {
+        return await reader.NextResultAsync(token).ConfigureAwait(false);
       }
       catch(Exception exception) {
         throw TranslateException(exception);
@@ -101,41 +107,51 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public Tuple ReadTupleWith(DbDataReaderAccessor accessor)
+    public async ValueTask<bool> NextRowAsync(CancellationToken token = default)
     {
-      return accessor.Read(reader);
+      try {
+        return await reader.ReadAsync(token).ConfigureAwait(false);
+      }
+      catch (Exception exception) {
+        throw TranslateException(exception);
+      }
     }
 
-    public IEnumerator<Tuple> AsReaderOf(QueryRequest request)
-    {
-      var accessor = request.GetAccessor();
-      using (this)
-        while (NextRow())
-          yield return ReadTupleWith(accessor);
-    }
+    internal Tuple ReadTupleWith(DbDataReaderAccessor accessor) => accessor.Read(reader);
+
+    public DataReader CreateReader(DbDataReaderAccessor accessor, CancellationToken token = default) =>
+      new DataReader(this, accessor, token);
 
     public DbCommand Prepare()
     {
-      if (statements.Count==0)
+      if (statements.Count==0) {
         throw new InvalidOperationException("Unable to prepare command: no parts registered");
-      if (prepared)
+      }
+
+      if (prepared) {
         return underlyingCommand;
+      }
+
       prepared = true;
       underlyingCommand.CommandText = origin.Driver.BuildBatch(statements.ToArray());
       return underlyingCommand;
     }
 
-    private StorageException TranslateException(Exception exception)
-    {
-      return origin.Driver.ExceptionBuilder
-        .BuildException(exception, underlyingCommand.ToHumanReadableString());
-    }
+    private StorageException TranslateException(Exception exception) =>
+      origin.Driver.ExceptionBuilder.BuildException(exception, underlyingCommand.ToHumanReadableString());
 
     public void Dispose()
     {
       reader.DisposeSafely();
       resources.DisposeSafely();
       underlyingCommand.DisposeSafely();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+      await reader.DisposeSafelyAsync().ConfigureAwait(false);
+      await resources.DisposeSafelyAsync().ConfigureAwait(false);
+      await underlyingCommand.DisposeSafelyAsync().ConfigureAwait(false);
     }
 
     // Constructors

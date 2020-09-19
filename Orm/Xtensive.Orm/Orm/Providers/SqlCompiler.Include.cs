@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Providers
     }
 
     protected SqlExpression CreateIncludeViaComplexConditionExpression(
-      IncludeProvider provider, Func<object> valueAccessor,
+      IncludeProvider provider, Func<ParameterContext, object> valueAccessor,
       IList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
     {
       var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
@@ -97,14 +97,16 @@ namespace Xtensive.Orm.Providers
       return resultExpression;
     }
 
-    protected static Func<object> BuildRowFilterParameterAccessor(
-      Func<IEnumerable<Tuple>> filterDataSource, bool takeFromContext)
+    protected static Func<ParameterContext, object> BuildRowFilterParameterAccessor(
+      Func<ParameterContext, IEnumerable<Tuple>> filterDataSource, bool takeFromContext)
     {
-      if (!takeFromContext)
-        return () => filterDataSource.Invoke().ToList();
+      if (!takeFromContext) {
+        return context => filterDataSource.Invoke(context).ToList();
+      }
 
-      return () => EnumerationContext.Current
-        .GetValue<List<Tuple>>(filterDataSource, SqlIncludeProvider.RowFilterDataName);
+      return context => context.TryGetValue(SqlIncludeProvider.rowFilterParameter, out var filterData)
+        ? filterData
+        : null;
     }
   }
 }

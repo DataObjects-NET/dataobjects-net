@@ -1,30 +1,47 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlSessionHandler
+  public partial class SqlSessionHandler
   {
     private readonly PrefetchManager prefetchManager;
 
     internal override int PrefetchTaskExecutionCount { get { return prefetchManager.TaskExecutionCount; } }
 
+    /// <inheritdoc/>
     public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
     {
       return prefetchManager.Prefetch(key, type, descriptors);
     }
 
+    /// <inheritdoc/>
+    public override Task<StrongReferenceContainer> PrefetchAsync(
+      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+    {
+      return prefetchManager.PrefetchAsync(key, type, descriptors, token);
+    }
+
+    /// <inheritdoc/>
     public override StrongReferenceContainer ExecutePrefetchTasks(bool skipPersist)
     {
       return prefetchManager.ExecuteTasks(skipPersist);
+    }
+
+    /// <inheritdoc/>
+    public override Task<StrongReferenceContainer> ExecutePrefetchTasksAsync(bool skipPersist, CancellationToken token = default)
+    {
+      return prefetchManager.ExecuteTasksAsync(skipPersist, token);
     }
 
     /// <summary>
@@ -38,8 +55,7 @@ namespace Xtensive.Orm.Providers
       prefetchManager.Prefetch(key, type,
         PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(Session.Domain, type));
       prefetchManager.ExecuteTasks(true);
-      EntityState result;
-      return LookupState(key, out result) ? result : null;
+      return LookupState(key, out var result) ? result : null;
     }
     
     /// <summary>

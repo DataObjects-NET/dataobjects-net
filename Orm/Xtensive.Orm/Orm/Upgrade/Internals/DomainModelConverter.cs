@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.04.02
 
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Upgrade
           continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
           Dictionary<TypeInfo, int> typeOrder = type.GetAncestors()
-            .AddOne(type)
+            .Append(type)
             .Select((t, i) => new {Type = t, Index = i})
             .ToDictionary(a => a.Type, a => a.Index);
           List<IndexInfo> realPrimaryIndexes = type.Indexes.RealPrimaryIndexes
@@ -385,9 +385,9 @@ namespace Xtensive.Orm.Upgrade
         return null;
       
       var type = typeInfo.Type;
-      if (type==typeof(string))
+      if (type==WellKnownTypes.String)
         return string.Empty;
-      if (type==typeof(byte[]))
+      if (type==WellKnownTypes.ByteArray)
         return ArrayUtils<byte>.EmptyArray;
       return Activator.CreateInstance(column.ValueType);
     }

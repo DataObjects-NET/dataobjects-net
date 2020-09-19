@@ -12,6 +12,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Transformation;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Tuples;
@@ -301,11 +302,11 @@ namespace Xtensive.Orm.Providers
       }
 
       var columnType = columns[index].Type;
-      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && columnType == typeof(DateTime)) {
+      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && columnType == WellKnownTypes.DateTime) {
         return SqlDml.Cast(expression, SqlType.DateTime);
       }
 
-      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == typeof(DateTimeOffset)) {
+      if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == WellKnownTypes.DateTimeOffset) {
         return SqlDml.Cast(expression, SqlType.DateTimeOffset);
       }
 
@@ -319,22 +320,22 @@ namespace Xtensive.Orm.Providers
         Pair<Column> columnPair;
         if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
           columnPair = provider.EqualColumns[index];
-          if (columnPair.First.Type == typeof(DateTime)) {
+          if (columnPair.First.Type == WellKnownTypes.DateTime) {
             leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTime);
           }
 
-          if (columnPair.Second.Type == typeof(DateTime)) {
+          if (columnPair.Second.Type == WellKnownTypes.DateTime) {
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
           }
         }
 
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {
           columnPair = provider.EqualColumns[index];
-          if (columnPair.First.Type == typeof(DateTimeOffset)) {
+          if (columnPair.First.Type == WellKnownTypes.DateTimeOffset) {
             leftExpression = SqlDml.Cast(leftExpression, SqlType.DateTimeOffset);
           }
 
-          if (columnPair.Second.Type == typeof(DateTimeOffset)) {
+          if (columnPair.Second.Type == WellKnownTypes.DateTimeOffset) {
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTimeOffset);
           }
         }

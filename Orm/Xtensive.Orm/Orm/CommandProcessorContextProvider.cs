@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.07.12
 
@@ -12,7 +12,7 @@ namespace Xtensive.Orm
 {
   public sealed class CommandProcessorContextProvider : SessionBound, IDisposable
   {
-    private ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext> providedContexts
+    private readonly ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext> providedContexts
       = new ConcurrentDictionary<CommandProcessorContext, CommandProcessorContext>();
 
     /// <inheritdoc/>
@@ -27,21 +27,20 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public CommandProcessorContext ProvideContext(bool allowPartialExecution)
     {
-      var context = new CommandProcessorContext(allowPartialExecution);
-      providedContexts.AddOrUpdate(context, (CommandProcessorContext) null, (processorContext, commandProcessorContext) => { return null; });
-      context.Disposed += RemoveDesposedContext;
+      var context = new CommandProcessorContext(null, allowPartialExecution);
+      providedContexts.AddOrUpdate(
+        context, (CommandProcessorContext) null, (processorContext, commandProcessorContext) => null);
+      context.Disposed += RemoveDisposedContext;
       return context;
     }
 
-    public void Dispose()
-    {
-      providedContexts.Clear();
-    }
+    public void Dispose() => providedContexts.Clear();
 
-    private void RemoveDesposedContext(object sender, EventArgs args)
+    private void RemoveDisposedContext(object sender, EventArgs args)
     {
-      CommandProcessorContext outResult;
-      providedContexts.TryRemove((CommandProcessorContext) sender, out outResult);
+      var context = (CommandProcessorContext) sender;
+      providedContexts.TryRemove(context, out _);
+      context.Disposed -= RemoveDisposedContext;
     }
     
     internal CommandProcessorContextProvider(Session session)

@@ -1,21 +1,14 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Xtensive.Core;
-
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
-using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse.Providers;
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -54,24 +47,18 @@ namespace Xtensive.Orm.Providers
     protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
 
     /// <inheritdoc/>
-    protected override IEnumerable<Tuple> OnEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override DataReader OnEnumerate(Rse.Providers.EnumerationContext context)
     {
       var storageContext = (EnumerationContext) context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      var enumerator = executor.ExecuteTupleReader(Request);
-      using (enumerator) {
-        while (enumerator.MoveNext()) {
-          yield return enumerator.Current;
-        }
-      }
+      return executor.ExecuteTupleReader(Request, storageContext.ParameterContext);
     }
 
-    protected async override Task<IEnumerable<Tuple>> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    protected internal async override Task<DataReader> OnEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
       var storageContext = (EnumerationContext)context;
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      var enumerator = await executor.ExecuteTupleReaderAsync(Request, token).ConfigureAwait(false);
-      return enumerator.ToEnumerable();
+      return await executor.ExecuteTupleReaderAsync(Request, storageContext.ParameterContext, token).ConfigureAwait(false);
     }
 
     #region ToString related methods

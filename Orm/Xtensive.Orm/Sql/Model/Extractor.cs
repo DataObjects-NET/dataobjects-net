@@ -1,8 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System.Data.Common;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace Xtensive.Sql.Model
 {
@@ -29,12 +31,34 @@ namespace Xtensive.Sql.Model
     public abstract Catalog ExtractCatalog(string catalogName);
 
     /// <summary>
-    /// Extract specified schemes from the database
+    /// Asynchronously extracts all schemes from the database.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="catalogName">Catalog to extract.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns><see cref="Catalog"/> that holds all schemes in the database.</returns>
+    public abstract Task<Catalog> ExtractCatalogAsync(string catalogName, CancellationToken token = default);
+
+    /// <summary>
+    /// Extracts specified schemes from the database
     /// </summary>
     /// <param name="catalogName">Catalog to extract</param>
     /// <param name="schemaNames">Names of schemes which must be extracted</param>
     /// <returns><see cref="Catalog"/> that holds specified schemas schemes in the database.</returns>
     public abstract Catalog ExtractSchemes(string catalogName, string[] schemaNames);
+
+    /// <summary>
+    /// Asynchronously extracts specified schemes from the database
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="catalogName">Catalog to extract</param>
+    /// <param name="schemaNames">Names of schemes which must be extracted</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns><see cref="Catalog"/> that holds specified schemas schemes in the database.</returns>
+    public abstract Task<Catalog> ExtractSchemesAsync(
+      string catalogName, string[] schemaNames, CancellationToken token = default);
 
     /// <summary>
     /// Initializes the translator with specified <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
@@ -47,6 +71,20 @@ namespace Xtensive.Sql.Model
     }
 
     /// <summary>
+    /// Asynchronously initializes the translator with specified
+    /// <see cref="SqlConnection"/> and <see cref="DbTransaction"/>.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="connection">The connection.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    public Task InitializeAsync(SqlConnection connection, CancellationToken token = default)
+    {
+      Connection = connection;
+      return InitializeAsync(token);
+    }
+
+    /// <summary>
     /// Performs custom initialization.
     /// Called within <see cref="Initialize(SqlConnection)"/>.
     /// </summary>
@@ -54,28 +92,74 @@ namespace Xtensive.Sql.Model
     {
     }
 
+    /// <summary>
+    /// Performs custom initialization.
+    /// Called within <see cref="InitializeAsync(SqlConnection, CancellationToken)"/>.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    protected virtual Task InitializeAsync(CancellationToken token)
+    {
+      Initialize();
+      return Task.CompletedTask;
+    }
+
     #region Helper methods
 
     /// <summary>
-    /// Executes the reader againts the command created from the specified <paramref name="statement"/>.
+    /// Executes the reader against the command created from the specified <paramref name="statement"/>.
     /// </summary>
     /// <param name="statement">The statement to execute.</param>
     /// <returns>Executed reader.</returns>
     protected virtual DbDataReader ExecuteReader(ISqlCompileUnit statement)
     {
-      using (var command = Connection.CreateCommand(statement))
-        return command.ExecuteReader();
+      using var command = Connection.CreateCommand(statement);
+      return command.ExecuteReader();
     }
-    
+
     /// <summary>
-    /// Executes the reader againts the command created from the specified <paramref name="commandText"/>.
+    /// Executes the reader against the command created from the specified <paramref name="statement"/>.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="statement">The statement to execute.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>Executed reader.</returns>
+    protected virtual async Task<DbDataReader> ExecuteReaderAsync(
+      ISqlCompileUnit statement, CancellationToken token = default)
+    {
+      var command = Connection.CreateCommand(statement);
+      await using (command.ConfigureAwait(false)) {
+        return await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Executes the reader against the command created from the specified <paramref name="commandText"/>.
     /// </summary>
     /// <param name="commandText">The command text to execute.</param>
     /// <returns>Executed reader.</returns>
     protected virtual DbDataReader ExecuteReader(string commandText)
     {
-      using (var command = Connection.CreateCommand(commandText))
-        return command.ExecuteReader();
+      using var command = Connection.CreateCommand(commandText);
+      return command.ExecuteReader();
+    }
+
+    /// <summary>
+    /// Asynchronously executes the reader against the command created from the specified <paramref name="commandText"/>.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="commandText">The command text to execute.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>Executed reader.</returns>
+    protected virtual async Task<DbDataReader> ExecuteReaderAsync(string commandText, CancellationToken token = default)
+    {
+      var command = Connection.CreateCommand(commandText);
+      await using (command.ConfigureAwait(false)) {
+        return await command.ExecuteReaderAsync(token).ConfigureAwait(false);
+      }
     }
 
     #endregion

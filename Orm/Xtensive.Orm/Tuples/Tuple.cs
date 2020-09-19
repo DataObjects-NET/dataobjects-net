@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
 // Created:    2007.05.30
 
@@ -11,8 +11,7 @@ using System.Runtime.Serialization;
 using System.Text;
 using Xtensive.Comparison;
 using Xtensive.Core;
-
-
+using Xtensive.Reflection;
 using Xtensive.Tuples.Packed;
 
 namespace Xtensive.Tuples
@@ -278,7 +277,7 @@ namespace Xtensive.Tuples
           sb.Append(Strings.NotAvailable);
         else if (state.IsNull())
           sb.Append(Strings.Null);
-        else if (Descriptor[i]==typeof (string)) {
+        else if (Descriptor[i]==WellKnownTypes.String) {
           if (string.IsNullOrEmpty(value as string))
             sb.Append(Strings.EmptyString);
           else

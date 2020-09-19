@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.12.10
 
@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions.Visitors;
 using Xtensive.Orm.Linq.Model;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
@@ -142,14 +143,14 @@ namespace Xtensive.Orm.Linq.Rewriters
       private static bool IsReferenceFieldAccess(MemberExpression m)
       {
         var property = m.Member as PropertyInfo;
-        return property!=null && typeof (IEntity).IsAssignableFrom(property.PropertyType);
+        return property!=null && WellKnownOrmInterfaces.Entity.IsAssignableFrom(property.PropertyType);
       }
 
       private static bool IsReferenceOrStructureFieldAccess(MemberExpression m)
       {
         var property = m.Member as PropertyInfo;
-        return property!=null && (typeof (IEntity).IsAssignableFrom(property.PropertyType)
-          || typeof (Structure).IsAssignableFrom(property.PropertyType));
+        return property!=null && (WellKnownOrmInterfaces.Entity.IsAssignableFrom(property.PropertyType)
+          || WellKnownOrmTypes.Structure.IsAssignableFrom(property.PropertyType));
       }
 
       private ReferenceFieldAccessExtractor()

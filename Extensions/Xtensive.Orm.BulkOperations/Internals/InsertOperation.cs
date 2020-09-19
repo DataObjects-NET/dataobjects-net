@@ -1,12 +1,16 @@
-﻿using System;
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Linq;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Services;
 using Xtensive.Sql;
-using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -19,14 +23,32 @@ namespace Xtensive.Orm.BulkOperations
 
     protected override int ExecuteInternal()
     {
-      Bindings = new List<QueryParameterBinding>();
-      if (PrimaryIndexes.Length > 1)
+      if (PrimaryIndexes.Length > 1) {
         throw new NotImplementedException("Inheritance is not implemented");
-      SqlInsert insert = SqlDml.Insert(SqlDml.TableRef(PrimaryIndexes[0].Table));
+      }
+      Bindings = new List<QueryParameterBinding>();
+
+      var command = CreateCommand();
+      return command.ExecuteNonQuery();
+    }
+
+    protected override Task<int> ExecuteInternalAsync(CancellationToken token = default)
+    {
+      if (PrimaryIndexes.Length > 1) {
+        throw new NotImplementedException("Inheritance is not implemented");
+      }
+      Bindings = new List<QueryParameterBinding>();
+
+      var command = CreateCommand();
+      return command.ExecuteNonQueryAsync(token);
+    }
+
+    private QueryCommand CreateCommand()
+    {
+      var insert = SqlDml.Insert(SqlDml.TableRef(PrimaryIndexes[0].Table));
       setOperation.Statement = SetStatement.Create(insert);
       setOperation.AddValues();
-      QueryCommand command = ToCommand(insert);
-      return command.ExecuteNonQuery();
+      return ToCommand(insert);
     }
 
     #endregion
@@ -34,25 +56,30 @@ namespace Xtensive.Orm.BulkOperations
     public InsertOperation(QueryProvider queryProvider, Expression<Func<T>> evaluator)
       : base(queryProvider)
     {
-      int memberInitCount = 0;
-      ParameterExpression parameter = Expression.Parameter(typeof (T));
+      var memberInitCount = 0;
+      var parameter = Expression.Parameter(typeof(T));
       List<SetDescriptor> descriptors = null;
       evaluator.Visit(
         delegate(MemberInitExpression ex) {
-          if (memberInitCount > 0)
+          if (memberInitCount > 0) {
             return ex;
+          }
+
           memberInitCount++;
           descriptors = new List<SetDescriptor>();
-          foreach (MemberAssignment assignment in ex.Bindings) {
-            var fieldInfo = TypeInfo.Fields.FirstOrDefault(a => a.UnderlyingProperty==assignment.Member);
-            if (fieldInfo==null)
-              if (assignment.Member.ReflectedType.IsAssignableFrom(TypeInfo.UnderlyingType)) {
+          foreach (var assignment in ex.Bindings.Cast<MemberAssignment>()) {
+            var fieldInfo = TypeInfo.Fields.FirstOrDefault(a => a.UnderlyingProperty == assignment.Member);
+            if (fieldInfo == null) {
+              if (assignment.Member.ReflectedType?.IsAssignableFrom(TypeInfo.UnderlyingType) == true) {
                 var property = TypeInfo.UnderlyingType.GetProperty(assignment.Member.Name);
-                fieldInfo = TypeInfo.Fields.FirstOrDefault(field => field.UnderlyingProperty==property);
+                fieldInfo = TypeInfo.Fields.FirstOrDefault(field => field.UnderlyingProperty == property);
               }
+            }
+
             descriptors.Add(
               new SetDescriptor(fieldInfo, parameter, assignment.Expression));
           }
+
           return ex;
         });
       AddKey(descriptors);
@@ -63,26 +90,30 @@ namespace Xtensive.Orm.BulkOperations
     {
       var count = descriptors.Count(a => a.Field.IsPrimaryKey);
       int i;
-      if (count==0) {
+      if (count == 0) {
         var key = Key.Generate<T>(Session);
         i = 0;
         foreach (var fieldInfo in TypeInfo.Key.Fields) {
           descriptors.Add(new SetDescriptor(fieldInfo, Expression.Parameter(typeof(T)), Expression.Constant(key.Value.GetValue(i))));
           i++;
         }
+
         Key = key;
         return;
       }
-      if(count<TypeInfo.Key.Fields.Count()) {
+
+      if (count < TypeInfo.Key.Fields.Count) {
         throw new InvalidOperationException("You must set 0 or all key fields");
       }
+
       i = 0;
       var keys = new object[TypeInfo.Key.Fields.Count];
-      foreach(var field in TypeInfo.Key.Fields) {
+      foreach (var field in TypeInfo.Key.Fields) {
         var descriptor = descriptors.First(a => a.Field.Equals(field));
         keys[i] = descriptor.Expression.Invoke();
         i++;
       }
+
       Key = Key.Create<T>(Session.Domain, keys);
     }
 

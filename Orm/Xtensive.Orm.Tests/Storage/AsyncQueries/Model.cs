@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.07.01
 
@@ -144,15 +144,27 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Model
   }
 
   [HierarchyRoot]
-  public class ClassWithParameterizedConstructor : Entity
+  public class StatRecord : Entity
   {
     [Key, Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
 
     [Field]
-    public string TextField { get; set; }
+    public int IntFactor { get; set; }
 
-    public ClassWithParameterizedConstructor(Session session)
+    [Field]
+    public long LongFactor { get; set; }
+
+    [Field]
+    public float FloatFactor { get; set; }
+
+    [Field]
+    public double DoubleFactor { get; set; }
+
+    [Field]
+    public decimal DecimalFactor { get; set; }
+
+    public StatRecord(Session session)
       : base(session)
     { }
   }
