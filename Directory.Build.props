@@ -44,9 +44,11 @@
     <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'TestCommon'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+
     <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
   <ItemGroup>
     <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
