@@ -76,12 +76,7 @@
 
   <ItemGroup>
     <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
-    <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
   </ItemGroup>
-  <Target Name="ExportRev" Condition="Exists('.git\index') AND '$(Configuration)' == 'Release'">
-    <MakeDir Directories="_Build" />
-    <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
-  </Target>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
 </Project>
