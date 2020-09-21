@@ -54,7 +54,7 @@
     <Copyright>$(DoProductCopyright)</Copyright>
     <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
     <PackageIcon>do-nuget.png</PackageIcon>
-    <PackageLicense>Apache-2.0</PackageLicense>
+    <PackageLicense>MIT</PackageLicense>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
     <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
