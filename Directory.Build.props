@@ -39,6 +39,9 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'TestCommon'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
   </PropertyGroup>
