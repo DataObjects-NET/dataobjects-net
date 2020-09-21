@@ -46,7 +46,13 @@
     <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
     <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
     <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
+  <ItemGroup>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
+    <PackageReference Condition="$(GeneratePackageOnBuild) == 'true'"
+                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
   <!-- Populate standard properties. -->
   <PropertyGroup>
