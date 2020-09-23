@@ -1,11 +1,15 @@
+// Copyright (C) 2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.GithubIssue_xxx_Model;
+using Xtensive.Orm.Tests.Issues.IssueGitHub0070_IncludeProviderParameterMismatchWithinParameterContextModel;
 
-namespace Xtensive.Orm.Tests.Issues.GithubIssue_xxx_Model
+namespace Xtensive.Orm.Tests.Issues.IssueGitHub0070_IncludeProviderParameterMismatchWithinParameterContextModel
 {
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
