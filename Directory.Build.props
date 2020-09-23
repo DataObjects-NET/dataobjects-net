@@ -39,9 +39,22 @@
   </PropertyGroup>
 
   <PropertyGroup>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</GeneratePackageOnBuild>
+    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'TestCommon'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
     <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+
+    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
+  <ItemGroup>
+    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
+    <PackageReference Condition="$(GeneratePackageOnBuild) == 'true'"
+                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  </ItemGroup>
 
   <!-- Populate standard properties. -->
   <PropertyGroup>
@@ -54,7 +67,7 @@
     <Copyright>$(DoProductCopyright)</Copyright>
     <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
     <PackageIcon>do-nuget.png</PackageIcon>
-    <PackageLicense>Apache-2.0</PackageLicense>
+    <PackageLicense>MIT</PackageLicense>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
     <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
@@ -63,12 +76,7 @@
 
   <ItemGroup>
     <None Include="$(DoPackageIcon)" Pack="true" PackagePath="." Visible="false" />
-    <None Include="$(DoRevFile)" Pack="true" PackagePath="." Visible="false" Condition="Exists('$(DoRevFile)')" />
   </ItemGroup>
-  <Target Name="ExportRev" Condition="Exists('.git\index') AND '$(Configuration)' == 'Release'">
-    <MakeDir Directories="_Build" />
-    <Exec Command="git rev-parse HEAD > rev.txt" WorkingDirectory="_Build" />
-  </Target>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
 </Project>
