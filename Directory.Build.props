@@ -65,7 +65,7 @@
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <GeneratePackageOnBuild Condition="$(DoGeneratePackage) == 'true' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
+    <ContinuousIntegrationBuild Condition="$(Configuration) == 'Release'">true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
