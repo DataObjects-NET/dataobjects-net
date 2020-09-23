@@ -8,11 +8,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Collections;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
@@ -32,25 +30,29 @@ namespace Xtensive.Orm.Providers
       TemporaryTableDescriptor tableDescriptor = null;
       QueryParameterBinding extraBinding = null;
       var algorithm = provider.Algorithm;
-      if (!temporaryTablesSupported)
+      if (!temporaryTablesSupported) {
         algorithm = IncludeAlgorithm.ComplexCondition;
+      }
+
       switch (algorithm) {
       case IncludeAlgorithm.Auto:
-        var complexConditionExpression = CreateIncludeViaComplexConditionExpression(
-          provider, BuildRowFilterParameterAccessor(filterDataSource, true),
-          sourceColumns, out extraBinding);
         var temporaryTableExpression = CreateIncludeViaTemporaryTableExpression(
           provider, sourceColumns, out tableDescriptor);
+        var complexConditionExpression = CreateIncludeViaComplexConditionExpression(
+          provider, BuildAutoRowFilterParameterAccessor(tableDescriptor),
+          sourceColumns, out extraBinding);
         resultExpression = SqlDml.Variant(extraBinding,
           complexConditionExpression, temporaryTableExpression);
         anyTemporaryTablesRequired = true;
         break;
       case IncludeAlgorithm.ComplexCondition:
         resultExpression = CreateIncludeViaComplexConditionExpression(
-          provider, BuildRowFilterParameterAccessor(filterDataSource, false),
+          provider, BuildComplexConditionRowFilterParameterAccessor(filterDataSource),
           sourceColumns, out extraBinding);
-        if (!anyTemporaryTablesRequired)
+        if (!anyTemporaryTablesRequired) {
           requestOptions |= QueryRequestOptions.AllowOptimization;
+        }
+
         break;
       case IncludeAlgorithm.TemporaryTable:
         resultExpression = CreateIncludeViaTemporaryTableExpression(
@@ -63,8 +65,10 @@ namespace Xtensive.Orm.Providers
       resultExpression = GetBooleanColumnExpression(resultExpression);
       var calculatedColumn = provider.Header.Columns[provider.Header.Length - 1];
       AddInlinableColumn(provider, calculatedColumn, resultQuery, resultExpression);
-      if (extraBinding!=null)
-        bindings = bindings.Concat(EnumerableUtils.One(extraBinding));
+      if (extraBinding!=null) {
+        bindings = bindings.Append(extraBinding);
+      }
+
       var request = CreateQueryRequest(Driver, resultQuery, bindings, provider.Header.TupleDescriptor, requestOptions);
       return new SqlIncludeProvider(Handlers, request, tableDescriptor, filterDataSource, provider, source);
     }
@@ -97,16 +101,15 @@ namespace Xtensive.Orm.Providers
       return resultExpression;
     }
 
-    protected static Func<ParameterContext, object> BuildRowFilterParameterAccessor(
-      Func<ParameterContext, IEnumerable<Tuple>> filterDataSource, bool takeFromContext)
-    {
-      if (!takeFromContext) {
-        return context => filterDataSource.Invoke(context).ToList();
-      }
+    private static Func<ParameterContext, object> BuildComplexConditionRowFilterParameterAccessor(
+      Func<ParameterContext, IEnumerable<Tuple>> filterDataSource) =>
+      context => filterDataSource.Invoke(context).ToList();
 
-      return context => context.TryGetValue(SqlIncludeProvider.rowFilterParameter, out var filterData)
-        ? filterData
-        : null;
-    }
+    private static Func<ParameterContext, object> BuildAutoRowFilterParameterAccessor(
+      TemporaryTableDescriptor tableDescriptor) =>
+      context =>
+        context.TryGetValue(SqlIncludeProvider.CreateFilterParameter(tableDescriptor), out var filterData)
+          ? filterData
+          : null;
   }
 }
