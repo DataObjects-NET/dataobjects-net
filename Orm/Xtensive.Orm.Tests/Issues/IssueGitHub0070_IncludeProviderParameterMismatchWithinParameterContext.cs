@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Issues.GithubIssue_xxx_Model
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  public class GitHubIssue_xxx_ParameterMismatch : AutoBuildTest
+  public class IssueGitHub0070_IncludeProviderParameterMismatchWithinParameterContext : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
