@@ -56,6 +56,15 @@ namespace Xtensive.Tuples.Transform
       get => singleSourceMap;
     }
 
+    /// <summary>
+    /// Gets or sets destination-to-source field map.
+    /// </summary>
+    public IReadOnlyList<Pair<int, int>> Map
+    {
+      [DebuggerStepThrough]
+      get { return Array.AsReadOnly(map); }
+    }
+
     protected void SetSingleSourceMap(IReadOnlyList<int> singleSourceMap)
     {
       ArgumentValidator.EnsureArgumentNotNull(singleSourceMap, nameof(singleSourceMap));
@@ -71,14 +80,6 @@ namespace Xtensive.Tuples.Transform
       map = newMap;
       this.singleSourceMap = singleSourceMap;
       sourceCount = 1;
-    }
-
-    /// <summary>
-    /// Gets or sets destination-to-source field map.
-    /// </summary>
-    public IReadOnlyList<Pair<int, int>> Map {
-      [DebuggerStepThrough]
-      get { return Array.AsReadOnly(map); }
     }
 
     protected void SetMap(Pair<int, int>[] map)
