@@ -42,6 +42,7 @@ namespace Xtensive.Orm.Services
     /// <returns><see cref="DbDataReader"/> to use.</returns>
     public DbDataReader ExecuteReader()
     {
+      EnsureNotDisposed();
       return driver.ExecuteReader(session, realCommand);
     }
 
