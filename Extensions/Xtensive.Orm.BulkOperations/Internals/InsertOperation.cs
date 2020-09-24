@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -32,15 +32,15 @@ namespace Xtensive.Orm.BulkOperations
       return command.ExecuteNonQuery();
     }
 
-    protected override Task<int> ExecuteInternalAsync(CancellationToken token = default)
+    protected async override Task<int> ExecuteInternalAsync(CancellationToken token = default)
     {
       if (PrimaryIndexes.Length > 1) {
         throw new NotImplementedException("Inheritance is not implemented");
       }
       Bindings = new List<QueryParameterBinding>();
 
-      var command = CreateCommand();
-      return command.ExecuteNonQueryAsync(token);
+      await using var command = CreateCommand();
+      return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
     }
 
     private QueryCommand CreateCommand()

@@ -34,19 +34,19 @@ namespace Xtensive.Orm.BulkOperations
       return command.ExecuteNonQuery();
     }
 
-    protected override Task<int> ExecuteInternalAsync(CancellationToken token = default)
+    protected async override Task<int> ExecuteInternalAsync(CancellationToken token = default)
     {
       if (PrimaryIndexes.Length > 1) {
         throw new NotImplementedException("Inheritance is not implemented");
       }
 
-      base.ExecuteInternal();
+      _ = base.ExecuteInternal();
 
       var request = GetRequest(query);
       Bindings = request.ParameterBindings.ToList();
 
-      var command = CreateCommand(request);
-      return command.ExecuteNonQueryAsync(token);
+      await using var command = CreateCommand(request);
+      return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
     }
 
     private QueryCommand CreateCommand(QueryTranslationResult request)
