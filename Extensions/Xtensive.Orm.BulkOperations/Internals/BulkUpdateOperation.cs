@@ -30,11 +30,11 @@ namespace Xtensive.Orm.BulkOperations
         throw new NotImplementedException("Inheritance is not implemented");
       }
 
-      base.ExecuteInternal();
+      _ = base.ExecuteInternal();
       var request = GetRequest(query);
       Bindings = request.ParameterBindings.ToList();
 
-      var command = CreateCommand(request);
+      using var command = CreateCommand(request);
       return command.ExecuteNonQuery();
     }
 

@@ -28,7 +28,7 @@ namespace Xtensive.Orm.BulkOperations
       }
       Bindings = new List<QueryParameterBinding>();
 
-      var command = CreateCommand();
+      using var command = CreateCommand();
       return command.ExecuteNonQuery();
     }
 

@@ -4,7 +4,9 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.27
 
+using System;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Orm.Providers;
@@ -16,23 +18,35 @@ namespace Xtensive.Orm.Services
   /// Unlike <see cref="DbCommand"/> this type is aware of <see cref="Session.Events"/>
   /// and does all necessary logging of executed SQL.
   /// </summary>
-  public sealed class QueryCommand
+  public sealed class QueryCommand : IDisposable
   {
     private readonly StorageDriver driver;
     private readonly Session session;
     private readonly DbCommand realCommand;
 
+    private bool disposed;
+
     /// <summary>
     /// Gets SQL query to execute.
     /// </summary>
-    public string CommandText => realCommand.CommandText;
+    public string CommandText
+    {
+      get {
+        EnsureNotDisposed();
+        return realCommand.CommandText;
+      }
+    }
 
     /// <summary>
     /// Executes query and returns <see cref="DbDataReader"/>
     /// for retrieving query results.
     /// </summary>
     /// <returns><see cref="DbDataReader"/> to use.</returns>
-    public DbDataReader ExecuteReader() => driver.ExecuteReader(session, realCommand);
+    public DbDataReader ExecuteReader()
+    {
+      EnsureNotDisposed();
+      return driver.ExecuteReader(session, realCommand);
+    }
 
     /// <summary>
     /// Executes query and returns <see cref="DbDataReader"/>
@@ -49,7 +63,11 @@ namespace Xtensive.Orm.Services
     /// Executes query and returns number of affected rows.
     /// </summary>
     /// <returns>Number of affected rows.</returns>
-    public int ExecuteNonQuery() => driver.ExecuteNonQuery(session, realCommand);
+    public int ExecuteNonQuery()
+    {
+      EnsureNotDisposed();
+      return driver.ExecuteNonQuery(session, realCommand);
+    }
 
     /// <summary>
     /// Asynchronously executes query and returns number of affected rows.
@@ -65,7 +83,11 @@ namespace Xtensive.Orm.Services
     /// Executes query and returns scalar result.
     /// </summary>
     /// <returns>Scalar result of query.</returns>
-    public object ExecuteScalar() => driver.ExecuteScalar(session, realCommand);
+    public object ExecuteScalar()
+    {
+      EnsureNotDisposed();
+      return driver.ExecuteScalar(session, realCommand);
+    }
 
     /// <summary>
     /// Asynchronously executes query and returns scalar result.
@@ -76,6 +98,24 @@ namespace Xtensive.Orm.Services
     /// <returns>Scalar result of query.</returns>
     public Task<object> ExecuteScalarAsync(CancellationToken token = default) =>
       driver.ExecuteScalarAsync(session, realCommand, token);
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void EnsureNotDisposed()
+    {
+      if (disposed) {
+        throw new ObjectDisposedException(null);
+      }
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      realCommand?.Dispose();
+    }
 
     // Constructors
 

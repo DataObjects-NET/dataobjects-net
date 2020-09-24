@@ -1,5 +1,6 @@
 [main] Provider for MS SQL Server was branched out into a separate project
 [main] Events for changes cancelling ported from 5.0.x
+[main] QueryCommand now implements IDisposable interface
 [main] TupleDescriptor no longer implements IList<T>
 [main] TupleDescriptor.GetCommonPartLength(TupleDescriptor) method was removed
 [main] TupleDescriptor.IsValueType(int) method was removed
