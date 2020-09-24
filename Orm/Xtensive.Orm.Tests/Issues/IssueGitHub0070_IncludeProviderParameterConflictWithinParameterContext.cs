@@ -54,21 +54,5 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.AreSame(token, query.FirstOrDefault());
       }
     }
-
-    [Test]
-    public void TwoSimilarInStatementsInTheSameQuery()
-    {
-      using (var session = Domain.OpenSession())
-      using (session.OpenTransaction()) {
-        var tokenId = Guid.NewGuid();
-        var token = new Token(session, tokenId) {
-          Salt = -1
-        };
-        session.SaveChanges();
-        var query = session.Query.All<Token>()
-          .Where(t => t.Salt.In(-1, 1) || t.Salt.In(4, 5));
-        Assert.AreSame(token, query.FirstOrDefault());
-      }
-    }
   }
 }
