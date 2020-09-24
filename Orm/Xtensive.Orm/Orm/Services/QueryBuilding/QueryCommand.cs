@@ -1,10 +1,12 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.27
 
+using System;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Services
@@ -14,16 +16,24 @@ namespace Xtensive.Orm.Services
   /// Unlike <see cref="DbCommand"/> this type is aware of <see cref="Session.Events"/>
   /// and does all nessesary logging of executed SQL.
   /// </summary>
-  public sealed class QueryCommand
+  public sealed class QueryCommand : IDisposable
   {
     private readonly StorageDriver driver;
     private readonly Session session;
     private readonly DbCommand realCommand;
 
+    private bool disposed;
+
     /// <summary>
     /// Gets SQL query to execute.
     /// </summary>
-    public string CommandText { get { return realCommand.CommandText; } }
+    public string CommandText
+    {
+      get {
+        EnsureNotDisposed();
+        return realCommand.CommandText;
+      }
+    }
 
     /// <summary>
     /// Executes query and returns <see cref="DbDataReader"/>
@@ -41,6 +51,7 @@ namespace Xtensive.Orm.Services
     /// <returns>Number of affected rows.</returns>
     public int ExecuteNonQuery()
     {
+      EnsureNotDisposed();
       return driver.ExecuteNonQuery(session, realCommand);
     }
 
@@ -50,7 +61,26 @@ namespace Xtensive.Orm.Services
     /// <returns>Scalar result of query.</returns>
     public object ExecuteScalar()
     {
+      EnsureNotDisposed();
       return driver.ExecuteScalar(session, realCommand);
+    }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private void EnsureNotDisposed()
+    {
+      if (disposed) {
+        throw new ObjectDisposedException(null);
+      }
+    }
+
+    /// <inheritdoc/>
+    public void Dispose()
+    {
+      if (disposed) {
+        return;
+      }
+      disposed = true;
+      realCommand?.Dispose();
     }
 
     // Constructors
