@@ -18,11 +18,32 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class SqlIncludeProvider : SqlTemporaryDataProvider
   {
-    internal static readonly Parameter<List<Tuple>> rowFilterParameter = new Parameter<List<Tuple>>("RowFilterData");
+    private class RowFilterParameter : Parameter<List<Tuple>>, IEquatable<RowFilterParameter>
+    {
+      private readonly TemporaryTableDescriptor temporaryTableDescriptor;
+
+      public bool Equals(RowFilterParameter other) =>
+        !ReferenceEquals(null, other)
+        && (ReferenceEquals(this, other) || ReferenceEquals(temporaryTableDescriptor, other.temporaryTableDescriptor));
+
+      public override bool Equals(object obj) =>
+        !ReferenceEquals(null, obj)
+        && (ReferenceEquals(this, obj) || (obj is RowFilterParameter rowFilterParameter && Equals(rowFilterParameter)));
+
+      public override int GetHashCode() => temporaryTableDescriptor != null ? temporaryTableDescriptor.GetHashCode() : 0;
+
+      public RowFilterParameter(TemporaryTableDescriptor temporaryTableDescriptor) : base("RowFilterData")
+      {
+        this.temporaryTableDescriptor = temporaryTableDescriptor;
+      }
+    }
 
     private readonly Func<ParameterContext, IEnumerable<Tuple>> filterDataSource;
 
-    private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
+    private new IncludeProvider Origin => (IncludeProvider) base.Origin;
+
+    internal static Parameter<List<Tuple>> CreateFilterParameter(TemporaryTableDescriptor temporaryTableDescriptor) =>
+      new RowFilterParameter(temporaryTableDescriptor);
 
     /// <inheritdoc/>
     protected internal override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
@@ -36,7 +57,7 @@ namespace Xtensive.Orm.Providers
           LockAndStore(context, filterData);
         }
         else {
-          parameterContext.SetValue(rowFilterParameter, filterData);
+          parameterContext.SetValue(CreateFilterParameter(tableDescriptor), filterData);
         }
 
         break;

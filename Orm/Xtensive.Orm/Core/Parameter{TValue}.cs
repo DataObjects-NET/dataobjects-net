@@ -13,7 +13,7 @@ namespace Xtensive.Core
   /// Parameter - an object identifying its value in active <see cref="ParameterContext"/>.
   /// </summary>
   /// <typeparam name="TValue">The type of parameter value.</typeparam>
-  public sealed class Parameter<TValue> : Parameter
+  public class Parameter<TValue> : Parameter
   {
     /// <summary>
     /// Always fails.
