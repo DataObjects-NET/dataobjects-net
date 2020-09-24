@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.BulkOperations
 
     protected override int ExecuteInternal()
     {
-      base.ExecuteInternal();
+      _ = base.ExecuteInternal();
       QueryTranslationResult request = GetRequest(query);
       Bindings = request.ParameterBindings.ToList();
       if (PrimaryIndexes.Length > 1)
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.BulkOperations
       setOperation.Statement = SetStatement.Create(update);
       Join(update, (SqlSelect) request.Query);
       setOperation.AddValues();
-      QueryCommand command = ToCommand(update);
+      using var command = ToCommand(update);
       return command.ExecuteNonQuery();
     }
 

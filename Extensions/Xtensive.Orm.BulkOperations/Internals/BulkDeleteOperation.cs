@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Linq;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
@@ -15,16 +15,15 @@ namespace Xtensive.Orm.BulkOperations
 
     protected override int ExecuteInternal()
     {
-      base.ExecuteInternal();
+      _ = base.ExecuteInternal();
       QueryTranslationResult request = GetRequest(query);
       Bindings = request.ParameterBindings.ToList();
       if (PrimaryIndexes.Length > 1)
         throw new NotImplementedException("Inheritance is not implemented");
       SqlDelete delete = SqlDml.Delete(SqlDml.TableRef(PrimaryIndexes[0].Table));
       Join(delete, (SqlSelect) request.Query);
-      QueryCommand command = ToCommand(delete);
-      int result = command.ExecuteNonQuery();
-      return result;
+      using var command = ToCommand(delete);
+      return command.ExecuteNonQuery();
     }
 
     protected override SqlTableRef GetStatementTable(SqlStatement statement)

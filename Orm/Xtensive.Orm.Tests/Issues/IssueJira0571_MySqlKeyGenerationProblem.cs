@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -138,7 +138,8 @@ namespace Xtensive.Orm.Tests.Issues
       var query = GetQuery(generatorTable);
       var queryBuilder = GetQueryBuilder(session);
       var queryCompilationResult = queryBuilder.CompileQuery(query);
-      var command = queryBuilder.CreateCommand(queryBuilder.CreateRequest(queryCompilationResult, Enumerable.Empty<Services.QueryParameterBinding>()));
+      var queryRequest = queryBuilder.CreateRequest(queryCompilationResult, Enumerable.Empty<Services.QueryParameterBinding>())
+      using var command = queryBuilder.CreateCommand(queryRequest);
       var rowCount = command.ExecuteScalar();
       Assert.AreEqual(expectedValue, rowCount);
     }
