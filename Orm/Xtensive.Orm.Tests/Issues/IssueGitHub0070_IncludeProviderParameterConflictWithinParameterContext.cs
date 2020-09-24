@@ -7,9 +7,9 @@ using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.IssueGitHub0070_IncludeProviderParameterMismatchWithinParameterContextModel;
+using Xtensive.Orm.Tests.Issues.IssueGitHub0070_IncludeProviderParameterConflictWithinParameterContextModel;
 
-namespace Xtensive.Orm.Tests.Issues.IssueGitHub0070_IncludeProviderParameterMismatchWithinParameterContextModel
+namespace Xtensive.Orm.Tests.Issues.IssueGitHub0070_IncludeProviderParameterConflictWithinParameterContextModel
 {
   [HierarchyRoot]
   [KeyGenerator(KeyGeneratorKind.None)]
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueGitHub0070_IncludeProviderParameterMism
 namespace Xtensive.Orm.Tests.Issues
 {
   [TestFixture]
-  public class IssueGitHub0070_IncludeProviderParameterMismatchWithinParameterContext : AutoBuildTest
+  public class IssueGitHub0070_IncludeProviderParameterConflictWithinParameterContext : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
