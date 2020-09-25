@@ -387,6 +387,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task performing this operation.</returns>
@@ -402,6 +405,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">A token to cancel operation.</param>
@@ -419,6 +425,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -434,6 +443,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -453,6 +465,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task preforming this operation.</returns>
@@ -468,6 +483,9 @@ namespace Xtensive.Orm
     /// otherwise executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">A token to cancel operation.</param>
@@ -485,6 +503,9 @@ namespace Xtensive.Orm
     /// otherwise executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -500,6 +521,9 @@ namespace Xtensive.Orm
     /// otherwise executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -519,6 +543,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <returns>Task preforming this operation.</returns>
@@ -534,6 +561,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="token">A token to cancel operation.</param>
@@ -551,6 +581,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
@@ -566,6 +599,9 @@ namespace Xtensive.Orm
     /// otherwise asynchronously executes the <paramref name="query"/> delegate
     /// and caches the compilation result.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>

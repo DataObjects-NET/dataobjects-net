@@ -362,6 +362,8 @@ namespace Xtensive.Sql
     /// Asynchronously reads the database and schema using the specified query.
     /// By contract query should return database in first column and schema in second.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="queryText">The query text.</param>
     /// <param name="connection">The connection to use.</param>
     /// <param name="transaction">The transaction to use.</param>
@@ -407,6 +409,8 @@ namespace Xtensive.Sql
     /// <summary>
     /// Executes <see cref="SqlDriverConfiguration.ConnectionInitializationSql"/> (if any).
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="connection">Connection to initialize.</param>
     /// <param name="configuration">Driver configuration.</param>
     /// <param name="token">The token to cancel async operation if needed.</param>

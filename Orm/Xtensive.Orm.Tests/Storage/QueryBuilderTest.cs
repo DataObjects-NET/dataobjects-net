@@ -68,8 +68,10 @@ namespace Xtensive.Orm.Tests.Storage
         var command = builder.CreateCommand(request);
         Assert.That(command, Is.Not.Null);
 
-        var result = Convert.ToInt32(command.ExecuteScalar());
-        Assert.That(result, Is.EqualTo(1));
+        using (command) {
+          var result = Convert.ToInt32(command.ExecuteScalar());
+          Assert.That(result, Is.EqualTo(1));
+        }
 
         tx.Complete();
       }
@@ -89,14 +91,16 @@ namespace Xtensive.Orm.Tests.Storage
         var compiled = builder.CompileQuery(select);
         Assert.That(compiled, Is.Not.Null);
 
-        var request = builder.CreateRequest(compiled, new[] {binding});
+        var request = builder.CreateRequest(compiled, new[] { binding });
         Assert.That(request, Is.Not.Null);
 
         var command = builder.CreateCommand(request);
         Assert.That(command, Is.Not.Null);
 
-        var result = Convert.ToInt32(command.ExecuteScalar());
-        Assert.That(result, Is.EqualTo(43));
+        using (command) {
+          var result = Convert.ToInt32(command.ExecuteScalar());
+          Assert.That(result, Is.EqualTo(43));
+        }
 
         tx.Complete();
       }

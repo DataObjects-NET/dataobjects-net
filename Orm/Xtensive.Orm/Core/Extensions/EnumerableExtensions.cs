@@ -486,6 +486,8 @@ namespace Xtensive.Core
     /// <summary>
     /// Runs delayed query as async operation or returns enumerable as a task.
     /// </summary>
+    /// <remarks>Multiple active operations are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
     /// <typeparam name="T">Type of items in sequence.</typeparam>
     /// <param name="source">Delayed query sequence or regular enumerable.</param>
     /// <returns>Task that runs delayed query or completed task with source.</returns>
@@ -496,6 +498,8 @@ namespace Xtensive.Core
     /// <summary>
     /// Runs delayed query as async operation or returns enumerable as a task.
     /// </summary>
+    /// <remarks>Multiple active operations are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
     /// <typeparam name="T">Type of items in sequence.</typeparam>
     /// <param name="source">Delayed query sequence or regular enumerable.</param>
     /// <param name="token">A token to cancel operation.</param>

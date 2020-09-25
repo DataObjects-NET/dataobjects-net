@@ -126,6 +126,8 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     public virtual ValueTask OnBeforeStageAsync(CancellationToken token = default)
     {
       var context = UpgradeContext;
@@ -188,6 +190,8 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
     /// <exception cref="ArgumentOutOfRangeException"><c>context.Stage</c> is out of range.</exception>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     public virtual async ValueTask OnStageAsync(CancellationToken token = default)
     {
       var context = UpgradeContext;
@@ -263,6 +267,8 @@ namespace Xtensive.Orm.Upgrade
     /// Default implementation calls <see cref="OnUpgrade"/> method and completes synchronously.
     /// </remarks>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     protected virtual ValueTask OnUpgradeAsync(CancellationToken token = default)
     {
       OnUpgrade();

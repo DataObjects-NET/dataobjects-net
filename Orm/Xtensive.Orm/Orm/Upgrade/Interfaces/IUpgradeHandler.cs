@@ -62,6 +62,8 @@ namespace Xtensive.Orm.Upgrade
     /// <remarks>
     /// Default implementation calls <see cref="OnPrepare"/> method and completes synchronously.
     /// </remarks>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
     ValueTask OnPrepareAsync(CancellationToken token = default) {
       OnPrepare();
@@ -86,6 +88,8 @@ namespace Xtensive.Orm.Upgrade
     /// <remarks>
     /// Default implementation calls <see cref="OnBeforeStage"/> method and completes synchronously.
     /// </remarks>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
     ValueTask OnBeforeStageAsync(CancellationToken token = default) {
       OnBeforeStage();
@@ -105,6 +109,8 @@ namespace Xtensive.Orm.Upgrade
     /// <remarks>
     /// Default implementation calls <see cref="OnSchemaReady"/> method and completes synchronously.
     /// </remarks>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
     ValueTask OnSchemaReadyAsync(CancellationToken token = default) {
       OnSchemaReady();
@@ -124,6 +130,8 @@ namespace Xtensive.Orm.Upgrade
     /// <remarks>
     /// Default implementation calls <see cref="OnBeforeExecuteActions"/> method and completes synchronously.
     /// </remarks>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="actions">
     /// The sequence of statements to be executed on database while upgrading database schema.</param>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
@@ -140,6 +148,8 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Override this method to handle "at upgrade stage" event.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <remarks>
     /// Default implementation calls <see cref="OnStage"/> method and completes synchronously.
     /// </remarks>
@@ -160,6 +170,8 @@ namespace Xtensive.Orm.Upgrade
     /// Override this method to perform any actions after all database
     /// operations are completed.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="domain">Domain that would be returned by <see cref="Domain.BuildAsync"/> method.</param>
     /// <param name="token">The cancellation token to terminate this operation if necessary.</param>
     ValueTask OnCompleteAsync(Domain domain, CancellationToken token = default) {

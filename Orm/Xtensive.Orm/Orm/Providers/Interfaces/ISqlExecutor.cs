@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -28,6 +28,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified query statement.
     /// This method is similar to <see cref="DbCommand.ExecuteReaderAsync()"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="statement">The statement to execute.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Result of execution.</returns>
@@ -60,6 +62,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified scalar statement.
     /// This method is similar to <see cref="DbCommand.ExecuteScalarAsync()"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="statement">The statement to execute.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Result of execution.</returns>
@@ -76,6 +80,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified scalar statement.
     /// This method is similar to <see cref="DbCommand.ExecuteScalarAsync()"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="commandText">The statement to execute.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Result of execution.</returns>
@@ -92,6 +98,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified non query statement.
     /// This method is similar to <see cref="DbCommand.ExecuteNonQueryAsync()"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="statement">The statement to execute.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Result of execution.</returns>
@@ -108,6 +116,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes the specified non query statement.
     /// This method is similar to <see cref="DbCommand.ExecuteNonQueryAsync()"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="commandText">The statement to execute.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Result of execution.</returns>
@@ -123,6 +133,8 @@ namespace Xtensive.Orm.Providers
     /// Asynchronously executes group of DDL statements
     /// via <see cref="ExecuteNonQueryAsync(System.String, System.Threading.CancellationToken)"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <param name="statements">Statements to execute</param>
     Task ExecuteManyAsync(IEnumerable<string> statements, CancellationToken token = default);
@@ -137,6 +149,8 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Asynchronously executes the specified extraction tasks.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="tasks">Tasks to execute.</param>
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Extraction result.</returns>

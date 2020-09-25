@@ -59,7 +59,7 @@ namespace Xtensive.Orm
     /// <remarks>
     /// <para>
     /// Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
     /// another method in this session.
     /// </para>
     /// <para>
@@ -76,6 +76,7 @@ namespace Xtensive.Orm
     /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
     /// </para>
     /// </remarks>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
     public async Task SaveChangesAsync(CancellationToken token = default)
     {

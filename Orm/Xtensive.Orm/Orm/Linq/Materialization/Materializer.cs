@@ -16,7 +16,7 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       var reader = (IMaterializingReader<T>)
         materializeMethod.Invoke(recordSetReader, session, parameterContext);
-      return new QueryResult<T>(reader);
+      return new QueryResult<T>(reader, session.GetLifetimeToken());
     }
 
     public Materializer(Func<RecordSetReader,Session,ParameterContext,object> materializeMethod)

@@ -135,6 +135,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Asynchronously gets <see cref="RecordSetReader"/> bound to the specified <paramref name="session"/>.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="session">Session to bind.</param>
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance with
     /// the values of query parameters.</param>

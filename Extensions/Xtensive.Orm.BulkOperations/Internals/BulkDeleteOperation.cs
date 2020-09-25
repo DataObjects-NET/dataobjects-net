@@ -1,4 +1,7 @@
-﻿
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Linq;
 using System.Threading;
@@ -22,28 +25,30 @@ namespace Xtensive.Orm.BulkOperations
         throw new NotImplementedException("Inheritance is not implemented");
       }
 
-      base.ExecuteInternal();
+      _ = base.ExecuteInternal();
 
       var request = GetRequest(query);
       Bindings = request.ParameterBindings.ToList();
 
-      var command = CreateCommand(request);
+      using var command = CreateCommand(request);
       return command.ExecuteNonQuery();
     }
 
-    protected override Task<int> ExecuteInternalAsync(CancellationToken token = default)
+    protected async override Task<int> ExecuteInternalAsync(CancellationToken token = default)
     {
       if (PrimaryIndexes.Length > 1) {
         throw new NotImplementedException("Inheritance is not implemented");
       }
 
-      base.ExecuteInternal();
+      _ = base.ExecuteInternal();
 
       var request = GetRequest(query);
       Bindings = request.ParameterBindings.ToList();
 
       var command = CreateCommand(request);
-      return command.ExecuteNonQueryAsync(token);
+      await using (command.ConfigureAwait(false)) {
+        return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
     }
 
     private QueryCommand CreateCommand(QueryTranslationResult request)

@@ -41,6 +41,9 @@ namespace Xtensive.Orm.Providers
     /// Commits the transaction.
     /// This method is invoked for actual transactions only.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     public virtual ValueTask CommitTransactionAsync(Transaction transaction)
     {
       CommitTransaction(transaction);
@@ -57,6 +60,9 @@ namespace Xtensive.Orm.Providers
     /// Rollbacks the transaction.
     /// This method is invoked for actual transactions only.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     public virtual ValueTask RollbackTransactionAsync(Transaction transaction)
     {
       RollbackTransaction(transaction);
@@ -73,6 +79,9 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Asynchronously creates the savepoint.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     public virtual ValueTask CreateSavepointAsync(Transaction transaction, CancellationToken token = default)
     {
       CreateSavepoint(transaction);
@@ -87,6 +96,9 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Asynchronously releases the savepoint.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     public virtual ValueTask ReleaseSavepointAsync(Transaction transaction, CancellationToken token = default)
     {
       ReleaseSavepoint(transaction);
@@ -101,6 +113,9 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Asynchronously rolls backs to the savepoint.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     public virtual ValueTask RollbackToSavepointAsync(Transaction transaction, CancellationToken token = default)
     {
       RollbackToSavepoint(transaction);

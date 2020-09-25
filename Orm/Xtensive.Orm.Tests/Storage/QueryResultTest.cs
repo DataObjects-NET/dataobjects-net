@@ -107,13 +107,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = session.Query.Execute(q => q.All<Order>());
         }
-        if (SupportsMars()) {
-          var ex = Assert.Throws<StorageException>(() => result.ToList());
-          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
-        }
-        else {
-          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
-        }
+
+        _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
       }
     }
 
@@ -125,13 +120,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = await session.Query.ExecuteAsync(q => q.All<Order>());
         }
-        if (SupportsMars()) {
-          var ex = Assert.Throws<StorageException>(() => result.ToList());
-          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
-        }
-        else {
-          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
-        }
+
+        _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
       }
     }
 
@@ -165,13 +155,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = session.Query.Execute(q => q.All<Order>());
         }
-        if (SupportsMars()) {
-          var ex = Assert.Throws<StorageException>(() => result.ToList());
-          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
-        }
-        else {
-          _ = result.ToList();
-        }
+
+        _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
       }
     }
 
@@ -184,13 +169,8 @@ namespace Xtensive.Orm.Tests.Storage
         using (var transaction = session.OpenTransaction()) {
           result = await session.Query.ExecuteAsync(q => q.All<Order>());
         }
-        if (SupportsMars()) {
-          var ex = Assert.Throws<StorageException>(() => result.ToList());
-          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
-        }
-        else {
-          _ = result.ToList();
-        }
+
+        _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
       }
     }
 
@@ -202,13 +182,8 @@ namespace Xtensive.Orm.Tests.Storage
       using (var transaction = session.OpenTransaction()) {
         result = session.Query.Execute(q => q.All<Order>());
       }
-      if (SupportsMars()) {
-        var ex = Assert.Throws<StorageException>(() => result.ToList());
-        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
-      }
-      else {
-        var ex = Assert.Throws<ObjectDisposedException>(() => result.ToList());
-      }
+
+      _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
     }
 
     [Test]
@@ -220,13 +195,7 @@ namespace Xtensive.Orm.Tests.Storage
         result = await session.Query.ExecuteAsync(q => q.All<Order>());
       }
 
-      if (SupportsMars()) {
-        var ex = Assert.Throws<StorageException>(() => result.ToList());
-        Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
-      }
-      else {
-        var ex = Assert.Throws<ObjectDisposedException>(() => result.ToList());
-      }
+      _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
     }
 
     [Test]
@@ -321,14 +290,24 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EnumerationInOuterTransactionAfterInnerRollbackTest()
     {
+      // sql server does not pull results to memory in client library
+      var directReader = StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.SqlServer);
+
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
-        using (var outerTx = session.OpenTransaction()) {
-          using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
-            result = session.Query.Execute(q => q.All<Order>());
-          }
-          var ex = Assert.Throws<StorageException>(() => result.ToList());
-          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        // no using intentionally
+        var outerTx = session.OpenTransaction();
+        var innerTx = session.OpenTransaction(TransactionOpenMode.New);
+
+        result = session.Query.Execute(q => q.All<Order>());
+
+        if (directReader) {
+          _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
+          _ = Assert.Throws<StorageException>(() => outerTx.Dispose());
+        }
+        else {
+          Assert.DoesNotThrow(() => innerTx.Dispose());
+          Assert.DoesNotThrow(() => outerTx.Dispose());
         }
       }
     }
@@ -336,14 +315,24 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task EnumerationInOuterTransactionAfterInnerRollbackAsyncTest()
     {
+      // sql server does not pull results to memory in client library
+      var directReader = StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.SqlServer);
+
       using (var session = Domain.OpenSession()) {
         QueryResult<Order> result;
-        using (var outerTx = session.OpenTransaction()) {
-          using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
-            result = await session.Query.ExecuteAsync(q => q.All<Order>());
-          }
-          var ex = Assert.Throws<StorageException>(() => result.ToList());
-          Assert.That(ex.InnerException, Is.TypeOf<InvalidOperationException>());
+        // no using intentionally
+        var outerTx = session.OpenTransaction();
+        var innerTx = session.OpenTransaction(TransactionOpenMode.New);
+
+        result = await session.Query.ExecuteAsync(q => q.All<Order>());
+
+        if (directReader) {
+          _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
+          _ = Assert.Throws<StorageException>(() => outerTx.Dispose());
+        }
+        else {
+          Assert.DoesNotThrow(() => innerTx.Dispose());
+          Assert.DoesNotThrow(() => outerTx.Dispose());
         }
       }
     }

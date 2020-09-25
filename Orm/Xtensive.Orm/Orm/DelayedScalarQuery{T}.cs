@@ -31,32 +31,32 @@ namespace Xtensive.Orm
     /// <summary>
     /// Asynchronously gets value.
     /// </summary>
-    /// <returns>Task running this operation</returns>
     /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
     /// another method in this session.</remarks>
+    /// <returns>Task running this operation</returns>
     [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
     public Task<TResult> AsAsync() => AsAsync(CancellationToken.None);
 
     /// <summary>
     /// Asynchronously gets value.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <param name="token">Token to cancel operation.</param>
     /// <returns>Task running this operation.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     [Obsolete("AsAsync Method is obsolete. Use ExecuteAsync method instead")]
     public async Task<TResult> AsAsync(CancellationToken token) => await ExecuteAsync(token).ConfigureAwait(false);
 
     /// <summary>
     /// Asynchronously executes delayed scalar query.
     /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
     /// <param name="token">Cancellation token.</param>
     /// <returns>Value representing scalar query execution result.</returns>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// 'await' to ensure that any asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
     public async ValueTask<TResult> ExecuteAsync(CancellationToken token = default) =>
       (await MaterializeAsync<TResult>(token).ConfigureAwait(false)).ToScalar(resultAccessMethod);
 

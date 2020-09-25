@@ -2,6 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Xtensive.Orm.Linq.Materialization;
@@ -29,32 +30,47 @@ namespace Xtensive.Orm
     }
 
     private readonly IMaterializingReader<TItem> reader;
+    private readonly StateLifetimeToken lifetimeToken;
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public IEnumerator<TItem> GetEnumerator() => reader.AsEnumerator();
+    public IEnumerator<TItem> GetEnumerator()
+    {
+      EnsureResultsAlive();
+      return reader.AsEnumerator();
+    }
 
     /// <summary>
     /// Transforms <see cref="QueryResult{TItem}"/> to an <see cref="IAsyncEnumerable{T}"/> sequence.
     /// </summary>
     public async IAsyncEnumerable<TItem> AsAsyncEnumerable()
     {
+      EnsureResultsAlive();
       var enumerator = reader.AsAsyncEnumerator();
       while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
         yield return enumerator.Current;
       }
     }
 
-    internal QueryResult(IMaterializingReader<TItem> reader)
+    private void EnsureResultsAlive()
+    {
+      if (lifetimeToken != null && !lifetimeToken.IsActive) {
+        throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
+      }
+    }
+
+    internal QueryResult(IMaterializingReader<TItem> reader, StateLifetimeToken lifetimeToken)
     {
       this.reader = reader;
+      this.lifetimeToken = lifetimeToken;
     }
 
     internal QueryResult(IEnumerable<TItem> items)
     {
       reader = new EnumerableReader(items);
+      this.lifetimeToken = default;
     }
   }
 }

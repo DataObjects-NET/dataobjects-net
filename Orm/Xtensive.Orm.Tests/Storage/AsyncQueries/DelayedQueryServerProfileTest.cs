@@ -40,11 +40,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries
           result = await session.Query.CreateDelayedQuery(q => q.All<Discepline>())
             .ExecuteAsync();
         }
-        // because of materialization of fetched results not because of check in DelayedQuery.MaterializeAsync()
-        //result.ToList();
+
         var ex = Assert.Throws<InvalidOperationException>(() => result.ToList());
         Assert.That(ex.Message,
-          Is.EqualTo(Strings.ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt));
+          Is.EqualTo(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries));
       }
     }
   }
