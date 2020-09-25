@@ -45,8 +45,10 @@ namespace Xtensive.Orm.BulkOperations
       var request = GetRequest(query);
       Bindings = request.ParameterBindings.ToList();
 
-      await using var command = CreateCommand(request);
-      return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      var command = CreateCommand(request);
+      await using (command.ConfigureAwait(false)) {
+        return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
     }
 
     private QueryCommand CreateCommand(QueryTranslationResult request)
