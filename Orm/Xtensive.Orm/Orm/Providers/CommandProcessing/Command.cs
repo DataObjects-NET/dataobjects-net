@@ -25,6 +25,7 @@ namespace Xtensive.Orm.Providers
     private readonly List<string> statements = new List<string>();
 
     private bool prepared;
+    private bool isDisposed;
     private DisposableSet resources;
     private DbDataReader reader;
 
@@ -42,7 +43,7 @@ namespace Xtensive.Orm.Providers
         underlyingCommand.Parameters.Add(parameter);
       }
 
-      if (part.Resources.Count==0) {
+      if (part.Resources.Count == 0) {
         return;
       }
 
@@ -124,7 +125,7 @@ namespace Xtensive.Orm.Providers
 
     public DbCommand Prepare()
     {
-      if (statements.Count==0) {
+      if (statements.Count == 0) {
         throw new InvalidOperationException("Unable to prepare command: no parts registered");
       }
 
@@ -142,16 +143,22 @@ namespace Xtensive.Orm.Providers
 
     public void Dispose()
     {
-      reader.DisposeSafely();
-      resources.DisposeSafely();
-      underlyingCommand.DisposeSafely();
+      if (!isDisposed) {
+        isDisposed = true;
+        reader.DisposeSafely();
+        resources.DisposeSafely();
+        underlyingCommand.DisposeSafely();
+      }
     }
 
     public async ValueTask DisposeAsync()
     {
-      await reader.DisposeSafelyAsync().ConfigureAwait(false);
-      await resources.DisposeSafelyAsync().ConfigureAwait(false);
-      await underlyingCommand.DisposeSafelyAsync().ConfigureAwait(false);
+      if (!isDisposed) {
+        isDisposed = true;
+        await reader.DisposeSafelyAsync().ConfigureAwait(false);
+        await resources.DisposeSafelyAsync().ConfigureAwait(false);
+        await underlyingCommand.DisposeSafelyAsync().ConfigureAwait(false);
+      }
     }
 
     // Constructors
