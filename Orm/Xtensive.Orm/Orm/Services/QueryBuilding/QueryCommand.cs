@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Services
   /// Unlike <see cref="DbCommand"/> this type is aware of <see cref="Session.Events"/>
   /// and does all necessary logging of executed SQL.
   /// </summary>
-  public sealed class QueryCommand : IDisposable
+  public sealed class QueryCommand : IDisposable, IAsyncDisposable
   {
     private readonly StorageDriver driver;
     private readonly Session session;
@@ -115,6 +115,18 @@ namespace Xtensive.Orm.Services
       }
       disposed = true;
       realCommand?.Dispose();
+    }
+
+    public ValueTask DisposeAsync()
+    {
+      if (disposed) {
+        return default;
+      }
+      disposed = true;
+      if (realCommand != null) {
+        return realCommand.DisposeAsync();
+      }
+      return default;
     }
 
     // Constructors
