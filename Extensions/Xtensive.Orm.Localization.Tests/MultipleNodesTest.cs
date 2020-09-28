@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Localization.Tests
       configuration.Types.Register(typeof (ILocalizable<>).Assembly);
       configuration.Types.Register(typeof (AutoBuildTest).Assembly, typeof (AutoBuildTest).Namespace);
       configuration.DefaultSchema = DefaultNodeSchema;
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
 
