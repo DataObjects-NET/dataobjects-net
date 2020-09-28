@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.12.04
 
@@ -10,6 +10,7 @@ using System.Globalization;
 using TestCommon;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Localization.Tests.Model;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Localization.Tests
 {
@@ -28,6 +29,11 @@ namespace Xtensive.Orm.Localization.Tests
     private static CultureInfo SpanishCulture = new CultureInfo("es-ES");
     private static string SpanishTitle = "Bienvenido!";
     private static string SpanishContent = "Mis amigos mejores! Bienvenido a mi cumpleanos!";
+
+    protected override void CheckRequirements()
+    {
+      Require.AllFeaturesSupported(Providers.ProviderFeatures.Multischema);
+    }
 
     protected override Domain BuildDomain(DomainConfiguration configuration)
     {
