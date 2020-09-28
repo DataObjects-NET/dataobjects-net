@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System.Collections.Generic;
 using NUnit.Framework;
 using TestCommon.Model;
 using Xtensive.Core;
@@ -53,6 +57,10 @@ namespace TestCommon
     }
 
     protected virtual void PopulateData()
+    {
+    }
+
+    protected virtual void CheckRequirements()
     {
     }
   }
