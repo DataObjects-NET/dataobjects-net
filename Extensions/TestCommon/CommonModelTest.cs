@@ -21,6 +21,7 @@ namespace TestCommon
     [SetUp]
     public virtual void SetUp()
     {
+      CheckRequirements();
       var config = BuildConfiguration();
       Domain = BuildDomain(config);
       notDisposed = new List<Session>();
