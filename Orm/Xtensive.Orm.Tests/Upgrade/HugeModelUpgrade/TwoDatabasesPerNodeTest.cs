@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -21,6 +21,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     [Explicit]
     public void SequentialBuildingTest()
     {
+      CheckRequirements();
       using (var domain = BuildDomain(BuildConfiguration(), false)) {
         PopulateData(domain);
       }
@@ -39,6 +40,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     [Explicit]
     public void ParallelBuildingTest()
     {
+      CheckRequirements();
       using (var domain = BuildDomain(BuildConfiguration(), false)) {
         PopulateData(domain);
       }

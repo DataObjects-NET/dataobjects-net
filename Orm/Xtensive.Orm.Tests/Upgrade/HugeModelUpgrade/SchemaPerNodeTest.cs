@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     [Explicit]
     public void SequentialBuildingTest()
     {
+      CheckRequirements();
       using (var domain = BuildDomain(BuildConfiguration())) {
         PopulateData(domain);
       }

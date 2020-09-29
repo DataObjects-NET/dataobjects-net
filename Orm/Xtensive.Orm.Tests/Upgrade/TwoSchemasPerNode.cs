@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -16,8 +16,8 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     [Explicit]
     public void SequentialBuildingTest()
     {
-      using (var domain = BuildDomain(BuildConfiguration(), false))
-      {
+      CheckRequirements();
+      using (var domain = BuildDomain(BuildConfiguration(), false)) {
         PopulateData(domain);
       }
 
