@@ -41,43 +41,44 @@ Use the --version option to specify preview version to install
 
 The following  code demonstrates  basic usage of DataObjects.Net. For full tutorial configuring Domain, defining the model and querying data see our [documentation](http://help.dataobjects.net).
 
-    // create configuration with connection to Tests database on local instance of MS SQL Server
-    var domainConfiguration = new DomainConfiguration(@"sqlserver://localhost/Tests");
-    // register types from certain domain
-    domainConfiguration.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
-    // create database structure from scratch
-    domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
+```csharp
+// create configuration with connection to Tests database on local instance of MS SQL Server
+var domainConfiguration = new DomainConfiguration(@"sqlserver://localhost/Tests");
+// register types from certain domain
+domainConfiguration.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+// create database structure from scratch
+domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
 
-    // on application start build Domain
-    var domain = Domain.Build(domainConfiguration);
+// on application start build Domain
+var domain = Domain.Build(domainConfiguration);
 
-    // open a session to database
-    using (var session = domain.OpenSession()) {
-      using (var transactionScope = session.OpenTransaction()) {
-        // query for existing Anton Chekhov
-        Author existingAuthor = session.Query.All<Author>()
-          .Where(author => author.FirstName=="Anton" && author.LastName=="Chekhov")
-          .FirstOrDefault();
+// open a session to database
+using (var session = domain.OpenSession()) {
+  using (var transactionScope = session.OpenTransaction()) {
+    // query for existing Anton Chekhov
+    Author existingAuthor = session.Query.All<Author>()
+      .Where(author => author.FirstName=="Anton" && author.LastName=="Chekhov")
+      .FirstOrDefault();
 
-        //if Anton Pavlovich isn't in database yet then and him
-        if (existingAuthor==null) {
-          existingAuthor = new new Author(session) {
-            FirstName = "Anton",
-            LastName = "Chekhov";
-          }
-        }
-
-        // add new book and assign it with Anton Chekhov
-        existingAuthor.Books.Add(new Book(session) {Title = "The Cherry Orchard"});
-
-        // commit opened transaction to save changes made within it
-        transactionScope.Complete();
+    //if Anton Pavlovich isn't in database yet then and him
+    if (existingAuthor==null) {
+      existingAuthor = new new Author(session) {
+        FirstName = "Anton",
+        LastName = "Chekhov";
       }
     }
 
-    // on application shutdown dispose existing domain
-    domain.Dispose()
+    // add new book and assign it with Anton Chekhov
+    existingAuthor.Books.Add(new Book(session) {Title = "The Cherry Orchard"});
 
+    // commit opened transaction to save changes made within it
+    transactionScope.Complete();
+  }
+}
+
+// on application shutdown dispose existing domain
+domain.Dispose()
+```
 
 
 ### Getting support
