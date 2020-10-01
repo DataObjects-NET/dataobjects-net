@@ -1,3 +1,9 @@
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+// Created by: Alexey Kulakov
+// Created:    2016.10.24
+
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -8,73 +14,36 @@ using Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.TwoPartsModel;
 
 namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 {
-  [TestFixture]
+  /// <summary>
+  /// The test takes unnormal count of databases and time.
+  /// Run it on local machine only!
+  /// </summary>
   [Explicit]
-  public class TwoSchemasPerNode
+  public sealed class TwoSchemasPerNodeTest : HugeModelUpgradeTestBase
   {
-    [Test]
-    [Explicit]
-    public void SequentialBuildingTest()
-    {
-      CheckRequirements();
-      using (var domain = BuildDomain(BuildConfiguration(), false)) {
-        PopulateData(domain);
-      }
+    protected override bool SupportsParallel => false;
 
-      var configuration = BuildConfiguration();
-      configuration.UpgradeMode = DomainUpgradeMode.Skip;
-      GC.Collect();
-      using (var domain = BuildDomain(configuration, false)) {
-        var counters = domain.Extensions.Get<PerformanceResultContainer>();
-        Console.WriteLine(counters.ToString());
-        CheckIfQueriesWork(domain);
-      }
-    }
-
-    protected void CheckRequirements()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      Require.ProviderIs(StorageProvider.SqlServer);
-    }
-
-    protected DomainConfiguration BuildConfiguration()
-    {
-      var configuration = DomainConfigurationFactory.Create();
+      var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      //configuration.DefaultDatabase = "DO-Tests";
       configuration.DefaultSchema = "dbo";
-      configuration.Types.Register(typeof(HugeModelUpgrade.TwoPartsModel.PartOne.TestEntityOne0).Assembly, typeof(HugeModelUpgrade.TwoPartsModel.PartOne.TestEntityOne0).Namespace);
-      configuration.Types.Register(typeof(HugeModelUpgrade.TwoPartsModel.PartTwo.TestEntityTwo0).Assembly, typeof(HugeModelUpgrade.TwoPartsModel.PartTwo.TestEntityTwo0).Namespace);
+
+      var partOneType = typeof(TwoPartsModel.PartOne.TestEntityOne0);
+      var partTwoType = typeof(TwoPartsModel.PartTwo.TestEntityTwo0);
+      configuration.Types.Register(partOneType.Assembly, partOneType.Namespace);
+      configuration.Types.Register(partTwoType.Assembly, partTwoType.Namespace);
 
       configuration.MappingRules
-        .Map(typeof(HugeModelUpgrade.TwoPartsModel.PartOne.TestEntityOne0).Assembly, typeof(HugeModelUpgrade.TwoPartsModel.PartOne.TestEntityOne0).Namespace)
+        .Map(partOneType.Assembly, partOneType.Namespace)
         .ToSchema("dbo");
       configuration.MappingRules
-        .Map(typeof(HugeModelUpgrade.TwoPartsModel.PartTwo.TestEntityTwo0).Assembly, typeof(HugeModelUpgrade.TwoPartsModel.PartTwo.TestEntityTwo0).Namespace)
+        .Map(partTwoType.Assembly, partTwoType.Namespace)
         .ToSchema("Model1");
-      configuration.Types.Register(typeof(UpgradePerformanceCounter));
       return configuration;
     }
 
-    protected Domain BuildDomain(DomainConfiguration configuration, bool isParallel)
-    {
-      var domain = Domain.Build(configuration);
-      var nodes = GetConfigurations(configuration.UpgradeMode);
-      if (isParallel) {
-        Action<object> action = nodeConfg => domain.StorageNodeManager.AddNode((NodeConfiguration) nodeConfg);
-        var tasks = new List<Task>();
-        foreach (var nodeConfiguration in nodes)
-          tasks.Add(Task.Factory.StartNew(action, nodeConfiguration));
-        Task.WaitAll(tasks.ToArray());
-      }
-      else {
-        foreach (var nodeConfiguration in nodes)
-          domain.StorageNodeManager.AddNode(nodeConfiguration);
-      }
-
-      return domain;
-    }
-
-    private void PopulateData(Domain domain)
+    protected override void PopulateData(Domain domain)
     {
       var nodes = new[] {
         WellKnown.DefaultNodeId,
@@ -93,7 +62,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       }
     }
 
-    private void CheckIfQueriesWork(Domain domain)
+    protected override void CheckIfQueriesWork(Domain domain)
     {
       var nodes = new[] {
         WellKnown.DefaultNodeId,
@@ -104,14 +73,14 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
         using (var session = domain.OpenSession()) {
           session.SelectStorageNode(node);
           using (var transaction = session.OpenTransaction()) {
-            var populator = new ModelChecker();
-            populator.Run(session);
+            var checker = new ModelChecker();
+            checker.Run(session);
           }
         }
       }
     }
 
-    private IEnumerable<NodeConfiguration> GetConfigurations(DomainUpgradeMode upgradeMode)
+    protected override IEnumerable<NodeConfiguration> GetAdditionalNodeConfigurations(DomainUpgradeMode upgradeMode)
     {
       var schemas = new[] {
         "Model2", "Model3",

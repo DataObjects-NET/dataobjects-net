@@ -1,6 +1,6 @@
-// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.10.19
 
@@ -14,15 +14,9 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
   {
     private readonly Dictionary<string, long> memoryUsages = new Dictionary<string, long>();
 
-    public override bool IsEnabled
-    {
-      get { return true; }
-    }
+    public override bool IsEnabled => true;
 
-    public override bool CanUpgradeFrom(string oldVersion)
-    {
-      return true;
-    }
+    public override bool CanUpgradeFrom(string oldVersion) => true;
 
     public override void OnPrepare()
     {
@@ -60,9 +54,9 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       memoryUsages.Add("OnComplete after garbage collection ", GC.GetTotalMemory(true));
 
       var container = domain.Extensions.Get<PerformanceResultContainer>();
-      if (container==null) {
+      if (container == null) {
         container = new PerformanceResultContainer();
-        domain.Extensions.Set(typeof (PerformanceResultContainer), container);
+        domain.Extensions.Set(typeof(PerformanceResultContainer), container);
       }
       container.Add(UpgradeContext.StorageNode.Id, memoryUsages);
     }

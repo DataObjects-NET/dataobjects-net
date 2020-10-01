@@ -1,6 +1,6 @@
-// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.10.19
 
@@ -17,84 +17,19 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
   /// The test takes unnormal count of databases and time.
   /// Run it on local machine only!
   /// </summary>
-  [TestFixture]
   [Explicit]
-  public class DatabasePerNodeTest
+  public sealed class DatabasePerNodeTest : HugeModelUpgradeTestBase
   {
-    [Test]
-    [Explicit]
-    public void SequentialBuildingTest()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      CheckRequirements();
-      using (var domain = BuildDomain(BuildConfiguration(), false)) {
-        PopulateData(domain);
-      }
-
-      var configuration = BuildConfiguration();
-      configuration.UpgradeMode = DomainUpgradeMode.Skip;
-      GC.Collect();
-      using (var domain = BuildDomain(configuration, false)) {
-        var counters = domain.Extensions.Get<PerformanceResultContainer>();
-        Console.WriteLine(counters.ToString());
-        CheckIfQueriesWork(domain);
-      }
-    }
-
-    [Test]
-    [Explicit]
-    public void ParallelBuildingTest()
-    {
-      CheckRequirements();
-      using (var domain = BuildDomain(BuildConfiguration(), false)) {
-        PopulateData(domain);
-      }
-
-      var configuration = BuildConfiguration();
-      configuration.UpgradeMode = DomainUpgradeMode.Skip;
-      GC.Collect();
-      using (var domain = BuildDomain(configuration, true)) {
-        var counters = domain.Extensions.Get<PerformanceResultContainer>();
-        Console.WriteLine(counters.ToString());
-        CheckIfQueriesWork(domain);
-      }
-    }
-
-    protected void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer);
-    }
-
-    protected DomainConfiguration BuildConfiguration()
-    {
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      var configuration = base.BuildConfiguration();
       configuration.DefaultDatabase = "DO-Tests";
       configuration.DefaultSchema = "dbo";
       configuration.Types.Register(typeof(TestEntity0).Assembly, typeof(TestEntity0).Namespace);
-      configuration.Types.Register(typeof(UpgradePerformanceCounter));
       return configuration;
     }
 
-    protected Domain BuildDomain(DomainConfiguration configuration, bool isParallel)
-    {
-      var domain = Domain.Build(configuration);
-      var nodes = GetConfigurations(configuration.UpgradeMode);
-      if (isParallel) {
-        Action<object> action = nodeConfg => domain.StorageNodeManager.AddNode((NodeConfiguration) nodeConfg);
-        var tasks = new List<Task>();
-        foreach (var nodeConfiguration in nodes)
-          tasks.Add(Task.Factory.StartNew(action, nodeConfiguration));
-        Task.WaitAll(tasks.ToArray());
-      }
-      else {
-        foreach (var nodeConfiguration in nodes)
-          domain.StorageNodeManager.AddNode(nodeConfiguration);
-      }
-
-      return domain;
-    }
-
-    private void PopulateData(Domain domain)
+    protected override void PopulateData(Domain domain)
     {
       var nodes = new[] {
         WellKnown.DefaultNodeId,
@@ -114,7 +49,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       }
     }
 
-    private void CheckIfQueriesWork(Domain domain)
+    protected override void CheckIfQueriesWork(Domain domain)
     {
       var nodes = new[] {
         WellKnown.DefaultNodeId,
@@ -126,28 +61,18 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
         using (var session = domain.OpenSession()) {
           session.SelectStorageNode(node);
           using (var transaction = session.OpenTransaction()) {
-            var populator = new ModelChecker();
-            populator.Run(session);
+            var checker = new ModelChecker();
+            checker.Run(session);
           }
         }
       }
     }
 
-    private IEnumerable<NodeConfiguration> GetConfigurations(DomainUpgradeMode upgradeMode)
+    protected override IEnumerable<NodeConfiguration> GetAdditionalNodeConfigurations(DomainUpgradeMode upgradeMode)
     {
       var databases = new[] {
-        "DO-Tests-1",
-        "DO-Tests-2",
-        "DO-Tests-3",
-        "DO-Tests-4",
-        "DO-Tests-5",
-        "DO-Tests-6",
-        "DO-Tests-7",
-        "DO-Tests-8",
-        "DO-Tests-9",
-        "DO-Tests-10",
-        "DO-Tests-11",
-        "DO-Tests-12",
+        "DO-Tests-1", "DO-Tests-2", "DO-Tests-3", "DO-Tests-4", "DO-Tests-5", "DO-Tests-6",
+        "DO-Tests-7", "DO-Tests-8", "DO-Tests-9", "DO-Tests-10", "DO-Tests-11", "DO-Tests-12",
       };
 
       var index = 0;
