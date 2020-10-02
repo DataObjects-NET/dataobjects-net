@@ -2,14 +2,15 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
-// Created:    2016.10.19
+// Created:    2016.10.24
 
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.ModelWithMappings;
+using Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade;
+using Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade.TwoPartsModel;
 
 namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 {
@@ -18,14 +19,27 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
   /// Run it on local machine only!
   /// </summary>
   [Explicit]
-  public sealed class MappedTypesNodesTest : HugeModelUpgradeTestBase
+  public sealed class TwoSchemasPerNodeTest : HugeModelUpgradeTestBase
   {
+    protected override bool SupportsParallel => false;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.DefaultDatabase = "DO-Tests";
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.DefaultSchema = "dbo";
-      configuration.Types.Register(typeof(TestEntity0).Assembly, typeof(TestEntity0).Namespace);
+
+      var partOneType = typeof(TwoPartsModel.PartOne.TestEntityOne0);
+      var partTwoType = typeof(TwoPartsModel.PartTwo.TestEntityTwo0);
+      configuration.Types.Register(partOneType.Assembly, partOneType.Namespace);
+      configuration.Types.Register(partTwoType.Assembly, partTwoType.Namespace);
+
+      configuration.MappingRules
+        .Map(partOneType.Assembly, partOneType.Namespace)
+        .ToSchema("dbo");
+      configuration.MappingRules
+        .Map(partTwoType.Assembly, partTwoType.Namespace)
+        .ToSchema("Model1");
       return configuration;
     }
 
@@ -33,8 +47,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     {
       var nodes = new[] {
         WellKnown.DefaultNodeId,
-        "Node1", "Node2", "Node3", "Node4", "Node5", "Node6",
-        "Node7", "Node8", "Node9", "Node10", "Node11", "Node12",
+        "Node1", "Node2", "Node3", "Node4", "Node5",
       };
 
       foreach (var node in nodes) {
@@ -53,8 +66,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     {
       var nodes = new[] {
         WellKnown.DefaultNodeId,
-        "Node1", "Node2", "Node3", "Node4", "Node5", "Node6",
-        "Node7", "Node8", "Node9", "Node10", "Node11", "Node12",
+        "Node1", "Node2", "Node3", "Node4", "Node5",
       };
 
       foreach (var node in nodes) {
@@ -70,17 +82,19 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 
     protected override IEnumerable<NodeConfiguration> GetAdditionalNodeConfigurations(DomainUpgradeMode upgradeMode)
     {
-      var databases = new[] {
-        "DO-Tests-1", "DO-Tests-2", "DO-Tests-3", "DO-Tests-4", "DO-Tests-5", "DO-Tests-6",
-        "DO-Tests-7", "DO-Tests-8", "DO-Tests-9", "DO-Tests-10", "DO-Tests-11", "DO-Tests-12",
+      var schemas = new[] {
+        "Model2", "Model3",
+        "Model4", "Model5",
+        "Model6", "Model7",
+        "Model8", "Model9",
+        "Model10", "Model11",
       };
 
-      var index = 0;
-      foreach (var database in databases) {
-        index++;
-        var node = new NodeConfiguration("Node" + index);
+      for (int index = 0, nodeIndex = 1; index < 10; index += 2, nodeIndex++) {
+        var node = new NodeConfiguration("Node" + nodeIndex);
         node.UpgradeMode = upgradeMode;
-        node.DatabaseMapping.Add("DO-Tests", database);
+        node.SchemaMapping.Add("dbo", schemas[index]);
+        node.SchemaMapping.Add("Model1", schemas[index + 1]);
         yield return node;
       }
     }
