@@ -302,6 +302,12 @@ namespace Xtensive.Orm
       storageNode = node;
     }
 
+    // gets node directly
+    internal StorageNode GetStorageNodeInternal()
+    {
+      return storageNode;
+    }
+
     public ExecutableProvider Compile(CompilableProvider provider)
     {
       return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));

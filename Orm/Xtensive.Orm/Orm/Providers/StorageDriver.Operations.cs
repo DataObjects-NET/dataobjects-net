@@ -44,12 +44,15 @@ namespace Xtensive.Orm.Providers
       }
 
       var sessionConfiguration = GetConfiguration(session);
-      if (sessionConfiguration.ConnectionInfo!=null)
-        connection.ConnectionInfo = sessionConfiguration.ConnectionInfo;
       connection.CommandTimeout = sessionConfiguration.DefaultCommandTimeout;
+      var connectionInfo = GetConnectionInfo(session) ?? sessionConfiguration.ConnectionInfo;
+      if (connectionInfo != null) {
+        connection.ConnectionInfo = connectionInfo;
+      }
 
-      if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
-        SetInitializationSql(connection, configuration.ConnectionInitializationSql);
+      var connectionInitializationSql = GetInitializationSql(session) ?? configuration.ConnectionInitializationSql;
+      if (!string.IsNullOrEmpty(connectionInitializationSql))
+        SetInitializationSql(connection, connectionInitializationSql);
 
       return connection;
     }
@@ -339,7 +342,23 @@ namespace Xtensive.Orm.Providers
 
     private SessionConfiguration GetConfiguration(Session session)
     {
-      return session!=null ? session.Configuration : configuration.Sessions.System;
+      return session != null ? session.Configuration : configuration.Sessions.System;
+    }
+
+    private ConnectionInfo GetConnectionInfo(Session session)
+    {
+      return session == null
+        ? null
+        : session.GetStorageNodeInternal()?.Configuration.ConnectionInfo
+          ?? session.Configuration.ConnectionInfo;
+    }
+
+    private string GetInitializationSql(Session session)
+    {
+      return session == null || session.GetStorageNodeInternal() == null
+        || string.IsNullOrEmpty(session.GetStorageNodeInternal().Configuration.ConnectionInitializationSql)
+        ? null
+        : session.StorageNode.Configuration.ConnectionInitializationSql;
     }
   }
 }
