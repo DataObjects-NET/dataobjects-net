@@ -231,12 +231,14 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      return OpenSession(configuration, configuration.Supports(SessionOptions.AutoActivation));
+      return OpenSessionInternal(configuration,
+        null,
+        configuration.Supports(SessionOptions.AutoActivation));
     }
 
-    internal Session OpenSession(SessionConfiguration configuration, bool activate)
+    internal Session OpenSessionInternal(SessionConfiguration configuration, StorageNode storageNode, bool activate)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
@@ -244,7 +246,6 @@ namespace Xtensive.Orm
       }
 
       Session session;
-
       if (SingleConnection!=null) {
         // Ensure that we check shared connection availability
         // and acquire connection atomically.
@@ -252,12 +253,12 @@ namespace Xtensive.Orm
           if (singleConnectionOwner!=null)
             throw new InvalidOperationException(string.Format(
               Strings.ExSessionXStillUsesSingleAvailableConnection, singleConnectionOwner));
-          session = new Session(this, configuration, activate);
+          session = new Session(this, storageNode, configuration, activate);
           singleConnectionOwner = session;
         }
       }
       else
-        session = new Session(this, configuration, activate);
+        session = new Session(this, storageNode, configuration, activate);
 
       NotifySessionOpen(session);
       return session;
@@ -372,12 +373,14 @@ namespace Xtensive.Orm
     /// <seealso cref="Session"/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
     {
-      return OpenSessionInternalAsync(configuration, configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
+      return OpenSessionInternalAsync(configuration, null,
+        configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
     }
 
-    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, bool activate, CancellationToken cancellationToken)
+    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, StorageNode storageNode, bool activate, CancellationToken cancellationToken)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
@@ -392,7 +395,7 @@ namespace Xtensive.Orm
           if (singleConnectionOwner!=null)
             throw new InvalidOperationException(string.Format(
               Strings.ExSessionXStillUsesSingleAvailableConnection, singleConnectionOwner));
-          session = new Session(this, configuration, false);
+          session = new Session(this, storageNode, configuration, false);
           singleConnectionOwner = session;
         }
       }
@@ -400,7 +403,7 @@ namespace Xtensive.Orm
         // DO NOT make session active right from constructor.
         // That would make session accessible for user before
         // connection become opened.
-        session = new Session(this, configuration, false);
+        session = new Session(this, storageNode, configuration, false);
         try {
           await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith((t) => {
             if (activate)

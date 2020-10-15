@@ -506,7 +506,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Session(Domain domain, SessionConfiguration configuration, bool activate)
+    internal Session(Domain domain, StorageNode selectedStorageNode, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
       Guid = Guid.NewGuid();
@@ -519,6 +519,7 @@ namespace Xtensive.Orm
       identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
       allowSwitching = configuration.Supports(SessionOptions.AllowSwitching);
+      storageNode = selectedStorageNode;
 
       // Handlers
       Handlers = domain.Handlers;
