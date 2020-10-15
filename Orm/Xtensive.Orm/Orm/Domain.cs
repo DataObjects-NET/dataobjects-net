@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
@@ -15,6 +15,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Interfaces;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
@@ -104,6 +105,25 @@ namespace Xtensive.Orm
     /// </summary>
     public StorageNodeManager StorageNodeManager { get; private set; }
 
+    /// <summary>
+    /// Selects storage node.
+    /// </summary>
+    /// <param name="storageNodeId">Node identifier.</param>
+    /// <returns>Node selection allowing storage node dependant operations.</returns>
+    /// /// <sample><code>
+    /// using (var session = Domain.SelectStorageNode(nodeId).OpenSession()) {
+    ///   // work with persistent objects here.
+    /// }
+    /// </code></sample>
+    /// <exception cref="ArgumentException"><see cref="StorageNode"/> with given identifier does not exist.</exception>
+    public ISelectedStorageNode SelectStorageNode([NotNull]string storageNodeId)
+    {
+      var node = StorageNodeManager.GetNode(storageNodeId);
+      if (node == null) {
+        throw new ArgumentException(string.Format(Strings.ExStorageNodeWithIdXIsNotFound, storageNodeId));
+      }
+      return new SelectedStorageNode(this, node);
+    }
 
     #region Private / internal members
 
