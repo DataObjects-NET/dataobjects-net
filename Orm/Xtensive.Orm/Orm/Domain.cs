@@ -461,7 +461,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection singleConnection, DefaultSchemaInfo defaultSchemaInfo)
+    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection singleConnection)
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
