@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.04.16
 
@@ -400,8 +400,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var domain = Domain.Build(configuration)) {
         Assert.That(domain.Configuration.IsMultischema, Is.EqualTo(true));
         Assert.That(domain.Configuration.IsMultidatabase, Is.EqualTo(false));
-        domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.Recreate));
-        domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.Recreate));
+        _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.Recreate));
+        _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.Recreate));
 
         CheckNode(domain, alpha.Name, false);
         CheckNode(domain, beta.Name, true);
@@ -461,18 +461,17 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = BuildConfiguration(main, DomainUpgradeMode.Recreate, typeof (ModelNamespace.HintTest.BaseVersion.Customer));
       using (var domain = Domain.Build(configuration)) {
-        domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.Recreate));
-        domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.Recreate));
+        _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.Recreate));
+        _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.Recreate));
 
-        using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(alpha.Name);
-          using (var tx = session.OpenTransaction()) {
-            new ModelNamespace.HintTest.BaseVersion.Customer { Name = "CustomerName" };
-            new ModelNamespace.HintTest.BaseVersion.Customer { Name = "Groznov" };
-            new ModelNamespace.HintTest.BaseVersion.Order { Number = 99, Text = "Test order number 99" };
-            new ModelNamespace.HintTest.BaseVersion.Order { Number = 1, Text = "Test order number 1" };
-            tx.Complete();
-          }
+        var selectedNode = domain.SelectStorageNode(alpha.Name);
+        using (var session = selectedNode.OpenSession())
+        using (var tx = session.OpenTransaction()) {
+          _ = new ModelNamespace.HintTest.BaseVersion.Customer { Name = "CustomerName" };
+          _ = new ModelNamespace.HintTest.BaseVersion.Customer { Name = "Groznov" };
+          _ = new ModelNamespace.HintTest.BaseVersion.Order { Number = 99, Text = "Test order number 99" };
+          _ = new ModelNamespace.HintTest.BaseVersion.Order { Number = 1, Text = "Test order number 1" };
+          tx.Complete();
         }
       }
     }
@@ -481,8 +480,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = BuildConfiguration(main, DomainUpgradeMode.PerformSafely, type);
       using (var domain = Domain.Build(configuration)) {
-        domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.PerformSafely));
-        domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.PerformSafely));
+        _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.PerformSafely));
+        _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.PerformSafely));
       }
     }
 
@@ -500,12 +499,17 @@ namespace Xtensive.Orm.Tests.Issues
       currentModel.UpdateReferences();
       currentModel.UpdateMappings(node.Configuration); //this operation suppose to be performed by DataObjects internally
 
-      foreach (var typeInfo in currentModel.Types.Where(t => !t.IsSystem))
+      foreach (var typeInfo in currentModel.Types.Where(t => !t.IsSystem)) {
         Assert.AreEqual(typeInfo.MappingSchema, expectedSchema);
+      }
 
-      var func = spoiledExpected ? new Action<string, string>(Assert.AreNotEqual) : new Action<string, string>(Assert.AreEqual);
-      foreach (var typeInfo in spoiledModel.Types.Where(t => !t.IsSystem))
+      var func = spoiledExpected
+        ? new Action<string, string>(Assert.AreNotEqual)
+        : new Action<string, string>(Assert.AreEqual);
+
+      foreach (var typeInfo in spoiledModel.Types.Where(t => !t.IsSystem)) {
         func(typeInfo.MappingSchema, expectedSchema);
+      }
     }
 
     private NodeConfiguration BuildNodeConfiguration(DomainConfiguration domainConfiguration, ClientNodeConfiguration nodeConfiguration, DomainUpgradeMode upgradeMode)
@@ -514,8 +518,10 @@ namespace Xtensive.Orm.Tests.Issues
       node.ConnectionInfo = nodeConfiguration.ConnectionInfo;
       node.ConnectionInitializationSql = nodeConfiguration.InitializationSql;
       node.UpgradeMode = upgradeMode;
-      if (!domainConfiguration.DefaultSchema.IsNullOrEmpty() && !nodeConfiguration.DefaultSchema.IsNullOrEmpty())
+      if (!domainConfiguration.DefaultSchema.IsNullOrEmpty() && !nodeConfiguration.DefaultSchema.IsNullOrEmpty()) {
         node.SchemaMapping.Add(domainConfiguration.DefaultSchema, nodeConfiguration.DefaultSchema);
+      }
+
       return node;
     }
 
@@ -556,8 +562,9 @@ namespace Xtensive.Orm.Tests.Issues
 
     private ConnectionInfo ComposeConnectionToMasterDatabase(ConnectionInfo baseConnectionInfo)
     {
-      if (baseConnectionInfo.ConnectionUrl==null)
+      if (baseConnectionInfo.ConnectionUrl==null) {
         throw new InvalidOperationException("Can't convert connection string based ConnectionInfo");
+      }
 
       var provider = baseConnectionInfo.ConnectionUrl.Protocol;
       var user = baseConnectionInfo.ConnectionUrl.User;
@@ -567,21 +574,21 @@ namespace Xtensive.Orm.Tests.Issues
       var database = "master";
       var parameters = baseConnectionInfo.ConnectionUrl.Params;
 
-      string urlTemplate = "{0}://{1}{2}{3}/{4}{5}";
+      var urlTemplate = "{0}://{1}{2}{3}/{4}{5}";
       var authenticationPartTemplate = "{0}:{1}@";
 
       var authentication = user.IsNullOrEmpty()
         ? string.Empty
         : string.Format(authenticationPartTemplate, user, password);
 
-      var portPart = port==0
+      var portPart = port == 0
         ? string.Empty
         : ":" + port;
 
       var parametersPart = string.Empty;
       if (parameters.Count > 0) {
         parametersPart += "?";
-        parametersPart = parameters.Aggregate(parametersPart, (current, parameter) => current + (parameter.Key + "=" + parameter.Value + "&"));
+        parametersPart = parameters.Aggregate(parametersPart, (current, parameter) => current + parameter.Key + "=" + parameter.Value + "&");
         parametersPart = parametersPart.TrimEnd('&');
       }
 

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2017-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2017.03.30
 
@@ -15,15 +15,9 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
   public class SimpleTest
   {
     [OneTimeSetUp]
-    public void TestFixtureSetup()
-    {
-      CheckRequirements();
-    }
+    public void TestFixtureSetup() => CheckRequirements();
 
-    protected virtual void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer);
-    }
+    protected virtual void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer);
 
     [Test]
     public void PerformSafelyTest()
@@ -70,18 +64,15 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
     protected virtual DomainConfiguration GetDomainConfiguration()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (model.Part1.TestEntity1));
-      configuration.Types.Register(typeof (model.Part2.TestEntity2));
-      configuration.Types.Register(typeof (model.Part3.TestEntity3));
-      configuration.Types.Register(typeof (model.Part4.TestEntity4));
-      var aaa = configuration.Sessions.Default;
+      configuration.Types.Register(typeof(model.Part1.TestEntity1));
+      configuration.Types.Register(typeof(model.Part2.TestEntity2));
+      configuration.Types.Register(typeof(model.Part3.TestEntity3));
+      configuration.Types.Register(typeof(model.Part4.TestEntity4));
       return configuration;
     }
 
-    protected virtual List<NodeConfiguration> GetNodes(DomainUpgradeMode upgradeMode)
-    {
-      return new List<NodeConfiguration> {new NodeConfiguration(WellKnown.DefaultNodeId) {UpgradeMode = upgradeMode}};
-    }
+    protected virtual List<NodeConfiguration> GetNodes(DomainUpgradeMode upgradeMode) =>
+      new List<NodeConfiguration> { new NodeConfiguration(WellKnown.DefaultNodeId) { UpgradeMode = upgradeMode } };
 
     private void BuildInitialDomain()
     {
@@ -90,21 +81,21 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
 
       using (var domain = Domain.Build(configuration)) {
         var nodes = GetNodes(DomainUpgradeMode.Recreate);
-        foreach (var nodeConfiguration in nodes.Where(n => n.NodeId!=WellKnown.DefaultNodeId))
-          domain.StorageNodeManager.AddNode(nodeConfiguration);
+        foreach (var nodeConfiguration in nodes.Where(n => n.NodeId != WellKnown.DefaultNodeId)) {
+          _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
+        }
 
         foreach (var nodeConfiguration in nodes) {
-          using (var session = domain.OpenSession()) {
-            session.SelectStorageNode(nodeConfiguration.NodeId);
-            using (session.Activate())
-            using (var transaction = session.OpenTransaction()) {
-              new model.Part1.TestEntity1 {Text = session.StorageNodeId};
-              new model.Part2.TestEntity2 {Text = session.StorageNodeId};
-              new model.Part3.TestEntity3 {Text = session.StorageNodeId};
-              new model.Part4.TestEntity4 {Text = session.StorageNodeId};
+          var selectedNode = domain.SelectStorageNode(nodeConfiguration.NodeId);
+          using (var session = selectedNode.OpenSession())
+          using (session.Activate())
+          using (var transaction = session.OpenTransaction()) {
+            _ = new model.Part1.TestEntity1 { Text = session.StorageNodeId };
+            _ = new model.Part2.TestEntity2 { Text = session.StorageNodeId };
+            _ = new model.Part3.TestEntity3 { Text = session.StorageNodeId };
+            _ = new model.Part4.TestEntity4 { Text = session.StorageNodeId };
 
-              transaction.Complete();
-            }
+            transaction.Complete();
           }
         }
       }
@@ -113,19 +104,21 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
     private void BuildTestDomain(DomainUpgradeMode upgradeMode)
     {
       var configuration = GetDomainConfiguration();
-      configuration.Types.Register(typeof (model.CustomUpgradeHandler));
-      if (upgradeMode==DomainUpgradeMode.Perform || upgradeMode==DomainUpgradeMode.PerformSafely) {
-        configuration.Types.Register(typeof (model.Part1.NewTestEntity1));
-        configuration.Types.Register(typeof (model.Part2.NewTestEntity2));
-        configuration.Types.Register(typeof (model.Part3.NewTestEntity3));
-        configuration.Types.Register(typeof (model.Part4.NewTestEntity4));
+      configuration.Types.Register(typeof(model.CustomUpgradeHandler));
+      if (upgradeMode == DomainUpgradeMode.Perform || upgradeMode == DomainUpgradeMode.PerformSafely) {
+        configuration.Types.Register(typeof(model.Part1.NewTestEntity1));
+        configuration.Types.Register(typeof(model.Part2.NewTestEntity2));
+        configuration.Types.Register(typeof(model.Part3.NewTestEntity3));
+        configuration.Types.Register(typeof(model.Part4.NewTestEntity4));
       }
       configuration.UpgradeMode = upgradeMode;
       configuration.ShareStorageSchemaOverNodes = true;
 
       using (var domain = Domain.Build(configuration)) {
-        foreach (var nodeConfiguration in GetNodes(upgradeMode).Where(n => n.NodeId!=WellKnown.DefaultNodeId))
-          domain.StorageNodeManager.AddNode(nodeConfiguration);
+        var nodes = GetNodes(upgradeMode).Where(n => n.NodeId != WellKnown.DefaultNodeId);
+        foreach (var nodeConfiguration in nodes) {
+          _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
+        }
       }
     }
   }

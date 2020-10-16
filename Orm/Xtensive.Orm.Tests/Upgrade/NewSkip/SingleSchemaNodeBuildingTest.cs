@@ -1,6 +1,6 @@
-// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.02.24
 
@@ -49,10 +49,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
     protected abstract ForeignKeyMode GetForeignKeyMode();
 
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
-    }
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(ProviderFeatures.Multischema);
 
     protected override void PopulateData(Domain domain)
     {
@@ -82,152 +79,154 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
     private void PopulateNodeData(Domain domain, string nodeIdentifier)
     {
-      using (var session = domain.OpenSession()) {
-        session.SelectStorageNode(nodeIdentifier);
-        using (var transaction = session.OpenTransaction()) {
-          CreateEntities();
-          transaction.Complete();
-        }
+      var selectedNode = domain.SelectStorageNode(nodeIdentifier);
+      using (var session = selectedNode.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        CreateEntities();
+        transaction.Complete();
       }
     }
 
     private void TestNode(Domain domain, string nodeIdentifier)
     {
-      using (var session = domain.OpenSession()) {
-        session.SelectStorageNode(nodeIdentifier);
-        using (var transaction = session.OpenTransaction()) {
-          var countriesCount = session.Query.All<Country>().Count();
-          Assert.That(countriesCount, Is.EqualTo(countries.Length));
-          foreach (var country in countries) {
-            var c = session.Query.All<Country>().FirstOrDefault(el => el.Value==country);
-            Assert.That(c, Is.Not.Null);
-            Assert.That(c.Value, Is.EqualTo(country));
-          }
-
-          var positionsCount = session.Query.All<Position>().Count();
-          Assert.That(positionsCount, Is.EqualTo(positions.Length));
-          foreach (var position in positions) {
-            var p = session.Query.All<Position>().FirstOrDefault(el => el.Value==position);
-            Assert.That(p, Is.Not.Null);
-            Assert.That(p.Value, Is.EqualTo(position));
-          }
-
-          var propertiesCount = session.Query.All<SimpleFilterWithProperty>().Count();
-          Assert.That(propertiesCount, Is.EqualTo(2));
-
-          var hashersCount = session.Query.All<HashAlgorithm>().Count();
-          Assert.That(hashersCount, Is.EqualTo(1));
-
-          var md5Count = session.Query.All<MD5Hash>().Count();
-          Assert.That(md5Count, Is.EqualTo(1));
-
-          var providersCount = session.Query.All<ProviderInfo>().Count();
-          Assert.That(providersCount, Is.EqualTo(3));
-
-          var buildInProvidersCount = session.Query.All<BuildInProviderInfo>().Count();
-          Assert.That(buildInProvidersCount, Is.EqualTo(1));
-          var buildInProvider = session.Query.All<BuildInProviderInfo>().First();
-          Assert.That(buildInProvider.Name, Is.EqualTo("SimpleBuildInProvider"));
-
-          var oauthProvidersCount = session.Query.All<OAuthProviderInfo>().Count();
-          Assert.That(oauthProvidersCount, Is.EqualTo(1));
-
-          var googleProvidersCount = session.Query.All<GoogleOAuthProvider>().Count();
-          Assert.That(googleProvidersCount, Is.EqualTo(1));
-
-          var openIdProvidersCount = session.Query.All<OpenIdProviderInfo>().Count();
-          Assert.That(openIdProvidersCount, Is.EqualTo(1));
-
-          var aolProvidersCount = session.Query.All<AolOpenIdProviderInfo>().Count();
-          Assert.That(aolProvidersCount, Is.EqualTo(1));
-
-          var personsCount = session.Query.All<Person>().Count();
-          var usersCount = session.Query.All<User>().Count();
-          Assert.That(personsCount, Is.EqualTo(names.Length));
-          Assert.That(usersCount, Is.EqualTo(emails.Length));
-          Assert.That(usersCount, Is.EqualTo(personsCount));
-          foreach (var name in names) {
-            var firstName = name.Split(' ')[0];
-            var lastName = name.Split(' ')[1];
-            var person = session.Query.All<Person>().FirstOrDefault(el => el.FirstName==firstName && el.LastName==lastName);
-            Assert.That(person, Is.Not.Null);
-            Assert.That(person.User, Is.Not.Null);
-            Assert.That(emails.Contains(person.User.Email), Is.True);
-            Assert.That(person.User.AuthorizationInfos.Count(), Is.EqualTo(1));
-          }
-
-          var authorizationInfosCount = session.Query.All<AuthorizationInfo>().Count();
-          Assert.That(authorizationInfosCount, Is.EqualTo(3));
-
-          var xCount = session.Query.All<XType>().Count();
-          Assert.That(xCount, Is.EqualTo(1));
-          var x = session.Query.All<XType>().First();
-          Assert.That(x.FBool, Is.True);
-          Assert.That(x.FByte, Is.EqualTo(1));
-          Assert.That(x.FSByte, Is.EqualTo(1));
-          Assert.That(x.FShort, Is.EqualTo(1));
-          Assert.That(x.FUShort, Is.EqualTo(1));
-          Assert.That(x.FInt, Is.EqualTo(1));
-          Assert.That(x.FUInt, Is.EqualTo(1));
-          Assert.That(x.FLong, Is.EqualTo(1));
-          Assert.That(x.FULong, Is.EqualTo(1));
-          Assert.That(x.FFloat, Is.EqualTo(1.0f));
-          Assert.That(x.FDouble, Is.EqualTo(1.0d));
-          Assert.That(x.FDecimal, Is.EqualTo(1));
-          Assert.That(x.FDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1)));
-          Assert.That(x.FTimeSpan, Is.EqualTo(new TimeSpan(1, 1, 1, 1)));
-          Assert.That(x.FString, Is.EqualTo(1.ToString()));
-          Assert.That(x.FLongString, Is.EqualTo(1.ToString()));
-          Assert.That(x.FEByte, Is.EqualTo(EByte.Min));
-          Assert.That(x.FESByte, Is.EqualTo(ESByte.Min));
-          Assert.That(x.FEShort, Is.EqualTo(EShort.Min));
-          Assert.That(x.FEUShort, Is.EqualTo(EUShort.Min));
-          Assert.That(x.FEInt, Is.EqualTo(EInt.Min));
-          Assert.That(x.FEUInt, Is.EqualTo(EUInt.Min));
-          Assert.That(x.FELong, Is.EqualTo(ELong.Min));
-          Assert.That(x.FEULong, Is.EqualTo(EULong.Min));
-
-          Assert.That(x.FNBool, Is.EqualTo(true));
-          Assert.That(x.FNByte, Is.EqualTo(1));
-          Assert.That(x.FNSByte, Is.EqualTo(1));
-          Assert.That(x.FNShort, Is.EqualTo(1));
-          Assert.That(x.FNUShort, Is.EqualTo(1));
-          Assert.That(x.FNInt, Is.EqualTo(1));
-          Assert.That(x.FNUInt, Is.EqualTo(1));
-          Assert.That(x.FNLong, Is.EqualTo(1));
-          Assert.That(x.FNULong, Is.EqualTo(1));
-          Assert.That(x.FNFloat, Is.EqualTo(1.0f));
-          Assert.That(x.FNDouble, Is.EqualTo(1.0d));
-          Assert.That(x.FNDecimal, Is.EqualTo(1));
-          Assert.That(x.FNDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1)));
-          Assert.That(x.FNTimeSpan, Is.EqualTo(new TimeSpan(1, 1, 1, 1)));
-          Assert.That(x.FNEByte, Is.EqualTo(EByte.Min));
-          Assert.That(x.FNESByte, Is.EqualTo(ESByte.Min));
-          Assert.That(x.FNEShort, Is.EqualTo(EShort.Min));
-          Assert.That(x.FNEUShort, Is.EqualTo(EUShort.Min));
-          Assert.That(x.FNEInt, Is.EqualTo(EInt.Min));
-          Assert.That(x.FNEUInt, Is.EqualTo(EUInt.Min));
-          Assert.That(x.FNELong, Is.EqualTo(ELong.Min));
-          Assert.That(x.FNEULong, Is.EqualTo(EULong.Min));
-          Assert.That(x.Ref, Is.Not.Null);
-
-          for (int i = 0; i < 200; i++)
-            new Country {Value = string.Format("Country{0}", i)};
-          transaction.Complete();
+      var selectedNode = domain.SelectStorageNode(nodeIdentifier);
+      using (var session = selectedNode.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var countriesCount = session.Query.All<Country>().Count();
+        Assert.That(countriesCount, Is.EqualTo(countries.Length));
+        foreach (var country in countries) {
+          var c = session.Query.All<Country>().FirstOrDefault(el => el.Value == country);
+          Assert.That(c, Is.Not.Null);
+          Assert.That(c.Value, Is.EqualTo(country));
         }
+
+        var positionsCount = session.Query.All<Position>().Count();
+        Assert.That(positionsCount, Is.EqualTo(positions.Length));
+        foreach (var position in positions) {
+          var p = session.Query.All<Position>().FirstOrDefault(el => el.Value == position);
+          Assert.That(p, Is.Not.Null);
+          Assert.That(p.Value, Is.EqualTo(position));
+        }
+
+        var propertiesCount = session.Query.All<SimpleFilterWithProperty>().Count();
+        Assert.That(propertiesCount, Is.EqualTo(2));
+
+        var hashersCount = session.Query.All<HashAlgorithm>().Count();
+        Assert.That(hashersCount, Is.EqualTo(1));
+
+        var md5Count = session.Query.All<MD5Hash>().Count();
+        Assert.That(md5Count, Is.EqualTo(1));
+
+        var providersCount = session.Query.All<ProviderInfo>().Count();
+        Assert.That(providersCount, Is.EqualTo(3));
+
+        var buildInProvidersCount = session.Query.All<BuildInProviderInfo>().Count();
+        Assert.That(buildInProvidersCount, Is.EqualTo(1));
+        var buildInProvider = session.Query.All<BuildInProviderInfo>().First();
+        Assert.That(buildInProvider.Name, Is.EqualTo("SimpleBuildInProvider"));
+
+        var oauthProvidersCount = session.Query.All<OAuthProviderInfo>().Count();
+        Assert.That(oauthProvidersCount, Is.EqualTo(1));
+
+        var googleProvidersCount = session.Query.All<GoogleOAuthProvider>().Count();
+        Assert.That(googleProvidersCount, Is.EqualTo(1));
+
+        var openIdProvidersCount = session.Query.All<OpenIdProviderInfo>().Count();
+        Assert.That(openIdProvidersCount, Is.EqualTo(1));
+
+        var aolProvidersCount = session.Query.All<AolOpenIdProviderInfo>().Count();
+        Assert.That(aolProvidersCount, Is.EqualTo(1));
+
+        var personsCount = session.Query.All<Person>().Count();
+        var usersCount = session.Query.All<User>().Count();
+        Assert.That(personsCount, Is.EqualTo(names.Length));
+        Assert.That(usersCount, Is.EqualTo(emails.Length));
+        Assert.That(usersCount, Is.EqualTo(personsCount));
+        foreach (var name in names) {
+          var firstName = name.Split(' ')[0];
+          var lastName = name.Split(' ')[1];
+          var person = session.Query.All<Person>().FirstOrDefault(el => el.FirstName == firstName && el.LastName == lastName);
+          Assert.That(person, Is.Not.Null);
+          Assert.That(person.User, Is.Not.Null);
+          Assert.That(emails.Contains(person.User.Email), Is.True);
+          Assert.That(person.User.AuthorizationInfos.Count(), Is.EqualTo(1));
+        }
+
+        var authorizationInfosCount = session.Query.All<AuthorizationInfo>().Count();
+        Assert.That(authorizationInfosCount, Is.EqualTo(3));
+
+        var xCount = session.Query.All<XType>().Count();
+        Assert.That(xCount, Is.EqualTo(1));
+        var x = session.Query.All<XType>().First();
+        Assert.That(x.FBool, Is.True);
+        Assert.That(x.FByte, Is.EqualTo(1));
+        Assert.That(x.FSByte, Is.EqualTo(1));
+        Assert.That(x.FShort, Is.EqualTo(1));
+        Assert.That(x.FUShort, Is.EqualTo(1));
+        Assert.That(x.FInt, Is.EqualTo(1));
+        Assert.That(x.FUInt, Is.EqualTo(1));
+        Assert.That(x.FLong, Is.EqualTo(1));
+        Assert.That(x.FULong, Is.EqualTo(1));
+        Assert.That(x.FFloat, Is.EqualTo(1.0f));
+        Assert.That(x.FDouble, Is.EqualTo(1.0d));
+        Assert.That(x.FDecimal, Is.EqualTo(1));
+        Assert.That(x.FDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1)));
+        Assert.That(x.FTimeSpan, Is.EqualTo(new TimeSpan(1, 1, 1, 1)));
+        Assert.That(x.FString, Is.EqualTo(1.ToString()));
+        Assert.That(x.FLongString, Is.EqualTo(1.ToString()));
+        Assert.That(x.FEByte, Is.EqualTo(EByte.Min));
+        Assert.That(x.FESByte, Is.EqualTo(ESByte.Min));
+        Assert.That(x.FEShort, Is.EqualTo(EShort.Min));
+        Assert.That(x.FEUShort, Is.EqualTo(EUShort.Min));
+        Assert.That(x.FEInt, Is.EqualTo(EInt.Min));
+        Assert.That(x.FEUInt, Is.EqualTo(EUInt.Min));
+        Assert.That(x.FELong, Is.EqualTo(ELong.Min));
+        Assert.That(x.FEULong, Is.EqualTo(EULong.Min));
+
+        Assert.That(x.FNBool, Is.EqualTo(true));
+        Assert.That(x.FNByte, Is.EqualTo(1));
+        Assert.That(x.FNSByte, Is.EqualTo(1));
+        Assert.That(x.FNShort, Is.EqualTo(1));
+        Assert.That(x.FNUShort, Is.EqualTo(1));
+        Assert.That(x.FNInt, Is.EqualTo(1));
+        Assert.That(x.FNUInt, Is.EqualTo(1));
+        Assert.That(x.FNLong, Is.EqualTo(1));
+        Assert.That(x.FNULong, Is.EqualTo(1));
+        Assert.That(x.FNFloat, Is.EqualTo(1.0f));
+        Assert.That(x.FNDouble, Is.EqualTo(1.0d));
+        Assert.That(x.FNDecimal, Is.EqualTo(1));
+        Assert.That(x.FNDateTime, Is.EqualTo(new DateTime(2001, 1, 1, 1, 1, 1)));
+        Assert.That(x.FNTimeSpan, Is.EqualTo(new TimeSpan(1, 1, 1, 1)));
+        Assert.That(x.FNEByte, Is.EqualTo(EByte.Min));
+        Assert.That(x.FNESByte, Is.EqualTo(ESByte.Min));
+        Assert.That(x.FNEShort, Is.EqualTo(EShort.Min));
+        Assert.That(x.FNEUShort, Is.EqualTo(EUShort.Min));
+        Assert.That(x.FNEInt, Is.EqualTo(EInt.Min));
+        Assert.That(x.FNEUInt, Is.EqualTo(EUInt.Min));
+        Assert.That(x.FNELong, Is.EqualTo(ELong.Min));
+        Assert.That(x.FNEULong, Is.EqualTo(EULong.Min));
+        Assert.That(x.Ref, Is.Not.Null);
+
+        for (var i = 0; i < 200; i++) {
+          _ = new Country { Value = string.Format("Country{0}", i) };
+        }
+
+        transaction.Complete();
       }
     }
 
     private void CreateEntities()
     {
-      foreach (var position in positions)
-        new Position {Value = position};
+      foreach (var position in positions) {
+        _ = new Position { Value = position };
+      }
 
-      foreach (var country in countries)
-        new Country {Value = country};
+      foreach (var country in countries) {
+        _ = new Country { Value = country };
+      }
 
-      new SimpleFilterWithProperty {TestField = "hello world!"};
-      new SimpleFilterWithProperty {TestField = "hello world!!"};
+      _ = new SimpleFilterWithProperty {TestField = "hello world!"};
+      _ = new SimpleFilterWithProperty {TestField = "hello world!!"};
 
       var md5hash = new MD5Hash();
       var buildInProvider = new BuildInProviderInfo(md5hash);
@@ -238,10 +237,10 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       for (var index = 0; index < names.Length; index++) {
         var user = new User {Email = emails[index]};
         user.Person = new Person {FirstName = names[index].Split(' ')[0], LastName = names[index].Split(' ')[1]};
-        user.AuthorizationInfos.Add(new AuthorizationInfo {Provider = providers[index]});
+        _ = user.AuthorizationInfos.Add(new AuthorizationInfo {Provider = providers[index]});
       }
 
-      new XType {
+      _ = new XType {
         FBool = true,
         FByte = 1,
         FSByte = 1,
@@ -298,33 +297,21 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
   public class SingleSchemaNodeWithoutForeignKeysTest : SingleSchemaNodeTest
   {
-    protected override ForeignKeyMode GetForeignKeyMode()
-    {
-      return ForeignKeyMode.None;
-    }
+    protected override ForeignKeyMode GetForeignKeyMode() => ForeignKeyMode.None;
   }
 
   public class SingleSchemaNodeHierarchyForeignKeysTest : SingleSchemaNodeTest
   {
-    protected override ForeignKeyMode GetForeignKeyMode()
-    {
-      return ForeignKeyMode.Hierarchy;
-    }
+    protected override ForeignKeyMode GetForeignKeyMode() => ForeignKeyMode.Hierarchy;
   }
 
   public class SingleSchemaNodeReferenceForeignKeysTest : SingleSchemaNodeTest
   {
-    protected override ForeignKeyMode GetForeignKeyMode()
-    {
-      return ForeignKeyMode.Reference;
-    }
+    protected override ForeignKeyMode GetForeignKeyMode() => ForeignKeyMode.Reference;
   }
 
   public class SingleSchemaNodeAllForeignKeysTest : SingleSchemaNodeTest
   {
-    protected override ForeignKeyMode GetForeignKeyMode()
-    {
-      return ForeignKeyMode.All;
-    }
+    protected override ForeignKeyMode GetForeignKeyMode() => ForeignKeyMode.All;
   }
 }
