@@ -6,7 +6,7 @@ using Xtensive.Orm.Configuration;
 namespace Xtensive.Orm.Interfaces
 {
   /// <summary>
-  /// Defindes <see cref="StorageNode"/>-dependant operations.
+  /// Defines <see cref="StorageNode"/>-dependant operations.
   /// </summary>
   public interface ISelectedStorageNode
   {
