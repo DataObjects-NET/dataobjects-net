@@ -3673,6 +3673,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The Key belongs to different storage node..
+        /// </summary>
+        internal static string ExKeyBelongsToDifferentStorageNode {
+            get {
+                return ResourceManager.GetString("ExKeyBelongsToDifferentStorageNode", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Key can not be null..
         /// </summary>
         internal static string ExKeyCanNotBeNull {
