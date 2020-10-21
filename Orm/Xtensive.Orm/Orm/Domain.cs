@@ -35,7 +35,7 @@ namespace Xtensive.Orm
   /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-  public sealed class Domain : IDisposable, IHasExtensions
+  public sealed class Domain : IDisposable, IHasExtensions, ISessionSource
   {
     private readonly object disposeGuard = new object();
     private readonly object singleConnectionGuard = new object();
@@ -116,13 +116,13 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <exception cref="ArgumentException"><see cref="StorageNode"/> with given identifier does not exist.</exception>
-    public ISelectedStorageNode SelectStorageNode([NotNull]string storageNodeId)
+    public ISessionSource SelectStorageNode([NotNull]string storageNodeId)
     {
       var node = StorageNodeManager.GetNode(storageNodeId);
       if (node == null) {
         throw new ArgumentException(string.Format(Strings.ExStorageNodeWithIdXIsNotFound, storageNodeId));
       }
-      return new SelectedStorageNode(this, node);
+      return node;
     }
 
     #region Private / internal members
@@ -287,22 +287,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/> asynchronously.
     /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <sample><code>
-    /// using (var session = await Domain.OpenSessionAsync()) {
-    /// // work with persistent objects here.
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync()
-    {
-      var configuration = Configuration.Sessions.Default;
-      return OpenSessionAsync(configuration, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/> asynchronously.
-    /// </summary>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <sample><code>
@@ -312,25 +296,10 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default)
     {
       var configuration = Configuration.Sessions.Default;
       return OpenSessionAsync(configuration, cancellationToken);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/> asynchronously.
-    /// </summary>
-    /// <param name="type">The type of session.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <sample><code>
-    /// using (var session = await domain.OpenSessionAsync(sessionType)) {
-    /// // work with persistent objects here.
-    /// }
-    /// </code></sample>
-    public Task<Session> OpenSessionAsync(SessionType type)
-    {
-      return OpenSessionAsync(type, CancellationToken.None);
     }
 
     /// <summary>
@@ -345,7 +314,7 @@ namespace Xtensive.Orm
     /// // work with persistent objects here.
     /// }
     /// </code></sample>
-    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
     {
       cancellationToken.ThrowIfCancellationRequested();
       switch (type) {
@@ -366,22 +335,6 @@ namespace Xtensive.Orm
     /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/> asynchronously.
     /// </summary>
     /// <param name="configuration">The session configuration.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <sample><code>
-    /// using (var session = await domain.OpenSessionAsync(configuration)) {
-    /// // work with persistent objects here
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(SessionConfiguration configuration)
-    {
-      return OpenSessionAsync(configuration, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/> asynchronously.
-    /// </summary>
-    /// <param name="configuration">The session configuration.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <sample><code>
@@ -391,7 +344,7 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
       return OpenSessionInternalAsync(configuration, null,
         configuration.Supports(SessionOptions.AutoActivation), cancellationToken);

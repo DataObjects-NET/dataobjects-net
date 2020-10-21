@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System;
 using JetBrains.Annotations;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -49,6 +50,30 @@ namespace Xtensive.Orm
     public StorageNode GetNode([NotNull] string nodeId)
     {
       return handlers.StorageNodeRegistry.TryGet(nodeId);
+    }
+
+    /// <summary>
+    /// Gets node with <paramref name="configuration"/>.NodeId if it exists, otherwise,
+    /// adds node with the specified <paramref name="configuration"/> and performs required upgrade actions
+    /// and return added node.
+    /// </summary>
+    /// <param name="configuration">Node configuration.</param>
+    /// <exception cref="InvalidOperationException">Given configurations has no <see cref="NodeConfiguration.NodeId"/> specified.</exception>
+    /// <exception cref="InvalidOperationException">New node cannot be registered.</exception>
+    [NotNull]
+    public StorageNode GetOrAddNode([NotNull] NodeConfiguration configuration)
+    {
+      if (string.IsNullOrEmpty(configuration.NodeId)) {
+        throw new InvalidOperationException(Strings.ExInvalidNodeIdentifier);
+      }
+      var node = GetNode(configuration.NodeId);
+      if (node != null) {
+        return node;
+      }
+      node = UpgradingDomainBuilder.BuildNode(handlers.Domain, configuration);
+      return handlers.StorageNodeRegistry.Add(node)
+        ? node
+        : throw new InvalidOperationException("Node was build but couldn't be registered.");
     }
 
 
