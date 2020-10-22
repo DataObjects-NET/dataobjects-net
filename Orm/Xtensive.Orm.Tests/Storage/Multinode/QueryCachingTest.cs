@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var nodes = new[] { WellKnown.DefaultNodeId, TestNodeId2, TestNodeId3 };
 
       foreach(var nodeId in nodes) {
-        var selectedNode = Domain.SelectStorageNode(nodeId);
+        var selectedNode = Domain.StorageNodeManager.GetNode(nodeId);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           #region Entity creation
@@ -246,7 +246,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void RunTestSimpleQueryTest(string nodeId)
     {
-      var selectedNode = Domain.SelectStorageNode(nodeId);
+      var selectedNode = Domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var expectedTypeId = GetExpectedTypeId(nodeId);
@@ -297,7 +297,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void RunFilterByTypeIdQueryTest(string nodeId)
     {
-      var selectedNode = Domain.SelectStorageNode(nodeId);
+      var selectedNode = Domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var expectedTypeId = GetExpectedTypeId(nodeId);
@@ -361,7 +361,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void RunFilterBySeveralTypeIdsTest(string nodeId)
     {
-      var selectedNode = Domain.SelectStorageNode(nodeId);
+      var selectedNode = Domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var expectedTypeId = GetExpectedTypeId(nodeId);

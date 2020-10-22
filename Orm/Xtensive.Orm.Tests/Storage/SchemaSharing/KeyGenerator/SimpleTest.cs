@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
         var longSequence = referenceDomain.Model.Types[typeof(model.Part1.TestEntity2)].Hierarchy.Key.Sequence;
 
         foreach (var node in skipParametersPerNode) {
-          var selectedNode = referenceDomain.SelectStorageNode(node.Key.NodeId);
+          var selectedNode = referenceDomain.StorageNodeManager.GetNode(node.Key.NodeId);
           using (var session = selectedNode.OpenSession()) {
             var skipCount = node.Value;
             for (int i = 0; i < skipCount; i++) {
@@ -58,7 +58,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.KeyGenerator
         var longSequence = testDomain.Model.Types[typeof(model.Part1.TestEntity2)].Hierarchy.Key.Sequence;
 
         foreach (var node in skipParametersPerNode) {
-          var selectedNode = testDomain.SelectStorageNode(node.Key.NodeId);
+          var selectedNode = testDomain.StorageNodeManager.GetNode(node.Key.NodeId);
           using (var session = selectedNode.OpenSession()) {
             var expectedIntOffset = node.Value * 128 + 1;
             var expectedLongOffset = node.Value * 128 + 1;

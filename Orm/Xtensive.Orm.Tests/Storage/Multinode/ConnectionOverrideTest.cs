@@ -51,8 +51,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       }
 
       using (var domain = Domain.Build(domainConfig)) {
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession())
+        using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var connection = ((SqlSessionHandler) session.Handler).Connection;
           Assert.That(connection.ConnectionInfo, Is.EqualTo(domainConfig.ConnectionInfo));
@@ -62,8 +61,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           session.Events.DbCommandExecuted -= commandValidator;
         }
 
-        _ = domain.StorageNodeManager.AddNode(nodeConfig);
-        selectedNode = domain.SelectStorageNode("Additional");
+        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
         using (var session = selectedNode.OpenSession())
           using (var tx = session.OpenTransaction()){
           var connection = ((SqlSessionHandler) session.Handler).Connection;
@@ -105,8 +103,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       }
 
       using (var domain = Domain.Build(domainConfig)) {
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession())
+        using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var connection = ((SqlSessionHandler) session.Handler).Connection;
           Assert.That(connection.ConnectionInfo, Is.EqualTo(domainConfig.ConnectionInfo));
@@ -116,8 +113,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           session.Events.DbCommandExecuted -= commandValidator;
         }
 
-        _ = domain.StorageNodeManager.AddNode(nodeConfig);
-        selectedNode = domain.SelectStorageNode("Additional");
+        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var connection = ((SqlSessionHandler) session.Handler).Connection;

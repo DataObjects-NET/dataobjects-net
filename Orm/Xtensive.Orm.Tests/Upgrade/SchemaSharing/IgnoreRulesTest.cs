@@ -139,7 +139,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
         : new List<string>() { MainNodeId };
 
       foreach (var storageNode in storageNodes) {
-        var selectedNode = domain.SelectStorageNode(storageNode);
+        var selectedNode = domain.StorageNodeManager.GetNode(storageNode);
         using (var session = selectedNode.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var euro = new Currency() { Name = "Euro", ShortName = "EU" };
@@ -166,7 +166,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
         : new List<string>() { MainNodeId };
 
       foreach (var storageNode in storageNodes) {
-        var selectedNode = domain.SelectStorageNode(storageNode);
+        var selectedNode = domain.StorageNodeManager.GetNode(storageNode);
         using (var session = selectedNode.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var currencies = session.Query.All<Currency>().OrderBy(c => c.Name).ToArray();

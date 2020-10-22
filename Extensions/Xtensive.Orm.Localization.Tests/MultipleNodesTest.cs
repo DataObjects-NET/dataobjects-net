@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node1Test01()
     {
-      var selectedNode = Domain.SelectStorageNode(WellKnown.DefaultNodeId);
+      var selectedNode = Domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node1Test02()
     {
-      var selectedNode = Domain.SelectStorageNode(WellKnown.DefaultNodeId);
+      var selectedNode = Domain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node2Test01()
     {
-      var selectedNode = Domain.SelectStorageNode(Node1Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node1Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node2Test02()
     {
-      var selectedNode = Domain.SelectStorageNode(Node1Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node1Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node3Test01()
     {
-      var selectedNode = Domain.SelectStorageNode(Node2Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node2Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node3Test02()
     {
-      var selectedNode = Domain.SelectStorageNode(Node2Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node2Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node4Test01()
     {
-      var selectedNode = Domain.SelectStorageNode(Node3Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node3Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node4Test02()
     {
-      var selectedNode = Domain.SelectStorageNode(Node3Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node3Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node5Test01()
     {
-      var selectedNode = Domain.SelectStorageNode(Node4Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node4Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);
@@ -216,7 +216,7 @@ namespace Xtensive.Orm.Localization.Tests
     [Test]
     public void Node5Test02()
     {
-      var selectedNode = Domain.SelectStorageNode(Node4Id);
+      var selectedNode = Domain.StorageNodeManager.GetNode(Node4Id);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var welcomePage = new Page(session);

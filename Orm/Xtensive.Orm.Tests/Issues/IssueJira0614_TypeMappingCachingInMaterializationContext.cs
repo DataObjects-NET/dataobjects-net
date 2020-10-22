@@ -266,10 +266,8 @@ namespace Xtensive.Orm.Tests.Issues
       var multinodeDomainConfiguration = CreateConfiguration(typeof(Target.TimesheetCode), DomainUpgradeMode.Skip, "Model1");
       var nodeConfiguration = CreateNodeConfiguration(Node2Name, "Model1", "Model2", DomainUpgradeMode.Skip);
 
-      using (var domain = BuildDomain(multinodeDomainConfiguration)) {
-        _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession()) {
+      using (var domain = BuildDomain(multinodeDomainConfiguration, nodeConfiguration)) {
+        using (var session = domain.OpenSession()) {
           using (var transaction = session.OpenTransaction()) {
             var list = session.Query.All<Target.TimesheetCode>()
               .Where(c => c.Active)
@@ -295,7 +293,7 @@ namespace Xtensive.Orm.Tests.Issues
           }
         }
 
-        selectedNode = domain.SelectStorageNode(Node2Name);
+        var selectedNode = domain.StorageNodeManager.GetNode(Node2Name);
         using (var session = selectedNode.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var list = session.Query.All<Target.TimesheetCode>()
@@ -381,8 +379,7 @@ namespace Xtensive.Orm.Tests.Issues
       var nodeConfiguration = CreateNodeConfiguration(Node1Name, "Model2", "Model1", DomainUpgradeMode.PerformSafely);
 
       using (var domain = BuildDomain(multinodeDomainConfiguration, nodeConfiguration)) {
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession()) {
+        using (var session = domain.OpenSession()) {
           using (var transaction = session.OpenTransaction()) {
             var list = session.Query.All<Target.TimesheetCode>()
               .Where(c => c.Active)
@@ -408,7 +405,7 @@ namespace Xtensive.Orm.Tests.Issues
           }
         }
 
-        selectedNode = domain.SelectStorageNode(Node1Name);
+        var selectedNode = domain.StorageNodeManager.GetNode(Node1Name);
         using (var session = selectedNode.OpenSession()) {
           using (var transaction = session.OpenTransaction()) {
             var list = session.Query.All<Target.TimesheetCode>()
@@ -432,11 +429,6 @@ namespace Xtensive.Orm.Tests.Issues
           }
         }
       }
-    }
-
-    private void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     private Domain BuildDomain(DomainConfiguration configuration, NodeConfiguration nodeConfiguration = null)

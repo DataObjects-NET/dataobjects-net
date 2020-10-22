@@ -105,26 +105,6 @@ namespace Xtensive.Orm
     /// </summary>
     public StorageNodeManager StorageNodeManager { get; private set; }
 
-    /// <summary>
-    /// Selects storage node.
-    /// </summary>
-    /// <param name="storageNodeId">Node identifier.</param>
-    /// <returns>Node selection allowing storage node dependant operations.</returns>
-    /// /// <sample><code>
-    /// using (var session = Domain.SelectStorageNode(nodeId).OpenSession()) {
-    ///   // work with persistent objects here.
-    /// }
-    /// </code></sample>
-    /// <exception cref="ArgumentException"><see cref="StorageNode"/> with given identifier does not exist.</exception>
-    public ISessionSource SelectStorageNode([NotNull]string storageNodeId)
-    {
-      var node = StorageNodeManager.GetNode(storageNodeId);
-      if (node == null) {
-        throw new ArgumentException(string.Format(Strings.ExStorageNodeWithIdXIsNotFound, storageNodeId));
-      }
-      return node;
-    }
-
     #region Private / internal members
 
     internal RecordSetReader RecordSetReader { get; private set; }

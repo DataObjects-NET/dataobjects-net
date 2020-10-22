@@ -464,7 +464,7 @@ namespace Xtensive.Orm.Tests.Issues
         _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, alpha, DomainUpgradeMode.Recreate));
         _ = domain.StorageNodeManager.AddNode(BuildNodeConfiguration(domain.Configuration, beta, DomainUpgradeMode.Recreate));
 
-        var selectedNode = domain.SelectStorageNode(alpha.Name);
+        var selectedNode = domain.StorageNodeManager.GetNode(alpha.Name);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           _ = new ModelNamespace.HintTest.BaseVersion.Customer { Name = "CustomerName" };

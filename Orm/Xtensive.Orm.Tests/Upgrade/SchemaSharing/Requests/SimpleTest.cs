@@ -60,8 +60,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests
         }
 
         foreach (var nodeConfiguration in nodes) {
-          var selecteNode = domain.SelectStorageNode(nodeConfiguration.NodeId);
-          using (var session = selecteNode.OpenSession())
+          var selectedNode = domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
+          using (var session = selectedNode.OpenSession())
           using (session.Activate())
           using (var transaction = session.OpenTransaction()) {
             _ = new model.Part1.TestEntity1 { Text = session.StorageNodeId };

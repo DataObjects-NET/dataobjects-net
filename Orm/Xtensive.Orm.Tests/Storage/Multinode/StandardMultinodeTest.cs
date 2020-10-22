@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     protected override void PopulateData()
     {
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var apple = new Apple(TestAppleTag);
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void DoubleSelectNodeTest()
     {
       //Delete this test when obolete method will be removed
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession()) {
 #pragma warning disable CS0618 // Type or member is obsolete
         AssertEx.Throws<InvalidOperationException>(() => session.SelectStorageNode(TestNodeId3));
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdLinq1Test()
     {
       // Entity fetched via LINQ
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<Apple>().Single(a => a.Tag==TestAppleTag);
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdLinq2Test()
     {
       // Key fetched via LINQ
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<Apple>().GroupBy(a => a.Key).Select(a => a.Key).Single();
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdLinq3Test()
     {
       // Key fetched via LINQ
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<FruitRef>().Select(r => r.Ref.Key).Single();
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdLinq4Test()
     {
       // Key fetched via LINQ
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<FruitRef>().GroupBy(a => a.Ref.Key).Select(a => a.Key).Single();
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdPrefetch1Test()
     {
       // Entity fetched via fetch API (key object)
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.Single<Apple>(testAppleKey);
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdPrefetch2Test()
     {
       // Entity fetched via fetch API (key values)
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.Single<Apple>(TestAppleTag);
@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdPrefetch3Test()
     {
       // Entity fetched via fetch API (multiple key values)
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.Many<Apple, string>(new[] {TestAppleTag}).ToList();
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void NodeIdReferenceFetchTest()
     {
       // Entity fetched via reference traversal
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var refObject = session.Query.Single<FruitRef>(testFruitRefKey);
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void KeyNodeIdGenerateKeyTest()
     {
       // Custom generated key
-      var selectedNode = Domain.SelectStorageNode(TestNodeId2);
+      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var generatedKey = Key.Generate<Container>(session);

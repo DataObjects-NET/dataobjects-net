@@ -58,8 +58,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     protected override void PopulateData()
     {
-      var defaultNodeSelection = Domain.SelectStorageNode(WellKnown.DefaultNodeId);
-      using (var nodeSession = defaultNodeSelection.OpenSession())
+      using (var nodeSession = Domain.OpenSession())
       using (var tx = nodeSession.OpenTransaction()) {
         _ = new TestEntity(nodeSession) { NodeTag = DefaultNodeTag };
         _ = new TestEntity(nodeSession) { NodeTag = DefaultNodeTag };
@@ -67,8 +66,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         tx.Complete();
       }
 
-      var additonalNodeSelection = Domain.SelectStorageNode(AdditionalNodeName);
-      using (var nodeSession = additonalNodeSelection.OpenSession())
+      var additonalNode = Domain.StorageNodeManager.GetNode(AdditionalNodeName);
+      using (var nodeSession = additonalNode.OpenSession())
       using (var tx = nodeSession.OpenTransaction()) {
         _ = new TestEntity(nodeSession) { NodeTag = AdditionalNodeTag };
         _ = new TestEntity(nodeSession) { NodeTag = AdditionalNodeTag };

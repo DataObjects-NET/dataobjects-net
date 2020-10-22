@@ -335,17 +335,15 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       using (domain) {
         var nodeConfiguration = new NodeConfiguration(AlternativeSchema) {UpgradeMode = DomainUpgradeMode.Validate};
         nodeConfiguration.SchemaMapping.Add(DefaultSchema, AlternativeSchema);
-        _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
 
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession()) {
+        using (var session = domain.OpenSession()) {
           var types = new[] { typeof(BaseEntity), typeof(Entity1), typeof(Entity2) };
           foreach (var type in types) {
             Assert.That(session.StorageNode.TypeIdRegistry[domain.Model.Types[type]], Is.EqualTo(defaultSchemaMap[type]));
           }
         }
 
-        selectedNode = domain.SelectStorageNode(AlternativeSchema);
+        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfiguration);
         using (var session = selectedNode.OpenSession()) {
           var types = new[] { typeof(BaseEntity), typeof(Entity1), typeof(Entity2) };
           foreach (var type in types) {
@@ -363,7 +361,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var stringValue = "entity1 " + nodeId;
       var intValue = stringValue.Length;
 
-      var selectedNode = domain.SelectStorageNode(nodeId);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var baseEntity = new BaseEntity {Name = baseName};
@@ -372,7 +370,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         tx.Complete();
       }
 
-      selectedNode = domain.SelectStorageNode(nodeId);
+      selectedNode = domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var baseTypeId = GetTypeId(session, typeof(BaseEntity));
@@ -400,7 +398,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void NonAbstractTypesTestBody(Domain domain, string nodeId)
     {
-      var selectedNode = domain.SelectStorageNode(nodeId);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var trasaction = session.OpenTransaction()) {
         var query1 = session.Query.All<Entity1>();
@@ -441,7 +439,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void AbstractClassDescendantsTestBody(Domain domain, string nodeId)
     {
-      var selectedNode = domain.SelectStorageNode(nodeId);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var trasaction = session.OpenTransaction()) {
         var query1 = session.Query.All<Entity3>();
@@ -483,7 +481,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void InterfaceTestBody(Domain domain, string nodeId)
     {
-      var selectedNode = domain.SelectStorageNode(nodeId);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var trasaction = session.OpenTransaction()) {
         var firstImplementationsBaseQuery = session.Query.All<SomeInterfaceImpl1>();

@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
         }
 
         foreach (var storageNode in nodes) {
-          var selectedNode = domain.SelectStorageNode(storageNode.NodeId);
+          var selectedNode = domain.StorageNodeManager.GetNode(storageNode.NodeId);
           using (var session = selectedNode.OpenSession())
           using (var transaction = session.OpenTransaction()) {
             Select(session, initialEntitiesCount);
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation
         map = new Dictionary<string, Dictionary<Type, Pair<string>>>();
         foreach (var storageNode in nodes) {
           var typesMap = new Dictionary<Type, Pair<string>>();
-          var selectedNode = domain.SelectStorageNode(storageNode.NodeId);
+          var selectedNode = domain.StorageNodeManager.GetNode(storageNode.NodeId);
           using (var session = selectedNode.OpenSession())
           using (var transaction = session.OpenTransaction()) {
             var type = typeof(model.Part1.TestEntity1);

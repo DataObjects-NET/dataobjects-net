@@ -41,8 +41,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       nodeConfig.SchemaMapping.Add("dbo", "Model1");
 
       using (var domain = Domain.Build(domainConfig)) {
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession())
+        using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var service = session.Services.Get<DirectSqlAccessor>();
           using (var command = service.CreateCommand()) {
@@ -52,8 +51,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           }
         }
 
-        _ = domain.StorageNodeManager.AddNode(nodeConfig);
-        selectedNode = domain.SelectStorageNode("Additional");
+        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var service = session.Services.Get<DirectSqlAccessor>();
@@ -81,8 +79,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       nodeConfig.SchemaMapping.Add("dbo", "Model1");
 
       using (var domain = Domain.Build(domainConfig)) {
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession())
+        using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var connection = ((SqlSessionHandler) session.Handler).Connection;
           Assert.That(connection.ConnectionInfo, Is.EqualTo(domainConfig.ConnectionInfo));
@@ -95,8 +92,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           }
         }
 
-        _ = domain.StorageNodeManager.AddNode(nodeConfig);
-        selectedNode = domain.SelectStorageNode("Additional");
+        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var service = session.Services.Get<DirectSqlAccessor>();
@@ -124,8 +120,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       nodeConfig.SchemaMapping.Add("dbo", "dbo");
 
       using (var domain = Domain.Build(domainConfig)) {
-        var selectedNode = domain.SelectStorageNode(WellKnown.DefaultNodeId);
-        using (var session = selectedNode.OpenSession())
+        using (var session = domain.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var connection = ((SqlSessionHandler) session.Handler).Connection;
           Assert.That(connection.ConnectionInfo, Is.EqualTo(domainConfig.ConnectionInfo));
@@ -138,8 +133,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           }
         }
 
-        _ = domain.StorageNodeManager.AddNode(nodeConfig);
-        selectedNode = domain.SelectStorageNode("Additional");
+        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var service = session.Services.Get<DirectSqlAccessor>();

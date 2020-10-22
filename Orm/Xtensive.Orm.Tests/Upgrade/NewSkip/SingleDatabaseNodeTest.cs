@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
     private void PopulateNodeData(Domain domain, string nodeIdentifier)
     {
-      var selectedNode = domain.SelectStorageNode(nodeIdentifier);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeIdentifier);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         CreateEntities();
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
     private void TestNode(Domain domain, string nodeIdentifier)
     {
-      var selectedNode = domain.SelectStorageNode(nodeIdentifier);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeIdentifier);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var countriesCount = session.Query.All<Country>().Count();

@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
         }
 
         foreach (var nodeConfiguration in nodes) {
-          var selectedNode = domain.SelectStorageNode(nodeConfiguration.NodeId);
+          var selectedNode = domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
           using (var session = selectedNode.OpenSession()) {
             using (session.Activate())
             using (var transaction = session.OpenTransaction()) {

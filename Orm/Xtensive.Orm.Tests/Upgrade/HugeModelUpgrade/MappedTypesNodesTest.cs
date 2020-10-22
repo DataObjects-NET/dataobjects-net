@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       };
 
       foreach (var node in nodes) {
-        var selectedNode = domain.SelectStorageNode(node);
+        var selectedNode = domain.StorageNodeManager.GetNode(node);
         using (var session = selectedNode.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var populator = new ModelPopulator();
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       };
 
       foreach (var node in nodes) {
-        var selectedNode = domain.SelectStorageNode(node);
+        var selectedNode = domain.StorageNodeManager.GetNode(node);
         using (var session = selectedNode.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           var checker = new ModelChecker();

@@ -443,7 +443,7 @@ namespace Xtensive.Orm
     /// Selects storage node identifier by <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
-    [Obsolete("Use Domain.SelectStorageNode(nodeId) instead")]
+    [Obsolete("Use StorageNode instances to open a session to them instead")]
     public void SelectStorageNode([NotNull] string nodeId)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");

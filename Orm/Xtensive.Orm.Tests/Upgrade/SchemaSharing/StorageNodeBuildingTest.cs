@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
     private void PopulateData(Domain domain, string nodeId)
     {
-      var selectedNode = domain.SelectStorageNode(nodeId);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var euro = new Currency() { Name = "Euro", ShortName = "EU" };
@@ -263,9 +263,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
     private void ValidateData(Domain domain, string nodeId)
     {
-      var selectedNode = domain.SelectStorageNode(nodeId);
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
       using (var session = selectedNode.OpenSession())
-
       using (var transaction = session.OpenTransaction()) {
         var currencies = session.Query.All<Currency>().OrderBy(c => c.Name).ToArray();
         Assert.That(currencies.Length, Is.EqualTo(3));
