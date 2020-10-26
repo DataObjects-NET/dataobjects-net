@@ -840,6 +840,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Cannot apply node configuration: connection is already in use. This may happen if the session was open asynchronously. Use new StorageNode.OpenSession(...) API instead of Session.SelectStorageNode(...).
+        /// </summary>
+        internal static string ExCannotApplyNodeConfigurationSettingsConnectionIsInUse {
+            get {
+                return ResourceManager.GetString("ExCannotApplyNodeConfigurationSettingsConnectionIsInUse", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Attempt to associate non-empty EntityState with Key of unknown type..
         /// </summary>
         internal static string ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType {

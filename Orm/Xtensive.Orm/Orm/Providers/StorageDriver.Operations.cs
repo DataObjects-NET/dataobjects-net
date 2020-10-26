@@ -23,11 +23,17 @@ namespace Xtensive.Orm.Providers
 
     public void ApplyNodeConfiguration(SqlConnection connection, NodeConfiguration nodeConfiguration)
     {
-      if (nodeConfiguration.ConnectionInfo!=null)
-        connection.ConnectionInfo = nodeConfiguration.ConnectionInfo;
+      if (connection.State != ConnectionState.Closed) {
+        throw new InvalidOperationException(Strings.ExCannotApplyNodeConfigurationSettingsConnectionIsInUse);
+      }
 
-      if (!string.IsNullOrEmpty(nodeConfiguration.ConnectionInitializationSql))
+      if (nodeConfiguration.ConnectionInfo != null) {
+        connection.ConnectionInfo = nodeConfiguration.ConnectionInfo;
+      }
+
+      if (!string.IsNullOrEmpty(nodeConfiguration.ConnectionInitializationSql)) {
         SetInitializationSql(connection, nodeConfiguration.ConnectionInitializationSql);
+      }
     }
 
     public SqlConnection CreateConnection(Session session)

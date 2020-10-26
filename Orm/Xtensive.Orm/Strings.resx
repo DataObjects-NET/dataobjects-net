@@ -3446,4 +3446,7 @@ Error: {1}</value>
   <data name="ExKeyBelongsToDifferentStorageNode" xml:space="preserve">
     <value>The Key belongs to different storage node.</value>
   </data>
+  <data name="ExCannotApplyNodeConfigurationSettingsConnectionIsInUse" xml:space="preserve">
+    <value>Cannot apply node configuration: connection is already in use. This may happen if the session was open asynchronously. Use new StorageNode.OpenSession(...) API instead of Session.SelectStorageNode(...)</value>
+  </data>
 </root>
