@@ -52,31 +52,6 @@ namespace Xtensive.Orm
       return handlers.StorageNodeRegistry.TryGet(nodeId);
     }
 
-    /// <summary>
-    /// Gets node with <paramref name="configuration"/>.NodeId if it exists, otherwise,
-    /// adds node with the specified <paramref name="configuration"/> and performs required upgrade actions
-    /// and return added node.
-    /// </summary>
-    /// <param name="configuration">Node configuration.</param>
-    /// <exception cref="InvalidOperationException">Given configurations has no <see cref="NodeConfiguration.NodeId"/> specified.</exception>
-    /// <exception cref="InvalidOperationException">New node cannot be registered.</exception>
-    [NotNull]
-    public StorageNode GetOrAddNode([NotNull] NodeConfiguration configuration)
-    {
-      if (string.IsNullOrEmpty(configuration.NodeId)) {
-        throw new InvalidOperationException(Strings.ExInvalidNodeIdentifier);
-      }
-      var node = GetNode(configuration.NodeId);
-      if (node != null) {
-        return node;
-      }
-      node = UpgradingDomainBuilder.BuildNode(handlers.Domain, configuration);
-      return handlers.StorageNodeRegistry.Add(node)
-        ? node
-        : throw new InvalidOperationException("Node was build but couldn't be registered.");
-    }
-
-
     // Constructors
 
     internal StorageNodeManager(HandlerAccessor handlers)

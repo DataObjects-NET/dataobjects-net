@@ -162,47 +162,6 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       Assert.That(result, Is.True);
     }
 
-    [Test]
-    public void GetOrAddByConfigWithNullNameTest()
-    {
-      var nodeConfiguration = new NodeConfiguration() { UpgradeMode = DomainUpgradeMode.Recreate };
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
-      _ = Assert.Throws<InvalidOperationException>(() => Domain.StorageNodeManager.GetOrAddNode(nodeConfiguration));
-    }
-
-    [Test]
-    public void GetOrAddByConfigWithEmptyNameTest()
-    {
-      var nodeConfiguration = new NodeConfiguration(string.Empty) { UpgradeMode = DomainUpgradeMode.Recreate };
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
-      _ = Assert.Throws<InvalidOperationException>(() => Domain.StorageNodeManager.GetOrAddNode(nodeConfiguration));
-    }
-
-    [Test]
-    public void GetOrAddByConfigOfExistingNodeTest()
-    {
-      var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
-      var result = Domain.StorageNodeManager.AddNode(nodeConfiguration);
-      Assert.That(result, Is.True);
-      var existingNode = Domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
-
-      var node = Domain.StorageNodeManager.GetOrAddNode((NodeConfiguration)nodeConfiguration.Clone());
-      Assert.That(node, Is.EqualTo(existingNode));
-    }
-
-    [Test]
-    public void GetOrAddByConfigOfAbsentNodeTest()
-    {
-      var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
-      var existingNode = Domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
-      Assert.That(existingNode, Is.Null);
-
-      var node = Domain.StorageNodeManager.GetOrAddNode((NodeConfiguration) nodeConfiguration.Clone());
-      Assert.That(node, Is.Not.Null);
-    }
-
     private NodeConfiguration GetBaseNodeConfig()
     {
       var nodeConfiguration = new NodeConfiguration(Guid.NewGuid().ToString()) {

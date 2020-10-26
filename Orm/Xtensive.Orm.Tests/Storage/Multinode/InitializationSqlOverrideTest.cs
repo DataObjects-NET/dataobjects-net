@@ -51,7 +51,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           }
         }
 
-        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
+        _ = domain.StorageNodeManager.AddNode(nodeConfig);
+        var selectedNode = domain.StorageNodeManager.GetNode(nodeConfig.NodeId);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var service = session.Services.Get<DirectSqlAccessor>();
@@ -92,7 +93,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           }
         }
 
-        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
+        _ = domain.StorageNodeManager.AddNode(nodeConfig);
+        var selectedNode = domain.StorageNodeManager.GetNode(nodeConfig.NodeId);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var service = session.Services.Get<DirectSqlAccessor>();
@@ -133,7 +135,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           }
         }
 
-        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfig);
+        _ = domain.StorageNodeManager.AddNode(nodeConfig);
+        var selectedNode = domain.StorageNodeManager.GetNode(nodeConfig.NodeId);
         using (var session = selectedNode.OpenSession())
         using (var tx = session.OpenTransaction()) {
           var service = session.Services.Get<DirectSqlAccessor>();

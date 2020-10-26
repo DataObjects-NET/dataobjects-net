@@ -343,7 +343,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           }
         }
 
-        var selectedNode = domain.StorageNodeManager.GetOrAddNode(nodeConfiguration);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
+        var selectedNode = domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
         using (var session = selectedNode.OpenSession()) {
           var types = new[] { typeof(BaseEntity), typeof(Entity1), typeof(Entity2) };
           foreach (var type in types) {
