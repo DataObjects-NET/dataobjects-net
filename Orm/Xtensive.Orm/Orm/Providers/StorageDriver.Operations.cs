@@ -23,7 +23,8 @@ namespace Xtensive.Orm.Providers
 
     public void ApplyNodeConfiguration(SqlConnection connection, NodeConfiguration nodeConfiguration)
     {
-      if (connection.State != ConnectionState.Closed) {
+      if (connection.State != ConnectionState.Closed
+        && !nodeConfiguration.NodeId.Equals(WellKnown.DefaultNodeId, StringComparison.Ordinal )) {
         throw new InvalidOperationException(Strings.ExCannotApplyNodeConfigurationSettingsConnectionIsInUse);
       }
 
