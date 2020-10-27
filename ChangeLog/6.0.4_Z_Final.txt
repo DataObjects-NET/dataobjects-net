@@ -1,0 +1,4 @@
+[main] Session.SelectStorageNode() marked as obsolete
+[main] Domain.OpenSessionAsync() methods can only open a session to default storage node now
+[main] Introduced StorageNode.OpenSession() and StorageNode.OpenSessionAsync() method sets to open sessions to the node
+[main] Fixed issue when DirectPersistentAccessor.SetReferenceKey() was unable to set reference for saved Entities
