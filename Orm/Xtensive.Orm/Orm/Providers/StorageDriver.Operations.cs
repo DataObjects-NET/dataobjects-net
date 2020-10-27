@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.14
 
@@ -23,11 +23,18 @@ namespace Xtensive.Orm.Providers
 
     public void ApplyNodeConfiguration(SqlConnection connection, NodeConfiguration nodeConfiguration)
     {
-      if (nodeConfiguration.ConnectionInfo!=null)
-        connection.ConnectionInfo = nodeConfiguration.ConnectionInfo;
+      if (connection.State != ConnectionState.Closed
+        && !nodeConfiguration.NodeId.Equals(WellKnown.DefaultNodeId, StringComparison.Ordinal )) {
+        throw new InvalidOperationException(Strings.ExCannotApplyNodeConfigurationSettingsConnectionIsInUse);
+      }
 
-      if (!string.IsNullOrEmpty(nodeConfiguration.ConnectionInitializationSql))
+      if (nodeConfiguration.ConnectionInfo != null) {
+        connection.ConnectionInfo = nodeConfiguration.ConnectionInfo;
+      }
+
+      if (!string.IsNullOrEmpty(nodeConfiguration.ConnectionInitializationSql)) {
         SetInitializationSql(connection, nodeConfiguration.ConnectionInitializationSql);
+      }
     }
 
     public SqlConnection CreateConnection(Session session)
@@ -44,12 +51,15 @@ namespace Xtensive.Orm.Providers
       }
 
       var sessionConfiguration = GetConfiguration(session);
-      if (sessionConfiguration.ConnectionInfo!=null)
-        connection.ConnectionInfo = sessionConfiguration.ConnectionInfo;
       connection.CommandTimeout = sessionConfiguration.DefaultCommandTimeout;
+      var connectionInfo = GetConnectionInfo(session) ?? sessionConfiguration.ConnectionInfo;
+      if (connectionInfo != null) {
+        connection.ConnectionInfo = connectionInfo;
+      }
 
-      if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
-        SetInitializationSql(connection, configuration.ConnectionInitializationSql);
+      var connectionInitializationSql = GetInitializationSql(session) ?? configuration.ConnectionInitializationSql;
+      if (!string.IsNullOrEmpty(connectionInitializationSql))
+        SetInitializationSql(connection, connectionInitializationSql);
 
       return connection;
     }
@@ -339,7 +349,23 @@ namespace Xtensive.Orm.Providers
 
     private SessionConfiguration GetConfiguration(Session session)
     {
-      return session!=null ? session.Configuration : configuration.Sessions.System;
+      return session != null ? session.Configuration : configuration.Sessions.System;
+    }
+
+    private ConnectionInfo GetConnectionInfo(Session session)
+    {
+      return session == null
+        ? null
+        : session.GetStorageNodeInternal()?.Configuration.ConnectionInfo
+          ?? session.Configuration.ConnectionInfo;
+    }
+
+    private string GetInitializationSql(Session session)
+    {
+      return session == null || session.GetStorageNodeInternal() == null
+        || string.IsNullOrEmpty(session.GetStorageNodeInternal().Configuration.ConnectionInitializationSql)
+        ? null
+        : session.StorageNode.Configuration.ConnectionInitializationSql;
     }
   }
 }

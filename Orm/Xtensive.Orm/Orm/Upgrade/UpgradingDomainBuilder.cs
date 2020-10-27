@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2009.04.23
 
@@ -328,12 +328,13 @@ namespace Xtensive.Orm.Upgrade
       var modelMapping = ModelMappingBuilder.Build(
         domain.Handlers, schemaExtractionResult,
         context.Services.MappingResolver, context.NodeConfiguration, context.UpgradeMode.IsLegacy());
-      var result = new StorageNode(context.NodeConfiguration, modelMapping, new TypeIdRegistry());
+      var result = new StorageNode(domain, context.NodeConfiguration, modelMapping, new TypeIdRegistry());
 
       // Register default storage node immediately,
       // non-default nodes are registered in NodeManager after everything completes successfully.
-      if (result.Id==WellKnown.DefaultNodeId)
-        domain.Handlers.StorageNodeRegistry.Add(result);
+      if (result.Id==WellKnown.DefaultNodeId) {
+        _ = domain.Handlers.StorageNodeRegistry.Add(result);
+      }
 
       context.StorageNode = result;
       return result;

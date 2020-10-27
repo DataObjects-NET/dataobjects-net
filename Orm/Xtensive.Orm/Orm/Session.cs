@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
@@ -302,6 +302,12 @@ namespace Xtensive.Orm
       storageNode = node;
     }
 
+    // gets node directly
+    internal StorageNode GetStorageNodeInternal()
+    {
+      return storageNode;
+    }
+
     public ExecutableProvider Compile(CompilableProvider provider)
     {
       return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
@@ -437,6 +443,7 @@ namespace Xtensive.Orm
     /// Selects storage node identifier by <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
+    [Obsolete("Use StorageNode instances to open a session to them instead")]
     public void SelectStorageNode([NotNull] string nodeId)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
@@ -506,7 +513,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Session(Domain domain, SessionConfiguration configuration, bool activate)
+    internal Session(Domain domain, StorageNode selectedStorageNode, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
       Guid = Guid.NewGuid();
@@ -519,6 +526,7 @@ namespace Xtensive.Orm
       identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
       allowSwitching = configuration.Supports(SessionOptions.AllowSwitching);
+      storageNode = selectedStorageNode;
 
       // Handlers
       Handlers = domain.Handlers;

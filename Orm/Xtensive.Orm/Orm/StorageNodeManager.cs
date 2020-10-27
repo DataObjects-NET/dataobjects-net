@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System;
 using JetBrains.Annotations;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -50,7 +51,6 @@ namespace Xtensive.Orm
     {
       return handlers.StorageNodeRegistry.TryGet(nodeId);
     }
-
 
     // Constructors
 

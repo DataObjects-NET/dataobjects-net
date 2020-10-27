@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
@@ -56,12 +56,11 @@ namespace Xtensive.Orm.Building.Builders
         var useSingleConnection =
           services.ProviderInfo.Supports(ProviderFeatures.SingleConnection)
           && context.BuilderConfiguration.Stage==UpgradeStage.Final;
-        
+
         context.Domain = new Domain(
           context.Configuration,
           context.BuilderConfiguration.UpgradeContextCookie,
-          useSingleConnection ? services.Connection : null,
-          context.DefaultSchemaInfo);
+          useSingleConnection ? services.Connection : null);
       }
     }
 

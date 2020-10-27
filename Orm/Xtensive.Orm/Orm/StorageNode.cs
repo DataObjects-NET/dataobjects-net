@@ -1,13 +1,17 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Interfaces;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 
@@ -16,8 +20,10 @@ namespace Xtensive.Orm
   /// <summary>
   /// Storage node.
   /// </summary>
-  public sealed class StorageNode
+  public sealed class StorageNode : ISessionSource
   {
+    private readonly Domain domain;
+
     /// <summary>
     /// Gets node identifier.
     /// </summary>
@@ -44,15 +50,68 @@ namespace Xtensive.Orm
 
     internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
 
+    /// <inheritdoc/>
+    public Session OpenSession()
+    {
+      return OpenSession(domain.Configuration.Sessions.Default);
+    }
+
+    /// <inheritdoc/>
+    public Session OpenSession(SessionType type)
+    {
+      return type switch {
+        SessionType.User => OpenSession(domain.Configuration.Sessions.Default),
+        SessionType.System => OpenSession(domain.Configuration.Sessions.System),
+        SessionType.KeyGenerator => OpenSession(domain.Configuration.Sessions.KeyGenerator),
+        SessionType.Service => OpenSession(domain.Configuration.Sessions.Service),
+        _ => throw new ArgumentOutOfRangeException("type"),
+      };
+    }
+
+    /// <inheritdoc/>
+    public Session OpenSession(SessionConfiguration configuration)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      return domain.OpenSessionInternal(configuration, this, configuration.Supports(SessionOptions.AutoActivation));
+    }
+
+    /// <inheritdoc/>
+    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default) =>
+      OpenSessionAsync(domain.Configuration.Sessions.Default, cancellationToken);
+
+    /// <inheritdoc/>
+    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
+    {
+      return type switch {
+        SessionType.User => OpenSessionAsync(domain.Configuration.Sessions.Default),
+        SessionType.System => OpenSessionAsync(domain.Configuration.Sessions.System),
+        SessionType.KeyGenerator => OpenSessionAsync(domain.Configuration.Sessions.KeyGenerator),
+        SessionType.Service => OpenSessionAsync(domain.Configuration.Sessions.Service),
+        _ => throw new ArgumentOutOfRangeException("type"),
+      };
+    }
+
+    /// <inheritdoc/>
+    public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      return domain.OpenSessionInternalAsync(configuration,
+        this,
+        configuration.Supports(SessionOptions.AllowSwitching),
+        cancellationToken);
+    }
 
     // Constructors
 
-    internal StorageNode(NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
+    internal StorageNode(Domain domain, NodeConfiguration configuration, ModelMapping mapping, TypeIdRegistry typeIdRegistry)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-      ArgumentValidator.EnsureArgumentNotNull(mapping, "mapping");
-      ArgumentValidator.EnsureArgumentNotNull(typeIdRegistry, "typeIdRegistry");
+      ArgumentValidator.EnsureArgumentNotNull(domain, nameof(domain));
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+      ArgumentValidator.EnsureArgumentNotNull(mapping, nameof(mapping));
+      ArgumentValidator.EnsureArgumentNotNull(typeIdRegistry, nameof(typeIdRegistry));
 
+      this.domain = domain;
       Configuration = configuration;
       Mapping = mapping;
       TypeIdRegistry = typeIdRegistry;
