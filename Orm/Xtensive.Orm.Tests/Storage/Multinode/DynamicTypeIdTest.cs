@@ -123,10 +123,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof(Entity2)).Dispose();
       BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(Entity2), typeof(Entity1)).Dispose();
 
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity1), typeof(Entity2))) {
+      var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity1), typeof(Entity2));
+      using (domain) {
         var nodeConfiguration = new NodeConfiguration(AlternativeSchema) { UpgradeMode = DomainUpgradeMode.Validate };
         nodeConfiguration.SchemaMapping.Add(DefaultSchema, AlternativeSchema);
-        domain.StorageNodeManager.AddNode(nodeConfiguration);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
 
         RunTest(domain, WellKnown.DefaultNodeId, MainTestBody);
         RunTest(domain, AlternativeSchema, MainTestBody);
@@ -163,16 +164,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
       InitializeSchemas();
 
-      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof(Entity3)).Dispose();
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(Entity3), typeof(Entity4)))
+      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof (Entity3)).Dispose();
+
+      var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(Entity3), typeof(Entity4));
+      using (domain)
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
-          new Entity3 {
+        for (var i = 0; i < 10; i++) {
+          _ = new Entity3 {
             Name = "1 before test " + i,
             StringValue = "1 before test " + i
           };
-          new Entity4 {
+          _ = new Entity4 {
             Name = "1 before test " + i,
             IntValue = i
           };
@@ -180,16 +183,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         transaction.Complete();
       }
 
-      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof(Entity4)).Dispose();
-      using (var domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(Entity4), typeof(Entity3)))
+      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof (Entity4)).Dispose();
+
+      domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(Entity4), typeof(Entity3));
+      using (domain)
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
-          new Entity3 {
+        for (var i = 0; i < 10; i++) {
+          _ = new Entity3 {
             Name = "2 before test " + i,
             StringValue = "1 before test " + i
           };
-          new Entity4 {
+          _ = new Entity4 {
             Name = "2 before test " + i,
             IntValue = i
           };
@@ -197,13 +202,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         transaction.Complete();
       }
 
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity3), typeof(Entity4))) {
+      domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity3), typeof(Entity4));
+      using (domain) {
         var nodeConfiguration = new NodeConfiguration(AlternativeSchema) { UpgradeMode = DomainUpgradeMode.Validate };
         nodeConfiguration.SchemaMapping.Add(DefaultSchema, AlternativeSchema);
         _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
-
-        RunTest(domain, WellKnown.DefaultNodeId, AbstractClassDescendantsTestBody);
-        RunTest(domain, AlternativeSchema, AbstractClassDescendantsTestBody);
       }
     }
 
@@ -265,17 +268,19 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
       InitializeSchemas();
 
-      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof(SomeInterfaceImpl1)).Dispose();
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(SomeInterfaceImpl1), typeof(SomeInterfaceImpl2)))
+      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof (SomeInterfaceImpl1)).Dispose();
+      var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(SomeInterfaceImpl1), typeof(SomeInterfaceImpl2));
+
+      using (domain)
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
-          new SomeInterfaceImpl1 {
+        for (var i = 0; i < 10; i++) {
+          _ = new SomeInterfaceImpl1 {
             Name = "1 before test " + i,
             StringValue = "1 before test " + i,
             GuidValue = Guid.NewGuid()
           };
-          new SomeInterfaceImpl2 {
+          _ = new SomeInterfaceImpl2 {
             Name = "1 before test " + i,
             IntValue = i,
             GuidValue = Guid.NewGuid()
@@ -284,17 +289,19 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         transaction.Complete();
       }
 
-      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof(SomeInterfaceImpl2)).Dispose();
-      using (var domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(SomeInterfaceImpl1), typeof(SomeInterfaceImpl2)))
+      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof (SomeInterfaceImpl2)).Dispose();
+      domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(SomeInterfaceImpl1), typeof(SomeInterfaceImpl2));
+
+      using (domain)
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
-          new SomeInterfaceImpl1 {
+        for (var i = 0; i < 10; i++) {
+          _ = new SomeInterfaceImpl1 {
             Name = "2 before test " + i,
             StringValue = "1 before test " + i,
             GuidValue = Guid.NewGuid()
           };
-          new SomeInterfaceImpl2 {
+          _ = new SomeInterfaceImpl2 {
             Name = "2 before test " + i,
             IntValue = i,
             GuidValue = Guid.NewGuid()
@@ -303,13 +310,12 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         transaction.Complete();
       }
 
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(SomeInterfaceImpl1), typeof(SomeInterfaceImpl2))) {
+      domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(SomeInterfaceImpl1), typeof(SomeInterfaceImpl2));
+
+      using (domain) {
         var nodeConfiguration = new NodeConfiguration(AlternativeSchema) { UpgradeMode = DomainUpgradeMode.Validate };
         nodeConfiguration.SchemaMapping.Add(DefaultSchema, AlternativeSchema);
         _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
-
-        RunTest(domain, WellKnown.DefaultNodeId, InterfaceTestBody);
-        RunTest(domain, AlternativeSchema, InterfaceTestBody);
       }
     }
 
@@ -375,16 +381,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
       InitializeSchemas();
 
-      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof(Entity1)).Dispose();
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(Entity1), typeof(Entity2)))
+      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof (Entity1)).Dispose();
+      var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(Entity1), typeof(Entity2));
+
+      using (domain)
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
-          new Entity1 {
+        for (var i = 0; i < 10; i++) {
+          _ = new Entity1 {
             Name = "1 before test " + i,
             StringValue = "1 before test " + i
           };
-          new Entity2 {
+          _ = new Entity2 {
             Name = "1 before test " + i,
             IntValue = i
           };
@@ -392,16 +400,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         transaction.Complete();
       }
 
-      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof(Entity2)).Dispose();
-      using (var domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(Entity2), typeof(Entity1)))
+      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof (Entity2)).Dispose();
+      domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(Entity2), typeof(Entity1));
+
+      using (domain)
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
-          new Entity1 {
+        for (var i = 0; i < 10; i++) {
+          _ = new Entity1 {
             Name = "2 before test " + i,
             StringValue = "1 before test " + i
           };
-          new Entity2 {
+          _ = new Entity2 {
             Name = "2 before test " + i,
             IntValue = i
           };
@@ -409,13 +419,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         transaction.Complete();
       }
 
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity1), typeof(Entity2))) {
+      domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity1), typeof(Entity2));
+      using (domain) {
         var nodeConfiguration = new NodeConfiguration(AlternativeSchema) { UpgradeMode = DomainUpgradeMode.Validate };
         nodeConfiguration.SchemaMapping.Add(DefaultSchema, AlternativeSchema);
         _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
-
-        RunTest(domain, WellKnown.DefaultNodeId, NonAbstractTypesTestBody);
-        RunTest(domain, AlternativeSchema, NonAbstractTypesTestBody);
       }
     }
 
@@ -480,30 +488,36 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var defaultSchemaMap = new Dictionary<Type, int>();
       var alternativeSchemaMap = new Dictionary<Type, int>();
 
-      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof(Entity1)).Dispose();
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(Entity1), typeof(Entity2))) {
+      BuildDomain(DefaultSchema, DomainUpgradeMode.Recreate, typeof (Entity1)).Dispose();
+      var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.PerformSafely, typeof(Entity1), typeof(Entity2));
+
+      using (domain) {
         defaultSchemaMap = domain.Model.Types.ToDictionary(el => el.UnderlyingType, el => el.TypeId);
       }
 
-      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof(Entity2)).Dispose();
-      using (var domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(Entity2), typeof(Entity1))) {
+      BuildDomain(AlternativeSchema, DomainUpgradeMode.Recreate, typeof (Entity2)).Dispose();
+      domain = BuildDomain(AlternativeSchema, DomainUpgradeMode.PerformSafely, typeof(Entity2), typeof(Entity1));
+
+      using (domain) {
         alternativeSchemaMap = domain.Model.Types.ToDictionary(el => el.UnderlyingType, el => el.TypeId);
       }
 
-      using (var domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity1), typeof(Entity2))) {
-        var nodeConfiguration = new NodeConfiguration(AlternativeSchema) { UpgradeMode = DomainUpgradeMode.Validate };
+      domain = BuildDomain(DefaultSchema, DomainUpgradeMode.Validate, typeof(Entity1), typeof(Entity2));
+
+      using (domain) {
+        var nodeConfiguration = new NodeConfiguration(AlternativeSchema) {UpgradeMode = DomainUpgradeMode.Validate};
         nodeConfiguration.SchemaMapping.Add(DefaultSchema, AlternativeSchema);
-        _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
 
         using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(WellKnown.DefaultNodeId);
           var types = new[] { typeof(BaseEntity), typeof(Entity1), typeof(Entity2) };
           foreach (var type in types) {
             Assert.That(session.StorageNode.TypeIdRegistry[domain.Model.Types[type]], Is.EqualTo(defaultSchemaMap[type]));
           }
         }
 
-        using (var session = domain.OpenSession()) {
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
+        var selectedNode = domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
+        using (var session = selectedNode.OpenSession()) {
           session.SelectStorageNode(AlternativeSchema);
           var types = new[] { typeof(BaseEntity), typeof(Entity1), typeof(Entity2) };
           foreach (var type in types) {
@@ -564,18 +578,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var stringValue = "entity1 " + nodeId;
       var intValue = stringValue.Length;
 
-      using (var session = domain.OpenSession())
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
+      using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        session.SelectStorageNode(nodeId);
-        var baseEntity = new BaseEntity { Name = baseName };
-        var entity1 = new Entity1 { Name = entity1Name, StringValue = stringValue };
-        var entity2 = new Entity2 { Name = entity2Name, IntValue = intValue };
+        var baseEntity = new BaseEntity {Name = baseName};
+        var entity1 = new Entity1 {Name = entity1Name, StringValue = stringValue};
+        var entity2 = new Entity2 {Name = entity2Name, IntValue = intValue};
         tx.Complete();
       }
 
-      using (var session = domain.OpenSession())
+      selectedNode = domain.StorageNodeManager.GetNode(nodeId);
+      using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        session.SelectStorageNode(nodeId);
         var baseTypeId = GetTypeId(session, typeof(BaseEntity));
         var baseEntity = session.Query.All<BaseEntity>().Single(e => e.TypeId == baseTypeId);
         Assert.That(baseEntity.Name, Is.EqualTo(baseName));
@@ -601,9 +615,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void NonAbstractTypesTestBody(Domain domain, string nodeId)
     {
-      using (var session = domain.OpenSession())
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
+      using (var session = selectedNode.OpenSession())
       using (var trasaction = session.OpenTransaction()) {
-        session.SelectStorageNode(nodeId);
         var query1 = session.Query.All<Entity1>();
         Assert.That(query1.Count(), Is.EqualTo(10));
         foreach (var entity in query1) {
@@ -642,9 +656,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void AbstractClassDescendantsTestBody(Domain domain, string nodeId)
     {
-      using (var session = domain.OpenSession())
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
+      using (var session = selectedNode.OpenSession())
       using (var trasaction = session.OpenTransaction()) {
-        session.SelectStorageNode(nodeId);
         var query1 = session.Query.All<Entity3>();
         Assert.That(query1.Count(), Is.EqualTo(10));
         foreach (var entity in query1) {
@@ -684,9 +698,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
     private void InterfaceTestBody(Domain domain, string nodeId)
     {
-      using (var session = domain.OpenSession())
+      var selectedNode = domain.StorageNodeManager.GetNode(nodeId);
+      using (var session = selectedNode.OpenSession())
       using (var trasaction = session.OpenTransaction()) {
-        session.SelectStorageNode(nodeId);
         var firstImplementationsBaseQuery = session.Query.All<SomeInterfaceImpl1>();
         Assert.That(firstImplementationsBaseQuery.Count(), Is.EqualTo(10));
         foreach (var someInterfaceImpl1 in firstImplementationsBaseQuery) {
@@ -726,9 +740,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       }
     }
 
-    private void RunTest(Domain domain, string nodeId, Action<Domain, string> testBody) => testBody.Invoke(domain, nodeId);
+    private void RunTest(Domain domain, string nodeId, Action<Domain, string> testBody) =>
+      testBody.Invoke(domain, nodeId);
 
-    private static int GetTypeId(Session session, Type type) => session.StorageNode.TypeIdRegistry[session.Domain.Model.Types[type]];
+    private static int GetTypeId(Session session, Type type) =>
+      session.StorageNode.TypeIdRegistry[session.Domain.Model.Types[type]];
 
     private Domain BuildDomain(string schema, DomainUpgradeMode mode, params Type[] types)
     {

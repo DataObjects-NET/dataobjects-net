@@ -60,8 +60,7 @@ namespace Xtensive.Orm.Building.Builders
         context.Domain = new Domain(
           context.Configuration,
           context.BuilderConfiguration.UpgradeContextCookie,
-          useSingleConnection ? services.Connection : null,
-          context.DefaultSchemaInfo);
+          useSingleConnection ? services.Connection : null);
       }
     }
 

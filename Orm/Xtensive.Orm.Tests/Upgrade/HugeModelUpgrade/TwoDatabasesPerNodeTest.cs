@@ -48,13 +48,12 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       };
 
       foreach (var node in nodes) {
-        using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(node);
-          using (var transaction = session.OpenTransaction()) {
-            var populator = new ModelPopulator();
-            populator.Run();
-            transaction.Complete();
-          }
+        var selectedNode = domain.StorageNodeManager.GetNode(node);
+        using (var session = selectedNode.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var populator = new ModelPopulator();
+          populator.Run();
+          transaction.Complete();
         }
       }
     }
@@ -67,12 +66,11 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       };
 
       foreach (var node in nodes) {
-        using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(node);
-          using (var transaction = session.OpenTransaction()) {
-            var checker = new ModelChecker();
-            checker.Run(session);
-          }
+        var selectedNode = domain.StorageNodeManager.GetNode(node);
+        using (var session = selectedNode.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var checker = new ModelChecker();
+          checker.Run(session);
         }
       }
     }

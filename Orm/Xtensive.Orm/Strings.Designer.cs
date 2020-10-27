@@ -19,7 +19,7 @@ namespace Xtensive {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -836,6 +836,15 @@ namespace Xtensive {
         internal static string ExCannotActivateServiceXWithKeyYErrorZ {
             get {
                 return ResourceManager.GetString("ExCannotActivateServiceXWithKeyYErrorZ", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Cannot apply node configuration: connection is already in use. This may happen if the session was open asynchronously. Use new StorageNode.OpenSession(...) API instead of Session.SelectStorageNode(...).
+        /// </summary>
+        internal static string ExCannotApplyNodeConfigurationSettingsConnectionIsInUse {
+            get {
+                return ResourceManager.GetString("ExCannotApplyNodeConfigurationSettingsConnectionIsInUse", resourceCulture);
             }
         }
         
@@ -3669,6 +3678,15 @@ namespace Xtensive {
         internal static string ExKeyAlreadyExists {
             get {
                 return ResourceManager.GetString("ExKeyAlreadyExists", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The Key belongs to different storage node..
+        /// </summary>
+        internal static string ExKeyBelongsToDifferentStorageNode {
+            get {
+                return ResourceManager.GetString("ExKeyBelongsToDifferentStorageNode", resourceCulture);
             }
         }
         
