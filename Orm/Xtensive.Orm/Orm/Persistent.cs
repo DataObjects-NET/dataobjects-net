@@ -307,7 +307,7 @@ namespace Xtensive.Orm
           throw new InvalidOperationException(string.Format("Key of {0} type is not assignable to field of {1} type", value.TypeInfo.Name, field.ValueType.Name));
         }
 
-        if (value == oldValue) {
+        if (value == oldValue && !isPersisting) {
           return;
         }
 
