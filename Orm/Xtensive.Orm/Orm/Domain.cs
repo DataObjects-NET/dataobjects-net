@@ -453,13 +453,13 @@ namespace Xtensive.Orm
       NotifyDisposing();
       Services.Dispose();
 
-      if (SingleConnection==null) {
+      if (SingleConnection == null) {
         return;
       }
 
       SqlConnection singleConnectionLocal;
       lock (singleConnectionGuard) {
-        if (singleConnectionOwner!=null) {
+        if (singleConnectionOwner != null) {
           OrmLog.Warning(
             Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
             singleConnectionOwner);
