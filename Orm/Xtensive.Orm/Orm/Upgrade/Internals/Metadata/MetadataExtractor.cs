@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -140,7 +141,7 @@ namespace Xtensive.Orm.Upgrade
     private async Task ExecuteQueryAsync<T>(ICollection<T> output, ISqlCompileUnit query, Func<DbDataReader, T> parser,
       CancellationToken token)
     {
-      var command = await executor.ExecuteReaderAsync(query, token).ConfigureAwait(false);
+      var command = await executor.ExecuteReaderAsync(query, CommandBehavior.SequentialAccess, token).ConfigureAwait(false);
       await using (command.ConfigureAwait(false)) {
         var reader = command.Reader;
         while (await reader.ReadAsync(token).ConfigureAwait(false)) {

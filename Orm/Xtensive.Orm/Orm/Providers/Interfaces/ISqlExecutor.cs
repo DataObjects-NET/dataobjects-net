@@ -5,6 +5,7 @@
 // Created:    2012.02.29
 
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -21,8 +22,9 @@ namespace Xtensive.Orm.Providers
     /// Executes the specified query statement. This method is similar to <see cref="DbCommand.ExecuteReader()"/>.
     /// </summary>
     /// <param name="statement">The statement to execute.</param>
+    /// <param name="commandBehavior">Options for statement execution and data retrieval.</param>
     /// <returns>Result of execution.</returns>
-    CommandWithDataReader ExecuteReader(ISqlCompileUnit statement);
+    CommandWithDataReader ExecuteReader(ISqlCompileUnit statement, CommandBehavior commandBehavior = CommandBehavior.Default);
 
     /// <summary>
     /// Asynchronously executes the specified query statement.
@@ -34,13 +36,27 @@ namespace Xtensive.Orm.Providers
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Result of execution.</returns>
     Task<CommandWithDataReader> ExecuteReaderAsync(ISqlCompileUnit statement, CancellationToken token = default);
+    
+    /// <summary>
+    /// Asynchronously executes the specified query statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteReaderAsync()"/>.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="statement">The statement to execute.</param>
+    /// <param name="commandBehavior">Options for statement execution and data retrieval.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<CommandWithDataReader> ExecuteReaderAsync(
+      ISqlCompileUnit statement, CommandBehavior commandBehavior, CancellationToken token = default);
 
     /// <summary>
     /// Executes the specified query statement. This method is similar to <see cref="DbCommand.ExecuteReader()"/>.
     /// </summary>
     /// <param name="commandText">The statement to execute.</param>
+    /// <param name="commandBehavior">Options for statement execution and data retrieval.</param>
     /// <returns>Result of execution.</returns>
-    CommandWithDataReader ExecuteReader(string commandText);
+    CommandWithDataReader ExecuteReader(string commandText, CommandBehavior commandBehavior = CommandBehavior.Default);
 
     /// <summary>
     /// Asynchronously executes the specified query statement.
@@ -50,6 +66,17 @@ namespace Xtensive.Orm.Providers
     /// <param name="token">The cancellation token to terminate execution if needed.</param>
     /// <returns>Result of execution.</returns>
     Task<CommandWithDataReader> ExecuteReaderAsync(string commandText, CancellationToken token = default);
+
+    /// <summary>
+    /// Asynchronously executes the specified query statement.
+    /// This method is similar to <see cref="DbCommand.ExecuteReaderAsync()"/>.
+    /// </summary>
+    /// <param name="commandText">The statement to execute.</param>
+    /// <param name="commandBehavior">Options for statement execution and data retrieval.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <returns>Result of execution.</returns>
+    Task<CommandWithDataReader> ExecuteReaderAsync(
+      string commandText, CommandBehavior commandBehavior, CancellationToken token = default);
 
     /// <summary>
     /// Executes the specified scalar statement. This method is similar to <see cref="DbCommand.ExecuteScalar"/>.
