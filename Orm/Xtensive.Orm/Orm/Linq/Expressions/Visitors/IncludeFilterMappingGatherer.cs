@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.11.16
 
@@ -39,16 +39,14 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private readonly ApplyParameter filteredTuple;
     private readonly MappingEntry[] resultMapping;
 
-    private int tupleIndex = -1;
-    private int providerIndex = -1;
-
     public static MappingEntry[] Gather(Expression filterExpression, Expression filterDataTuple, ApplyParameter filteredTuple, int columnCount)
     {
       var mapping = Enumerable.Repeat((MappingEntry) null, columnCount).ToArray();
       var visitor = new IncludeFilterMappingGatherer(filterDataTuple, filteredTuple, mapping);
-      visitor.Visit(filterExpression);
-      if (mapping.Contains(null))
+      _ = visitor.Visit(filterExpression);
+      if (mapping.Contains(null)) {
         throw Exceptions.InternalError("Failed to gather mappings for IncludeProvider", OrmLog.Instance);
+      }
       return mapping;
     }
 
@@ -59,42 +57,51 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
 
       var filterDataAccessor = expressions.FirstOrDefault(e => {
         var tupleAccess = e.StripCasts().AsTupleAccess();
-        return tupleAccess!=null && tupleAccess.Object==filterDataTuple;
+        return tupleAccess != null && tupleAccess.Object == filterDataTuple;
       });
-      if (filterDataAccessor==null)
+      if (filterDataAccessor == null) {
         return result;
+      }
 
       var filteredExpression = expressions.FirstOrDefault(e => e!=filterDataAccessor);
-      if (filteredExpression==null)
+      if (filteredExpression == null) {
         return result;
+      }
 
       var filterDataIndex = filterDataAccessor.StripCasts().GetTupleAccessArgument();
+      if (resultMapping.Length <= filterDataIndex) {
+        return result;
+      }
       resultMapping[filterDataIndex] = CreateMappingEntry(filteredExpression);
-
       return result;
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)
     {
       var target = m.Expression;
-      if (target==null)
+      if (target == null) {
         return base.VisitMemberAccess(m);
-      if (target.NodeType==ExpressionType.Constant && ((ConstantExpression) target).Value==filteredTuple)
+      }
+
+      if (target.NodeType == ExpressionType.Constant && ((ConstantExpression) target).Value == filteredTuple) {
         return calculatedColumnParameter;
+      }
       return base.VisitMemberAccess(m);
     }
 
     private MappingEntry CreateMappingEntry(Expression expression)
     {
       var tupleAccess = expression.StripCasts().AsTupleAccess();
-      if (tupleAccess!=null)
+      if (tupleAccess!=null) {
         return new MappingEntry(tupleAccess.GetTupleAccessArgument());
+      }
+      expression = ExpressionReplacer.Replace(expression, filterDataTuple, calculatedColumnParameter);
       return new MappingEntry(FastExpression.Lambda(expression, calculatedColumnParameter));
     }
 
     private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
     {
-      calculatedColumnParameter = Expression.Parameter(typeof (Tuple), "filteredRow");
+      calculatedColumnParameter = Expression.Parameter(typeof(Tuple), "filteredRow");
 
       this.filterDataTuple = filterDataTuple;
       this.filteredTuple = filteredTuple;
