@@ -305,6 +305,9 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
+      if (source.IsLocalCollection(context))
+        match = Visit(match);
+
       var matchedElementType = match.Type;
       var sequenceElementType = QueryHelper.GetSequenceElementType(source.Type);
       if (sequenceElementType != matchedElementType) {
