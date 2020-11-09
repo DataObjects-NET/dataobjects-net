@@ -6168,6 +6168,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to There is no implemetation of &apos;{0}.{1}&apos; member in &apos;{0}&apos; type..
+        /// </summary>
+        internal static string ExThereIsNoImplemetationOfXYMemberInZType {
+            get {
+                return ResourceManager.GetString("ExThereIsNoImplemetationOfXYMemberInZType", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The scale must be less than or equal to precision..
         /// </summary>
         internal static string ExTheScaleMustBeLessThanOrEqualToPrecision {

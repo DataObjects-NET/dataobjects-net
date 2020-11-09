@@ -3449,4 +3449,7 @@ Error: {1}</value>
   <data name="ExCannotApplyNodeConfigurationSettingsConnectionIsInUse" xml:space="preserve">
     <value>Cannot apply node configuration: connection is already in use. This may happen if the session was open asynchronously. Use new StorageNode.OpenSession(...) API instead of Session.SelectStorageNode(...)</value>
   </data>
+  <data name="ExThereIsNoImplemetationOfXYMemberInZType" xml:space="preserve">
+    <value>There is no implemetation of '{0}.{1}' member in '{0}' type.</value>
+  </data>
 </root>
