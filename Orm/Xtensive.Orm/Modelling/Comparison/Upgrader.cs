@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.04.07
 
@@ -122,20 +122,23 @@ namespace Xtensive.Modelling.Comparison
     {
       ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
       ArgumentValidator.EnsureArgumentNotNull(comparer, "comparer");
-      if (difference == null)
+      if (difference == null) {
         return new ReadOnlyList<NodeAction>(Enumerable.Empty<NodeAction>().ToList());
+      }
 
       TemporaryRenames = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
       SourceModel = (IModel) difference.Source;
       TargetModel = (IModel) difference.Target;
       Hints = hints ?? new HintSet(SourceModel, TargetModel);
       Comparer = comparer;
-      if (Hints.SourceModel!=SourceModel)
+      if (Hints.SourceModel != SourceModel) {
         throw new ArgumentOutOfRangeException("hints.SourceModel");
-      if (Hints.TargetModel!=TargetModel)
+      }
+      if (Hints.TargetModel != TargetModel) {
         throw new ArgumentOutOfRangeException("hints.TargetModel");
+      }
 
-      CurrentModel = (IModel)SourceModel.Clone(null, SourceModel.Name);
+      CurrentModel = (IModel) SourceModel.Clone(null, SourceModel.Name);
       Difference = difference;
       var previous = currentAsync.Value;
       currentAsync.Value = this;
@@ -152,15 +155,17 @@ namespace Xtensive.Modelling.Comparison
           ProcessStage(UpgradeStage.Cleanup, actions);
 
           var validationHints = new HintSet(CurrentModel, TargetModel);
-          Hints.OfType<IgnoreHint>().ForEach(validationHints.Add);
+          Hints.OfType<IgnoreHint>()
+            .Where(h => CurrentModel.Resolve(h.Path, false) != null && SourceModel.Resolve(h.Path, false) != null)
+            .ForEach(validationHints.Add);
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
-          if (diff!=null) {
+          if (diff != null) {
             CoreLog.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
             CoreLog.Info(Strings.LogValidationFailed);
             CoreLog.Info(Strings.LogItemFormat, Strings.Difference);
             CoreLog.Info("{0}", diff);
-            CoreLog.Info(Strings.LogItemFormat+"\r\n{1}", Strings.UpgradeSequence, 
-              new ActionSequence() {actions});
+            CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
+              new ActionSequence() { actions });
             CoreLog.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
             TargetModel.Dump();
             CoreLog.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
