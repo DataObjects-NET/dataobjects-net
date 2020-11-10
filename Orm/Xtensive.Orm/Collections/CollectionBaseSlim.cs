@@ -168,16 +168,18 @@ namespace Xtensive.Collections
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    public List<TItem>.Enumerator GetEnumerator()
+      => items.GetEnumerator();
 
     /// <inheritdoc/>
-    public virtual IEnumerator<TItem> GetEnumerator()
-    {
-      return Items.GetEnumerator();
-    }
+    [DebuggerStepThrough]
+    IEnumerator<TItem> IEnumerable<TItem>.GetEnumerator()
+      => items.GetEnumerator();
+    
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator()
+      => items.GetEnumerator();
 
     #endregion
 
