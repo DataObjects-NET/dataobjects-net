@@ -436,41 +436,49 @@ namespace Xtensive.Orm
 
     public ValueTask DisposeAsync() => InnerDispose(true);
 
-    public ValueTask InnerDispose(bool isAsync)
+    public async ValueTask InnerDispose(bool isAsync)
     {
       lock (disposeGuard) {
         if (isDisposed) {
-          return default;
+          return;
         }
 
         isDisposed = true;
+      }
 
-        if (isDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogDomainIsDisposing);
+      if (isDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogDomainIsDisposing);
+      }
+
+      NotifyDisposing();
+      Services.Dispose();
+
+      if (SingleConnection == null) {
+        return;
+      }
+
+      SqlConnection singleConnectionLocal;
+      lock (singleConnectionGuard) {
+        if (singleConnectionOwner != null) {
+          OrmLog.Warning(
+            Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
+            singleConnectionOwner);
+          return;
         }
-
-        NotifyDisposing();
-        Services.Dispose();
-
-        if (SingleConnection==null) {
-          return default;
+        else {
+          singleConnectionLocal = SingleConnection;
+          SingleConnection = null;
         }
+      }
 
-        // TODO: implement async dispose of the SingleConnection
-        lock (singleConnectionGuard) {
-          if (singleConnectionOwner==null) {
-            var driver = Handlers.StorageDriver;
-            driver.CloseConnection(null, SingleConnection);
-            driver.DisposeConnection(null, SingleConnection);
-          }
-          else {
-            OrmLog.Warning(
-              Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
-              singleConnectionOwner);
-          }
-        }
-
-        return default;
+      var driver = Handlers.StorageDriver;
+      if (isAsync) {
+        await driver.CloseConnectionAsync(null, singleConnectionLocal).ConfigureAwait(false);
+        await driver.DisposeConnectionAsync(null, singleConnectionLocal).ConfigureAwait(false);
+      }
+      else {
+        driver.CloseConnection(null, singleConnectionLocal);
+        driver.DisposeConnection(null, singleConnectionLocal);
       }
     }
   }
