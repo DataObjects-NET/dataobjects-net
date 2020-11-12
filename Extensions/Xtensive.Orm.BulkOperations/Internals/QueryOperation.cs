@@ -136,22 +136,22 @@ namespace Xtensive.Orm.BulkOperations
 
     private void JoinViaIn(SqlStatement statement, SqlSelect @select)
     {
-      SqlTableRef table = GetStatementTable(statement);
-      SqlExpression where = GetStatementWhere(statement);
+      var table = GetStatementTable(statement);
+      var where = GetStatementWhere(statement);
       JoinedTableRef = table;
-      PrimaryIndexMapping indexMapping = PrimaryIndexes[0];
+      var indexMapping = PrimaryIndexes[0];
       var columns = new List<ColumnInfo>();
-      foreach (ColumnInfo columnInfo in indexMapping.PrimaryIndex.KeyColumns.Keys)
-      {
-        SqlSelect s = select.ShallowClone();
-        foreach (ColumnInfo column in columns)
-        {
-          SqlBinary ex = SqlDml.Equals(SqlDml.TableColumn(s.From, column.Name), SqlDml.TableColumn(table, column.Name));
+      foreach (var columnInfo in indexMapping.PrimaryIndex.KeyColumns.Keys) {
+        var s = (SqlSelect) select.Clone();
+        foreach (var column in columns) {
+          var ex = SqlDml.Equals(s.From.Columns[column.Name], table.Columns[column.Name]);
           s.Where = s.Where.IsNullReference() ? ex : SqlDml.And(s.Where, ex);
         }
+        var existingColumns = s.Columns.ToChainedBuffer();
         s.Columns.Clear();
-        s.Columns.Add(SqlDml.TableColumn(s.From, columnInfo.Name));
-        SqlBinary @in = SqlDml.In(SqlDml.TableColumn(table, columnInfo.Name), s);
+        var columnToAdd = existingColumns.First(c => c.Name == columnInfo.Name);
+        s.Columns.Add(columnToAdd);
+        var @in = SqlDml.In(SqlDml.TableColumn(table, columnInfo.Name), s);
         @where = @where.IsNullReference() ? @in : SqlDml.And(@where, @in);
         columns.Add(columnInfo);
       }
