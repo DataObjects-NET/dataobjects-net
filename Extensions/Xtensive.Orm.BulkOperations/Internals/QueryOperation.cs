@@ -153,7 +153,7 @@ namespace Xtensive.Orm.BulkOperations
         }
         var existingColumns = s.Columns.ToChainedBuffer();
         s.Columns.Clear();
-        var columnToAdd = existingColumns.First(c => c.Name == columnInfo.Name);
+        var columnToAdd = existingColumns.First(c => c.Name.Equals(columnInfo.Name, StringComparison.Ordinal));
         s.Columns.Add(columnToAdd);
         var @in = SqlDml.In(SqlDml.TableColumn(table, columnInfo.Name), s);
         @where = @where.IsNullReference() ? @in : SqlDml.And(@where, @in);
