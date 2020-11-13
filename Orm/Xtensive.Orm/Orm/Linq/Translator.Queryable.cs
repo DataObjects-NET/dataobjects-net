@@ -305,8 +305,9 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitContains(Expression source, Expression match, bool isRoot)
     {
-      if (source.IsLocalCollection(context))
+      if (source.IsLocalCollection(context)) {
         match = Visit(match);
+      }
 
       var matchedElementType = match.Type;
       var sequenceElementType = QueryHelper.GetSequenceElementType(source.Type);
@@ -325,12 +326,13 @@ namespace Xtensive.Orm.Linq
       var p = Expression.Parameter(match.Type, "p");
       var le = FastExpression.Lambda(Expression.Equal(p, match), p);
 
-      if (isRoot)
+      if (isRoot) {
         return VisitRootExists(source, le, false);
+      }
 
-      if (source.IsQuery() || source.IsLocalCollection(context))
+      if (source.IsQuery() || source.IsLocalCollection(context)) {
         return VisitExists(source, le, false);
-
+      }
 
       throw new NotSupportedException(Strings.ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries);
     }

@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     private MappingEntry CreateMappingEntry(Expression expression)
     {
       var tupleAccess = expression.StripCasts().AsTupleAccess();
-      if (tupleAccess!=null) {
+      if (tupleAccess != null) {
         return new MappingEntry(tupleAccess.GetTupleAccessArgument());
       }
       expression = ExpressionReplacer.Replace(expression, filterDataTuple, calculatedColumnParameter);
