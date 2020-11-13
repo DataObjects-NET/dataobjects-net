@@ -238,20 +238,20 @@ namespace Xtensive.Orm
     internal void AttachToScope(SessionScope sessionScope)
     {
       sessionScope.Session = this;
-      disposableSet.Add(sessionScope);
+      _ = disposableSet.Add(sessionScope);
     }
 
     internal EnumerationContext CreateEnumerationContext(ParameterContext parameterContext)
     {
       Persist(PersistReason.Query);
-      ProcessUserDefinedDelayedQueries(true);
+      _ = ProcessUserDefinedDelayedQueries(true);
       return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
     internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext, CancellationToken token)
     {
       await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
-      await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
+      _ = await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
       return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
@@ -301,6 +301,12 @@ namespace Xtensive.Orm
         throw new InvalidOperationException(Strings.ExStorageNodeIsAlreadySelected);
       Handler.SetStorageNode(node);
       storageNode = node;
+    }
+
+    // gets node directly
+    internal StorageNode GetStorageNodeInternal()
+    {
+      return storageNode;
     }
 
     internal ExecutableProvider Compile(CompilableProvider provider)
@@ -424,9 +430,11 @@ namespace Xtensive.Orm
       using (var tx = OpenAutoTransaction()) {
         var entities = Query.Many<Entity>(keys);
         var result = new VersionSet();
-        foreach (var entity in entities)
-          if (entity!=null)
-            result.Add(entity, false);
+        foreach (var entity in entities) {
+          if (entity != null) {
+            _ = result.Add(entity, false);
+          }
+        }
         tx.Complete();
         return result;
       }
@@ -438,6 +446,7 @@ namespace Xtensive.Orm
     /// Selects storage node identifier by <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
+    [Obsolete("Use StorageNode instances to open a session to them instead")]
     public void SelectStorageNode([NotNull] string nodeId)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
@@ -507,7 +516,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Session(Domain domain, SessionConfiguration configuration, bool activate)
+    internal Session(Domain domain, StorageNode selectedStorageNode, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
       Guid = Guid.NewGuid();
@@ -520,6 +529,7 @@ namespace Xtensive.Orm
       identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
       allowSwitching = configuration.Supports(SessionOptions.AllowSwitching);
+      storageNode = selectedStorageNode;
 
       // Handlers
       Handlers = domain.Handlers;

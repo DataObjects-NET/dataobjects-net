@@ -66,7 +66,6 @@ namespace Xtensive.Orm
       return handlers.StorageNodeRegistry.TryGet(nodeId);
     }
 
-
     // Constructors
 
     internal StorageNodeManager(HandlerAccessor handlers)

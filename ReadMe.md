@@ -13,17 +13,18 @@ Supported databases:
 
 ### Installation
 
-DataObjects.Net is available on Nuget. Install main package (already has MS SQL Server provider included)
+DataObjects.Net is available on Nuget. Install main package (NOTE this package does not include any providers, install needed provider addtionally)
 
     dotnet add package Xtensive.Orm
 
-Providers for Oracle, PostgreSQL, Mysql, Firebird and SQLite may be installed optionally if you need them
+Providers for MS SQL Server, Oracle, PostgreSQL, Mysql, Firebird and SQLite may be installed following way
 
+    dotnet add package Xtensive.Orm.SqlServer
     dotnet add package Xtensive.Orm.Oracle
     dotnet add package Xtensive.Orm.PostgreSQL
     dotnet add package Xtensive.Orm.MySql
     dotnet add package Xtensive.Orm.Firebird
-    dotnet add package Xtensive.Orm
+    dotnet add package Xtensive.Orm.Sqlite
 
 DataObjects.Net extensions are available on Nuget as well (more about extensions [here](https://github.com/DataObjects-NET/dataobjects-net/blob/master/Documentation/Extensions.md))
 
@@ -35,7 +36,7 @@ DataObjects.Net extensions are available on Nuget as well (more about extensions
     dotnet add package Xtensive.Orm.Tracking
     dotnet add package Xtensive.Orm.Web
 
-Use the --version option to specify preview version to install
+Use the --version option to specify version to install
 
 ### Usage 
 
