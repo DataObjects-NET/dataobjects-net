@@ -4,15 +4,12 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
-using Xtensive.Sql.Model;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using QueryParameterBinding = Xtensive.Orm.Services.QueryParameterBinding;
@@ -24,21 +21,24 @@ namespace Xtensive.Orm.BulkOperations
     where T : class, IEntity
   {
     private static readonly MethodInfo TranslateQueryMethod = typeof(QueryBuilder).GetMethod("TranslateQuery");
+
     public readonly QueryProvider QueryProvider;
+    public readonly QueryBuilder QueryBuilder;
     public List<QueryParameterBinding> Bindings;
-    protected DomainHandler DomainHandler;
-    protected PrimaryIndexMapping[] PrimaryIndexes;
-    public QueryBuilder QueryBuilder;
-    public Session Session;
-    protected TypeInfo TypeInfo;
     public SqlTableRef JoinedTableRef;
+
+    protected readonly DomainHandler DomainHandler;
+    protected readonly PrimaryIndexMapping[] PrimaryIndexes;
+    protected readonly TypeInfo TypeInfo;
+
+    public Session Session { get { return QueryBuilder.Session; } }
 
     public int Execute()
     {
       EnsureTransactionIsStarted();
-      QueryProvider.Session.SaveChanges();
+      Session.SaveChanges();
       int value = ExecuteInternal();
-      SessionStateAccessor accessor = DirectStateAccessor.Get(QueryProvider.Session);
+      var accessor = DirectStateAccessor.Get(Session);
       accessor.Invalidate();
       return value;
     }
@@ -49,45 +49,36 @@ namespace Xtensive.Orm.BulkOperations
     {
       var accessor = QueryProvider.Session.Services.Demand<DirectSqlAccessor>();
 #pragma warning disable 168
-      DbTransaction notUsed = accessor.Transaction;
+      var notUsed = accessor.Transaction;
 #pragma warning restore 168
     }
 
     protected abstract int ExecuteInternal();
 
-    public QueryTranslationResult GetRequest(IQueryable<T> query)
-    {
-      return QueryBuilder.TranslateQuery(query);
-    }
+    public QueryTranslationResult GetRequest(IQueryable<T> query) => QueryBuilder.TranslateQuery(query);
 
-    public QueryTranslationResult GetRequest(Type type, IQueryable query)
-    {
-      return
-        (QueryTranslationResult) TranslateQueryMethod.MakeGenericMethod(type).Invoke(QueryBuilder, new object[] {query});
-    }
+    public QueryTranslationResult GetRequest(Type type, IQueryable query) =>
+      (QueryTranslationResult) TranslateQueryMethod.MakeGenericMethod(type).Invoke(QueryBuilder, new object[] { query });
 
-    public TypeInfo GetTypeInfo(Type entityType)
-    {
-      return Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(a => a.UnderlyingType==entityType);
-    }
+    public TypeInfo GetTypeInfo(Type entityType) =>
+      Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(a => a.UnderlyingType == entityType);
 
     #endregion
 
     protected Operation(QueryProvider queryProvider)
     {
       QueryProvider = queryProvider;
-      Type entityType = typeof (T);
-      Session = queryProvider.Session;
-      DomainHandler = Session.Domain.Services.Get<DomainHandler>();
-      TypeInfo =
-        queryProvider.Session.Domain.Model.Hierarchies.SelectMany(a => a.Types).Single(
-          a => a.UnderlyingType==entityType);
-      var mapping = Session.StorageNode.Mapping;
+      var entityType = typeof(T);
+      var session = queryProvider.Session;
+      DomainHandler = session.Domain.Services.Get<DomainHandler>();
+      TypeInfo = DomainHandler.Domain.Model.Hierarchies.SelectMany(a => a.Types)
+        .Single(a => a.UnderlyingType == entityType);
+      var mapping = session.StorageNode.Mapping;
       PrimaryIndexes = TypeInfo.AffectedIndexes
         .Where(i => i.IsPrimary)
         .Select(i => new PrimaryIndexMapping(i, mapping[i.ReflectedType]))
         .ToArray();
-      QueryBuilder = Session.Services.Get<QueryBuilder>();
+      QueryBuilder = session.Services.Get<QueryBuilder>();
     }
 
     protected QueryCommand ToCommand(SqlStatement statement)
