@@ -216,8 +216,8 @@ namespace Xtensive.Orm.Providers
 
       var baseColumns = baseQuery.Columns.ToList();
       var typeIdColumnIndex = index.Columns
-        .Select((c, i) => new {c, i})
-        .Single(p => p.c.Field.IsTypeId).i;
+        .Select((c, i) => new {c.Field, i})
+        .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
       var type = index.ReflectedType;
       var typeIdColumn = SqlDml.ColumnRef(
         SqlDml.Column(SqlDml.Literal(TypeIdRegistry[type])),

@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly Type KeyType = typeof(Key);
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
+    private static readonly Type IQueryableType = typeof(IQueryable<>);
 
     public TranslatorState state;
     private readonly TranslatorContext context;
@@ -87,8 +88,20 @@ namespace Xtensive.Orm.Linq
             return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.OfType:
-          return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
-        case QueryableMethodKind.Any:
+            var source = mc.Arguments[0];
+            var targetType = mc.Method.GetGenericArguments()[0];
+            var sourceType = source.Type;
+            if (sourceType.IsGenericType) {
+              return VisitOfType(source, targetType, sourceType.GetGenericArguments()[0]);
+            }
+            else {
+              var asQueryable = sourceType.GetGenericInterface(IQueryableType);
+              if (asQueryable != null) {
+                return VisitOfType(source, targetType, asQueryable.GetGenericArguments()[0]);
+              }
+              throw new NotSupportedException();
+            }
+          case QueryableMethodKind.Any:
           if (mc.Arguments.Count==1)
             return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
           if (mc.Arguments.Count==2)
@@ -225,62 +238,84 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
-      if (!typeof(IEntity).IsAssignableFrom(sourceType))
+      if (!typeof(IEntity).IsAssignableFrom(sourceType)) {
         throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
+      }
+      if (!typeof(IEntity).IsAssignableFrom(targetType) || !context.Model.Types.Contains(targetType)) {
+        throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
+      }
 
       var visitedSource = VisitSequence(source);
-      if (targetType==sourceType)
+      if (targetType == sourceType) {
         return visitedSource;
-
-      int offset = 0;
-      var recordSet = visitedSource.ItemProjector.DataSource;
-
-      if (sourceType.IsAssignableFrom(targetType)) {
-        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-        var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
-        offset = recordSet.Header.Columns.Count;
-        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-        var keyPairs = keySegment
-          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-          .ToArray();
-        recordSet = recordSet.Join(joinedRs, keyPairs);
       }
-      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+
+      var targetTypeInfo = context.Model.Types[targetType];
+
+      var currentIndex = 0;
+      var indexes = new List<int>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
+      foreach(var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
+        if (targetTypeInfo.Columns.Contains(indexColumn)) {
+          indexes.Add(currentIndex);
+        }
+        currentIndex++;
+      }
+
+      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes.ToArray());
+      var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+      var keyPairs = keySegment
+        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .ToArray();
+
+      var dataSource = visitedSource.ItemProjector.DataSource;
+      var offset = dataSource.Header.Columns.Count;
+      recordSet = recordSet.Alias(context.GetNextAlias());
+      recordSet = dataSource.Join(recordSet, keyPairs);
+
+      var entityExpression = EntityExpression.Create(targetTypeInfo, offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
 
     /// <exception cref="InvalidCastException">Unable to cast item.</exception>
-    /// <exception cref="NotSupportedException">Cast supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitCast(Expression source, Type targetType, Type sourceType)
     {
-      if (!targetType.IsAssignableFrom(sourceType))
+      if (!targetType.IsAssignableFrom(sourceType)) {
         throw new InvalidCastException(string.Format(Strings.ExUnableToCastItemOfTypeXToY, sourceType, targetType));
+      }
 
       var visitedSource = VisitSequence(source);
       var itemProjector = visitedSource.ItemProjector.EnsureEntityIsJoined();
       var projection = new ProjectionExpression(visitedSource.Type, itemProjector, visitedSource.TupleParameterBindings, visitedSource.ResultType);
-      if (targetType==sourceType)
+      if (targetType == sourceType) {
         return projection;
-      
-      var sourceEntity = (EntityExpression)projection.ItemProjector.Item.StripMarkers().StripCasts();
+      }
+
+      var sourceEntity = (EntityExpression) projection.ItemProjector.Item.StripMarkers().StripCasts();
       var recordSet = projection.ItemProjector.DataSource;
       var targetTypeInfo = context.Model.Types[targetType];
       var sourceTypeInfo = context.Model.Types[sourceType];
       var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
       var targetFieldIndex = 0;
-      foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent==null && !f.IsEntitySet)) {
+      var targetFields = targetTypeInfo.Fields.Where(f => f.IsPrimitive);
+      foreach (var targetField in targetFields) {
         var sourceFieldInfo = targetType.IsInterface && sourceType.IsClass
           ? sourceTypeInfo.FieldMap[targetField]
           : sourceTypeInfo.Fields[targetField.Name];
-        var sourceField = sourceEntity.Fields.Single(f => f.Name==sourceFieldInfo.Name);
+        var sourceField = sourceEntity.Fields.Single(f => f.Name == sourceFieldInfo.Name);
         var sourceFieldIndex = sourceField.Mapping.Offset;
+        var sourceFieldLength = sourceField.Mapping.Length;
+        if (map[sourceFieldIndex] != -1) {
+          throw new InvalidOperationException(string.Format(Strings.ExUnableToCastXToYAttemptToOverrideExistingFieldMap, sourceType, targetType));
+        }
         map[sourceFieldIndex] = targetFieldIndex++;
       }
       var targetEntity = EntityExpression.Create(targetTypeInfo, 0, false);
       Expression expression;
-      using (new RemapScope())
+      using (new RemapScope()) {
         expression = targetEntity.Remap(map, new Dictionary<Expression, Expression>());
+      }
+
       var replacer = new ExtendedExpressionReplacer(e => e == sourceEntity ? expression : null);
       var targetItem = replacer.Replace(projection.ItemProjector.Item);
       var targetItemProjector = new ItemProjectorExpression(targetItem, recordSet, context);

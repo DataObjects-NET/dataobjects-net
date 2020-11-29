@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -144,40 +144,42 @@ namespace Xtensive.Orm.Internals
 
     private void AllocateParameterAndReplacer()
     {
-      if (queryTarget==null) {
+      if (queryTarget == null) {
         queryParameter = null;
         queryParameterReplacer = new ExtendedExpressionReplacer(e => e);
         return;
       }
 
       var closureType = queryTarget.GetType();
-      var parameterType = typeof (Parameter<>).MakeGenericType(closureType);
+      var parameterType = typeof(Parameter<>).MakeGenericType(closureType);
       var valueMemberInfo = parameterType.GetProperty("Value", closureType);
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
-        if (expression.NodeType==ExpressionType.Constant) {
-          if (expression.Type.IsClosure())
-            if (expression.Type==closureType) 
+        if (expression.NodeType == ExpressionType.Constant) {
+          if (expression.Type.IsClosure()) {
+            if (expression.Type == closureType) {
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            else
-              throw new NotSupportedException(String.Format(
+            }
+            else {
+              throw new NotSupportedException(string.Format(
                 Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+            }
+          }
 
-          if (closureType.DeclaringType==null) {
-            if (expression.Type==closureType)
+          if (closureType.DeclaringType == null) {
+            if (expression.Type == closureType)
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
           else {
-            if (expression.Type==closureType)
+            if (expression.Type == closureType)
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type==closureType.DeclaringType) {
+            if (expression.Type == closureType.DeclaringType) {
               var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-              if (memberInfo!=null)
+              if (memberInfo != null)
                 return Expression.MakeMemberAccess(
                   Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
                   memberInfo);
             }
-
           }
         }
         return null;

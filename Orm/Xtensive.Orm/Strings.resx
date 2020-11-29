@@ -3449,6 +3449,9 @@ Error: {1}</value>
   <data name="ExThereIsNoImplemetationOfXYMemberInZType" xml:space="preserve">
     <value>There is no implemetation of '{0}.{1}' member in '{0}' type.</value>
   </data>
+  <data name="ExUnableToCastXToYAttemptToOverrideExistingFieldMap" xml:space="preserve">
+    <value>Unable to cast {0} to {1}: Attempt to override existing field map.</value>
+  </data>
   <data name="ExActiveTransactionIsNoLongerUsable" xml:space="preserve">
     <value>Active transaction is no longer usable.</value>
   </data>

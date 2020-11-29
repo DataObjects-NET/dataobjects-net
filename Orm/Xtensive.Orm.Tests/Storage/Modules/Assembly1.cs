@@ -44,10 +44,10 @@ namespace Modules.Model
       return oldVersion == null || oldVersion == "0.0.0.0";
     }
 
-    protected override void AddUpgradeHints()
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
-      UpgradeContext.Current.Hints
-        .Add(new RenameTypeHint("Modules.Model.Simple0", typeof(Simple1)));
+      base.AddUpgradeHints(hints);
+      hints.Add(new RenameTypeHint("Modules.Model.Simple0", typeof(Simple1)));
     }
 
     public override string AssemblyVersion

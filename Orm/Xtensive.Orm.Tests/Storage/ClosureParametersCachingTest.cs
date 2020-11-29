@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
+// Copyright (C) 2019 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -62,7 +62,9 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
   {
     public class NestedValueTypeTester
     {
+#pragma warning disable IDE0044 // Add readonly modifier
       private long privateField;
+#pragma warning restore IDE0044 // Add readonly modifier
       public long PublicField;
 
       public int PublicProperty { get; set; }
@@ -119,7 +121,9 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
       }
     }
 
+#pragma warning disable IDE0044 // Add readonly modifier
     private long privateField;
+#pragma warning restore IDE0044 // Add readonly modifier
     public long PublicField;
 
     public int PublicProperty { get; set; }
@@ -183,43 +187,43 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
     public decimal TestInheritedPublicField(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice.Id==PublicField);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice.Id == PublicField);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestInheritedPublicProperty(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice.Id==PublicProperty);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice.Id == PublicProperty);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestStaticField(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice.Id==StaticField);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice.Id == StaticField);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal[] TestForIndex(Session session)
     {
-      decimal[] resultSums = new decimal[2];
-      for (int i = 0; i < 2; i++) {
+      var resultSums = new decimal[2];
+      for (var i = 0; i < 2; i++) {
         resultSums[i] = session.Query.Execute(q => {
-            var result = q.All<PaymentSplit>()
-              .Where(split => split.Active && split.Payment.Active && split.Order==i);
-            return result;
-          })
-          .Sum(split => split.Amount);
+          var result = q.All<PaymentSplit>()
+            .Where(split => split.Active && split.Payment.Active && split.Order == i);
+          return result;
+        })
+        .Sum(split => split.Amount);
       }
 
       return resultSums;
@@ -227,14 +231,14 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
 
     public decimal[] TestForeachItem(Session session)
     {
-      decimal[] resultSums = new decimal[2];
+      var resultSums = new decimal[2];
       foreach (var item in Enumerable.Range(0, 2)) {
         resultSums[item] = session.Query.Execute(q => {
-            var result = q.All<PaymentSplit>()
-              .Where(split => split.Active && split.Payment.Active && split.Order==item);
-            return result;
-          })
-          .Sum(split => split.Amount);
+          var result = q.All<PaymentSplit>()
+            .Where(split => split.Active && split.Payment.Active && split.Order == item);
+          return result;
+        })
+        .Sum(split => split.Amount);
       }
 
       return resultSums;
@@ -243,22 +247,22 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
     public decimal TestMethodParameter(Session session, long parameter)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice.Id==parameter);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice.Id == parameter);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestLocalVariable(Session session, long invoiceId)
     {
       var invoiceIdLocal = invoiceId;
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice.Id==invoiceIdLocal);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice.Id == invoiceIdLocal);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public InheritorValueTypeTester(long privateFieldValue)
@@ -277,7 +281,9 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
   {
     public class NestedReferenceTypeTester
     {
+#pragma warning disable IDE0044 // Add readonly modifier
       private Invoice privateField;
+#pragma warning restore IDE0044 // Add readonly modifier
       public Invoice PublicField;
 
       public Invoice PublicProperty { get; set; }
@@ -286,40 +292,40 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
       public decimal TestPrivateField(Session session)
       {
         return session.Query.Execute(q => {
-            var result = q.All<PaymentSplit>()
-              .Where(split => split.Active && split.Payment.Active && split.Invoice==privateField);
-            return result;
-          })
-          .Sum(split => split.Amount);
+          var result = q.All<PaymentSplit>()
+            .Where(split => split.Active && split.Payment.Active && split.Invoice == privateField);
+          return result;
+        })
+        .Sum(split => split.Amount);
       }
 
       public decimal TestPublicField(Session session)
       {
         return session.Query.Execute(q => {
-            var result = q.All<PaymentSplit>()
-              .Where(split => split.Active && split.Payment.Active && split.Invoice==PublicField);
-            return result;
-          })
-          .Sum(split => split.Amount);
+          var result = q.All<PaymentSplit>()
+            .Where(split => split.Active && split.Payment.Active && split.Invoice == PublicField);
+          return result;
+        })
+        .Sum(split => split.Amount);
       }
 
       public decimal TestPrivateProperty(Session session)
       {
         return session.Query.Execute(q => {
-            var result = q.All<PaymentSplit>()
-              .Where(split => split.Active && split.Payment.Active && split.Invoice==PrivateProperty);
-            return result;
-          })
-          .Sum(split => split.Amount);
+          var result = q.All<PaymentSplit>()
+            .Where(split => split.Active && split.Payment.Active && split.Invoice == PrivateProperty);
+          return result;
+        })
+        .Sum(split => split.Amount);
       }
 
       public decimal TestPublicProperty(Session session)
       {
         return session.Query.Execute(q => {
-            var result = q.All<PaymentSplit>()
-              .Where(split => split.Active && split.Payment.Active && split.Invoice==PublicProperty);
-            return result;
-          })
+          var result = q.All<PaymentSplit>()
+            .Where(split => split.Active && split.Payment.Active && split.Invoice == PublicProperty);
+          return result;
+        })
           .Sum(split => split.Amount);
       }
 
@@ -330,7 +336,9 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
       }
     }
 
+#pragma warning disable IDE0044 // Add readonly modifier
     private Invoice privateField;
+#pragma warning restore IDE0044 // Add readonly modifier
     public Invoice PublicField;
 
     public Invoice PublicProperty { get; set; }
@@ -339,41 +347,41 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
     public decimal TestPrivateField(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice==privateField);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice == privateField);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestPublicField(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice==PublicField);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice == PublicField);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestPrivateProperty(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice==PrivateProperty);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice == PrivateProperty);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestPublicProperty(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice==PublicProperty);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice == PublicProperty);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public BaseReferenceTypeTester(Invoice fieldAndPropertyValue)
@@ -387,33 +395,32 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
   {
     public decimal TestInheritedPublicField(Session session)
     {
-      return session.Query.Execute(q =>
-        {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice==PublicField);
-          return result;
-        })
-        .Sum(split => split.Amount);
+      return session.Query.Execute(q => {
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice == PublicField);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestInheritedPublicProperty(Session session)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice==PublicProperty);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice == PublicProperty);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public decimal TestMethodParameter(Session session, Invoice parameter)
     {
       return session.Query.Execute(q => {
-          var result = q.All<PaymentSplit>()
-            .Where(split => split.Active && split.Payment.Active && split.Invoice==parameter);
-          return result;
-        })
-        .Sum(split => split.Amount);
+        var result = q.All<PaymentSplit>()
+          .Where(split => split.Active && split.Payment.Active && split.Invoice == parameter);
+        return result;
+      })
+      .Sum(split => split.Amount);
     }
 
     public InheritorReferenceTypeTester(Invoice fieldAndPropertyValue)
@@ -443,14 +450,14 @@ namespace Xtensive.Orm.Tests.Storage
       using (var tx = session.OpenTransaction()) {
         var invoice1 = new Invoice();
         var invoice2 = new Invoice();
-        new PaymentSplit {
+        _ = new PaymentSplit {
           Active = true,
           Payment = new Payment { Active = true },
           Invoice = invoice1,
           Order = 1,
           Amount = 6.0m
         };
-        new PaymentSplit {
+        _ = new PaymentSplit {
           Active = true,
           Payment = new Payment { Active = true },
           Invoice = invoice2,

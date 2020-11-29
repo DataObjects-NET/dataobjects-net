@@ -6954,6 +6954,14 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Unable to cast {0} to {1}: Attempt to override existing field map..
+        /// </summary>
+        internal static string ExUnableToCastXToYAttemptToOverrideExistingFieldMap {
+            get {
+                return ResourceManager.GetString("ExUnableToCastXToYAttemptToOverrideExistingFieldMap", resourceCulture);
+             }
+        }
+
         ///   Looks up a localized string similar to Unable to change command: it is already prepared..
         /// </summary>
         internal static string ExUnableToChangeCommandItIsAlreadyPrepared {

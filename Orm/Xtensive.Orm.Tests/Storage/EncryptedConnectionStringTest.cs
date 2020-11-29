@@ -10,7 +10,7 @@ using Xtensive.Orm.Configuration;
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  [Ignore("No such domain configuration for now")]
+  [Ignore("Seems to be no support for encrypted connection strings")]
   public class EncryptedConnectionStringTest : HasConfigurationAccessTest
   {
     [Test]

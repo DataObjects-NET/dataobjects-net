@@ -211,9 +211,14 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode VisitSequence(Sequence sequence)
     {
       var sequenceInfo = new StorageSequenceInfo(targetModel, resolver.GetNodeName(sequence)) {
-        Increment = sequence.SequenceDescriptor.Increment.Value,
-        // StartValue = sequence.SequenceDescriptor.StartValue.Value,
+        Increment = sequence.SequenceDescriptor.Increment.Value
       };
+      if (sequence.SequenceDescriptor.StartValue != null) {
+        sequenceInfo.Seed = sequence.SequenceDescriptor.StartValue.Value;
+      }
+      if (sequence.SequenceDescriptor.LastValue != null) {
+        sequenceInfo.Current = sequence.SequenceDescriptor.LastValue;
+      }
       return sequenceInfo;
     }
 

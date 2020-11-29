@@ -360,7 +360,7 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
             DoubleEntityKey = e.Entity.Entity.Key
           }.DoubleEntityKey.In(nonGenericKeyCollection)).ToList();
 
-       result = session.Query.All<MyEntity3>()
+        result = session.Query.All<MyEntity3>()
           .Where(e => new {
             Key = e.Key,
             EntityKey = e.Entity.Key,

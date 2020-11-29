@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -14,26 +14,22 @@ namespace Xtensive.Orm.Internals.KeyGenerators
 {
   public sealed class StorageSequentalGenerator<TValue> : KeyGenerator
   {
-    private Tuple prototype;
     private ICachingSequenceProvider<TValue> sequenceProvider;
 
     public override void Initialize(Domain ownerDomain, TupleDescriptor keyTupleDescriptor)
     {
-      prototype = Tuple.Create(keyTupleDescriptor);
-
       var accessor = ownerDomain.Services.Demand<IStorageSequenceAccessor>();
 
-      if (ownerDomain.StorageProviderInfo.Supports(ProviderFeatures.TransactionalKeyGenerators))
-        sequenceProvider = new SessionCachingSequenceProvider<TValue>(accessor);
-      else
-        sequenceProvider = new DomainCachingSequenceProvider<TValue>(accessor);
+      sequenceProvider = ownerDomain.StorageProviderInfo.Supports(ProviderFeatures.TransactionalKeyGenerators)
+        ? new SessionCachingSequenceProvider<TValue>(accessor)
+        : (ICachingSequenceProvider<TValue>) new DomainCachingSequenceProvider<TValue>(accessor);
     }
 
     public override Tuple GenerateKey(KeyInfo keyInfo, Session session)
     {
       var sequence = sequenceProvider.GetSequence(keyInfo.Sequence, session);
       var keyValue = sequence.GetNextValue(keyInfo.Sequence, session);
-      var keyTuple = prototype.CreateNew();
+      var keyTuple = Tuple.Create(keyInfo.TupleDescriptor);
       keyTuple.SetValue(0, keyValue);
       return keyTuple;
     }

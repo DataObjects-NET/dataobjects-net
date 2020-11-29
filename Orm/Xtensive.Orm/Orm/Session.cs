@@ -620,6 +620,7 @@ namespace Xtensive.Orm
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
         NonPairedReferencesRegistry.Clear();
+        Extensions.Clear();
       }
       finally {
         isDisposed = true;

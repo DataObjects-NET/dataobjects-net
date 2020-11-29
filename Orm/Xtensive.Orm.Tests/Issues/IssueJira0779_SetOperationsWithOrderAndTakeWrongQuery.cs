@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
+// Copyright (C) 2019 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0779_SetOperationsWithOrderAndTakeW
     public NamedValue(Session session, string name)
       : base(session, name)
     {
-
     }
   }
 }
@@ -42,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (NamedValue).Assembly, typeof (NamedValue).Namespace);
+      configuration.Types.Register(typeof(NamedValue).Assembly, typeof(NamedValue).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -51,13 +50,13 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()){
-        new NamedValue(session, "A") {Value = 22};
-        new NamedValue(session, "B") {Value = 21};
-        new NamedValue(session, "C") {Value = 20};
-        new NamedValue(session, "D") {Value = 19};
-        new NamedValue(session, "E") {Value = 18};
-        new NamedValue(session, "F") {Value = 17};
-        new NamedValue(session, "G") {Value = 16};
+        _ = new NamedValue(session, "A") {Value = 22};
+        _ = new NamedValue(session, "B") {Value = 21};
+        _ = new NamedValue(session, "C") {Value = 20};
+        _ = new NamedValue(session, "D") {Value = 19};
+        _ = new NamedValue(session, "E") {Value = 18};
+        _ = new NamedValue(session, "F") {Value = 17};
+        _ = new NamedValue(session, "G") {Value = 16};
         tx.Complete();
       }
     }
@@ -71,10 +70,11 @@ namespace Xtensive.Orm.Tests.Issues
         var query2 = session.Query.All<NamedValue>().OrderByDescending(c => c.Value).Take(3);
         var result = query1.Concat(query2).ToList().Select(e => e.Name).ToArray();
 
-        var expectedSequence = new [] {"G", "F", "E", "A", "B", "C"};
+        var expectedSequence = new[] { "G", "F", "E", "A", "B", "C" };
         Assert.That(result.Length, Is.EqualTo(expectedSequence.Length));
-        for(int i =0; i < expectedSequence.Length; i++)
+        for(var i =0; i < expectedSequence.Length; i++) {
           Assert.That(result[i], Is.EqualTo(expectedSequence[i]));
+        }
       }
     }
 
@@ -89,8 +89,9 @@ namespace Xtensive.Orm.Tests.Issues
 
         var expectedSequence = new[] { "A", "B", "C", "E", "F", "G" };
         Assert.That(result.Length, Is.EqualTo(expectedSequence.Length));
-        for (int i = 0; i < expectedSequence.Length; i++)
+        for (var i = 0; i < expectedSequence.Length; i++) {
           Assert.That(result[i], Is.EqualTo(expectedSequence[i]));
+        }
       }
     }
 
@@ -103,12 +104,11 @@ namespace Xtensive.Orm.Tests.Issues
         var query2 = session.Query.All<NamedValue>().OrderByDescending(c => c.Value).Take(5);
         var result = query1.Intersect(query2).ToList().Select(e => e.Name).ToArray();
 
-        // G F E D C
-        //     E D C B A
         var expectedSequence = new[] { "E", "D", "C" };
         Assert.That(result.Length, Is.EqualTo(expectedSequence.Length));
-        for (int i = 0; i < expectedSequence.Length; i++)
+        for (var i = 0; i < expectedSequence.Length; i++) {
           Assert.That(result[i], Is.EqualTo(expectedSequence[i]));
+        }
       }
     }
 
@@ -123,8 +123,9 @@ namespace Xtensive.Orm.Tests.Issues
 
         var expectedSequence = new[] { "G", "F"};
         Assert.That(result.Length, Is.EqualTo(expectedSequence.Length));
-        for (int i = 0; i < expectedSequence.Length; i++)
+        for (var i = 0; i < expectedSequence.Length; i++) {
           Assert.That(result[i], Is.EqualTo(expectedSequence[i]));
+        }
       }
     }
   }
