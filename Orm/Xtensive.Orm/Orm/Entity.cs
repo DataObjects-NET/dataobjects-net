@@ -69,8 +69,8 @@ namespace Xtensive.Orm
     IDeserializationCallback
   {
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    private readonly bool changeVersionOnSetAttempt;
     private EntityState state;
-    private bool changeVersionOnSetAttempt;
 
     #region Internal properties
 

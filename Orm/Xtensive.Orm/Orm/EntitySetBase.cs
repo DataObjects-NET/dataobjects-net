@@ -43,8 +43,8 @@ namespace Xtensive.Orm
 
     private readonly Entity owner;
     private readonly CombineTransform auxilaryTypeKeyTransform;
+    private readonly bool skipOwnerVersionChange;
     private bool isInitialized;
-    private bool skipOwnerVersionChange;
 
     /// <summary>
     /// Gets the owner of this instance.
