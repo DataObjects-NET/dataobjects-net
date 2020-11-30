@@ -29,41 +29,41 @@ namespace Xtensive.Orm.Providers
         ProcessUnbatchedTask(task, context);
         return;
       }
+
       var sequence = Factory.CreatePersistParts(task, GetParameterPrefix(context));
-      foreach (var part in sequence)
+      foreach (var part in sequence) {
         context.ActiveCommand.AddPart(part);
+      }
     }
 
-    public override void RegisterTask(SqlTask task)
-    {
-      tasks.Enqueue(task);
-    }
+    public override void RegisterTask(SqlTask task) => tasks.Enqueue(task);
 
-    public override void ClearTasks()
-    {
-      tasks.Clear();
-    }
+    public override void ClearTasks() => tasks.Clear();
 
     public override void ExecuteTasks(CommandProcessorContext context)
     {
       PutTasksForExecution(context);
 
-      while (context.ProcessingTasks.Count >= batchSize)
+      while (context.ProcessingTasks.Count >= batchSize) {
         ExecuteBatch(batchSize, null, context);
+      }
 
-      if (!context.AllowPartialExecution)
+      if (!context.AllowPartialExecution) {
         ExecuteBatch(context.ProcessingTasks.Count, null, context);
+      }
     }
 
     public override async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
     {
       PutTasksForExecution(context);
 
-      while (context.ProcessingTasks.Count >= batchSize)
+      while (context.ProcessingTasks.Count >= batchSize) {
         await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+      }
 
-      if (!context.AllowPartialExecution)
+      if (!context.AllowPartialExecution) {
         await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
+      }
     }
 
     public override DataReader ExecuteTasksWithReader(QueryRequest request, CommandProcessorContext context)
@@ -71,13 +71,15 @@ namespace Xtensive.Orm.Providers
       context.AllowPartialExecution = false;
       PutTasksForExecution(context);
 
-      while (context.ProcessingTasks.Count >= batchSize)
+      while (context.ProcessingTasks.Count >= batchSize) {
         ExecuteBatch(batchSize, null, context);
+      }
 
       return ExecuteBatch(context.ProcessingTasks.Count, request, context).CreateReader(request.GetAccessor());
     }
 
-    public override async Task<DataReader> ExecuteTasksWithReaderAsync(QueryRequest request, CommandProcessorContext context, CancellationToken token)
+    public override async Task<DataReader> ExecuteTasksWithReaderAsync(QueryRequest request,
+      CommandProcessorContext context, CancellationToken token)
     {
       context.ProcessingTasks = new Queue<SqlTask>(tasks);
       tasks.Clear();
@@ -94,10 +96,11 @@ namespace Xtensive.Orm.Providers
 
     private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest, CommandProcessorContext context)
     {
-      var shouldReturnReader = lastRequest!=null;
+      var shouldReturnReader = lastRequest != null;
 
-      if (numberOfTasks==0 && !shouldReturnReader)
+      if (numberOfTasks == 0 && !shouldReturnReader) {
         return null;
+      }
 
       var tasksToProcess = context.ProcessingTasks;
 
@@ -109,48 +112,58 @@ namespace Xtensive.Orm.Providers
           var task = tasksToProcess.Dequeue();
           task.ProcessWith(this, context);
         }
+
+        var command = context.ActiveCommand;
         if (shouldReturnReader) {
           var part = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
-          context.ActiveCommand.AddPart(part);
+          command.AddPart(part);
         }
-        if (context.ActiveCommand.Count==0)
+
+        if (command.Count == 0) {
           return null;
+        }
+
         var hasQueryTasks = context.ActiveTasks.Count > 0;
         if (!hasQueryTasks && !shouldReturnReader) {
-          context.ActiveCommand.ExecuteNonQuery();
+          command.ExecuteNonQuery();
           return null;
         }
-        context.ActiveCommand.ExecuteReader();
+
+        command.ExecuteReader();
         if (hasQueryTasks) {
           var currentQueryTask = 0;
           while (currentQueryTask < context.ActiveTasks.Count) {
             var queryTask = context.ActiveTasks[currentQueryTask];
             var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
-            var reader = context.ActiveCommand.CreateReader(accessor);
-            while (reader.MoveNext()) {
-              result.Add(reader.Current);
+            while (command.NextRow()) {
+              result.Add(command.ReadTupleWith(accessor));
             }
 
-            context.ActiveCommand.NextResult();
+            _ = command.NextResult();
             currentQueryTask++;
           }
         }
-        return shouldReturnReader ? context.ActiveCommand : null;
+
+        return shouldReturnReader ? command : null;
       }
       finally {
-        if (!shouldReturnReader)
+        if (!shouldReturnReader) {
           context.ActiveCommand.Dispose();
+        }
+
         ReleaseCommand(context);
       }
     }
 
-    private async Task<Command> ExecuteBatchAsync(int numberOfTasks, QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
+    private async Task<Command> ExecuteBatchAsync(int numberOfTasks, QueryRequest lastRequest,
+      CommandProcessorContext context, CancellationToken token)
     {
-      var shouldReturnReader = lastRequest!=null;
+      var shouldReturnReader = lastRequest != null;
 
-      if (numberOfTasks==0 && !shouldReturnReader)
+      if (numberOfTasks == 0 && !shouldReturnReader) {
         return null;
+      }
 
       var tasksToProcess = context.ProcessingTasks;
 
@@ -162,36 +175,45 @@ namespace Xtensive.Orm.Providers
           var task = tasksToProcess.Dequeue();
           task.ProcessWith(this, context);
         }
-        if (shouldReturnReader)
-          context.ActiveCommand.AddPart(Factory.CreateQueryPart(lastRequest, context.ParameterContext));
-        if (context.ActiveCommand.Count==0)
-          return null;
-        var hasQueryTasks = context.ActiveTasks.Count > 0;
-        if (!hasQueryTasks && !shouldReturnReader) {
-          await context.ActiveCommand.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+
+        var command = context.ActiveCommand;
+        if (shouldReturnReader) {
+          command.AddPart(Factory.CreateQueryPart(lastRequest, context.ParameterContext));
+        }
+
+        if (command.Count == 0) {
           return null;
         }
-        await context.ActiveCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
+
+        var hasQueryTasks = context.ActiveTasks.Count > 0;
+        if (!hasQueryTasks && !shouldReturnReader) {
+          await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+          return null;
+        }
+
+        await command.ExecuteReaderAsync(token).ConfigureAwait(false);
         if (hasQueryTasks) {
-          int currentQueryTask = 0;
+          var currentQueryTask = 0;
           while (currentQueryTask < context.ActiveTasks.Count) {
             var queryTask = context.ActiveTasks[currentQueryTask];
             var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
-            var reader = context.ActiveCommand.CreateReader(accessor);
-            while (reader.MoveNext()) {
-              result.Add(reader.Current);
+            while (await command.NextRowAsync(token).ConfigureAwait(false)) {
+              result.Add(command.ReadTupleWith(accessor));
             }
 
-            await context.ActiveCommand.NextResultAsync().ConfigureAwait(false);
+            _ = await command.NextResultAsync(token).ConfigureAwait(false);
             currentQueryTask++;
           }
         }
-        return shouldReturnReader ? context.ActiveCommand : null;
+
+        return shouldReturnReader ? command : null;
       }
       finally {
-        if (!shouldReturnReader)
-          context.ActiveCommand.Dispose();
+        if (!shouldReturnReader) {
+          await context.ActiveCommand.DisposeAsync().ConfigureAwait(false);
+        }
+
         ReleaseCommand(context);
       }
     }
@@ -203,6 +225,7 @@ namespace Xtensive.Orm.Providers
         ReleaseCommand(context);
         AllocateCommand(context);
       }
+
       ExecuteUnbatchedTask(task);
     }
 
@@ -210,12 +233,12 @@ namespace Xtensive.Orm.Providers
     {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
-        using (var command = Factory.CreateCommand()) {
-          command.AddPart(part);
-          var affectedRowsCount = command.ExecuteNonQuery();
-          if (affectedRowsCount==0)
-            throw new VersionConflictException(string.Format(
-              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+        using var command = Factory.CreateCommand();
+        command.AddPart(part);
+        var affectedRowsCount = command.ExecuteNonQuery();
+        if (affectedRowsCount == 0) {
+          throw new VersionConflictException(string.Format(
+            Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
         }
       }
     }
@@ -225,11 +248,14 @@ namespace Xtensive.Orm.Providers
       if (context.AllowPartialExecution) {
         context.ProcessingTasks = new Queue<SqlTask>();
         var batchesCount = tasks.Count / batchSize;
-        if (batchesCount==0)
+        if (batchesCount == 0) {
           return;
+        }
+
         context.ProcessingTasks = new Queue<SqlTask>();
-        while (context.ProcessingTasks.Count < batchesCount * batchSize)
+        while (context.ProcessingTasks.Count < batchesCount * batchSize) {
           context.ProcessingTasks.Enqueue(tasks.Dequeue());
+        }
       }
       else {
         context.ProcessingTasks = new Queue<SqlTask>(tasks);
@@ -237,10 +263,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private string GetParameterPrefix(CommandProcessorContext context)
-    {
-      return string.Format("p{0}_", context.ActiveCommand.Count + 1);
-    }
+    private static string GetParameterPrefix(CommandProcessorContext context) => $"p{context.ActiveCommand.Count + 1}_";
 
     #endregion
 
