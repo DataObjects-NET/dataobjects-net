@@ -14,11 +14,11 @@ namespace Xtensive.Orm.Localization.Tests
         using (var ts = session.OpenTransaction()) {
 
           // populating database
-          Country m1 = new Country(session) {
+          var m1 = new Country(session) {
             Identifier = "HUN",
             Name = "Magyarország"
           };
-          Country m2 = new Country(session) {
+          var m2 = new Country(session) {
             Identifier = "RUS",
             Name = "Oroszország"
           };
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Localization.Tests
       Thread.CurrentThread.CurrentCulture = EnglishCulture;
       using (var session = Domain.OpenSession()) {
         using (var ts = session.OpenTransaction()) {
-          var q = session.Query.All<Country>().OrderBy(e => e.Identifier).Select(e => new { e.Name});
+          var q = session.Query.All<Country>().OrderBy(e => e.Identifier).Select(e => new { e.Name });
           var l = q.ToList();
           // assertions
           Assert.AreEqual(2, l.Count);

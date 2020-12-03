@@ -9,10 +9,10 @@ namespace Xtensive.Orm.Localization.Tests.Model
   {
     [Key, Field]
     public int Id { get; set; }
-    
+
     [Field(Nullable = false, Length = 64)]
     public string Identifier { get; set; }
-    
+
     // abstract property
     public abstract string Name { get; set; }
 
