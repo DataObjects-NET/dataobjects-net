@@ -8453,15 +8453,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Given connection is corrupted. Trying to restore the connection..
-        /// </summary>
-        internal static string LogGivenConnectionIsCorruptedTryingToRestoreTheConnection {
-            get {
-                return ResourceManager.GetString("LogGivenConnectionIsCorruptedTryingToRestoreTheConnection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Hierarchy: &apos;{0}&apos;.
         /// </summary>
         internal static string LogHierarchyX {

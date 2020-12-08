@@ -20,81 +20,91 @@ namespace Xtensive.Orm.ReferentialIntegrity
     private readonly Dictionary<TypeInfo, HashSet<Entity>> queue = new Dictionary<TypeInfo, HashSet<Entity>>();
     private readonly RemovalContext parent;
     private readonly List<Action> finalizers = new List<Action>();
+    private readonly Dictionary<Entity, EntityRemoveReason> removeReasons = new Dictionary<Entity, EntityRemoveReason>();
 
-    public bool QueueIsEmpty
-    {
-      get { return types.Count == 0; }
-    }
+    public bool QueueIsEmpty => types.Count == 0;
 
     public bool Contains(Entity entity)
     {
-      if (processedEntities.Contains(entity))
+      if (processedEntities.Contains(entity)) {
         return true;
-      HashSet<Entity> set;
-      if (queue.TryGetValue(entity.TypeInfo, out set) && set.Contains(entity))
-        return true;
-      return parent != null && parent.Contains(entity);
+      }
+
+      return queue.TryGetValue(entity.TypeInfo, out var set) && set.Contains(entity)
+        ? true
+        : parent != null && parent.Contains(entity);
     }
 
     public IEnumerable<Entity> GetProcessedEntities()
-    {
-      return processedEntities.Where(e => e.PersistenceState != PersistenceState.Removed);
-    }
+      => processedEntities.Where(e => e.PersistenceState != PersistenceState.Removed);
 
     public List<Entity> GatherEntitiesForProcessing()
     {
       while (types.Count > 0) {
         var type = types.Dequeue();
         var list = queue[type];
-        if (list.Count == 0) 
+        if (list.Count == 0) {
           continue;
+        }
+
         var result = list.Where(e => !processedEntities.Contains(e)).ToList();
-        foreach (var entity in result)
-          processedEntities.Add(entity);
+        foreach (var entity in result) {
+          _ = processedEntities.Add(entity);
+        }
+
         list.Clear();
         return result;
       }
       return new List<Entity>(0);
     }
 
-    public void Enqueue(Entity entity)
+    public void Enqueue(Entity entity, EntityRemoveReason reason)
     {
       var type = entity.TypeInfo;
       if (types.Count > 0) {
-        if (types.Peek() != type)
+        if (types.Peek() != type) {
           types.Enqueue(type);
+        }
       }
-      else
-        types.Enqueue(type);
-      HashSet<Entity> set;
-      if (queue.TryGetValue(type, out set))
-        set.Add(entity);
       else {
-        set = new HashSet<Entity> {entity};
+        types.Enqueue(type);
+      }
+      if (queue.TryGetValue(type, out var set)) {
+        _ = set.Add(entity);
+      }
+      else {
+        set = new HashSet<Entity> { entity };
         queue.Add(type, set);
       }
+
+      removeReasons[entity] = reason;
     }
 
-    public void Enqueue(IEnumerable<Entity> entities)
+    public void Enqueue(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
       foreach (var group in entities.GroupBy(e => e.TypeInfo)) {
         var type = group.Key;
         if (types.Count > 0) {
-          if (types.Peek() != type)
+          if (types.Peek() != type) {
             types.Enqueue(type);
+          }
         }
-        else
-          types.Enqueue(type);
-        HashSet<Entity> set;
-        if (queue.TryGetValue(type, out set))
-          foreach (var entity in group)
-            set.Add(entity);
         else {
-          set = new HashSet<Entity>(group);
-          queue.Add(type, set);
+          types.Enqueue(type);
+        }
+
+        if (!queue.TryGetValue(type, out var set1)) {
+          set1 = new HashSet<Entity>();
+          queue.Add(type, set1);
+        }
+        foreach (var entity in group) {
+          removeReasons[entity] = reason;
+          _ = set1.Add(entity);
         }
       }
     }
+
+    public EntityRemoveReason GetRemoveReason(Entity entity) => removeReasons[entity];
 
     public void EnqueueFinalizer(Action finalizer)
     {
@@ -112,20 +122,26 @@ namespace Xtensive.Orm.ReferentialIntegrity
     {
       using (var ea = new ExceptionAggregator()) {
         // Backward order
-        for (int i = finalizers.Count - 1; i >= 0; i--)
+        for (var i = finalizers.Count - 1; i >= 0; i--) {
           ea.Execute(finalizers[i]);
+        }
+
         ea.Complete();
       }
     }
 
     public void Dispose()
     {
-      if (parent != null)
-        foreach (var entity in processedEntities)
-          parent.processedEntities.Add(entity);
+      if (parent != null) {
+        foreach (var entity in processedEntities) {
+          _ = parent.processedEntities.Add(entity);
+        }
+      }
+
       processedEntities.Clear();
       types.Clear();
       queue.Clear();
+      removeReasons.Clear();
       processor.Context = parent;
     }
 

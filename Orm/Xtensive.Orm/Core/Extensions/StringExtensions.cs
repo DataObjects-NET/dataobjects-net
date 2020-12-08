@@ -427,10 +427,10 @@ namespace Xtensive.Core
     /// <returns>Stripped string.</returns>
     public static string StripRoundBrackets(this string value)
     {
-      var start = 0;
+      int start;
       var end = value.Length - 1;
       var actualLength = value.Length;
-      for (start = 0; value[start++]=='(' && value[end--]==')'; actualLength -= 2) { }
+      for (start = 0; value[start++] == '(' && value[end--] == ')'; actualLength -= 2) { }
 
       return start == 1
         ? value
@@ -444,6 +444,5 @@ namespace Xtensive.Core
 
       return str.IndexOf(value, comparison) >= 0;
     }
-
   }
 }

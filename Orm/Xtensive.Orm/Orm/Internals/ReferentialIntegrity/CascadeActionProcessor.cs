@@ -20,7 +20,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
           ReferentialActions.RemoveReference(association, referencingObject, referencedObject, null, context);
           break;
       }
-      target.RemoveLater();
+      target.RemoveLaterInternal(EntityRemoveReason.Association);
     }
   }
 }

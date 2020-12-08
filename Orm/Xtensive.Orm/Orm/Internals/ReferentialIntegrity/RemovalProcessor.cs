@@ -19,7 +19,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
   {
     #region Nested type: ReferenceDescriptor
 
-    class ReferenceDescriptor
+    private class ReferenceDescriptor
     {
       public Entity RemovingEntity;
       public ActionProcessor Processor;
@@ -37,24 +37,27 @@ namespace Xtensive.Orm.ReferentialIntegrity
     
     public RemovalContext Context { get; set; }
 
-    public void EnqueueForRemoval(IEnumerable<Entity> entities)
+    public void EnqueueForRemoval(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
-      if (Context != null)
-        Context.Enqueue(entities);
-      else
-        Remove(entities);
+      if (Context != null) {
+        Context.Enqueue(entities, reason);
+      }
+      else {
+        Remove(entities, reason);
+      }
     }
 
-    public void Remove(IEnumerable<Entity> entities)
+    public void Remove(IEnumerable<Entity> entities, EntityRemoveReason reason)
     {
       ArgumentValidator.EnsureArgumentNotNull(entities, "entities");
-      bool isEmpty = true;
+      var isEmpty = true;
       foreach (var entity in entities) {
         isEmpty = false;
         entity.EnsureNotRemoved();
       }
-      if (isEmpty)
+      if (isEmpty) {
         return;
+      }
       var processedEntities = new List<Entity>();
       var notifiedEntities = new HashSet<Entity>();
       try {
@@ -62,26 +65,28 @@ namespace Xtensive.Orm.ReferentialIntegrity
         using (var scope = operations.BeginRegistration(OperationType.System))
         using (Context = new RemovalContext(this)) {
           Session.EnforceChangeRegistrySizeLimit();
-          if (operations.CanRegisterOperation)
+          if (operations.CanRegisterOperation) {
             operations.RegisterOperation(
               new EntitiesRemoveOperation(entities.Select(e => e.Key)));
+          }
 
-          Context.Enqueue(entities);
+          Context.Enqueue(entities, reason);
 
-          bool isOperationStarted = false;
+          var isOperationStarted = false;
           while (!Context.QueueIsEmpty) {
             var entitiesForProcessing = Context.GatherEntitiesForProcessing();
-            foreach (var entity in entitiesForProcessing)
-              entity.SystemBeforeRemove();
+            foreach (var entity in entitiesForProcessing) {
+              entity.SystemBeforeRemove(Context.GetRemoveReason(entity));
+            }
             if (!isOperationStarted) {
               isOperationStarted = true;
               operations.NotifyOperationStarting();
             }
             ProcessItems(entitiesForProcessing);
           }
-          if (!isOperationStarted)
+          if (!isOperationStarted) {
             operations.NotifyOperationStarting();
-
+          }
           processedEntities = Context.GetProcessedEntities().ToList();
           foreach (var entity in processedEntities) {
             entity.SystemRemove();
@@ -95,7 +100,7 @@ namespace Xtensive.Orm.ReferentialIntegrity
           using (var ea = new ExceptionAggregator()) {
             foreach (var entity in processedEntities) {
               ea.Execute(() => {
-                notifiedEntities.Add(entity);
+                _ = notifiedEntities.Add(entity);
                 entity.SystemRemoveCompleted(null);
               });
             }
@@ -105,8 +110,10 @@ namespace Xtensive.Orm.ReferentialIntegrity
       }
       catch (Exception e) {
         foreach (var entity in processedEntities) {
-          if (notifiedEntities.Contains(entity))
+          if (notifiedEntities.Contains(entity)) {
             continue;
+          }
+
           try {
             entity.SystemRemoveCompleted(e);
           }
@@ -120,13 +127,14 @@ namespace Xtensive.Orm.ReferentialIntegrity
 
     private void ProcessItems(IList<Entity> entities)
     {
-      if (entities.Count == 0)
+      if (entities.Count == 0) {
         return;
-
+      }
       var entityType = entities[0].TypeInfo;
       var sequence = entityType.GetRemovalAssociationSequence();
-      if (sequence==null || sequence.Count==0)
+      if (sequence == null || sequence.Count == 0) {
         return;
+      }
 
       ExecutePrefetchAction(entities);
 
@@ -158,42 +166,43 @@ namespace Xtensive.Orm.ReferentialIntegrity
         }
       }
 
-      if (Session.Handler.ExecutePrefetchTasks()==null)
-        Session.ExecuteUserDefinedDelayedQueries(false);
+      if (Session.Handler.ExecutePrefetchTasks() == null) {
+        _ = Session.ExecuteUserDefinedDelayedQueries(false);
+      }
 
       foreach (var container in referenceDescriptors) {
         var processor = container.Processor;
         var association = container.Association;
         var removingEntity = container.RemovingEntity;
-        if (container.IsOutgoing)
-          foreach (var reference in container.References.ToList())
+        if (container.IsOutgoing) {
+          foreach (var reference in container.References.ToList()) {
             processor.Process(Context, association, removingEntity, reference.ReferencedEntity, removingEntity, reference.ReferencedEntity);
-        else
-          foreach (var reference in container.References.ToList())
+          }
+        }
+        else {
+          foreach (var reference in container.References.ToList()) {
             processor.Process(Context, association, removingEntity, reference.ReferencingEntity, reference.ReferencingEntity, removingEntity);
+          }
+        }
       }
     }
 
     private void ExecutePrefetchAction(IList<Entity> itemList)
     {
       var item = itemList[0];
-      Action<SessionHandler, IEnumerable<Key>> action;
-      if (Session.Domain.PrefetchActionMap.TryGetValue(item.TypeInfo, out action))
+      if (Session.Domain.PrefetchActionMap.TryGetValue(item.TypeInfo, out var action)) {
         action(Session.Handler, itemList.Select(i => i.Key));
+      }
     }
 
     private static ActionProcessor GetProcessor(OnRemoveAction action)
     {
-      switch (action) {
-        case OnRemoveAction.Clear:
-          return clearActionProcessor;
-        case OnRemoveAction.Cascade:
-          return cascadeActionProcessor;
-        case OnRemoveAction.Deny:
-          return denyActionProcessor;
-        default:
-          return noneActionProcessor;
-      }
+      return action switch {
+        OnRemoveAction.Clear => clearActionProcessor,
+        OnRemoveAction.Cascade => cascadeActionProcessor,
+        OnRemoveAction.Deny => denyActionProcessor,
+        _ => noneActionProcessor,
+      };
     }
 
 

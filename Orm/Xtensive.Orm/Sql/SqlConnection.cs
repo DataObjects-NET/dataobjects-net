@@ -182,7 +182,7 @@ namespace Xtensive.Sql
 
       using (var command = UnderlyingConnection.CreateCommand()) {
         command.CommandText = initializationScript;
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 

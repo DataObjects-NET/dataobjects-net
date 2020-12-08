@@ -20,8 +20,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     public static bool ShouldRetryOn(Exception ex)
     {
       ArgumentValidator.EnsureArgumentNotNull(ex, "ex");
-      SqlException sqlException = ex as SqlException;
-      if (sqlException != null) {
+      if (ex is SqlException sqlException) {
         foreach (SqlError err in sqlException.Errors) {
           switch (err.Number) {
             // SQL Error Code: 49920

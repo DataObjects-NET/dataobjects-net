@@ -285,7 +285,6 @@ namespace Xtensive.Orm.Tests.Configuration
       Assert.That(actual.NamingRules, Is.EqualTo(expected.NamingRules));
     }
 
-
     [Test]
     public void ShareStorageSchemaOverNodesTest()
     {

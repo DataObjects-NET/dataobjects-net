@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(target, "target");
-        target.Remove();
+        target.RemoveInternal(EntityRemoveReason.User);
       }
     }
 

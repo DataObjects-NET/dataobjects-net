@@ -3428,9 +3428,6 @@ Error: {1}</value>
   <data name="ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet" xml:space="preserve">
     <value>Extracted and target schemas are equal but there are changes in type identifiers set.</value>
   </data>
-  <data name="LogGivenConnectionIsCorruptedTryingToRestoreTheConnection" xml:space="preserve">
-    <value>Given connection is corrupted. Trying to restore the connection.</value>
-  </data>
   <data name="LogConnectionRestoreFailed" xml:space="preserve">
     <value>Connection restore failed.</value>
   </data>
