@@ -633,6 +633,8 @@ namespace Xtensive.Orm
 
       EnsureIsFetched(field);
 
+      Session.CheckForSwitching();
+
       Session.SystemEvents.NotifyFieldValueGetting(this, field);
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyFieldValueGetting(this, field);

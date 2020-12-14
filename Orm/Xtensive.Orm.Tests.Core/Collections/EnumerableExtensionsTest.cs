@@ -164,5 +164,25 @@ namespace Xtensive.Orm.Tests.Core.Collections
       Assert.AreEqual(false, new[] {1, 2}.AtMost(0));
       Assert.AreEqual(false, new int[0].AtMost(-1));
     }
+
+    [Test]
+    public void ToArrayCountTest()
+    {
+      var array = Enumerable.Repeat(1, 10).ToArray(10);
+      Assert.That(array.Length, Is.EqualTo(10));
+      Assert.That(array.All(x => x == 1));
+
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(11));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(9));
+    }
+
+    [Test]
+    public void ToListCountTest()
+    {
+      var source = Enumerable.Repeat(1, 10);
+      Assert.That(source.SequenceEqual(source.ToList(10)));
+      Assert.That(source.ToList(9).Capacity, Is.EqualTo(18));
+      Assert.That(source.ToList(11).Capacity, Is.EqualTo(11));
+    }
   }
 }

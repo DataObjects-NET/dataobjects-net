@@ -16,6 +16,12 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public sealed class TransactionModesTest : ChinookDOModelTest
   {
+    public override void SetUp()
+    {
+      DoNotActivateSharedSession = true;
+      base.SetUp();
+    }
+
     protected override void CheckRequirements()
     {
       base.CheckRequirements();
@@ -33,12 +39,17 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsFalse(session.Handler.TransactionIsStarted);
         var track = session.Query.All<Track>().First();
         track.Milliseconds++;
-        Session.Current.SaveChanges();
+        session.SaveChanges();
         Assert.IsTrue(session.Handler.TransactionIsStarted);
-        var dbTransaction = StorageTestHelper.GetNativeTransaction();
+        object dbTransaction;
+        using (session.Activate()) {
+          dbTransaction = StorageTestHelper.GetNativeTransaction();
+        }
         track.Milliseconds++;
-        Session.Current.SaveChanges();
-        Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
+        session.SaveChanges();
+        using (session.Activate()) {
+          Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
+        }
         track.Milliseconds++;
         milliseconds = track.Milliseconds;
         trackKey = track.Key;

@@ -94,14 +94,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         if (sqlDecimal < MinDecimal)
           return decimal.MinValue;
       }
-      decimal result;
-      if (TryConvert(sqlDecimal, out result))
-        return result;
-      var reduced1 = ReducePrecision(sqlDecimal, 29);
-      if (TryConvert(reduced1, out result))
-        return result;
-      var reduced2 = ReducePrecision(sqlDecimal, 28);
-      return reduced2.Value;
+      return InternalHelpers.TruncateToNetDecimal(sqlDecimal);
     }
 
     public override object ReadDateTimeOffset(DbDataReader reader, int index)

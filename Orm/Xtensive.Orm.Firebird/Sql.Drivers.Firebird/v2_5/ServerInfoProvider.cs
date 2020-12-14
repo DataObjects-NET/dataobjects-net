@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Csaba Beer
@@ -179,6 +179,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       queryInfo.ParameterPrefix = "@";
       queryInfo.MaxLength = MaxCharLength;
       queryInfo.MaxComparisonOperations = DoNotKnow;
+      queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
           QueryFeatures.ParameterPrefix |

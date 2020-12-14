@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 
 namespace Xtensive.Orm.Providers
 {
@@ -39,11 +40,13 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public int ReenterCount { get; internal set; }
 
+    internal SqlTask CurrentTask { get; set; }
+
     internal event EventHandler Disposed;
 
     public void Dispose()
     {
-      if (ActiveTasks!=null) {
+      if (ActiveTasks != null) {
         ActiveTasks.Clear();
         ActiveTasks = null;
       }
@@ -60,8 +63,9 @@ namespace Xtensive.Orm.Providers
 
     private void NotifyDisposed()
     {
-      if (Disposed!=null)
+      if (Disposed != null) {
         Disposed(this, EventArgs.Empty);
+      }
     }
 
     internal CommandProcessorContext()

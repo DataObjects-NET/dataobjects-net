@@ -26,9 +26,9 @@ namespace Xtensive.Orm.Providers
     public CommandProcessor CreateCommandProcessor(Session session, SqlConnection connection)
     {
       var configuration = session.Configuration;
-      bool useBatches = configuration.BatchSize > 1
+      var useBatches = configuration.BatchSize > 1
         && providerInfo.Supports(ProviderFeatures.DmlBatches);
-      bool useCursorParameters =
+      var useCursorParameters =
         providerInfo.Supports(ProviderFeatures.MultipleResultsViaCursorParameters);
 
       var factory = useCursorParameters
@@ -36,8 +36,8 @@ namespace Xtensive.Orm.Providers
         : new CommandFactory(driver, session, connection);
 
       var processor = useBatches
-        ? new BatchingCommandProcessor(factory, configuration.BatchSize)
-        : (CommandProcessor) new SimpleCommandProcessor(factory);
+        ? new BatchingCommandProcessor(factory, configuration.BatchSize, session.Domain.StorageProviderInfo.MaxQueryParameterCount)
+        : (CommandProcessor) new SimpleCommandProcessor(factory, session.Domain.StorageProviderInfo.MaxQueryParameterCount);
       return processor;
       
     }

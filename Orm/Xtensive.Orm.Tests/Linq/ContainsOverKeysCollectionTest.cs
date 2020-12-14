@@ -280,22 +280,17 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        List<MyEntity3> result;
+        var result = session.Query.All<MyEntity3>()
+          .Where(e => keyArray.Contains(session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key))
+          .ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => keyArray.Contains(session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key))
-            .ToList());
+        result = session.Query.All<MyEntity3>()
+          .Where(e => nonGenericKeyCollection.Contains(session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key))
+          .ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => nonGenericKeyCollection.Contains(session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key))
-            .ToList());
-
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => genericKeyCollection.Contains(session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key))
-            .ToList());
+        result = session.Query.All<MyEntity3>()
+          .Where(e => genericKeyCollection.Contains(session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key))
+          .ToList();
       }
     }
 
@@ -304,22 +299,17 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        List<MyEntity3> result;
+        var result = session.Query.All<MyEntity3>()
+          .Where(e => session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key.In(keyArray))
+          .ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key.In(keyArray))
-            .ToList());
+        result = session.Query.All<MyEntity3>()
+          .Where(e => session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key.In(nonGenericKeyCollection))
+          .ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key.In(nonGenericKeyCollection))
-            .ToList());
-
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key.In(genericKeyCollection))
-            .ToList());
+        result = session.Query.All<MyEntity3>()
+          .Where(e => session.Query.All<MyEntity>().First(el => el.Key == e.Entity.Entity.Key).Key.In(genericKeyCollection))
+          .ToList();
       }
     }
 
@@ -328,31 +318,26 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        List<MyEntity3> result;
+        var result = session.Query.All<MyEntity3>()
+          .Where(e => keyArray.Contains(new {
+            Key = e.Key,
+            EntityKey = e.Entity.Key,
+            DoubleEntityKey = e.Entity.Entity.Key
+          }.DoubleEntityKey)).ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => keyArray.Contains(new {
-              Key = e.Key,
-              EntityKey = e.Entity.Key,
-              DoubleEntityKey = e.Entity.Entity.Key
-            }.DoubleEntityKey)).ToList());
+        result = session.Query.All<MyEntity3>()
+          .Where(e => nonGenericKeyCollection.Contains(new {
+            Key = e.Key,
+            EntityKey = e.Entity.Key,
+            DoubleEntityKey = e.Entity.Entity.Key
+          }.DoubleEntityKey)).ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => nonGenericKeyCollection.Contains(new {
-              Key = e.Key,
-              EntityKey = e.Entity.Key,
-              DoubleEntityKey = e.Entity.Entity.Key
-            }.DoubleEntityKey)).ToList());
-
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => genericKeyCollection.Contains(new {
-              Key = e.Key,
-              EntityKey = e.Entity.Key,
-              DoubleEntityKey = e.Entity.Entity.Key
-            }.DoubleEntityKey)).ToList());
+        result = session.Query.All<MyEntity3>()
+          .Where(e => genericKeyCollection.Contains(new {
+            Key = e.Key,
+            EntityKey = e.Entity.Key,
+            DoubleEntityKey = e.Entity.Entity.Key
+          }.DoubleEntityKey)).ToList();
       }
     }
 
@@ -361,31 +346,26 @@ namespace Xtensive.Orm.Tests.Linq.ContainsOverKeysCollectionTest
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        List<MyEntity3> result;
+        var result = session.Query.All<MyEntity3>()
+          .Where(e => new {
+            Key = e.Key,
+            EntityKey = e.Entity.Key,
+            DoubleEntityKey = e.Entity.Entity.Key
+          }.DoubleEntityKey.In(keyArray)).ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => new {
-              Key = e.Key,
-              EntityKey = e.Entity.Key,
-              DoubleEntityKey = e.Entity.Entity.Key
-            }.DoubleEntityKey.In(keyArray)).ToList());
+        result = session.Query.All<MyEntity3>()
+          .Where(e => new {
+            Key = e.Key,
+            EntityKey = e.Entity.Key,
+            DoubleEntityKey = e.Entity.Entity.Key
+          }.DoubleEntityKey.In(nonGenericKeyCollection)).ToList();
 
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => new {
-              Key = e.Key,
-              EntityKey = e.Entity.Key,
-              DoubleEntityKey = e.Entity.Entity.Key
-            }.DoubleEntityKey.In(nonGenericKeyCollection)).ToList());
-
-        Assert.Throws<QueryTranslationException>(() =>
-          result = session.Query.All<MyEntity3>()
-            .Where(e => new {
-              Key = e.Key,
-              EntityKey = e.Entity.Key,
-              DoubleEntityKey = e.Entity.Entity.Key
-            }.DoubleEntityKey.In(genericKeyCollection)).ToList());
+       result = session.Query.All<MyEntity3>()
+          .Where(e => new {
+            Key = e.Key,
+            EntityKey = e.Entity.Key,
+            DoubleEntityKey = e.Entity.Entity.Key
+          }.DoubleEntityKey.In(genericKeyCollection)).ToList();
       }
     }
 

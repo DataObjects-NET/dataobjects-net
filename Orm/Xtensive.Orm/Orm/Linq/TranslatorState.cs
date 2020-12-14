@@ -23,7 +23,8 @@ namespace Xtensive.Orm.Linq
       IsTailMethod = 1 << 5,
       ShouldOmitConvertToObject = 1 << 6,
       RequestCalculateExpressions = 1 << 7,
-      RequestCalculateExpressionsOnce = 1 << 8
+      RequestCalculateExpressionsOnce = 1 << 8,
+      SkipNullableColumnsDetectionInGroupBy = 1 << 9
     }
 
     internal readonly ref struct TranslatorScope
@@ -123,6 +124,14 @@ namespace Xtensive.Orm.Linq
       set => flags = value
         ? flags | TranslatorStateFlags.RequestCalculateExpressionsOnce
         : flags & ~TranslatorStateFlags.RequestCalculateExpressionsOnce;
+    }
+
+    public bool SkipNullableColumnsDetectionInGroupBy 
+    {
+      get => (flags & TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy
+        : flags & ~TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy;
     }
 
     public TranslatorScope CreateScope()

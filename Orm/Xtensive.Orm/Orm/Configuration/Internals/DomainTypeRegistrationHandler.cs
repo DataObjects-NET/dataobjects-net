@@ -21,6 +21,7 @@ namespace Xtensive.Orm.Configuration
   {
     private readonly static Type objectType = typeof (object);
     private const string providersNamespace = "Xtensive.Orm.Providers.";
+    private const string preprocessorName = "Xtensive.Orm.Linq.ClosureQueryPreprocessor";
 
     /// <inheritdoc/>
     public override Type BaseType
@@ -32,7 +33,9 @@ namespace Xtensive.Orm.Configuration
     {
       // Disallow implicit (via assembly scan) registration of types in Orm.Providers namespace
       return base.IsAcceptable(registration, type)
-        && (registration.Type!=null || !type.FullName.StartsWith(providersNamespace, StringComparison.Ordinal));
+        && (registration.Type != null
+           || (!type.FullName.StartsWith(providersNamespace, StringComparison.Ordinal)
+               && !type.FullName.Equals(preprocessorName, StringComparison.Ordinal)));
     }
 
     /// <inheritdoc/>

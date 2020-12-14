@@ -11,6 +11,7 @@ using System.Text;
 using Xtensive.Orm.FullTextSearchCondition;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
+using Xtensive.Orm.SqlServer;
 
 namespace Xtensive.Orm.Providers.SqlServer
 {

@@ -364,18 +364,18 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       ArgumentValidator.EnsureArgumentNotNull(sqlLikePattern, "sqlLikePattern");
-      string regexPattern = Regex.Replace(sqlLikePattern,
+      var regexPattern = Regex.Replace(sqlLikePattern,
         @"[%_]|[^%_]+",
         match => {
-          if (match.Value=="%") {
+          if (match.Value == "%") {
             return ".*";
           }
-          if (match.Value=="_") {
+          if (match.Value == "_") {
             return ".";
           }
           return Regex.Escape(match.Value);
         });
-      return Regex.IsMatch(value, regexPattern);
+      return Regex.IsMatch(value, $"^{regexPattern}$");
     }
 
     /// <summary>
@@ -401,9 +401,9 @@ namespace Xtensive.Core
       var escChar = new string(escapeCharacter, 1);
       if (regExSpecialChars.Contains(escapeCharacter))
         escChar = @"\" + escChar;
-      var pattern = escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
+      var pattern = escChar + escChar + "|" + escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
 
-      string regexPattern = Regex.Replace(sqlLikePattern,
+      var regexPattern = Regex.Replace(sqlLikePattern,
         pattern,
         match => {
           if (match.Value=="%") {
@@ -417,7 +417,7 @@ namespace Xtensive.Core
           }
           return Regex.Escape(match.Value);
         });
-      return Regex.IsMatch(value, regexPattern);
+      return Regex.IsMatch(value, $"^{regexPattern}$");
     }
 
     /// <summary>

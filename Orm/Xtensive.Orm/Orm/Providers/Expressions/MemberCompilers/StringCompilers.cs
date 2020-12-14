@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -22,12 +22,18 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class StringCompilers
   {
+    private const string LeftSquareBracket = "[";
+    private const string RightSquareBracket = "]";
+    private const string EscapeLeftSquareBracket = "^[";
+    private const string EscapeRightSquareBracket = "^]";
+
     private static SqlExpression GenericLike(SqlExpression _this,
       SqlExpression patternExpression, bool percentAtStart, bool percentAtEnd)
     {
       const string percent = "%";
       const string ground = "_";
       const string escape = "^";
+
       const string escapeEscape = "^^";
       const string escapeGround = "^_";
       const string escapePercent = "^%";
@@ -35,9 +41,11 @@ namespace Xtensive.Orm.Providers
       var stringPattern = patternExpression as SqlLiteral<string>;
       var charPattern = patternExpression as SqlLiteral<char>;
       if (ReferenceEquals(stringPattern, null) && ReferenceEquals(charPattern, null)) {
-        SqlExpression result = SqlDml.Replace(patternExpression, SqlDml.Literal(escape), SqlDml.Literal(escapeEscape));
+        var result = (SqlExpression) SqlDml.Replace(patternExpression, SqlDml.Literal(escape), SqlDml.Literal(escapeEscape));
         result = SqlDml.Replace(result, SqlDml.Literal(ground), SqlDml.Literal(escapeGround));
         result = SqlDml.Replace(result, SqlDml.Literal(percent), SqlDml.Literal(escapePercent));
+        result = TryReplaceExtraSymbols(result);
+
         if (percentAtStart)
           result = SqlDml.Concat(SqlDml.Literal(percent), result);
         if (percentAtEnd)
@@ -49,16 +57,22 @@ namespace Xtensive.Orm.Providers
       var originalPattern = !ReferenceEquals(stringPattern, null)
         ? stringPattern.Value
         : charPattern.Value.ToString();
-      var escapedPattern = new StringBuilder(originalPattern);
-      escapedPattern
+      var escapedPattern = new StringBuilder(originalPattern)
         .Replace(escape, escapeEscape)
         .Replace(percent, escapePercent)
         .Replace(ground, escapeGround);
-      bool escaped = escapedPattern.Length > originalPattern.Length;
-      if (percentAtStart)
-        escapedPattern.Insert(0, percent);
-      if (percentAtEnd)
-        escapedPattern.Append(percent);
+
+      TryEscapeExtraSymbols(escapedPattern);
+
+      var escaped = escapedPattern.Length > originalPattern.Length;
+      if (percentAtStart) {
+        _ = escapedPattern.Insert(0, percent);
+      }
+
+      if (percentAtEnd) {
+        _ = escapedPattern.Append(percent);
+      }
+
       var pattern = escapedPattern.ToString();
       return escaped
         ? SqlDml.Like(_this, pattern, escape)
@@ -503,6 +517,31 @@ namespace Xtensive.Orm.Providers
       [Type(typeof (char))] SqlExpression escapeChar)
     {
       return SqlDml.Like(_this, pattern, escapeChar);
+    }
+
+    private static void TryEscapeExtraSymbols(StringBuilder builder)
+    {
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider.Equals(WellKnown.Provider.SqlServer, StringComparison.Ordinal)
+        || provider.Equals(WellKnown.Provider.SqlServerCe, StringComparison.Ordinal)) {
+        _ = builder.Replace(LeftSquareBracket, EscapeLeftSquareBracket)
+          .Replace(RightSquareBracket, EscapeRightSquareBracket);
+      }
+    }
+
+    private static SqlExpression TryReplaceExtraSymbols(SqlExpression expression)
+    {
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider.Equals(WellKnown.Provider.SqlServer, StringComparison.Ordinal)
+        || provider.Equals(WellKnown.Provider.SqlServerCe, StringComparison.Ordinal)) {
+
+        var result = SqlDml.Replace(expression, SqlDml.Literal(LeftSquareBracket), SqlDml.Literal(EscapeLeftSquareBracket));
+        result = SqlDml.Replace(result, SqlDml.Literal(RightSquareBracket), SqlDml.Literal(EscapeRightSquareBracket));
+        return result;
+      }
+      return expression;
     }
   }
 }

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
@@ -6,7 +6,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>Xtensive</RootNamespace>
+    <RootNamespace>Xtensive.Orm.SqlServer</RootNamespace>
     <PackageId>Xtensive.Orm.SqlServer</PackageId>
     <Title>$(DoProductName) provider for MS SQL Server</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
@@ -38,5 +38,9 @@
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
-
+  <ItemGroup>
+    <Compile Include="..\Xtensive.Orm\Properties\Visibility.cs">
+      <Link>Properties\Visibility.cs</Link>
+    </Compile>
+  </ItemGroup>
 </Project>

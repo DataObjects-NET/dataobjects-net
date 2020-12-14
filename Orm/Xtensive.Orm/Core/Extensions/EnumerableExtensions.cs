@@ -124,6 +124,8 @@ namespace Xtensive.Core
         action.Invoke(item);
     }
 
+    /// <summary>
+    /// Converts the sequence to the <see cref="HashSet{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of sequence item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
@@ -140,7 +142,7 @@ namespace Xtensive.Core
     /// Converts the sequence to the <see cref="ChainedBuffer{T}"/>.
     /// </summary>
     /// <typeparam name="T">The type of sequence item.</typeparam>
-    /// <param name="source">The sequence to convert</param>
+    /// <param name="source">The sequence to convert.</param>
     /// <returns>A new <see cref="ChainedBuffer{T}"/> instance containing 
     /// all the items from the <paramref name="source"/> sequence.</returns>
     public static ChainedBuffer<T> ToChainedBuffer<T>(this IEnumerable<T> source)
@@ -295,19 +297,40 @@ namespace Xtensive.Core
     /// <param name="length">The length of the resulting array.</param>
     /// <typeparam name="T">The sequence element type.</typeparam>
     /// <returns>The resulting array.</returns>
+    /// <exception cref="ArgumentException"><paramref name="length"/> is negative.</exception>
     public static T[] ToArray<T>(this IEnumerable<T> sequence, int length)
     {
-      if (length == 0)
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(length, 0, nameof(length));
+
+      if (length == 0) {
         return Array.Empty<T>();
-      
+      }
+
       var result = new T[length];
       using (var e = sequence.GetEnumerator()) {
-        for (var i = 0; i < length && e.MoveNext(); i++)
-            result[i] = e.Current;
+        for (var i = 0; i < length && e.MoveNext(); i++) {
+          result[i] = e.Current;
+        }
       }
       return result;
     }
-    
+
+    /// <summary>
+    /// Creates a <see cref="T:System.Collections.Generic.List`1" /> of specified capacity from an <see cref="T:System.Collections.Generic.IEnumerable`1"/>.
+    /// </summary>
+    /// <param name="source">The <see cref="T:System.Collections.Generic.IEnumerable`1" /> to create a <see cref="T:System.Collections.Generic.List`1" /> from.</param>
+    /// <param name="capacity">The number of elements that the new list can initially store.</param>
+    /// <typeparam name="TItem">The type of the elements of <paramref name="source" />.</typeparam>
+    /// <returns>A <see cref="T:System.Collections.Generic.List`1" /> that contains elements from the input sequence.</returns>
+    public static List<TItem> ToList<TItem>(this IEnumerable<TItem> source, int capacity)
+    {
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, "capacity");
+
+      var result = new List<TItem>(capacity);
+      result.AddRange(source);
+      return result;
+    }
+
     /// <summary>
     /// Gets the items from the segment.
     /// </summary>

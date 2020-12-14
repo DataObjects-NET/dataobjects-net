@@ -11,6 +11,7 @@ using System.Data.SqlClient;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Orm.SqlServer;
 using Xtensive.Sql.Info;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 

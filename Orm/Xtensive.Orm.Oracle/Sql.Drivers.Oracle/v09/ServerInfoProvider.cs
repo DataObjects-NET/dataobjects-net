@@ -186,6 +186,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       queryInfo.ParameterPrefix = ":";
       queryInfo.MaxLength = DoNotKnow;
       queryInfo.MaxComparisonOperations = DoNotKnow;
+      queryInfo.MaxQueryParameterCount = 63999;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
