@@ -50,7 +50,6 @@ namespace Xtensive.Orm.Tests.Storage.CoreServicesModel
     protected override void OnInitialize()
     {
       base.OnInitialize();
-      //throw new InvalidOperationException();// for being able to query data from database
     }
 
     protected override void OnSettingFieldValue(FieldInfo field, object value)

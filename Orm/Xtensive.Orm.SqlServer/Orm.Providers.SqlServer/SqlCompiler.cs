@@ -17,31 +17,38 @@ namespace Xtensive.Orm.Providers.SqlServer
 {
   internal class SqlCompiler : Providers.SqlCompiler
   {
+    private static readonly Type ByteType = typeof(byte);
+    private static readonly Type Int16Type = typeof(short);
+    private static readonly Type Int32Type = typeof(int);
+    private static readonly Type FloatType = typeof(float);
+    private static readonly Type DecimalType = typeof(decimal);
+    private static readonly Type StringType = typeof(string);
+
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
       SqlFreeTextTable fromTable;
       QueryParameterBinding[] bindings;
 
-      var stringTypeMapping = Driver.GetTypeMapping(typeof(string));
+      var stringTypeMapping = Driver.GetTypeMapping(StringType);
       var criteriaBinding = new QueryParameterBinding(
        stringTypeMapping, provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
-     
+
       var index = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var table = Mapping[index.ReflectedType];
       var columns = provider.Header.Columns.Select(column => column.Name).ToList();
 
-      if (provider.TopN==null) {
+      if (provider.TopN == null) {
         fromTable = SqlDml.FreeTextTable(table, criteriaBinding.ParameterReference, columns);
         bindings = new[] {criteriaBinding};
       }
       else {
-        var intTypeMapping = Driver.GetTypeMapping(typeof(int));
+        var intTypeMapping = Driver.GetTypeMapping(Int32Type);
         var topNBinding = new QueryParameterBinding(intTypeMapping, () => provider.TopN.Invoke(), QueryParameterBindingType.Regular);
         fromTable = SqlDml.FreeTextTable(table, criteriaBinding.ParameterReference, columns, topNBinding.ParameterReference);
         bindings = new[] { criteriaBinding, topNBinding };
       }
       var fromTableRef = SqlDml.QueryRef(fromTable);
-      SqlSelect select = SqlDml.Select(fromTableRef);
+      var select = SqlDml.Select(fromTableRef);
       select.Columns.Add(fromTableRef.Columns[0]);
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[1], SqlType.Double), "RANK");
 
@@ -53,7 +60,7 @@ namespace Xtensive.Orm.Providers.SqlServer
       SqlContainsTable fromTable;
       QueryParameterBinding[] bindings;
 
-      var stringTypeMapping = Driver.GetTypeMapping(typeof(string));
+      var stringTypeMapping = Driver.GetTypeMapping(StringType);
       var criteriaBinding = new QueryParameterBinding(
        stringTypeMapping, provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
@@ -62,18 +69,18 @@ namespace Xtensive.Orm.Providers.SqlServer
       var columns = provider.Header.Columns.Select(column => column.Name).ToList();
 
       var targetColumnNames = provider.TargetColumns.Select(c => c.Name).ToArray();
-      if (provider.TopN==null) {
+      if (provider.TopN == null) {
         fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, targetColumnNames);
         bindings = new[] { criteriaBinding };
       }
       else {
-        var intTypeMapping = Driver.GetTypeMapping(typeof(int));
+        var intTypeMapping = Driver.GetTypeMapping(Int32Type);
         var topNBinding = new QueryParameterBinding(intTypeMapping, () => provider.TopN.Invoke(), QueryParameterBindingType.Regular);
         fromTable = SqlDml.ContainsTable(table, criteriaBinding.ParameterReference, columns, targetColumnNames, topNBinding.ParameterReference);
         bindings = new[] { criteriaBinding, topNBinding };
       }
       var fromTableRef = SqlDml.QueryRef(fromTable);
-      SqlSelect select = SqlDml.Select(fromTableRef);
+      var select = SqlDml.Select(fromTableRef);
       select.Columns.Add(fromTableRef.Columns[0]);
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[1], SqlType.Double), "RANK");
 
@@ -83,22 +90,65 @@ namespace Xtensive.Orm.Providers.SqlServer
     protected override SqlExpression ProcessAggregate(
       SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
-      var aggregateType = aggregateColumn.Type;
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
-      if (aggregateColumn.AggregateType==AggregateType.Avg) {
-        var originType = source.Origin.Header.Columns[aggregateColumn.SourceIndex].Type;
-        // floats are promoted to doubles, but we need the same type
-        if (originType==aggregateType && originType!=typeof (float))
-          return result;
-        var sqlType = Driver.MapValueType(aggregateType);
-        return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+      var aggregateReturnType = aggregateColumn.Type;
+      var originCalculateColumn = source.Origin.Header.Columns[aggregateColumn.SourceIndex];
+      var sqlType = Driver.MapValueType(aggregateReturnType);
+
+      if (aggregateColumn.AggregateType == AggregateType.Min
+        || aggregateColumn.AggregateType == AggregateType.Max
+        || aggregateColumn.AggregateType == AggregateType.Sum) {
+        if (!IsCalculatedColumn(originCalculateColumn)) {
+          if (aggregateReturnType == DecimalType) {
+            return result;
+          }
+          else if (ShouldCastDueType(aggregateReturnType)) {
+            return SqlDml.Cast(result, Driver.MapValueType(aggregateReturnType));
+          }
+        }
+        else if (ShouldCastDueType(aggregateReturnType)) {
+          return SqlDml.Cast(result, Driver.MapValueType(aggregateReturnType));
+        }
+        return result;
       }
-      // cast to decimal is dangerous, because 'decimal' defaults to integer type
-      if (aggregateColumn.AggregateType==AggregateType.Sum && aggregateType!=typeof (decimal))
-        return SqlDml.Cast(result, Driver.MapValueType(aggregateType));
+      if (aggregateColumn.AggregateType == AggregateType.Avg) {
+        //var sqlType = Driver.MapValueType(aggregateReturnType);
+        if (aggregateReturnType != originCalculateColumn.Type) {
+          return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+        }
+        if (!IsCalculatedColumn(originCalculateColumn)) {
+          if (aggregateReturnType == DecimalType) {
+            return result;
+          }
+          else if (ShouldCastDueType(aggregateReturnType)) {
+            return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+          }
+          else if (aggregateReturnType != originCalculateColumn.Type) {
+            return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+          }
+        }
+        else {
+          if (ShouldCastDueType(aggregateReturnType)) {
+            return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+          }
+          else if (aggregateReturnType != originCalculateColumn.Type) {
+            return SqlDml.Cast(SqlDml.Avg(SqlDml.Cast(sourceColumns[aggregateColumn.SourceIndex], sqlType)), sqlType);
+          }
+          return result;
+        }
+      }
       return result;
     }
 
+    private bool IsCalculatedColumn(Column column) => column is CalculatedColumn;
+
+    private bool ShouldCastDueType(Type type)
+    {
+      return type == ByteType
+        || type == Int16Type
+        || type == DecimalType
+        || type == FloatType;
+    }
 
     // Constructors
 

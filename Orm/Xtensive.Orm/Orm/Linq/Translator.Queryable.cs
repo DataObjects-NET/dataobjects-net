@@ -619,30 +619,34 @@ namespace Xtensive.Orm.Linq
 
       var resultType = method.ReturnType;
       var columnType = resultDataSource.Header.TupleDescriptor[0];
-      var convertResultColumn = resultType!=columnType && !resultType.IsNullable();
-      if (!convertResultColumn) // Adjust column type so we always use nullable of T instead of T
+      var convertResultColumn = resultType.IsNullable()
+         ? resultType.StripNullable() != columnType
+         : resultType != columnType;
+      if (!convertResultColumn) {// Adjust column type so we always use nullable of T instead of T
         columnType = resultType;
+      }
 
       if (isRoot) {
         var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
-        if (convertResultColumn)
+        if (convertResultColumn) {
           projectorBody = Expression.Convert(projectorBody, resultType);
+        }
+
         var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context);
         return new ProjectionExpression(resultType, itemProjector, originProjection.TupleParameterBindings, ResultType.First);
       }
 
       // Optimization. Use grouping AggregateProvider.
 
-      var groupingParameter = source as ParameterExpression;
-      if (groupingParameter!=null) {
+      if (source is ParameterExpression groupingParameter) {
         var groupingProjection = context.Bindings[groupingParameter];
-        var groupingDataSource = groupingProjection.ItemProjector.DataSource as AggregateProvider;
-        if (groupingDataSource!=null && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
+        if (groupingProjection.ItemProjector.DataSource is AggregateProvider groupingDataSource
+          && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
           var groupingFilterParameter = context.GetApplyParameter(groupingDataSource);
           var commonOriginDataSource = ChooseSourceForAggregate(groupingDataSource.Source,
             SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter),
             ref aggregateDescriptor);
-          if (commonOriginDataSource!=null) {
+          if (commonOriginDataSource != null) {
             resultDataSource = new AggregateProvider(
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
               groupingDataSource.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateDescriptor).ToArray());
@@ -665,18 +669,18 @@ namespace Xtensive.Orm.Linq
               }
             }
             var resultColumn = ColumnExpression.Create(columnType, resultDataSource.Header.Length - 1);
-            if (isSubqueryParameter)
+            if (isSubqueryParameter) {
               resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
-            if (convertResultColumn)
-              return Expression.Convert(resultColumn, resultType);
-            return resultColumn;
+            }
+            return convertResultColumn ? Expression.Convert(resultColumn, resultType) : (Expression) resultColumn;
           }
         }
       }
 
       var result = AddSubqueryColumn(columnType, resultDataSource);
-      if (convertResultColumn)
+      if (convertResultColumn) {
         return Expression.Convert(result, resultType);
+      }
       return result;
     }
 
