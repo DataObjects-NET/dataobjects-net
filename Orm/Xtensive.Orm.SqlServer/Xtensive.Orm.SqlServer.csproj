@@ -6,7 +6,7 @@
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <RootNamespace>Xtensive.Orm.SqlServer</RootNamespace>
+    <RootNamespace>Xtensive</RootNamespace>
     <PackageId>Xtensive.Orm.SqlServer</PackageId>
     <Title>$(DoProductName) provider for MS SQL Server</Title>
     <AssemblyTitle>$(Title)</AssemblyTitle>
@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Strings.Designer.cs">
+    <Compile Update="SqlServer.Resources\Strings.Designer.cs">
       <DesignTime>True</DesignTime>
       <AutoGen>True</AutoGen>
       <DependentUpon>Strings.resx</DependentUpon>
@@ -33,7 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Update="Strings.resx">
+    <EmbeddedResource Update="SqlServer.Resources\Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Strings.Designer.cs</LastGenOutput>
     </EmbeddedResource>

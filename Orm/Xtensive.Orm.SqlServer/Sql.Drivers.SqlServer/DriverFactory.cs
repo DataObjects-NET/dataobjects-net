@@ -11,8 +11,8 @@ using System.Data.SqlClient;
 using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm;
-using Xtensive.Orm.SqlServer;
 using Xtensive.Sql.Info;
+using Xtensive.SqlServer.Resources;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer

@@ -13,7 +13,7 @@ using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
-using Xtensive.Orm.SqlServer;
+using Xtensive.SqlServer.Resources;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
