@@ -66,12 +66,12 @@ namespace Xtensive.Orm.Tests.Sql
       var factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
 
       var configuration = new SqlDriverConfiguration() { EnsureConnectionIsAlive = false };
-      factory.GetDriver(new ConnectionInfo(Url), configuration);
-      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+      var driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      var driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
       Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.True);
 
       configuration = configuration.Clone();
