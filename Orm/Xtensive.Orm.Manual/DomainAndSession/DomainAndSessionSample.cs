@@ -1,5 +1,4 @@
 // Copyright (C) 2009-2020 Xtensive LLC.
-// All rights reserved.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
