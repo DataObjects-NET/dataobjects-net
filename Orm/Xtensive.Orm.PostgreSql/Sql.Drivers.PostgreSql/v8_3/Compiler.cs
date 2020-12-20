@@ -21,34 +21,40 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
   {
     public override void Visit(SqlCreateIndex node, IndexColumn item)
     {
-      if (!node.Index.IsFullText)
+      if (!node.Index.IsFullText) {
         base.Visit(node, item);
+      }
       // FullText builds expression instead of list of columns in Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     }
 
 
     public override void Visit(SqlFreeTextTable node)
     {
-      if (node.TargetColumns.Count!=1 || node.TargetColumns[0]!=node.TargetTable.Asterisk)
+      if (node.TargetColumns.Count != 1 || node.TargetColumns[0] != node.TargetTable.Asterisk) {
         throw new NotSupportedException(Strings.ExFreeTextSearchOnCustomColumnsNotSupported);
+      }
 
-      FullTextIndex fullTextIndex = node.TargetTable.DataTable.Indexes.OfType<FullTextIndex>().Single();
-      string alias = context.TableNameProvider.GetName(node);
-      string vector = ((Translator) translator).GetFulltextVector(context, fullTextIndex);
-      string tableName = translator.QuoteIdentifier(node.TargetTable.Name);
-      int internalColumnIndex = 0;
-      while (node.Columns["column" + internalColumnIndex]!=null)
+      var fullTextIndex = node.TargetTable.DataTable.Indexes.OfType<FullTextIndex>().Single();
+      var alias = context.TableNameProvider.GetName(node);
+      var vector = ((Translator) translator).GetFulltextVector(context, fullTextIndex);
+      var tableName = translator.QuoteIdentifier(node.TargetTable.Name);
+      var internalColumnIndex = 0;
+      while (node.Columns["column" + internalColumnIndex] != null) {
         internalColumnIndex++;
-      string vectorName = translator.QuoteIdentifier("column" + internalColumnIndex);
+      }
+      var vectorName = translator.QuoteIdentifier("column" + internalColumnIndex);
       internalColumnIndex++;
-      while (node.Columns["column" + internalColumnIndex]!=null)
+      while (node.Columns["column" + internalColumnIndex] != null) {
         internalColumnIndex++;
-      string queryName = translator.QuoteIdentifier("column" + internalColumnIndex);
+      }
+
+      var queryName = translator.QuoteIdentifier("column" + internalColumnIndex);
 
       context.Output.AppendText("(SELECT ");
-      for (int columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
-        if (columnIndex!=0)
+      for (var columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
+        if (columnIndex != 0) {
           context.Output.AppendText(translator.ColumnDelimiter);
+        }
         context.Output.AppendText(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
       }
       context.Output.AppendText(translator.ColumnDelimiter);
@@ -59,9 +65,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       context.Output.AppendText(") AS");
       context.Output.AppendText(translator.QuoteIdentifier(node.Columns[node.Columns.Count - 1].Name));
       context.Output.AppendText(" FROM (SELECT ");
-      for (int columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
-        if (columnIndex!=0)
+      for (var columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
+        if (columnIndex != 0) {
           context.Output.AppendText(translator.ColumnDelimiter);
+        }
         context.Output.AppendText(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
       }
       context.Output.AppendText(translator.ColumnDelimiter);
@@ -72,13 +79,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
         .Columns
         .SelectMany(column => column.Languages)
         .Select(language => language.Name)
-        .Distinct()
-        .ToList();
+        .Distinct();
       context.Output.AppendText("(");
-      for (int i = 0; i < languages.Count; i++) {
-        if (i!=0)
+
+      var isFirst = true;
+      foreach(var language in languages) {
+        if (!isFirst) {
           context.Output.AppendText(" || ");
-        var language = languages[i];
+        }
+        isFirst = false;
+
         context.Output.AppendText("to_tsquery('");
         context.Output.AppendText(language);
         context.Output.AppendText("'::regconfig, ");
@@ -89,8 +99,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       }
       context.Output.AppendText(")");
 
-      context.Output.AppendText(string.Format(" AS {0}", queryName));
-      context.Output.AppendText(string.Format(" FROM {0}) AS {1} WHERE {2} @@ {3})", tableName, alias, vectorName, queryName));
+      context.Output.AppendText($" AS {queryName}");
+      context.Output.AppendText($" FROM {tableName}) AS {alias} WHERE {vectorName} @@ {queryName})");
     }
 
     // Constructors

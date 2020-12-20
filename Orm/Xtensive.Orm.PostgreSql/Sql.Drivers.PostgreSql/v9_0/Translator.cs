@@ -15,14 +15,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
     public override string Translate(SqlCompilerContext context, object literalValue)
     {
       var array = literalValue as byte[];
-      if (array==null)
+      if (array == null) {
         return base.Translate(context, literalValue);
+      }
 
-      var result = new StringBuilder(array.Length * 2 + 6);
-
-      result.Append(@"E'\\x");
-      result.AppendHexArray(array);
-      result.Append("'");
+      var result = new StringBuilder((array.Length * 2) + 6)
+        .Append(@"E'\\x")
+        .AppendHexArray(array)
+        .Append("'");
 
       return result.ToString();
     }

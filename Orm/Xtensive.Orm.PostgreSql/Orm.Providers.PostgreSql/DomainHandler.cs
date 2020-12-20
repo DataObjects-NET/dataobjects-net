@@ -17,21 +17,19 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// </summary>
   public class DomainHandler : Providers.DomainHandler
   {
-    protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
-    {
-      return new SqlCompiler(Handlers, configuration);
-    }
+    protected override ICompiler CreateCompiler(CompilerConfiguration configuration) =>
+      new SqlCompiler(Handlers, configuration);
 
     protected override IEnumerable<Type> GetProviderCompilerContainers()
     {
       return base.GetProviderCompilerContainers()
         .Concat(new[] {
-          typeof (NpgsqlPointCompilers),
-          typeof (NpgsqlLSegCompilers),
-          typeof (NpgsqlBoxCompilers),
-          typeof (NpgsqlCircleCompilers),
-          typeof (NpgsqlPathCompilers),
-          typeof (NpgsqlPolygonCompilers)
+          typeof(NpgsqlPointCompilers),
+          typeof(NpgsqlLSegCompilers),
+          typeof(NpgsqlBoxCompilers),
+          typeof(NpgsqlCircleCompilers),
+          typeof(NpgsqlPathCompilers),
+          typeof(NpgsqlPolygonCompilers)
         });
     }
   }

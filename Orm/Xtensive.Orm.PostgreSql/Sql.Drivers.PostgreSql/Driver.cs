@@ -25,13 +25,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       // PostgresException is server-side exception.
       // NpgsqlException is might be a client-side exception.
       // for instance, Timeout of connection is client-side now (don't know why:))
-      var serverSideException = exception as PostgresException;
-      if (serverSideException!=null)
+      if (exception is PostgresException serverSideException) {
         return ProcessServerSideException(serverSideException);
+      }
 
-      var clientSideException = exception as NpgsqlException;
-      if (clientSideException!=null)
+      if (exception is NpgsqlException clientSideException) {
         return ProcessClientSideException(clientSideException);
+      }
 
       return SqlExceptionType.Unknown;
     }
@@ -40,11 +40,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     {
       // There is no guaranteed way to detect a operation timeout.
       // We simply check that error message says something about CommandTimeout connection parameter.
-      if (serverSideException.Message.ToUpperInvariant().Contains("COMMANDTIMEOUT"))
+      if (serverSideException.Message.ToUpperInvariant().Contains("COMMANDTIMEOUT")) {
         return SqlExceptionType.OperationTimeout;
+      }
 
-      if (serverSideException.SqlState.Length!=5)
+      if (serverSideException.SqlState.Length != 5) {
         return SqlExceptionType.Unknown;
+      }
 
       var errorCode = serverSideException.SqlState.ToUpperInvariant();
       var errorCodeClass = errorCode.Substring(0, 2);
@@ -56,8 +58,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
         case "08": // connection_exception
           return SqlExceptionType.ConnectionError;
         case "42": // syntax_error_or_access_rule_violation
-          if (errorCode == "42501")
+          if (errorCode == "42501") {
             return SqlExceptionType.Unknown;
+          }
           return SqlExceptionType.SyntaxError;
       }
 
@@ -82,14 +85,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     private SqlExceptionType ProcessClientSideException(NpgsqlException clientSideException)
     {
       var innerException = clientSideException.InnerException;
-      if (innerException==null)
+      if (innerException == null) {
         return SqlExceptionType.Unknown;
-      var ioException = innerException as IOException;
-      if (ioException!=null) {
-        if (ioException.InnerException!=null) {
-          var socetException = ioException.InnerException as SocketException;
-          if (socetException!=null && socetException.SocketErrorCode==SocketError.TimedOut)
+      }
+      if (innerException is IOException ioException) {
+        if (ioException.InnerException != null) {
+          if (ioException.InnerException is SocketException socetException && socetException.SocketErrorCode == SocketError.TimedOut) {
             return SqlExceptionType.OperationTimeout;
+          }
         }
       }
       return SqlExceptionType.Unknown;

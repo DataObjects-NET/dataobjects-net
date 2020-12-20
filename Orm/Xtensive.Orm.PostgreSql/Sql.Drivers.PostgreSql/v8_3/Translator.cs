@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 
@@ -9,6 +9,7 @@ using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using System.Linq;
+using Xtensive.Reflection.PostgreSql;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
@@ -17,65 +18,65 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
     public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       var index = node.Index;
-      if (!index.IsFullText)
+      if (!index.IsFullText) {
         return base.Translate(context, node, section);
+      }
+
       switch (section) {
-      case CreateIndexSection.Entry:
-        return string.Format("CREATE INDEX {0} ON {1} USING gin ("
-          , QuoteIdentifier(index.Name)
-          , Translate(context, index.DataTable));
-      case CreateIndexSection.ColumnsExit:
-        // Add actual columns list
-        return string.Concat(GetFulltextVector(context, (FullTextIndex) node.Index), base.Translate(context, node, section));
-      default:
-        return base.Translate(context, node, section);
+        case CreateIndexSection.Entry:
+          return string.Format("CREATE INDEX {0} ON {1} USING gin ("
+            , QuoteIdentifier(index.Name)
+            , Translate(context, index.DataTable));
+        case CreateIndexSection.ColumnsExit:
+          // Add actual columns list
+          return string.Concat(GetFulltextVector(context, (FullTextIndex) node.Index), base.Translate(context, node, section));
+        default:
+          return base.Translate(context, node, section);
       }
     }
 
     public override string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
     {
-      switch (section) {
-      case NodeSection.Exit:
-        return (node.Ascending) ? "ASC NULLS FIRST" : "DESC NULLS LAST";
+      if (section == NodeSection.Exit) {
+        return node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST";
       }
       return string.Empty;
     }
 
     internal protected string GetFulltextVector(SqlCompilerContext context, FullTextIndex index)
     {
-      var sb = new StringBuilder();
-      sb.Append("(");
+      var sb = new StringBuilder("(");
       var languageGroups = index
         .Columns
-        .SelectMany(column => column.Languages, (column, language) => new {column, language})
-        .GroupBy(pair => pair.language, pair => pair.column)
-        .ToList();
-      for (int i = 0; i < languageGroups.Count; i++) {
-        if (i!=0)
-          sb.Append(" || ");
-        var group = languageGroups[i];
-        var columns = group.ToList();
-        sb.Append("to_tsvector('");
-        sb.Append(group.Key.Name);
-        sb.Append("'::regconfig, ");
-        for (int j = 0; j < columns.Count; j++) {
-          if (j!=0)
-            sb.Append(" || ' '::text");
-          IndexColumn column = columns[j];
-          sb.AppendFormat("({0})::text", QuoteIdentifier(column.Name));
+        .SelectMany(column => column.Languages, (column, language) => new { column, language })
+        .GroupBy(pair => pair.language, pair => pair.column);
+
+      var isFirstOuter = true;
+      foreach(var languageGroup in languageGroups) {
+        if (!isFirstOuter) {
+          _ = sb.Append(" || ");
         }
-        sb.Append(")");
+        isFirstOuter = false;
+
+        var columns = languageGroup.ToList();
+        var isFirstInner = true;
+        _= sb.Append("to_tsvector('")
+          .Append(languageGroup.Key.Name)
+          .Append("'::regconfig, ");
+        foreach (var language in languageGroup) {
+          if(!isFirstInner) {
+            _ = sb.Append(" || ' '::text");
+          }
+          isFirstInner = false;
+          _ = sb.AppendFormat("({0})::text", QuoteIdentifier(language.Name));
+        }
+        _ = sb.Append(")");
       }
-      sb.Append(")");
-      return sb.ToString();
+      return sb.Append(")").ToString();
     }
 
-    protected override string TranslateClrType(Type type)
-    {
-      if (type == typeof(Guid))
-        return "uuid";
-      return base.TranslateClrType(type);
-    }
+    protected override string TranslateClrType(Type type) =>
+      type == WellKnownTypes.GuidType ? "uuid" : base.TranslateClrType(type);
 
     // Constuctors
 

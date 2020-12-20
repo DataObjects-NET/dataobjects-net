@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -8,16 +8,17 @@ using System;
 using System.Data.Common;
 using Npgsql;
 using NpgsqlTypes;
+using Xtensive.Reflection.PostgreSql;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal sealed class PathMapper : PostgreSqlTypeMapper
   {
-    private static readonly string PathTypeName = typeof (NpgsqlPath).AssemblyQualifiedName;
+    private static readonly string PathTypeName = WellKnownTypes.NpgsqlPathType.AssemblyQualifiedName;
 
     public override void BindValue(DbParameter parameter, object value)
     {
-      if (value==null) {
+      if (value == null) {
         parameter.Value = DBNull.Value;
         return;
       }
@@ -30,11 +31,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       // The method Equals(Object, Object), wrapped in a block 'try',
       // is required in order to determine that the value NpgsqlPath has been initialized with no parameters.
       try {
-        value.Equals(value);
+        _ = value.Equals(value);
       }
       catch (Exception) {
         // If the value NpgsqlPath has been initialized with no parameters, then must set the initial value.
-        npgsqlParameter.Value = new NpgsqlPath(new[] {new NpgsqlPoint()});
+        npgsqlParameter.Value = new NpgsqlPath(new[] { new NpgsqlPoint() });
       }
     }
 

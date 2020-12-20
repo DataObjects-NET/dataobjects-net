@@ -18,15 +18,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       parameter.Value = value ?? DBNull.Value;
     }
 
-    public override object ReadGuid(DbDataReader reader, int index)
-    {
-      return reader.GetGuid(index);
-    }
+    public override object ReadGuid(DbDataReader reader, int index) => reader.GetGuid(index);
 
-    public override SqlValueType MapGuid(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(SqlType.Guid);
-    }
+    public override SqlValueType MapGuid(int? length, int? precision, int? scale) => new SqlValueType(SqlType.Guid);
 
     // Constructors
 

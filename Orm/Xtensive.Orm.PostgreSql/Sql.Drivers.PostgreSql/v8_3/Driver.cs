@@ -13,30 +13,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class Driver : v8_2.Driver
   {
-    protected override Sql.TypeMapper CreateTypeMapper()
-    {
-      return new TypeMapper(this);
-    }
+    protected override Sql.TypeMapper CreateTypeMapper() => new TypeMapper(this);
 
-    protected override SqlCompiler CreateCompiler()
-    {
-      return new Compiler(this);
-    }
+    protected override SqlCompiler CreateCompiler() => new Compiler(this);
 
-    protected override Model.Extractor CreateExtractor()
-    {
-      return new Extractor(this);
-    }
+    protected override Model.Extractor CreateExtractor() => new Extractor(this);
 
-    protected override SqlTranslator CreateTranslator()
-    {
-      return new Translator(this);
-    }
+    protected override SqlTranslator CreateTranslator() => new Translator(this);
 
-    protected override Info.ServerInfoProvider CreateServerInfoProvider()
-    {
-      return new ServerInfoProvider(this);
-    }
+    protected override Info.ServerInfoProvider CreateServerInfoProvider() => new ServerInfoProvider(this);
 
     // Constructors
 

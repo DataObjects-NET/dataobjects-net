@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -17,19 +17,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     private readonly NpgsqlDbType npgsqlDbType;
     private readonly SqlType sqlType;
 
-    public override bool Enabled
-    {
-      get { return type!=null; }
-    }
+    public override bool Enabled => type != null;
 
-    public override Type Type
-    {
-      get { return type; }
-    }
+    public override Type Type => type;
 
     public override void BindValue(DbParameter parameter, object value)
     {
-      if (value==null) {
+      if (value == null) {
         parameter.Value = DBNull.Value;
         return;
       }
@@ -39,15 +33,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       npgsqlParameter.NpgsqlDbType = npgsqlDbType;
     }
 
-    public override object ReadValue(DbDataReader reader, int index)
-    {
-      return reader.GetValue(index);
-    }
+    public override object ReadValue(DbDataReader reader, int index) => reader.GetValue(index);
 
-    public override SqlValueType MapType(int? length, int? precision, int? scale)
-    {
-      return new SqlValueType(sqlType);
-    }
+    public override SqlValueType MapType(int? length, int? precision, int? scale) => new SqlValueType(sqlType);
 
     // Constructors
 

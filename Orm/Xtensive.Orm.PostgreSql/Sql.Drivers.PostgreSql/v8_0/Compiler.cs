@@ -298,6 +298,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       base.Visit(node);
     }
 
+    
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp)
     {
       return SqlDml.FunctionCall("DATE", timestamp);
@@ -357,6 +358,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       return SqlDml.Cast(SqlDml.Concat(datetimeStringExpression, " ", offsetStringExpression), SqlType.DateTimeOffset);
     }
+
     protected SqlExpression GetDateTimeAsStringExpression(SqlExpression dateTimeExpression)
     {
       return SqlDml.FunctionCall("To_Char", dateTimeExpression, "YYYY-MM-DD\"T\"HH24:MI:SS.MS");

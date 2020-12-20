@@ -12,21 +12,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_1
 {
   internal class Translator : v9_0.Translator
   {
-    public override string Translate(SqlCompilerContext context, object literalValue)
-    {
-      var array = literalValue as byte[];
-      if (array==null)
-        return base.Translate(context, literalValue);
-
-      var result = new StringBuilder(array.Length * 2 + 6);
-
-      result.Append(@"E'\\x");
-      result.AppendHexArray(array);
-      result.Append("'");
-
-      return result.ToString();
-    }
-
     // Constructors
 
     public Translator(SqlDriver driver)

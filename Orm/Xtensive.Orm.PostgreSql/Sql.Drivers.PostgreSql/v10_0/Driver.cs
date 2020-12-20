@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
+// Copyright (C) 2019 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -11,30 +11,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
 {
   internal class Driver : v9_0.Driver
   {
-    protected override Sql.TypeMapper CreateTypeMapper()
-    {
-      return new TypeMapper(this);
-    }
+    protected override Sql.TypeMapper CreateTypeMapper() => new TypeMapper(this);
 
-    protected override SqlCompiler CreateCompiler()
-    {
-      return new Compiler(this);
-    }
+    protected override SqlCompiler CreateCompiler() => new Compiler(this);
 
-    protected override Model.Extractor CreateExtractor()
-    {
-      return new Extractor(this);
-    }
+    protected override Model.Extractor CreateExtractor() => new Extractor(this);
 
-    protected override SqlTranslator CreateTranslator()
-    {
-      return new Translator(this);
-    }
+    protected override SqlTranslator CreateTranslator() => new Translator(this);
 
-    protected override Info.ServerInfoProvider CreateServerInfoProvider()
-    {
-      return new ServerInfoProvider(this);
-    }
+    protected override Info.ServerInfoProvider CreateServerInfoProvider() => new ServerInfoProvider(this);
 
     public Driver(CoreServerInfo coreServerInfo) : base(coreServerInfo)
     {
