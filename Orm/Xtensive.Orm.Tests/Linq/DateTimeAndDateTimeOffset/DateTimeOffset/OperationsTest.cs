@@ -219,6 +219,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     [Test(Description = "Will fail for PostgreSql because of its restrictions")]
     public void ToUniversalTime()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "ToUniversalTime is not supported");
       ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.ToUniversalTime() == FirstDateTimeOffset.ToUniversalTime());
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.ToUniversalTime() == FirstMillisecondDateTimeOffset.ToUniversalTime());

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -347,13 +347,15 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ToUniversalTimeTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "ToLocalTime is not supported");
       var todayLocal = TryMoveToLocalTimeZone(today);
-      RunAllTests(e => e.Today.ToUniversalTime()==todayLocal.ToUniversalTime());
+      RunAllTests(e => e.Today.ToUniversalTime() == todayLocal.ToUniversalTime());
     }
 
     [Test]
     public void ToLocalTimeTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "ToLocalTime is not supported");
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var query =
@@ -365,7 +367,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var resultQuery = query.ToList().FirstOrDefault();
 
-        if (resultQuery!=null) {
+        if (resultQuery != null) {
           var serverOffset = new TimeSpan(resultQuery.Key.ServerOffset.Hours, resultQuery.Key.ServerOffset.Minutes, 0);
           var todayLocal = TryMoveToLocalTimeZone(today);
           Assert.That(resultQuery.Key.Date, Is.EqualTo(todayLocal.ToOffset(serverOffset)));
