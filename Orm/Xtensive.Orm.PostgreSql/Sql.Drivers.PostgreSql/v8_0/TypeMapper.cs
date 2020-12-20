@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.Security;
 using Npgsql;
 using NpgsqlTypes;
+using Xtensive.Reflection.PostgreSql;
 
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
@@ -28,14 +29,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case TypeCode.DateTime:
         return true;
       }
-      //if (type==typeof (DateTimeOffset))
-      //  return true;
-      if (type==typeof(Guid))
+      if (type == WellKnownTypes.DateTimeOffsetType) {
         return true;
-      if (type==typeof(TimeSpan))
+      }
+      if (type == WellKnownTypes.GuidType) {
         return true;
-      if (type==typeof(byte[]))
+      }
+      if (type == WellKnownTypes.TimeSpanType) {
         return true;
+      }
+      if (type == WellKnownTypes.ByteArrayType) {
+        return true;
+      }
       return false;
     }
 
@@ -123,17 +128,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
-    /*
     [SecuritySafeCritical]
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
       var nativeParameter = (NpgsqlParameter) parameter;
-      nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTZ;
-      nativeParameter.NpgsqlValue = value!=null
-        ? (object)(NpgsqlTimeStampTZ) (DateTimeOffset) value
-        : (object)DBNull.Value;
+      nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
+      nativeParameter.NpgsqlValue = value ?? DBNull.Value;
     }
-    */
 
     public override SqlValueType MapByte(int? length, int? precision, int? scale)
     {
@@ -193,22 +194,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return nativeReader.GetDecimal(index);
     }
 
-    /*
     [SecuritySafeCritical]
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
-      var nativeReader = (NpgsqlDataReader)reader;
-      return (DateTimeOffset)nativeReader.GetTimeStampTZ(index);
-    }
-    */
-
-    protected virtual SqlValueType ReduceDecimalScale(SqlValueType sqlType, int newScale)
-    {
-      if (sqlType.Type!=SqlType.Decimal)
-        return sqlType;
-      if (!sqlType.Precision.HasValue)
-        return sqlType;
-      return new SqlValueType(sqlType.Type, sqlType.Precision.Value, newScale);
+      var nativeReader = (NpgsqlDataReader) reader;
+      return nativeReader.GetFieldValue<DateTimeOffset>(index);
     }
 
     // Constructors

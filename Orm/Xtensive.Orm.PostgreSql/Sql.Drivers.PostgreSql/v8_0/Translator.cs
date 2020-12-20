@@ -11,6 +11,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
+using Xtensive.Reflection.PostgreSql;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
@@ -22,9 +23,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
     public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
 
-    /*
     public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'"; } }
-    */
 
 
     public override void Initialize()
@@ -345,28 +344,24 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      bool isSecond = node.DateTimePart==SqlDateTimePart.Second
-        || node.IntervalPart==SqlIntervalPart.Second
-        /*|| node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Second*/;
-      bool isMillisecond = node.DateTimePart==SqlDateTimePart.Millisecond
-        || node.IntervalPart==SqlIntervalPart.Millisecond
-        /*|| node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Millisecond*/;
-      if (!(isSecond || isMillisecond))
+      var isSecond = node.DateTimePart == SqlDateTimePart.Second
+        || node.IntervalPart == SqlIntervalPart.Second
+        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Second;
+      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
+        || node.IntervalPart == SqlIntervalPart.Millisecond
+        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Millisecond;
+      if (!(isSecond || isMillisecond)) {
         return base.Translate(context, node, section);
+      }
       switch (section) {
-      case ExtractSection.Entry:
-        if (isSecond)
-          return "(trunc(extract(";
-        return "(extract(";
-      case ExtractSection.Exit:
-        if (isMillisecond)
-          return ")::int8 % 1000)";
-        if (isSecond)
-          return ")))";
-        return ")::int8)";
-        //return isMillisecond ? ")::int8 % 1000)" : ")::int8)";
-      default:
-        return base.Translate(context, node, section);
+        case ExtractSection.Entry:
+          return isSecond ? "(trunc(extract(" : "(extract(";
+        case ExtractSection.Exit:
+          return isMillisecond
+           ?  ")::int8 % 1000)"
+           : isSecond ? ")))" : ")::int8)";
+        default:
+          return base.Translate(context, node, section);
       }
     }
 
@@ -794,7 +789,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return base.Translate(part);
     }
 
-    /*
     public override string Translate(SqlDateTimeOffsetPart part)
     {
       switch (part) {
@@ -814,7 +808,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       return base.Translate(part);
     }
-    */
 
     public override string Translate(SqlLockType lockType)
     {

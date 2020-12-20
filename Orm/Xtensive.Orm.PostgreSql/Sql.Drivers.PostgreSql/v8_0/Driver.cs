@@ -6,6 +6,7 @@
 
 using System;
 using NpgsqlTypes;
+using Xtensive.Reflection.PostgreSql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 
@@ -46,25 +47,21 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       builder.Add(new PathMapper());
       builder.Add(new PolygonMapper());
       builder.Add(new CircleMapper());
-      /*
-      builder.Add(typeof (DateTimeOffset),
+      builder.Add(WellKnownTypes.DateTimeOffsetType,
         builder.Mapper.ReadDateTimeOffset,
         builder.Mapper.BindDateTimeOffset,
         builder.Mapper.MapDateTimeOffset);
-      */
     }
 
     protected override void RegisterCustomReverseMappings(TypeMappingRegistryBuilder builder)
     {
-      builder.AddReverse(CustomSqlType.Point, typeof (NpgsqlPoint));
-      builder.AddReverse(CustomSqlType.LSeg, typeof (NpgsqlLSeg));
-      builder.AddReverse(CustomSqlType.Box, typeof (NpgsqlBox));
-      builder.AddReverse(CustomSqlType.Path, typeof (NpgsqlPath));
-      builder.AddReverse(CustomSqlType.Polygon, typeof (NpgsqlPolygon));
-      builder.AddReverse(CustomSqlType.Circle, typeof (NpgsqlCircle));
-      /*
-      builder.AddReverse(SqlType.DateTimeOffset, typeof (DateTimeOffset));
-      */
+      builder.AddReverse(CustomSqlType.Point, WellKnownTypes.NpgsqlPointType);
+      builder.AddReverse(CustomSqlType.LSeg, WellKnownTypes.NpgsqlLSegType);
+      builder.AddReverse(CustomSqlType.Box, WellKnownTypes.NpgsqlBoxType);
+      builder.AddReverse(CustomSqlType.Path, WellKnownTypes.NpgsqlPathType);
+      builder.AddReverse(CustomSqlType.Polygon, WellKnownTypes.NpgsqlPolygonType);
+      builder.AddReverse(CustomSqlType.Circle, WellKnownTypes.NpgsqlCircleType);
+      builder.AddReverse(SqlType.DateTimeOffset, WellKnownTypes.DateTimeOffsetType);
     }
 
     // Constructors
