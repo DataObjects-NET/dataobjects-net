@@ -12,7 +12,7 @@ using Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
 {
-  #region Entityes
+  #region Entities
 
   [HierarchyRoot]
   public class PaymentSplit : Entity
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Tests.Storage.ClosureParametersCachingTestModel
     [Field]
     public int Order { get;set; }
 
-    [Field(Precision = 19, Scale = 6)]
+    [Field(Precision = 18, Scale = 6)]
     public decimal Amount { get; set; }
   }
 

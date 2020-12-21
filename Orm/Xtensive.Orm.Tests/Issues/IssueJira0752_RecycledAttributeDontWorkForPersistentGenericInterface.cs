@@ -78,14 +78,14 @@ namespace Xtensive.Orm.Tests.Issues
       bool hasCreations;
       bool hasRemovals;
       if (actionSequences.UpgradingActions != null) {
-        hasCreations = actionSequences.UpgradingActions.Flatten().OfType<CreateNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName));
-        hasRemovals = actionSequences.UpgradingActions.Flatten().OfType<RemoveNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName));
+        hasCreations = actionSequences.UpgradingActions.Flatten().OfType<CreateNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName, StringComparison.OrdinalIgnoreCase));
+        hasRemovals = actionSequences.UpgradingActions.Flatten().OfType<RemoveNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName, StringComparison.OrdinalIgnoreCase));
         Assert.That(hasCreations, Is.True);
         Assert.That(hasRemovals, Is.False);
       }
 
-      hasCreations = actionSequences.FinalActions.Flatten().OfType<CreateNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName));
-      hasRemovals = actionSequences.FinalActions.Flatten().OfType<RemoveNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName));
+      hasCreations = actionSequences.FinalActions.Flatten().OfType<CreateNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName, StringComparison.OrdinalIgnoreCase));
+      hasRemovals = actionSequences.FinalActions.Flatten().OfType<RemoveNodeAction>().Any(x => x.Path.StartsWith("Tables/" + tableName, StringComparison.OrdinalIgnoreCase));
 
       if (domain.Configuration.UpgradeMode.IsMultistage()) {
         Assert.That(hasCreations, Is.False);

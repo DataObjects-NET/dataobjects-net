@@ -16,8 +16,8 @@ namespace Xtensive.Orm.Tests.Issues
   public sealed class IssueJira0742_QueryPreprocessorClosureExpressionSupport
   {
     [Test]
-    [TestCase(true, TestName = "WithClosurePreprocessor")]
-    [TestCase(false, TestName = "WithoutClosurePreprocessor")]
+    [TestCase(true)]
+    [TestCase(false)]
     public void MainTest(bool useClosurePreprocessor)
     {
       using (var domain = BuildDomain(useClosurePreprocessor))
@@ -27,6 +27,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var simpleQuery = session.Query.All<TestEntity>().Count(e => e.Id == TestMethod());
         Assert.That(simpleQuery, Is.EqualTo(1));
+        session.Extensions.Clear();
 
         var simpleJoin = session.Query.All<TestEntity>().Where(e => e.Id == TestMethod())
           .Join(session.Query.All<TestEntity>().Where(e => e.Id == TestMethod()),
@@ -34,6 +35,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Count();
         Assert.That(session.Extensions.Get(typeof(ClosureMarker)), GetSuccess());
         Assert.That(simpleJoin, Is.EqualTo(1));
+        session.Extensions.Clear();
 
         var query = session.Query.All<TestEntity>().Where(e => e.Id == TestMethod());
 
@@ -43,10 +45,14 @@ namespace Xtensive.Orm.Tests.Issues
 
         Assert.That(session.Extensions.Get(typeof(ClosureMarker)), GetSuccess());
         Assert.That(variableJoin, Is.EqualTo(1));
+        session.Extensions.Clear();
 
         var anyCount = session.Query.All<TestEntity>()
-          .Count(e => e.Id == TestMethod() && Query.All<TestEntity>().Where(i => i.Id == TestMethod()).Any(z => z.Id == e.Id));
+          .Count(e => e.Id == TestMethod() && session.Query.All<TestEntity>().Where(i => i.Id == TestMethod()).Any(z => z.Id == e.Id));
+
+        Assert.That(session.Extensions.Get(typeof(ClosureMarker)), GetSuccess());
         Assert.That(anyCount, Is.EqualTo(1));
+        session.Extensions.Clear();
 
         var linqCount = (from a in session.Query.All<TestEntity>().Where(e => e.Id == TestMethod())
                          from b in session.Query.All<TestEntity>().Where(e => e.Id == TestMethod())
@@ -55,6 +61,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         Assert.That(session.Extensions.Get(typeof(ClosureMarker)), GetSuccess());
         Assert.That(linqCount, Is.EqualTo(1));
+        session.Extensions.Clear();
 
         var anyCountFail = session.Query.All<TestEntity>()
           .Count(e => e.Id == TestMethod() && query.Any(z => z.Id == e.Id));
@@ -142,7 +149,7 @@ namespace Xtensive.Orm.Tests.Issues
       protected override Expression VisitMember(MemberExpression node)
       {
         if (!anyClosure) {
-          anyClosure = node.Member.DeclaringType.IsClosure();
+          anyClosure = node.Type != typeof(Session) && node.Member.DeclaringType.IsClosure();
         }
         return base.VisitMember(node);
       }
