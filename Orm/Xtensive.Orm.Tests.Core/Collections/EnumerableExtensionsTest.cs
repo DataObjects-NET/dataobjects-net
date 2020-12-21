@@ -172,8 +172,14 @@ namespace Xtensive.Orm.Tests.Core.Collections
       Assert.That(array.Length, Is.EqualTo(10));
       Assert.That(array.All(x => x == 1));
 
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(11));
-      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(9));
+      array = Enumerable.Repeat(1, 10).ToArray(11);
+      Assert.That(array.Length, Is.EqualTo(11));
+      Assert.That(array.Take(10).All(x => x == 1));
+      Assert.That(array[10], Is.Not.EqualTo(1));
+
+      array = Enumerable.Repeat(1, 10).ToArray(9);
+      Assert.That(array.Length, Is.EqualTo(9));
+      Assert.That(array.All(x => x == 1));
     }
 
     [Test]
