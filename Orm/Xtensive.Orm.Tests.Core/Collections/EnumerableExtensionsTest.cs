@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.06.04
 
@@ -163,6 +163,26 @@ namespace Xtensive.Orm.Tests.Core.Collections
       Assert.AreEqual(true, new[] {1}.AtMost(2));
       Assert.AreEqual(false, new[] {1, 2}.AtMost(0));
       Assert.AreEqual(false, new int[0].AtMost(-1));
+    }
+
+    [Test]
+    public void ToArrayCountTest()
+    {
+      var array = Enumerable.Repeat(1, 10).ToArray(10);
+      Assert.That(array.Length, Is.EqualTo(10));
+      Assert.That(array.All(x => x == 1));
+
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(11));
+      _ = Assert.Throws<ArgumentOutOfRangeException>(() => Enumerable.Repeat(1, 10).ToArray(9));
+    }
+
+    [Test]
+    public void ToListCountTest()
+    {
+      var source = Enumerable.Repeat(1, 10);
+      Assert.That(source.SequenceEqual(source.ToList(10)));
+      Assert.That(source.ToList(9).Capacity, Is.EqualTo(18));
+      Assert.That(source.ToList(11).Capacity, Is.EqualTo(11));
     }
   }
 }

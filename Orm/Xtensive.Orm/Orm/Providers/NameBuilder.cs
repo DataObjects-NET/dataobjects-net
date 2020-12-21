@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.27
 
@@ -17,6 +17,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
@@ -40,6 +41,9 @@ namespace Xtensive.Orm.Providers
 
     private static readonly Func<PropertyInfo, string> fieldNameCacheValueFactory =
       field => field.GetAttribute<OverrideFieldNameAttribute>()?.Name ?? field.Name;
+
+    private static readonly Type PersistentType = typeof(Persistent);
+    private static readonly Type EntitySetItemType = typeof(EntitySetItem<,>);
 
     private readonly int maxIdentifierLength;
     private readonly NamingConvention namingConvention;
@@ -96,33 +100,38 @@ namespace Xtensive.Orm.Providers
 
     private string BuildGenericTypeName(BuildingContext context, Type type, string mappingName)
     {
-      if (!type.IsGenericType || type.IsGenericParameter)
+      if (!type.IsGenericType || type.IsGenericParameter) {
         return type.GetShortName();
+      }
 
       string typeName;
       if (mappingName.IsNullOrEmpty()) {
         typeName = type.GetShortName();
         typeName = typeName.Substring(0, typeName.IndexOf("<"));
       }
-      else
+      else {
         typeName = mappingName;
+      }
 
       var arguments = type.GetGenericArguments();
       var names = new string[arguments.Length];
-      if (type.IsGenericTypeDefinition)
+      if (type.IsGenericTypeDefinition) {
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
           names[i] = BuildGenericTypeName(context, argument, null);
         }
+      }
       else {
-        for (int i = 0; i < arguments.Length; i++) {
+        for (var i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
-          if (argument.IsSubclassOf(typeof (Persistent))) {
+          if (argument.IsSubclassOf(PersistentType) &&
+            context.BuilderConfiguration.ModelFilter.IsTypeAvailable(argument) && argument != EntitySetItemType) {
             var argTypeDef = context.ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }
-          else
+          else {
             names[i] = BuildGenericTypeName(context, argument, null);
+          }
         }
       }
       return ApplyNamingRules(string.Format(GenericTypePattern, typeName, string.Join("-", names)));

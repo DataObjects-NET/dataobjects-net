@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2010 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Providers
 {
@@ -58,7 +59,10 @@ namespace Xtensive.Orm.Providers
         // We work around it with special hacks:
         // Limit argument is replaced with 1
         // and false condition is added to "where" part.
-        var applyZeroLimitHack = providerInfo.Supports(ProviderFeatures.ZeroLimitIsError);
+        int? takeValue = null;
+        if (QueryCachingScope.Current == null)
+          takeValue = take();
+        var applyZeroLimitHack = providerInfo.Supports(ProviderFeatures.ZeroLimitIsError) || (takeValue.HasValue && takeValue < 1);
         var takeBinding = CreateLimitOffsetParameterBinding(take, applyZeroLimitHack);
         bindings.Add(takeBinding);
         if (applyZeroLimitHack)
@@ -73,9 +77,12 @@ namespace Xtensive.Orm.Providers
       }
 
       query.OrderBy.Clear();
-      var columnExpressions = ExtractColumnExpressions(query);
-      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
-        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
+      if (provider.Source.Header.Order.Count > 0) {
+        var columnExpressions = ExtractColumnExpressions(query);
+        foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order) {
+          query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+        }
+      }
 
       return CreateProvider(query, bindings, provider, compiledSource);
     }

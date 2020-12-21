@@ -1,6 +1,6 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using NUnit.Framework;
@@ -59,41 +59,40 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     [Test]
-    [Explicit("Manual debugging needed. No way to make it automated test yet")]
     public void SqlServerConnectionCheckTest()
     {
       Require.ProviderIs(StorageProvider.SqlServer);
       var descriptor = ProviderDescriptor.Get(provider);
       var factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
 
-      var configuration = new SqlDriverConfiguration {EnsureConnectionIsAlive = false};
-      factory.GetDriver(new ConnectionInfo(Url), configuration);
-      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+      var configuration = new SqlDriverConfiguration() { EnsureConnectionIsAlive = false };
+      var driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      factory.GetDriver(new ConnectionInfo(Url), configuration);
-      Assert.That(configuration.EnsureConnectionIsAlive, Is.True);
+      driver = factory.GetDriver(new ConnectionInfo(Url), configuration);
+      Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.True);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling=false"), configuration);
-      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling=false"), configuration);
+      Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling=False"), configuration);
-      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling=False"), configuration);
+      Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling = false"), configuration);
-      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";pooling = false"), configuration);
+      Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
 
       configuration = configuration.Clone();
       configuration.EnsureConnectionIsAlive = true;
-      factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling = False"), configuration);
-      Assert.That(configuration.EnsureConnectionIsAlive, Is.False);
+      driver = factory.GetDriver(new ConnectionInfo(provider, ConnectionString + ";Pooling = False"), configuration);
+      Assert.That(GetCheckConnectionIsAliveFlag(driver), Is.False);
     }
 
 
@@ -101,6 +100,14 @@ namespace Xtensive.Orm.Tests.Sql
     {
       Assert.IsNotNull(TestSqlDriver.Create(connectionUrl));
       Assert.IsNotNull(TestSqlDriver.Create(providerName, connectionString));
+    }
+
+    private static bool GetCheckConnectionIsAliveFlag(SqlDriver driver)
+    {
+      const string fieldName = "checkConnectionIsAlive";
+      var type = typeof (Xtensive.Sql.Drivers.SqlServer.Driver);
+      return (bool) type.GetField(fieldName, System.Reflection.BindingFlags.Instance | System.Reflection.BindingFlags.NonPublic)
+        .GetValue(driver);
     }
   }
 }

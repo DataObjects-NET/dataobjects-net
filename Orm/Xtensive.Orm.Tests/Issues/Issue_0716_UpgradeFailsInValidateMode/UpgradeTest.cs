@@ -20,10 +20,8 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
   [Ignore("Outdated")]
   // Alowing behavior when types moved to different namespace 
   // can cause problems and corrupt data in database which is unacceptable.
-  // Relying on t
   // As long as Validate mode is expected to be strict we have to forbid
   // cases when cross-namespace movements appear.
-
   public class UpgradeTest
   {
     private Domain domain;

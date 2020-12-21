@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.21
 
@@ -21,6 +21,7 @@ namespace Xtensive.Orm.Configuration
   {
     private readonly static Type objectType = typeof (object);
     private const string providersNamespace = "Xtensive.Orm.Providers.";
+    private const string preprocessorName = "Xtensive.Orm.Linq.ClosureQueryPreprocessor";
 
     /// <inheritdoc/>
     public override Type BaseType
@@ -32,7 +33,9 @@ namespace Xtensive.Orm.Configuration
     {
       // Disallow implicit (via assembly scan) registration of types in Orm.Providers namespace
       return base.IsAcceptable(registration, type)
-        && (registration.Type!=null || !type.FullName.StartsWith(providersNamespace, StringComparison.Ordinal));
+        && (registration.Type != null
+           || (!type.FullName.StartsWith(providersNamespace, StringComparison.Ordinal)
+               && !type.FullName.Equals(preprocessorName, StringComparison.Ordinal)));
     }
 
     /// <inheritdoc/>

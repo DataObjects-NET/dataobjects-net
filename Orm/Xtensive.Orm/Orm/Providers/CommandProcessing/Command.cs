@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.10.09
 
@@ -28,57 +28,67 @@ namespace Xtensive.Orm.Providers
     private DisposableSet resources;
     private DbDataReader reader;
 
-    public int Count { get { return statements.Count; } }
+    public int Count => statements.Count;
+
+    internal int ParametersCount => underlyingCommand.Parameters.Count;
 
     public void AddPart(CommandPart part)
     {
-      if (prepared)
-        throw new InvalidOperationException("Unable to change command: it is already prepared");
+      if (prepared) {
+        throw new InvalidOperationException(Strings.ExUnableToChangeCommandItIsAlreadyPrepared);
+      }
 
       statements.Add(part.Statement);
 
-      foreach (var parameter in part.Parameters)
-        underlyingCommand.Parameters.Add(parameter);
+      foreach (var parameter in part.Parameters) {
+        _ = underlyingCommand.Parameters.Add(parameter);
+      }
 
-      if (part.Resources.Count==0)
+      if (part.Resources.Count==0) {
         return;
+      }
 
-      if (resources==null)
+      if (resources == null) {
         resources = new DisposableSet();
-      foreach (var resource in part.Resources)
-        resources.Add(resource);
+      }
+
+      foreach (var resource in part.Resources) {
+        _ = resources.Add(resource);
+      }
     }
 
     public int ExecuteNonQuery()
     {
-      Prepare();
+      _ = Prepare();
       return origin.Driver.ExecuteNonQuery(origin.Session, underlyingCommand);
     }
 
     public void ExecuteReader()
     {
-      Prepare();
+      _ = Prepare();
       reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand);
     }
 
     public async Task<int> ExecuteNonQueryAsync(CancellationToken token)
     {
-      Prepare();
+      _ = Prepare();
       return await origin.Driver.ExecuteNonQueryAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
     }
 
     public async Task ExecuteReaderAsync(CancellationToken token)
     {
-      Prepare();
+      _ = Prepare();
       reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
     }
 
     public IEnumerator<Tuple> AsReaderOfAsync(QueryRequest request, CancellationToken token)
     {
       var accessor = request.GetAccessor();
-      using (this)
-        while (NextRow())
+      using (this) {
+        while (NextRow()) {
           yield return ReadTupleWith(accessor);
+        }
+      }
     }
 
     public bool NextResult()
@@ -109,17 +119,23 @@ namespace Xtensive.Orm.Providers
     public IEnumerator<Tuple> AsReaderOf(QueryRequest request)
     {
       var accessor = request.GetAccessor();
-      using (this)
-        while (NextRow())
+      using (this) {
+        while (NextRow()) {
           yield return ReadTupleWith(accessor);
+        }
+      }
     }
 
     public DbCommand Prepare()
     {
-      if (statements.Count==0)
-        throw new InvalidOperationException("Unable to prepare command: no parts registered");
-      if (prepared)
+      if (statements.Count==0) {
+        throw new InvalidOperationException(Strings.ExUnableToPrepareCommandNoPartsRegistered);
+      }
+
+      if (prepared) {
         return underlyingCommand;
+      }
+
       prepared = true;
       underlyingCommand.CommandText = origin.Driver.BuildBatch(statements.ToArray());
       return underlyingCommand;

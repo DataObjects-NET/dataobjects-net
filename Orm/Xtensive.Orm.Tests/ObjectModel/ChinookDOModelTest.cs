@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Kudelin
 // Created:    2019.09.19
 
@@ -20,6 +20,7 @@ namespace Xtensive.Orm.Tests.ObjectModel
   {
     private DisposableSet disposables;
     protected Session Session;
+    protected bool DoNotActivateSharedSession = false;
 
     private Album[] albums;
     private Artist[] artists;
@@ -46,9 +47,12 @@ namespace Xtensive.Orm.Tests.ObjectModel
     [SetUp]
     public virtual void SetUp()
     {
+      if (DoNotActivateSharedSession) {
+        return;
+      }
       disposables = new DisposableSet();
-      disposables.Add(Session = Domain.OpenSession());
-      disposables.Add(Session.OpenTransaction());
+      _ = disposables.Add(Session = Domain.OpenSession());
+      _ = disposables.Add(Session.OpenTransaction());
     }
 
     [TearDown]

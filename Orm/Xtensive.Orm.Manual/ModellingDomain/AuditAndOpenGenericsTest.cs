@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2009.06.17
 
@@ -236,7 +236,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       Domain = domain;
       domain.SessionOpen += (source, args) => {
         args.Session.Events.TransactionOpened += TransactionOpened;
-        args.Session.Events.TransactionCommitting += TransactionCommitting;
+        args.Session.Events.TransactionPrecommitting += TransactionPrecommitting;
         args.Session.Events.EntityCreated  += (sender, e) => EntityEvent(sender, e, true);
         args.Session.Events.EntityRemoveCompleted  += (sender, e) => EntityEvent(sender, e, false);
         args.Session.Events.EntityFieldValueSetCompleted += (sender, e) => EntityEvent(sender, e, false); 
@@ -257,7 +257,7 @@ namespace Xtensive.Orm.Manual.ModellingDomain.AuditAndOpenGenericsTest
       session.Extensions.Set(info);
     }
 
-    private void TransactionCommitting(object sender, TransactionEventArgs e)
+    private void TransactionPrecommitting(object sender, TransactionEventArgs e)
     {
       var transaction = e.Transaction;
       if (transaction.IsNested)
