@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Linq.OfTypeTestModel
     [Field]
     Structure1 Field3 { get; set; }
 
-    [Field]
+    [Field(Length = 50)]
     string Field4 { get; set; }
   }
 
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Linq.OfTypeTestModel
     [Field]
     Structure1 Field3 { get; set; }
 
-    [Field]
+    [Field(Length = 50)]
     string Field4 { get; set; }
   }
 
@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Linq.OfTypeTestModel
     [Field]
     public Structure2 Value2 { get; set; }
 
-    [Field]
+    [Field(Length = 50)]
     public string Value3 { get; set; }
   }
 
@@ -788,7 +788,10 @@ namespace Xtensive.Orm.Tests.Linq
         var result1B = source2B.Union(source1B).Select(x => x.Field1).ToArray();
 
         Assert.That(result1A, Is.Not.Empty);
-        Assert.That(result1A.SequenceEqual(result1B));
+        Assert.That(result1B.Length, Is.EqualTo(result1A.Length));
+        foreach (var item in result1B) {
+          Assert.That(result1A.Contains(item));
+        }
 
 
         var result2A = source1B.Union(source2B).ToArray().OfType<B3ClassTable>().Select(x => x.Field4)
@@ -796,7 +799,10 @@ namespace Xtensive.Orm.Tests.Linq
         var result2B = source1B.Union(source2B).OfType<B3ClassTable>().Select(x => x.Field4).ToArray();
 
         Assert.That(result2A, Is.Not.Empty);
-        Assert.That(result2A.SequenceEqual(result2B));
+        Assert.That(result2B.Length, Is.EqualTo(result2A.Length));
+        foreach (var item in result2B) {
+          Assert.That(result2A.Contains(item));
+        }
 
         var result3 = session.Query.All<AClassTable>().OfType<AConcreteTable>().ToArray();
         Assert.That(result3, Is.Empty);
@@ -817,7 +823,10 @@ namespace Xtensive.Orm.Tests.Linq
         var result1B = source2B.Union(source1B).Select(x => x.Field1).ToArray();
 
         Assert.That(result1A, Is.Not.Empty);
-        Assert.That(result1A.SequenceEqual(result1B));
+        Assert.That(result1B.Length, Is.EqualTo(result1A.Length));
+        foreach (var item in result1B) {
+          Assert.That(result1A.Contains(item));
+        }
 
 
         var result2A = source1B.Union(source2B).ToArray().OfType<B3ConcreteTable>().Select(x => x.Field4)
@@ -825,7 +834,10 @@ namespace Xtensive.Orm.Tests.Linq
         var result2B = source1B.Union(source2B).OfType<B3ConcreteTable>().Select(x => x.Field4).ToArray();
 
         Assert.That(result2A, Is.Not.Empty);
-        Assert.That(result2A.SequenceEqual(result2B));
+        Assert.That(result2B.Length, Is.EqualTo(result2A.Length));
+        foreach (var item in result2B) {
+          Assert.That(result2A.Contains(item));
+        }
 
         var result3 = session.Query.All<AConcreteTable>().OfType<ASingleTable>().ToArray();
         Assert.That(result3, Is.Empty);
@@ -846,7 +858,10 @@ namespace Xtensive.Orm.Tests.Linq
         var result1B = source2B.Union(source1B).Select(x => x.Field1).ToArray();
 
         Assert.That(result1A, Is.Not.Empty);
-        Assert.That(result1A.SequenceEqual(result1B));
+        Assert.That(result1B.Length, Is.EqualTo(result1A.Length));
+        foreach (var item in result1B) {
+          Assert.That(result1A.Contains(item));
+        }
 
 
         var result2A = source1B.Union(source2B).ToArray().OfType<B3SingleTable>().Select(x => x.Field4)
@@ -854,7 +869,10 @@ namespace Xtensive.Orm.Tests.Linq
         var result2B = source1B.Union(source2B).OfType<B3SingleTable>().Select(x => x.Field4).ToArray();
 
         Assert.That(result2A, Is.Not.Empty);
-        Assert.That(result2A.SequenceEqual(result2B));
+        Assert.That(result2B.Length, Is.EqualTo(result2A.Length));
+        foreach (var item in result2B) {
+          Assert.That(result2A.Contains(item));
+        }
 
         var result3 = session.Query.All<ASingleTable>().OfType<AClassTable>().ToArray();
         Assert.That(result3, Is.Empty);
