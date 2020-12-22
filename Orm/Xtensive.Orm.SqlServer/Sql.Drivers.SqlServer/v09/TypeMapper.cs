@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.02
 
@@ -94,14 +94,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         if (sqlDecimal < MinDecimal)
           return decimal.MinValue;
       }
-      decimal result;
-      if (TryConvert(sqlDecimal, out result))
-        return result;
-      var reduced1 = ReducePrecision(sqlDecimal, 29);
-      if (TryConvert(reduced1, out result))
-        return result;
-      var reduced2 = ReducePrecision(sqlDecimal, 28);
-      return reduced2.Value;
+      return InternalHelpers.TruncateToNetDecimal(sqlDecimal);
     }
 
     public override object ReadDateTimeOffset(DbDataReader reader, int index)

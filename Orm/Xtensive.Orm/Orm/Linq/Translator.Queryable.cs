@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly Type KeyType = typeof(Key);
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
+    private static readonly Type IQueryableType = typeof(IQueryable<>);
 
     public TranslatorState state;
     private readonly TranslatorContext context;
@@ -87,8 +88,20 @@ namespace Xtensive.Orm.Linq
             return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
           break;
         case QueryableMethodKind.OfType:
-          return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
-        case QueryableMethodKind.Any:
+            var source = mc.Arguments[0];
+            var targetType = mc.Method.GetGenericArguments()[0];
+            var sourceType = source.Type;
+            if (sourceType.IsGenericType) {
+              return VisitOfType(source, targetType, sourceType.GetGenericArguments()[0]);
+            }
+            else {
+              var asQueryable = sourceType.GetGenericInterface(IQueryableType);
+              if (asQueryable != null) {
+                return VisitOfType(source, targetType, asQueryable.GetGenericArguments()[0]);
+              }
+              throw new NotSupportedException();
+            }
+          case QueryableMethodKind.Any:
           if (mc.Arguments.Count==1)
             return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
           if (mc.Arguments.Count==2)
@@ -225,62 +238,84 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
-      if (!typeof(IEntity).IsAssignableFrom(sourceType))
+      if (!typeof(IEntity).IsAssignableFrom(sourceType)) {
         throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
+      }
+      if (!typeof(IEntity).IsAssignableFrom(targetType) || !context.Model.Types.Contains(targetType)) {
+        throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
+      }
 
       var visitedSource = VisitSequence(source);
-      if (targetType==sourceType)
+      if (targetType == sourceType) {
         return visitedSource;
-
-      int offset = 0;
-      var recordSet = visitedSource.ItemProjector.DataSource;
-
-      if (sourceType.IsAssignableFrom(targetType)) {
-        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-        var joinedRs = joinedIndex.GetQuery().Alias(context.GetNextAlias());
-        offset = recordSet.Header.Columns.Count;
-        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-        var keyPairs = keySegment
-          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-          .ToArray();
-        recordSet = recordSet.Join(joinedRs, keyPairs);
       }
-      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+
+      var targetTypeInfo = context.Model.Types[targetType];
+
+      var currentIndex = 0;
+      var indexes = new List<int>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
+      foreach(var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
+        if (targetTypeInfo.Columns.Contains(indexColumn)) {
+          indexes.Add(currentIndex);
+        }
+        currentIndex++;
+      }
+
+      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes.ToArray());
+      var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+      var keyPairs = keySegment
+        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .ToArray();
+
+      var dataSource = visitedSource.ItemProjector.DataSource;
+      var offset = dataSource.Header.Columns.Count;
+      recordSet = recordSet.Alias(context.GetNextAlias());
+      recordSet = dataSource.Join(recordSet, keyPairs);
+
+      var entityExpression = EntityExpression.Create(targetTypeInfo, offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
 
     /// <exception cref="InvalidCastException">Unable to cast item.</exception>
-    /// <exception cref="NotSupportedException">Cast supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitCast(Expression source, Type targetType, Type sourceType)
     {
-      if (!targetType.IsAssignableFrom(sourceType))
+      if (!targetType.IsAssignableFrom(sourceType)) {
         throw new InvalidCastException(string.Format(Strings.ExUnableToCastItemOfTypeXToY, sourceType, targetType));
+      }
 
       var visitedSource = VisitSequence(source);
       var itemProjector = visitedSource.ItemProjector.EnsureEntityIsJoined();
       var projection = new ProjectionExpression(visitedSource.Type, itemProjector, visitedSource.TupleParameterBindings, visitedSource.ResultType);
-      if (targetType==sourceType)
+      if (targetType == sourceType) {
         return projection;
-      
-      var sourceEntity = (EntityExpression)projection.ItemProjector.Item.StripMarkers().StripCasts();
+      }
+
+      var sourceEntity = (EntityExpression) projection.ItemProjector.Item.StripMarkers().StripCasts();
       var recordSet = projection.ItemProjector.DataSource;
       var targetTypeInfo = context.Model.Types[targetType];
       var sourceTypeInfo = context.Model.Types[sourceType];
       var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
       var targetFieldIndex = 0;
-      foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent==null && !f.IsEntitySet)) {
+      var targetFields = targetTypeInfo.Fields.Where(f => f.IsPrimitive);
+      foreach (var targetField in targetFields) {
         var sourceFieldInfo = targetType.IsInterface && sourceType.IsClass
           ? sourceTypeInfo.FieldMap[targetField]
           : sourceTypeInfo.Fields[targetField.Name];
-        var sourceField = sourceEntity.Fields.Single(f => f.Name==sourceFieldInfo.Name);
+        var sourceField = sourceEntity.Fields.Single(f => f.Name == sourceFieldInfo.Name);
         var sourceFieldIndex = sourceField.Mapping.Offset;
+        var sourceFieldLength = sourceField.Mapping.Length;
+        if (map[sourceFieldIndex] != -1) {
+          throw new InvalidOperationException(string.Format(Strings.ExUnableToCastXToYAttemptToOverrideExistingFieldMap, sourceType, targetType));
+        }
         map[sourceFieldIndex] = targetFieldIndex++;
       }
       var targetEntity = EntityExpression.Create(targetTypeInfo, 0, false);
       Expression expression;
-      using (new RemapScope())
+      using (new RemapScope()) {
         expression = targetEntity.Remap(map, new Dictionary<Expression, Expression>());
+      }
+
       var replacer = new ExtendedExpressionReplacer(e => e == sourceEntity ? expression : null);
       var targetItem = replacer.Replace(projection.ItemProjector.Item);
       var targetItemProjector = new ItemProjectorExpression(targetItem, recordSet, context);
@@ -584,30 +619,34 @@ namespace Xtensive.Orm.Linq
 
       var resultType = method.ReturnType;
       var columnType = resultDataSource.Header.TupleDescriptor[0];
-      var convertResultColumn = resultType!=columnType && !resultType.IsNullable();
-      if (!convertResultColumn) // Adjust column type so we always use nullable of T instead of T
+      var convertResultColumn = resultType.IsNullable()
+         ? resultType.StripNullable() != columnType
+         : resultType != columnType;
+      if (!convertResultColumn) {// Adjust column type so we always use nullable of T instead of T
         columnType = resultType;
+      }
 
       if (isRoot) {
         var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
-        if (convertResultColumn)
+        if (convertResultColumn) {
           projectorBody = Expression.Convert(projectorBody, resultType);
+        }
+
         var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context);
         return new ProjectionExpression(resultType, itemProjector, originProjection.TupleParameterBindings, ResultType.First);
       }
 
       // Optimization. Use grouping AggregateProvider.
 
-      var groupingParameter = source as ParameterExpression;
-      if (groupingParameter!=null) {
+      if (source is ParameterExpression groupingParameter) {
         var groupingProjection = context.Bindings[groupingParameter];
-        var groupingDataSource = groupingProjection.ItemProjector.DataSource as AggregateProvider;
-        if (groupingDataSource!=null && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
+        if (groupingProjection.ItemProjector.DataSource is AggregateProvider groupingDataSource
+          && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
           var groupingFilterParameter = context.GetApplyParameter(groupingDataSource);
           var commonOriginDataSource = ChooseSourceForAggregate(groupingDataSource.Source,
             SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter),
             ref aggregateDescriptor);
-          if (commonOriginDataSource!=null) {
+          if (commonOriginDataSource != null) {
             resultDataSource = new AggregateProvider(
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
               groupingDataSource.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateDescriptor).ToArray());
@@ -630,18 +669,18 @@ namespace Xtensive.Orm.Linq
               }
             }
             var resultColumn = ColumnExpression.Create(columnType, resultDataSource.Header.Length - 1);
-            if (isSubqueryParameter)
+            if (isSubqueryParameter) {
               resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
-            if (convertResultColumn)
-              return Expression.Convert(resultColumn, resultType);
-            return resultColumn;
+            }
+            return convertResultColumn ? Expression.Convert(resultColumn, resultType) : (Expression) resultColumn;
           }
         }
       }
 
       var result = AddSubqueryColumn(columnType, resultDataSource);
-      if (convertResultColumn)
+      if (convertResultColumn) {
         return Expression.Convert(result, resultType);
+      }
       return result;
     }
 
@@ -800,17 +839,11 @@ namespace Xtensive.Orm.Linq
         ColumnExtractionModes.TreatEntityAsKey |
         ColumnExtractionModes.KeepTypeId);
 
-      var keyColumnsList = new List<int>();
-      var nullableFields = new Dictionary<int, FieldExpression>();
-      keyFieldsRaw.ForEach(
-        (item) => {
-          keyColumnsList.Add(item.First);
-          var expressionField = item.Second as FieldExpression;
-          if (expressionField != null && expressionField.Field.IsNullable)
-            nullableFields.Add(item.First, expressionField);
-        });
+      var nullableKeyColumns = (!state.SkipNullableColumnsDetectionInGroupBy)
+        ? GetNullableGroupingExpressions(keyFieldsRaw)
+        : ArrayUtils<int>.EmptyArray;
 
-      var keyColumns = keyColumnsList.ToArray();
+      var keyColumns = keyFieldsRaw.SelectToArray(pair => pair.First);
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
       var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
@@ -829,7 +862,7 @@ namespace Xtensive.Orm.Linq
       var applyParameter = context.GetApplyParameter(groupingProjection);
       var tupleParameter = Expression.Parameter(typeof(Tuple), "tuple");
 
-      Expression filterBody = (nullableFields.Count == 0)
+      Expression filterBody = (nullableKeyColumns.Count == 0)
         ? comparisonInfos.Aggregate(
             (Expression)null,
             (current, comparisonInfo) =>
@@ -842,8 +875,7 @@ namespace Xtensive.Orm.Linq
         : comparisonInfos.Aggregate(
             (Expression)null,
             (current, comparisonInfo) => {
-              if (nullableFields.ContainsKey(comparisonInfo.SubQueryIndex))
-              {
+              if (nullableKeyColumns.Contains(comparisonInfo.SubQueryIndex)) {
                 var groupingSubqueryConnector = Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue);
                 var left = MakeBooleanExpression(
                   null,
@@ -1039,7 +1071,12 @@ namespace Xtensive.Orm.Linq
       var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerItemType);
       var enumerableType = typeof (IEnumerable<>).MakeGenericType(innerItemType);
       var groupingResultType = typeof (IQueryable<>).MakeGenericType(enumerableType);
-      var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
+
+      ProjectionExpression innerGrouping;
+      using (state.CreateScope()) {
+        state.SkipNullableColumnsDetectionInGroupBy = true;
+        innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
+      }
 
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()
         && visitedInnerSource is ProjectionExpression
@@ -1577,6 +1614,26 @@ namespace Xtensive.Orm.Linq
         var lambda = FastExpression.Lambda(Expression.Not(Expression.Call(containsMethod, setA, parameter)), parameter);
         return VisitAll(setB, lambda, isRoot);
       }
+    }
+
+    private static ICollection<int> GetNullableGroupingExpressions(List<Pair<int, Expression>> keyFieldsRaw)
+    {
+      var nullableFields = new HashSet<int>();
+
+      foreach (var pair in keyFieldsRaw) {
+        var index = pair.First;
+        var expression = pair.Second;
+
+        if (expression is FieldExpression fieldExpression && fieldExpression.Field.IsNullable) {
+          _ = nullableFields.Add(index);
+        }
+
+        if (expression is EntityExpression entityExpression && entityExpression.IsNullable) {
+          _ = nullableFields.Add(index);
+        }
+      }
+
+      return nullableFields;
     }
 
     private bool IsKeyCollection(Type localCollectionType)

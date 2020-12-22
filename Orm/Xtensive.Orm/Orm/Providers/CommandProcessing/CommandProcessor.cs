@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.20
 
@@ -17,10 +17,23 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract class CommandProcessor
   {
+    protected enum ExecutionBehavior
+    {
+      AsOneCommand,
+      AsTwoCommands,
+      AsSeveralCommands,
+      TooLargeForAnyCommand,
+    }
+
     /// <summary>
     /// Factory of command parts.
     /// </summary>
     public CommandFactory Factory { get; private set; }
+
+    /// <summary>
+    /// Gets max query parameter count.
+    /// </summary>
+    public int MaxQueryParameterCount { get; private set; }
 
     /// <summary>
     /// Registers tasks for execution.
@@ -82,8 +95,9 @@ namespace Xtensive.Orm.Providers
 
     protected void AllocateCommand(CommandProcessorContext context)
     {
-      if (context.ActiveCommand!=null)
+      if (context.ActiveCommand != null) {
         context.ReenterCount++;
+      }
       else {
         context.ActiveTasks = new List<SqlLoadTask>();
         context.ActiveCommand = Factory.CreateCommand();
@@ -103,16 +117,41 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    protected ExecutionBehavior GetCommandExecutionBehavior(ICollection<CommandPart> commandParts, int currentParametersCount)
+    {
+      if (MaxQueryParameterCount == int.MaxValue) {
+        return ExecutionBehavior.AsOneCommand;
+      }
+
+      var sum = 0;
+      foreach (var commandPart in commandParts) {
+        var count = commandPart.Parameters.Count;
+        if (count > MaxQueryParameterCount) {
+          return ExecutionBehavior.TooLargeForAnyCommand;
+        }
+        sum += count;
+      }
+      if (sum + currentParametersCount < MaxQueryParameterCount) {
+        return ExecutionBehavior.AsOneCommand;
+      }
+      return sum < MaxQueryParameterCount
+        ? ExecutionBehavior.AsTwoCommands
+        : ExecutionBehavior.AsSeveralCommands;
+    }
+
     // Constructors
 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="factory">The factory.</param>
-    protected CommandProcessor(CommandFactory factory)
+    /// <param name="maxQueryParameterCount">The maximum parameter count per query.</param>
+    protected CommandProcessor(CommandFactory factory, int maxQueryParameterCount)
     {
       ArgumentValidator.EnsureArgumentNotNull(factory, "factory");
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxQueryParameterCount, 0, "maxQueryParameterCount");
       Factory = factory;
+      MaxQueryParameterCount = maxQueryParameterCount;
     }
   }
 }

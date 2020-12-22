@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2010.02.11
 
@@ -168,7 +168,8 @@ namespace Xtensive.Orm.Providers
         serverInfo.PrimaryKey.ConstantName,
         coreServerInfo.DatabaseName, 
         coreServerInfo.DefaultSchemaName,
-        supportedTypes);
+        supportedTypes,
+        serverInfo.Query.MaxQueryParameterCount);
     }
   }
 }

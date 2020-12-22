@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.03.31
 
@@ -211,9 +211,14 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode VisitSequence(Sequence sequence)
     {
       var sequenceInfo = new StorageSequenceInfo(targetModel, resolver.GetNodeName(sequence)) {
-        Increment = sequence.SequenceDescriptor.Increment.Value,
-        // StartValue = sequence.SequenceDescriptor.StartValue.Value,
+        Increment = sequence.SequenceDescriptor.Increment.Value
       };
+      if (sequence.SequenceDescriptor.StartValue != null) {
+        sequenceInfo.Seed = sequence.SequenceDescriptor.StartValue.Value;
+      }
+      if (sequence.SequenceDescriptor.LastValue != null) {
+        sequenceInfo.Current = sequence.SequenceDescriptor.LastValue;
+      }
       return sequenceInfo;
     }
 

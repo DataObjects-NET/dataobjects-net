@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.07.30
 
@@ -16,6 +16,12 @@ namespace Xtensive.Orm.Tests.Storage
   [TestFixture]
   public sealed class TransactionModesTest : ChinookDOModelTest
   {
+    public override void SetUp()
+    {
+      DoNotActivateSharedSession = true;
+      base.SetUp();
+    }
+
     protected override void CheckRequirements()
     {
       base.CheckRequirements();
@@ -33,12 +39,17 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.IsFalse(session.Handler.TransactionIsStarted);
         var track = session.Query.All<Track>().First();
         track.Milliseconds++;
-        Session.Current.SaveChanges();
+        session.SaveChanges();
         Assert.IsTrue(session.Handler.TransactionIsStarted);
-        var dbTransaction = StorageTestHelper.GetNativeTransaction();
+        object dbTransaction;
+        using (session.Activate()) {
+          dbTransaction = StorageTestHelper.GetNativeTransaction();
+        }
         track.Milliseconds++;
-        Session.Current.SaveChanges();
-        Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
+        session.SaveChanges();
+        using (session.Activate()) {
+          Assert.AreSame(dbTransaction, StorageTestHelper.GetNativeTransaction());
+        }
         track.Milliseconds++;
         milliseconds = track.Milliseconds;
         trackKey = track.Key;

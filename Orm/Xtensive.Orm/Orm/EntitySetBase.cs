@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
 // Created:    2008.09.10
 
@@ -43,8 +43,8 @@ namespace Xtensive.Orm
 
     private readonly Entity owner;
     private readonly CombineTransform auxilaryTypeKeyTransform;
+    private readonly bool skipOwnerVersionChange;
     private bool isInitialized;
-    private bool skipOwnerVersionChange;
 
     /// <summary>
     /// Gets the owner of this instance.
@@ -78,7 +78,7 @@ namespace Xtensive.Orm
         var entity = Session.Query.SingleOrDefault(key);
         if (entity==null) {
           if (!key.IsTemporary(Session.Domain)) {
-            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key);
+            Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key, EntityRemoveReason.Other);
             EntityState entityState;
             if (Session.LookupStateInCache(key, out entityState))
               entity = entityState.Entity;
@@ -605,7 +605,7 @@ namespace Xtensive.Orm
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
 
-              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey);
+              Session.RemoveOrCreateRemovedEntity(auxiliaryType.UnderlyingType, combinedKey, EntityRemoveReason.Association);
             }
 
             var state = State;

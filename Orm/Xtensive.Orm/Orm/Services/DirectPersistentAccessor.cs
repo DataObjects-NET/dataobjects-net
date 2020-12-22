@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2010 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.11.02
 
@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Services
     {
       using (Session.OpenSystemLogicOnlyRegion()) {
         ArgumentValidator.EnsureArgumentNotNull(target, "target");
-        target.Remove();
+        target.RemoveInternal(EntityRemoveReason.User);
       }
     }
 

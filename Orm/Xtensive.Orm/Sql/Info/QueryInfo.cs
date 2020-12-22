@@ -1,6 +1,6 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
@@ -17,15 +17,15 @@ namespace Xtensive.Sql.Info
     private int maxNestedQueriesAmount;
     private string parameterPrefix;
     private QueryFeatures features = QueryFeatures.None;
+    private int maxQueryParameterCount;
 
     /// <summary>
     /// Gets or sets the maximal length of a query text in characters.
     /// </summary>
     public int MaxLength
     {
-      get { return maxLength; }
-      set
-      {
+      get => maxLength;
+      set {
         this.EnsureNotLocked();
         maxLength = value;
       }
@@ -36,9 +36,8 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public int MaxComparisonOperations
     {
-      get { return maxComparisonOperations; }
-      set
-      {
+      get => maxComparisonOperations;
+      set {
         this.EnsureNotLocked();
         maxComparisonOperations = value;
       }
@@ -49,9 +48,8 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public int MaxNestedSubqueriesAmount
     {
-      get { return maxNestedQueriesAmount; }
-      set
-      {
+      get => maxNestedQueriesAmount;
+      set {
         this.EnsureNotLocked();
         maxNestedQueriesAmount = value;
       }
@@ -62,9 +60,8 @@ namespace Xtensive.Sql.Info
     /// </summary>
     public string ParameterPrefix
     {
-      get { return parameterPrefix; }
-      set
-      {
+      get => parameterPrefix;
+      set {
         this.EnsureNotLocked();
         parameterPrefix = value;
       }
@@ -76,11 +73,22 @@ namespace Xtensive.Sql.Info
     /// <value>The features.</value>
     public QueryFeatures Features
     {
-      get { return features; }
-      set
-      {
+      get => features;
+      set {
         this.EnsureNotLocked();
         features = value;
+      }
+    }
+
+    /// <summary>
+    /// Gets or sets max query parameter count.
+    /// </summary>
+    public int MaxQueryParameterCount
+    {
+      get => maxQueryParameterCount;
+      set {
+        this.EnsureNotLocked();
+        maxQueryParameterCount = value;
       }
     }
   }

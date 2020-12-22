@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.13
 
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      configuration.Types.Register(typeof(X).Assembly, typeof(X).Namespace);
       return configuration;
     }
 
@@ -53,13 +53,22 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         "__",
         "^QQ",
         "PQ^",
+        "[ololoololo",
+        "ololo[ololo",
+        "ololoololo[",
+        "]ololoololo",
+        "ololo]ololo",
+        "ololoololo]",
         // other test values
         "     ",
       };
-      foreach (var value in testValues)
-        new X {FString = value};
-      if (!emptyStringIsNull)
-        new X {FString = string.Empty};
+      foreach (var value in testValues) {
+        _ = new X { FString = value };
+      }
+
+      if (!emptyStringIsNull) {
+        _ = new X { FString = string.Empty };
+      }
     }
 
     #endregion
@@ -154,6 +163,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         StartsWithPrecentGround = x.FString.StartsWith("%_"),
         StartsWithGroundPercent = x.FString.StartsWith("_%"),
         StartsWithEscape = x.FString.StartsWith("^"),
+        StartsWithOpenBracket = x.FString.StartsWith("["),
+        StartsWithCloseBracket = x.FString.StartsWith("]"),
       }).ToList();
       foreach (var x in result) {
         Assert.AreEqual(ConvertString(x.String).StartsWith("A"), x.StartsWithA);
@@ -162,6 +173,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         Assert.AreEqual(ConvertString(x.String).StartsWith("%_"), x.StartsWithPrecentGround);
         Assert.AreEqual(ConvertString(x.String).StartsWith("_%"), x.StartsWithGroundPercent);
         Assert.AreEqual(ConvertString(x.String).StartsWith("^"), x.StartsWithEscape);
+        Assert.AreEqual(ConvertString(x.String).StartsWith("["), x.StartsWithOpenBracket);
+        Assert.AreEqual(ConvertString(x.String).StartsWith("]"), x.StartsWithCloseBracket);
       }
     }
 
@@ -177,6 +190,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         EndsWithPrecentGround = x.FString.EndsWith("%_"),
         EndsWithGroundPercent = x.FString.EndsWith("_%"),
         EndsWithEscape = x.FString.EndsWith("^"),
+        EndsWithOpenBracket = x.FString.EndsWith("["),
+        EndsWithCloseBracket = x.FString.EndsWith("]"),
       }).ToList();
       foreach (var x in result) {
         Assert.AreEqual(ConvertString(x.String).EndsWith("A"), x.EndsWithA);
@@ -185,6 +200,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         Assert.AreEqual(ConvertString(x.String).EndsWith("%_"), x.EndsWithPrecentGround);
         Assert.AreEqual(ConvertString(x.String).EndsWith("_%"), x.EndsWithGroundPercent);
         Assert.AreEqual(ConvertString(x.String).EndsWith("^"), x.EndsWithEscape);
+        Assert.AreEqual(ConvertString(x.String).EndsWith("["), x.EndsWithOpenBracket);
+        Assert.AreEqual(ConvertString(x.String).EndsWith("]"), x.EndsWithCloseBracket);
       }
     }
 
@@ -200,6 +217,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         ContainsPrecentGround = x.FString.Contains("%_"),
         ContainsGroundPercent = x.FString.Contains("_%"),
         ContainsEscape = x.FString.Contains("^"),
+        ContainsOpenBracket = x.FString.Contains("["),
+        ContainsCloseBracket = x.FString.Contains("]"),
       }).ToList();
       foreach (var x in result) {
         Assert.AreEqual(ConvertString(x.String).Contains("A"), x.ContainsA);
@@ -208,6 +227,8 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         Assert.AreEqual(ConvertString(x.String).Contains("%_"), x.ContainsPrecentGround);
         Assert.AreEqual(ConvertString(x.String).Contains("_%"), x.ContainsGroundPercent);
         Assert.AreEqual(ConvertString(x.String).Contains("^"), x.ContainsEscape);
+        Assert.AreEqual(ConvertString(x.String).Contains("["), x.ContainsOpenBracket);
+        Assert.AreEqual(ConvertString(x.String).Contains("]"), x.ContainsCloseBracket);
       }
     }
 
@@ -236,9 +257,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
     #endregion
 
-    private string ConvertString(string value)
-    {
-      return emptyStringIsNull && value==null ? string.Empty : value;
-    }
+    private string ConvertString(string value) =>
+      emptyStringIsNull && value == null ? string.Empty : value;
   }
 }

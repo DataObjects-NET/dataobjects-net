@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.11.07
 
@@ -107,14 +107,15 @@ namespace Xtensive.Orm
       }
     }
 
-    internal void RemoveOrCreateRemovedEntity(Type type, Key key)
+    internal void RemoveOrCreateRemovedEntity(Type type, Key key, EntityRemoveReason reason)
     {
       // Checking for deleted entity with the same key
       var result = EntityStateCache[key, false];
       if (result!=null) {
-        if (result.PersistenceState==PersistenceState.Removed)
+        if (result.PersistenceState==PersistenceState.Removed) {
           return;
-        result.Entity.RemoveLater();
+        }
+        result.Entity.RemoveLaterInternal(reason);
         return;
       }
 

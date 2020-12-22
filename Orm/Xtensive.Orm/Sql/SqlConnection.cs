@@ -1,6 +1,6 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Data;
@@ -97,7 +97,7 @@ namespace Xtensive.Sql
       if (commandTimeout != null) {
         command.CommandTimeout = commandTimeout.Value;
       }
-
+      EnsureTransactionIsAlive();
       command.Transaction = ActiveTransaction;
       return command;
     }
@@ -182,7 +182,7 @@ namespace Xtensive.Sql
 
       using (var command = UnderlyingConnection.CreateCommand()) {
         command.CommandText = initializationScript;
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
       }
     }
 
@@ -350,6 +350,16 @@ namespace Xtensive.Sql
       if (ActiveTransaction == null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldBeActive);
       }
+    }
+
+    /// <summary>
+    /// Ensures that existing active tranaction is alive (i.e both <see cref="ActiveTransaction"/> and its Connection
+    /// are not <see langword="null"/>).
+    /// </summary>
+    protected void EnsureTransactionIsAlive()
+    {
+      if (ActiveTransaction != null && ActiveTransaction.Connection == null)
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsNoLongerUsable);
     }
 
     /// <summary>

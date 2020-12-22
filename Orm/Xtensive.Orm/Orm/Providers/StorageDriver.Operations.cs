@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Providers
     public void ApplyNodeConfiguration(SqlConnection connection, NodeConfiguration nodeConfiguration)
     {
       if (connection.State != ConnectionState.Closed
-        && !nodeConfiguration.NodeId.Equals(WellKnown.DefaultNodeId, StringComparison.Ordinal )) {
+        && !nodeConfiguration.NodeId.Equals(WellKnown.DefaultNodeId, StringComparison.Ordinal)) {
         throw new InvalidOperationException(Strings.ExCannotApplyNodeConfigurationSettingsConnectionIsInUse);
       }
 
@@ -69,17 +69,19 @@ namespace Xtensive.Orm.Providers
       if (isLoggingEnabled)
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
 
+      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+
       try {
-        connection.Open();
+        if (extension == null || string.IsNullOrEmpty(extension.Script)) {
+          connection.Open();
+        }
+        else {
+          connection.OpenAndInitialize(extension.Script);
+        }
       }
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
-
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
-      if (!string.IsNullOrEmpty(extension?.Script))
-        using (var command = connection.CreateCommand(extension.Script))
-          ExecuteNonQuery(session, command);
     }
 
     public Task OpenConnectionAsync(Session session, SqlConnection connection)

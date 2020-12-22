@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2010 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.06.01
 
@@ -61,6 +61,11 @@ namespace Xtensive.Orm.Providers
     public ReadOnlyHashSet<Type> SupportedTypes { get; private set; }
 
     /// <summary>
+    /// Gets max query parameter count.
+    /// </summary>
+    public int MaxQueryParameterCount { get; private set; }
+
+    /// <summary>
     /// Determines whether the specified features are supported.
     /// </summary>
     /// <param name="required">The required feature set.</param>
@@ -79,7 +84,8 @@ namespace Xtensive.Orm.Providers
       string constantPrimaryIndexName,
       string defaultDatabase,
       string defaultSchema, 
-      IEnumerable<Type> supportedTypes)
+      IEnumerable<Type> supportedTypes,
+      int maxQueryParameterCount)
     {
       ProviderName = providerName;
 
@@ -92,7 +98,8 @@ namespace Xtensive.Orm.Providers
       DefaultDatabase = defaultDatabase;
       DefaultSchema = defaultSchema;
 
-      SupportedTypes = new ReadOnlyHashSet<Type>(supportedTypes.ToHashSet());
+      SupportedTypes = new ReadOnlyHashSet<Type>(new HashSet<Type>(supportedTypes));
+      MaxQueryParameterCount = maxQueryParameterCount;
     }
   }
 }

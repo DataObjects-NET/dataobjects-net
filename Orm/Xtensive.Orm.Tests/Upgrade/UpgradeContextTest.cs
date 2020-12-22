@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2018 Xtensive LLC.
+// Copyright (C) 2018 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeContextTestModel
 
   public class AccessGatherer
   {
-    Dictionary<MethodBase, ProviderInfo> stagesAccess = new Dictionary<MethodBase, ProviderInfo>();
+    private Dictionary<MethodBase, ProviderInfo> stagesAccess = new Dictionary<MethodBase, ProviderInfo>();
 
     public ProviderInfo this[MethodInfo method]
     {
@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 {
   public sealed class UpgradeContextTest
   {
-    private static string additionalNodeName = "additional";
+    private const string additionalNodeName = "additional";
     private MethodInfo[] upgraderMethods;
 
     [OneTimeSetUp]
