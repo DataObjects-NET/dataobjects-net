@@ -195,7 +195,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeReader = (NpgsqlDataReader) reader;
       var value = nativeReader.GetFieldValue<DateTimeOffset>(index);
-      var objValue = nativeReader.GetValue(index);
       return value;
     }
 
