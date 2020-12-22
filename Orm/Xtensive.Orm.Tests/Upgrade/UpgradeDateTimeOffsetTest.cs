@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -87,6 +87,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void UpgradeDateTimeOffsetAndDateTimeTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset);
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "ToLocalTime is not supported");
       using (var domain = BuildInitialDomain())
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {

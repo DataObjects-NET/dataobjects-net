@@ -1,6 +1,6 @@
-// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.06.06
 
@@ -15,14 +15,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
     public override string Translate(SqlCompilerContext context, object literalValue)
     {
       var array = literalValue as byte[];
-      if (array==null)
+      if (array == null) {
         return base.Translate(context, literalValue);
+      }
 
-      var result = new StringBuilder(array.Length * 2 + 6);
-
-      result.Append(@"E'\\x");
-      result.AppendHexArray(array);
-      result.Append("'");
+      var result = new StringBuilder((array.Length * 2) + 6)
+        .Append(@"E'\\x")
+        .AppendHexArray(array)
+        .Append("'");
 
       return result.ToString();
     }

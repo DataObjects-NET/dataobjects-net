@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Diagnostics;
@@ -11,6 +11,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Drivers.PostgreSql.Resources;
+using Xtensive.Reflection.PostgreSql;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
@@ -22,9 +23,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
     public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
 
-    /*
     public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'"; } }
-    */
 
 
     public override void Initialize()
@@ -61,109 +60,109 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string Translate(SqlFunctionType type)
     {
       switch (type) {
-      case SqlFunctionType.SystemUser:
-        return string.Empty;
-      case SqlFunctionType.User:
-      case SqlFunctionType.CurrentUser:
-        return "current_user";
-      case SqlFunctionType.SessionUser:
-        return "session_user";
-      case SqlFunctionType.NullIf:
-        return "nullif";
-      case SqlFunctionType.Coalesce:
-        return "coalesce";
-      case SqlFunctionType.BinaryLength:
-        return "length";
+        case SqlFunctionType.SystemUser:
+          return string.Empty;
+        case SqlFunctionType.User:
+        case SqlFunctionType.CurrentUser:
+          return "current_user";
+        case SqlFunctionType.SessionUser:
+          return "session_user";
+        case SqlFunctionType.NullIf:
+          return "nullif";
+        case SqlFunctionType.Coalesce:
+          return "coalesce";
+        case SqlFunctionType.BinaryLength:
+          return "length";
 
-      //datetime/timespan
+        //datetime/timespan
 
-      case SqlFunctionType.CurrentDate:
-        return "date_trunc('day', current_timestamp)";
-      case SqlFunctionType.CurrentTimeStamp:
-        return "current_timestamp";
-      case SqlFunctionType.IntervalNegate:
-        return "-";
+        case SqlFunctionType.CurrentDate:
+          return "date_trunc('day', current_timestamp)";
+        case SqlFunctionType.CurrentTimeStamp:
+          return "current_timestamp";
+        case SqlFunctionType.IntervalNegate:
+          return "-";
 
-      //string
+        //string
 
-      case SqlFunctionType.CharLength:
-        return "char_length";
-      case SqlFunctionType.Lower:
-        return "lower";
-      case SqlFunctionType.Position:
-        return "position";
-      case SqlFunctionType.Substring:
-        return "substring";
-      case SqlFunctionType.Upper:
-        return "upper";
-      case SqlFunctionType.Concat:
-        return "textcat";
-      
-      //math
+        case SqlFunctionType.CharLength:
+          return "char_length";
+        case SqlFunctionType.Lower:
+          return "lower";
+        case SqlFunctionType.Position:
+          return "position";
+        case SqlFunctionType.Substring:
+          return "substring";
+        case SqlFunctionType.Upper:
+          return "upper";
+        case SqlFunctionType.Concat:
+          return "textcat";
 
-      case SqlFunctionType.Abs:
-        return "abs";
-      case SqlFunctionType.Acos:
-        return "acos";
-      case SqlFunctionType.Asin:
-        return "asin";
-      case SqlFunctionType.Atan:
-        return "atan";
-      case SqlFunctionType.Atan2:
-        return "atan2";
-      case SqlFunctionType.Ceiling:
-        return "ceil";
-      case SqlFunctionType.Cos:
-        return "cos";
-      case SqlFunctionType.Cot:
-        return "cot";
-      case SqlFunctionType.Degrees:
-        return "degrees";
-      case SqlFunctionType.Exp:
-        return "exp";
-      case SqlFunctionType.Floor:
-        return "floor";
-      case SqlFunctionType.Log:
-        return "ln";
-      case SqlFunctionType.Log10:
-        return "log";
-      case SqlFunctionType.Pi:
-        return "pi";
-      case SqlFunctionType.Power:
-        return "power";
-      case SqlFunctionType.Radians:
-        return "radians";
-      case SqlFunctionType.Rand:
-        return "random";
-      case SqlFunctionType.Round:
-        return "round";
-      case SqlFunctionType.Truncate:
-        return "trunc";
-      case SqlFunctionType.Sign:
-        return "sign";
-      case SqlFunctionType.Sqrt:
-        return "sqrt";
-      case SqlFunctionType.Tan:
-        return "tan";
+        //math
 
-      default:
-        return base.Translate(type);
+        case SqlFunctionType.Abs:
+          return "abs";
+        case SqlFunctionType.Acos:
+          return "acos";
+        case SqlFunctionType.Asin:
+          return "asin";
+        case SqlFunctionType.Atan:
+          return "atan";
+        case SqlFunctionType.Atan2:
+          return "atan2";
+        case SqlFunctionType.Ceiling:
+          return "ceil";
+        case SqlFunctionType.Cos:
+          return "cos";
+        case SqlFunctionType.Cot:
+          return "cot";
+        case SqlFunctionType.Degrees:
+          return "degrees";
+        case SqlFunctionType.Exp:
+          return "exp";
+        case SqlFunctionType.Floor:
+          return "floor";
+        case SqlFunctionType.Log:
+          return "ln";
+        case SqlFunctionType.Log10:
+          return "log";
+        case SqlFunctionType.Pi:
+          return "pi";
+        case SqlFunctionType.Power:
+          return "power";
+        case SqlFunctionType.Radians:
+          return "radians";
+        case SqlFunctionType.Rand:
+          return "random";
+        case SqlFunctionType.Round:
+          return "round";
+        case SqlFunctionType.Truncate:
+          return "trunc";
+        case SqlFunctionType.Sign:
+          return "sign";
+        case SqlFunctionType.Sqrt:
+          return "sqrt";
+        case SqlFunctionType.Tan:
+          return "tan";
+
+        default:
+          return base.Translate(type);
       }
     }
 
     public override string Translate(ReferentialAction action)
     {
       switch (action) {
-      case ReferentialAction.Cascade:
-        return "CASCADE";
-      case ReferentialAction.NoAction:
-        return "NO ACTION";
-      case ReferentialAction.Restrict:
-        return "RESTRICT";
-      case ReferentialAction.SetDefault:
-        return "SET DEFAULT";
-      case ReferentialAction.SetNull:
-        return "SET NULL";
+        case ReferentialAction.Cascade:
+          return "CASCADE";
+        case ReferentialAction.NoAction:
+          return "NO ACTION";
+        case ReferentialAction.Restrict:
+          return "RESTRICT";
+        case ReferentialAction.SetDefault:
+          return "SET DEFAULT";
+        case ReferentialAction.SetNull:
+          return "SET NULL";
       }
       return string.Empty;
     }
@@ -171,40 +170,39 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string Translate(SqlNodeType type)
     {
       switch (type) {
-      case SqlNodeType.BitXor:
-        return "#";
-      case SqlNodeType.Modulo:
-        return "%";
-      case SqlNodeType.Overlaps:
-        return "OVERLAPS";
-      case SqlNodeType.DateTimePlusInterval:
-        return "+";
-      case SqlNodeType.DateTimeMinusInterval:
-      case SqlNodeType.DateTimeMinusDateTime:
-        return "-";
-      default:
-        return base.Translate(type);
+        case SqlNodeType.BitXor:
+          return "#";
+        case SqlNodeType.Modulo:
+          return "%";
+        case SqlNodeType.Overlaps:
+          return "OVERLAPS";
+        case SqlNodeType.DateTimePlusInterval:
+          return "+";
+        case SqlNodeType.DateTimeMinusInterval:
+        case SqlNodeType.DateTimeMinusDateTime:
+          return "-";
+        default:
+          return base.Translate(type);
       }
     }
 
     public override string Translate(SqlMatchType mt)
     {
       switch (mt) {
-      case SqlMatchType.Full:
-        return "FULL";
-      default:
-        return "SIMPLE";
+        case SqlMatchType.Full:
+          return "FULL";
+        default:
+          return "SIMPLE";
       }
     }
 
     public override string Translate(SqlCompilerContext context, SchemaNode node)
     {
-      TemporaryTable tmp = node as TemporaryTable;
       //temporary tables need no schema qualifier
-      if (tmp==null && node.Schema!=null) {
-        if (context==null)// extractor for some reason uses this method without context
-          return QuoteIdentifier(new[] {node.Schema.Name, node.Name});
-        return QuoteIdentifier(new[] {context.SqlNodeActualizer.Actualize(node.Schema), node.Name});
+      if (!(node is TemporaryTable) && node.Schema!=null) {
+        return context == null
+          ? QuoteIdentifier(new[] {node.Schema.Name, node.Name})
+          : QuoteIdentifier(new[] {context.SqlNodeActualizer.Actualize(node.Schema), node.Name});
 
       }
       return QuoteIdentifier(new[] {node.Name});
@@ -213,24 +211,23 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
       switch (section) {
-      case CreateTableSection.Exit:
-        return "WITHOUT OIDS " + base.Translate(context, node, section);
-
-      default:
-        return base.Translate(context, node, section);
+        case CreateTableSection.Exit:
+          return "WITHOUT OIDS " + base.Translate(context, node, section);
+        default:
+          return base.Translate(context, node, section);
       }
     }
 
     public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
       switch (section) {
-      case TableColumnSection.Exit:
-      case TableColumnSection.SetIdentityInfoElement:
-      case TableColumnSection.GenerationExpressionExit:
-      case TableColumnSection.Collate:
-        return string.Empty;
-      default:
-        return base.Translate(context, column, section);
+        case TableColumnSection.Exit:
+        case TableColumnSection.SetIdentityInfoElement:
+        case TableColumnSection.GenerationExpressionExit:
+        case TableColumnSection.Collate:
+          return string.Empty;
+        default:
+          return base.Translate(context, column, section);
       }
     }
 
@@ -240,16 +237,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       switch (section) {
         case CreateIndexSection.Entry:
           return string.Format("CREATE {0}INDEX {1} ON {2} {3}("
-            , index.IsUnique ? "UNIQUE " : String.Empty
+            , index.IsUnique ? "UNIQUE " : string.Empty
             , QuoteIdentifier(index.Name)
             , Translate(context, index.DataTable)
-            , index.IsSpatial ? "USING GIST" : String.Empty);
+            , index.IsSpatial ? "USING GIST" : string.Empty);
         case CreateIndexSection.StorageOptions:
-          var builder = new StringBuilder();
-          builder.Append(")");
+          var builder = new StringBuilder(")");
           AppendIndexStorageParameters(builder, index);
           if (!string.IsNullOrEmpty(index.Filegroup))
-            builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
+            _ = builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
           return builder.ToString();
         case CreateIndexSection.Exit:
           return string.Empty;
@@ -266,28 +262,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      string indexName;
-      if (context==null)
-        indexName = QuoteIdentifier(node.Index.DataTable.Schema.Name, node.Index.Name);
-      else
-        indexName = QuoteIdentifier(context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), node.Index.Name);
+      var indexName = context == null
+        ? QuoteIdentifier(node.Index.DataTable.Schema.Name, node.Index.Name)
+        : QuoteIdentifier(context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), node.Index.Name);
       return "DROP INDEX " + indexName;
     }
 
-    public override string Translate(SqlCompilerContext context, SqlBreak node)
-    {
-      return "EXIT";
-    }
+    public override string Translate(SqlCompilerContext context, SqlBreak node) => "EXIT";
 
-    public override string Translate(SqlCompilerContext context, SqlContinue node)
-    {
-      return string.Empty;
-    }
+    public override string Translate(SqlCompilerContext context, SqlContinue node) => string.Empty;
 
-    public override string Translate(SqlCompilerContext context, SqlDeclareVariable node)
-    {
-      return string.Empty;
-    }
+    public override string Translate(SqlCompilerContext context, SqlDeclareVariable node) => string.Empty;
 
     public override string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
     {
@@ -297,34 +282,36 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string Translate(SqlCompilerContext context, object literalValue)
     {
       var literalType = literalValue.GetType();
-      if (literalType==typeof(byte[]))
+      if (literalType == WellKnownTypes.ByteArrayType) {
         return TranslateByteArrayLiteral((byte[]) literalValue);
-      if (literalType==typeof(Guid))
+      }
+      if (literalType == WellKnownTypes.GuidType) {
         return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      /*
-      if(literalType==typeof(DateTimeOffset))
-        return ((DateTimeOffset)literalValue).ToString(DateTimeOffsetFormatString);
-      */
-
-      if (literalType==typeof (NpgsqlPoint)) {
+      }
+      if (literalType == WellKnownTypes.DateTimeOffsetType) {
+        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString);
+      }
+      if (literalType == WellKnownTypes.NpgsqlPointType) {
         var point = (NpgsqlPoint) literalValue;
-        return String.Format("point'({0},{1})'", point.X, point.Y);
+        return string.Format("point'({0},{1})'", point.X, point.Y);
       }
-      if (literalType==typeof (NpgsqlLSeg)) {
+      if (literalType == WellKnownTypes.NpgsqlLSegType) {
         var lSeg = (NpgsqlLSeg) literalValue;
-        return String.Format("lseg'[({0},{1}),({2},{3})]'", lSeg.Start.X, lSeg.Start.Y, lSeg.End.X, lSeg.End.Y);
+        return string.Format("lseg'[({0},{1}),({2},{3})]'", lSeg.Start.X, lSeg.Start.Y, lSeg.End.X, lSeg.End.Y);
       }
-      if (literalType==typeof (NpgsqlBox)) {
+      if (literalType == WellKnownTypes.NpgsqlBoxType) {
         var box = (NpgsqlBox) literalValue;
-        return String.Format("box'({0},{1}),({2},{3})'", box.LowerLeft.X, box.LowerLeft.Y, box.UpperRight.X, box.UpperRight.Y);
+        return string.Format("box'({0},{1}),({2},{3})'", box.LowerLeft.X, box.LowerLeft.Y, box.UpperRight.X, box.UpperRight.Y);
       }
-      if (literalType==typeof (NpgsqlPath))
-        return String.Format("path'(({0},{1}))'", 0, 0);
-      if (literalType==typeof (NpgsqlPolygon))
-        return String.Format("polygon'((0,0))'");
-      if (literalType==typeof (NpgsqlCircle)) {
+      if (literalType == WellKnownTypes.NpgsqlPathType) {
+        return string.Format("path'(({0},{1}))'", 0, 0);
+      }
+      if (literalType == WellKnownTypes.NpgsqlPolygonType) {
+        return "polygon'((0,0))'";
+      }
+      if (literalType == WellKnownTypes.NpgsqlCircleType) {
         var circle = (NpgsqlCircle) literalValue;
-        return String.Format("circle'<({0},{1}),{2}>'", circle.Center.X, circle.Center.Y, circle.Radius);
+        return string.Format("circle'<({0},{1}),{2}>'", circle.Center.X, circle.Center.Y, circle.Radius);
       }
       return base.Translate(context, literalValue);
     }
@@ -332,64 +319,59 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
     {
       switch (section) {
-      case ArraySection.Entry:
-        return "ARRAY[";
-      case ArraySection.Exit:
-        return "]";
-      case ArraySection.EmptyArray:
-        return string.Format("'{{}}'::{0}[]", TranslateClrType(node.ItemType));
-      default:
-        throw new ArgumentOutOfRangeException("section");
+        case ArraySection.Entry:
+          return "ARRAY[";
+        case ArraySection.Exit:
+          return "]";
+        case ArraySection.EmptyArray:
+          return string.Format("'{{}}'::{0}[]", TranslateClrType(node.ItemType));
+        default:
+          throw new ArgumentOutOfRangeException("section");
       }
     }
 
     public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      bool isSecond = node.DateTimePart==SqlDateTimePart.Second
-        || node.IntervalPart==SqlIntervalPart.Second
-        /*|| node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Second*/;
-      bool isMillisecond = node.DateTimePart==SqlDateTimePart.Millisecond
-        || node.IntervalPart==SqlIntervalPart.Millisecond
-        /*|| node.DateTimeOffsetPart==SqlDateTimeOffsetPart.Millisecond*/;
-      if (!(isSecond || isMillisecond))
+      var isSecond = node.DateTimePart == SqlDateTimePart.Second
+        || node.IntervalPart == SqlIntervalPart.Second
+        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Second;
+      var isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond
+        || node.IntervalPart == SqlIntervalPart.Millisecond
+        || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Millisecond;
+      if (!(isSecond || isMillisecond)) {
         return base.Translate(context, node, section);
+      }
       switch (section) {
-      case ExtractSection.Entry:
-        if (isSecond)
-          return "(trunc(extract(";
-        return "(extract(";
-      case ExtractSection.Exit:
-        if (isMillisecond)
-          return ")::int8 % 1000)";
-        if (isSecond)
-          return ")))";
-        return ")::int8)";
-        //return isMillisecond ? ")::int8 % 1000)" : ")::int8)";
-      default:
-        return base.Translate(context, node, section);
+        case ExtractSection.Entry:
+          return isSecond ? "(trunc(extract(" : "(extract(";
+        case ExtractSection.Exit:
+          return isMillisecond
+           ?  ")::int8 % 1000)"
+           : isSecond ? ")))" : ")::int8)";
+        default:
+          return base.Translate(context, node, section);
       }
     }
 
     public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
     {
       switch (section) {
-      case DeclareCursorSection.Entry:
-        return ("DECLARE " + QuoteIdentifier(node.Cursor.Name));
-      case DeclareCursorSection.Sensivity:
-        return "";
-      case DeclareCursorSection.Scrollability:
-        return node.Cursor.Scroll ? "SCROLL" : "NO SCROLL";
-      case DeclareCursorSection.Cursor:
-        return "CURSOR";
-      case DeclareCursorSection.Holdability:
-        return node.Cursor.WithHold ? "WITH HOLD" : "";
-      case DeclareCursorSection.Returnability:
-      case DeclareCursorSection.Updatability:
-      case DeclareCursorSection.Exit:
-        return "";
-
-      case DeclareCursorSection.For:
-        return "FOR";
+        case DeclareCursorSection.Entry:
+          return "DECLARE " + QuoteIdentifier(node.Cursor.Name);
+        case DeclareCursorSection.Sensivity:
+          return "";
+        case DeclareCursorSection.Scrollability:
+          return node.Cursor.Scroll ? "SCROLL" : "NO SCROLL";
+        case DeclareCursorSection.Cursor:
+          return "CURSOR";
+        case DeclareCursorSection.Holdability:
+          return node.Cursor.WithHold ? "WITH HOLD" : "";
+        case DeclareCursorSection.Returnability:
+        case DeclareCursorSection.Updatability:
+        case DeclareCursorSection.Exit:
+          return "";
+        case DeclareCursorSection.For:
+          return "FOR";
       }
       return base.Translate(context, node, section);
     }
@@ -397,12 +379,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
     {
       switch (section) {
-      case FetchSection.Entry:
-        return "FETCH " + node.Option.ToString().ToUpper();
-      case FetchSection.Targets:
-        return "FROM " + QuoteIdentifier(node.Cursor.Name);
-      case FetchSection.Exit:
-        break;
+        case FetchSection.Entry:
+          return "FETCH " + node.Option.ToString().ToUpper();
+        case FetchSection.Targets:
+          return "FROM " + QuoteIdentifier(node.Cursor.Name);
+        case FetchSection.Exit:
+          break;
       }
       return base.Translate(context, node, section);
     }
@@ -412,307 +394,281 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       // DECLARE CURSOR already opens it
       return string.Empty;
     }
-    
+
     public override string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {
       switch (section) {
-      case MatchSection.Entry:
-        //MATCH is not supported by PostgreSQL, we need some workaround
-        SqlRow row = node.Value as SqlRow;
-        if (row!=null) {
-          SqlSelect finalQuery = SqlDml.Select();
-          finalQuery.Columns.Add(5);
-          switch (node.MatchType) {
-            #region SIMPLE
-
-          case SqlMatchType.None: {
-            bool existsNull = false;
-            SqlCase c = SqlDml.Case();
-            {
-              bool subQueryNeeded = true;
-              //if any of the row elements is NULL then true
-              if (row.Count > 0) {
-                bool allLiteral = true; //if true then there is no NULL element
-                SqlExpression when1 = null;
-                for (int i = 0; i < row.Count; i++) {
-                  bool elementIsNotLiteral = row[i].NodeType!=SqlNodeType.Literal;
-                  //if the row element is the NULL value
-                  if (row[i].NodeType==SqlNodeType.Null) {
-                    existsNull = true;
-                    break;
-                  }
-                  if (allLiteral && elementIsNotLiteral)
-                    allLiteral = false;
-                  if (elementIsNotLiteral) {
-                    if (when1==null)
-                      when1 = SqlDml.IsNull(row[i]);
-                    else
-                      when1 = when1 || SqlDml.IsNull(row[i]);
-                  }
-                }
-                if (existsNull) {
-                  //Some row element is the NULL value, MATCH result is true
-                  subQueryNeeded = false;
-                }
-                else if (allLiteral) {
-                  //No row element is the NULL value
-                  subQueryNeeded = true;
-                }
-                else //(!whenNotNeeded)
-                {
-                  //Check if any row element is NULL
-                  c.Add(when1==null ? true : when1, true);
-                  subQueryNeeded = true;
-                }
+        case MatchSection.Entry:
+          //MATCH is not supported by PostgreSQL, we need some workaround
+          if (node.Value is SqlRow row) {
+            var finalQuery = SqlDml.Select();
+            finalQuery.Columns.Add(5);
+            switch (node.MatchType) {
+              case SqlMatchType.None: {
+                BuildSelectForUniqueMatchNone(node, row, finalQuery);
+                break;
               }
-              //find row in subquery
-              if (subQueryNeeded) {
-                SqlQueryRef originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
-                SqlSelect q1 = SqlDml.Select(originalQuery);
-                q1.Columns.Add(1);
-                {
-                  SqlTableColumnCollection columns = originalQuery.Columns;
-                  SqlExpression where = null;
-                  for (int i = 0; i < columns.Count; i++) {
-                    if (i==0)
-                      where = columns[i]==row[i];
-                    else
-                      where = where && columns[i]==row[i];
-                    if (node.Unique)
-                      q1.GroupBy.Add(columns[i]);
-                  }
-                  q1.Where = where;
-                  if (node.Unique)
-                    q1.Having = SqlDml.Count(SqlDml.Asterisk)==1;
-                }
-                //c.Add(Sql.Exists(q1), true);
-                c.Else = SqlDml.Exists(q1);
+              case SqlMatchType.Full: {
+                BuildSelectForUniqueMatchFull(node, row, finalQuery);
+                break;
+              }
+              case SqlMatchType.Partial: {
+                BuildSelectForUniqueMatchPartial(node, row, finalQuery);
+                break;
               }
             }
-            if (c.Else==null)
-              c.Else = false;
-            if (existsNull)
-              finalQuery.Where = null;
-            else if (c.Count > 0)
-              finalQuery.Where = c;
-            else
-              finalQuery.Where = c.Else;
-            break;
+            var newNode = SqlDml.Match(SqlDml.Row(), SqlDml.SubQuery(finalQuery).Query, node.Unique, node.MatchType);
+            node.ReplaceWith(newNode);
+            return "EXISTS(SELECT '";
           }
-
-            #endregion
-
-            #region FULL
-
-          case SqlMatchType.Full: {
-            SqlCase c1 = SqlDml.Case();
-            {
-              bool noMoreWhenNeeded = false;
-              bool allNull = true;
-              SqlExpression when1 = true;
-              //if all row elements are null then true
-              if (row.Count > 0) {
-                bool whenNotNeeded = false;
-                for (int i = 0; i < row.Count; i++) {
-                  //if any row element is surely not the NULL value
-                  if (row[i].NodeType==SqlNodeType.Literal) {
-                    whenNotNeeded = true;
-                    break;
-                  }
-                  if (allNull && row[i].NodeType!=SqlNodeType.Null) {
-                    allNull = false;
-                  }
-                  if (i==0)
-                    when1 = SqlDml.IsNull(row[i]);
-                  else
-                    when1 = when1 && SqlDml.IsNull(row[i]);
-                }
-                if (allNull) {
-                  when1 = true;
-                }
-                if (!whenNotNeeded)
-                  c1.Add(when1, true);
-              }
-              if (!noMoreWhenNeeded) {
-                bool whenNotNeeded = false;
-                bool allLiteral = true;
-                SqlExpression when2 = true;
-                //if no row elements are null then subcase
-                for (int i = 0; i < row.Count; i++) {
-                  if (row[i].NodeType==SqlNodeType.Null) {
-                    whenNotNeeded = true;
-                    when2 = false;
-                    break;
-                  }
-                  if (allLiteral && row[i].NodeType!=SqlNodeType.Literal)
-                    allLiteral = false;
-                  if (i==0)
-                    when2 = SqlDml.IsNotNull(row[i]);
-                  else
-                    when2 = when2 && SqlDml.IsNotNull(row[i]);
-                }
-                if (allLiteral) {
-                  when2 = true;
-                }
-                if (!whenNotNeeded) {
-                  //find row in subquery
-                  SqlQueryRef originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
-                  SqlSelect q1 = SqlDml.Select(originalQuery);
-                  q1.Columns.Add(1);
-                  {
-                    SqlTableColumnCollection columns = originalQuery.Columns;
-                    SqlExpression where = null;
-                    for (int i = 0; i < columns.Count; i++) {
-                      if (i==0)
-                        where = columns[i]==row[i];
-                      else
-                        where = where && columns[i]==row[i];
-                      if (node.Unique)
-                        q1.GroupBy.Add(columns[i]);
-                    }
-                    q1.Where = where;
-                    if (node.Unique)
-                      q1.Having = SqlDml.Count(SqlDml.Asterisk)==1;
-                  }
-                  c1.Add(when2, SqlDml.Exists(q1));
-                }
-              }
-              //else false
-              c1.Else = false;
-            }
-            if (c1.Count > 0)
-              finalQuery.Where = c1;
-            else
-              finalQuery.Where = false;
-            break;
+          else {
+            throw new InvalidOperationException(Strings.ExSqlMatchValueMustBeAnSqlRowInstance);
           }
-
-            #endregion
-
-            #region PARTIAL
-
-          case SqlMatchType.Partial: {
-            bool allNull = true;
-            SqlCase c1 = SqlDml.Case();
-            {
-              SqlExpression when1 = true;
-              //if all row elements are null then true
-              if (row.Count > 0) {
-                bool whenNotNeeded = false;
-                for (int i = 0; i < row.Count; i++) {
-                  //if any row element is surely not the NULL value
-                  if (row[i].NodeType==SqlNodeType.Literal) {
-                    allNull = false;
-                    whenNotNeeded = true;
-                    break;
-                  }
-                  if (allNull && row[i].NodeType!=SqlNodeType.Null) {
-                    allNull = false;
-                  }
-                  if (i==0)
-                    when1 = SqlDml.IsNull(row[i]);
-                  else
-                    when1 = when1 && SqlDml.IsNull(row[i]);
-                }
-                if (allNull) {
-                  when1 = true;
-                }
-                if (!whenNotNeeded)
-                  c1.Add(when1, true);
-              }
-              //otherwise
-              if (!allNull) {
-                //find row in subquery
-                SqlQueryRef originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
-                SqlSelect q1 = SqlDml.Select(originalQuery);
-                q1.Columns.Add(8);
-                {
-                  SqlTableColumnCollection columns = originalQuery.Columns;
-                  SqlExpression where = null;
-                  for (int i = 0; i < columns.Count; i++) {
-                    //if row[i] would be NULL then c3 would result in true,
-                    if (row[i].NodeType!=SqlNodeType.Null) {
-                      SqlCase c3 = SqlDml.Case();
-                      c3.Add(SqlDml.IsNull(row[i]), true);
-                      c3.Else = row[i]==columns[i];
-
-                      if (where==null)
-                        where = c3;
-                      else
-                        where = where && c3;
-                    }
-                    if (node.Unique) {
-                      SqlCase c4 = SqlDml.Case();
-                      c4.Add(SqlDml.IsNull(row[i]), 0);
-                      c4.Else = columns[i];
-                      q1.GroupBy.Add(c4);
-                    }
-                  }
-                  q1.Where = where;
-                  if (node.Unique)
-                    q1.Having = SqlDml.Count(SqlDml.Asterisk)==1;
-                }
-                c1.Else = SqlDml.Exists(q1);
-              }
-            }
-            if (c1.Else==null)
-              c1.Else = false;
-            if (allNull)
-              finalQuery.Where = null;
-            else if (c1.Count > 0)
-              finalQuery.Where = c1;
-            else
-              finalQuery.Where = c1.Else;
-          }
-            break;
-
-            #endregion
-          }
-          SqlMatch newNode = SqlDml.Match(SqlDml.Row(), SqlDml.SubQuery(finalQuery).Query, node.Unique, node.MatchType);
-          node.ReplaceWith(newNode);
-          return "EXISTS(SELECT '";
-        }
-        else {
-          throw new InvalidOperationException(Strings.ExSqlMatchValueMustBeAnSqlRowInstance);
-        }
-      case MatchSection.Specification:
-        return "' WHERE EXISTS";
-      case MatchSection.Exit:
-        return ")";
+        case MatchSection.Specification:
+          return "' WHERE EXISTS";
+        case MatchSection.Exit:
+          return ")";
       }
       return string.Empty;
     }
 
-    private SqlSelect CreateSelectForUniqueMatchNoneOrFull(SqlRow row, SqlSelect query)
+    private void BuildSelectForUniqueMatchNone(SqlMatch node, SqlRow row, SqlSelect finalQuery)
     {
-      /*
-      select exists(select 1
-              from (original subquery) x 
-              where x.a1=r.a1 and x.a2=r.a2 
-              group by x.a1, x.a2
-              having count(*)=1
-              )                    }
-       */
-      SqlSelect q0 = SqlDml.Select();
-      {
-        SqlQueryRef originalQuery = SqlDml.QueryRef(query);
-        SqlSelect q1 = SqlDml.Select(originalQuery);
-        q1.Columns.Add(1);
-        q1.Where = true; //initially true
-        {
-          int index = 0;
-          foreach (SqlColumn col in originalQuery.Columns) {
-            q1.Where = q1.Where && col==row[index];
-            q1.GroupBy.Add(col);
-            index++;
+      var existsNull = false;
+      var @case = SqlDml.Case();
+      var subQueryNeeded = true;
+      //if any of the row elements is NULL then true
+      if (row.Count > 0) {
+        var allLiteral = true; //if true then there is no NULL element
+        SqlExpression when = null;
+        for (var i = 0; i < row.Count; i++) {
+          var elementIsNotLiteral = row[i].NodeType != SqlNodeType.Literal;
+          //if the row element is the NULL value
+          if (row[i].NodeType == SqlNodeType.Null) {
+            existsNull = true;
+            break;
           }
-          q1.Having = SqlDml.Count(SqlDml.Asterisk)==1;
+          if (allLiteral && elementIsNotLiteral) {
+            allLiteral = false;
+          }
+          if (elementIsNotLiteral) {
+            when = when == null
+              ? SqlDml.IsNull(row[i])
+              : when || SqlDml.IsNull(row[i]);
+          }
         }
-        q0.Columns.Add(SqlDml.Exists(q1));
+        if (existsNull) {
+          //Some row element is the NULL value, MATCH result is true
+          subQueryNeeded = false;
+        }
+        else if (allLiteral) {
+          //No row element is the NULL value
+          subQueryNeeded = true;
+        }
+        else { //(!whenNotNeeded)
+         //Check if any row element is NULL
+          _ = @case.Add(when == null ? true : when, true);
+          subQueryNeeded = true;
+        }
       }
-      return q0;
+      //find row in subquery
+      if (subQueryNeeded) {
+        var originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
+        var subquery = SqlDml.Select(originalQuery);
+        subquery.Columns.Add(1);
+        var columns = originalQuery.Columns;
+        SqlExpression where = null;
+        for (var i = 0; i < columns.Count; i++) {
+          if (i == 0) {
+            where = columns[i] == row[i];
+          }
+          else {
+            where = where && columns[i] == row[i];
+          }
+          if (node.Unique) {
+            subquery.GroupBy.Add(columns[i]);
+          }
+        }
+        subquery.Where = where;
+        if (node.Unique) {
+          subquery.Having = SqlDml.Count(SqlDml.Asterisk) == 1;
+        }
+        //c.Add(Sql.Exists(q1), true);
+        @case.Else = SqlDml.Exists(subquery);
+      }
+      if (@case.Else == null) {
+        @case.Else = false;
+      }
+      if (existsNull) {
+        finalQuery.Where = null;
+      }
+      else if (@case.Count > 0) {
+        finalQuery.Where = @case;
+      }
+      else {
+        finalQuery.Where = @case.Else;
+      }
     }
 
+    private void BuildSelectForUniqueMatchFull(SqlMatch node, SqlRow row, SqlSelect finalQuery)
+    {
+      var @case = SqlDml.Case();
+      bool noMoreWhenNeeded = false;
+      bool allNull = true;
+      SqlExpression when1 = true;
+      //if all row elements are null then true
+      if (row.Count > 0) {
+        var whenNotNeeded = false;
+        for (var i = 0; i < row.Count; i++) {
+          //if any row element is surely not the NULL value
+          if (row[i].NodeType == SqlNodeType.Literal) {
+            whenNotNeeded = true;
+            break;
+          }
+          if (allNull && row[i].NodeType != SqlNodeType.Null) {
+            allNull = false;
+          }
+          if (i == 0) {
+            when1 = SqlDml.IsNull(row[i]);
+          }
+          else {
+            when1 = when1 && SqlDml.IsNull(row[i]);
+          }
+        }
+        if (allNull) {
+          when1 = true;
+        }
+        if (!whenNotNeeded) {
+          _ = @case.Add(when1, true);
+        }
+      }
+      if (!noMoreWhenNeeded) {
+        var whenNotNeeded = false;
+        var allLiteral = true;
+        SqlExpression when2 = true;
+        //if no row elements are null then subcase
+        for (var i = 0; i < row.Count; i++) {
+          if (row[i].NodeType == SqlNodeType.Null) {
+            whenNotNeeded = true;
+            when2 = false;
+            break;
+          }
+          if (allLiteral && row[i].NodeType != SqlNodeType.Literal) {
+            allLiteral = false;
+          }
+          if (i == 0) {
+            when2 = SqlDml.IsNotNull(row[i]);
+          }
+          else {
+            when2 = when2 && SqlDml.IsNotNull(row[i]);
+          }
+        }
+        if (allLiteral) {
+          when2 = true;
+        }
+        if (!whenNotNeeded) {
+          //find row in subquery
+          var originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
+          var subQuery = SqlDml.Select(originalQuery);
+          subQuery.Columns.Add(1);
+
+          var columns = originalQuery.Columns;
+          SqlExpression where = null;
+          for (int i = 0; i < columns.Count; i++) {
+            if (i == 0) {
+              where = columns[i] == row[i];
+            }
+            else {
+              where = where && columns[i] == row[i];
+            }
+            if (node.Unique) {
+              subQuery.GroupBy.Add(columns[i]);
+            }
+          }
+          subQuery.Where = where;
+          if (node.Unique) {
+            subQuery.Having = SqlDml.Count(SqlDml.Asterisk) == 1;
+          }
+          _ = @case.Add(when2, SqlDml.Exists(subQuery));
+        }
+      }
+      //else false
+      @case.Else = false;
+      finalQuery.Where = @case.Count > 0 ? @case : (SqlExpression) false;
+    }
+
+    private void BuildSelectForUniqueMatchPartial(SqlMatch node, SqlRow row, SqlSelect finalQuery)
+    {
+      bool allNull = true;
+      var @case = SqlDml.Case();
+      SqlExpression when = true;
+      //if all row elements are null then true
+      if (row.Count > 0) {
+        var whenNotNeeded = false;
+        for (var i = 0; i < row.Count; i++) {
+          //if any row element is surely not the NULL value
+          if (row[i].NodeType == SqlNodeType.Literal) {
+            allNull = false;
+            whenNotNeeded = true;
+            break;
+          }
+          if (allNull && row[i].NodeType != SqlNodeType.Null) {
+            allNull = false;
+          }
+          when = i == 0
+            ? SqlDml.IsNull(row[i])
+            : when && SqlDml.IsNull(row[i]);
+        }
+        if (allNull) {
+          when = true;
+        }
+        if (!whenNotNeeded) {
+          _ = @case.Add(when, true);
+        }
+      }
+      //otherwise
+      if (!allNull) {
+        //find row in subquery
+        var originalQuery = SqlDml.QueryRef(node.SubQuery.Query);
+        var subQuery = SqlDml.Select(originalQuery);
+        subQuery.Columns.Add(8);
+        var columns = originalQuery.Columns;
+        SqlExpression where = null;
+        for (var i = 0; i < columns.Count; i++) {
+          //if row[i] would be NULL then c3 would result in true,
+          if (row[i].NodeType != SqlNodeType.Null) {
+            SqlCase c3 = SqlDml.Case();
+            _ = c3.Add(SqlDml.IsNull(row[i]), true);
+            c3.Else = row[i] == columns[i];
+
+            where = where == null ? c3 : where && c3;
+          }
+          if (node.Unique) {
+            var c4 = SqlDml.Case();
+            _ = c4.Add(SqlDml.IsNull(row[i]), 0);
+            c4.Else = columns[i];
+            subQuery.GroupBy.Add(c4);
+          }
+        }
+        subQuery.Where = where;
+        if (node.Unique) {
+          subQuery.Having = SqlDml.Count(SqlDml.Asterisk) == 1;
+        }
+        @case.Else = SqlDml.Exists(subQuery);
+      }
+      if (@case.Else == null) {
+        @case.Else = false;
+      }
+      if (allNull) {
+        finalQuery.Where = null;
+      }
+      else if (@case.Count > 0) {
+        finalQuery.Where = @case;
+      }
+      else {
+        finalQuery.Where = @case.Else;
+      }
+    }
 
     public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
@@ -738,11 +694,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       //substitute UNIQUE predicate with a more complex EXISTS predicate,
       //because UNIQUE is not supported
 
-      if (node.NodeType==SqlNodeType.Unique) {
-        var origSubselect = node.Operand as SqlSubQuery;
-        if (origSubselect!=null) {
-          SqlQueryRef origQuery = SqlDml.QueryRef(origSubselect.Query);
-          SqlSelect existsOp = SqlDml.Select(origQuery);
+      if (node.NodeType == SqlNodeType.Unique) {
+        if (node.Operand is SqlSubQuery origSubselect) {
+          var origQuery = SqlDml.QueryRef(origSubselect.Query);
+          var existsOp = SqlDml.Select(origQuery);
           existsOp.Columns.Add(1);
           existsOp.Where = true;
           foreach (SqlColumn col in origQuery.Columns) {
@@ -760,10 +715,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
-      if (section==NodeSection.Entry)
-        return "nextval('";
-      if (section==NodeSection.Exit)
-        return "')";
+      switch (section) {
+        case NodeSection.Entry:
+          return "nextval('";
+        case NodeSection.Exit:
+          return "')";
+      }
       return string.Empty;
     }
 
@@ -771,11 +728,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       // casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
       switch (section) {
-      case NodeSection.Entry:
-        return "(";
-
-      case NodeSection.Exit:
-        return ")::" + Translate(node.Type);
+        case NodeSection.Entry:
+          return "(";
+        case NodeSection.Exit:
+          return ")::" + Translate(node.Type);
       }
       return string.Empty;
     }
@@ -794,7 +750,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return base.Translate(part);
     }
 
-    /*
     public override string Translate(SqlDateTimeOffsetPart part)
     {
       switch (part) {
@@ -814,15 +769,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       return base.Translate(part);
     }
-    */
 
     public override string Translate(SqlLockType lockType)
     {
-      if (lockType.Supports(SqlLockType.SkipLocked)
+      return lockType.Supports(SqlLockType.SkipLocked)
         || lockType.Supports(SqlLockType.Shared)
-        || lockType.Supports(SqlLockType.ThrowIfLocked))
-        return base.Translate(lockType);
-      return "FOR UPDATE";
+        || lockType.Supports(SqlLockType.ThrowIfLocked)
+        ? base.Translate(lockType)
+        : "FOR UPDATE";
     }
 
     protected virtual string TranslateClrType(Type type)
@@ -853,20 +807,23 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         case TypeCode.DateTime:
           return "timestamp";
         default:
-          if (type==typeof (TimeSpan))
+          if (type == WellKnownTypes.TimeSpanType) {
             return "interval";
-          if (type==typeof(Guid))
+          }
+          if (type == WellKnownTypes.GuidType) {
             return "bytea";
+          }
           return "text";
       }
     }
 
     private static string TranslateByteArrayLiteral(byte[] array)
     {
-      if (array.Length==0)
+      if (array.Length == 0) {
         return "''::bytea";
+      }
 
-      var chars = new char[1 + 5 * array.Length + 8];
+      var chars = new char[1 + (5 * array.Length) + 8];
       chars[0] = '\'';
       chars[chars.Length - 1] = 'a';
       chars[chars.Length - 2] = 'e';

@@ -1,6 +1,6 @@
-// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.09.25
 
@@ -43,8 +43,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
         var select = SqlDml.Select(tableRef);
         select.Where = SqlDml.In(tableRef["seqrelid"], SqlDml.Array(sequenceMap.Keys.ToArray()));
 
-        using (DbCommand cmd = Connection.CreateCommand(select))
-        using (DbDataReader dr = cmd.ExecuteReader()) {
+        using (var cmd = Connection.CreateCommand(select))
+        using (var dr = cmd.ExecuteReader()) {
           while (dr.Read()) {
             var seqId = Convert.ToInt64(dr["seqrelid"]);
             var sequence = context.SequenceMap[seqId];
@@ -63,15 +63,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
       descriptor.StartValue = Convert.ToInt64(reader["seqstart"]);
     }
 
-    protected void CreateOidColumn(Table table, string name)
-    {
-      table.CreateColumn(name, new SqlValueType(SqlType.Int64));
-    }
+    protected void CreateOidColumn(Table table, string name) =>
+      _ = table.CreateColumn(name, new SqlValueType(SqlType.Int64));
 
-    protected void CreateInt8Column(Table table, string name)
-    {
-      table.CreateColumn(name, new SqlValueType(SqlType.Int64));
-    }
+    protected void CreateInt8Column(Table table, string name) =>
+      _ = table.CreateColumn(name, new SqlValueType(SqlType.Int64));
 
     // Consructors
 

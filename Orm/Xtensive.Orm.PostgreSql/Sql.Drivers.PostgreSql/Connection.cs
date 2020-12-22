@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.11
 
@@ -16,19 +16,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   {
     private NpgsqlConnection underlyingConnection;
     private NpgsqlTransaction activeTransaction;
-    
-    /// <inheritdoc/>
-    public override DbConnection UnderlyingConnection { get { return underlyingConnection; } }
 
     /// <inheritdoc/>
-    public override DbTransaction ActiveTransaction { get { return activeTransaction; } }
-    
+    public override DbConnection UnderlyingConnection => underlyingConnection;
+
+    /// <inheritdoc/>
+    public override DbTransaction ActiveTransaction => activeTransaction;
+
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public override DbParameter CreateParameter()
-    {
-      return new NpgsqlParameter();
-    }
+    public override DbParameter CreateParameter() => new NpgsqlParameter();
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -54,8 +51,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       var commandText = string.Format("SAVEPOINT {0}", name);
-      using (var command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+      using (var command = CreateCommand(commandText)) {
+        _ = command.ExecuteNonQuery();
+      }
     }
 
     /// <inheritdoc/>
@@ -64,8 +62,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       var commandText = string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
-      using (var command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+      using (var command = CreateCommand(commandText)) {
+        _ = command.ExecuteNonQuery();
+      }
     }
 
     /// <inheritdoc/>
@@ -74,8 +73,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsActive();
       var commandText = string.Format("RELEASE SAVEPOINT {0}", name);
-      using (var command = CreateCommand(commandText))
-        command.ExecuteNonQuery();
+      using (var command = CreateCommand(commandText)) {
+        _ = command.ExecuteNonQuery();
+      }
     }
 
     /// <inheritdoc/>

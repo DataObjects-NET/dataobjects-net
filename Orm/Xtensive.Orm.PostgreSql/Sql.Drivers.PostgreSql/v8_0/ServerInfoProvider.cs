@@ -17,29 +17,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private const int MaxTextLength = (int.MaxValue >> 1) - 1000;
     private const int MaxCharLength = 10485760;
 
-    private readonly string defaultSchemaName;
-    private readonly string databaseName;
+    protected virtual IndexFeatures GetIndexFeatures() =>
+      IndexFeatures.Unique | IndexFeatures.Filtered | IndexFeatures.Expressions;
 
-    protected virtual IndexFeatures GetIndexFeatures()
-    {
-      return IndexFeatures.Unique | IndexFeatures.Filtered | IndexFeatures.Expressions;
-    }
+    protected virtual int GetMaxTextLength() => MaxTextLength;
 
-    protected virtual int GetMaxTextLength()
-    {
-      return MaxTextLength;
-    }
+    protected virtual int GetMaxCharLength() => MaxCharLength;
 
-    protected virtual int GetMaxCharLength()
-    {
-      return MaxCharLength;
-    }
-    
-    public virtual short GetMaxDateTimePrecision()
-    {
-      return 6;
-    }
-
+    public virtual short GetMaxDateTimePrecision() => 6;
 
     public override EntityInfo GetDatabaseInfo()
     {
@@ -117,10 +102,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return info;
     }
 
-    public override FullTextSearchInfo GetFullTextInfo()
-    {
-      return null;
-    }
+    public override FullTextSearchInfo GetFullTextInfo() => null;
 
     public override UniqueConstraintInfo GetUniqueConstraintInfo()
     {
@@ -153,7 +135,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
-
 
     public override DataTypeCollection GetDataTypesInfo()
     {
@@ -201,12 +182,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       dtc.VarChar = DataTypeInfo.Stream(SqlType.VarChar, commonFeatures, MaxCharLength, "character varying", "varchar");
       dtc.VarCharMax = DataTypeInfo.Regular(SqlType.VarCharMax, commonFeatures, "text");
       dtc.VarBinaryMax = DataTypeInfo.Stream(SqlType.VarBinaryMax, commonFeatures, MaxTextLength, "bytea");
-      /*
+
       dtc.DateTimeOffset = DataTypeInfo.Range(SqlType.DateTimeOffset, commonFeatures,
         new ValueRange<DateTimeOffset>(new DateTimeOffset(1, 1, 1, 0, 0, 0, 0, new TimeSpan(0)),
           new DateTimeOffset(9999, 12, 31, 0, 0, 0, 0, new TimeSpan(0))),
         "timestamptz");
-      */
 
       var geo = DataTypeFeatures.Default | DataTypeFeatures.Nullable | DataTypeFeatures.Multiple | DataTypeFeatures.Spatial;
 
@@ -240,7 +220,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override EntityInfo GetStoredProcedureInfo()
     {
-      EntityInfo info = new EntityInfo();
+      var info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
       info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
@@ -248,17 +228,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override EntityInfo GetTriggerInfo()
     {
-      EntityInfo info = new EntityInfo();
+      var info = new EntityInfo();
       info.AllowedDdlStatements = DdlStatements.All;
       info.MaxIdentifierLength = MaxIdentifierLength;
       return info;
     }
 
 
-    public override IsolationLevels GetIsolationLevels()
-    {
-      return IsolationLevels.ReadCommitted | IsolationLevels.Serializable;
-    }
+    public override IsolationLevels GetIsolationLevels() =>
+      IsolationLevels.ReadCommitted | IsolationLevels.Serializable;
 
     public override QueryInfo GetQueryInfo()
     {
@@ -284,40 +262,20 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return info;
     }
 
-    public override ServerFeatures GetServerFeatures()
-    {
-      return ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl | ServerFeatures.TransactionalFullTextDdl;
-    }
+    public override ServerFeatures GetServerFeatures() =>
+      ServerFeatures.Savepoints | ServerFeatures.TransactionalDdl | ServerFeatures.TransactionalFullTextDdl;
 
-    public override IdentityInfo GetIdentityInfo()
-    {
-      return null;
-    }
+    public override IdentityInfo GetIdentityInfo() => null;
 
-    public override AssertConstraintInfo GetAssertionInfo()
-    {
-      return null;
-    }
+    public override AssertConstraintInfo GetAssertionInfo() => null;
 
-    public override EntityInfo GetCharacterSetInfo()
-    {
-      return null;
-    }
+    public override EntityInfo GetCharacterSetInfo() => null;
 
-    public override EntityInfo GetCollationInfo()
-    {
-      return null;
-    }
+    public override EntityInfo GetCollationInfo() => null;
 
-    public override EntityInfo GetTranslationInfo()
-    {
-      return null;
-    }
+    public override EntityInfo GetTranslationInfo() => null;
 
-    public override int GetStringIndexingBase()
-    {
-      return 1;
-    }
+    public override int GetStringIndexingBase() => 1;
 
     // Constructors
 

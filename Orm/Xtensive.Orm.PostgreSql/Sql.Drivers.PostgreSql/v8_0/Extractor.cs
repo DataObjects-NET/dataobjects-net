@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -169,20 +169,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       // Query OID of some system catalog tables for using them in pg_depend lookups
 
-      SqlTableRef rel = PgClass;
-      SqlSelect q = SqlDml.Select(rel);
+      var rel = PgClass;
+      var q = SqlDml.Select(rel);
       q.Where = SqlDml.In(rel["relname"], SqlDml.Row("pg_class"));
       q.Columns.Add(rel["oid"]);
       q.Columns.Add(rel["relname"]);
 
       using (var cmd = Connection.CreateCommand(q))
-      using (var dr = cmd.ExecuteReader())
+      using (var dr = cmd.ExecuteReader()) {
         while (dr.Read()) {
-          long oid = Convert.ToInt64(dr[0]);
-          string name = dr.GetString(1);
-          if (name=="pg_class")
+          var oid = Convert.ToInt64(dr[0]);
+          var name = dr.GetString(1);
+          if (name == "pg_class") {
             PgClassOid = oid;
+          }
         }
+      }
     }
 
     private Schema CreatePgCatalogSchema(Type dummy)
@@ -315,8 +317,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var catalog = new Catalog(catalogName);
       var context = new ExtractionContext(catalog);
-      foreach (var schemaName in schemaNames)
+      foreach (var schemaName in schemaNames) {
         context.TargetSchemes.Add(schemaName, catalog.CreateSchema(schemaName));
+      }
       ExtractUsers(context);
       ExtractSchemas(context);
       return catalog;
@@ -330,17 +333,19 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       context.UserLookup.Clear();
       string me;
-      using (var command = Connection.CreateCommand("SELECT user"))
+      using (var command = Connection.CreateCommand("SELECT user")) {
         me = (string) command.ExecuteScalar();
+      }
 
-      using (DbCommand cmd = Connection.CreateCommand("SELECT usename, usesysid FROM pg_user"))
-      using (DbDataReader dr = cmd.ExecuteReader()) {
+      using (var cmd = Connection.CreateCommand("SELECT usename, usesysid FROM pg_user"))
+      using (var dr = cmd.ExecuteReader()) {
         while (dr.Read()) {
-          string name = dr[0].ToString();
-          long sysid = Convert.ToInt64(dr[1]);
+          var name = dr[0].ToString();
+          var sysid = Convert.ToInt64(dr[1]);
           context.UserLookup.Add(sysid, name);
-          if (name==me)
+          if (name == me) {
             context.CurrentUserSysId = sysid;
+          }
         }
       }
     }
@@ -407,8 +412,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           var owner = Convert.ToInt64(dataReader["nspowner"]);
 
           var schema = catalog.Schemas[name] ?? catalog.CreateSchema(name);
-          if (name=="public")
+          if (name == "public") {
             catalog.DefaultSchema = schema;
+          }
           schema.Owner = context.UserLookup[owner];
           context.SchemaMap[oid] = schema;
           context.ReversedSchemaMap[schema] = oid;
@@ -429,9 +435,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         var relationsTable = PgClass;
         var tablespacesTable = PgTablespace;
 
-        var join = relationsTable.LeftOuterJoin(tablespacesTable, tablespacesTable["oid"]==relationsTable["reltablespace"]);
+        var join = relationsTable.LeftOuterJoin(tablespacesTable, tablespacesTable["oid"] == relationsTable["reltablespace"]);
         var select = SqlDml.Select(join);
-        select.Where = relationsTable["relowner"]==context.CurrentUserIdentifier
+        select.Where = relationsTable["relowner"] == context.CurrentUserIdentifier
           && SqlDml.In(relationsTable["relkind"], SqlDml.Row('r', 'v', 'S'));
 
         if (targetSchemes!=null && targetSchemes.Count > 0) {
@@ -444,8 +450,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         select.Columns.Add(relationsTable["relnamespace"]);
         select.Columns.Add(tablespacesTable["spcname"]);
         select.Columns.Add(new Func<SqlCase>(() => {
-          SqlCase defCase = SqlDml.Case(relationsTable["relkind"]);
-          defCase.Add('v', SqlDml.FunctionCall("pg_get_viewdef", relationsTable["oid"]));
+          var defCase = SqlDml.Case(relationsTable["relkind"]);
+          _ = defCase.Add('v', SqlDml.FunctionCall("pg_get_viewdef", relationsTable["oid"]));
           return defCase;
         })(), "definition");
 
@@ -457,23 +463,25 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             var relationName = dataReader["relname"].ToString();
             var relationNamespace = Convert.ToInt64(dataReader["relnamespace"]);
 
-            Schema schema;
-            if (!context.SchemaMap.TryGetValue(relationNamespace, out schema))
+            if (!context.SchemaMap.TryGetValue(relationNamespace, out var schema)) {
               continue;
-            Debug.Assert(schema!=null);
-            if (relationKind=="r") {
+            }
+
+            Debug.Assert(schema != null);
+            if (relationKind == "r") {
               var table = schema.CreateTable(relationName);
               var tableSpaceName = dataReader["spcname"];
-              if (tableSpaceName != DBNull.Value && tableSpaceName != null)
+              if (tableSpaceName != DBNull.Value && tableSpaceName != null) {
                 table.Filegroup = Convert.ToString(tableSpaceName);
+              }
               context.TableMap.Add(relationOid, table);
             }
-            else if (relationKind=="v") {
+            else if (relationKind == "v") {
               var definition = dataReader["definition"].ToString();
               var view = schema.CreateView(relationName, SqlDml.Native(definition), CheckOptions.None);
               context.ViewMap.Add(relationOid, view);
             }
-            else if (relationKind=="S") {
+            else if (relationKind == "S") {
               var sequence = schema.CreateSequence(relationName);
               context.SequenceMap.Add(relationOid, sequence);
             }
@@ -498,10 +506,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         var typesTable = PgType;
 
         var select = SqlDml.Select(columnsTable
-          .LeftOuterJoin(dafaultValuesTable, columnsTable["attrelid"]==dafaultValuesTable["adrelid"] && columnsTable["attnum"]==dafaultValuesTable["adnum"])
-          .InnerJoin(typesTable, typesTable["oid"]==columnsTable["atttypid"]));
+          .LeftOuterJoin(dafaultValuesTable, columnsTable["attrelid"] == dafaultValuesTable["adrelid"] && columnsTable["attnum"] == dafaultValuesTable["adnum"])
+          .InnerJoin(typesTable, typesTable["oid"] == columnsTable["atttypid"]));
 
-        select.Where = columnsTable["attisdropped"]==false &&
+        select.Where = columnsTable["attisdropped"] == false &&
                        columnsTable["attnum"] > 0 &&
                        (SqlDml.In(columnsTable["attrelid"], CreateOidRow(tableMap.Keys)) ||
                         SqlDml.In(columnsTable["attrelid"], CreateOidRow(viewMap.Keys)));
@@ -518,7 +526,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         select.OrderBy.Add(columnsTable["attnum"]);
 
         using (var command = Connection.CreateCommand(select))
-        using (DbDataReader dataReader = command.ExecuteReader()) {
+        using (var dataReader = command.ExecuteReader()) {
           while (dataReader.Read()) {
             var columnOwnerId = Convert.ToInt64(dataReader["attrelid"]);
             var columnId = Convert.ToInt64(dataReader["attnum"]);
@@ -526,9 +534,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             if (tableMap.ContainsKey(columnOwnerId)) {
               var table = tableMap[columnOwnerId];
               Debug.Assert(table != null);
-              TableColumn col = table.CreateColumn(columnName);
-              if (!tableColumns.ContainsKey(columnOwnerId))
+              var col = table.CreateColumn(columnName);
+              if (!tableColumns.ContainsKey(columnOwnerId)) {
                 tableColumns.Add(columnOwnerId, new Dictionary<long, TableColumn>());
+              }
               tableColumns[columnOwnerId].Add(columnId, col);
 
               var columnTypeName = dataReader["typname"].ToString();
@@ -545,7 +554,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             else {
               var view = viewMap[columnOwnerId];
               Debug.Assert(view != null);
-              view.CreateColumn(columnName);
+              _ = view.CreateColumn(columnName);
             }
           }
         }
@@ -592,7 +601,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         select.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", indexTable["indexrelid"]), "inddef");
         AddSpecialIndexQueryColumns(select, tableSpacesTable, relationsTable, indexTable, dependencyTable);
 
-        int maxColumnNumber = 0;
+        var maxColumnNumber = 0;
         using (var command = Connection.CreateCommand(select))
         using (var dataReader = command.ExecuteReader()) {
           while (dataReader.Read()) {
@@ -619,8 +628,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
                 foreach (Capture capture in match.Groups[2].Captures) {
                   var columnName = capture.Value;
                   var fullTextColumn = fullTextIndex.Columns[columnName] ?? fullTextIndex.CreateIndexColumn(table.Columns.Single(column => column.Name == columnName));
-                  if (fullTextColumn.Languages[columnConfigurationName]==null)
+                  if (fullTextColumn.Languages[columnConfigurationName] == null) {
                     fullTextColumn.Languages.Add(new Language(columnConfigurationName));
+                  }
                 }
               }
             }
@@ -630,24 +640,27 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
               index.IsBitmap = false;
               index.IsUnique = isUnique;
               index.Filegroup = tablespaceName;
-              if (!string.IsNullOrEmpty(filterExpression))
+              if (!string.IsNullOrEmpty(filterExpression)) {
                 index.Where = SqlDml.Native(filterExpression);
+              }
 
               // Expression-based index
               var some = dataReader["indexprs"];
-              if (some!=DBNull.Value) {
+              if (some != DBNull.Value) {
                 context.ExpressionIndexMap[indexIdentifier] = new ExpressionIndexInfo(index, indexKey);
                 int columnNumber = dataReader.GetInt16(dataReader.GetOrdinal("indnatts"));
-                if (columnNumber > maxColumnNumber)
+                if (columnNumber > maxColumnNumber) {
                   maxColumnNumber = columnNumber;
+                }
               }
               else {
-                for (int j = 0; j < indexKey.Length; j++) {
+                for (var j = 0; j < indexKey.Length; j++) {
                   int colIndex = indexKey[j];
-                  if (colIndex > 0)
-                    index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
-                  else{
-                    int z = 7;
+                  if (colIndex > 0) {
+                    _ = index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
+                  }
+                  else {
+                    var z = 7;
                     //column index is 0
                     //this means that this index column is an expression
                     //which is not possible with SqlDom tables
@@ -666,20 +679,23 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           select.Columns.Add(indexTable["indrelid"]);
           select.Columns.Add(indexTable["indexrelid"]);
 
-          for (int i = 1; i <= maxColumnNumber; i++)
+          for (var i = 1; i <= maxColumnNumber; i++) {
             select.Columns.Add(SqlDml.FunctionCall("pg_get_indexdef", indexTable["indexrelid"], i, true), i.ToString());
+          }
           select.Where = SqlDml.In(indexTable["indexrelid"], SqlDml.Array(expressionIndexMap.Keys.ToArray()));
 
           using (var command = Connection.CreateCommand(select))
           using (var dataReader = command.ExecuteReader()) {
             while (dataReader.Read()) {
               var exprIndexInfo = expressionIndexMap[Convert.ToInt64(dataReader[1])];
-              for (int j = 0; j < exprIndexInfo.Columns.Length; j++) {
-                int colIndex = exprIndexInfo.Columns[j];
-                if (colIndex > 0)
-                  exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true);
-                else
-                  exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dataReader[(j + 1).ToString()].ToString()));
+              for (var j = 0; j < exprIndexInfo.Columns.Length; j++) {
+                var colIndex = exprIndexInfo.Columns[j];
+                if (colIndex > 0) {
+                  _ = exprIndexInfo.Index.CreateIndexColumn(tableColumns[Convert.ToInt64(dataReader[0])][colIndex], true);
+                }
+                else {
+                  _ = exprIndexInfo.Index.CreateIndexColumn(SqlDml.Native(dataReader[(j + 1).ToString()].ToString()));
+                }
               }
             }
           }
@@ -699,11 +715,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       if (schemaIndex.Count > 0) {
         var typeTable = PgType;
         var baseTypeTable = PgType;
-        var select = SqlDml.Select(typeTable.InnerJoin(baseTypeTable, baseTypeTable["oid"]==typeTable["typbasetype"]));
-        select.Where = typeTable["typisdefined"]==true &&
-                       typeTable["typtype"]=='d' &&
+        var select = SqlDml.Select(typeTable.InnerJoin(baseTypeTable, baseTypeTable["oid"] == typeTable["typbasetype"]));
+        select.Where = typeTable["typisdefined"] == true &&
+                       typeTable["typtype"] == 'd' &&
                        SqlDml.In(typeTable["typnamespace"], CreateOidRow(schemaIndex.Keys)) &&
-                       typeTable["typowner"]==context.CurrentUserIdentifier;
+                       typeTable["typowner"] == context.CurrentUserIdentifier;
         select.Columns.Add(typeTable["oid"]);
         select.Columns.Add(typeTable["typname"], "typname");
         select.Columns.Add(typeTable["typnamespace"], "typnamespace");
@@ -718,14 +734,15 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             var typeNamespace = Convert.ToInt64(dataReader["typnamespace"]);
             var typeName = dataReader["typname"].ToString();
             var baseTypeName = dataReader["basetypname"].ToString();
-            int typmod = Convert.ToInt32(dataReader["typmod"]);
-            var defaultValue = (dataReader["default"]!=DBNull.Value) ? dataReader["default"].ToString() : (string)null;
+            var typmod = Convert.ToInt32(dataReader["typmod"]);
+            var defaultValue = (dataReader["default"] != DBNull.Value) ? dataReader["default"].ToString() : null;
 
-            Schema schema;
-            if (!schemaIndex.TryGetValue(typeNamespace, out schema))
+            if (!schemaIndex.TryGetValue(typeNamespace, out var schema)) {
               continue;
+            }
+
             var domain = schema.CreateDomain(typeName, GetSqlValueType(baseTypeName, typmod));
-            domain.DefaultValue = (defaultValue==null) ? (SqlExpression)SqlDml.Null : (SqlExpression)SqlDml.Native(defaultValue);
+            domain.DefaultValue = (defaultValue == null) ? SqlDml.Null : (SqlExpression)SqlDml.Native(defaultValue);
             domains.Add(typeId, domain);
           }
         }
@@ -771,12 +788,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             var isDeferred = dataReader.GetBoolean(dataReader.GetOrdinal("condeferred"));
             var tableId = Convert.ToInt64(dataReader["conrelid"]);
             var domainId = Convert.ToInt64(dataReader["contypid"]);
-            object constraintKeyColumns = dataReader["conkey"];
+            var constraintKeyColumns = dataReader["conkey"];
 
-            if (tableId!=0) {
+            if (tableId != 0) {
               //table constraint
               var table = tableMap[tableId];
-              if (constraintType=='c') {
+              if (constraintType == 'c') {
                 //[c]heck
                 var consrc = dataReader["consrc"].ToString();
                 var constraint = table.CreateCheckConstraint(constraintName, SqlDml.Native(consrc));
@@ -785,21 +802,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
               }
               else {
                 var columnsOfTable = tableColumns[tableId];
-                if (constraintType=='u' || constraintType=='p') {
+                if (constraintType == 'u' || constraintType == 'p') {
                   //[u]nique or [p]rimary key
-                  UniqueConstraint constraint = (constraintType=='u')
+                  var constraint = (constraintType == 'u')
                     ? table.CreateUniqueConstraint(constraintName)
                     : table.CreatePrimaryKey(constraintName);
 
                   constraint.IsDeferrable = isDeferrable;
                   constraint.IsInitiallyDeferred = isDeferred;
-                  int[] colIndexes = ReadIntArray(constraintKeyColumns);
-                  for (int i = 0; i < colIndexes.Length; i++)
+                  var colIndexes = ReadIntArray(constraintKeyColumns);
+                  for (var i = 0; i < colIndexes.Length; i++) {
                     constraint.Columns.Add(columnsOfTable[colIndexes[i]]);
+                  }
                 }
-                else if (constraintType=='f') {
+                else if (constraintType == 'f') {
                   //[f]oreign key
-                  object confkey = dataReader["confkey"];
+                  var confkey = dataReader["confkey"];
                   var referencedTableId = Convert.ToInt64(dataReader["confrelid"]);
                   var updateAction = dataReader["confupdtype"].ToString()[0];
                   var deleteAction = dataReader["confdeltype"].ToString()[0];
@@ -815,21 +833,23 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
                   var fkeyColumns = tableColumns[referencedTableId];
 
-                  int[] colIndexes = ReadIntArray(constraintKeyColumns);
-                  for (int i = 0; i < colIndexes.Length; i++)
+                  var colIndexes = ReadIntArray(constraintKeyColumns);
+                  for (var i = 0; i < colIndexes.Length; i++) {
                     foreignKey.Columns.Add(columnsOfTable[colIndexes[i]]);
+                  }
 
                   colIndexes = ReadIntArray(confkey);
-                  for (int i = 0; i < colIndexes.Length; i++)
+                  for (var i = 0; i < colIndexes.Length; i++) {
                     foreignKey.ReferencedColumns.Add(fkeyColumns[colIndexes[i]]);
+                  }
                 }
               }
             }
-            else if (domainId!=0) {
+            else if (domainId != 0) {
               //domain constraint
-              if (constraintType=='c') {
+              if (constraintType == 'c') {
                 //check
-                string consrc = dataReader["consrc"].ToString();
+                var consrc = dataReader["consrc"].ToString();
                 var domain = domainMap[domainId];
                 var constraint = domain.CreateConstraint(constraintName, SqlDml.Native(consrc));
                 constraint.IsDeferrable = isDeferrable;
@@ -852,26 +872,24 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       if (sequenceMap.Count > 0) {
         //Have to do it traditional string concat because cannot select from 
         //a sequence with Sql.Dom
-        var query = new StringBuilder(); {
-          Sequence[] seqArray = new Sequence[sequenceMap.Count];
-          sequenceMap.Values.CopyTo(seqArray, 0);
-          Sequence seq = seqArray[0];
-          query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", 0,
-            Driver.Translator.Translate(null, seq)); // context is not used in PostrgreSQL translator
-          for (int i = 1; i < sequenceMap.Count; i++)
-          {
-            seq = seqArray[i];
-            query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", i,
-              Driver.Translator.Translate(null, seq)); // context is not used in PostgreSQL translator
-          }
-          query.Append("\n) all_sequences\nORDER BY id");
+        var query = new StringBuilder();
+        var seqArray = new Sequence[sequenceMap.Count];
+        sequenceMap.Values.CopyTo(seqArray, 0);
+        var currentSeq = seqArray[0];
+        _ = query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", 0,
+          Driver.Translator.Translate(null, currentSeq)); // context is not used in PostrgreSQL translator
+        for (var i = 1; i < sequenceMap.Count; i++) {
+          currentSeq = seqArray[i];
+          _ = query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", i,
+            Driver.Translator.Translate(null, currentSeq)); // context is not used in PostgreSQL translator
         }
+        _ = query.Append("\n) all_sequences\nORDER BY id");
 
-        using (DbCommand cmd = Connection.UnderlyingConnection.CreateCommand()) {
+        using (var cmd = Connection.UnderlyingConnection.CreateCommand()) {
           cmd.CommandText = query.ToString();
-          using (DbDataReader dr = cmd.ExecuteReader()) {
-            foreach (Sequence seq in sequenceMap.Values) {
-              dr.Read();
+          using (var dr = cmd.ExecuteReader()) {
+            foreach (var seq in sequenceMap.Values) {
+              _ = dr.Read();
               ReadSequenceDescriptor(dr, seq.SequenceDescriptor);
             }
           }
@@ -900,59 +918,58 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected void CreateOidColumn(Table t)
     {
-      t.CreateColumn("oid", new SqlValueType(SqlType.Int64));
+      _ = t.CreateColumn("oid", new SqlValueType(SqlType.Int64));
     }
 
     protected void CreateInt2Column(Table t, string name)
     {
-      t.CreateColumn(name, new SqlValueType(SqlType.Int16));
+      _ = t.CreateColumn(name, new SqlValueType(SqlType.Int16));
     }
 
     protected void CreateInt4Column(Table t, string name)
     {
-      t.CreateColumn(name, new SqlValueType(SqlType.Int32));
+      _ = t.CreateColumn(name, new SqlValueType(SqlType.Int32));
     }
 
     protected void CreateChar1Column(Table t, string name)
     {
-      t.CreateColumn(name, new SqlValueType(SqlType.Char, 1));
+      _ = t.CreateColumn(name, new SqlValueType(SqlType.Char, 1));
     }
 
     protected void CreateTextColumn(Table t, string name)
     {
-      t.CreateColumn(name, new SqlValueType(SqlType.VarChar));
+      _ = t.CreateColumn(name, new SqlValueType(SqlType.VarChar));
     }
 
     protected void CreateBoolColumn(Table t, string name)
     {
-      t.CreateColumn(name, new SqlValueType(SqlType.Boolean));
+      _ = t.CreateColumn(name, new SqlValueType(SqlType.Boolean));
     }
 
     #endregion
 
     protected SqlValueType GetSqlValueType(string typname, int typmod)
     {
-      DataTypeInfo typeInfo = Driver.ServerInfo.DataTypes[typname];
+      var typeInfo = Driver.ServerInfo.DataTypes[typname];
       // Unlike MS SQL extractor we do not set precision/scale/length for unknown type,
       // 'cause we don't know how to treat typmod
-      if (typeInfo==null)
+      if (typeInfo == null) {
         return new SqlValueType(typname);
+      }
 
-      if (typeInfo.Type==SqlType.Decimal) {
-        if (typmod==-1)
+      if (typeInfo.Type == SqlType.Decimal) {
+        if (typmod == -1) {
           // in this case we cannot determine the actual precision and scale
           // it should be avoided
           return new SqlValueType(typeInfo.Type);
-        int precision;
-        int scale;
-        GetPrecisionAndScale(typmod, out precision, out scale);
+        }
+        GetPrecisionAndScale(typmod, out var precision, out var scale);
         return new SqlValueType(typeInfo.Type, precision, scale);
       }
-      /*
-      if (typeInfo.Type==SqlType.DateTimeOffset)
+      if (typeInfo.Type == SqlType.DateTimeOffset) {
         return new SqlValueType(typeInfo.Type);
-        */
-      return typmod!=-1 
+      }
+      return typmod != -1
         ? new SqlValueType(typeInfo.Type, typmod - 4)
         : new SqlValueType(typeInfo.Type);
     }
@@ -960,61 +977,63 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected void GetPrecisionAndScale(int typmod, out int precision, out int scale)
     {
       //high word
-      precision = ((typmod - 4) >> 16);
+      precision = (typmod - 4) >> 16;
       //low word
-      scale = ((typmod - 4) & 0xFFFF);
+      scale = (typmod - 4) & 0xFFFF;
     }
 
     protected ReferentialAction GetReferentialAction(char c)
     {
       switch (c) {
-      case 'c':
-        return ReferentialAction.Cascade;
-      case 'n':
-        return ReferentialAction.SetNull;
-      case 'd':
-        return ReferentialAction.SetDefault;
-      case 'r':
-        return ReferentialAction.Restrict;
-      default:
-        return ReferentialAction.NoAction; //a
+        case 'c':
+          return ReferentialAction.Cascade;
+        case 'n':
+          return ReferentialAction.SetNull;
+        case 'd':
+          return ReferentialAction.SetDefault;
+        case 'r':
+          return ReferentialAction.Restrict;
+        default:
+          return ReferentialAction.NoAction; //a
       }
     }
 
     protected SqlMatchType GetMatchType(char c)
     {
       switch (c) {
-      case 'f':
-        return SqlMatchType.Full; //f
-      default:
-        return SqlMatchType.None; //u
+        case 'f':
+          return SqlMatchType.Full; //f
+        default:
+          return SqlMatchType.None; //u
       }
     }
 
     protected SqlRow CreateOidRow(IEnumerable<long> oids)
     {
       var result = SqlDml.Row();
-      foreach (var oid in oids)
+      foreach (var oid in oids) {
         result.Add(oid);
+      }
       // make sure it is not empty, so that "IN" expression always works
       // add an invalid OID value 
-      if (result.Count==0)
+      if (result.Count == 0) {
         result.Add(-1000);
+      }
       return result;
     }
 
     private int[] ReadIntArray(object value)
     {
-      var shortArray = value as short[];
-      if (shortArray!=null) {
+      if (value is short[] shortArray) {
         var result = new int[shortArray.Length];
-        for (int i = 0; i < shortArray.Length; i++)
+        for (var i = 0; i < shortArray.Length; i++) {
           result[i] = shortArray[i];
+        }
         return result;
       }
-      var intArray = value as int[];
-      if (intArray!=null)
+      if (value is int[] intArray) {
         return intArray;
+      }
       throw new InvalidOperationException();
     }
 
@@ -1023,10 +1042,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// </summary>
     private long GetMyUserSysId(long mUserSysId)
     {
-      if (mUserSysId < 0)
-        using (var cmd = Connection.CreateCommand("SELECT usesysid FROM pg_user WHERE usename = user"))
-          return Convert.ToInt64(cmd.ExecuteScalar());
-      return mUserSysId;
+      if (mUserSysId >= 0) {
+        return mUserSysId;
+      }
+      using (var cmd = Connection.CreateCommand("SELECT usesysid FROM pg_user WHERE usename = user")) {
+        return Convert.ToInt64(cmd.ExecuteScalar());
+      }
     }
 
     // Constructor

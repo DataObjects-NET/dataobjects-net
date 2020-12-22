@@ -4,6 +4,7 @@
 // Created by: Alex Groznov
 // Created:    2016.08.01
 
+using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
@@ -216,13 +217,34 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
       });
     }
 
-    [Test(Description = "Will fail for PostgreSql because of its restrictions")]
+    [Test]
     public void ToUniversalTime()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "ToUniversalTime is not supported");
       ExecuteInsideSession(() => {
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.ToUniversalTime() == FirstDateTimeOffset.ToUniversalTime());
         RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.ToUniversalTime() == FirstMillisecondDateTimeOffset.ToUniversalTime());
         RunTest<SingleDateTimeOffsetEntity>(c => c.NullableDateTimeOffset.Value.ToUniversalTime() == NullableDateTimeOffset.ToUniversalTime());
+      });
+    }
+
+    [Test]
+    public void ToUniversalTimePostgresql()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql, "ToUniversalTime is not supported");
+      ExecuteInsideSession(() => {
+        var ex = Assert.Throws<QueryTranslationException>(()=> RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.ToUniversalTime() == FirstDateTimeOffset.ToUniversalTime()));
+        Assert.That(ex.InnerException, Is.TypeOf<NotSupportedException>());
+      });
+    }
+
+    [Test]
+    public void ToLocalTimePostgresql()
+    {
+      Require.ProviderIs(StorageProvider.PostgreSql, "ToLocalTime is not supported");
+      ExecuteInsideSession(() => {
+        var ex = Assert.Throws<QueryTranslationException>(() => RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.ToLocalTime() == FirstDateTimeOffset.ToLocalTime()));
+        Assert.That(ex.InnerException, Is.TypeOf<NotSupportedException>());
       });
     }
   }

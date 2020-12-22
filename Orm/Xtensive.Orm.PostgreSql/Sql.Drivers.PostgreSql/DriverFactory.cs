@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
@@ -33,26 +33,25 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       
       // host, port, database
       builder.Host = url.Host;
-      if (url.Port!=0)
+      if (url.Port!=0) {
         builder.Port = url.Port;
+      }
+
       builder.Database = url.Resource ?? string.Empty;
 
       // user, password
-      if (!String.IsNullOrEmpty(url.User)) {
-#if NETSTANDARD
+      if (!string.IsNullOrEmpty(url.User)) {
         builder.Username = url.User;
-#else
-        builder.UserName = url.User;
-#endif
         builder.Password = url.Password;
       }
-      else
+      else {
         builder.IntegratedSecurity = true;
+      }
 
       // custom options
-      foreach (var param in url.Params)
+      foreach (var param in url.Params) {
         builder[param.Key] = param.Value;
-
+      }
       return builder.ToString();
     }
 
@@ -77,31 +76,29 @@ namespace Xtensive.Sql.Drivers.PostgreSql
           DefaultSchemaName = defaultSchema.Schema,
         };
 
-        if (version.Major < 8 || version.Major==8 && version.Minor < 3)
+        if (version.Major < 8 || version.Major==8 && version.Minor < 3) {
           throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
+        }
 
         // We support 8.3, 8.4 and any 9.0+
 
-        if (version.Major==8) {
-          if (version.Minor==3)
-            return new v8_3.Driver(coreServerInfo);
-          return new v8_4.Driver(coreServerInfo);
+        if (version.Major == 8) {
+          return version.Minor == 3
+            ? new v8_3.Driver(coreServerInfo)
+            : new v8_4.Driver(coreServerInfo);
         }
 
-        if (version.Major==9) {
-          if (version.Minor==0)
-            return new v9_0.Driver(coreServerInfo);
-          return new v9_1.Driver(coreServerInfo);
+        if (version.Major == 9) {
+          return version.Minor == 0
+            ? new v9_0.Driver(coreServerInfo)
+            : new v9_1.Driver(coreServerInfo);
         }
-
         return new v10_0.Driver(coreServerInfo);
       }
     }
 
     /// <inheritdoc/>
-    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
-    {
-      return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
-    }
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction) =>
+      SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
   }
 }
