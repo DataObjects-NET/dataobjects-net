@@ -99,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     [Test]
     public void GetNodeByNullStringTest()
     {
-      _ = Assert.Throws<InvalidOperationException>(() => Domain.StorageNodeManager.GetNode(null));
+      _ = Assert.Throws<ArgumentNullException>(() => Domain.StorageNodeManager.GetNode(null));
     }
 
     [Test]
