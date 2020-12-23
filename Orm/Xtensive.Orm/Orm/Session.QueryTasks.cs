@@ -53,9 +53,9 @@ namespace Xtensive.Orm
     {
       token.ThrowIfCancellationRequested();
       if (!skipPersist)
-        Persist(PersistReason.Other);
+        Persist(PersistReason.Query);
       token.ThrowIfCancellationRequested();
-      return await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
+      return await ProcessUserDefinedDelayedQueriesAsync(false, token).ConfigureAwait(false);
     }
 
     private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
@@ -84,13 +84,13 @@ namespace Xtensive.Orm
       }
     }
 
-    private async Task<bool> ProcessUserDefinedDelayedQueriesAsync(CancellationToken token)
+    private async Task<bool> ProcessUserDefinedDelayedQueriesAsync(bool allowPartialExecution, CancellationToken token)
     {
       if (userDefinedQueryTasks.Count==0)
         return false;
       var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
       userDefinedQueryTasks.Clear();
-      await Handler.ExecuteQueryTasksAsync(aliveTasks, false, token).ConfigureAwait(false);
+      await Handler.ExecuteQueryTasksAsync(aliveTasks, allowPartialExecution, token).ConfigureAwait(false);
       return true;
     }
   }
