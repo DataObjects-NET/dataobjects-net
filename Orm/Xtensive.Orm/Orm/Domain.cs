@@ -326,11 +326,22 @@ namespace Xtensive.Orm
     /// <seealso cref="Session"/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
-      return OpenSessionInternalAsync(configuration, null,
-        configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      SessionScope sessionScope = null;
+      try {
+        if (configuration.Supports(SessionOptions.AutoActivation)) {
+          sessionScope = new SessionScope();
+        }
+        return OpenSessionInternalAsync(configuration, null, sessionScope, cancellationToken);
+      }
+      catch {
+        sessionScope?.Dispose();
+        throw;
+      }
     }
 
-    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, StorageNode storageNode, bool activate, CancellationToken cancellationToken)
+    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, StorageNode storageNode, SessionScope sessionScope, CancellationToken cancellationToken)
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
@@ -358,10 +369,13 @@ namespace Xtensive.Orm
         // connection become opened.
         session = new Session(this, storageNode, configuration, false);
         try {
-          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith((t) => {
-            if (activate)
-              session.ActivateInternally();
-          }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously).ConfigureAwait(false);
+          await ((SqlSessionHandler) session.Handler).OpenConnectionAsync(cancellationToken)
+            .ContinueWith(t => {
+              if (sessionScope != null) {
+                session.AttachToScope(sessionScope);
+              }
+            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
+            .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
           session.DisposeSafely();

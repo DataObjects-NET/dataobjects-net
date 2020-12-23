@@ -3464,4 +3464,7 @@ Error: {1}</value>
   <data name="ExUnableToPrepareCommandNoPartsRegistered" xml:space="preserve">
     <value>Unable to prepare command: no parts registered.</value>
   </data>
+  <data name="ExCantModifyActiveOrDisposedScope" xml:space="preserve">
+    <value>Can't modify Active or Disposed scope.</value>
+  </data>
 </root>
