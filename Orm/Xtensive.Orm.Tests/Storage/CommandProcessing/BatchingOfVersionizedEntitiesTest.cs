@@ -4,6 +4,7 @@
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -119,10 +120,7 @@ namespace Xtensive.Orm.Tests.Storage
     private readonly SessionConfiguration sessionWithoutCheck =
       new SessionConfiguration(SessionOptions.ServerProfile | SessionOptions.AutoActivation);
 
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.Batches);
-    }
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(ProviderFeatures.Batches);
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -351,6 +349,47 @@ namespace Xtensive.Orm.Tests.Storage
 
         using (counter.Attach()) {
           session.Query.All<Author>().Run();
+        }
+
+        Assert.That(counter.Count, Is.EqualTo(1));
+        counter.Reset();
+
+        _ = new Store { Name = "NewStore3" };
+        _ = new Store { Name = "NewStore4" };
+        _ = new Store { Name = "NewStore5" };
+
+        author.FirstName = "NotWilliam";
+
+        using (counter.Attach()) {
+          session.SaveChanges();
+        }
+
+        Assert.That(counter.Count, Is.EqualTo(1));
+      }
+    }
+
+    [Test]
+    public async Task VersionedEntityUpdateWithoutVersionCheckAsyncTest03()
+    {
+      using (var session = await Domain.OpenSessionAsync(sessionWithoutCheck))
+      using (var counter = new CommandCounter(session))
+      using (var transaction = session.OpenTransaction()) {
+        var store = session.Query.All<Store>().Single(el => el.Name == "Store");
+        var book = session.Query.All<Book>().Single(el => el.Title == "Romeo and Juliet");
+        var author = session.Query.All<Author>().Single(el => el.FirstName == "William");
+
+        _ = new Store { Name = "NewStore1" };
+        _ = new Store { Name = "NewStore2" };
+        book.Title = "AnotherTitle";
+        store.Name = "AnotherStore";
+
+        _ = session.Query.ExecuteDelayed(q => q.All<Store>().Take(() => 1));
+        _ = session.Query.ExecuteDelayed(q => q.All<Store>().Take(() => 2));
+        _ = session.Query.ExecuteDelayed(q => q.All<Store>().Take(() => 3));
+        _ = session.Query.ExecuteDelayed(q => q.All<Store>().Take(() => 4));
+
+        using (counter.Attach()) {
+          (await session.Query.All<Author>().AsAsync()).Run();
         }
 
         Assert.That(counter.Count, Is.EqualTo(1));

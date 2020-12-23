@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
@@ -16,10 +17,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 {
   public class SimpleCommandProcessorParametersManagement : AutoBuildTest
   {
-    public int StorageLimit
-    {
-      get { return ProviderInfo.MaxQueryParameterCount; }
-    }
+    public int StorageLimit => ProviderInfo.MaxQueryParameterCount;
 
     protected override DomainConfiguration BuildConfiguration()
     {
@@ -29,10 +27,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       return config;
     }
 
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesNotSupported(ProviderFeatures.Batches);
-    }
+    protected override void CheckRequirements() => Require.AllFeaturesNotSupported(ProviderFeatures.Batches);
 
     protected override void PopulateData()
     {
@@ -95,19 +90,87 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     }
 
     [Test]
+    public async Task DelayedSelectsWithinLimitAsyncTest()
+    {
+      RequireLimit();
+
+      using (var session = await Domain.OpenSessionAsync())
+      using (var transaction = session.OpenTransaction()) {
+        var ids = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var results = new List<IEnumerable<ALotOfFieldsEntityValid>>(10);
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        results.Add(session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
+
+        var inlineQuery = await session.Query.All<ALotOfFieldsEntityValid>()
+          .Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids)).AsAsync();
+        Assert.That(inlineQuery.Any(), Is.True);
+
+        foreach (var result in results) {
+          Assert.That(result.Any(), Is.True);
+        }
+      }
+    }
+
+    [Test]
     public void DelayedSelectsOutOfLimitTest01()
     {
       RequireLimit();
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray();
-        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray();
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
 
         var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
           q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)));
 
         _ = Assert.Throws<ParametersLimitExceededException>(() => result.Run());
+        Assert.That(result.Task.Result.Count, Is.EqualTo(0));
+      }
+    }
+
+    [Test]
+    public async Task DelayedSelectsOutOfLimitAsyncTest01()
+    {
+      RequireLimit();
+
+      using (var session = await Domain.OpenSessionAsync())
+      using (var transaction = session.OpenTransaction()) {
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
+
+        var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)));
+
+        _ = Assert.ThrowsAsync<ParametersLimitExceededException>(async () => await result.AsAsync());
         Assert.That(result.Task.Result.Count, Is.EqualTo(0));
       }
     }
@@ -119,13 +182,31 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray();
-        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray();
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
 
         var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
            q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)));
 
         _ = Assert.Throws<ParametersLimitExceededException>(() => session.Query.All<ALotOfFieldsEntityValid>().Run());
+        Assert.That(result.Task.Result.Count, Is.EqualTo(0));
+      }
+    }
+
+    [Test]
+    public async Task DelayedSelectsOutOfLimitAsyncTest02()
+    {
+      RequireLimit();
+
+      using (var session = await Domain.OpenSessionAsync())
+      using (var transaction = session.OpenTransaction()) {
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
+
+        var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
+           q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)));
+
+        _ = Assert.ThrowsAsync<ParametersLimitExceededException>(async () => (await session.Query.All<ALotOfFieldsEntityValid>().AsAsync()).Run());
         Assert.That(result.Task.Result.Count, Is.EqualTo(0));
       }
     }
@@ -137,8 +218,8 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray();
-        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray();
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
 
         var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
            q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, fittedIds)));
@@ -152,14 +233,35 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     }
 
     [Test]
+    public async Task DelayedSelectsOutOfLimitAsyncTest03()
+    {
+      RequireLimit();
+
+      using (var session = await Domain.OpenSessionAsync())
+      using (var transaction = session.OpenTransaction()) {
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
+
+        var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
+           q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, fittedIds)));
+
+        _ = session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)));
+
+        _ = Assert.ThrowsAsync<ParametersLimitExceededException>(async () => (await session.Query.All<ALotOfFieldsEntityValid>().AsAsync()).Run());
+        Assert.That(result.Any(), Is.True);
+      }
+    }
+
+    [Test]
     public void DelayedSelectsOutOfLimitTest04()
     {
       RequireLimit();
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray();
-        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray();
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
 
         var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
            q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)));
@@ -173,14 +275,35 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
     }
 
     [Test]
+    public async Task DelayedSelectsOutOfLimitAsyncTest04()
+    {
+      RequireLimit();
+
+      using (var session = await Domain.OpenSessionAsync())
+      using (var transaction = session.OpenTransaction()) {
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
+
+        var result = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
+           q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)));
+
+        _ = session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, fittedIds)));
+
+        _ = Assert.ThrowsAsync<ParametersLimitExceededException>(async () => (await session.Query.All<ALotOfFieldsEntityValid>().AsAsync()).Run());
+        Assert.That(result.Any(), Is.False);
+      }
+    }
+
+    [Test]
     public void DelayedSelectsOutOfLimitTest05()
     {
       RequireLimit();
 
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray();
-        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray();
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
 
         var result1 = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
            q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, fittedIds)));
@@ -191,6 +314,30 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
         _ = Assert.Throws<ParametersLimitExceededException>(
           () => session.Query.All<ALotOfFieldsEntityValid>()
             .Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)).Run());
+        Assert.That(result1.Any(), Is.True);
+        Assert.That(result2.Any(), Is.True);
+      }
+    }
+
+    [Test]
+    public async Task DelayedSelectsOutOfLimitAsyncTest05()
+    {
+      RequireLimit();
+
+      using (var session = await Domain.OpenSessionAsync())
+      using (var transaction = session.OpenTransaction()) {
+        var fittedIds = Enumerable.Range(1, StorageLimit - 1).ToArray(StorageLimit - 1);
+        var idsOutOfRange = Enumerable.Range(1, StorageLimit + 1).ToArray(StorageLimit + 1);
+
+        var result1 = (DelayedSequence<ALotOfFieldsEntityValid>) session.Query.ExecuteDelayed(q =>
+           q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, fittedIds)));
+
+        var result2 = session.Query.ExecuteDelayed(q =>
+          q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, fittedIds)));
+
+        _ = Assert.ThrowsAsync<ParametersLimitExceededException>(
+          async () => (await session.Query.All<ALotOfFieldsEntityValid>()
+            .Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, idsOutOfRange)).AsAsync()).Run());
         Assert.That(result1.Any(), Is.True);
         Assert.That(result2.Any(), Is.True);
       }
