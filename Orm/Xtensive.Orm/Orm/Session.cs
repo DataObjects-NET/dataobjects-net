@@ -234,9 +234,10 @@ namespace Xtensive.Orm
         throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
     }
 
-    internal void ActivateInternally()
+    internal void AttachToScope(SessionScope sessionScope)
     {
-      disposableSet.Add(new SessionScope(this));
+      sessionScope.Session = this;
+      _ = disposableSet.Add(sessionScope);
     }
 
     internal EnumerationContext CreateEnumerationContext()
@@ -248,9 +249,9 @@ namespace Xtensive.Orm
 
     internal async Task<EnumerationContext> CreateEnumerationContextForAsyncQuery(CancellationToken token)
     {
-      Persist(PersistReason.Other);
+      Persist(PersistReason.Query);
       token.ThrowIfCancellationRequested();
-      await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
+      await ProcessUserDefinedDelayedQueriesAsync(true, token).ConfigureAwait(false);
       return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
     }
 
@@ -582,8 +583,9 @@ namespace Xtensive.Orm
       disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
 
       // Perform activation
-      if (activate)
-        ActivateInternally();
+      if (activate) {
+        AttachToScope(new SessionScope());
+      }
 
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));

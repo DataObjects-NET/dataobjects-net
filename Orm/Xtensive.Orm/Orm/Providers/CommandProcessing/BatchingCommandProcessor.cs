@@ -182,9 +182,7 @@ namespace Xtensive.Orm.Providers
 
     private async Task<Command> ExecuteBatchAsync(int numberOfTasks, QueryRequest lastRequest, CommandProcessorContext context, CancellationToken token)
     {
-      var shouldReturnReader = lastRequest!=null;
-
-      if (numberOfTasks==0 && !shouldReturnReader) {
+      if (numberOfTasks==0 && lastRequest==null) {
         return null;
       }
 
@@ -192,6 +190,7 @@ namespace Xtensive.Orm.Providers
 
       AllocateCommand(context);
 
+      var shouldReturnReader = false;
       try {
         while (numberOfTasks > 0 && tasksToProcess.Count > 0) {
           var task = tasksToProcess.Peek();

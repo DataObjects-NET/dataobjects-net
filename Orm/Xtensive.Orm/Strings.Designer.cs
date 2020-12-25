@@ -1147,6 +1147,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Can&apos;t modify Active or Disposed scope..
+        /// </summary>
+        internal static string ExCantModifyActiveOrDisposedScope {
+            get {
+                return ResourceManager.GetString("ExCantModifyActiveOrDisposedScope", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t open EnumerationScope, since there is no current CompilationContext..
         /// </summary>
         internal static string ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext {
@@ -6959,9 +6968,10 @@ namespace Xtensive {
         internal static string ExUnableToCastXToYAttemptToOverrideExistingFieldMap {
             get {
                 return ResourceManager.GetString("ExUnableToCastXToYAttemptToOverrideExistingFieldMap", resourceCulture);
-             }
+            }
         }
-
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unable to change command: it is already prepared..
         /// </summary>
         internal static string ExUnableToChangeCommandItIsAlreadyPrepared {
