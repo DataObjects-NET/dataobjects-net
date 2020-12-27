@@ -13,9 +13,6 @@ using Xtensive.Collections;
 using System.Linq;
 using Xtensive.Core;
 
-
-
-
 namespace Xtensive.Modelling.Comparison.Hints
 {
   /// <summary>

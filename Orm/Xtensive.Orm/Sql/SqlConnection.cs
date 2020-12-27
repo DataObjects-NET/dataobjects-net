@@ -97,7 +97,7 @@ namespace Xtensive.Sql
       if (commandTimeout != null) {
         command.CommandTimeout = commandTimeout.Value;
       }
-
+      EnsureTransactionIsAlive();
       command.Transaction = ActiveTransaction;
       return command;
     }
@@ -489,6 +489,16 @@ namespace Xtensive.Sql
       if (ActiveTransaction == null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldBeActive);
       }
+    }
+
+    /// <summary>
+    /// Ensures that existing active tranaction is alive (i.e both <see cref="ActiveTransaction"/> and its Connection
+    /// are not <see langword="null"/>).
+    /// </summary>
+    protected void EnsureTransactionIsAlive()
+    {
+      if (ActiveTransaction != null && ActiveTransaction.Connection == null)
+        throw new InvalidOperationException(Strings.ExActiveTransactionIsNoLongerUsable);
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System.Diagnostics;
 using System.Text;
@@ -19,8 +19,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 
     protected override void AppendIndexStorageParameters(StringBuilder builder, Index index)
     {
-      if (index.FillFactor!=null)
-        builder.AppendFormat("WITH(FILLFACTOR={0})", index.FillFactor);
+      if (index.FillFactor != null) {
+        _ = builder.AppendFormat("WITH(FILLFACTOR={0})", index.FillFactor);
+      }
     }
 
     public override string Translate(SqlFunctionType type)
@@ -35,7 +36,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
           return base.Translate(type);
       }
     }
-    
+
+
     // Constructors
 
     public Translator(SqlDriver driver)

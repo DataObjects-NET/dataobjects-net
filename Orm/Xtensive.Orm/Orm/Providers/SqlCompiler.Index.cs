@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2010 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -216,8 +216,8 @@ namespace Xtensive.Orm.Providers
 
       var baseColumns = baseQuery.Columns.ToList();
       var typeIdColumnIndex = index.Columns
-        .Select((c, i) => new {c, i})
-        .Single(p => p.c.Field.IsTypeId).i;
+        .Select((c, i) => new {c.Field, i})
+        .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
       var type = index.ReflectedType;
       var typeIdColumn = SqlDml.ColumnRef(
         SqlDml.Column(SqlDml.Literal(TypeIdRegistry[type])),

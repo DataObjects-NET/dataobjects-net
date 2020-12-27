@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Internals;
 
 namespace Xtensive.Orm.Providers
 {
@@ -58,7 +59,17 @@ namespace Xtensive.Orm.Providers
         // We work around it with special hacks:
         // Limit argument is replaced with 1
         // and false condition is added to "where" part.
-        var applyZeroLimitHack = providerInfo.Supports(ProviderFeatures.ZeroLimitIsError);
+        static bool TakeIsZero(Func<ParameterContext, int> takeFunc)
+        {
+          var currentScope = CompiledQueryProcessingScope.Current;
+          int? takeValue = null;
+          if (currentScope == null) {
+            takeValue = takeFunc(new ParameterContext());// we just try to evaluate it, new ParameterContext shouldn't be a problem
+          }
+          return takeValue.HasValue ? takeValue < 1 : true;
+        }
+
+        var applyZeroLimitHack = providerInfo.Supports(ProviderFeatures.ZeroLimitIsError) && TakeIsZero(take);
         var takeBinding = CreateLimitOffsetParameterBinding(take, applyZeroLimitHack);
         bindings.Add(takeBinding);
         if (applyZeroLimitHack)
@@ -73,9 +84,12 @@ namespace Xtensive.Orm.Providers
       }
 
       query.OrderBy.Clear();
-      var columnExpressions = ExtractColumnExpressions(query);
-      foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order)
-        query.OrderBy.Add(columnExpressions[pair.Key], pair.Value==Direction.Positive);
+      if (provider.Source.Header.Order.Count > 0) {
+        var columnExpressions = ExtractColumnExpressions(query);
+        foreach (KeyValuePair<int, Direction> pair in provider.Source.Header.Order) {
+          query.OrderBy.Add(columnExpressions[pair.Key], pair.Value == Direction.Positive);
+        }
+      }
 
       return CreateProvider(query, bindings, provider, compiledSource);
     }

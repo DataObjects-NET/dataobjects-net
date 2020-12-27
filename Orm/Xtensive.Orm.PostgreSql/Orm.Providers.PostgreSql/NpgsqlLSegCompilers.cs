@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2014.05.06
 
@@ -10,18 +10,18 @@ using Operator = Xtensive.Reflection.WellKnown.Operator;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
-  [CompilerContainer(typeof (SqlExpression))]
+  [CompilerContainer(typeof(SqlExpression))]
   internal static class NpgsqlLSegCompilers
   {
     #region Extractors
 
-    [Compiler(typeof (NpgsqlLSeg), "Start", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlLSeg), "Start", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlLSegExtractStartPoint(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0); 
+      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0);
     }
 
-    [Compiler(typeof (NpgsqlLSeg), "End", TargetKind.PropertyGet)]
+    [Compiler(typeof(NpgsqlLSeg), "End", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlLSegExtractEndPoint(SqlExpression _this)
     {
       return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1);
@@ -31,30 +31,30 @@ namespace Xtensive.Orm.Providers.PostgreSql
 
     #region Operators
 
-    [Compiler(typeof (NpgsqlLSeg), Operator.Equality, TargetKind.Operator)]
+    [Compiler(typeof(NpgsqlLSeg), Operator.Equality, TargetKind.Operator)]
     public static SqlExpression NpgsqlLSegOperatorEquality(
-      [Type(typeof (NpgsqlLSeg))] SqlExpression left,
-      [Type(typeof (NpgsqlLSeg))] SqlExpression right)
+      [Type(typeof(NpgsqlLSeg))] SqlExpression left,
+      [Type(typeof(NpgsqlLSeg))] SqlExpression right)
     {
-      return left==right;
+      return left == right;
     }
 
-    [Compiler(typeof (NpgsqlLSeg), Operator.Inequality, TargetKind.Operator)]
+    [Compiler(typeof(NpgsqlLSeg), Operator.Inequality, TargetKind.Operator)]
     public static SqlExpression NpgsqlLSegOperatorInequality(
-      [Type(typeof (NpgsqlLSeg))] SqlExpression left,
-      [Type(typeof (NpgsqlLSeg))] SqlExpression right)
+      [Type(typeof(NpgsqlLSeg))] SqlExpression left,
+      [Type(typeof(NpgsqlLSeg))] SqlExpression right)
     {
-      return left!=right;
+      return left != right;
     }
 
     #endregion
 
     #region Constructors
 
-    [Compiler(typeof (NpgsqlLSeg), null, TargetKind.Constructor)]
+    [Compiler(typeof(NpgsqlLSeg), null, TargetKind.Constructor)]
     public static SqlExpression NpgsqlLSegConstructor(
-      [Type(typeof (NpgsqlPoint))] SqlExpression start,
-      [Type(typeof (NpgsqlPoint))] SqlExpression end)
+      [Type(typeof(NpgsqlPoint))] SqlExpression start,
+      [Type(typeof(NpgsqlPoint))] SqlExpression end)
     {
       return PostgresqlSqlDml.NpgsqlLSegConstructor(start, end);
     }

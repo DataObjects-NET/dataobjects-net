@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2010.01.21
 
@@ -23,7 +23,8 @@ namespace Xtensive.Orm.Linq
       IsTailMethod = 1 << 5,
       ShouldOmitConvertToObject = 1 << 6,
       RequestCalculateExpressions = 1 << 7,
-      RequestCalculateExpressionsOnce = 1 << 8
+      RequestCalculateExpressionsOnce = 1 << 8,
+      SkipNullableColumnsDetectionInGroupBy = 1 << 9
     }
 
     internal readonly ref struct TranslatorScope
@@ -123,6 +124,14 @@ namespace Xtensive.Orm.Linq
       set => flags = value
         ? flags | TranslatorStateFlags.RequestCalculateExpressionsOnce
         : flags & ~TranslatorStateFlags.RequestCalculateExpressionsOnce;
+    }
+
+    public bool SkipNullableColumnsDetectionInGroupBy 
+    {
+      get => (flags & TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy) != 0;
+      set => flags = value
+        ? flags | TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy
+        : flags & ~TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy;
     }
 
     public TranslatorScope CreateScope()

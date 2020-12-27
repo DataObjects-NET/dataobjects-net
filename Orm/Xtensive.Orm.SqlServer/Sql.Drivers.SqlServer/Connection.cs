@@ -18,9 +18,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
   {
     private const string DefaultCheckConnectionQuery = "SELECT TOP(0) 0;";
 
+    private readonly bool checkConnectionIsAlive;
+
     private SqlServerConnection underlyingConnection;
     private SqlTransaction activeTransaction;
-    private readonly bool checkConnectionIsAlive;
 
     /// <inheritdoc/>
     public override DbConnection UnderlyingConnection => underlyingConnection;

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.07.18
 
@@ -364,18 +364,18 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
       ArgumentValidator.EnsureArgumentNotNull(sqlLikePattern, "sqlLikePattern");
-      string regexPattern = Regex.Replace(sqlLikePattern,
+      var regexPattern = Regex.Replace(sqlLikePattern,
         @"[%_]|[^%_]+",
         match => {
-          if (match.Value=="%") {
+          if (match.Value == "%") {
             return ".*";
           }
-          if (match.Value=="_") {
+          if (match.Value == "_") {
             return ".";
           }
           return Regex.Escape(match.Value);
         });
-      return Regex.IsMatch(value, regexPattern);
+      return Regex.IsMatch(value, $"^{regexPattern}$");
     }
 
     /// <summary>
@@ -401,9 +401,9 @@ namespace Xtensive.Core
       var escChar = new string(escapeCharacter, 1);
       if (regExSpecialChars.Contains(escapeCharacter))
         escChar = @"\" + escChar;
-      var pattern = escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
+      var pattern = escChar + escChar + "|" + escChar + @"[%_]|[%_]|[^%" + escapeCharacter + "_]+";
 
-      string regexPattern = Regex.Replace(sqlLikePattern,
+      var regexPattern = Regex.Replace(sqlLikePattern,
         pattern,
         match => {
           if (match.Value=="%") {
@@ -417,7 +417,7 @@ namespace Xtensive.Core
           }
           return Regex.Escape(match.Value);
         });
-      return Regex.IsMatch(value, regexPattern);
+      return Regex.IsMatch(value, $"^{regexPattern}$");
     }
 
     /// <summary>
@@ -427,10 +427,10 @@ namespace Xtensive.Core
     /// <returns>Stripped string.</returns>
     public static string StripRoundBrackets(this string value)
     {
-      var start = 0;
+      int start;
       var end = value.Length - 1;
       var actualLength = value.Length;
-      for (start = 0; value[start++]=='(' && value[end--]==')'; actualLength -= 2) { }
+      for (start = 0; value[start++] == '(' && value[end--] == ')'; actualLength -= 2) { }
 
       return start == 1
         ? value
@@ -444,6 +444,5 @@ namespace Xtensive.Core
 
       return str.IndexOf(value, comparison) >= 0;
     }
-
   }
 }

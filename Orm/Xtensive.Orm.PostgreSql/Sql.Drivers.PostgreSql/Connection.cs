@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
   {
     private NpgsqlConnection underlyingConnection;
     private NpgsqlTransaction activeTransaction;
-    
+
     /// <inheritdoc/>
     public override DbConnection UnderlyingConnection => underlyingConnection;
 

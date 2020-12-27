@@ -100,7 +100,7 @@ namespace Xtensive.Orm
         if (configuration.Supports(SessionOptions.AutoActivation)) {
           sessionScope = new SessionScope();
         }
-        return domain.OpenSessionInternalAsync(configuration, null, sessionScope, cancellationToken);
+        return domain.OpenSessionInternalAsync(configuration, this, sessionScope, cancellationToken);
       }
       catch {
         sessionScope?.Dispose();

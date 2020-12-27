@@ -73,8 +73,10 @@ namespace Xtensive.Orm.Linq
 
     internal TResult ExecuteScalar<TResult>(Expression expression)
     {
-      static TResult ExecuteScalarQuery(TranslatedQuery query, Session session, ParameterContext parameterContext) =>
-        query.ExecuteScalar<TResult>(session, parameterContext);
+      static TResult ExecuteScalarQuery(TranslatedQuery query, Session session, ParameterContext parameterContext)
+      {
+        return query.ExecuteScalar<TResult>(session, parameterContext);
+      }
 
       return Execute(expression, ExecuteScalarQuery);
     }

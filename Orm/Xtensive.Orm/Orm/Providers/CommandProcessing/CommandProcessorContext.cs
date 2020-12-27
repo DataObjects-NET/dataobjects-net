@@ -46,6 +46,8 @@ namespace Xtensive.Orm.Providers
     /// </summary>
     public int ReenterCount { get; internal set; }
 
+    internal SqlTask CurrentTask { get; set; }
+
     internal event EventHandler Disposed;
 
     public void Dispose() => DisposeImpl(false).GetAwaiter().GetResult();
@@ -80,8 +82,9 @@ namespace Xtensive.Orm.Providers
 
     private void NotifyDisposed()
     {
-      if (Disposed!=null)
+      if (Disposed != null) {
         Disposed(this, EventArgs.Empty);
+      }
     }
 
     internal CommandProcessorContext(ParameterContext parameterContext, bool allowPartialExecution = false)

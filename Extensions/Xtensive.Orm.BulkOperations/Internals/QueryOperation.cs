@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
 using Xtensive.Sql;
@@ -121,7 +122,6 @@ namespace Xtensive.Orm.BulkOperations
         JoinedTableRef = sqlTableRef;
         return;
       }
-
       if (SupportsJoin()) {
         JoinViaFrom(statement, select);
       }
@@ -138,14 +138,15 @@ namespace Xtensive.Orm.BulkOperations
       var indexMapping = PrimaryIndexes[0];
       var columns = new List<ColumnInfo>();
       foreach (var columnInfo in indexMapping.PrimaryIndex.KeyColumns.Keys) {
-        var s = select.ShallowClone();
+        var s = (SqlSelect) select.Clone();
         foreach (var column in columns) {
-          var ex = SqlDml.Equals(SqlDml.TableColumn(s.From, column.Name), SqlDml.TableColumn(table, column.Name));
+          var ex = SqlDml.Equals(s.From.Columns[column.Name], table.Columns[column.Name]);
           s.Where = s.Where.IsNullReference() ? ex : SqlDml.And(s.Where, ex);
         }
-
+        var existingColumns = s.Columns.ToChainedBuffer();
         s.Columns.Clear();
-        s.Columns.Add(SqlDml.TableColumn(s.From, columnInfo.Name));
+        var columnToAdd = existingColumns.First(c => c.Name.Equals(columnInfo.Name, StringComparison.Ordinal));
+        s.Columns.Add(columnToAdd);
         var @in = SqlDml.In(SqlDml.TableColumn(table, columnInfo.Name), s);
         where = where.IsNullReference() ? @in : SqlDml.And(where, @in);
         columns.Add(columnInfo);

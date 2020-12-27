@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.09.28
 
@@ -11,6 +11,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using Xtensive.Core;
 using System.Collections.ObjectModel;
+using Xtensive.SqlServer.Resources;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {

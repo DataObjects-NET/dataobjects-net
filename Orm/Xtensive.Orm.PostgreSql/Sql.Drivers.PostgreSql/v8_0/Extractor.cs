@@ -1308,12 +1308,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       var typeInfo = Driver.ServerInfo.DataTypes[typname];
       // Unlike MS SQL extractor we do not set precision/scale/length for unknown type,
       // 'cause we don't know how to treat typmod
-      if (typeInfo==null) {
+      if (typeInfo == null) {
         return new SqlValueType(typname);
       }
 
-      if (typeInfo.Type==SqlType.Decimal) {
-        if (typmod==-1) {
+      if (typeInfo.Type == SqlType.Decimal) {
+        if (typmod == -1) {
           // in this case we cannot determine the actual precision and scale
           // it should be avoided
           return new SqlValueType(typeInfo.Type);
@@ -1322,11 +1322,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         GetPrecisionAndScale(typmod, out var precision, out var scale);
         return new SqlValueType(typeInfo.Type, precision, scale);
       }
-      /*
-      if (typeInfo.Type==SqlType.DateTimeOffset)
+      if (typeInfo.Type == SqlType.DateTimeOffset) {
         return new SqlValueType(typeInfo.Type);
-        */
-      return typmod!=-1 
+      }
+      return typmod != -1
         ? new SqlValueType(typeInfo.Type, typmod - 4)
         : new SqlValueType(typeInfo.Type);
     }
@@ -1334,34 +1333,34 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected static void GetPrecisionAndScale(int typmod, out int precision, out int scale)
     {
       //high word
-      precision = ((typmod - 4) >> 16);
+      precision = (typmod - 4) >> 16;
       //low word
-      scale = ((typmod - 4) & 0xFFFF);
+      scale = (typmod - 4) & 0xFFFF;
     }
 
     protected static ReferentialAction GetReferentialAction(char c)
     {
       switch (c) {
-      case 'c':
-        return ReferentialAction.Cascade;
-      case 'n':
-        return ReferentialAction.SetNull;
-      case 'd':
-        return ReferentialAction.SetDefault;
-      case 'r':
-        return ReferentialAction.Restrict;
-      default:
-        return ReferentialAction.NoAction; //a
+        case 'c':
+          return ReferentialAction.Cascade;
+        case 'n':
+          return ReferentialAction.SetNull;
+        case 'd':
+          return ReferentialAction.SetDefault;
+        case 'r':
+          return ReferentialAction.Restrict;
+        default:
+          return ReferentialAction.NoAction; //a
       }
     }
 
     protected static SqlMatchType GetMatchType(char c)
     {
       switch (c) {
-      case 'f':
-        return SqlMatchType.Full; //f
-      default:
-        return SqlMatchType.None; //u
+        case 'f':
+          return SqlMatchType.Full; //f
+        default:
+          return SqlMatchType.None; //u
       }
     }
 
@@ -1374,7 +1373,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       // make sure it is not empty, so that "IN" expression always works
       // add an invalid OID value 
-      if (result.Count==0) {
+      if (result.Count == 0) {
         result.Add(-1000);
       }
 
