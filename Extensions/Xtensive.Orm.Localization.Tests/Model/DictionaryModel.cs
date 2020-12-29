@@ -1,4 +1,7 @@
-using System;
+// Copyright (C) 2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System.Globalization;
 using Xtensive.Orm.Model;
 
@@ -8,7 +11,7 @@ namespace Xtensive.Orm.Localization.Tests.Model
   public abstract class AbstractDictionary : Entity
   {
     [Key, Field]
-    public int Id { get; set; }
+    public int Id { get; private set; }
 
     [Field(Nullable = false, Length = 64)]
     public string Identifier { get; set; }
@@ -16,7 +19,7 @@ namespace Xtensive.Orm.Localization.Tests.Model
     // abstract property
     public abstract string Name { get; set; }
 
-    public AbstractDictionary(Session session) : base(session) { }
+    protected AbstractDictionary(Session session) : base(session) { }
   }
 
   public abstract class AbstractLocalizableDictionary<T, TT> : AbstractDictionary, ILocalizable<TT>
@@ -28,7 +31,7 @@ namespace Xtensive.Orm.Localization.Tests.Model
     [Field]
     public LocalizationSet<TT> Localizations { get; private set; }
 
-    public AbstractLocalizableDictionary(Session session) : base(session) { }
+    protected AbstractLocalizableDictionary(Session session) : base(session) { }
   }
 
   public abstract class AbstractDictionaryLocalization<T, TT> : Localization<T>
