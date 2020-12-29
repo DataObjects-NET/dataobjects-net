@@ -67,8 +67,8 @@ namespace Xtensive.Orm
     IDeserializationCallback
   {
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
+    private readonly bool changeVersionOnSetAttempt;
     private EntityState state;
-    private bool changeVersionOnSetAttempt;
 
     #region Internal properties
 
@@ -247,7 +247,7 @@ namespace Xtensive.Orm
     /// <seealso cref="IsRemoved"/>
     public void Remove()
     {
-      Session.RemovalProcessor.Remove(EnumerableUtils.One(this));
+      RemoveInternal(EntityRemoveReason.User);
     }
 
     /// <summary>
@@ -257,7 +257,7 @@ namespace Xtensive.Orm
     /// </summary>
     public void RemoveLater()
     {
-      Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this));
+      RemoveLaterInternal(EntityRemoveReason.User);
     }
 
     /// <inheritdoc/>
@@ -400,6 +400,16 @@ namespace Xtensive.Orm
 
     #region Private / internal methods
 
+    internal void RemoveLaterInternal(EntityRemoveReason reason)
+    {
+      Session.RemovalProcessor.EnqueueForRemoval(EnumerableUtils.One(this), reason);
+    }
+
+    internal void RemoveInternal(EntityRemoveReason reason)
+    {
+      Session.RemovalProcessor.Remove(EnumerableUtils.One(this), reason);
+    }
+
     /// <exception cref="InvalidOperationException">Entity is removed.</exception>
     internal void EnsureNotRemoved()
     {
@@ -477,15 +487,15 @@ namespace Xtensive.Orm
       return changed;
     }
 
-    internal void SystemBeforeRemove()
+    internal void SystemBeforeRemove(EntityRemoveReason reason)
     {
       if (Session.IsDebugEventLoggingEnabled) {
         OrmLog.Debug(Strings.LogSessionXRemovingKeyY, Session, Key);
       }
 
-      Session.SystemEvents.NotifyEntityRemoving(this);
+      Session.SystemEvents.NotifyEntityRemoving(this, reason);
       using (Session.Operations.EnableSystemOperationRegistration()) {
-        Session.Events.NotifyEntityRemoving(this);
+        Session.Events.NotifyEntityRemoving(this, reason);
 
         if (Session.IsSystemLogicOnly)
           return;
@@ -619,6 +629,8 @@ namespace Xtensive.Orm
       }
 
       EnsureIsFetched(field);
+
+      Session.CheckForSwitching();
 
       Session.SystemEvents.NotifyFieldValueGetting(this, field);
       using (Session.Operations.EnableSystemOperationRegistration()) {

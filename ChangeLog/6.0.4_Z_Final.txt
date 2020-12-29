@@ -3,3 +3,10 @@
 [main] Domain.OpenSessionAsync() methods can only open a session to default storage node now
 [main] Introduced StorageNode.OpenSession() and StorageNode.OpenSessionAsync() method sets to open sessions to the node
 [main] Fixed issue when DirectPersistentAccessor.SetReferenceKey() was unable to set reference for saved Entities
+[main] Hints which path became irrelevant during upgrade actions generation no longer cause error
+[main] Fixed certain translation issues of interface members usage for non-perstent types initialization within queries
+[main] Improved translation of certain subqueries used in LINQ
+[main] Ported changes of DO 5.0 which were missing (from 5.0.18 up to 5.0.21)
+[postgresql] Retuned support for DateTimeOffsets
+[postgresql] Fixed issue when certain DateTimeOffsets operations result couldn't be used for parts extraction e.g. TotalMilliseconds
+[bulkoperations] Addressed wrong table alias assignment issue for Bulk Update and Bulk Delete

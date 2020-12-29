@@ -6,6 +6,7 @@
 
 using System;
 using System.Threading;
+using Xtensive.Core;
 
 namespace Xtensive.Orm
 {
@@ -40,7 +41,7 @@ namespace Xtensive.Orm
       get => state == State.Active ? session : outerScope?.Session;
       internal set {
         if (state != State.New) {
-          throw new InvalidOperationException("Can't modify Active or Disposed scope.");
+          throw new InvalidOperationException(Strings.ExCantModifyActiveOrDisposedScope);
         }
 
         state = State.Active;

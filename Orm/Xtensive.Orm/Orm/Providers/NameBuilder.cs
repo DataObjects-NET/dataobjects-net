@@ -98,33 +98,38 @@ namespace Xtensive.Orm.Providers
 
     private string BuildGenericTypeName(BuildingContext context, Type type, string mappingName)
     {
-      if (!type.IsGenericType || type.IsGenericParameter)
+      if (!type.IsGenericType || type.IsGenericParameter) {
         return type.GetShortName();
+      }
 
       string typeName;
       if (mappingName.IsNullOrEmpty()) {
         typeName = type.GetShortName();
         typeName = typeName.Substring(0, typeName.IndexOf("<"));
       }
-      else
+      else {
         typeName = mappingName;
+      }
 
       var arguments = type.GetGenericArguments();
       var names = new string[arguments.Length];
-      if (type.IsGenericTypeDefinition)
+      if (type.IsGenericTypeDefinition) {
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
           names[i] = BuildGenericTypeName(context, argument, null);
         }
+      }
       else {
-        for (int i = 0; i < arguments.Length; i++) {
+        for (var i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
-          if (argument.IsSubclassOf(WellKnownOrmTypes.Persistent)) {
+          if (argument.IsSubclassOf(WellKnownOrmTypes.Persistent) &&
+            context.BuilderConfiguration.ModelFilter.IsTypeAvailable(argument) && argument != WellKnownOrmTypes.EntitySetItemOfT1T2) {
             var argTypeDef = context.ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }
-          else
+          else {
             names[i] = BuildGenericTypeName(context, argument, null);
+          }
         }
       }
       return ApplyNamingRules(string.Format(GenericTypePattern, typeName, string.Join("-", names)));

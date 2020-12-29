@@ -61,10 +61,10 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
     }
 
     protected void CreateOidColumn(Table table, string name) =>
-      table.CreateColumn(name, new SqlValueType(SqlType.Int64));
+      _ = table.CreateColumn(name, new SqlValueType(SqlType.Int64));
 
     protected void CreateInt8Column(Table table, string name) =>
-      table.CreateColumn(name, new SqlValueType(SqlType.Int64));
+      _ = table.CreateColumn(name, new SqlValueType(SqlType.Int64));
 
     // Constructors
 

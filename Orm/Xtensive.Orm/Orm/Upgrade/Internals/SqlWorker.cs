@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.03.15
 
@@ -25,13 +25,15 @@ namespace Xtensive.Orm.Upgrade
     {
       var result = new SqlWorkerResult();
       var executor = new SqlExecutor(services.StorageDriver, services.Connection);
-      if ((task & SqlWorkerTask.DropSchema) > 0)
+      if ((task & SqlWorkerTask.DropSchema) > 0) {
         DropSchema(services, executor);
-      if ((task & SqlWorkerTask.ExtractSchema) > 0)
+      }
+      if ((task & SqlWorkerTask.ExtractSchema) > 0) {
         result.Schema = ExtractSchema(services, executor);
-      if ((task & (SqlWorkerTask.ExtractMetadataTypes | SqlWorkerTask.ExtractMetadataAssemblies | SqlWorkerTask.ExtractMetadataExtension)) > 0)
+      }
+      if ((task & (SqlWorkerTask.ExtractMetadataTypes | SqlWorkerTask.ExtractMetadataAssemblies | SqlWorkerTask.ExtractMetadataExtension)) > 0) {
         ExtractMetadata(services, executor, result, task);
-
+      }
       return result;
     }
 
@@ -40,15 +42,19 @@ namespace Xtensive.Orm.Upgrade
       var set = new MetadataSet();
       var mapping = new MetadataMapping(services.StorageDriver, services.NameBuilder);
       var metadataExtractor = new MetadataExtractor(mapping, executor);
-      foreach (var metadataTask in services.MappingResolver.GetMetadataTasks()
-        .Where(metadataTask => !ShouldSkipMetadataExtraction(mapping, result, metadataTask))) {
+      var metadataTasks = services.MappingResolver.GetMetadataTasks()
+        .Where(metadataTask => !ShouldSkipMetadataExtraction(mapping, result, metadataTask));
+      foreach (var metadataTask in metadataTasks) {
         try {
-          if (task.HasFlag(SqlWorkerTask.ExtractMetadataAssemblies))
+          if (task.HasFlag(SqlWorkerTask.ExtractMetadataAssemblies)) {
             metadataExtractor.ExtractAssemblies(set, metadataTask);
-          if (task.HasFlag(SqlWorkerTask.ExtractMetadataTypes))
+          }
+          if (task.HasFlag(SqlWorkerTask.ExtractMetadataTypes)) {
             metadataExtractor.ExtractTypes(set, metadataTask);
-          if (task.HasFlag(SqlWorkerTask.ExtractMetadataExtension))
+          }
+          if (task.HasFlag(SqlWorkerTask.ExtractMetadataExtension)) {
             metadataExtractor.ExtractExtensions(set, metadataTask);
+          }
         }
         catch (Exception exception) {
           UpgradeLog.Warning(Strings.LogFailedToExtractMetadataFromXYZ, metadataTask.Catalog, metadataTask.Schema, exception);
@@ -59,11 +65,12 @@ namespace Xtensive.Orm.Upgrade
 
     private static bool ShouldSkipMetadataExtraction(MetadataMapping mapping, SqlWorkerResult result, SqlExtractionTask task)
     {
-      if (result.Schema==null)
+      if (result.Schema == null) {
         return false;
+      }
 
       var tables = GetSchemaTables(result, task);
-      return tables[mapping.Assembly]==null && tables[mapping.Type]==null && tables[mapping.Extension]==null;
+      return tables[mapping.Assembly] == null && tables[mapping.Type] == null && tables[mapping.Extension] == null;
     }
 
     private static PairedNodeCollection<Schema, Table> GetSchemaTables(SqlWorkerResult result, SqlExtractionTask task)
@@ -82,9 +89,9 @@ namespace Xtensive.Orm.Upgrade
 
     private static Schema GetSchema(Catalog catalog, string schemaName)
     {
-      if (schemaName.IsNullOrEmpty())
-        return catalog.Schemas.Single(s => s.Name==schemaName);
-      return catalog.Schemas[schemaName];
+      return schemaName.IsNullOrEmpty()
+        ? catalog.Schemas.Single(s => s.Name == schemaName)
+        : catalog.Schemas[schemaName];
     }
 
     private static SchemaExtractionResult ExtractSchema(UpgradeServiceAccessor services, ISqlExecutor executor)
@@ -97,8 +104,8 @@ namespace Xtensive.Orm.Upgrade
     {
       var driver = services.StorageDriver;
       var extractionResult = ExtractSchema(services, executor);
-      var schemas = extractionResult.Catalogs.SelectMany(c => c.Schemas).ToList();
-      var tables = schemas.SelectMany(s => s.Tables).ToList();
+      var schemas = extractionResult.Catalogs.SelectMany(c => c.Schemas).ToChainedBuffer();
+      var tables = schemas.SelectMany(s => s.Tables).ToChainedBuffer();
       var sequences = schemas.SelectMany(s => s.Sequences);
 
       DropForeignKeys(driver, tables, executor);
@@ -108,27 +115,38 @@ namespace Xtensive.Orm.Upgrade
 
     private static void DropSequences(StorageDriver driver, IEnumerable<Sequence> sequences, ISqlExecutor executor)
     {
-      var statements = sequences
-        .Select(s => driver.Compile(SqlDdl.Drop(s)).GetCommandText())
-        .ToList();
+      var statements = BreakEvery(sequences
+        .Select(s => driver.Compile(SqlDdl.Drop(s)).GetCommandText()), 25).ToChainedBuffer();
       executor.ExecuteMany(statements);
     }
 
     private static void DropTables(StorageDriver driver, IEnumerable<Table> tables, ISqlExecutor executor)
     {
-      var statements = tables
-        .Select(t => driver.Compile(SqlDdl.Drop(t)).GetCommandText())
-        .ToList();
+      var statements = BreakEvery(tables
+        .Select(t => driver.Compile(SqlDdl.Drop(t)).GetCommandText()), 25);
       executor.ExecuteMany(statements);
     }
 
     private static void DropForeignKeys(StorageDriver driver, IEnumerable<Table> tables, ISqlExecutor executor)
     {
-      var statements = tables
+      var statements = BreakEvery(tables
         .SelectMany(t => t.TableConstraints.OfType<ForeignKey>())
-        .Select(fk => driver.Compile(SqlDdl.Alter(fk.Table, SqlDdl.DropConstraint(fk))).GetCommandText())
-        .ToList();
+        .Select(fk => driver.Compile(SqlDdl.Alter(fk.Table, SqlDdl.DropConstraint(fk))).GetCommandText()), 25);
       executor.ExecuteMany(statements);
+    }
+
+    private static IEnumerable<TItem> BreakEvery<TItem>(IEnumerable<TItem> source, int breakOnCount)
+      where TItem : class
+    {
+      var count = 0;
+      foreach(var item in source) {
+        count++;
+        if (count == breakOnCount) {
+          yield return default(TItem);
+          count = 0;
+        }
+        yield return item;
+      }
     }
   }
 }

@@ -37,14 +37,36 @@ namespace Xtensive.Orm.Providers
     object IEnumerator.Current => Current;
 
     /// <inheritdoc/>
-    public bool MoveNext() => source is Command command
-      ? command.NextRow()
-      : ((IEnumerator<Tuple>) source).MoveNext();
+    public bool MoveNext()
+    {
+      if (!(source is Command command)) {
+        return ((IEnumerator<Tuple>) source).MoveNext();
+      }
+
+      if (command.NextRow()) {
+        return true;
+      }
+
+      // We don't need the command anymore because all records are processed to the moment.
+      command.Dispose();
+      return false;
+    }
 
     /// <inheritdoc/>
-    public async ValueTask<bool> MoveNextAsync() => source is Command command
-      ? await command.NextRowAsync(token).ConfigureAwait(false)
-      : ((IEnumerator<Tuple>) source).MoveNext();
+    public async ValueTask<bool> MoveNextAsync()
+    {
+      if (!(source is Command command)) {
+        return ((IEnumerator<Tuple>) source).MoveNext();
+      }
+
+      if (await command.NextRowAsync(token).ConfigureAwait(false)) {
+        return true;
+      }
+
+      // We don't need the command anymore because all records are processed to the moment.
+      await command.DisposeAsync().ConfigureAwait(false);
+      return false;
+    }
 
     /// <inheritdoc/>
     public void Reset()

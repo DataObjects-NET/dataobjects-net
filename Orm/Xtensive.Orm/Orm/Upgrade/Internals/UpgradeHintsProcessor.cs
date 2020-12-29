@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.01.21
 
@@ -273,8 +273,14 @@ namespace Xtensive.Orm.Upgrade.Internals
           ? renameHint.NewFieldName
           : oldField.Name;
 
-        var newField = newFields.GetValueOrDefault(newFieldName);
-        if (newField==null)
+        //finding new field
+        var newField = (renameHint != null)
+          ? newFields.GetValueOrDefault(renameHint.NewFieldName)
+          : (CheckPropertyNameWasOverriden(oldField))
+            ? newFields.GetValueOrDefault(oldField.Name) ?? newFields.GetValueOrDefault(oldField.PropertyName)
+            : newFields.GetValueOrDefault(oldField.Name);
+
+        if (newField == null)
           continue;
 
         if (oldField.IsStructure) {
@@ -295,7 +301,7 @@ namespace Xtensive.Orm.Upgrade.Internals
             : oldField.ValueType;
           var newValueType = currentTypes.GetValueOrDefault(newValueTypeName);
           var oldValueType = extractedTypes.GetValueOrDefault(oldValueTypeName);
-          if (newValueType!=null &&oldValueType!=null) {
+          if (newValueType!=null && oldValueType!=null) {
             // We deal with reference field
             var mappedOldValueType = typeMapping.GetValueOrDefault(oldValueType);
             if (mappedOldValueType==null)
@@ -521,6 +527,16 @@ namespace Xtensive.Orm.Upgrade.Internals
     {
       return string.Format("{0}<{1}>", genericDefinitionTypeName.Replace("<>", string.Empty),
         genericArgumentNames.ToCommaDelimitedString());
+    }
+
+    private static bool CheckPropertyNameWasOverriden(StoredFieldInfo fieldInfo)
+    {
+      // if there is no real property then there is nothing to put OverrideFieldNameAttribute on
+      if (string.IsNullOrEmpty(fieldInfo.PropertyName)) {
+        return false;
+      }
+      //seems to be it was OverrideFieldNameAttribute been applied;
+      return StringComparer.Ordinal.Compare(fieldInfo.PropertyName, fieldInfo.OriginalName) != 0;
     }
     #endregion
 

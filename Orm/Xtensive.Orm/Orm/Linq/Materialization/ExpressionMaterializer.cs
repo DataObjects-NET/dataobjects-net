@@ -414,9 +414,13 @@ namespace Xtensive.Orm.Linq.Materialization
 
     protected override Expression VisitUnary(UnaryExpression u)
     {
-      var isConvertToNullable = u.NodeType==ExpressionType.Convert
-        && !u.Operand.Type.IsNullable()
-        && u.Type.IsNullable();
+      var originalOperandType = u.Operand.Type;
+      var convertedOperandType = u.Type;
+
+      var isConvertToNullable = u.NodeType == ExpressionType.Convert
+        && !originalOperandType.IsNullable()
+        && convertedOperandType.IsNullable()
+        && originalOperandType == convertedOperandType.StripNullable();
       // Optimize tuple access by replacing
       //   (T?) tuple.GetValueOrDefault<T>(index)
       // with
@@ -424,12 +428,13 @@ namespace Xtensive.Orm.Linq.Materialization
       if (isConvertToNullable) {
         var operand = Visit(u.Operand);
         var tupleAccess = operand.AsTupleAccess();
-        if (tupleAccess!=null) {
+        if (tupleAccess != null) {
           var index = tupleAccess.GetTupleAccessArgument();
           return tupleAccess.Object.MakeTupleAccess(u.Type, index);
         }
-        if (operand!=u.Operand)
+        if (operand != u.Operand) {
           return Expression.Convert(operand, u.Type);
+        }
         return u;
       }
       return base.VisitUnary(u);

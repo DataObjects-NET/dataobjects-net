@@ -1238,18 +1238,18 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression GetMember(Expression expression, MemberInfo member, Expression sourceExpression)
     {
-      if (expression==null)
+      if (expression == null) {
         return null;
+      }
 
-      MarkerType markerType;
       expression = expression.StripCasts();
-      bool isMarker = expression.TryGetMarker(out markerType);
+      var isMarker = expression.TryGetMarker(out var markerType);
       expression = expression.StripMarkers();
       expression = expression.StripCasts();
 
       if (expression.IsAnonymousConstructor()) {
         var newExpression = (NewExpression) expression;
-        int memberIndex = newExpression.Members.IndexOf(member);
+        var memberIndex = newExpression.Members.IndexOf(member);
         if (memberIndex < 0)
           throw new InvalidOperationException(string.Format(Strings.ExCouldNotGetMemberXFromExpression, member));
         var argument = Visit(newExpression.Arguments[memberIndex]);
@@ -1257,73 +1257,92 @@ namespace Xtensive.Orm.Linq
       }
 
       var extendedExpression = expression as ExtendedExpression;
-      if (extendedExpression==null)
+      if (extendedExpression == null) {
         return IsConditionalOrWellknown(expression)
           ? GetConditionalMember(expression, member, sourceExpression)
           : null;
+      }
 
       Expression result = null;
-      Func<PersistentFieldExpression, bool> propertyFilter
-        = f => f.Name==context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member);
+      bool propertyFilter(PersistentFieldExpression f)
+      {
+        return f.Name == context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) member);
+      }
 
       switch (extendedExpression.ExtendedType) {
-      case ExtendedExpressionType.FullText:
-        switch (member.Name) {
-        case "Rank":
-          return ((FullTextExpression) expression).RankExpression;
-        case "Entity":
-          return ((FullTextExpression) expression).EntityExpression;
-        }
-        break;
-      case ExtendedExpressionType.Grouping:
-        if (member.Name=="Key")
-          return ((GroupingExpression) expression).KeyExpression;
-        break;
-      case ExtendedExpressionType.Constructor:
-        var bindings = ((ConstructorExpression) extendedExpression).Bindings;
-        // only make sure that type has needed member
-        if (!bindings.TryGetValue(member, out result)) {
-          // Key in bindings might be a property/field reflected from a base type
-          // but our member might be reflected from child type.
-          var baseMember = member.DeclaringType.GetMember(member.Name).FirstOrDefault();
-          if (baseMember==null)
-            throw new InvalidOperationException(string.Format(
-              Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer,
-              member.Name, member.ReflectedType.Name));
-        }
-        result = Visit(result);
-        break;
-      case ExtendedExpressionType.Structure:
-      case ExtendedExpressionType.StructureField:
-        var persistentExpression = (IPersistentExpression) expression;
-        result = persistentExpression.Fields.First(propertyFilter);
-        break;
-      case ExtendedExpressionType.LocalCollection:
-        var localCollectionExpression = (LocalCollectionExpression) expression;
-        result = (Expression) localCollectionExpression.Fields[member];
-        break;
-      case ExtendedExpressionType.Entity:
-        var entityExpression = (EntityExpression) expression;
-        result = entityExpression.Fields.FirstOrDefault(propertyFilter);
-        if (result==null) {
-          EnsureEntityFieldsAreJoined(entityExpression);
-          result = entityExpression.Fields.First(propertyFilter);
-        }
-        break;
-      case ExtendedExpressionType.Field:
-        if (isMarker && ((markerType & MarkerType.Single)==MarkerType.Single))
-          throw new InvalidOperationException(string.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
-        if (member.DeclaringType.IsNullable())
-          expression = Expression.Convert(expression, member.DeclaringType);
-        return Expression.MakeMemberAccess(expression, member);
-      case ExtendedExpressionType.EntityField:
-        var entityFieldExpression = (EntityFieldExpression) expression;
-        result = entityFieldExpression.Fields.FirstOrDefault(propertyFilter);
-        if (result==null) {
-          EnsureEntityReferenceIsJoined(entityFieldExpression);
-          result = entityFieldExpression.Entity.Fields.First(propertyFilter);
-        }
-        break;
+        case ExtendedExpressionType.FullText:
+          switch (member.Name) {
+            case "Rank":
+              return ((FullTextExpression) expression).RankExpression;
+            case "Entity":
+              return ((FullTextExpression) expression).EntityExpression;
+          }
+          break;
+        case ExtendedExpressionType.Grouping:
+          if (member.Name == "Key") {
+            return ((GroupingExpression) expression).KeyExpression;
+          }
+          break;
+        case ExtendedExpressionType.Constructor:
+          var nativeExpression = ((ConstructorExpression) extendedExpression);
+          var bindings = nativeExpression.Bindings;
+          // only make sure that type has needed member
+          if (!bindings.TryGetValue(member, out result)) {
+            // Key in bindings might be a property/field reflected from a base type
+            // but our member might be reflected from child type.
+            var baseType = member.DeclaringType;
+            if (baseType.IsInterface) {
+              var implementor = member.GetImplementation(nativeExpression.Type);
+              if (implementor == null) {
+                throw new InvalidOperationException(string.Format(Strings.ExThereIsNoImplemetationOfXYMemberInZType,
+                  member.DeclaringType.Name, member.Name, nativeExpression.Type.ToString()));
+              }
+              _ = bindings.TryGetValue(implementor, out result);
+            }
+            else {
+              var baseMember = baseType.GetMember(member.Name).FirstOrDefault();
+              if (baseMember == null) {
+                throw new InvalidOperationException(string.Format(
+                  Strings.ExMemberXOfTypeYIsNotInitializedCheckIfConstructorArgumentIsCorrectOrFieldInitializedThroughInitializer,
+                  member.Name, member.ReflectedType.Name));
+              }
+            }
+          }
+          result = Visit(result);
+          break;
+        case ExtendedExpressionType.Structure:
+        case ExtendedExpressionType.StructureField:
+          var persistentExpression = (IPersistentExpression) expression;
+          result = persistentExpression.Fields.First(propertyFilter);
+          break;
+        case ExtendedExpressionType.LocalCollection:
+          var localCollectionExpression = (LocalCollectionExpression) expression;
+          result = (Expression) localCollectionExpression.Fields[member];
+          break;
+        case ExtendedExpressionType.Entity:
+          var entityExpression = (EntityExpression) expression;
+          result = entityExpression.Fields.FirstOrDefault(propertyFilter);
+          if (result == null) {
+            EnsureEntityFieldsAreJoined(entityExpression);
+            result = entityExpression.Fields.First(propertyFilter);
+          }
+          break;
+        case ExtendedExpressionType.Field:
+          if (isMarker && ((markerType & MarkerType.Single) == MarkerType.Single)) {
+            throw new InvalidOperationException(string.Format(Strings.ExUseMethodXOnFirstInsteadOfSingle, sourceExpression.ToString(true), member.Name));
+          }
+          if (member.DeclaringType.IsNullable()) {
+            expression = Expression.Convert(expression, member.DeclaringType);
+          }
+          return Expression.MakeMemberAccess(expression, member);
+        case ExtendedExpressionType.EntityField:
+          var entityFieldExpression = (EntityFieldExpression) expression;
+          result = entityFieldExpression.Fields.FirstOrDefault(propertyFilter);
+          if (result == null) {
+            EnsureEntityReferenceIsJoined(entityFieldExpression);
+            result = entityFieldExpression.Entity.Fields.First(propertyFilter);
+          }
+          break;
       }
 
       return isMarker

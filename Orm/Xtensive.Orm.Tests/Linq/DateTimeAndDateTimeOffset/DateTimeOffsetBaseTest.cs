@@ -75,9 +75,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
         SecondDateTime.Date,
         new DateTime(FirstDateTime.Year, FirstDateTime.Month, FirstDateTime.Day, FirstDateTime.Hour, FirstDateTime.Minute, 0),
         new DateTime(FirstDateTime.Ticks, DateTimeKind.Unspecified),
-        FirstDateTime.Add(new TimeSpan(987, 23, 34, 45)),FirstDateTime.AddYears(1),FirstDateTime.AddYears(-2),
+        FirstDateTime.Add(new TimeSpan(987, 23, 34, 45)),FirstDateTime.AddYears(1),FirstDateTime.AddYears(-1),
         FirstDateTime.AddMonths(44),
-        FirstDateTime.AddMonths(-55),
+        FirstDateTime.AddMonths(-5),
         SecondDateTime.AddHours(5),
         SecondDateTime.AddHours(-15),
         SecondDateTime.AddMinutes(59),
@@ -151,6 +151,4 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       return dateTimeOffset;
     }
   }
-
-  
 }

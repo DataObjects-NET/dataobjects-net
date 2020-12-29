@@ -24,11 +24,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
     protected override void ReadSpecialIndexProperties(DbDataReader dr, Index i)
     {
       base.ReadSpecialIndexProperties(dr, i);
-      var indoption = (short [])dr["indoption"];
-      for (int j = 0; j < indoption.Length; j++) {
+      var indoption = (short[]) dr["indoption"];
+      for (var j = 0; j < indoption.Length; j++) {
         int option = indoption[j];
-        if ((option & indoptionDesc)==indoptionDesc)
+        if ((option & indoptionDesc) == indoptionDesc) {
           i.Columns[j].Ascending = false;
+        }
       }
     }
 

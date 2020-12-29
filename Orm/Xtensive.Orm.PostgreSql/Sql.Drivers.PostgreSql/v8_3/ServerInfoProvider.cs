@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using Xtensive.Sql.Info;
 
@@ -8,15 +8,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class ServerInfoProvider : v8_2.ServerInfoProvider
   {
-    protected override IndexFeatures GetIndexFeatures()
-    {
-      return base.GetIndexFeatures() | IndexFeatures.SortOrder | IndexFeatures.FullText;
-    }
+    protected override IndexFeatures GetIndexFeatures() =>
+      base.GetIndexFeatures() | IndexFeatures.SortOrder | IndexFeatures.FullText;
 
-    public override FullTextSearchInfo GetFullTextInfo()
-    {
-      return new FullTextSearchInfo {Features = FullTextSearchFeatures.Full};
-    }
+    public override FullTextSearchInfo GetFullTextInfo() =>
+      new FullTextSearchInfo { Features = FullTextSearchFeatures.Full };
 
     public override DataTypeCollection GetDataTypesInfo()
     {
@@ -30,8 +26,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       DataTypeFeatures.Multiple |
       DataTypeFeatures.Default;
 
-
-      DataTypeCollection dtc =  base.GetDataTypesInfo();
+      var dtc =  base.GetDataTypesInfo();
       dtc.Guid = DataTypeInfo.Regular(SqlType.Guid, commonFeatures, "uuid");
 
       return dtc;

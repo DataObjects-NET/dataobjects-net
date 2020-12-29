@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Internals
 
     private void AllocateParameterAndReplacer()
     {
-      if (queryTarget==null) {
+      if (queryTarget == null) {
         queryParameter = null;
         queryParameterReplacer = new ExtendedExpressionReplacer(e => e);
         return;

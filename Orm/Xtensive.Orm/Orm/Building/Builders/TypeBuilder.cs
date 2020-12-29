@@ -152,11 +152,10 @@ namespace Xtensive.Orm.Building.Builders
                 throw new DomainBuilderException(
                   string.Format(Strings.ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor, fieldDef.Name, typeInfo.Name));
               }
-
               var getMethod = fieldDef.UnderlyingProperty.GetGetMethod()
                 ?? fieldDef.UnderlyingProperty.GetGetMethod(true);
               if ((getMethod.Attributes & MethodAttributes.NewSlot) == MethodAttributes.NewSlot) {
-                BuildDeclaredField(typeInfo, fieldDef);
+                _ = BuildDeclaredField(typeInfo, fieldDef);
               }
               else {
                 BuildInheritedField(typeInfo, srcField);
@@ -181,10 +180,9 @@ namespace Xtensive.Orm.Building.Builders
           }
         }
         else {
-          BuildDeclaredField(typeInfo, fieldDef);
+          _ = BuildDeclaredField(typeInfo, fieldDef);
         }
       }
-
       typeInfo.Columns.AddRange(typeInfo.Fields.Where(f => f.Column != null).Select(f => f.Column));
 
       if (typeInfo.IsEntity && !IsAuxiliaryType(typeInfo)) {
@@ -274,6 +272,9 @@ namespace Xtensive.Orm.Building.Builders
 
         if (!IsAuxiliaryType(type)) {
           AssociationBuilder.BuildAssociation(context, fieldDef, fieldInfo);
+          if (type.IsStructure) {
+            fieldInfo.Associations.ForEach(a => context.DiscardedAssociations.Add(a));
+          }
         }
 
         // Adjusting type discriminator field for references
@@ -385,7 +386,7 @@ namespace Xtensive.Orm.Building.Builders
             .FirstOrDefault(a => a.OwnerField.Equals(field));
           if (origin != null && !clone.IsInherited) {
             AssociationBuilder.BuildAssociation(context, origin, clone);
-            context.DiscardedAssociations.Add(origin);
+            _ = context.DiscardedAssociations.Add(origin);
           }
         }
 
@@ -545,7 +546,7 @@ namespace Xtensive.Orm.Building.Builders
       // Equality identifier is the same if and only if key generator names match.
       key.IsFirstAmongSimilarKeys = !processedKeyGenerators.Contains(key.GeneratorName);
       if (key.IsFirstAmongSimilarKeys) {
-        processedKeyGenerators.Add(key.GeneratorName);
+        _ = processedKeyGenerators.Add(key.GeneratorName);
       }
 
       if (keyEqualityIdentifiers.TryGetValue(generatorIdentity, out var equalityIdentifier)) {
