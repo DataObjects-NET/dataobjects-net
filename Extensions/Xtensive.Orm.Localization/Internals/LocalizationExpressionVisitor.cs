@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Localization
       if (Map == null)
         return me;
 
-      var localizationInfo = Map.Get(me.Member.ReflectedType);
+      var localizationInfo = Map.Get(me.Expression?.Type ?? me.Member.ReflectedType);
       if (localizationInfo == null || !localizationInfo.LocalizationTypeInfo.Fields.Contains(me.Member.Name))
         return base.VisitMemberAccess(me);
 
