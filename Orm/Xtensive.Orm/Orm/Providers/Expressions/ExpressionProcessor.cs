@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.09.05
 
@@ -85,12 +85,12 @@ namespace Xtensive.Orm.Providers
     {
       var type = e.Type;
       // In rare cases (when calculated column is just parameter access) we need to strip cast to object.
-      if (e.NodeType==ExpressionType.Convert && e.Type==typeof(object))
+      if (e.NodeType==ExpressionType.Convert && e.Type==WellKnownTypes.Object)
         type = ((UnaryExpression) e).Operand.Type;
-      bool optimizeBooleanParameter = type==typeof (bool);
+      bool optimizeBooleanParameter = type==WellKnownTypes.Bool;
       type = type.StripNullable();
       var typeMapping = driver.GetTypeMapping(type);
-      var expression = parameterExtractor.ExtractParameter<object>(e);
+      var expression = ParameterAccessorFactory.CreateAccessorExpression<object>(e);
       var bindingType = optimizeBooleanParameter
         ? QueryParameterBindingType.BooleanConstant
         : (smartNull
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Providers
       }
       else {
         result = binding.ParameterReference;
-        if (type==typeof(bool) && fixBooleanExpressions)
+        if (type==WellKnownTypes.Bool && fixBooleanExpressions)
           result = booleanExpressionConverter.IntToBoolean(result);
         else if (typeMapping.ParameterCastRequired)
           result = SqlDml.Cast(result, typeMapping.MapType());
@@ -122,9 +122,9 @@ namespace Xtensive.Orm.Providers
 
       switch (expression.NodeType) {
         case ExpressionType.ArrayLength:
-          if (expression.Operand.Type!=typeof(byte[]))
+          if (expression.Operand.Type!=WellKnownTypes.ByteArray)
             throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported, expression.Operand.Type));
-          return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.MapValueType(typeof (int)));
+          return SqlDml.Cast(SqlDml.BinaryLength(operand), driver.MapValueType(WellKnownTypes.Int32));
         case ExpressionType.Negate:
         case ExpressionType.NegateChecked:
           return SqlDml.Negate(operand);
@@ -145,7 +145,7 @@ namespace Xtensive.Orm.Providers
     {
       var sourceType = cast.Operand.Type.StripNullable();
       var targetType = cast.Type.StripNullable();
-      if (sourceType==targetType || targetType==typeof(object) || sourceType==typeof(object))
+      if (sourceType==targetType || targetType==WellKnownTypes.Object || sourceType==WellKnownTypes.Object)
         return operand;
       if (IsEnumUnderlyingType(sourceType, targetType) || IsEnumUnderlyingType(targetType, sourceType))
         return operand;
@@ -335,14 +335,14 @@ namespace Xtensive.Orm.Providers
     protected override SqlExpression VisitConstant(ConstantExpression expression)
     {
       if (expression.Value==null)
-        return fixBooleanExpressions && expression.Type==typeof (bool?)
+        return fixBooleanExpressions && expression.Type==WellKnownTypes.NullableBool
           ? booleanExpressionConverter.IntToBoolean(SqlDml.Null)
           : SqlDml.Null;
       var type = expression.Type;
-      if (type==typeof (object))
+      if (type==WellKnownTypes.Object)
         type = expression.Value.GetType();
       type = type.StripNullable();
-      if (fixBooleanExpressions && type==typeof (bool)) {
+      if (fixBooleanExpressions && type==WellKnownTypes.Bool) {
         var literal = SqlDml.Literal((bool) expression.Value);
         return booleanExpressionConverter.IntToBoolean(literal);
       }

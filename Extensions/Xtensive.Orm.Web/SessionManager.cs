@@ -1,3 +1,7 @@
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using Xtensive.Core;
 using Microsoft.AspNetCore.Http;
@@ -194,6 +198,10 @@ namespace Xtensive.Orm.Web
         throw new InvalidOperationException("Session is not provided");
     }
 
+    /// <summary>
+    /// Creates new instance of <see cref="SessionManager"/> middleware.
+    /// </summary>
+    /// <param name="next">Next <see cref="RequestDelegate"/> in pipeline.</param>
     public SessionManager(RequestDelegate next)
     {
       nextMiddlewareRunner = next;

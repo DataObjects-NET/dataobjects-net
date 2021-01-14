@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.01.27
 
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void CompiledSequenceTest()
     {
       var id = GetId();
-      var r = Query.Execute(() => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.Execute(() => Query.All<MetadataType>().Where(m => m.Id == id));
       VerifyResult(r);
     }
 
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void CompiledSequenceWithKeyTest()
     {
       var id = GetId();
-      var r = Query.Execute(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.Execute(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id == id));
       VerifyResult(r);
     }
 
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void CompiledScalarTest()
     {
       var id = GetId();
-      var r = Query.Execute(() => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.Execute(() => Query.All<MetadataType>().Single(m => m.Id == id));
       VerifyResult(r);
     }
 
@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void CompiledScalarWithKeyTest()
     {
       var id = GetId();
-      var r = Query.Execute(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.Execute(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id == id));
       VerifyResult(r);
     }
 
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureSequenceTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFuture(() => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(() => Query.All<MetadataType>().Where(m => m.Id == id));
       VerifyResult(r);
     }
 
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureSequenceWithKeyTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFuture(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(GetKey(), () => Query.All<MetadataType>().Where(m => m.Id == id));
       VerifyResult(r);
     }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureScalarTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFutureScalar(() => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(() => Query.All<MetadataType>().Single(m => m.Id == id));
       VerifyResult(r.Value);
     }
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Issues
     public void FutureScalarWithKeyTest()
     {
       var id = GetId();
-      var r = Query.ExecuteFutureScalar(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id==id));
+      var r = Query.CreateDelayedQuery(GetKey(), () => Query.All<MetadataType>().Single(m => m.Id == id));
       VerifyResult(r.Value);
     }
 

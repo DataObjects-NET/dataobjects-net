@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.08.13
 
@@ -121,7 +121,7 @@ namespace Xtensive.Orm.Tests.Issues
         // Exception!
         var nowCount = aggregate.FirstOrDefault();
 
-        var futureCount = session.Query.ExecuteDelayed(_ => aggregate.FirstOrDefault());
+        var futureCount = session.Query.CreateDelayedQuery(_ => aggregate.FirstOrDefault());
 
         transactionScope.Complete();
       }

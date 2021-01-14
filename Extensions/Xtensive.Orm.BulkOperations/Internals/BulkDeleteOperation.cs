@@ -1,5 +1,11 @@
-﻿using System;
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
@@ -15,16 +21,41 @@ namespace Xtensive.Orm.BulkOperations
 
     protected override int ExecuteInternal()
     {
-      base.ExecuteInternal();
-      QueryTranslationResult request = GetRequest(query);
-      Bindings = request.ParameterBindings.ToList();
-      if (PrimaryIndexes.Length > 1)
+      if (PrimaryIndexes.Length > 1) {
         throw new NotImplementedException("Inheritance is not implemented");
-      SqlDelete delete = SqlDml.Delete(SqlDml.TableRef(PrimaryIndexes[0].Table));
+      }
+
+      _ = base.ExecuteInternal();
+
+      var request = GetRequest(query);
+      Bindings = request.ParameterBindings.ToList();
+
+      using var command = CreateCommand(request);
+      return command.ExecuteNonQuery();
+    }
+
+    protected async override Task<int> ExecuteInternalAsync(CancellationToken token = default)
+    {
+      if (PrimaryIndexes.Length > 1) {
+        throw new NotImplementedException("Inheritance is not implemented");
+      }
+
+      _ = base.ExecuteInternal();
+
+      var request = GetRequest(query);
+      Bindings = request.ParameterBindings.ToList();
+
+      var command = CreateCommand(request);
+      await using (command.ConfigureAwait(false)) {
+        return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
+    }
+
+    private QueryCommand CreateCommand(QueryTranslationResult request)
+    {
+      var delete = SqlDml.Delete(SqlDml.TableRef(PrimaryIndexes[0].Table));
       Join(delete, (SqlSelect) request.Query);
-      QueryCommand command = ToCommand(delete);
-      int result = command.ExecuteNonQuery();
-      return result;
+      return ToCommand(delete);
     }
 
     protected override SqlTableRef GetStatementTable(SqlStatement statement)
@@ -63,15 +94,11 @@ namespace Xtensive.Orm.BulkOperations
       delete.Limit = limit;
     }
 
-    protected override bool SupportsJoin()
-    {
-      return DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteFrom);
-    }
+    protected override bool SupportsJoin() =>
+      DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteFrom);
 
-    protected override bool SupportsLimitation()
-    {
-      return DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteLimit);
-    }
+    protected override bool SupportsLimitation() =>
+      DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteLimit);
 
     #endregion
 

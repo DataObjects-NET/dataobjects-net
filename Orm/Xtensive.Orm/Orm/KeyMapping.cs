@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.11.19
 
@@ -99,7 +99,7 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="info">The info.</param>
     /// <param name="context">The context.</param>
-    protected KeyMapping(SerializationInfo info, StreamingContext context)
+    private KeyMapping(SerializationInfo info, StreamingContext context)
     {
       var serializedMapping = (Dictionary<Ref<Entity>, Ref<Entity>>)
         info.GetValue("Map", typeof(Dictionary<Ref<Entity>, Ref<Entity>>));

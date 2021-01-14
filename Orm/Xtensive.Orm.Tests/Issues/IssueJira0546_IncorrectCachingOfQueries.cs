@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2014.08.08
 
@@ -54,16 +54,16 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0546_IncorrectCachingOfQueriesModel
 
 namespace Xtensive.Orm.Tests.Issues
 { 
-  internal class BaseTask
+  internal class IssueJira0546BaseTask
   {
     public int StartValue { get; set; }
 
-    public BaseTask(int startValue)
+    public IssueJira0546BaseTask(int startValue)
     {
       StartValue = startValue;
     }
   }
-  internal class Task: BaseTask
+  internal class IssueJira0546Task : IssueJira0546BaseTask
   {
     public Session Session { get; private set; }
     
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Issues
     public int GetMinimalLocationIdDelayedApi()
     {
       Func<Session, int> func = (s) => {
-        var locations = Session.Query.ExecuteDelayed(endpoint => from location in s.Query.All<Location>()
+        var locations = Session.Query.CreateDelayedQuery(endpoint => from location in s.Query.All<Location>()
           where location.Active && location.Id.In((
             from loc in s.Query.All<Location>()
               where loc.Id > StartValue && loc.Zone==NullZone
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Issues
     public int GetMinimalLocationIdFutureApi()
     {
       Func<int> func = () => {
-        var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+        var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
           where location.Active && location.Id.In((
             from loc in Query.All<Location>()
             where loc.Id > StartValue && loc.Zone == NullZone
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Issues
       return result;
     }
 
-    public Task(Session session, int startValue)
+    public IssueJira0546Task (Session session, int startValue)
       : base(startValue)
     {
       this.Session = session;
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Tests.Issues
         List<IEnumerable<Location>> queries = new List<IEnumerable<Location>>();
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         for (int i = 0; i < upperLimit; i++) {
-          var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
+          var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
             where location.Active && location.Id.In((
               from loc in session.Query.All<Location>()
               where loc.Id > i && loc.Zone==null
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Issues
         List<IEnumerable<Location>> queries = new List<IEnumerable<Location>>();
         var cachedQueriesCountBefore = Domain.QueryCache.Count;
         for (int i = 0; i < upperLimit; i++) {
-          var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+          var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
             where location.Active && location.Id.In((
               from loc in Query.All<Location>()
               where loc.Id > i && loc.Zone == null
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Tests.Issues
       var currentId = 1;
       var iterationsCount = 0;
       while (currentId<80) {
-        var task = new Task(session, currentId);
+        var task = new IssueJira0546Task (session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdDelayedApi();
         Assert.AreEqual(previousId+1, currentId);
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Issues
       currentId = 1;
       iterationsCount = 0;
       while (currentId < 80) {
-        var task = new Task(session, currentId);
+        var task = new IssueJira0546Task (session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdFutureApi();
         Assert.AreEqual(previousId + 1, currentId);
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalId(Session session, int startId)
     {
-      var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
+      var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in session.Query.All<Location>()
           where loc.Id > startId && loc.Zone==null
@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalId(int startId)
     {
-      var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+      var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in Query.All<Location>()
           where loc.Id > startId && loc.Zone == null
@@ -338,7 +338,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalIdWithZone(Session session, Zone zone)
     {
-      var locations = session.Query.ExecuteDelayed(endpoint => from location in session.Query.All<Location>()
+      var locations = session.Query.CreateDelayedQuery(endpoint => from location in session.Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in session.Query.All<Location>()
           where loc.Zone==zone
@@ -351,7 +351,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private int GetMinimalIdWithZone(Zone zone)
     {
-      var locations = Query.ExecuteFuture(() => from location in Query.All<Location>()
+      var locations = Query.CreateDelayedQuery(() => from location in Query.All<Location>()
         where location.Active && location.Id.In((
           from loc in Query.All<Location>()
           where loc.Zone == zone

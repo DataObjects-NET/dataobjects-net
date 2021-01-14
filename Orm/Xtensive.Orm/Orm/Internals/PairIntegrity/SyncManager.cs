@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.10.08
 
@@ -75,10 +75,6 @@ namespace Xtensive.Orm.PairIntegrity
 
     private static SyncActionSet GetSyncActions(AssociationInfo association)
     {
-      Func<AssociationInfo, IEntity, IEntity> getValue = null;
-      Action<AssociationInfo, IEntity, IEntity> @break = null;
-      Action<AssociationInfo, IEntity, IEntity> create = null;
-
       switch (association.Multiplicity) {
       case Multiplicity.OneToOne:
       case Multiplicity.ManyToOne:

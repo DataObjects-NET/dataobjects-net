@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
 // Created:    2008.01.14
 
@@ -20,8 +20,9 @@ namespace Xtensive.Comparison
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
   {
-    private static readonly ComparerProvider defaultProvider = new ComparerProvider();
-    private static readonly SystemComparerProvider systemProvider = SystemComparerProvider.Instance;
+    private static readonly ComparerProvider defaultProvider;
+    private static readonly SystemComparerProvider systemProvider;
+    private static readonly Type BaseComparerWrapperType;
 
     /// <summary>
     /// Gets default instance of this type.
@@ -73,13 +74,10 @@ namespace Xtensive.Comparison
       }
       if (foundFor==typeof (TKey))
         return (TAssociate) comparer;
-      Type baseComparerWrapperType = typeof (BaseComparerWrapper<,>);
-      associate =
-        baseComparerWrapperType.Activate(new Type[] {typeof (TKey), foundFor}, ConstructorParams) as
-          TAssociate;
+      associate = BaseComparerWrapperType.Activate(new[] {typeof (TKey), foundFor}, ConstructorParams) as TAssociate;
       if (associate!=null) {
         CoreLog.Warning(Strings.LogGenericAssociateIsUsedFor,
-          baseComparerWrapperType.GetShortName(),
+          BaseComparerWrapperType.GetShortName(),
           typeof (TKey).GetShortName(),
           foundFor.GetShortName(),
           typeof (TKey).GetShortName());
@@ -87,7 +85,7 @@ namespace Xtensive.Comparison
       }
       else {
         CoreLog.Warning(Strings.LogGenericAssociateCreationHasFailedFor,
-          baseComparerWrapperType.GetShortName(),
+          BaseComparerWrapperType.GetShortName(),
           typeof (TKey).GetShortName(),
           foundFor.GetShortName(),
           typeof (TKey).GetShortName());
@@ -116,8 +114,14 @@ namespace Xtensive.Comparison
     {
       TypeSuffixes = new[] {"Comparer"};
       ConstructorParams = new object[] {this, ComparisonRules.Positive};
-      Type t = typeof (BooleanComparer);
-      AddHighPriorityLocation(t.Assembly, t.Namespace);
+      AddHighPriorityLocation(BaseComparerWrapperType.Assembly, BaseComparerWrapperType.Namespace);
+    }
+
+    static ComparerProvider()
+    {
+      BaseComparerWrapperType = typeof (BaseComparerWrapper<,>);
+      defaultProvider = new ComparerProvider();
+      systemProvider = SystemComparerProvider.Instance;
     }
   }
 }

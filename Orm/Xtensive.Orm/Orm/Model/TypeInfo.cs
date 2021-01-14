@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.27
 
@@ -403,6 +403,7 @@ namespace Xtensive.Orm.Model
     /// Creates the tuple prototype with specified <paramref name="primaryKey"/>.
     /// </summary>
     /// <param name="primaryKey">The primary key to use.</param>
+    /// <param name="typeIdValue">Identifier of <see cref="Entity"/> type.</param>
     /// <returns>
     /// The <see cref="TuplePrototype"/> with "injected" <paramref name="primaryKey"/>.
     /// </returns>
@@ -417,13 +418,14 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Injects the primary key into specified <paramref name="entityTuple"/>
     /// </summary>
+    /// <param name="entityTuple">A <see cref="Tuple"/> instance where to inject
+    /// the specified <paramref name="primaryKey"/></param>
     /// <param name="primaryKey">The primary key to inject.</param>
     /// <returns>
     /// The <paramref name="entityTuple"/> with "injected" <paramref name="primaryKey"/>.
     /// </returns>
     public Tuple InjectPrimaryKey(Tuple entityTuple, Tuple primaryKey)
     {
-      var prototype = TuplePrototype; // Ensures primaryKeyInjector is built as well
       return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, entityTuple);
     }
 
@@ -828,8 +830,8 @@ namespace Xtensive.Orm.Model
       var structureFields = Fields.Where(f => f.IsStructure && f.Parent == null);
       foreach (var structureField in structureFields) {
         var structureTypeInfo = Model.Types[structureField.ValueType];
-        foreach (var pair in structureTypeInfo.Fields.Zip(structureField.Fields))
-          result.Add(new Pair<FieldInfo>(structureField, pair.First), pair.Second);
+        foreach (var pair in structureTypeInfo.Fields.Zip(structureField.Fields, (first, second) => (first, second)))
+          result.Add(new Pair<FieldInfo>(structureField, pair.first), pair.second);
       }
       return new ReadOnlyDictionary<Pair<FieldInfo>, FieldInfo>(result);
     }

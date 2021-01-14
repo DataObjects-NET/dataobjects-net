@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.08.19
 
@@ -62,6 +62,8 @@ namespace Xtensive.Orm.Internals
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="dataSource">The data source.</param>
+    /// <param name="lifetimeToken"><see cref="StateLifetimeToken"/> to be associated with the
+    /// newly created <see cref="QueryTask"/>.</param>
     /// <param name="parameterContext">The parameter value context.</param>
     public QueryTask(ExecutableProvider dataSource, StateLifetimeToken lifetimeToken, ParameterContext parameterContext)
     {

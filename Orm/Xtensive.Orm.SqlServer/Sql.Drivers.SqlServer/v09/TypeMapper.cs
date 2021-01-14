@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.02
 
@@ -21,6 +21,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private static readonly int NVarCharMaxLength = int.MaxValue;
 
     private ValueRange<DateTime> dateTimeRange;
+
+    public override bool IsParameterCastRequired(Type type)
+    {
+      switch (Type.GetTypeCode(type)) {
+        case TypeCode.Byte:
+        case TypeCode.SByte:
+        case TypeCode.Int16:
+        case TypeCode.UInt16:
+          return true;
+      }
+      if (type==typeof (Guid)) {
+        return true;
+      }
+
+      return base.IsParameterCastRequired(type);
+    }
 
     public override void BindSByte(DbParameter parameter, object value)
     {

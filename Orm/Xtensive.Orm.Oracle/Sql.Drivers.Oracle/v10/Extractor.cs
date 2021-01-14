@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.17
 
@@ -10,13 +10,12 @@ namespace Xtensive.Sql.Drivers.Oracle.v10
 {
   internal class Extractor : v09.Extractor
   {
-    protected override void RegisterReplacements(Dictionary<string, string> replacements)
+    protected override void RegisterReplacements(Dictionary<string, string> replacements, IReadOnlyCollection<string> targetSchemes)
     {
-      base.RegisterReplacements(replacements);
+      base.RegisterReplacements(replacements, targetSchemes);
       replacements[TableFilterPlaceholder] = "NOT LIKE 'BIN$%'";
       replacements[IndexesFilterPlaceholder] = "indexes.DROPPED = 'NO'";
     }
-   
 
     // Constructors
 

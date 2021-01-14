@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2009.03.20
 
@@ -10,6 +10,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse
@@ -53,7 +54,7 @@ namespace Xtensive.Orm.Rse
     {
       if (expression.NodeType==ExpressionType.Call) {
         var mc = (MethodCallExpression) expression;
-        if (mc.Object!=null && mc.Object.Type==typeof (Tuple))
+        if (mc.Object!=null && mc.Object.Type==WellKnownOrmTypes.Tuple)
           if (mc.Method.Name==Reflection.WellKnown.Tuple.GetValue || mc.Method.Name==Reflection.WellKnown.Tuple.GetValueOrDefault)
             return mc;
       }
@@ -135,7 +136,7 @@ namespace Xtensive.Orm.Rse
         return null;
       var memberAccess = (MemberExpression) tupleAccess.Object;
       if (memberAccess.Expression==null ||
-        memberAccess.Expression.Type!=typeof (ApplyParameter) ||
+        memberAccess.Expression.Type!=WellKnownOrmTypes.ApplyParameter ||
         memberAccess.Member.Name!="Value")
         return null;
       return memberAccess.Expression;

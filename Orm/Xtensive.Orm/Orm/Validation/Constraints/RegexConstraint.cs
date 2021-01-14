@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.07.23
 
 using System;
 using System.Text.RegularExpressions;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Validation
 {
@@ -30,8 +31,8 @@ namespace Xtensive.Orm.Validation
     {
       base.Configure(domain, type, field);
 
-      if (field.ValueType!=typeof (string))
-        ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, typeof (string).FullName));
+      if (field.ValueType!=WellKnownTypes.String)
+        ThrowConfigurationError(string.Format(Strings.FieldShouldBeOfTypeX, WellKnownTypes.String.FullName));
 
       if (string.IsNullOrEmpty(Pattern))
         ThrowConfigurationError(Strings.RegularExpressionPatternIsNotSpecified);

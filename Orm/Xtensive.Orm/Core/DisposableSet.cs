@@ -1,12 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2007.12.29
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 
@@ -21,7 +22,7 @@ namespace Xtensive.Core
   /// <see cref="IDisposable.Dispose"/> methods are invoked in backward order.
   /// </note>
   /// </remarks>
-  public sealed class DisposableSet : IDisposable
+  public sealed class DisposableSet : IDisposable, IAsyncDisposable
   {
     private HashSet<IDisposable> set;
     private List<IDisposable> list;
@@ -102,11 +103,42 @@ namespace Xtensive.Core
     void IDisposable.Dispose()
     {
       try {
-        if (list==null)
+        if (list==null) {
           return;
+        }
+
         using (var aggregator = new ExceptionAggregator()) {
-          for (int i = list.Count - 1; i >= 0; i--)
+          for (var i = list.Count - 1; i >= 0; i--) {
             aggregator.Execute(d => d.Dispose(), list[i]);
+          }
+
+          aggregator.Complete();
+        }
+      }
+      finally {
+        set = null;
+        list = null;
+      }
+    }
+
+    async ValueTask IAsyncDisposable.DisposeAsync()
+    {
+      try {
+        if (list==null) {
+          return;
+        }
+
+        using (var aggregator = new ExceptionAggregator()) {
+          for (var i = list.Count - 1; i >= 0; i--) {
+            var disposable = list[i];
+            if (disposable is IAsyncDisposable asyncDisposable) {
+              await aggregator.ExecuteAsync(d => d.DisposeAsync(), asyncDisposable).ConfigureAwait(false);
+            }
+            else {
+              aggregator.Execute(d => d.Dispose(), disposable);
+            }
+          }
+
           aggregator.Complete();
         }
       }

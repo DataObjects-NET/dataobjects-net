@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.07.04
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -122,10 +123,35 @@ namespace Xtensive.Core
     /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
     public void Execute<T>(Action<T> action, T argument)
     {
-      if (isDisposed)
+      if (isDisposed) {
         throw Exceptions.AlreadyDisposed(null);
+      }
+
       try {
         action(argument);
+      }
+      catch (Exception e) {
+        HandleException(e);
+      }
+    }
+
+    /// <summary>
+    /// Executes the specified action catching all the exceptions from it,
+    /// adding it to internal list of caught exceptions and
+    /// and passing it to <see cref="ExceptionHandler"/> handler.
+    /// </summary>
+    /// <typeparam name="T">The type of action argument.</typeparam>
+    /// <param name="action">The action to execute.</param>
+    /// <param name="argument">The action argument value.</param>
+    /// <exception cref="ObjectDisposedException">Aggregator is already disposed.</exception>
+    public async ValueTask ExecuteAsync<T>(Func<T, ValueTask> action, T argument)
+    {
+      if (isDisposed) {
+        throw Exceptions.AlreadyDisposed(null);
+      }
+
+      try {
+        await action(argument).ConfigureAwait(false);
       }
       catch (Exception e) {
         HandleException(e);

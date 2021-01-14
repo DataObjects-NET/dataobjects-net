@@ -1,4 +1,8 @@
-﻿using System;
+// Copyright (C) 2015-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Diagnostics;
 using System.Collections.Generic;
 using System.Linq;
@@ -189,20 +193,22 @@ namespace Xtensive.Orm.Tests.Issues
   {
     private const string Node2Name = "Node2";
     private const string Node1Name = "Node1";
-    private const string ErrorInTestFixtureSetup = "Error in Text fixture setup {0}";
+
+    [OneTimeSetUp]
+    public void TestFixtureSetUp() => Require.ProviderIs(StorageProvider.SqlServer);
 
     [Test]
     public void Test01()
     {
-      var configuration1 = CreateConfiguration(typeof (Node1.TimesheetCode), DomainUpgradeMode.Recreate, "Model1");
-      var configuration2 = CreateConfiguration(typeof (Node2.TimesheetCode), DomainUpgradeMode.Recreate, "Model2");
+      var configuration1 = CreateConfiguration(typeof(Node1.TimesheetCode), DomainUpgradeMode.Recreate, "Model1");
+      var configuration2 = CreateConfiguration(typeof(Node2.TimesheetCode), DomainUpgradeMode.Recreate, "Model2");
 
       using (var domain = BuildDomain(configuration1)) {
-        Assert.That(domain.Model.Types[typeof (Node1.TimesheetCode)].TypeId, Is.EqualTo(288));
+        Assert.That(domain.Model.Types[typeof(Node1.TimesheetCode)].TypeId, Is.EqualTo(288));
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           for (var i = 0; i < 10; i++) {
-            new Node1.TimesheetCode(session) {
+            _ = new Node1.TimesheetCode(session) {
               Active = i % 2==0,
               Code = "jdfgdj" + i,
               Description = "dfjghjdhfgjhsjkhgjdfg",
@@ -232,7 +238,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           for (var i = 0; i < 10; i++) {
-            new Node2.TimesheetCode(session) {
+            _ = new Node2.TimesheetCode(session) {
               Active = i % 2 == 0,
               Code = "jdfgdj" + i,
               Description = "dfjghjdhfgjhsjkhgjdfg",
@@ -257,12 +263,11 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
 
-      var multinodeDomainConfiguration = CreateConfiguration(typeof (Target.TimesheetCode), DomainUpgradeMode.Skip, "Model1");
+      var multinodeDomainConfiguration = CreateConfiguration(typeof(Target.TimesheetCode), DomainUpgradeMode.Skip, "Model1");
       var nodeConfiguration = CreateNodeConfiguration(Node2Name, "Model1", "Model2", DomainUpgradeMode.Skip);
-      using (var domain = BuildDomain(multinodeDomainConfiguration)) {
-        domain.StorageNodeManager.AddNode(nodeConfiguration);
+
+      using (var domain = BuildDomain(multinodeDomainConfiguration, nodeConfiguration)) {
         using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(WellKnown.DefaultNodeId);
           using (var transaction = session.OpenTransaction()) {
             var list = session.Query.All<Target.TimesheetCode>()
               .Where(c => c.Active)
@@ -288,19 +293,17 @@ namespace Xtensive.Orm.Tests.Issues
           }
         }
 
-        using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(Node2Name);
-          using (var transaction = session.OpenTransaction()) {
-            
-            var list = session.Query.All<Target.TimesheetCode>()
-              .Where(c => c.Active)
-              .OrderBy(c => c.Code)
-              .AsEnumerable()
-              .Select(c => new {
-                Value = c.Code,
-                Name = c.Code
-              }).ToList();
-          }
+        var selectedNode = domain.StorageNodeManager.GetNode(Node2Name);
+        using (var session = selectedNode.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var list = session.Query.All<Target.TimesheetCode>()
+            .Where(c => c.Active)
+            .OrderBy(c => c.Code)
+            .AsEnumerable()
+            .Select(c => new {
+              Value = c.Code,
+              Name = c.Code
+            }).ToList();
         }
       }
     }
@@ -316,7 +319,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           for (var i = 0; i < 10; i++) {
-            new Node1.TimesheetCode(session) {
+            _ = new Node1.TimesheetCode(session) {
               Active = i % 2 == 0,
               Code = "jdfgdj" + i,
               Description = "dfjghjdhfgjhsjkhgjdfg",
@@ -347,7 +350,7 @@ namespace Xtensive.Orm.Tests.Issues
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           for (var i = 0; i < 10; i++) {
-            new Node2.TimesheetCode(session) {
+            _ = new Node2.TimesheetCode(session) {
               Active = i % 2 == 0,
               Code = "jdfgdj" + i,
               Description = "dfjghjdhfgjhsjkhgjdfg",
@@ -364,8 +367,7 @@ namespace Xtensive.Orm.Tests.Issues
               .Where(c => c.Active)
               .OrderBy(c => c.Code)
               .AsEnumerable()
-              .Select(c => new
-              {
+              .Select(c => new {
                 Value = c.Code,
                 Name = c.Code
               }).ToList();
@@ -375,28 +377,27 @@ namespace Xtensive.Orm.Tests.Issues
 
       var multinodeDomainConfiguration = CreateConfiguration(typeof(Target.TimesheetCode), DomainUpgradeMode.PerformSafely, "Model2");
       var nodeConfiguration = CreateNodeConfiguration(Node1Name, "Model2", "Model1", DomainUpgradeMode.PerformSafely);
+
       using (var domain = BuildDomain(multinodeDomainConfiguration, nodeConfiguration)) {
         using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(WellKnown.DefaultNodeId);
           using (var transaction = session.OpenTransaction()) {
             var list = session.Query.All<Target.TimesheetCode>()
               .Where(c => c.Active)
               .OrderBy(c => c.Code)
               .AsEnumerable()
-              .Select(c => new
-              {
+              .Select(c => new {
                 Value = c.Code,
                 Name = c.Code
               }).ToList();
             Assert.That(list.Count, Is.EqualTo(5));
           }
+
           using (var transaction = session.OpenTransaction()) {
             var list = session.Query.All<Target.TimesheetCode>()
               .Where(c => c.Active)
               .OrderBy(c => c.Code)
               .AsEnumerable()
-              .Select(c => new
-              {
+              .Select(c => new {
                 Value = c.Code,
                 Name = c.Code
               }).ToList();
@@ -404,16 +405,14 @@ namespace Xtensive.Orm.Tests.Issues
           }
         }
 
-        using (var session = domain.OpenSession()) {
-          session.SelectStorageNode(Node1Name);
+        var selectedNode = domain.StorageNodeManager.GetNode(Node1Name);
+        using (var session = selectedNode.OpenSession()) {
           using (var transaction = session.OpenTransaction()) {
-
             var list = session.Query.All<Target.TimesheetCode>()
               .Where(c => c.Active)
               .OrderBy(c => c.Code)
               .AsEnumerable()
-              .Select(c => new
-              {
+              .Select(c => new {
                 Value = c.Code,
                 Name = c.Code
               }).ToList();
@@ -430,12 +429,6 @@ namespace Xtensive.Orm.Tests.Issues
           }
         }
       }
-    }
-
-    private void CheckRequirements()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
-      Require.ProviderIs(StorageProvider.SqlServer);
     }
 
     private Domain BuildDomain(DomainConfiguration configuration, NodeConfiguration nodeConfiguration = null)
@@ -468,26 +461,6 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.SchemaMapping.Add(oldSchema, newSchema);
       configuration.UpgradeMode = upgradeMode;
       return configuration;
-    }
-
-    [OneTimeSetUp]
-    public void TestFixtureSetUp()
-    {
-      try {
-        CheckRequirements();
-      }
-      catch (IgnoreException) {
-        throw;
-      }
-      catch (Exception e) {
-        Debug.WriteLine(ErrorInTestFixtureSetup, e);
-        throw;
-      }
-    }
-
-    [OneTimeTearDown]
-    public void TestFixtureTearDown()
-    {
     }
   }
 }

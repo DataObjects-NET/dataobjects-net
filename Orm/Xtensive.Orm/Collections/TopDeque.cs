@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Ustinov
 // Created:    2007.05.28
 
@@ -98,7 +98,7 @@ namespace Xtensive.Collections
         try {
           map.Add(key, valueContainer);
         }
-        catch (Exception e) {
+        catch (Exception) {
           list.RemoveFirst();
           throw;
         }

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.10.07
 
@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
 using Xtensive.Orm;
+using Xtensive.Orm.Internals;
 using Xtensive.Reflection;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
@@ -34,7 +35,7 @@ namespace Xtensive.Orm.Building.Builders
     public static void BuildFilter(IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
-      var parameter = Expression.Parameter(typeof (Tuples.Tuple), "tuple");
+      var parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
       var builder = new PartialIndexFilterBuilder(index, parameter);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
@@ -147,8 +148,8 @@ namespace Xtensive.Orm.Building.Builders
       if (!(expression.Member is PropertyInfo))
         return false;
       var ownerType = expression.Expression.Type;
-      return typeof (IEntity).IsAssignableFrom(ownerType)
-        || typeof (Structure).IsAssignableFrom(ownerType);
+      return WellKnownOrmInterfaces.Entity.IsAssignableFrom(ownerType)
+        || WellKnownOrmTypes.Structure.IsAssignableFrom(ownerType);
     }
 
     protected override Expression VisitParameter(ParameterExpression p)

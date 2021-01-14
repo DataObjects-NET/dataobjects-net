@@ -1,3 +1,7 @@
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -144,7 +148,7 @@ namespace Xtensive.Orm.BulkOperations
       if (constant==null)
         value = SqlDml.Null;
       else {
-        QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(constant.GetType(), () => constant);
+        QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(constant.GetType(), context => constant);
         parent.Bindings.Add(binding);
         value = binding.ParameterReference;
       }
@@ -177,7 +181,7 @@ namespace Xtensive.Orm.BulkOperations
               value = SqlDml.Null;
             else {
               object v = keys[i];
-              QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), () => v);
+              QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), context => v);
               parent.Bindings.Add(binding);
               value = binding.ParameterReference;
             }
@@ -201,7 +205,7 @@ namespace Xtensive.Orm.BulkOperations
             ParameterExpression p = Expression.Parameter(info.UnderlyingType);
             LambdaExpression lambda =
               FastExpression.Lambda(
-                typeof (Func<,>).MakeGenericType(info.UnderlyingType, field.ValueType),
+                WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(info.UnderlyingType, field.ValueType),
                 Expression.MakeMemberAccess(p, field.UnderlyingProperty),
                 p);
             IQueryable q =
@@ -216,7 +220,7 @@ namespace Xtensive.Orm.BulkOperations
         }
       }
       i = -1;
-      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body, null).Compile().DynamicInvoke();
+      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
       foreach (ColumnInfo column in addContext.Field.Columns) {
         i++;
         SqlExpression value;
@@ -224,7 +228,7 @@ namespace Xtensive.Orm.BulkOperations
           value = SqlDml.Null;
         else {
           object v = entity.Key.Value.GetValue(i);
-          QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), () => v);
+          QueryParameterBinding binding = parent.QueryBuilder.CreateParameterBinding(v.GetType(), context => v);
           parent.Bindings.Add(binding);
           value = binding.ParameterReference;
         }
@@ -240,7 +244,7 @@ namespace Xtensive.Orm.BulkOperations
           Descriptor = descriptor,
           Lambda =
             FastExpression.Lambda(
-              typeof (Func<,>).MakeGenericType(typeof (T), descriptor.Expression.Type),
+              WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(typeof (T), descriptor.Expression.Type),
               descriptor.Expression,
               descriptor.Parameter),
           Statement = Statement

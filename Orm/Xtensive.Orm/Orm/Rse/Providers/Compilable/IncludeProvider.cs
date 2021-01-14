@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.10.22
 
@@ -14,6 +14,7 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 using System.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -50,19 +51,18 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets filter data.
     /// </summary>
-    public Expression<Func<IEnumerable<Tuple>>> FilterDataSource { get; private set; }
+    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> FilterDataSource { get; private set; }
 
     public MapTransform FilteredColumnsExtractionTransform { get; private set; }
 
     public CombineTransform ResultTransform { get; private set; }
 
-    private static readonly Type BoolType = typeof(bool);
-    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {BoolType});
+    private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, BoolType));
+      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, WellKnownTypes.Bool));
       var fieldTypes = new Type[FilteredColumns.Count];
       for (var index = 0; index < fieldTypes.Length; index++) {
         fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="resultColumnName">A value for <see cref="ResultColumnName"/>.</param>
     /// <param name="filteredColumns">A value for <see cref="FilteredColumns"/>.</param>
     public IncludeProvider(CompilableProvider source, IncludeAlgorithm algorithm, bool isInlined,
-      Expression<Func<IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<int> filteredColumns)
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<int> filteredColumns)
       : base(ProviderType.Include, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(filterDataSource, "filterDataSource");

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.01
 
@@ -17,8 +17,6 @@ using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
-using Xtensive.Orm.Logging;
-using Xtensive.Orm.Model;
 using Xtensive.Orm.Operations;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -265,22 +263,21 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public void Lock(LockMode lockMode, LockBehavior lockBehavior)
     {
-      using (new ParameterContext().Activate()) {
-        keyParameter.Value = Key.Value;
-        object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
-        Func<object, object> generator = tripletObj => {
-          var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
-          IndexInfo index = triplet.First.Indexes.PrimaryIndex;
-          var query = index.GetQuery()
-            .Seek(() => keyParameter.Value)
-            .Lock(() => triplet.Second, () => triplet.Third)
-            .Select();
-          return Session.Compile(query);
-        };
-        var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-        var recordSet = source.GetRecordSet(Session);
-        recordSet.FirstOrDefault();
-      }
+      var parameterContext = new ParameterContext();
+      parameterContext.SetValue(keyParameter, Key.Value);
+      object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
+      Func<object, object> generator = tripletObj => {
+        var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
+        var index = triplet.First.Indexes.PrimaryIndex;
+        var query = index.GetQuery()
+          .Seek(context => context.GetValue(keyParameter))
+          .Lock(() => triplet.Second, () => triplet.Third)
+          .Select();
+        return Session.Compile(query);
+      };
+      var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      using var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
+      recordSetReader.MoveNext();
     }
 
     /// <inheritdoc/>

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2017-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Julian Mamokin
 // Created:    2017.03.09
 
@@ -12,22 +12,16 @@ namespace Xtensive.Orm.Tests.Upgrade
   public class DomainUpgradeModeExtensionsTest
   {
     [Test]
-    public void SkipModeTest()
-    {
-      Assert.That(DomainUpgradeMode.Skip.GetSqlWorkerTask()==SqlWorkerTask.ExtractMetadataTypes, Is.True);
-    }
+    public void SkipModeTest() =>
+      Assert.That(DomainUpgradeMode.Skip.GetSqlWorkerTask() == SqlWorkerTask.ExtractMetadataTypes, Is.True);
 
     [Test]
-    public void LegacySkip()
-    {
-      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask()==SqlWorkerTask.ExtractSchema, Is.True);
-    }
+    public void LegacySkip() =>
+      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask() == SqlWorkerTask.ExtractSchema, Is.True);
 
     [Test]
-    public void LegacyValidate()
-    {
-      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask()==SqlWorkerTask.ExtractSchema, Is.True);
-    }
+    public void LegacyValidate() =>
+      Assert.That(DomainUpgradeMode.LegacySkip.GetSqlWorkerTask() == SqlWorkerTask.ExtractSchema, Is.True);
 
     [Test]
     public void ValidateTest()

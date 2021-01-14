@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.12
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
@@ -166,7 +167,7 @@ namespace Xtensive.Orm.Providers
           var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
           column.IsNullable = true;
           // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          if (mapping.Type==typeof(string))
+          if (mapping.Type==WellKnownTypes.String)
             column.Collation = collation;
           fieldIndex++;
         }

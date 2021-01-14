@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.09.12
 
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     {
       using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        Assert.IsInstanceOf<Task<QueryResult<Discepline>>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     {
       using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(new object(), query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        Assert.IsInstanceOf<Task<QueryResult<Discepline>>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
@@ -74,10 +74,10 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
     public async Task Test09()
     {
       using (var session = Domain.OpenSession(inactiveSession)) {
-        var qelayedQuery = session.Query.ExecuteDelayed(endpoint => { return endpoint.All<Discepline>(); });
+        var qelayedQuery = session.Query.CreateDelayedQuery(endpoint => { return endpoint.All<Discepline>(); });
         var task = session.Query.ExecuteAsync(endpoint => endpoint.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline).First());
         var result = await task;
-        Assert.NotNull(((DelayedSequence<Discepline>)qelayedQuery).Task.Result);
+        Assert.NotNull(((DelayedQuery<Discepline>)qelayedQuery).Task.Result);
       }
     }
 
@@ -127,7 +127,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       Domain.SessionOpen += (sender, args) => sessionOpenedCount++;
       using (var session = Domain.OpenSession(inactiveSession)) {
         var task = session.Query.ExecuteAsync(query => query.All<DisceplinesOfCourse>().Where(d => d.Course.Year == DateTime.Now.Year - 1).Select(d => d.Discepline));
-        Assert.IsInstanceOf<Task<IEnumerable<Discepline>>>(task);
+        Assert.IsInstanceOf<Task<QueryResult<Discepline>>>(task);
         var disceplinesOfLastYearCourse = await task;
         Assert.IsInstanceOf<IEnumerable<Discepline>>(disceplinesOfLastYearCourse);
         var listOfLastYearCourseDisceplines = disceplinesOfLastYearCourse.ToList();
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       {
         session = Domain.OpenSession(inactiveSession);
         using (var transaction = session.OpenTransaction())
-          foreach (var item in (await session.Query.All<Discepline>().AsAsync()))
+          foreach (var item in (await session.Query.All<Discepline>().ExecuteAsync()))
           {
           }
       }
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
       try {
         session = Domain.OpenSession(inactiveSession);
         using (var transaction = session.OpenTransaction())
-          foreach (var item in await session.Query.All<Discepline>().AsAsync()) {
+          foreach (var item in await session.Query.All<Discepline>().ExecuteAsync()) {
             break;
           }
       }
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncQueries.Compiled
         session = Domain.OpenSession(inactiveSession);
         IEnumerator<Discepline> enumerator;
         using (var transaction = session.OpenTransaction()) {
-          enumerator = (await session.Query.All<Discepline>().AsAsync()).GetEnumerator();
+          enumerator = (await session.Query.All<Discepline>().ExecuteAsync()).GetEnumerator();
           enumerator.MoveNext();
           var a = enumerator.Current;
         }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.05
 
@@ -9,6 +9,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
@@ -151,7 +152,7 @@ namespace Xtensive.Orm.Linq.Expressions
       PropertyInfo underlyingProperty, 
       ParameterExpression parameterExpression, 
       bool defaultIfEmpty)
-      : base(ExtendedExpressionType.Key, WellKnown.KeyFieldName, typeof(Key), segment, underlyingProperty, parameterExpression, defaultIfEmpty)
+      : base(ExtendedExpressionType.Key, WellKnown.KeyFieldName, WellKnownOrmTypes.Key, segment, underlyingProperty, parameterExpression, defaultIfEmpty)
     {
       EntityType = entityType;
       KeyFields = keyFields;

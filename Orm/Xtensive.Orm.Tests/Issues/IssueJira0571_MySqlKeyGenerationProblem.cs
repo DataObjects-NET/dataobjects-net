@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.02.03
 
@@ -138,7 +138,8 @@ namespace Xtensive.Orm.Tests.Issues
       var query = GetQuery(generatorTable);
       var queryBuilder = GetQueryBuilder(session);
       var queryCompilationResult = queryBuilder.CompileQuery(query);
-      var command = queryBuilder.CreateCommand(queryBuilder.CreateRequest(queryCompilationResult, Enumerable.Empty<Services.QueryParameterBinding>()));
+      var queryRequest = queryBuilder.CreateRequest(queryCompilationResult, Enumerable.Empty<Services.QueryParameterBinding>());
+      using var command = queryBuilder.CreateCommand(queryRequest);
       var rowCount = command.ExecuteScalar();
       Assert.AreEqual(expectedValue, rowCount);
     }

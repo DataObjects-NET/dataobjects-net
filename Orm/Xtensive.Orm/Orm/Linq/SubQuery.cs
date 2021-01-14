@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.04.23
 
@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Linq
@@ -24,7 +25,7 @@ namespace Xtensive.Orm.Linq
     IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
-    private DelayedSequence<TElement> delayedSequence;
+    private DelayedQuery<TElement> delayedQuery;
     private List<TElement> materializedSequence;
     private readonly QueryProvider provider;
 
@@ -36,7 +37,7 @@ namespace Xtensive.Orm.Linq
     public IEnumerator<TElement> GetEnumerator()
     {
       if (materializedSequence == null)
-        materializedSequence = delayedSequence.ToList();
+        materializedSequence = delayedQuery.ToList();
       return materializedSequence.GetEnumerator();
     }
 
@@ -64,8 +65,8 @@ namespace Xtensive.Orm.Linq
     {
       if (materializedSequence != null) 
         return;
-      materializedSequence = delayedSequence.ToList();
-      delayedSequence = null;
+      materializedSequence = delayedQuery.ToList();
+      delayedQuery = null;
     }
 
 
@@ -77,31 +78,31 @@ namespace Xtensive.Orm.Linq
     {
       this.provider = context.Session.Query.Provider;
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
-      var currentTranslatedQuery = ((TranslatedQuery<IEnumerable<TElement>>) query);
+      var currentTranslatedQuery = query;
 
-      // Gather Parameter<Tuple> values from current ParameterScope for future use. 
-      parameter.Value = tuple;
+      var outerParameterContext = context.ParameterContext;
+      var parameterContext = new ParameterContext(outerParameterContext);
+      // Gather Parameter<Tuple> values from current ParameterScope for future use.
+      outerParameterContext.SetValue(parameter, tuple);
       foreach (var tupleParameter in currentTranslatedQuery.TupleParameters) {
-        var value = tupleParameter.Value;
+        var value = outerParameterContext.GetValue(tupleParameter);
         tupleParameterBindings[tupleParameter] = value;
+        parameterContext.SetValue(tupleParameter, value);
       }
-      var parameterContext = new ParameterContext();
-      using (parameterContext.Activate())
-      foreach (var tupleParameter in currentTranslatedQuery.TupleParameters)
-        tupleParameter.Value = tupleParameter.Value;
 
       this.projectionExpression = new ProjectionExpression(
         projectionExpression.Type, 
         projectionExpression.ItemProjector, 
         tupleParameterBindings, 
-        projectionExpression.ResultType);
-      var translatedQuery = new TranslatedQuery<IEnumerable<TElement>>(
+        projectionExpression.ResultAccessMethod);
+      var translatedQuery = new TranslatedQuery(
         query.DataSource,
-        (Func<IEnumerable<Tuple>, Session, Dictionary<Parameter<Tuple>, Tuple>, ParameterContext, IEnumerable<TElement>>) query.UntypedMaterializer,
+        query.Materializer,
+        query.ResultAccessMethod,
         tupleParameterBindings,
         EnumerableUtils<Parameter<Tuple>>.Empty);
-      delayedSequence = new DelayedSequence<TElement>(context.Session, translatedQuery, parameterContext);
-      context.Session.RegisterUserDefinedDelayedQuery(delayedSequence.Task);
+      delayedQuery = new DelayedQuery<TElement>(context.Session, translatedQuery, parameterContext);
+      context.Session.RegisterUserDefinedDelayedQuery(delayedQuery.Task);
       context.MaterializationContext.MaterializationQueue.Enqueue(MaterializeSelf);
     }
   }

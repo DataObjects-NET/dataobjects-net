@@ -13,17 +13,18 @@ Supported databases:
 
 ### Installation
 
-DataObjects.Net is available on Nuget. Install main package (already has MS SQL Server provider included)
+DataObjects.Net is available on Nuget. Install main package (NOTE this package does not include any providers, install needed provider addtionally)
 
     dotnet add package Xtensive.Orm
 
-Providers for Oracle, PostgreSQL, Mysql, Firebird and SQLite may be installed optionally if you need them
+Providers for MS SQL Server, Oracle, PostgreSQL, Mysql, Firebird and SQLite may be installed following way
 
+    dotnet add package Xtensive.Orm.SqlServer
     dotnet add package Xtensive.Orm.Oracle
     dotnet add package Xtensive.Orm.PostgreSQL
     dotnet add package Xtensive.Orm.MySql
     dotnet add package Xtensive.Orm.Firebird
-    dotnet add package Xtensive.Orm
+    dotnet add package Xtensive.Orm.Sqlite
 
 DataObjects.Net extensions are available on Nuget as well (more about extensions [here](https://github.com/DataObjects-NET/dataobjects-net/blob/master/Documentation/Extensions.md))
 
@@ -35,49 +36,50 @@ DataObjects.Net extensions are available on Nuget as well (more about extensions
     dotnet add package Xtensive.Orm.Tracking
     dotnet add package Xtensive.Orm.Web
 
-Use the --version option to specify preview version to install
+Use the --version option to specify version to install
 
 ### Usage 
 
 The following  code demonstrates  basic usage of DataObjects.Net. For full tutorial configuring Domain, defining the model and querying data see our [documentation](http://help.dataobjects.net).
 
-    // create configuration with connection to Tests database on local instance of MS SQL Server
-    var domainConfiguration = new DomainConfiguration(@"sqlserver://localhost/Tests");
-    // register types from certain domain
-    domainConfiguration.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
-    // create database structure from scratch
-    domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
+```csharp
+// create configuration with connection to Tests database on local instance of MS SQL Server
+var domainConfiguration = new DomainConfiguration(@"sqlserver://localhost/Tests");
+// register types from certain domain
+domainConfiguration.Types.Register(typeof (Person).Assembly, typeof (Person).Namespace);
+// create database structure from scratch
+domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
 
-    // on application start build Domain
-    var domain = Domain.Build(domainConfiguration);
+// on application start build Domain
+var domain = Domain.Build(domainConfiguration);
 
-    // open a session to database
-    using (var session = domain.OpenSession()) {
-      using (var transactionScope = session.OpenTransaction()) {
-        // query for existing Anton Chekhov
-        Author existingAuthor = session.Query.All<Author>()
-          .Where(author => author.FirstName=="Anton" && author.LastName=="Chekhov")
-          .FirstOrDefault();
+// open a session to database
+using (var session = domain.OpenSession()) {
+  using (var transactionScope = session.OpenTransaction()) {
+    // query for existing Anton Chekhov
+    Author existingAuthor = session.Query.All<Author>()
+      .Where(author => author.FirstName=="Anton" && author.LastName=="Chekhov")
+      .FirstOrDefault();
 
-        //if Anton Pavlovich isn't in database yet then and him
-        if (existingAuthor==null) {
-          existingAuthor = new new Author(session) {
-            FirstName = "Anton",
-            LastName = "Chekhov";
-          }
-        }
-
-        // add new book and assign it with Anton Chekhov
-        existingAuthor.Books.Add(new Book(session) {Title = "The Cherry Orchard"});
-
-        // commit opened transaction to save changes made within it
-        transactionScope.Complete();
+    //if Anton Pavlovich isn't in database yet then and him
+    if (existingAuthor==null) {
+      existingAuthor = new new Author(session) {
+        FirstName = "Anton",
+        LastName = "Chekhov";
       }
     }
 
-    // on application shutdown dispose existing domain
-    domain.Dispose()
+    // add new book and assign it with Anton Chekhov
+    existingAuthor.Books.Add(new Book(session) {Title = "The Cherry Orchard"});
 
+    // commit opened transaction to save changes made within it
+    transactionScope.Complete();
+  }
+}
+
+// on application shutdown dispose existing domain
+domain.Dispose()
+```
 
 
 ### Getting support

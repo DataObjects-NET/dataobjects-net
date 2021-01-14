@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2013.08.19
 
@@ -18,16 +18,16 @@ namespace Xtensive.Collections
   /// <typeparam name="T">The type of collection items.</typeparam>
   public class ChainedBuffer<T> : ICollection<T>
   {
-    private sealed class Node<T>
+    private sealed class Node<TItem>
     {
-      public readonly T[] Items;
-      public Node<T> Next;
+      public readonly TItem[] Items;
+      public Node<TItem> Next;
 
       // Constructors
 
       public Node(int size)
       {
-        Items = new T[size];
+        Items = new TItem[size];
       }
     }
 

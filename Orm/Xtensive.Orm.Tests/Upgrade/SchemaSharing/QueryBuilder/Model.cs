@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
+// Copyright (C) 2017 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -316,8 +316,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder.Model
     {
       var commandtext = queryBuilder.CompileQuery(query);
       var request = queryBuilder.CreateRequest(commandtext, Enumerable.Empty<Services.QueryParameterBinding>());
-      var command = queryBuilder.CreateCommand(request);
-
+      using var command = queryBuilder.CreateCommand(request);
       return command.ExecuteScalar();
     }
 

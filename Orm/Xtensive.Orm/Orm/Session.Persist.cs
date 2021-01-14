@@ -7,6 +7,9 @@
 using System;
 using System.Transactions;
 using System.Linq;
+using System.Runtime.InteropServices.ComTypes;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
@@ -51,6 +54,41 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Asynchronously saves all modified instances immediately to the database.
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.
+    /// </para>
+    /// <para>
+    /// This method should be called to ensure that all delayed
+    /// updates are flushed to the storage.
+    /// </para>
+    /// <para>
+    /// For session with auto saving (with <see cref="SessionOptions.AutoSaveChanges"/> this method is called automatically when it's necessary,
+    /// e.g. before beginning, committing and rolling back a transaction, performing a
+    /// query and so further. So generally you should not worry
+    /// about calling this method.
+    /// </para>
+    /// <para>
+    /// For session without auto saving (without <see cref="SessionOptions.AutoSaveChanges"/> option) you should call this method manually.
+    /// </para>
+    /// </remarks>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
+    public async Task SaveChangesAsync(CancellationToken token = default)
+    {
+      if (Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
+        await SaveLocalChangesAsync(token).ConfigureAwait(false);
+      }
+      else {
+        await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
     /// Cancels all changes and resets modified entities to their original state.
     /// </summary>
     /// <exception cref="ObjectDisposedException">Session is already disposed.</exception>
@@ -68,88 +106,119 @@ namespace Xtensive.Orm
       Events.NotifyChangesCanceled();
     }
 
-    internal void Persist(PersistReason reason)
+    internal void Persist(PersistReason reason) => Persist(reason, false).GetAwaiter().GetResult();
+
+    internal async Task PersistAsync(PersistReason reason, CancellationToken token = default) =>
+      await Persist(reason, true, token).ConfigureAwait(false);
+
+    private async ValueTask Persist(PersistReason reason, bool isAsync, CancellationToken token = default)
     {
       EnsureNotDisposed();
-      if (IsPersisting || EntityChangeRegistry.Count==0)
+      if (IsPersisting || EntityChangeRegistry.Count == 0) {
         return;
-      EnsureAllAsyncQueriesFinished();
+      }
 
       var performPinning = pinner.RootCount > 0;
-      if (performPinning || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) 
+      if (performPinning
+        || (disableAutoSaveChanges && !Configuration.Supports(SessionOptions.NonTransactionalEntityStates))) {
         switch (reason) {
           case PersistReason.NestedTransaction:
           case PersistReason.Commit:
             throw new InvalidOperationException(Strings.ExCanNotPersistThereArePinnedEntities);
-          }
+        }
+      }
 
-      if (disableAutoSaveChanges && reason != PersistReason.Manual)
+      if (disableAutoSaveChanges && reason != PersistReason.Manual) {
         return;
+      }
 
-      using (var ts = OpenTransaction(TransactionOpenMode.Default, IsolationLevel.Unspecified, false)) {
+      var ts = await InnerOpenTransaction(
+        TransactionOpenMode.Default, IsolationLevel.Unspecified, false, isAsync, token);
+      try {
         IsPersisting = true;
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
-        try {
-          using (this.OpenSystemLogicOnlyRegion()) {
-            DemandTransaction();
-            if (IsDebugEventLoggingEnabled) {
-              OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
-            }
+        using (OpenSystemLogicOnlyRegion()) {
+          DemandTransaction();
+          if (IsDebugEventLoggingEnabled) {
+            OrmLog.Debug(Strings.LogSessionXPersistingReasonY, this, reason);
+          }
 
-            EntityChangeRegistry itemsToPersist;
-            if (performPinning) {
-              pinner.Process(EntityChangeRegistry);
-              itemsToPersist = pinner.PersistableItems;
-            }
-            else
-              itemsToPersist = EntityChangeRegistry;
+          EntityChangeRegistry itemsToPersist;
+          if (performPinning) {
+            pinner.Process(EntityChangeRegistry);
+            itemsToPersist = pinner.PersistableItems;
+          }
+          else {
+            itemsToPersist = EntityChangeRegistry;
+          }
 
-            if (LazyKeyGenerationIsEnabled) {
-              RemapEntityKeys(remapper.Remap(itemsToPersist));
+          if (LazyKeyGenerationIsEnabled) {
+            await RemapEntityKeys(remapper.Remap(itemsToPersist), isAsync, token).ConfigureAwait(false);
+          }
+
+          ApplyEntitySetsChanges();
+          var persistIsSuccessful = false;
+          try {
+            if (isAsync) {
+              await Handler.PersistAsync(itemsToPersist, reason == PersistReason.Query, token).ConfigureAwait(false);
             }
-            ApplyEntitySetsChanges();
-            var persistIsSuccessfull = false;
-            try {
+            else {
               Handler.Persist(itemsToPersist, reason == PersistReason.Query);
-              persistIsSuccessfull = true;
             }
-            catch(Exception) {
-              persistingIsFailed = true;
-              RollbackChangesOfEntitySets();
-              RestoreEntityChangesAfterPersistFailed();
-              throw;
-            }
-            finally {
-              if (persistIsSuccessfull || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
-                DropDifferenceBackup();
-                foreach (var item in itemsToPersist.GetItems(PersistenceState.New))
-                  item.PersistenceState = PersistenceState.Synchronized;
-                foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified))
-                  item.PersistenceState = PersistenceState.Synchronized;
-                foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed))
-                  item.Update(null);
 
-                if (performPinning) {
-                  EntityChangeRegistry = pinner.PinnedItems;
-                  pinner.Reset();
-                }
-                else
-                  EntityChangeRegistry.Clear();
-                EntitySetChangeRegistry.Clear();
-                NonPairedReferencesRegistry.Clear();
+            persistIsSuccessful = true;
+          }
+          catch (Exception) {
+            persistingIsFailed = true;
+            RollbackChangesOfEntitySets();
+            RestoreEntityChangesAfterPersistFailed();
+            throw;
+          }
+          finally {
+            if (persistIsSuccessful || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
+              DropDifferenceBackup();
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.New)) {
+                item.PersistenceState = PersistenceState.Synchronized;
               }
-              if (IsDebugEventLoggingEnabled) {
-                OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
+
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.Modified)) {
+                item.PersistenceState = PersistenceState.Synchronized;
               }
+
+              foreach (var item in itemsToPersist.GetItems(PersistenceState.Removed)) {
+                item.Update(null);
+              }
+
+              if (performPinning) {
+                EntityChangeRegistry = pinner.PinnedItems;
+                pinner.Reset();
+              }
+              else {
+                EntityChangeRegistry.Clear();
+              }
+
+              EntitySetChangeRegistry.Clear();
+              NonPairedReferencesRegistry.Clear();
+            }
+
+            if (IsDebugEventLoggingEnabled) {
+              OrmLog.Debug(Strings.LogSessionXPersistCompleted, this);
             }
           }
-          SystemEvents.NotifyPersisted();
-          Events.NotifyPersisted();
         }
-        finally {
-          IsPersisting = false;
+
+        SystemEvents.NotifyPersisted();
+        Events.NotifyPersisted();
+      }
+      finally {
+        IsPersisting = false;
+        if (isAsync) {
+          await ts.DisposeAsync().ConfigureAwait(false);
+        }
+        else {
+          ts.Dispose();
         }
       }
     }
@@ -228,6 +297,20 @@ namespace Xtensive.Orm
       }
     }
 
+    private async Task SaveLocalChangesAsync(CancellationToken token = default)
+    {
+      Validate();
+      var transaction = OpenTransaction(TransactionOpenMode.New);
+      await using (transaction.ConfigureAwait(false)) {
+        try {
+          await PersistAsync(PersistReason.Manual, token).ConfigureAwait(false);
+        }
+        finally {
+          transaction.Complete();
+        }
+      }
+    }
+
     private void CancelEntitiesChanges()
     {
       foreach (var newEntity in EntityChangeRegistry.GetItems(PersistenceState.New).ToList()) {
@@ -277,12 +360,6 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
-    }
-
-    private void EnsureAllAsyncQueriesFinished()
-    {
-      if (CommandProcessorContextProvider.AliveContextCount > 0)
-        throw new InvalidOperationException(Strings.ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete);
     }
   }
 }

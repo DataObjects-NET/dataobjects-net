@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.26
 
@@ -63,11 +63,11 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
         return expression;
 
       var bindings = expression.Bindings
-        .Zip(newBindings)
-        .ToDictionary(item => item.First.Key, item => item.Second);
+        .Zip(newBindings, (first, second) => (first, second))
+        .ToDictionary(item => item.first.Key, item => item.second);
       var nativeBingings = expression.NativeBindings
-        .Zip(newNativeBindings)
-        .ToDictionary(item => item.First.Key, item => item.Second);
+        .Zip(newNativeBindings, (first, second) => (first, second))
+        .ToDictionary(item => item.first.Key, item => item.second);
       return new ConstructorExpression(expression.Type, bindings, nativeBingings, expression.Constructor, newConstructorArguments);
     }
 

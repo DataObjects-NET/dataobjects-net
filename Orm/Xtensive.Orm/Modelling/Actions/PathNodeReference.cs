@@ -1,3 +1,7 @@
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 
 
@@ -7,10 +11,10 @@ namespace Xtensive.Modelling.Actions
   /// Path node reference.
   /// </summary>
   [Serializable]
-  public struct PathNodeReference :
+  public readonly struct PathNodeReference :
     IEquatable<PathNodeReference>
   {
-    private string path;
+    private readonly string path;
 
     /// <summary>
     /// Gets the path to the node.
@@ -55,36 +59,17 @@ namespace Xtensive.Modelling.Actions
     #region Equality members
 
     /// <inheritdoc/>
-    public bool Equals(PathNodeReference obj)
-    {
-      return obj.Path==Path;
-    }
+    public bool Equals(PathNodeReference other) => path == other.path;
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj.GetType()!=typeof (PathNodeReference))
-        return false;
-      return Equals((PathNodeReference) obj);
-    }
+    public override bool Equals(object obj) => obj is PathNodeReference other && Equals(other);
 
     /// <inheritdoc/>
-    public override int GetHashCode()
-    {
-      return (Path!=null ? Path.GetHashCode() : 0);
-    }
+    public override int GetHashCode() => path != null ? path.GetHashCode() : 0;
 
-    /// <inheritdoc/>
-    public static bool operator ==(PathNodeReference left, PathNodeReference right)
-    {
-      return left.Equals(right);
-    }
+    public static bool operator ==(PathNodeReference left, PathNodeReference right) => left.Equals(right);
 
-    /// <inheritdoc/>
-    public static bool operator !=(PathNodeReference left, PathNodeReference right)
-    {
-      return !left.Equals(right);
-    }
+    public static bool operator !=(PathNodeReference left, PathNodeReference right) => !left.Equals(right);
 
     #endregion
 

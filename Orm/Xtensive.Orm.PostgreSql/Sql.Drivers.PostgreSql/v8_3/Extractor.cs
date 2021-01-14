@@ -1,24 +1,26 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
-using System;
 using System.Data.Common;
-using Xtensive.Sql.Model;
 using Xtensive.Sql.Dml;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
+  /// <inheritdoc/>
   internal class Extractor : v8_2.Extractor
   {
     private const int indoptionDesc = 0x0001;
 
+    /// <inheritdoc/>
     protected override void AddSpecialIndexQueryColumns(SqlSelect query, SqlTableRef spc, SqlTableRef rel, SqlTableRef ind, SqlTableRef depend)
     {
       base.AddSpecialIndexQueryColumns(query, spc, rel, ind, depend);
       query.Columns.Add(ind["indoption"]);
     }
 
+    /// <inheritdoc/>
     protected override void ReadSpecialIndexProperties(DbDataReader dr, Index i)
     {
       base.ReadSpecialIndexProperties(dr, i);
@@ -30,7 +32,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       }
     }
 
-    // Consructors
+    // Constructors
 
     public Extractor(SqlDriver driver)
       : base(driver)

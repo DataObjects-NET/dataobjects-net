@@ -1,21 +1,19 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Anton U. Rogozhin
 // Reimplemented by: Dmitri Maximov
 // Created:    2007.07.04
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Core;
-
 
 namespace Xtensive.Core
 {
   /// <summary>
   /// <see cref="ICollection{T}"/> related extension methods.
   /// </summary>
-  public static class CollectionExtensions
+  public static class CollectionExtensionsEx
   {
     /// <summary>
     /// Converts <paramref name="source"/> collection to an array.
@@ -137,23 +135,6 @@ namespace Xtensive.Core
         if (collection.Contains(item))
           return true;
       return false;
-    }
-
-    /// <summary>
-    /// Gets the value from the dictionary by its key.
-    /// </summary>
-    /// <typeparam name="TKey">The type of the key.</typeparam>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
-    /// <param name="dictionary">The dictionary.</param>
-    /// <param name="key">The key.</param>
-    /// <returns>Found value.
-    /// <see langword="default(T)" />, if there is no value corresponding to specified key.</returns>
-    public static TValue GetValueOrDefault<TKey,TValue>(this IDictionary<TKey,TValue> dictionary, TKey key)
-    {
-      TValue value;
-      if (dictionary.TryGetValue(key, out value))
-        return value;
-      return default(TValue);
     }
   }
 }

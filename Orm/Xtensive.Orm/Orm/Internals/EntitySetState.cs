@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.10.14
 
@@ -132,6 +132,7 @@ namespace Xtensive.Orm.Internals
     /// Sets cached keys to <paramref name="keys"/>.
     /// </summary>
     /// <param name="keys">The keys.</param>
+    /// <param name="count">Total item count.</param>
     public void Update(IEnumerable<Key> keys, long? count)
     {
       if (!isDisconnected)
@@ -297,21 +298,37 @@ namespace Xtensive.Orm.Internals
     public IEnumerator<Key> GetEnumerator()
     {
       var versionSnapshot = version;
-      var fetchedKeysBeforePersist = FetchedKeys;
-      var addedKeysBeforePersist = addedKeys;
-      var removedKeysBeforePersist = removedKeys;
-      foreach (var fetchedKey in fetchedKeysBeforePersist) {
-        if (versionSnapshot!=version)
-          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
-        if (!removedKeysBeforePersist.ContainsKey(fetchedKey))
-          yield return fetchedKey;
-      }
-      foreach (var addedKey in addedKeysBeforePersist) {
-        if (versionSnapshot!=version)
-          throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
-        yield return addedKey.Value;
+      using (var fetchedKeysEnumerator = FetchedKeys.GetEnumerator()) {
+        while (true) {
+          if (versionSnapshot != version) {
+            throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+          }
+
+          if (!fetchedKeysEnumerator.MoveNext()) {
+            break;
+          }
+
+          var fetchedKey = fetchedKeysEnumerator.Current;
+          if (!removedKeys.ContainsKey(fetchedKey)) {
+            yield return fetchedKey;
+          }
+        }
       }
 
+      using (var addedKeysEnumerator = addedKeys.GetEnumerator()) {
+        while (true) {
+          if (versionSnapshot != version) {
+            throw new InvalidOperationException(Strings.ExCollectionHasBeenChanged);
+          }
+
+          if (!addedKeysEnumerator.MoveNext()) {
+            break;
+          }
+
+          var addedKey = addedKeysEnumerator.Current;
+          yield return addedKey.Value;
+        }
+      }
     }
 
     /// <inheritdoc/>

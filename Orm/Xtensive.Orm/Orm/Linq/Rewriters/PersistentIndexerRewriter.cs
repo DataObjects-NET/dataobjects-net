@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.12.22
 
@@ -8,6 +8,8 @@ using System;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using Xtensive.Orm.Internals;
+using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 
 namespace Xtensive.Orm.Linq.Rewriters
@@ -31,7 +33,6 @@ namespace Xtensive.Orm.Linq.Rewriters
           throw new InvalidOperationException(String.Format(Strings.ExBothPartsOfBinaryExpressionXAreOfTheDifferentType, binaryExpression));
 
         if (leftExpression!=null) {
-          leftExpression = leftExpression;
           if (rightExpression==null)
             rightExpression = binaryExpression.Right;
           if (leftExpression.Type!=rightExpression.Type)
@@ -53,7 +54,7 @@ namespace Xtensive.Orm.Linq.Rewriters
     {
       if (IsIndexerAccessor(mc)) {
         var memberExpression = GetMemberExpression(mc);
-        return Expression.Convert(memberExpression, typeof (object));
+        return Expression.Convert(memberExpression, WellKnownTypes.Object);
       }
       return base.VisitMethodCall(mc);
     }
@@ -77,7 +78,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);
 
-      var attributes = mc.Object.Type.GetCustomAttributes(typeof (DefaultMemberAttribute), true);
+      var attributes = mc.Object.Type.GetCustomAttributes(WellKnownTypes.DefaultMemberAttribute, true);
       var indexerPropertyName = ((DefaultMemberAttribute)attributes.Single()).MemberName;
       var indexerProperty = mc.Object.Type.GetProperty(indexerPropertyName);
       if (indexerProperty!=null)
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var methodCallExpression = (MethodCallExpression) expression;
       return methodCallExpression.Object!=null && 
         methodCallExpression.Method.Name=="get_Item" && 
-        methodCallExpression.Method.DeclaringType.In(typeof (Persistent), typeof(IEntity)) && 
+        methodCallExpression.Method.DeclaringType.In(WellKnownOrmTypes.Persistent, WellKnownOrmInterfaces.Entity) &&
         context.Evaluator.CanBeEvaluated(methodCallExpression.Arguments[0]);
     }
 

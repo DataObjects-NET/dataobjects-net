@@ -1,9 +1,11 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System.Threading;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -30,6 +32,19 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Asynchronously adds node with the specified <paramref name="configuration"/>
+    /// and performs required upgrade actions.
+    /// </summary>
+    /// <param name="configuration">Node configuration.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    public async Task<bool> AddNodeAsync([NotNull] NodeConfiguration configuration, CancellationToken token = default)
+    {
+      var node = await UpgradingDomainBuilder.BuildNodeAsync(handlers.Domain, configuration, token)
+        .ConfigureAwait(false);
+      return handlers.StorageNodeRegistry.Add(node);
+    }
+
+    /// <summary>
     /// Removes node with specified <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
@@ -50,7 +65,6 @@ namespace Xtensive.Orm
     {
       return handlers.StorageNodeRegistry.TryGet(nodeId);
     }
-
 
     // Constructors
 

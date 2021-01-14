@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.IoC;
@@ -65,6 +69,9 @@ namespace Xtensive.Orm.Tracking
     /// </summary>
     /// <param name="session"><see cref="T:Xtensive.Orm.Session"/>, to which current instance
     /// is bound.</param>
+    /// <param name="accessor"><see cref="DirectSessionAccessor"/> instance to get access to
+    /// changed entities of each kind. See <see cref="DirectSessionAccessor.GetChangedEntities"/> method
+    /// for reference.</param>
     /// <exception cref="T:System.ArgumentNullException"><paramref name="session"/> is <see langword="null"/>.</exception>
     [ServiceConstructor]
     public SessionTrackingMonitor(Session session, DirectSessionAccessor accessor)

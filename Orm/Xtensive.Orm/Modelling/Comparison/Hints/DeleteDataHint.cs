@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.30
 
@@ -50,6 +50,8 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
+    /// <param name="sourceTablePath">Source table path.</param>
+    /// <param name="identities">Identities for data operation.</param>
     /// <param name="postCopy"><see cref="PostCopy"/> property value.</param>
     public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities, bool postCopy)
       : base(sourceTablePath, identities)

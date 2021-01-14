@@ -1,10 +1,11 @@
-// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.26
 
 using System;
+using Xtensive.Core;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Services
@@ -36,7 +37,7 @@ namespace Xtensive.Orm.Services
     /// to <see cref="ValueType"/>
     /// unless <see cref="ValueType"/> is null.
     /// </summary>
-    public Func<object> ValueAccessor
+    public Func<ParameterContext, object> ValueAccessor
     {
       get { return RealBinding.ValueAccessor; }
     }

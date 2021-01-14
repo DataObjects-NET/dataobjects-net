@@ -1,15 +1,19 @@
-﻿using System;
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
-using FieldInfo = Xtensive.Orm.Model.FieldInfo;
-using QueryParameterBinding = Xtensive.Orm.Services.QueryParameterBinding;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -22,17 +26,41 @@ namespace Xtensive.Orm.BulkOperations
 
     protected override int ExecuteInternal()
     {
-      base.ExecuteInternal();
-      QueryTranslationResult request = GetRequest(query);
-      Bindings = request.ParameterBindings.ToList();
-      if (PrimaryIndexes.Length > 1)
+      if (PrimaryIndexes.Length > 1) {
         throw new NotImplementedException("Inheritance is not implemented");
-      SqlUpdate update = SqlDml.Update(SqlDml.TableRef(PrimaryIndexes[0].Table));
+      }
+
+      _ = base.ExecuteInternal();
+      var request = GetRequest(query);
+      Bindings = request.ParameterBindings.ToList();
+
+      using var command = CreateCommand(request);
+      return command.ExecuteNonQuery();
+    }
+
+    protected async override Task<int> ExecuteInternalAsync(CancellationToken token = default)
+    {
+      if (PrimaryIndexes.Length > 1) {
+        throw new NotImplementedException("Inheritance is not implemented");
+      }
+
+      _ = base.ExecuteInternal();
+      var request = GetRequest(query);
+      Bindings = request.ParameterBindings.ToList();
+
+      var command = CreateCommand(request);
+      await using (command.ConfigureAwait(false)) {
+        return await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
+    }
+
+    private QueryCommand CreateCommand(QueryTranslationResult request)
+    {
+      var update = SqlDml.Update(SqlDml.TableRef(PrimaryIndexes[0].Table));
       setOperation.Statement = SetStatement.Create(update);
       Join(update, (SqlSelect) request.Query);
       setOperation.AddValues();
-      QueryCommand command = ToCommand(update);
-      return command.ExecuteNonQuery();
+      return ToCommand(update);
     }
 
     protected override SqlTableRef GetStatementTable(SqlStatement statement)
@@ -59,7 +87,7 @@ namespace Xtensive.Orm.BulkOperations
       update.Update = table;
     }
 
-    protected override void SetStatementWhere(SqlStatement statement, SqlExpression @where)
+    protected override void SetStatementWhere(SqlStatement statement, SqlExpression where)
     {
       var update = (SqlUpdate) statement;
       update.Where = where;
@@ -71,37 +99,27 @@ namespace Xtensive.Orm.BulkOperations
       update.Limit = limit;
     }
 
-    protected override bool SupportsJoin()
-    {
-      return DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateFrom);
-    }
+    protected override bool SupportsJoin() =>
+      DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateFrom);
 
-    protected override bool SupportsLimitation()
-    {
-      return DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateLimit);
-    }
-
+    protected override bool SupportsLimitation() =>
+      DomainHandler.Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateLimit);
 
     #endregion
-
-    public BulkUpdateOperation(IQueryable<T> query, List<SetDescriptor> descriptors)
-      : base((QueryProvider) query.Provider)
-    {
-      this.query = query;
-      setOperation = new SetOperation<T>(this, descriptors);
-    }
 
     public BulkUpdateOperation(IQueryable<T> query, Expression<Func<T, T>> evaluator)
       : base((QueryProvider) query.Provider)
     {
       this.query = query;
-      int memberInitCount = 0;
-      ParameterExpression parameter = evaluator.Parameters[0];
+      var memberInitCount = 0;
+      var parameter = evaluator.Parameters[0];
       List<SetDescriptor> descriptors = null;
       evaluator.Visit(
         delegate(MemberInitExpression ex) {
-          if (memberInitCount > 0)
+          if (memberInitCount > 0) {
             return ex;
+          }
+
           memberInitCount++;
           descriptors = (from MemberAssignment assigment in ex.Bindings
             select
@@ -121,15 +139,16 @@ namespace Xtensive.Orm.BulkOperations
       this.query = q.Query;
       foreach (var expression in q.Expressions) {
         var lambda = (LambdaExpression) expression.Item1;
-        Expression ex = lambda.Body;
-        var ex1 = lambda.Body as UnaryExpression;
-        if (ex1!=null && ex1.NodeType==ExpressionType.Convert)
-          ex = ex1.Operand;
+        var ex = lambda.Body;
+        if (lambda.Body is UnaryExpression unaryExpression && unaryExpression.NodeType==ExpressionType.Convert) {
+          ex = unaryExpression.Operand;
+        }
+
         var member = (PropertyInfo) ((MemberExpression) ex).Member;
         lambda = (LambdaExpression) expression.Item2;
         var propertyInfo = TypeInfo.Fields.FirstOrDefault(a => a.UnderlyingProperty==member);
         if (propertyInfo==null) {
-          if (member.ReflectedType.IsAssignableFrom(TypeInfo.UnderlyingType)) {
+          if (member.ReflectedType?.IsAssignableFrom(TypeInfo.UnderlyingType)==true) {
             member = TypeInfo.UnderlyingType.GetProperty(member.Name);
             propertyInfo = TypeInfo.Fields.FirstOrDefault(field => field.UnderlyingProperty==member);
           }

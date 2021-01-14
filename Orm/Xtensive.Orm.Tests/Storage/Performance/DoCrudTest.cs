@@ -1,3 +1,7 @@
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -249,11 +253,12 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       using (session.Activate()) {
         int i = 0;
         using (var ts = session.OpenTransaction()) {
+          var parameterContext = new ParameterContext();
           var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery();
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("Manual materialize", count)) {
             while (i < count) {
-              foreach (var tuple in rs.GetRecordSet(session)) {
+              foreach (var tuple in rs.GetRecordSetReader(session, parameterContext).ToEnumerable()) {
                 var o = new SqlClientCrudModel.Simplest
                           {
                             Id = tuple.GetValueOrDefault<long>(0),
@@ -420,14 +425,13 @@ namespace Xtensive.Orm.Tests.Storage.Performance
           TestHelper.CollectGarbage();
           using (warmup ? null : new Measurement("RSE query", count)) {
             for (int i = 0; i < count; i++) {
-              var pKey = new Parameter<Tuple>();
-              var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(() => pKey.Value);
-              using (new ParameterContext().Activate()) {
-                pKey.Value = Tuple.Create((long) (i%instanceCount));
-                var es = rs.GetRecordSet(session).ToEntities<Simplest>(0);
-                foreach (var o in es) {
-                  // Doing nothing, just enumerate
-                }
+              var pKey = new Parameter<Tuple>("pKey");
+              var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(context => context.GetValue(pKey));
+              var parameterContext = new ParameterContext();
+              parameterContext.SetValue(pKey, Tuple.Create((long) (i%instanceCount)));
+              var es = rs.GetRecordSetReader(session, parameterContext).ToEntities<Simplest>(0);
+              foreach (var o in es) {
+                // Doing nothing, just enumerate
               }
             }
             ts.Complete();
@@ -442,20 +446,19 @@ namespace Xtensive.Orm.Tests.Storage.Performance
       using (session.Activate())
       using (var ts = session.OpenTransaction()) {
         TestHelper.CollectGarbage();
-        var pKey = new Parameter<Tuple>();
-        var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(() => pKey.Value);
-        using (new ParameterContext().Activate()) {
-          using (warmup ? null : new Measurement("Cached RSE query", count)) {
-            for (int i = 0; i < count; i++) {
-              pKey.Value = Tuple.Create((long) (i%instanceCount));
-              var es = rs.GetRecordSet(session).ToEntities<Simplest>(0);
-              foreach (var o in es) {
-                // Doing nothing, just enumerate
-              }
+        var pKey = new Parameter<Tuple>("pKey");
+        var rs = Domain.Model.Types[typeof (Simplest)].Indexes.PrimaryIndex.GetQuery().Seek(context => context.GetValue(pKey));
+        var parameterContext = new ParameterContext();
+        using (warmup ? null : new Measurement("Cached RSE query", count)) {
+          for (int i = 0; i < count; i++) {
+            parameterContext.SetValue(pKey, Tuple.Create((long) (i%instanceCount)));
+            var es = rs.GetRecordSetReader(session, parameterContext).ToEntities<Simplest>(0);
+            foreach (var o in es) {
+              // Doing nothing, just enumerate
             }
           }
-          ts.Complete();
         }
+        ts.Complete();
       }
     }
 

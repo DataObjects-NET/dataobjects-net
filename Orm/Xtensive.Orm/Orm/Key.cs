@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2007.12.20
 
@@ -516,8 +516,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
+    /// <param name="nodeId">Identifier of a <see cref="StorageNode"/>.</param>
     /// <param name="type">The type.</param>
-    /// <param name="accuracy">The typre reference accuracy.</param>
+    /// <param name="accuracy">The type reference accuracy.</param>
     /// <param name="value">The value.</param>
     protected Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple value)
     {

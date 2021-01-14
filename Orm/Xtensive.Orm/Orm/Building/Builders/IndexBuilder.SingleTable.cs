@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.06.17
 
@@ -52,7 +52,8 @@ namespace Xtensive.Orm.Building.Builders
         }
       }
 
-      var types = type.GetAncestors().AddOne(type).ToHashSet();
+      var types = type.GetAncestors().ToHashSet();
+      types.Add(type);
 
       // Build typed indexes
       foreach (var realIndex in root.Indexes.Find(IndexAttributes.Real)) {

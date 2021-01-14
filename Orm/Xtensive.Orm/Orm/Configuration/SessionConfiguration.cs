@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.29
 
@@ -301,8 +301,9 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// 	Initializes a new instance of this class.
     /// </summary>
+    /// <param name="sessionOptions">The session options.</param>
     /// <param name="name">Value for <see cref="Name"/>.</param>
-    public SessionConfiguration(string name, SessionOptions sessionOptions) 
+    public SessionConfiguration(string name, SessionOptions sessionOptions)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 

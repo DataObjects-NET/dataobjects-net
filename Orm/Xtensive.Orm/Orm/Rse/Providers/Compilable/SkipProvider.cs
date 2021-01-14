@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.08.11
 
 using System;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -17,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Skip amount function.
     /// </summary>
-    public Func<int> Count { get; private set; }
+    public Func<ParameterContext, int> Count { get; private set; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -33,7 +34,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="count">The <see cref="Count"/> property value.</param>
-    public SkipProvider(CompilableProvider provider, Func<int> count)
+    public SkipProvider(CompilableProvider provider, Func<ParameterContext, int> count)
       : base(ProviderType.Skip, provider)
     {
       Count = count;
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Rse.Providers
     public SkipProvider(CompilableProvider provider, int count)
       : base(ProviderType.Skip, provider)
     {
-      Count = () => count;
+      Count = context => count;
       Initialize();
     }
   }

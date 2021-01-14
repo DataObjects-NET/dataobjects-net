@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Data;
@@ -19,7 +19,7 @@ namespace Xtensive.Sql
   /// A connection to a database.
   /// </summary>
   public abstract class SqlConnection : SqlDriverBound,
-    IDisposable
+    IDisposable, IAsyncDisposable
   {
     private int? commandTimeout;
     private ConnectionInfo connectionInfo;
@@ -47,7 +47,7 @@ namespace Xtensive.Sql
     /// <summary>
     /// Gets <see cref="IExtensionCollection"/> associated with this instance.
     /// </summary>
-    public IExtensionCollection Extensions => extensions ?? (extensions = new ExtensionCollection());
+    public IExtensionCollection Extensions => extensions ??= new ExtensionCollection();
 
     /// <summary>
     /// Gets or sets <see cref="ConnectionInfo"/> to use.
@@ -71,9 +71,10 @@ namespace Xtensive.Sql
     {
       get => commandTimeout;
       set {
-        if (value!=null) {
+        if (value != null) {
           ArgumentValidator.EnsureArgumentIsInRange(value.Value, 0, 65535, nameof(value));
         }
+
         EnsureIsNotDisposed();
 
         commandTimeout = value;
@@ -93,7 +94,7 @@ namespace Xtensive.Sql
     {
       EnsureIsNotDisposed();
       var command = CreateNativeCommand();
-      if (commandTimeout!=null) {
+      if (commandTimeout != null) {
         command.CommandTimeout = commandTimeout.Value;
       }
 
@@ -174,46 +175,57 @@ namespace Xtensive.Sql
     /// <param name="initializationScript">Initialization script.</param>
     public virtual void OpenAndInitialize(string initializationScript)
     {
+      EnsureIsNotDisposed();
       UnderlyingConnection.Open();
-      if (string.IsNullOrEmpty(initializationScript))
+      if (string.IsNullOrEmpty(initializationScript)) {
         return;
-      using (var command = UnderlyingConnection.CreateCommand()) {
-        command.CommandText = initializationScript;
-        command.ExecuteNonQuery();
       }
+
+      using var command = UnderlyingConnection.CreateCommand();
+      command.CommandText = initializationScript;
+      command.ExecuteNonQuery();
     }
 
     /// <summary>
     /// Opens the connection asynchronously.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="cancellationToken">Token to control cancellation.</param>
     /// <returns>Awaitable task.</returns>
     public virtual Task OpenAsync(CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
+      EnsureIsNotDisposed();
       return UnderlyingConnection.OpenAsync(cancellationToken);
     }
 
     /// <summary>
     /// Opens the connection and initialize it with given script asynchronously.
     /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="initializationScript">Initialization script.</param>
-    /// <param name="cancellationToken">Token to control cancellation.</param>
+    /// <param name="token">Token to control cancellation.</param>
     /// <returns>Awaitable task.</returns>
-    public virtual async Task OpenAndInitializeAsync(string initializationScript, CancellationToken cancellationToken)
+    public virtual async Task OpenAndInitializeAsync(string initializationScript, CancellationToken token = default)
     {
-      cancellationToken.ThrowIfCancellationRequested();
-      await UnderlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
-      if (string.IsNullOrEmpty(initializationScript))
+      token.ThrowIfCancellationRequested();
+      EnsureIsNotDisposed();
+      await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
+      if (string.IsNullOrEmpty(initializationScript)) {
         return;
+      }
+
       try {
-        using (var command = UnderlyingConnection.CreateCommand()) {
+        var command = UnderlyingConnection.CreateCommand();
+        await using (command.ConfigureAwait(false)) {
           command.CommandText = initializationScript;
-          await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+          await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
         }
       }
-      catch (OperationCanceledException exception) {
-        UnderlyingConnection.Close();
+      catch (OperationCanceledException) {
+        await UnderlyingConnection.CloseAsync().ConfigureAwait(false);
         throw;
       }
     }
@@ -228,15 +240,51 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Closes the connection.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    public virtual Task CloseAsync()
+    {
+      EnsureIsNotDisposed();
+      return UnderlyingConnection.CloseAsync();
+    }
+
+    /// <summary>
     /// Begins the transaction.
     /// </summary>
     public abstract void BeginTransaction();
+
+    /// <summary>
+    /// Begins the transaction.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="token">The cancellation token to be used to cancel this operation.</param>
+    public virtual ValueTask BeginTransactionAsync(CancellationToken token = default)
+    {
+      BeginTransaction();
+      return default;
+    }
 
     /// <summary>
     /// Begins the transaction with the specified <see cref="IsolationLevel"/>.
     /// </summary>
     /// <param name="isolationLevel">The isolation level.</param>
     public abstract void BeginTransaction(IsolationLevel isolationLevel);
+
+    /// <summary>
+    /// Begins the transaction with the specified <see cref="IsolationLevel"/>.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="token">The cancellation token to be used to cancel this operation.</param>
+    public virtual ValueTask BeginTransactionAsync(IsolationLevel isolationLevel, CancellationToken token = default)
+    {
+      BeginTransaction(isolationLevel);
+      return default;
+    }
 
     /// <summary>
     /// Commits the current transaction.
@@ -251,6 +299,24 @@ namespace Xtensive.Sql
       }
       finally {
         ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
+    }
+
+    /// <summary>
+    /// Commits the current transaction.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    public virtual async Task CommitAsync(CancellationToken token = default)
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+      try {
+        await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
+      }
+      finally {
+        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
         ClearActiveTransaction();
       }
     }
@@ -273,6 +339,24 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Rollbacks the current transaction.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    public virtual async Task RollbackAsync(CancellationToken token = default)
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+      try {
+        await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
+      }
+      finally {
+        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        ClearActiveTransaction();
+      }
+    }
+
+    /// <summary>
     /// Makes the transaction savepoint.
     /// </summary>
     /// <param name="name">The name of the savepoint.</param>
@@ -284,13 +368,39 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Rollbacks current transaction to the specified savepoint.
+    /// Asynchronously makes the transaction savepoint.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="name">The name of the savepoint.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    public virtual Task MakeSavepointAsync(string name, CancellationToken token = default)
+    {
+      MakeSavepoint(name);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Rolls back current transaction to the specified savepoint.
     /// </summary>
     /// <param name="name">The name of the savepoint.</param>
     public virtual void RollbackToSavepoint(string name) => throw SqlHelper.NotSupported(ServerFeatures.Savepoints);
 
     /// <summary>
-    /// Releases the savepoint with the specfied name.
+    /// Asynchronously rolls back current transaction to the specified savepoint.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="name">The name of the savepoint.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    public virtual Task RollbackToSavepointAsync(string name, CancellationToken token = default)
+    {
+      RollbackToSavepoint(name);
+      return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// Releases the savepoint with the specified name.
     /// </summary>
     /// <param name="name">The name of the savepoint.</param>
     public virtual void ReleaseSavepoint(string name)
@@ -300,12 +410,26 @@ namespace Xtensive.Sql
       // default impl. will fail on rollback
     }
 
+    /// <summary>
+    /// Asynchronously releases the savepoint with the specified name.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="name">The name of the savepoint.</param>
+    /// <param name="token">The cancellation token to terminate execution if needed.</param>
+    public virtual Task ReleaseSavepointAsync(string name, CancellationToken token = default)
+    {
+      ReleaseSavepoint(name);
+      return Task.CompletedTask;
+    }
+
     /// <inheritdoc/>
     public void Dispose()
     {
       if (isDisposed) {
         return;
       }
+
       isDisposed = true;
 
       try {
@@ -316,6 +440,26 @@ namespace Xtensive.Sql
       }
       finally {
         UnderlyingConnection.DisposeSafely();
+        ClearUnderlyingConnection();
+      }
+    }
+
+    /// <inheritdoc/>
+    public async ValueTask DisposeAsync()
+    {
+      if (isDisposed) {
+        return;
+      }
+
+      isDisposed = true;
+      try {
+        if (ActiveTransaction != null) {
+          await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+          ClearActiveTransaction();
+        }
+      }
+      finally {
+        await UnderlyingConnection.DisposeAsync().ConfigureAwait(false);
         ClearUnderlyingConnection();
       }
     }
@@ -342,7 +486,7 @@ namespace Xtensive.Sql
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     protected void EnsureTransactionIsActive()
     {
-      if (ActiveTransaction==null) {
+      if (ActiveTransaction == null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldBeActive);
       }
     }
@@ -352,7 +496,7 @@ namespace Xtensive.Sql
     /// </summary>
     protected void EnsureTransactionIsNotActive()
     {
-      if (ActiveTransaction!=null) {
+      if (ActiveTransaction != null) {
         throw new InvalidOperationException(Strings.ExTransactionShouldNotBeActive);
       }
     }

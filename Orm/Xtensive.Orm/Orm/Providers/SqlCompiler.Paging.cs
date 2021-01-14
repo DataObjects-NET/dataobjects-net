@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Providers
       throw new NotSupportedException(string.Format(Strings.ExXIsNotSupported, "Take/Skip"));
     }
 
-    private SqlProvider VisitPagingNative(UnaryProvider provider, Func<int> take, Func<int> skip)
+    private SqlProvider VisitPagingNative(UnaryProvider provider, Func<ParameterContext, int> take, Func<ParameterContext, int> skip)
     {
       var compiledSource = Compile(provider.Source);
       var query = ExtractSqlSelect(provider, compiledSource);
@@ -123,22 +123,22 @@ namespace Xtensive.Orm.Providers
       return CreateProvider(query, bindings, provider, compiledSource);
     }
 
-    private static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor)
+    private static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<ParameterContext, int> accessor)
     {
       return CreateLimitOffsetParameterBinding(accessor, false);
     }
 
-    private static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<int> accessor, bool nonZero)
+    private static QueryParameterBinding CreateLimitOffsetParameterBinding(Func<ParameterContext, int> accessor, bool nonZero)
     {
       var type = nonZero ? QueryParameterBindingType.NonZeroLimitOffset : QueryParameterBindingType.LimitOffset;
       var valueAccessor = BuildLimitOffsetAccessor(accessor);
       return new QueryParameterBinding(null, valueAccessor, type);
     }
 
-    private static Func<object> BuildLimitOffsetAccessor(Func<int> originalAccessor)
+    private static Func<ParameterContext, object> BuildLimitOffsetAccessor(Func<ParameterContext, int> originalAccessor)
     {
-      return () => {
-        var value = originalAccessor.Invoke();
+      return context => {
+        var value = originalAccessor.Invoke(context);
         return value < 0 ? 0 : value;
       };
     }

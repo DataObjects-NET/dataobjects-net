@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2008.09.18
 
@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Rse.Providers
         sourceColumnType = sourceColumnType.GetGenericArguments()[0];
       switch (aggregateType) {
       case AggregateType.Count:
-        return typeof (long);
+        return WellKnownTypes.Int64;
       case AggregateType.Min:
       case AggregateType.Max:
         return GetMinMaxColumnType(sourceColumnType, aggregateType);
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Rse.Providers
       case TypeCode.DateTime:
         return sourceColumnType;
       default:
-        if (sourceColumnType==typeof (TimeSpan) || sourceColumnType==typeof (DateTimeOffset))
+        if (sourceColumnType==WellKnownTypes.TimeSpan || sourceColumnType==WellKnownTypes.DateTimeOffset)
           return sourceColumnType;
         throw AggregateNotSupported(sourceColumnType, aggregateType);
       }
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Rse.Providers
       case TypeCode.UInt16:
       case TypeCode.UInt32:
       case TypeCode.UInt64:
-        return typeof(double);
+        return WellKnownTypes.Double;
       case TypeCode.Decimal:
       case TypeCode.Single:
       case TypeCode.Double:

@@ -34,11 +34,14 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
-      if (c.Value==null)
+      if (c.Value == null) {
         return c;
-      var rootPoint = c.Value as IQueryable;
-      if (rootPoint!=null)
+      }
+
+      if (c.Value is IQueryable rootPoint) {
         return VisitSequence(rootPoint.Expression);
+      }
+
       return base.VisitConstant(c);
     }
 
@@ -46,165 +49,186 @@ namespace Xtensive.Orm.Linq
     {
       using (state.CreateScope()) {
         switch (methodKind) {
-        case QueryableMethodKind.Cast:
-            return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
-        case QueryableMethodKind.AsQueryable:
-          return VisitAsQueryable(mc.Arguments[0]);
-        case QueryableMethodKind.AsEnumerable:
-          break;
-        case QueryableMethodKind.ToArray:
-          break;
-        case QueryableMethodKind.ToList:
-          break;
-        case QueryableMethodKind.Aggregate:
-          break;
-        case QueryableMethodKind.ElementAt:
-          return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
-        case QueryableMethodKind.ElementAtOrDefault:
-          return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
-        case QueryableMethodKind.Last:
-          break;
-        case QueryableMethodKind.LastOrDefault:
-          break;
-        case QueryableMethodKind.Except:
-        case QueryableMethodKind.Intersect:
-        case QueryableMethodKind.Concat:
-        case QueryableMethodKind.Union:
-          state.BuildingProjection = false;
-          return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind, mc.Method.GetGenericArguments()[0]);
-        case QueryableMethodKind.Reverse:
-          break;
-        case QueryableMethodKind.SequenceEqual:
-          break;
-        case QueryableMethodKind.DefaultIfEmpty:
-          break;
-        case QueryableMethodKind.SkipWhile:
-          break;
-        case QueryableMethodKind.TakeWhile:
-          break;
-        case QueryableMethodKind.All:
-          if (mc.Arguments.Count==2)
-            return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-          break;
-        case QueryableMethodKind.OfType:
-          return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0], mc.Arguments[0].Type.GetGenericArguments()[0]);
-        case QueryableMethodKind.Any:
-          if (mc.Arguments.Count==1)
-            return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
-          if (mc.Arguments.Count==2)
-            return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
-          break;
-        case QueryableMethodKind.Contains:
-          if (mc.Arguments.Count==2)
-            return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
-          break;
-        case QueryableMethodKind.Distinct:
-          if (mc.Arguments.Count==1)
-            return VisitDistinct(mc.Arguments[0]);
-          break;
-        case QueryableMethodKind.First:
-        case QueryableMethodKind.FirstOrDefault:
-        case QueryableMethodKind.Single:
-        case QueryableMethodKind.SingleOrDefault:
-          if (mc.Arguments.Count==1)
-            return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
-          if (mc.Arguments.Count==2) {
-            LambdaExpression predicate = (mc.Arguments[1].StripQuotes());
-            return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
-          }
-          break;
-        case QueryableMethodKind.GroupBy:
-          state.BuildingProjection = false;
-          var groupBy = QueryParser.ParseGroupBy(mc);
-          return VisitGroupBy(mc.Method.ReturnType,
-            groupBy.Source,
-            groupBy.KeySelector,
-            groupBy.ElementSelector,
-            groupBy.ResultSelector);
-        case QueryableMethodKind.GroupJoin:
-          state.BuildingProjection = false;
-          return VisitGroupJoin(mc.Arguments[0],
-            mc.Arguments[1],
-            mc.Arguments[2].StripQuotes(),
-            mc.Arguments[3].StripQuotes(),
-            mc.Arguments[4].StripQuotes(),
-            mc.Arguments.Count > 5 ? mc.Arguments[5] : null,
-            mc);
-        case QueryableMethodKind.Join:
-          state.BuildingProjection = false;
-          return VisitJoin(mc.Arguments[0],
-            mc.Arguments[1],
-            mc.Arguments[2].StripQuotes(),
-            mc.Arguments[3].StripQuotes(),
-            mc.Arguments[4].StripQuotes(),
-            false,
-            mc);
-        case QueryableMethodKind.OrderBy:
-        case QueryableMethodKind.OrderByDescending:
-          return VisitSort(mc);
-        case QueryableMethodKind.Select:
-          return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
-        case QueryableMethodKind.SelectMany:
-          if (mc.Arguments.Count==2) {
-            return VisitSelectMany(mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
-              null,
-              mc);
-          }
-          if (mc.Arguments.Count==3) {
-            return VisitSelectMany(mc.Arguments[0],
-              mc.Arguments[1].StripQuotes(),
+          case QueryableMethodKind.Cast:
+            return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0],
+              mc.Arguments[0].Type.GetGenericArguments()[0]);
+          case QueryableMethodKind.AsQueryable:
+            return VisitAsQueryable(mc.Arguments[0]);
+          case QueryableMethodKind.AsEnumerable:
+            break;
+          case QueryableMethodKind.ToArray:
+            break;
+          case QueryableMethodKind.ToList:
+            break;
+          case QueryableMethodKind.Aggregate:
+            break;
+          case QueryableMethodKind.ElementAt:
+            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, false);
+          case QueryableMethodKind.ElementAtOrDefault:
+            return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), mc.Method.ReturnType, true);
+          case QueryableMethodKind.Last:
+            break;
+          case QueryableMethodKind.LastOrDefault:
+            break;
+          case QueryableMethodKind.Except:
+          case QueryableMethodKind.Intersect:
+          case QueryableMethodKind.Concat:
+          case QueryableMethodKind.Union:
+            state.BuildingProjection = false;
+            return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind, mc.Method.GetGenericArguments()[0]);
+          case QueryableMethodKind.Reverse:
+            break;
+          case QueryableMethodKind.SequenceEqual:
+            break;
+          case QueryableMethodKind.DefaultIfEmpty:
+            break;
+          case QueryableMethodKind.SkipWhile:
+            break;
+          case QueryableMethodKind.TakeWhile:
+            break;
+          case QueryableMethodKind.All:
+            if (mc.Arguments.Count == 2) {
+              return VisitAll(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            }
+
+            break;
+          case QueryableMethodKind.OfType:
+            return VisitOfType(mc.Arguments[0], mc.Method.GetGenericArguments()[0],
+              mc.Arguments[0].Type.GetGenericArguments()[0]);
+          case QueryableMethodKind.Any:
+            if (mc.Arguments.Count == 1) {
+              return VisitAny(mc.Arguments[0], null, context.IsRoot(mc));
+            }
+
+            if (mc.Arguments.Count == 2) {
+              return VisitAny(mc.Arguments[0], mc.Arguments[1].StripQuotes(), context.IsRoot(mc));
+            }
+
+            break;
+          case QueryableMethodKind.Contains:
+            if (mc.Arguments.Count == 2) {
+              return VisitContains(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc));
+            }
+
+            break;
+          case QueryableMethodKind.Distinct:
+            if (mc.Arguments.Count == 1) {
+              return VisitDistinct(mc.Arguments[0]);
+            }
+
+            break;
+          case QueryableMethodKind.First:
+          case QueryableMethodKind.FirstOrDefault:
+          case QueryableMethodKind.Single:
+          case QueryableMethodKind.SingleOrDefault:
+            if (mc.Arguments.Count == 1) {
+              return VisitFirstSingle(mc.Arguments[0], null, mc.Method, context.IsRoot(mc));
+            }
+
+            if (mc.Arguments.Count == 2) {
+              var predicate = (mc.Arguments[1].StripQuotes());
+              return VisitFirstSingle(mc.Arguments[0], predicate, mc.Method, context.IsRoot(mc));
+            }
+
+            break;
+          case QueryableMethodKind.GroupBy:
+            state.BuildingProjection = false;
+            var groupBy = QueryParser.ParseGroupBy(mc);
+            return VisitGroupBy(mc.Method.ReturnType,
+              groupBy.Source,
+              groupBy.KeySelector,
+              groupBy.ElementSelector,
+              groupBy.ResultSelector);
+          case QueryableMethodKind.GroupJoin:
+            state.BuildingProjection = false;
+            return VisitGroupJoin(mc.Arguments[0],
+              mc.Arguments[1],
               mc.Arguments[2].StripQuotes(),
+              mc.Arguments[3].StripQuotes(),
+              mc.Arguments[4].StripQuotes(),
+              mc.Arguments.Count > 5 ? mc.Arguments[5] : null,
               mc);
-          }
-          break;
-        case QueryableMethodKind.LongCount:
-        case QueryableMethodKind.Count:
-        case QueryableMethodKind.Max:
-        case QueryableMethodKind.Min:
-        case QueryableMethodKind.Sum:
-        case QueryableMethodKind.Average:
-          if (mc.Arguments.Count==1)
-            return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
-          if (mc.Arguments.Count==2)
-            return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc), mc);
-          break;
-        case QueryableMethodKind.Skip:
-          if (mc.Arguments.Count==2)
-            return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
-          break;
-        case QueryableMethodKind.Take:
-          if (mc.Arguments.Count==2)
-            return VisitTake(mc.Arguments[0], mc.Arguments[1]);
-          break;
-        case QueryableMethodKind.ThenBy:
-        case QueryableMethodKind.ThenByDescending:
-          return VisitSort(mc);
-        case QueryableMethodKind.Where:
-          state.BuildingProjection = false;
-          return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
-        default:
-          throw new ArgumentOutOfRangeException("methodKind");
+          case QueryableMethodKind.Join:
+            state.BuildingProjection = false;
+            return VisitJoin(mc.Arguments[0],
+              mc.Arguments[1],
+              mc.Arguments[2].StripQuotes(),
+              mc.Arguments[3].StripQuotes(),
+              mc.Arguments[4].StripQuotes(),
+              false,
+              mc);
+          case QueryableMethodKind.OrderBy:
+          case QueryableMethodKind.OrderByDescending:
+            return VisitSort(mc);
+          case QueryableMethodKind.Select:
+            return VisitSelect(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+          case QueryableMethodKind.SelectMany:
+            if (mc.Arguments.Count == 2) {
+              return VisitSelectMany(mc.Arguments[0],
+                mc.Arguments[1].StripQuotes(),
+                null,
+                mc);
+            }
+
+            if (mc.Arguments.Count == 3) {
+              return VisitSelectMany(mc.Arguments[0],
+                mc.Arguments[1].StripQuotes(),
+                mc.Arguments[2].StripQuotes(),
+                mc);
+            }
+
+            break;
+          case QueryableMethodKind.LongCount:
+          case QueryableMethodKind.Count:
+          case QueryableMethodKind.Max:
+          case QueryableMethodKind.Min:
+          case QueryableMethodKind.Sum:
+          case QueryableMethodKind.Average:
+            if (mc.Arguments.Count == 1) {
+              return VisitAggregate(mc.Arguments[0], mc.Method, null, context.IsRoot(mc), mc);
+            }
+
+            if (mc.Arguments.Count == 2) {
+              return VisitAggregate(mc.Arguments[0], mc.Method, mc.Arguments[1].StripQuotes(), context.IsRoot(mc), mc);
+            }
+
+            break;
+          case QueryableMethodKind.Skip:
+            if (mc.Arguments.Count == 2) {
+              return VisitSkip(mc.Arguments[0], mc.Arguments[1]);
+            }
+
+            break;
+          case QueryableMethodKind.Take:
+            if (mc.Arguments.Count == 2) {
+              return VisitTake(mc.Arguments[0], mc.Arguments[1]);
+            }
+
+            break;
+          case QueryableMethodKind.ThenBy:
+          case QueryableMethodKind.ThenByDescending:
+            return VisitSort(mc);
+          case QueryableMethodKind.Where:
+            state.BuildingProjection = false;
+            return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
+          default:
+            throw new ArgumentOutOfRangeException(nameof(methodKind));
         }
       }
-      throw new NotSupportedException(String.Format(Strings.ExLinqTranslatorDoesNotSupportMethodX, mc, methodKind));
+
+      throw new NotSupportedException(string.Format(Strings.ExLinqTranslatorDoesNotSupportMethodX, mc, methodKind));
     }
 
-    private Expression VisitAsQueryable(Expression source)
-    {
-      return VisitSequence(source);
-    }
+    private Expression VisitAsQueryable(Expression source) => VisitSequence(source);
 
-    private Expression VisitLeftJoin(MethodCallExpression mc)
-    {
-      return VisitJoin(mc.Arguments[0],
+    private Expression VisitLeftJoin(MethodCallExpression mc) =>
+      VisitJoin(mc.Arguments[0],
         mc.Arguments[1],
         mc.Arguments[2].StripQuotes(),
         mc.Arguments[3].StripQuotes(),
         mc.Arguments[4].StripQuotes(),
         true,
         mc);
-    }
 
     private Expression VisitLock(MethodCallExpression expression)
     {
@@ -213,26 +237,29 @@ namespace Xtensive.Orm.Linq
       var lockBehavior = (LockBehavior) ((ConstantExpression) expression.Arguments[2]).Value;
       var visitedSource = (ProjectionExpression) Visit(source);
       var newDataSource = visitedSource.ItemProjector.DataSource.Lock(lockMode, lockBehavior);
-      var newItemProjector = new ItemProjectorExpression(visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
+      var newItemProjector = new ItemProjectorExpression(
+        visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
       var projectionExpression = new ProjectionExpression(
-        visitedSource.Type, 
-        newItemProjector, 
-        visitedSource.TupleParameterBindings, 
-        visitedSource.ResultType);
+        visitedSource.Type,
+        newItemProjector,
+        visitedSource.TupleParameterBindings,
+        visitedSource.ResultAccessMethod);
       return projectionExpression;
     }
 
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {
-      if (!typeof(IEntity).IsAssignableFrom(sourceType))
+      if (!WellKnownOrmInterfaces.Entity.IsAssignableFrom(sourceType)) {
         throw new NotSupportedException(Strings.ExOfTypeSupportsOnlyEntityConversion);
+      }
 
       var visitedSource = VisitSequence(source);
-      if (targetType==sourceType)
+      if (targetType == sourceType) {
         return visitedSource;
+      }
 
-      int offset = 0;
+      var offset = 0;
       var recordSet = visitedSource.ItemProjector.DataSource;
 
       if (sourceType.IsAssignableFrom(targetType)) {
@@ -245,6 +272,7 @@ namespace Xtensive.Orm.Linq
           .ToArray();
         recordSet = recordSet.Join(joinedRs, keyPairs);
       }
+
       var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
       var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
       return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
@@ -254,38 +282,45 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="NotSupportedException">Cast supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitCast(Expression source, Type targetType, Type sourceType)
     {
-      if (!targetType.IsAssignableFrom(sourceType))
+      if (!targetType.IsAssignableFrom(sourceType)) {
         throw new InvalidCastException(string.Format(Strings.ExUnableToCastItemOfTypeXToY, sourceType, targetType));
+      }
 
       var visitedSource = VisitSequence(source);
       var itemProjector = visitedSource.ItemProjector.EnsureEntityIsJoined();
-      var projection = new ProjectionExpression(visitedSource.Type, itemProjector, visitedSource.TupleParameterBindings, visitedSource.ResultType);
-      if (targetType==sourceType)
+      var projection = new ProjectionExpression(visitedSource.Type, itemProjector, visitedSource.TupleParameterBindings,
+        visitedSource.ResultAccessMethod);
+      if (targetType == sourceType) {
         return projection;
-      
-      var sourceEntity = (EntityExpression)projection.ItemProjector.Item.StripMarkers().StripCasts();
+      }
+
+      var sourceEntity = (EntityExpression) projection.ItemProjector.Item.StripMarkers().StripCasts();
       var recordSet = projection.ItemProjector.DataSource;
       var targetTypeInfo = context.Model.Types[targetType];
       var sourceTypeInfo = context.Model.Types[sourceType];
       var map = Enumerable.Repeat(-1, recordSet.Header.Columns.Count).ToArray();
       var targetFieldIndex = 0;
-      foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent==null && !f.IsEntitySet)) {
+      foreach (var targetField in targetTypeInfo.Fields.Where(f => f.Parent == null && !f.IsEntitySet)) {
         var sourceFieldInfo = targetType.IsInterface && sourceType.IsClass
           ? sourceTypeInfo.FieldMap[targetField]
           : sourceTypeInfo.Fields[targetField.Name];
-        var sourceField = sourceEntity.Fields.Single(f => f.Name==sourceFieldInfo.Name);
+        var sourceField = sourceEntity.Fields.Single(f => f.Name == sourceFieldInfo.Name);
         var sourceFieldIndex = sourceField.Mapping.Offset;
         map[sourceFieldIndex] = targetFieldIndex++;
       }
+
       var targetEntity = EntityExpression.Create(targetTypeInfo, 0, false);
       Expression expression;
-      using (new RemapScope())
+      using (new RemapScope()) {
         expression = targetEntity.Remap(map, new Dictionary<Expression, Expression>());
+      }
+
       var replacer = new ExtendedExpressionReplacer(e => e == sourceEntity ? expression : null);
       var targetItem = replacer.Replace(projection.ItemProjector.Item);
       var targetItemProjector = new ItemProjectorExpression(targetItem, recordSet, context);
-      var targetProjectionType = typeof(IQueryable<>).MakeGenericType(targetType);
-      return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings, projection.ResultType);
+      var targetProjectionType = WellKnownInterfaces.QueryableOfT.MakeGenericType(targetType);
+      return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings,
+        projection.ResultAccessMethod);
 //      if (targetType.IsSubclassOf(sourceType)) {
 //        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
 //        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
@@ -314,19 +349,22 @@ namespace Xtensive.Orm.Linq
         }
         else {
           // Collection<Child>.Contains(parent)
-          if (!isRoot && !source.IsLocalCollection(context))
+          if (!isRoot && !source.IsLocalCollection(context)) {
             QueryHelper.TryAddConvarianceCast(ref source, match.Type);
+          }
         }
       }
 
       var p = Expression.Parameter(match.Type, "p");
       var le = FastExpression.Lambda(Expression.Equal(p, match), p);
 
-      if (isRoot)
+      if (isRoot) {
         return VisitRootExists(source, le, false);
+      }
 
-      if (source.IsQuery() || source.IsLocalCollection(context))
+      if (source.IsQuery() || source.IsLocalCollection(context)) {
         return VisitExists(source, le, false);
+      }
 
 
       throw new NotSupportedException(Strings.ExContainsMethodIsOnlySupportedForRootExpressionsOrSubqueries);
@@ -336,22 +374,26 @@ namespace Xtensive.Orm.Linq
     {
       predicate = FastExpression.Lambda(Expression.Not(predicate.Body), predicate.Parameters[0]);
 
-      if (isRoot)
+      if (isRoot) {
         return VisitRootExists(source, predicate, true);
+      }
 
-      if (source.IsQuery() || source.IsLocalCollection(context))
+      if (source.IsQuery() || source.IsLocalCollection(context)) {
         return VisitExists(source, predicate, true);
+      }
 
       throw new NotSupportedException(Strings.ExAllMethodIsOnlySupportedForRootExpressionsOrSubqueries);
     }
 
     private Expression VisitAny(Expression source, LambdaExpression predicate, bool isRoot)
     {
-      if (isRoot)
+      if (isRoot) {
         return VisitRootExists(source, predicate, false);
+      }
 
-      if (source.IsQuery() || source.IsLocalCollection(context))
+      if (source.IsQuery() || source.IsLocalCollection(context)) {
         return VisitExists(source, predicate, false);
+      }
 
       throw new NotSupportedException(Strings.ExAnyMethodIsOnlySupportedForRootExpressionsOrSubqueries);
     }
@@ -366,40 +408,40 @@ namespace Xtensive.Orm.Linq
         var isPrimitiveType = context.ProviderInfo.SupportedTypes.Contains(method.ReturnType);
         state.RequestCalculateExpressions = state.RequestCalculateExpressions
           || !isRoot && isPrimitiveType;
-        projection = predicate!=null ? VisitWhere(source, predicate) : VisitSequence(source);
+        projection = predicate != null ? VisitWhere(source, predicate) : VisitSequence(source);
       }
 
       CompilableProvider rightDataSource = null;
       switch (method.Name) {
-      case Reflection.WellKnown.Queryable.First:
-        applySequenceType = ApplySequenceType.First;
-        markerType = MarkerType.First;
-        rightDataSource = projection.ItemProjector.DataSource.Take(1);
-        break;
-      case Reflection.WellKnown.Queryable.FirstOrDefault:
-        applySequenceType = ApplySequenceType.FirstOrDefault;
-        markerType = MarkerType.First | MarkerType.Default;
-        rightDataSource = projection.ItemProjector.DataSource.Take(1);
-        break;
-      case Reflection.WellKnown.Queryable.Single:
-        applySequenceType = ApplySequenceType.Single;
-        markerType = MarkerType.Single;
-        rightDataSource = projection.ItemProjector.DataSource.Take(2);
-        break;
-      case Reflection.WellKnown.Queryable.SingleOrDefault:
-        applySequenceType = ApplySequenceType.SingleOrDefault;
-        markerType = MarkerType.Single | MarkerType.Default;
-        rightDataSource = projection.ItemProjector.DataSource.Take(2);
-        break;
+        case Reflection.WellKnown.Queryable.First:
+          applySequenceType = ApplySequenceType.First;
+          markerType = MarkerType.First;
+          rightDataSource = projection.ItemProjector.DataSource.Take(1);
+          break;
+        case Reflection.WellKnown.Queryable.FirstOrDefault:
+          applySequenceType = ApplySequenceType.FirstOrDefault;
+          markerType = MarkerType.First | MarkerType.Default;
+          rightDataSource = projection.ItemProjector.DataSource.Take(1);
+          break;
+        case Reflection.WellKnown.Queryable.Single:
+          applySequenceType = ApplySequenceType.Single;
+          markerType = MarkerType.Single;
+          rightDataSource = projection.ItemProjector.DataSource.Take(2);
+          break;
+        case Reflection.WellKnown.Queryable.SingleOrDefault:
+          applySequenceType = ApplySequenceType.SingleOrDefault;
+          markerType = MarkerType.Single | MarkerType.Default;
+          rightDataSource = projection.ItemProjector.DataSource.Take(2);
+          break;
       }
 
-      var resultType = (ResultType) Enum.Parse(typeof (ResultType), method.Name);
+      var resultType = (ResultAccessMethod) Enum.Parse(typeof(ResultAccessMethod), method.Name);
       if (isRoot) {
         var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rightDataSource, context);
         return new ProjectionExpression(
-          method.ReturnType, 
-          itemProjector, 
-          projection.TupleParameterBindings, 
+          method.ReturnType,
+          itemProjector,
+          projection.TupleParameterBindings,
           resultType);
       }
 
@@ -409,67 +451,81 @@ namespace Xtensive.Orm.Linq
 
       var leftDataSource = oldResult.ItemProjector.DataSource;
       var columnIndex = leftDataSource.Header.Length;
-      var dataSource = leftDataSource.Apply(applyParameter, rightDataSource.Alias(context.GetNextAlias()), !state.BuildingProjection, applySequenceType, JoinType.LeftOuter);
+      var dataSource = leftDataSource.Apply(applyParameter, rightDataSource.Alias(context.GetNextAlias()),
+        !state.BuildingProjection, applySequenceType, JoinType.LeftOuter);
       var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
-      var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0), oldResult.TupleParameterBindings);
+      var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0),
+        oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, result);
 
       return new MarkerExpression(rightItemProjector.Item, markerType);
     }
 
 
-    private Expression VisitElementAt(Expression source, Expression index, bool isRoot, Type returnType, bool allowDefault)
+    private Expression VisitElementAt(Expression source, Expression index, bool isRoot, Type returnType,
+      bool allowDefault)
     {
-      if (QueryCachingScope.Current!=null
-        && index.NodeType==ExpressionType.Constant
-          && index.Type==typeof (int)) {
+      if (compiledQueryScope != null
+        && index.NodeType == ExpressionType.Constant
+        && index.Type == WellKnownTypes.Int32) {
         var errorString = allowDefault
           ? Strings.ExElementAtOrDefaultNotSupportedInCompiledQueries
           : Strings.ExElementAtNotSupportedInCompiledQueries;
-        throw new InvalidOperationException(String.Format(errorString, ((ConstantExpression) index).Value));
+        throw new InvalidOperationException(string.Format(errorString, ((ConstantExpression) index).Value));
       }
 
       var projection = VisitSequence(source);
-      Func<int> compiledParameter;
-      if (index.NodeType==ExpressionType.Quote)
+      Func<ParameterContext, int> compiledParameter;
+      if (index.NodeType == ExpressionType.Quote) {
         index = index.StripQuotes();
+      }
+
       CompilableProvider rs;
-      if (index.Type==typeof (Func<int>)) {
-        Expression<Func<int>> elementAtIndex;
-        if (QueryCachingScope.Current==null) {
-          elementAtIndex = (Expression<Func<int>>) index;
+      if (index.Type == typeof(Func<int>)) {
+        Expression<Func<ParameterContext, int>> elementAtIndex;
+        ParameterExpression contextParameter;
+        if (compiledQueryScope == null) {
+          var indexLambda = (Expression<Func<int>>) index;
+          contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+          elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, contextParameter);
         }
         else {
-          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          elementAtIndex = (Expression<Func<int>>) replacer.Replace(index);
+          var replacer = compiledQueryScope.QueryParameterReplacer;
+          var newIndex = (Expression<Func<int>>) replacer.Replace(index);
+          elementAtIndex = ParameterAccessorFactory.CreateAccessorExpression<int>(newIndex.Body);
+          contextParameter = elementAtIndex.Parameters[0];
         }
+
         compiledParameter = elementAtIndex.CachingCompile();
         var skipComparison = Expression.LessThan(elementAtIndex.Body, Expression.Constant(0));
         var condition = Expression.Condition(skipComparison, Expression.Constant(0), Expression.Constant(1));
-        var takeParameter = FastExpression.Lambda<Func<int>>(condition);
+        var takeParameter = FastExpression.Lambda<Func<ParameterContext, int>>(condition, contextParameter);
         rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(takeParameter.CachingCompile());
       }
       else {
         if ((int) ((ConstantExpression) index).Value < 0) {
-          if (allowDefault)
+          if (allowDefault) {
             rs = projection.ItemProjector.DataSource.Take(0);
-          else
-            throw new ArgumentOutOfRangeException("index", index, Strings.ExElementAtIndexMustBeGreaterOrEqualToZero);
+          }
+          else {
+            throw new ArgumentOutOfRangeException(nameof(index), index,
+              Strings.ExElementAtIndexMustBeGreaterOrEqualToZero);
+          }
         }
         else {
-          Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(index);
+          var parameter = ParameterAccessorFactory.CreateAccessorExpression<int>(index);
           compiledParameter = parameter.CachingCompile();
           rs = projection.ItemProjector.DataSource.Skip(compiledParameter).Take(1);
         }
       }
 
-      var resultType = allowDefault ? ResultType.FirstOrDefault : ResultType.First;
+      var resultType = allowDefault ? ResultAccessMethod.FirstOrDefault : ResultAccessMethod.First;
       if (isRoot) {
         var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
         return new ProjectionExpression(
-          returnType, 
-          itemProjector, 
-          projection.TupleParameterBindings, 
+          returnType,
+          itemProjector,
+          projection.TupleParameterBindings,
           resultType);
       }
 
@@ -479,9 +535,11 @@ namespace Xtensive.Orm.Linq
 
       var leftDataSource = oldResult.ItemProjector.DataSource;
       var columnIndex = leftDataSource.Header.Length;
-      var dataSource = leftDataSource.Apply(applyParameter, rs.Alias(context.GetNextAlias()), !state.BuildingProjection, ApplySequenceType.All, JoinType.LeftOuter);
+      var dataSource = leftDataSource.Apply(applyParameter, rs.Alias(context.GetNextAlias()), !state.BuildingProjection,
+        ApplySequenceType.All, JoinType.LeftOuter);
       var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
-      var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0), oldResult.TupleParameterBindings);
+      var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0),
+        oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, result);
 
       return new MarkerExpression(rightItemProjector.Item, MarkerType.None);
@@ -490,27 +548,38 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression VisitTake(Expression source, Expression take)
     {
-      if (QueryCachingScope.Current!=null
-        && take.NodeType==ExpressionType.Constant
-          && take.Type==typeof (int))
-        throw new InvalidOperationException(String.Format(Strings.ExTakeNotSupportedInCompiledQueries, ((ConstantExpression) take).Value));
+      if (compiledQueryScope != null
+        && take.NodeType == ExpressionType.Constant
+        && take.Type == WellKnownTypes.Int32) {
+        throw new InvalidOperationException(
+          string.Format(Strings.ExTakeNotSupportedInCompiledQueries, ((ConstantExpression) take).Value));
+      }
+
       var projection = VisitSequence(source);
-      Func<int> compiledParameter;
-      if (take.NodeType==ExpressionType.Quote)
+      Func<ParameterContext, int> compiledParameter;
+      if (take.NodeType == ExpressionType.Quote) {
         take = take.StripQuotes();
-      if (take.Type==typeof (Func<int>)) {
-        if (QueryCachingScope.Current==null)
-          compiledParameter = ((Expression<Func<int>>) take).CachingCompile();
+      }
+
+      if (take.Type == typeof(Func<int>)) {
+        if (compiledQueryScope == null) {
+          var contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+          var takeLambda = (Expression<Func<int>>) take;
+          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, contextParameter);
+          compiledParameter = newTakeLambda.CachingCompile();
+        }
         else {
-          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          var newTake = replacer.Replace(take);
-          compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
+          var replacer = compiledQueryScope.QueryParameterReplacer;
+          var newTake = (Expression<Func<int>>) replacer.Replace(take);
+          var takeParameterAccessor = ParameterAccessorFactory.CreateAccessorExpression<int>(newTake.Body);
+          compiledParameter = takeParameterAccessor.CachingCompile();
         }
       }
       else {
-        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(take);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<int>(take);
         compiledParameter = parameter.CachingCompile();
       }
+
       var rs = projection.ItemProjector.DataSource.Take(compiledParameter);
       var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
       return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
@@ -518,27 +587,38 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression VisitSkip(Expression source, Expression skip)
     {
-      if (QueryCachingScope.Current!=null
-        && skip.NodeType==ExpressionType.Constant
-          && skip.Type==typeof (int))
-        throw new InvalidOperationException(String.Format(Strings.ExSkipNotSupportedInCompiledQueries, ((ConstantExpression) skip).Value));
+      if (compiledQueryScope != null
+        && skip.NodeType == ExpressionType.Constant
+        && skip.Type == WellKnownTypes.Int32) {
+        throw new InvalidOperationException(string.Format(Strings.ExSkipNotSupportedInCompiledQueries,
+          ((ConstantExpression) skip).Value));
+      }
+
       var projection = VisitSequence(source);
-      Func<int> compiledParameter;
-      if (skip.NodeType==ExpressionType.Quote)
+      Func<ParameterContext, int> compiledParameter;
+      if (skip.NodeType == ExpressionType.Quote) {
         skip = skip.StripQuotes();
-      if (skip.Type==typeof (Func<int>)) {
-        if (QueryCachingScope.Current==null)
-          compiledParameter = ((Expression<Func<int>>) skip).CachingCompile();
+      }
+
+      if (skip.Type == typeof(Func<int>)) {
+        if (compiledQueryScope == null) {
+          var contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+          var skipLambda = (Expression<Func<int>>) skip;
+          var newSkipLambda = FastExpression.Lambda<Func<ParameterContext, int>>(skipLambda.Body, contextParameter);
+          compiledParameter = newSkipLambda.CachingCompile();
+        }
         else {
-          var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-          var newTake = replacer.Replace(skip);
-          compiledParameter = ((Expression<Func<int>>) newTake).CachingCompile();
+          var replacer = compiledQueryScope.QueryParameterReplacer;
+          var newSkip = (Expression<Func<int>>) replacer.Replace(skip);
+          var skipParameterAccessor = ParameterAccessorFactory.CreateAccessorExpression<int>(newSkip.Body);
+          compiledParameter = skipParameterAccessor.CachingCompile();
         }
       }
       else {
-        Expression<Func<int>> parameter = context.ParameterExtractor.ExtractParameter<int>(skip);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<int>(skip);
         compiledParameter = parameter.CachingCompile();
       }
+
       var rs = projection.ItemProjector.DataSource.Skip(compiledParameter);
       var itemProjector = new ItemProjectorExpression(projection.ItemProjector.Item, rs, context);
       return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
@@ -551,6 +631,7 @@ namespace Xtensive.Orm.Linq
         state.RequestCalculateExpressionsOnce = true;
         result = VisitSequence(expression);
       }
+
       var itemProjector = result.ItemProjector.RemoveOwner();
       var columnIndexes = itemProjector
         .GetColumns(ColumnExtractionModes.KeepSegment)
@@ -562,13 +643,15 @@ namespace Xtensive.Orm.Linq
       return new ProjectionExpression(result.Type, itemProjector, result.TupleParameterBindings);
     }
 
-    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot, MethodCallExpression expressionPart)
+    private Expression VisitAggregate(Expression source, MethodInfo method, LambdaExpression argument, bool isRoot,
+      MethodCallExpression expressionPart)
     {
       var aggregateType = ExtractAggregateType(expressionPart);
       var origin = VisitAggregateSource(source, argument, aggregateType, expressionPart);
       var originProjection = origin.First;
       var originColumnIndex = origin.Second;
-      var aggregateDescriptor = new AggregateColumnDescriptor(context.GetNextColumnAlias(), originColumnIndex, aggregateType);
+      var aggregateDescriptor = new AggregateColumnDescriptor(
+        context.GetNextColumnAlias(), originColumnIndex, aggregateType);
       var originDataSource = originProjection.ItemProjector.DataSource;
       var resultDataSource = originDataSource.Aggregate(null, aggregateDescriptor);
 
@@ -579,37 +662,45 @@ namespace Xtensive.Orm.Linq
 
       var resultType = method.ReturnType;
       var columnType = resultDataSource.Header.TupleDescriptor[0];
-      var convertResultColumn = resultType!=columnType && !resultType.IsNullable();
-      if (!convertResultColumn) // Adjust column type so we always use nullable of T instead of T
+      var resultIsNullable = resultType.IsNullable();
+      var convertResultColumn = resultType != columnType && !resultIsNullable;
+      if (!convertResultColumn) {
+        // Adjust column type so we always use nullable of T instead of T
         columnType = resultType;
+      }
 
       if (isRoot) {
         var projectorBody = (Expression) ColumnExpression.Create(columnType, 0);
-        if (convertResultColumn)
+        if (convertResultColumn) {
           projectorBody = Expression.Convert(projectorBody, resultType);
-        var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context);
-        return new ProjectionExpression(resultType, itemProjector, originProjection.TupleParameterBindings, ResultType.First);
+        }
+
+        var itemProjector = new ItemProjectorExpression(projectorBody, resultDataSource, context, aggregateType);
+        return new ProjectionExpression(
+          resultType,
+          itemProjector,
+          originProjection.TupleParameterBindings,
+          resultIsNullable ? ResultAccessMethod.FirstOrDefault : ResultAccessMethod.First);
       }
 
       // Optimization. Use grouping AggregateProvider.
 
-      var groupingParameter = source as ParameterExpression;
-      if (groupingParameter!=null) {
+      if (source is ParameterExpression groupingParameter) {
         var groupingProjection = context.Bindings[groupingParameter];
-        var groupingDataSource = groupingProjection.ItemProjector.DataSource as AggregateProvider;
-        if (groupingDataSource!=null && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
+        if (groupingProjection.ItemProjector.DataSource is AggregateProvider groupingDataSource
+          && groupingProjection.ItemProjector.Item.IsGroupingExpression()) {
           var groupingFilterParameter = context.GetApplyParameter(groupingDataSource);
           var commonOriginDataSource = ChooseSourceForAggregate(groupingDataSource.Source,
             SubqueryFilterRemover.Process(originDataSource, groupingFilterParameter),
             ref aggregateDescriptor);
-          if (commonOriginDataSource!=null) {
+          if (commonOriginDataSource != null) {
             resultDataSource = new AggregateProvider(
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
-              groupingDataSource.AggregateColumns.Select(c => c.Descriptor).AddOne(aggregateDescriptor).ToArray());
+              groupingDataSource.AggregateColumns.Select(c => c.Descriptor).Append(aggregateDescriptor).ToArray());
             var optimizedItemProjector = groupingProjection.ItemProjector.Remap(resultDataSource, 0);
             groupingProjection = new ProjectionExpression(
               groupingProjection.Type, optimizedItemProjector,
-              groupingProjection.TupleParameterBindings, groupingProjection.ResultType);
+              groupingProjection.TupleParameterBindings, groupingProjection.ResultAccessMethod);
             context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
             var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
             if (isSubqueryParameter) {
@@ -620,23 +711,30 @@ namespace Xtensive.Orm.Linq
                   projectionExpression.Type,
                   projectionExpression.ItemProjector.RewriteApplyParameter(groupingFilterParameter, newApplyParameter),
                   projectionExpression.TupleParameterBindings,
-                  projectionExpression.ResultType);
+                  projectionExpression.ResultAccessMethod);
                 context.Bindings.ReplaceBound(innerParameter, newProjectionExpression);
               }
             }
+
             var resultColumn = ColumnExpression.Create(columnType, resultDataSource.Header.Length - 1);
-            if (isSubqueryParameter)
+            if (isSubqueryParameter) {
               resultColumn = (ColumnExpression) resultColumn.BindParameter(groupingParameter);
-            if (convertResultColumn)
+            }
+
+            if (convertResultColumn) {
               return Expression.Convert(resultColumn, resultType);
+            }
+
             return resultColumn;
           }
         }
       }
 
       var result = AddSubqueryColumn(columnType, resultDataSource);
-      if (convertResultColumn)
+      if (convertResultColumn) {
         return Expression.Convert(result, resultType);
+      }
+
       return result;
     }
 
@@ -649,17 +747,20 @@ namespace Xtensive.Orm.Linq
       // 2) One of the providers is Calculate upon other provider -> Calculate provider is used.
       // 3) Both providers are Calculate and they share a common source -> New combining calculate provider is created
 
-      if (left==right)
+      if (left == right) {
         return left;
+      }
 
-      if (left.Type==ProviderType.Calculate && left.Sources[0]==right)
+      if (left.Type == ProviderType.Calculate && left.Sources[0] == right) {
         return left;
+      }
 
-      if (right.Type==ProviderType.Calculate && right.Sources[0]==left)
+      if (right.Type == ProviderType.Calculate && right.Sources[0] == left) {
         return right;
+      }
 
-      if (left.Type==ProviderType.Calculate && right.Type==ProviderType.Calculate
-        && left.Sources[0]==right.Sources[0]) {
+      if (left.Type == ProviderType.Calculate && right.Type == ProviderType.Calculate
+        && left.Sources[0] == right.Sources[0]) {
         var source = (CompilableProvider) left.Sources[0];
         var leftCalculateProvider = (CalculateProvider) left;
         var rightCalculateProvider = (CalculateProvider) right;
@@ -673,6 +774,7 @@ namespace Xtensive.Orm.Linq
             aggregateDescriptor.SourceIndex + leftCalculateProvider.CalculatedColumns.Length,
             aggregateDescriptor.AggregateType);
         }
+
         return source.Calculate(true, calculatedColumns);
       }
 
@@ -680,8 +782,8 @@ namespace Xtensive.Orm.Linq
       return null;
     }
 
-    private Pair<ProjectionExpression, int> VisitAggregateSource(
-      Expression source, LambdaExpression aggregateParameter, AggregateType aggregateType, Expression visitedExpression)
+    private Pair<ProjectionExpression, int> VisitAggregateSource(Expression source, LambdaExpression aggregateParameter,
+      AggregateType aggregateType, Expression visitedExpression)
     {
       // Process any selectors or filters specified via parameter to aggregating method.
       // This effectively substitutes source.Count(filter) -> source.Where(filter).Count()
@@ -693,17 +795,18 @@ namespace Xtensive.Orm.Linq
       ProjectionExpression sourceProjection;
       int aggregatedColumnIndex;
 
-      if (aggregateType==AggregateType.Count) {
+      if (aggregateType == AggregateType.Count) {
         aggregatedColumnIndex = 0;
-        sourceProjection = aggregateParameter!=null ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
+        sourceProjection = aggregateParameter != null ? VisitWhere(source, aggregateParameter) : VisitSequence(source);
         return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
       }
 
       List<int> columnList = null;
       sourceProjection = VisitSequence(source);
-      if (aggregateParameter==null) {
-        if (sourceProjection.ItemProjector.IsPrimitive)
+      if (aggregateParameter == null) {
+        if (sourceProjection.ItemProjector.IsPrimitive) {
           columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+        }
         else {
           var lambdaType = sourceProjection.ItemProjector.Item.Type;
           EnsureAggregateIsPossible(lambdaType, aggregateType, visitedExpression);
@@ -712,20 +815,25 @@ namespace Xtensive.Orm.Linq
         }
       }
 
-      if (aggregateParameter!=null) {
+      if (aggregateParameter != null) {
         using (context.Bindings.Add(aggregateParameter.Parameters[0], sourceProjection))
         using (state.CreateScope()) {
           state.CalculateExpressions = true;
           var result = (ItemProjectorExpression) VisitLambda(aggregateParameter);
-          if (!result.IsPrimitive)
-            throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+          if (!result.IsPrimitive) {
+            throw new NotSupportedException(
+              string.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+          }
+
           columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
           sourceProjection = context.Bindings[aggregateParameter.Parameters[0]];
         }
       }
 
-      if (columnList.Count!=1)
-        throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+      if (columnList.Count != 1) {
+        throw new NotSupportedException(
+          string.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+      }
 
       aggregatedColumnIndex = columnList[0];
       return new Pair<ProjectionExpression, int>(sourceProjection, aggregatedColumnIndex);
@@ -734,20 +842,28 @@ namespace Xtensive.Orm.Linq
     private static void EnsureAggregateIsPossible(Type type, AggregateType aggregateType, Expression visitedExpression)
     {
       switch (aggregateType) {
-      case AggregateType.Count:
-        return;
-      case AggregateType.Avg:
-      case AggregateType.Sum:
-        if (!type.IsNumericType())
-          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
-        return;
-      case AggregateType.Min:
-      case AggregateType.Max:
-        if (type.IsNullable())
-          type = Nullable.GetUnderlyingType(type);
-        if (!typeof (IComparable).IsAssignableFrom(type))
-          throw new NotSupportedException(String.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
-        return;
+        case AggregateType.Count:
+          return;
+        case AggregateType.Avg:
+        case AggregateType.Sum:
+          if (!type.IsNumericType()) {
+            throw new NotSupportedException(
+              string.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+          }
+
+          return;
+        case AggregateType.Min:
+        case AggregateType.Max:
+          if (type.IsNullable()) {
+            type = Nullable.GetUnderlyingType(type);
+          }
+
+          if (!WellKnownInterfaces.Comparable.IsAssignableFrom(type)) {
+            throw new NotSupportedException(
+              string.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
+          }
+
+          return;
       }
     }
 
@@ -755,36 +871,37 @@ namespace Xtensive.Orm.Linq
     {
       var methodName = aggregateCall.Method.Name;
       switch (methodName) {
-      case Reflection.WellKnown.Queryable.Count:
-        return AggregateType.Count;
-      case Reflection.WellKnown.Queryable.LongCount:
-        return AggregateType.Count;
-      case Reflection.WellKnown.Queryable.Min:
-        return AggregateType.Min;
-      case Reflection.WellKnown.Queryable.Max:
-        return AggregateType.Max;
-      case Reflection.WellKnown.Queryable.Sum:
-        return AggregateType.Sum;
-      case Reflection.WellKnown.Queryable.Average:
-        return AggregateType.Avg;
-      default:
-        throw new NotSupportedException(string.Format(Strings.ExAggregateMethodXIsNotSupported, aggregateCall, methodName));
+        case Reflection.WellKnown.Queryable.Count:
+          return AggregateType.Count;
+        case Reflection.WellKnown.Queryable.LongCount:
+          return AggregateType.Count;
+        case Reflection.WellKnown.Queryable.Min:
+          return AggregateType.Min;
+        case Reflection.WellKnown.Queryable.Max:
+          return AggregateType.Max;
+        case Reflection.WellKnown.Queryable.Sum:
+          return AggregateType.Sum;
+        case Reflection.WellKnown.Queryable.Average:
+          return AggregateType.Avg;
+        default:
+          throw new NotSupportedException(
+            string.Format(Strings.ExAggregateMethodXIsNotSupported, aggregateCall, methodName));
       }
     }
 
-    private ProjectionExpression VisitGroupBy(Type returnType, Expression source, LambdaExpression keySelector, LambdaExpression elementSelector, LambdaExpression resultSelector)
+    private ProjectionExpression VisitGroupBy(Type returnType, Expression source, LambdaExpression keySelector,
+      LambdaExpression elementSelector, LambdaExpression resultSelector)
     {
       var sequence = VisitSequence(source);
 
       ProjectionExpression groupingSourceProjection;
       context.Bindings.PermanentAdd(keySelector.Parameters[0], sequence);
-      using (state.CreateScope())
-      {
+      using (state.CreateScope()) {
         state.CalculateExpressions = true;
         state.GroupingKey = true;
-        var itemProjector = (ItemProjectorExpression)VisitLambda(keySelector);
+        var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
         groupingSourceProjection = new ProjectionExpression(
-          typeof(IQueryable<>).MakeGenericType(keySelector.Body.Type),
+          WellKnownInterfaces.QueryableOfT.MakeGenericType(keySelector.Body.Type),
           itemProjector,
           sequence.TupleParameterBindings);
       }
@@ -798,19 +915,21 @@ namespace Xtensive.Orm.Linq
       var keyColumnsList = new List<int>();
       var nullableFields = new Dictionary<int, FieldExpression>();
       keyFieldsRaw.ForEach(
-        (item) => {
+        item => {
           keyColumnsList.Add(item.First);
-          var expressionField = item.Second as FieldExpression;
-          if (expressionField != null && expressionField.Field.IsNullable)
+          if (item.Second is FieldExpression expressionField && expressionField.Field.IsNullable) {
             nullableFields.Add(item.First, expressionField);
+          }
         });
 
       var keyColumns = keyColumnsList.ToArray();
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);
-      var remappedKeyItemProjector = groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
+      var remappedKeyItemProjector =
+        groupingSourceProjection.ItemProjector.RemoveOwner().Remap(keyDataSource, keyColumns);
 
       var groupingProjector = new ItemProjectorExpression(remappedKeyItemProjector.Item, keyDataSource, context);
-      var groupingProjection = new ProjectionExpression(groupingSourceProjection.Type, groupingProjector, sequence.TupleParameterBindings);
+      var groupingProjection = new ProjectionExpression(groupingSourceProjection.Type, groupingProjector,
+        sequence.TupleParameterBindings);
 
       // subqueryIndex - values of array
       // groupIndex    - indexes of values of array
@@ -822,67 +941,70 @@ namespace Xtensive.Orm.Linq
         })
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
-      var tupleParameter = Expression.Parameter(typeof(Tuple), "tuple");
+      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 
-      Expression filterBody = (nullableFields.Count == 0)
+      var filterBody = (nullableFields.Count == 0)
         ? comparisonInfos.Aggregate(
-            (Expression)null,
-            (current, comparisonInfo) =>
-              MakeBooleanExpression(
-                current,
-                tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
-                Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue).MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
-                ExpressionType.Equal,
-                ExpressionType.AndAlso))
+          (Expression) null,
+          (current, comparisonInfo) =>
+            MakeBooleanExpression(
+              current,
+              tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+              Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue)
+                .MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+              ExpressionType.Equal,
+              ExpressionType.AndAlso))
         : comparisonInfos.Aggregate(
-            (Expression)null,
-            (current, comparisonInfo) => {
-              if (nullableFields.ContainsKey(comparisonInfo.SubQueryIndex))
-              {
-                var groupingSubqueryConnector = Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue);
-                var left = MakeBooleanExpression(
-                  null,
-                  tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
-                  groupingSubqueryConnector.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
-                  ExpressionType.Equal,
-                  ExpressionType.AndAlso);
-
-                var right = MakeBooleanExpression(
-                  null,
-                  MakeBooleanExpression(
-                    null,
-                    tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
-                    Expression.Constant(null, comparisonInfo.Type),
-                    ExpressionType.Equal,
-                    ExpressionType.AndAlso),
-                  MakeBooleanExpression(
-                    null,
-                    groupingSubqueryConnector.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
-                    Expression.Constant(null, comparisonInfo.Type),
-                    ExpressionType.Equal,
-                    ExpressionType.AndAlso),
-                  ExpressionType.AndAlso,
-                  ExpressionType.AndAlso);
-                return MakeBooleanExpression(current, left, right, ExpressionType.OrElse, ExpressionType.AndAlso);
-              }
-              return MakeBooleanExpression(
-                current,
+          (Expression) null,
+          (current, comparisonInfo) => {
+            if (nullableFields.ContainsKey(comparisonInfo.SubQueryIndex)) {
+              var groupingSubqueryConnector = Expression.MakeMemberAccess(Expression.Constant(applyParameter),
+                WellKnownMembers.ApplyParameterValue);
+              var left = MakeBooleanExpression(
+                null,
                 tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
-                Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue).MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+                groupingSubqueryConnector.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
                 ExpressionType.Equal,
                 ExpressionType.AndAlso);
-            });
+
+              var right = MakeBooleanExpression(
+                null,
+                MakeBooleanExpression(
+                  null,
+                  tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+                  Expression.Constant(null, comparisonInfo.Type),
+                  ExpressionType.Equal,
+                  ExpressionType.AndAlso),
+                MakeBooleanExpression(
+                  null,
+                  groupingSubqueryConnector.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+                  Expression.Constant(null, comparisonInfo.Type),
+                  ExpressionType.Equal,
+                  ExpressionType.AndAlso),
+                ExpressionType.AndAlso,
+                ExpressionType.AndAlso);
+              return MakeBooleanExpression(current, left, right, ExpressionType.OrElse, ExpressionType.AndAlso);
+            }
+
+            return MakeBooleanExpression(
+              current,
+              tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+              Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue)
+                .MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
+              ExpressionType.Equal,
+              ExpressionType.AndAlso);
+          });
 
       var filter = FastExpression.Lambda(filterBody, tupleParameter);
       var subqueryProjection = new ProjectionExpression(
         sequence.Type,
         new ItemProjectorExpression(
           sequence.ItemProjector.Item,
-          groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>)filter),
+          groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>) filter),
           context),
         sequence.TupleParameterBindings,
-        sequence.ResultType
-        );
+        sequence.ResultAccessMethod
+      );
       //      var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
       //      var applyParameter = context.GetApplyParameter(groupingProjection);
       //      using (context.Bindings.Add(groupingParameter, groupingProjection))
@@ -896,43 +1018,48 @@ namespace Xtensive.Orm.Linq
       var elementType = elementSelector == null
         ? keySelector.Parameters[0].Type
         : elementSelector.Type.GetGenericArguments()[1];
-      var groupingType = typeof(IGrouping<,>).MakeGenericType(keyType, elementType);
+      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.MakeGenericType(keyType, elementType);
 
-      Type realGroupingType =
+      var realGroupingType =
         resultSelector != null
           ? resultSelector.Parameters[1].Type
           : returnType.GetGenericArguments()[0];
 
-      if (elementSelector != null)
+      if (elementSelector != null) {
         subqueryProjection = VisitSelect(subqueryProjection, elementSelector);
+      }
 
       var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(sequence);
       var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
-      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection, applyParameter, remappedKeyItemProjector.Item, selectManyInfo);
-      var groupingItemProjector = new ItemProjectorExpression(groupingExpression, groupingProjector.DataSource, context);
-      returnType = resultSelector==null
+      var groupingExpression = new GroupingExpression(realGroupingType, groupingParameter, false, subqueryProjection,
+        applyParameter, remappedKeyItemProjector.Item, selectManyInfo);
+      var groupingItemProjector =
+        new ItemProjectorExpression(groupingExpression, groupingProjector.DataSource, context);
+      returnType = resultSelector == null
         ? returnType
         : resultSelector.Parameters[1].Type;
-      var resultProjection = new ProjectionExpression(returnType, groupingItemProjector, subqueryProjection.TupleParameterBindings);
+      var resultProjection =
+        new ProjectionExpression(returnType, groupingItemProjector, subqueryProjection.TupleParameterBindings);
 
-      if (resultSelector!=null) {
+      if (resultSelector != null) {
         var keyProperty = groupingType.GetProperty(WellKnown.KeyFieldName);
         var convertedParameter = Expression.Convert(resultSelector.Parameters[1], groupingType);
         var keyAccess = Expression.MakeMemberAccess(convertedParameter, keyProperty);
-        var rewrittenResultSelectorBody = ParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
+        var rewrittenResultSelectorBody =
+          ParameterRewriter.Rewrite(resultSelector.Body, resultSelector.Parameters[0], keyAccess);
         var selectLambda = FastExpression.Lambda(rewrittenResultSelectorBody, resultSelector.Parameters[1]);
         resultProjection = VisitSelect(resultProjection, selectLambda);
       }
 
       return resultProjection;
-
     }
 
     private Expression VisitSort(Expression expression)
     {
       var extractor = new SortExpressionExtractor();
-      if (!extractor.Extract(expression))
+      if (!extractor.Extract(expression)) {
         throw new InvalidOperationException(string.Format(Strings.ExInvalidSortExpressionX, expression));
+      }
 
       state.BuildingProjection = false;
       ProjectionExpression projection;
@@ -954,9 +1081,12 @@ namespace Xtensive.Orm.Linq
           var orderByProjector = (ItemProjectorExpression) VisitLambda(sortExpression);
           var columns = orderByProjector
             .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct);
-          foreach (var c in columns)
-            if (!sortColumns.ContainsKey(c))
+          foreach (var c in columns) {
+            if (!sortColumns.ContainsKey(c)) {
               sortColumns.Add(c, direction);
+            }
+          }
+
           projection = context.Bindings[sortParameter];
         }
       }
@@ -966,7 +1096,8 @@ namespace Xtensive.Orm.Linq
       return new ProjectionExpression(projection.Type, itemProjector, projection.TupleParameterBindings);
     }
 
-    private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, bool isLeftJoin, Expression expressionPart)
+    private ProjectionExpression VisitJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey,
+      LambdaExpression innerKey, LambdaExpression resultSelector, bool isLeftJoin, Expression expressionPart)
     {
       var outerParameter = outerKey.Parameters[0];
       var innerParameter = innerKey.Parameters[0];
@@ -983,13 +1114,17 @@ namespace Xtensive.Orm.Linq
         }
 
         // Default
-        var outerColumns = ColumnGatherer.GetColumnsAndExpressions(outerKeyProjector.Item, ColumnExtractionModes.TreatEntityAsKey);
-        var innerColumns = ColumnGatherer.GetColumnsAndExpressions(innerKeyProjector.Item, ColumnExtractionModes.TreatEntityAsKey);
+        var outerColumns =
+          ColumnGatherer.GetColumnsAndExpressions(outerKeyProjector.Item, ColumnExtractionModes.TreatEntityAsKey);
+        var innerColumns =
+          ColumnGatherer.GetColumnsAndExpressions(innerKeyProjector.Item, ColumnExtractionModes.TreatEntityAsKey);
 
-        if (outerColumns.Count!=innerColumns.Count)
-          throw new InvalidOperationException(String.Format(Strings.JoinKeysLengthMismatch, expressionPart.ToString(true)));
+        if (outerColumns.Count != innerColumns.Count) {
+          throw new InvalidOperationException(string.Format(Strings.JoinKeysLengthMismatch,
+            expressionPart.ToString(true)));
+        }
 
-        for (int i = 0; i < outerColumns.Count; i++) {
+        for (var i = 0; i < outerColumns.Count; i++) {
           var outerColumnKeyExpression = outerColumns[i].Second as KeyExpression;
           var innerColumnKeyExpression = innerColumns[i].Second as KeyExpression;
           // Check key compatibility
@@ -1019,30 +1154,34 @@ namespace Xtensive.Orm.Linq
 
       context.Bindings.PermanentAdd(resultSelector.Parameters[0], outer);
       context.Bindings.PermanentAdd(resultSelector.Parameters[1], inner);
-      using (context.Bindings.LinkParameters(resultSelector.Parameters))
+      using (context.Bindings.LinkParameters(resultSelector.Parameters)) {
         return BuildProjection(resultSelector);
+      }
     }
 
-    private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey, LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer, Expression expressionPart)
+    private Expression VisitGroupJoin(Expression outerSource, Expression innerSource, LambdaExpression outerKey,
+      LambdaExpression innerKey, LambdaExpression resultSelector, Expression keyComparer, Expression expressionPart)
     {
-      if (keyComparer!=null)
-        throw new InvalidOperationException(String.Format(Strings.ExKeyComparerNotSupportedInGroupJoin, expressionPart));
+      if (keyComparer != null) {
+        throw new InvalidOperationException(
+          string.Format(Strings.ExKeyComparerNotSupportedInGroupJoin, expressionPart));
+      }
 
       var visitedInnerSource = Visit(innerSource);
       var visitedOuterSource = Visit(outerSource);
       var innerItemType = visitedInnerSource.Type.GetGenericArguments()[0];
-      var groupingType = typeof (IGrouping<,>).MakeGenericType(innerKey.Type, innerItemType);
-      var enumerableType = typeof (IEnumerable<>).MakeGenericType(innerItemType);
-      var groupingResultType = typeof (IQueryable<>).MakeGenericType(enumerableType);
+      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.MakeGenericType(innerKey.Type, innerItemType);
+      var enumerableType = WellKnownInterfaces.EnumerableOfT.MakeGenericType(innerItemType);
+      var groupingResultType = WellKnownInterfaces.QueryableOfT.MakeGenericType(enumerableType);
       var innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
 
       if (innerGrouping.ItemProjector.Item.IsGroupingExpression()
-        && visitedInnerSource is ProjectionExpression
-        && visitedOuterSource is ProjectionExpression) {
+        && visitedInnerSource is ProjectionExpression innerSourceExpression
+        && visitedOuterSource is ProjectionExpression outerSourceExpression) {
         var groupingExpression = (GroupingExpression) innerGrouping.ItemProjector.Item;
         var selectManyInfo = new GroupingExpression.SelectManyGroupingInfo(
-          (ProjectionExpression) visitedOuterSource,
-          (ProjectionExpression) visitedInnerSource,
+          outerSourceExpression,
+          innerSourceExpression,
           outerKey, innerKey);
         var newGroupingExpression = new GroupingExpression(
           groupingExpression.Type, groupingExpression.OuterParameter,
@@ -1053,10 +1192,10 @@ namespace Xtensive.Orm.Linq
           innerGrouping.ItemProjector.DataSource,
           innerGrouping.ItemProjector.Context);
         innerGrouping = new ProjectionExpression(
-          innerGrouping.Type, 
-          newGroupingItemProjector, 
-          innerGrouping.TupleParameterBindings, 
-          innerGrouping.ResultType);
+          innerGrouping.Type,
+          newGroupingItemProjector,
+          innerGrouping.TupleParameterBindings,
+          innerGrouping.ResultAccessMethod);
       }
 
       var groupingKeyPropertyInfo = groupingType.GetProperty("Key");
@@ -1065,26 +1204,28 @@ namespace Xtensive.Orm.Linq
         Expression.Convert(groupingJoinParameter, groupingType),
         groupingKeyPropertyInfo);
       var lambda = FastExpression.Lambda(groupingKeyExpression, groupingJoinParameter);
-      var joinedResult = VisitJoin(visitedOuterSource, innerGrouping, outerKey, lambda, resultSelector, true, expressionPart);
+      var joinedResult = VisitJoin(visitedOuterSource, innerGrouping, outerKey, lambda, resultSelector, true,
+        expressionPart);
       return joinedResult;
     }
 
-    private ProjectionExpression VisitSelectMany(Expression source, LambdaExpression collectionSelector, LambdaExpression resultSelector, Expression expressionPart)
+    private ProjectionExpression VisitSelectMany(Expression source, LambdaExpression collectionSelector,
+      LambdaExpression resultSelector, Expression expressionPart)
     {
       var outerParameter = collectionSelector.Parameters[0];
       var visitedSource = Visit(source);
       var sequence = VisitSequence(visitedSource);
 
       var indexBinding = BindingCollection<ParameterExpression, ProjectionExpression>.BindingScope.Empty;
-      if (collectionSelector.Parameters.Count==2) {
+      if (collectionSelector.Parameters.Count == 2) {
         var indexProjection = GetIndexBinding(collectionSelector, ref sequence);
         indexBinding = context.Bindings.Add(collectionSelector.Parameters[1], indexProjection);
       }
 
       using (indexBinding)
       using (context.Bindings.Add(outerParameter, sequence)) {
-        bool isOuter = false;
-        if (collectionSelector.Body.NodeType==ExpressionType.Call) {
+        var isOuter = false;
+        if (collectionSelector.Body.NodeType == ExpressionType.Call) {
           var call = (MethodCallExpression) collectionSelector.Body;
           var method = call.Method;
           isOuter = method.IsGenericMethodSpecificationOf(WellKnownMembers.Queryable.DefaultIfEmpty)
@@ -1093,50 +1234,59 @@ namespace Xtensive.Orm.Linq
             collectionSelector = FastExpression.Lambda(call.Arguments[0], outerParameter);
           }
         }
+
         ProjectionExpression innerProjection;
         using (state.CreateScope()) {
           state.OuterParameters = state.OuterParameters
             .Concat(state.Parameters)
             .Concat(collectionSelector.Parameters)
-            .AddOne(outerParameter).ToArray();
-          state.Parameters = ArrayUtils<ParameterExpression>.EmptyArray;
+            .Append(outerParameter).ToArray();
+          state.Parameters = Array.Empty<ParameterExpression>();
           state.RequestCalculateExpressionsOnce = true;
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
           if (visitedCollectionSelector.IsGroupingExpression()) {
             var selectManyInfo = ((GroupingExpression) visitedCollectionSelector).SelectManyInfo;
-            if (selectManyInfo.GroupByProjection==null) {
-              LambdaExpression newResultSelector;
-              bool rewriteSucceeded = SelectManySelectorRewriter.TryRewrite(
+            if (selectManyInfo.GroupByProjection == null) {
+              var rewriteSucceeded = SelectManySelectorRewriter.TryRewrite(
                 resultSelector,
                 resultSelector.Parameters[0],
                 selectManyInfo.GroupJoinOuterKeySelector.Parameters[0],
-                out newResultSelector);
+                out var newResultSelector);
 
-              if (rewriteSucceeded)
+              if (rewriteSucceeded) {
                 return VisitJoin(
                   selectManyInfo.GroupJoinOuterProjection,
                   selectManyInfo.GroupJoinInnerProjection,
                   selectManyInfo.GroupJoinOuterKeySelector,
                   selectManyInfo.GroupJoinInnerKeySelector,
-                  newResultSelector, 
+                  newResultSelector,
                   isOuter,
                   expressionPart);
+              }
             }
-            else
-              return selectManyInfo.GroupByProjection;
+            else {
+              if (resultSelector == null) {
+                return selectManyInfo.GroupByProjection;
+              }
+
+              throw new NotImplementedException();
+            }
           }
 
           var projection = VisitSequence(visitedCollectionSelector, collectionSelector);
           var innerItemProjector = projection.ItemProjector;
-          if (isOuter)
+          if (isOuter) {
             innerItemProjector = innerItemProjector.SetDefaultIfEmpty();
+          }
+
           innerProjection = new ProjectionExpression(
-            projection.Type, 
-            innerItemProjector, 
-            projection.TupleParameterBindings, 
-            projection.ResultType);
+            projection.Type,
+            innerItemProjector,
+            projection.TupleParameterBindings,
+            projection.ResultAccessMethod);
         }
+
         var outerProjection = context.Bindings[outerParameter];
         var applyParameter = context.GetApplyParameter(outerProjection);
         var recordSet = outerProjection.ItemProjector.DataSource.Apply(
@@ -1146,17 +1296,19 @@ namespace Xtensive.Orm.Linq
           ApplySequenceType.All,
           isOuter ? JoinType.LeftOuter : JoinType.Inner);
 
-        if (resultSelector==null) {
-          var innerParameter = Expression.Parameter(SequenceHelper.GetElementType(collectionSelector.Body.Type), "inner");
+        if (resultSelector == null) {
+          var innerParameter =
+            Expression.Parameter(SequenceHelper.GetElementType(collectionSelector.Body.Type), "inner");
           resultSelector = FastExpression.Lambda(innerParameter, outerParameter, innerParameter);
         }
+
         var resultProjection = CombineProjections(outerProjection, innerProjection, recordSet, resultSelector);
         var resultItemProjector = resultProjection.ItemProjector.RemoveOuterParameter();
         resultProjection = new ProjectionExpression(
-          resultProjection.Type, 
-          resultItemProjector, 
-          resultProjection.TupleParameterBindings, 
-          resultProjection.ResultType);
+          resultProjection.Type,
+          resultItemProjector,
+          resultProjection.TupleParameterBindings,
+          resultProjection.ResultAccessMethod);
         return resultProjection;
       }
     }
@@ -1164,15 +1316,15 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitSelect(Expression expression, LambdaExpression le)
     {
       var sequence = VisitSequence(expression);
-      if (le.Parameters.Count==2) {
+      if (le.Parameters.Count == 2) {
         var indexProjection = GetIndexBinding(le, ref sequence);
         context.Bindings.PermanentAdd(le.Parameters[1], indexProjection);
       }
+
       context.Bindings.PermanentAdd(le.Parameters[0], sequence);
       using (state.CreateScope()) {
-          state.CalculateExpressions =
-            state.RequestCalculateExpressions || state.RequestCalculateExpressionsOnce;
-          state.RequestCalculateExpressionsOnce = false;
+        state.CalculateExpressions = state.RequestCalculateExpressions || state.RequestCalculateExpressionsOnce;
+        state.RequestCalculateExpressionsOnce = false;
 
         return BuildProjection(le);
       }
@@ -1184,7 +1336,7 @@ namespace Xtensive.Orm.Linq
         state.BuildingProjection = true;
         var itemProjector = (ItemProjectorExpression) VisitLambda(le);
         return new ProjectionExpression(
-          typeof (IQueryable<>).MakeGenericType(le.Body.Type),
+          WellKnownInterfaces.QueryableOfT.MakeGenericType(le.Body.Type),
           itemProjector,
           new Dictionary<Parameter<Tuple>, Tuple>());
       }
@@ -1193,12 +1345,13 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitWhere(Expression expression, LambdaExpression le)
     {
       var parameter = le.Parameters[0];
-      ProjectionExpression visitedSource = VisitSequence(expression);
+      var visitedSource = VisitSequence(expression);
       var indexBinding = BindingCollection<ParameterExpression, ProjectionExpression>.BindingScope.Empty;
-      if (le.Parameters.Count==2) {
+      if (le.Parameters.Count == 2) {
         var indexProjection = GetIndexBinding(le, ref visitedSource);
         indexBinding = context.Bindings.Add(le.Parameters[1], indexProjection);
       }
+
       using (indexBinding)
       using (context.Bindings.Add(parameter, visitedSource))
       using (state.CreateScope()) {
@@ -1218,32 +1371,33 @@ namespace Xtensive.Orm.Linq
 
     private Expression VisitRootExists(Expression source, LambdaExpression predicate, bool notExists)
     {
-      var result = predicate==null
+      var result = predicate == null
         ? VisitSequence(source)
         : VisitWhere(source, predicate);
 
-      var existenceColumn = ColumnExpression.Create(typeof (bool), 0);
+      var existenceColumn = ColumnExpression.Create(WellKnownTypes.Bool, 0);
       var projectorBody = notExists
         ? Expression.Not(existenceColumn)
         : (Expression) existenceColumn;
       var newRecordSet = result.ItemProjector.DataSource.Existence(context.GetNextColumnAlias());
       var itemProjector = new ItemProjectorExpression(projectorBody, newRecordSet, context);
       return new ProjectionExpression(
-        typeof (bool), 
-        itemProjector, 
-        result.TupleParameterBindings, 
-        ResultType.Single);
+        WellKnownTypes.Bool,
+        itemProjector,
+        result.TupleParameterBindings,
+        ResultAccessMethod.Single);
     }
 
     private Expression VisitExists(Expression source, LambdaExpression predicate, bool notExists)
     {
-      if (source.IsLocalCollection(context) && predicate!=null && predicate.Body.NodeType==ExpressionType.Equal)
+      if (source.IsLocalCollection(context) && predicate != null && predicate.Body.NodeType == ExpressionType.Equal) {
         return VisitExistsAsInclude(source, predicate, notExists);
+      }
 
       ProjectionExpression subquery;
       using (state.CreateScope()) {
         state.CalculateExpressions = false;
-        subquery = predicate==null
+        subquery = predicate == null
           ? VisitSequence(source)
           : VisitWhere(source, predicate);
       }
@@ -1253,9 +1407,11 @@ namespace Xtensive.Orm.Linq
         .DataSource
         .Existence(context.GetNextColumnAlias());
 
-      var filter = AddSubqueryColumn(typeof (bool), recordSet);
-      if (notExists)
+      var filter = AddSubqueryColumn(WellKnownTypes.Bool, recordSet);
+      if (notExists) {
         filter = Expression.Not(filter);
+      }
+
       return filter;
     }
 
@@ -1270,6 +1426,7 @@ namespace Xtensive.Orm.Linq
           var localCollectionKeyType = LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body);
           state.TypeOfEntityStoredInKey = localCollectionKeyType;
         }
+
         state.IncludeAlgorithm = IncludeAlgorithm.Auto;
         visitedSource = VisitSequence(source);
       }
@@ -1287,17 +1444,16 @@ namespace Xtensive.Orm.Linq
         }
 
         var predicateLambda = predicateExpression.ToLambda(context);
-        var parameterSource = context.Bindings[parameter];
-        var parameterRecordSet = parameterSource.ItemProjector.DataSource;
 
         RawProvider rawProvider;
-        var storeProvider = visitedSource.ItemProjector.DataSource as StoreProvider;
-        if (storeProvider!=null)
+        if (visitedSource.ItemProjector.DataSource is StoreProvider storeProvider) {
           rawProvider = (RawProvider) storeProvider.Source;
+        }
         else {
           var joinProvider = (JoinProvider) visitedSource.ItemProjector.DataSource;
-          rawProvider = (RawProvider) ((StoreProvider)joinProvider.Left).Source;
+          rawProvider = (RawProvider) ((StoreProvider) joinProvider.Left).Source;
         }
+
         var filterColumnCount = rawProvider.Header.Length;
         var filteredTuple = context.GetApplyParameter(context.Bindings[outerParameter]);
 
@@ -1307,10 +1463,11 @@ namespace Xtensive.Orm.Linq
 
         // Mapping from filter data column to filtered column
         var filteredColumns = new int[filterColumnCount];
-        for (int i = 0; i < filterColumnCount; i++) {
+        for (var i = 0; i < filterColumnCount; i++) {
           var mapping = filteredColumnMappings[i];
-          if (mapping.ColumnIndex >= 0)
+          if (mapping.ColumnIndex >= 0) {
             filteredColumns[i] = mapping.ColumnIndex;
+          }
           else {
             var descriptor = CreateCalculatedColumnDescriptor(mapping.CalculatedColumn);
             var column = AddCalculatedColumn(outerParameter, descriptor, mapping.CalculatedColumn.Body.Type);
@@ -1328,18 +1485,20 @@ namespace Xtensive.Orm.Linq
           outerResult.Type,
           newItemProjector,
           outerResult.TupleParameterBindings,
-          outerResult.ResultType);
+          outerResult.ResultAccessMethod);
         context.Bindings.ReplaceBound(outerParameter, newOuterResult);
-        Expression resultExpression = ColumnExpression.Create(typeof (bool), columnIndex);
-        if (notExists)
+        Expression resultExpression = ColumnExpression.Create(WellKnownTypes.Bool, columnIndex);
+        if (notExists) {
           resultExpression = Expression.Not(resultExpression);
+        }
+
         return resultExpression;
       }
     }
 
     private Expression VisitIn(MethodCallExpression mc)
     {
-      IncludeAlgorithm algorithm = IncludeAlgorithm.Auto;
+      var algorithm = IncludeAlgorithm.Auto;
       Expression source = null;
       Expression match = null;
       switch (mc.Arguments.Count) {
@@ -1353,16 +1512,18 @@ namespace Xtensive.Orm.Linq
           algorithm = (IncludeAlgorithm) ExpressionEvaluator.Evaluate(mc.Arguments[1]).Value;
           break;
         default:
-          Exceptions.InternalError(String.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), OrmLog.Instance);
+          Exceptions.InternalError(string.Format(Strings.ExUnknownInSyntax, mc.ToString(true)), OrmLog.Instance);
           break;
       }
+
       using (state.CreateScope()) {
         state.IncludeAlgorithm = algorithm;
         return VisitContains(source, match, false);
       }
     }
 
-    private Expression VisitSetOperations(Expression outerSource, Expression innerSource, QueryableMethodKind methodKind, Type elementType)
+    private Expression VisitSetOperations(Expression outerSource, Expression innerSource,
+      QueryableMethodKind methodKind, Type elementType)
     {
       ProjectionExpression outer;
       ProjectionExpression inner;
@@ -1377,14 +1538,16 @@ namespace Xtensive.Orm.Linq
         outer = VisitSequence(outerSource);
         inner = VisitSequence(innerSource);
       }
+
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
       var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
       var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
-      if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count==innerColumnList.Count) {
+      if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
         outerColumnList = outerColumnList.OrderBy(i => i).ToList();
         innerColumnList = innerColumnList.OrderBy(i => i).ToList();
       }
+
       var outerColumns = outerColumnList.ToArray();
       var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumnList)
         ? outerItemProjector.DataSource.Select(outerColumns)
@@ -1395,36 +1558,38 @@ namespace Xtensive.Orm.Linq
 
       var recordSet = outerItemProjector.DataSource;
       switch (methodKind) {
-      case QueryableMethodKind.Concat:
-        recordSet = outerRecordSet.Concat(innerRecordSet);
-        break;
-      case QueryableMethodKind.Except:
-        recordSet = outerRecordSet.Except(innerRecordSet);
-        break;
-      case QueryableMethodKind.Intersect:
-        recordSet = outerRecordSet.Intersect(innerRecordSet);
-        break;
-      case QueryableMethodKind.Union:
-        recordSet = outerRecordSet.Union(innerRecordSet);
-        break;
+        case QueryableMethodKind.Concat:
+          recordSet = outerRecordSet.Concat(innerRecordSet);
+          break;
+        case QueryableMethodKind.Except:
+          recordSet = outerRecordSet.Except(innerRecordSet);
+          break;
+        case QueryableMethodKind.Intersect:
+          recordSet = outerRecordSet.Intersect(innerRecordSet);
+          break;
+        case QueryableMethodKind.Union:
+          recordSet = outerRecordSet.Union(innerRecordSet);
+          break;
       }
 
-      var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings).ToDictionary(pair => pair.Key, pair => pair.Value);
+      var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings)
+        .ToDictionary(pair => pair.Key, pair => pair.Value);
       var itemProjector = outerItemProjector.Remap(recordSet, outerColumns);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
 
-    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, ICollection<int> columns)
-    {
-      return expression.DataSource.Type!=ProviderType.Select
-        || expression.DataSource.Header.Length!=columns.Count
-        || columns.Select((c, i) => new {c, i}).Any(x => x.c!=x.i);
-    }
+    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, ICollection<int> columns) =>
+      expression.DataSource.Type != ProviderType.Select
+      || expression.DataSource.Header.Length != columns.Count
+      || columns.Select((c, i) => new {c, i}).Any(x => x.c != x.i);
 
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
     {
-      if (subquery.Header.Length!=1)
-        throw Exceptions.InternalError(string.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery), OrmLog.Instance);
+      if (subquery.Header.Length != 1) {
+        throw Exceptions.InternalError(string.Format(Strings.SubqueryXHeaderMustHaveOnlyOneColumn, subquery),
+          OrmLog.Instance);
+      }
+
       var lambdaParameter = state.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var dataSource = oldResult.ItemProjector.DataSource;
@@ -1438,36 +1603,36 @@ namespace Xtensive.Orm.Linq
       return ColumnExpression.Create(columnType, columnIndex);
     }
 
-    private ProjectionExpression VisitSequence(Expression sequenceExpression)
-    {
-      return VisitSequence(sequenceExpression, sequenceExpression);
-    }
+    private ProjectionExpression VisitSequence(Expression sequenceExpression) =>
+      VisitSequence(sequenceExpression, sequenceExpression);
 
     private ProjectionExpression VisitSequence(Expression sequenceExpression, Expression expressionPart)
     {
       var sequence = sequenceExpression.StripCasts();
 
-      if (QueryCachingScope.Current!=null && QueryHelper.IsDirectEntitySetQuery(sequence))
-        throw new NotSupportedException(Strings.ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead);
+      if (compiledQueryScope != null && QueryHelper.IsDirectEntitySetQuery(sequence)) {
+        throw new NotSupportedException(
+          Strings.ExDirectQueryingForEntitySetInCompiledQueriesIsNotSupportedUseQueryEndpointItemsInstead);
+      }
 
-      if (sequence.GetMemberType()==MemberType.EntitySet) {
-        if (sequence.NodeType==ExpressionType.MemberAccess) {
+      if (sequence.GetMemberType() == MemberType.EntitySet) {
+        if (sequence.NodeType == ExpressionType.MemberAccess) {
           var memberAccess = (MemberExpression) sequence;
-          if ((memberAccess.Member is PropertyInfo)
-            && memberAccess.Expression!=null
-              && context.Model.Types.Contains(memberAccess.Expression.Type)) {
+          if (memberAccess.Member is PropertyInfo propertyInfo
+            && memberAccess.Expression != null
+            && context.Model.Types.Contains(memberAccess.Expression.Type)) {
             var field = context
               .Model
               .Types[memberAccess.Expression.Type]
-              .Fields[context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo)memberAccess.Member)];
+              .Fields[context.Domain.Handlers.NameBuilder.BuildFieldName(propertyInfo)];
             sequenceExpression = QueryHelper.CreateEntitySetQuery(memberAccess.Expression, field);
           }
         }
       }
 
       if (sequence.IsLocalCollection(context)) {
-        Type sequenceType = (sequence.Type.IsGenericType
-          && sequence.Type.GetGenericTypeDefinition()==typeof (Func<>))
+        var sequenceType = (sequence.Type.IsGenericType
+          && sequence.Type.GetGenericTypeDefinition() == typeof(Func<>))
           ? sequence.Type.GetGenericArguments()[0]
           : sequence.Type;
 
@@ -1480,50 +1645,53 @@ namespace Xtensive.Orm.Linq
       var visitedExpression = Visit(sequenceExpression).StripCasts();
       ProjectionExpression result = null;
 
-      if (visitedExpression.IsGroupingExpression() || visitedExpression.IsSubqueryExpression())
+      if (visitedExpression.IsGroupingExpression() || visitedExpression.IsSubqueryExpression()) {
         result = ((SubQueryExpression) visitedExpression).ProjectionExpression;
+      }
 
       if (visitedExpression.IsEntitySetExpression()) {
         var entitySetExpression = (EntitySetExpression) visitedExpression;
-        var entitySetQuery = QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+        var entitySetQuery =
+          QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
         result = (ProjectionExpression) Visit(entitySetQuery);
       }
 
-      if (visitedExpression.IsProjection())
+      if (visitedExpression.IsProjection()) {
         result = (ProjectionExpression) visitedExpression;
+      }
+
       if (result != null) {
         var projectorExpression = result.ItemProjector.EnsureEntityIsJoined();
-        if (projectorExpression != result.ItemProjector)
+        if (projectorExpression != result.ItemProjector) {
           result = new ProjectionExpression(
             result.Type,
             projectorExpression,
             result.TupleParameterBindings,
-            result.ResultType);
+            result.ResultAccessMethod);
+        }
+
         return result;
       }
 
-      throw new InvalidOperationException(string.Format(Strings.ExExpressionXIsNotASequence, expressionPart.ToString(true)));
+      throw new InvalidOperationException(
+        string.Format(Strings.ExExpressionXIsNotASequence, expressionPart.ToString(true)));
     }
 
-// ReSharper disable UnusedMember.Local
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
     {
-      Func<IEnumerable<TItem>> collectionGetter;
-      if (QueryCachingScope.Current!=null) {
-        var replacer = QueryCachingScope.Current.QueryParameterReplacer;
-        var queryParameter = QueryCachingScope.Current.QueryParameter;
+      Func<ParameterContext, IEnumerable<TItem>> collectionGetter;
+      if (compiledQueryScope!=null) {
+        var replacer = compiledQueryScope.QueryParameterReplacer;
         var replace = replacer.Replace(sequence);
-        Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(replace);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
         collectionGetter = parameter.CachingCompile();
       }
       else {
-        Expression<Func<IEnumerable<TItem>>> parameter = context.ParameterExtractor.ExtractParameter<IEnumerable<TItem>>(sequence);
+        var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(sequence);
         collectionGetter = parameter.CachingCompile();
       }
       return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this, sequence);
     }
-
-// ReSharper restore UnusedMember.Local
 
     private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)
     {

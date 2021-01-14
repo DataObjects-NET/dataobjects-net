@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.27
 
@@ -17,6 +17,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Weaving;
 using Xtensive.Reflection;
@@ -56,6 +57,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the name for <see cref="TypeDef"/> object.
     /// </summary>
+    /// <param name="context">A <see cref="Domain"/> building context.</param>
     /// <param name="type">The <see cref="TypeDef"/> object.</param>
     /// <returns>Type name.</returns>
     public string BuildTypeName(BuildingContext context, TypeDef type)
@@ -117,7 +119,7 @@ namespace Xtensive.Orm.Providers
       else {
         for (int i = 0; i < arguments.Length; i++) {
           var argument = arguments[i];
-          if (argument.IsSubclassOf(typeof (Persistent))) {
+          if (argument.IsSubclassOf(WellKnownOrmTypes.Persistent)) {
             var argTypeDef = context.ModelDefBuilder.ProcessType(argument);
             names[i] = argTypeDef.Name;
           }
@@ -570,7 +572,7 @@ namespace Xtensive.Orm.Providers
     /// The length of the resulting hash is 8 characters.
     /// </summary>
     /// <returns>Computed hash.</returns>
-    protected string GetHash(string name)
+    private static string GetHash(string name)
     {
       using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
         byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));

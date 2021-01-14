@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
@@ -26,8 +26,9 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
     public static IDisposable Enable(string version)
     {
-      if (isEnabled)
+      if (isEnabled) {
         throw new InvalidOperationException();
+      }
       isEnabled = true;
       runningVersion = version;
       return new Disposable(_ => {
@@ -36,26 +37,17 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
       });
     }
 
-    public override bool IsEnabled {
-      get {
-        return isEnabled;
-      }
-    }
-    
-    protected override string DetectAssemblyVersion()
-    {
-      return runningVersion;
-    }
+    public override bool IsEnabled => isEnabled;
 
-    public override bool CanUpgradeFrom(string oldVersion)
-    {
-      return true;
-    }
+    protected override string DetectAssemblyVersion() => runningVersion;
+
+    public override bool CanUpgradeFrom(string oldVersion) => true;
 
     protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
     {
-      if (runningVersion=="2")
+      if (runningVersion == "2") {
         Version1To2Hints.ForEach(hint => hints.Add(hint));
+      }
     }
 
     public override void OnUpgrade()
@@ -67,7 +59,7 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
       string suffix = ".Version" + runningVersion;
       var originalNamespace = type.Namespace;
       var nameSpace = originalNamespace.TryCutSuffix(suffix);
-      return nameSpace!=originalNamespace 
+      return nameSpace != originalNamespace
         && base.IsTypeAvailable(type, upgradeStage);
     }
 

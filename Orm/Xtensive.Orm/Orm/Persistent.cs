@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
@@ -273,32 +273,57 @@ namespace Xtensive.Orm
 
     protected internal void SetReferenceKey(FieldInfo field, Key value)
     {
+      if (Session.StorageNodeId != value.NodeId) {
+        throw new ArgumentException(Strings.ExKeyBelongsToDifferentStorageNode, "value");
+      }
+
+      // KeyRemapper also uses this method during persist so we need to detect whether it is KeyRemapper
+      var isPersisting = Session.IsPersisting;
       Key oldValue = null;
       try {
         oldValue = GetReferenceKey(field);
-        if (field.ReflectedType.IsInterface)
+        if (field.ReflectedType.IsInterface) {
           field = TypeInfo.FieldMap[field];
+        }
+
         SystemBeforeSetValue(field, value);
-        if (!field.IsEntity)
+        if (!field.IsEntity) {
           throw new InvalidOperationException(
-            String.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+            string.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
+        }
+
+        if (!isPersisting) { SystemBeforeTupleChange(); }
 
         var types = Session.Domain.Model.Types;
         if (value == null) {
-          for (int i = 0; i < field.MappingInfo.Length; i++)
+          for (var i = 0; i < field.MappingInfo.Length; i++) {
             Tuple.SetValue(field.MappingInfo.Offset + i, null);
+          }
+
+          if (!isPersisting) { SystemTupleChange(); }
           return;
         }
-        if (!field.ValueType.IsAssignableFrom(value.TypeInfo.UnderlyingType))
+        if (!field.ValueType.IsAssignableFrom(value.TypeInfo.UnderlyingType)) {
           throw new InvalidOperationException(string.Format("Key of {0} type is not assignable to field of {1} type", value.TypeInfo.Name, field.ValueType.Name));
+        }
+
+        if (value == oldValue && !isPersisting) {
+          return;
+        }
 
         value.Value.CopyTo(Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
-        if (field.IsPrimaryKey)
-          value.Value.CopyTo(((Entity)this).Key.Value, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        if (field.IsPrimaryKey) {
+          value.Value.CopyTo(((Entity) this).Key.Value, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        }
+
+        if (!isPersisting) {
+          SystemTupleChange();
+        }
+
         SystemSetValue(field, oldValue, value);
         SystemSetValueCompleted(field, oldValue, value, null);
       }
-      catch(Exception e) {
+      catch (Exception e) {
         SystemSetValueCompleted(field, oldValue, value, e);
         throw;
       }

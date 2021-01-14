@@ -1,6 +1,6 @@
-// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.10.19
 
@@ -22,9 +22,8 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
       foreach (var counter in this) {
         using (MakeMeasuresRegion(counter.Key.IsNullOrEmpty() ? "Default" : string.Format("-{0}-", counter.Key), stringBuilder)) {
           foreach (var point in counter.Value) {
-            Measure measure;
-            var value = AdaptToReadableFrom(point.Value, out measure);
-            stringBuilder.AppendLine(string.Format("{0}:{1} {2}", point.Key, value.ToString(DoubleValueFormatTemplate), measure));
+            var value = AdaptToReadableFrom(point.Value, out var measure);
+            _ = stringBuilder.AppendLine(string.Format("{0}:{1} {2}", point.Key, value.ToString(DoubleValueFormatTemplate), measure));
           }
         }
       }
@@ -33,7 +32,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 
     private IDisposable MakeMeasuresRegion(string nodeName, StringBuilder output)
     {
-      output.AppendLine(string.Format("----------------------{0}-------------------------", nodeName));
+      _ = output.AppendLine(string.Format("----------------------{0}-------------------------", nodeName));
       var disposable = new Disposable(
         (state) => output.AppendLine("------------------------end---------------------------"));
       return disposable;
@@ -43,12 +42,14 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     {
       measure = Measure.Kilobytes;
       var kilobytes = (double)bytes / 1024;
-      if (kilobytes < 1024)
+      if (kilobytes < 1024) {
         return kilobytes;
+      }
       measure = Measure.Megabytes;
       var megabytes = kilobytes / 1024;
-      if (megabytes < 1024)
+      if (megabytes < 1024) {
         return megabytes;
+      }
       measure = Measure.Gigabytes;
       return megabytes / 1024;
     }

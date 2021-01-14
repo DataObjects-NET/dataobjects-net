@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2008.11.11
 
@@ -84,11 +84,13 @@ namespace Xtensive.Tuples
 
     private abstract class FormatHandler
     {
+      private static readonly Type FormatHandlerType = typeof(FormatHandler<>);
+
       public abstract void Execute(Tuple source, string[] targets, int fieldIndex);
 
       public static FormatHandler Get(Type fieldType)
       {
-        return (FormatHandler) Activator.CreateInstance(typeof (FormatHandler<>).MakeGenericType(fieldType));
+        return (FormatHandler) Activator.CreateInstance(FormatHandlerType.MakeGenericType(fieldType));
       }
     }
 
@@ -115,11 +117,13 @@ namespace Xtensive.Tuples
 
     private abstract class ParseHandler
     {
+      private static readonly Type ParseHandlerType = typeof(ParseHandler<>);
+
       public abstract void Execute(string[] source, Tuple target, int fieldIndex);
 
       public static ParseHandler Get(Type fieldType)
       {
-        return (ParseHandler) Activator.CreateInstance(typeof (ParseHandler<>).MakeGenericType(fieldType));
+        return (ParseHandler) Activator.CreateInstance(ParseHandlerType.MakeGenericType(fieldType));
       }
     }
 

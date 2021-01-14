@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.05.28
 
@@ -11,6 +11,7 @@ using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
 using Xtensive.Orm.Building.FixupActions;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Building
@@ -94,7 +95,7 @@ namespace Xtensive.Orm.Building
         var argument = arguments[i];
         var constraints = argument.GetGenericParameterConstraints()
           .ToList();
-        if (constraints.Count==0 || !constraints.Any(c => typeof (IEntity).IsAssignableFrom(c)))
+        if (constraints.Count==0 || !constraints.Any(c => WellKnownOrmInterfaces.Entity.IsAssignableFrom(c)))
           return; // No IEntity / Entity constraints
         var queue = new Queue<Type>(
           from hierarchy in hierarchies
@@ -209,7 +210,7 @@ namespace Xtensive.Orm.Building
 
     public void Process(AddTypeIdFieldAction action)
     {
-      FieldDef fieldDef = context.ModelDefBuilder.DefineField(typeof (Entity).GetProperty(WellKnown.TypeIdFieldName));
+      var fieldDef = context.ModelDefBuilder.DefineField(WellKnownOrmTypes.Entity.GetProperty(WellKnown.TypeIdFieldName));
       fieldDef.IsTypeId = true;
       fieldDef.IsSystem = true;
       action.Type.Fields.Add(fieldDef);

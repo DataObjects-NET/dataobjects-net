@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.10.09
 
@@ -25,56 +25,54 @@ namespace Xtensive.Orm
     /// </summary>
     private readonly IList<QueryTask> internalQueryTasks = new List<QueryTask>();
 
-    internal void RegisterUserDefinedDelayedQuery(QueryTask task)
+    internal void RegisterUserDefinedDelayedQuery(QueryTask task) => userDefinedQueryTasks.Add(task);
+
+    internal void RegisterInternalDelayedQuery(QueryTask task) => internalQueryTasks.Add(task);
+
+    internal bool ExecuteInternalDelayedQueries(bool skipPersist)
     {
-      userDefinedQueryTasks.Add(task);
+      if (!skipPersist) {
+        Persist(PersistReason.Other);
+      }
+
+      return ProcessInternalDelayedQueries(false);
     }
 
-    internal void RegisterInternalDelayedQuery(QueryTask task)
+    internal async Task<bool> ExecuteInternalDelayedQueriesAsync(bool skipPersist, CancellationToken token = default)
     {
-      internalQueryTasks.Add(task);
+      if (!skipPersist) {
+        await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
+      }
+
+      return await ProcessInternalDelayedQueriesAsync(false, token).ConfigureAwait(false);
     }
 
     internal bool ExecuteUserDefinedDelayedQueries(bool skipPersist)
     {
-      if (!skipPersist)
+      if (!skipPersist) {
         Persist(PersistReason.Query);
+      }
+
       return ProcessUserDefinedDelayedQueries(false);
     }
-    
-    internal bool ExecuteInternalDelayedQueries(bool skipPersist)
-    {
-      if (!skipPersist)
-        Persist(PersistReason.Other);
-      return ProcessInternalDelayedQueries(false);
-    }
 
-    internal async Task<bool> ExecuteDelayedUserQueriesAsync(bool skipPersist, CancellationToken token)
+    internal async Task<bool> ExecuteUserDefinedDelayedQueriesAsync(bool skipPersist, CancellationToken token)
     {
       token.ThrowIfCancellationRequested();
-      if (!skipPersist)
-        Persist(PersistReason.Other);
+      if (!skipPersist) {
+        await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
+      }
+
       token.ThrowIfCancellationRequested();
       return await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
     }
 
-    private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
-    {
-      if (userDefinedQueryTasks.Count==0)
-        return false;
-      try {
-        Handler.ExecuteQueryTasks(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution);
-        return true;
-      }
-      finally {
-        userDefinedQueryTasks.Clear();
-      }
-    }
-
     private bool ProcessInternalDelayedQueries(bool allowPartialExecution)
     {
-      if (internalQueryTasks.Count==0)
+      if (internalQueryTasks.Count==0) {
         return false;
+      }
+
       try {
         Handler.ExecuteQueryTasks(internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution);
         return true;
@@ -84,11 +82,45 @@ namespace Xtensive.Orm
       }
     }
 
+    private async Task<bool> ProcessInternalDelayedQueriesAsync(bool allowPartialExecution, CancellationToken token)
+    {
+      if (internalQueryTasks.Count==0) {
+        return false;
+      }
+
+      try {
+        await Handler.ExecuteQueryTasksAsync(
+          internalQueryTasks.Where(t=>t.LifetimeToken.IsActive), allowPartialExecution, token).ConfigureAwait(false);
+        return true;
+      }
+      finally {
+        internalQueryTasks.Clear();
+      }
+    }
+
+    private bool ProcessUserDefinedDelayedQueries(bool allowPartialExecution)
+    {
+      if (userDefinedQueryTasks.Count==0) {
+        return false;
+      }
+
+      try {
+        Handler.ExecuteQueryTasks(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive), allowPartialExecution);
+        return true;
+      }
+      finally {
+        userDefinedQueryTasks.Clear();
+      }
+    }
+
     private async Task<bool> ProcessUserDefinedDelayedQueriesAsync(CancellationToken token)
     {
-      if (userDefinedQueryTasks.Count==0)
+      if (userDefinedQueryTasks.Count==0) {
         return false;
-      var aliveTasks = userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive).ToList();
+      }
+
+      var aliveTasks = new List<QueryTask>(userDefinedQueryTasks.Count);
+      aliveTasks.AddRange(userDefinedQueryTasks.Where(t => t.LifetimeToken.IsActive));
       userDefinedQueryTasks.Clear();
       await Handler.ExecuteQueryTasksAsync(aliveTasks, false, token).ConfigureAwait(false);
       return true;

@@ -1,16 +1,14 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.08.07
 
-using System;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Rse.Providers;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse;
@@ -45,9 +43,10 @@ namespace Xtensive.Orm.Tests.Rse
           Assert.IsNull(state);
           IndexInfo ii = Domain.Model.Types[typeof (Book)].Indexes.PrimaryIndex;
 
+          var parameterContext = new ParameterContext();
           // Select *
           CompilableProvider rsMain = ii.GetQuery();
-          UpdateCache(session, rsMain.GetRecordSet(session));
+          UpdateCache(session, rsMain.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -56,7 +55,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select Id, TypeId, Title
           CompilableProvider rsTitle = rsMain.Select(0, 1, 2);
-          UpdateCache(session, rsTitle.GetRecordSet(session));
+          UpdateCache(session, rsTitle.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -65,7 +64,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select Id, TypeId, Text
           CompilableProvider rsText = rsMain.Select(0, 1, 3);
-          UpdateCache(session, rsText.GetRecordSet(session));
+          UpdateCache(session, rsText.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsFalse(state.Tuple.GetFieldState(2).IsAvailable());
@@ -74,7 +73,7 @@ namespace Xtensive.Orm.Tests.Rse
 
           // Select a.Id, a.TypeId, a.Title, b.Id, b.TypeId, b.Text
           CompilableProvider rsJoin = rsTitle.Alias("a").Join(rsText.Alias("b"), new Pair<int>(0, 0), new Pair<int>(1, 1));
-          UpdateCache(session, rsJoin.GetRecordSet(session));
+          UpdateCache(session, rsJoin.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
           Assert.IsTrue(state.Tuple.GetFieldState(2).IsAvailable());
@@ -84,10 +83,10 @@ namespace Xtensive.Orm.Tests.Rse
       }
     }
 
-    private void UpdateCache(Session session, RecordSet source)
+    private void UpdateCache(Session session, RecordSetReader source)
     {
-      var reader = Domain.RecordSetReader;
-      foreach (var record in reader.Read(source, source.Header, session)) {
+      var reader = Domain.EntityDataReader;
+      foreach (var record in reader.Read(source.ToEnumerable(), source.Header, session)) {
         for (int i = 0; i < record.Count; i++) {
           var key = record.GetKey(i);
           if (key==null)

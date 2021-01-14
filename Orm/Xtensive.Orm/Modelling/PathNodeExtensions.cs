@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.07.05
 
@@ -19,6 +19,7 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Gets the child node by its path.
     /// </summary>
+    /// <param name="node">An instance implementing <see cref="IPathNode"/> interface.</param>
     /// <param name="path">Path to the node to get.</param>
     /// <param name="throwIfNone">Indicates whether an exception 
     /// must be thrown if there is no node with the specified path, or not.</param>

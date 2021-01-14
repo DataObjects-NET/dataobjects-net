@@ -1,4 +1,7 @@
-﻿using System;
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -11,6 +14,7 @@ namespace Xtensive.Orm.Linq.Materialization
 {
   internal sealed class ItemMaterializationContext
   {
+    public ParameterContext ParameterContext { get; }
     public static MethodInfo IsMaterializedMethodInfo { get; private set; }
     public static MethodInfo GetEntityMethodInfo      { get; private set; }
     public static MethodInfo MaterializeMethodInfo    { get; private set; }
@@ -42,7 +46,7 @@ namespace Xtensive.Orm.Linq.Materialization
         return result;
 
       TypeReferenceAccuracy accuracy;
-      int typeId = RecordSetReader.ExtractTypeId(type, typeIdRegistry, tuple, typeIdIndex, out accuracy);
+      int typeId = EntityDataReader.ExtractTypeId(type, typeIdRegistry, tuple, typeIdIndex, out accuracy);
       if (typeId==TypeInfo.NoTypeId)
         return null;
 
@@ -75,21 +79,22 @@ namespace Xtensive.Orm.Linq.Materialization
 
     // Constructors
 
-    public ItemMaterializationContext(MaterializationContext materializationContext, Session session)
+    public ItemMaterializationContext(MaterializationContext materializationContext, ParameterContext parameterContext)
     {
+      ParameterContext = parameterContext;
       MaterializationContext = materializationContext;
-      Session = session;
+      Session = materializationContext.Session;
 
-      typeIdRegistry = session.StorageNode.TypeIdRegistry;
+      typeIdRegistry = Session.StorageNode.TypeIdRegistry;
       entities = new Entity[materializationContext.EntitiesInRow];
     }
 
     static ItemMaterializationContext()
     {
-      IsMaterializedMethodInfo = typeof (ItemMaterializationContext).GetMethod("IsMaterialized");
-      GetEntityMethodInfo = typeof (ItemMaterializationContext).GetMethod("GetEntity");
-      MaterializeMethodInfo = typeof (ItemMaterializationContext).GetMethod("Materialize");
-      SessionFieldInfo = typeof (ItemMaterializationContext).GetField("Session");
+      IsMaterializedMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(IsMaterialized));
+      GetEntityMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(GetEntity));
+      MaterializeMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(Materialize));
+      SessionFieldInfo = WellKnownOrmTypes.ItemMaterializationContext.GetField(nameof(Session));
     }
   }
 }

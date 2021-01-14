@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.08.24
 
@@ -459,7 +459,7 @@ namespace Xtensive.Orm.Tests.Issues
         var delayedQueries = new List<IEnumerable<Customer>>();
 
         while (currentParametersCount < parametersCountLimit) {
-          var customersDelayed = session.Query.ExecuteDelayed(q => q.All<Customer>().Where(c => c.Id.In(customers)));
+          var customersDelayed = session.Query.CreateDelayedQuery(q => q.All<Customer>().Where(c => c.Id.In(customers)));
           delayedQueries.Add(customersDelayed);
           currentParametersCount += customers.Length;
         }

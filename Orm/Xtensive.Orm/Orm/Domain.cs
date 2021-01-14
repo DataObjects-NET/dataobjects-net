@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
@@ -15,6 +15,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Interfaces;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Linq;
@@ -34,11 +35,11 @@ namespace Xtensive.Orm
   /// <code lang="cs" source="..\Xtensive.Orm\Xtensive.Orm.Manual\DomainAndSession\DomainAndSessionSample.cs" region="Domain sample"></code>
   /// </sample>
   [UsedImplicitly(ImplicitUseTargetFlags.WithMembers)]
-  public sealed class Domain : IDisposable, IHasExtensions
+  public sealed class Domain : IDisposable, IAsyncDisposable, IHasExtensions, ISessionSource
   {
     private readonly object disposeGuard = new object();
     private readonly object singleConnectionGuard = new object();
-    
+
     private bool isDisposed;
     private Session singleConnectionOwner;
 
@@ -104,10 +105,9 @@ namespace Xtensive.Orm
     /// </summary>
     public StorageNodeManager StorageNodeManager { get; private set; }
 
-
     #region Private / internal members
 
-    internal RecordSetReader RecordSetReader { get; private set; }
+    internal EntityDataReader EntityDataReader { get; private set; }
 
     internal Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>> PrefetchActionMap { get; private set; }
 
@@ -231,12 +231,14 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      return OpenSession(configuration, configuration.Supports(SessionOptions.AutoActivation));
+      return OpenSessionInternal(configuration,
+        null,
+        configuration.Supports(SessionOptions.AutoActivation));
     }
 
-    internal Session OpenSession(SessionConfiguration configuration, bool activate)
+    internal Session OpenSessionInternal(SessionConfiguration configuration, StorageNode storageNode, bool activate)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
@@ -244,7 +246,6 @@ namespace Xtensive.Orm
       }
 
       Session session;
-
       if (SingleConnection!=null) {
         // Ensure that we check shared connection availability
         // and acquire connection atomically.
@@ -252,31 +253,15 @@ namespace Xtensive.Orm
           if (singleConnectionOwner!=null)
             throw new InvalidOperationException(string.Format(
               Strings.ExSessionXStillUsesSingleAvailableConnection, singleConnectionOwner));
-          session = new Session(this, configuration, activate);
+          session = new Session(this, storageNode, configuration, activate);
           singleConnectionOwner = session;
         }
       }
       else
-        session = new Session(this, configuration, activate);
+        session = new Session(this, storageNode, configuration, activate);
 
       NotifySessionOpen(session);
       return session;
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> with default <see cref="SessionConfiguration"/> asynchronously.
-    /// </summary>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <sample><code>
-    /// using (var session = await Domain.OpenSessionAsync()) {
-    /// // work with persistent objects here.
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync()
-    {
-      var configuration = Configuration.Sessions.Default;
-      return OpenSessionAsync(configuration, CancellationToken.None);
     }
 
     /// <summary>
@@ -291,25 +276,10 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default)
     {
       var configuration = Configuration.Sessions.Default;
       return OpenSessionAsync(configuration, cancellationToken);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/> asynchronously.
-    /// </summary>
-    /// <param name="type">The type of session.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <sample><code>
-    /// using (var session = await domain.OpenSessionAsync(sessionType)) {
-    /// // work with persistent objects here.
-    /// }
-    /// </code></sample>
-    public Task<Session> OpenSessionAsync(SessionType type)
-    {
-      return OpenSessionAsync(type, CancellationToken.None);
     }
 
     /// <summary>
@@ -324,7 +294,7 @@ namespace Xtensive.Orm
     /// // work with persistent objects here.
     /// }
     /// </code></sample>
-    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
     {
       cancellationToken.ThrowIfCancellationRequested();
       switch (type) {
@@ -345,22 +315,6 @@ namespace Xtensive.Orm
     /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/> asynchronously.
     /// </summary>
     /// <param name="configuration">The session configuration.</param>
-    /// <returns>A task representing the asynchronous operation.</returns>
-    /// <sample><code>
-    /// using (var session = await domain.OpenSessionAsync(configuration)) {
-    /// // work with persistent objects here
-    /// }
-    /// </code></sample>
-    /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(SessionConfiguration configuration)
-    {
-      return OpenSessionAsync(configuration, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/> asynchronously.
-    /// </summary>
-    /// <param name="configuration">The session configuration.</param>
     /// <param name="cancellationToken">The token to monitor for cancellation requests.</param>
     /// <returns>A task representing the asynchronous operation.</returns>
     /// <sample><code>
@@ -370,14 +324,26 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken)
+    public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)
     {
-      return OpenSessionInternalAsync(configuration, configuration.Supports(SessionOptions.AutoActivation), cancellationToken);
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
+
+      SessionScope sessionScope = null;
+      try {
+        if (configuration.Supports(SessionOptions.AutoActivation)) {
+          sessionScope = new SessionScope();
+        }
+        return OpenSessionInternalAsync(configuration, null, sessionScope, cancellationToken);
+      }
+      catch {
+        sessionScope?.Dispose();
+        throw;
+      }
     }
 
-    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, bool activate, CancellationToken cancellationToken)
+    internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, StorageNode storageNode, SessionScope sessionScope, CancellationToken cancellationToken)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
+      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
@@ -392,7 +358,7 @@ namespace Xtensive.Orm
           if (singleConnectionOwner!=null)
             throw new InvalidOperationException(string.Format(
               Strings.ExSessionXStillUsesSingleAvailableConnection, singleConnectionOwner));
-          session = new Session(this, configuration, false);
+          session = new Session(this, storageNode, configuration, false);
           singleConnectionOwner = session;
         }
       }
@@ -400,15 +366,18 @@ namespace Xtensive.Orm
         // DO NOT make session active right from constructor.
         // That would make session accessible for user before
         // connection become opened.
-        session = new Session(this, configuration, false);
+        session = new Session(this, storageNode, configuration, false);
         try {
-          await ((SqlSessionHandler)session.Handler).OpenConnectionAsync(cancellationToken).ContinueWith((t) => {
-            if (activate)
-              session.ActivateInternally();
-          }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously).ConfigureAwait(false);
+          await ((SqlSessionHandler) session.Handler).OpenConnectionAsync(cancellationToken)
+            .ContinueWith(t => {
+              if (sessionScope != null) {
+                session.AttachToScope(sessionScope);
+              }
+            }, TaskContinuationOptions.OnlyOnRanToCompletion | TaskContinuationOptions.ExecuteSynchronously)
+            .ConfigureAwait(false);
         }
         catch (OperationCanceledException) {
-          session.DisposeSafely();
+          await session.DisposeSafelyAsync().ConfigureAwait(false);
           throw;
         }
       }
@@ -430,20 +399,26 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="configuration">The configuration of domain to build.</param>
     /// <returns>Newly built <see cref="Domain"/>.</returns>
-    public static Domain Build(DomainConfiguration configuration)
-    {
-      return UpgradingDomainBuilder.Build(configuration);
-    }
+    public static Domain Build(DomainConfiguration configuration) => UpgradingDomainBuilder.Build(configuration);
+
+    /// <summary>
+    /// Asynchronously builds the new <see cref="Domain"/> according to the specified <see cref="DomainConfiguration"/>.
+    /// </summary>
+    /// <param name="configuration">The configuration of domain to build.</param>
+    /// <param name="token">The token to cancel asynchronous operation if needed.</param>
+    /// <returns>Newly built <see cref="Domain"/>.</returns>
+    public static Task<Domain> BuildAsync(DomainConfiguration configuration, CancellationToken token = default) =>
+      UpgradingDomainBuilder.BuildAsync(configuration, token);
 
 
     // Constructors
 
-    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection singleConnection, DefaultSchemaInfo defaultSchemaInfo)
+    internal Domain(DomainConfiguration configuration, object upgradeContextCookie, SqlConnection singleConnection)
     {
       Configuration = configuration;
       Handlers = new HandlerAccessor(this);
       GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
-      RecordSetReader = new RecordSetReader(this);
+      EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
@@ -457,34 +432,53 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public void Dispose()
+    public void Dispose() => InnerDispose(false).GetAwaiter().GetResult();
+
+    public ValueTask DisposeAsync() => InnerDispose(true);
+
+    public async ValueTask InnerDispose(bool isAsync)
     {
       lock (disposeGuard) {
-        if (isDisposed)
+        if (isDisposed) {
           return;
+        }
+
         isDisposed = true;
+      }
 
-        if (isDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogDomainIsDisposing);
-        }
+      if (isDebugEventLoggingEnabled) {
+        OrmLog.Debug(Strings.LogDomainIsDisposing);
+      }
 
-        NotifyDisposing();
-        Services.Dispose();
+      NotifyDisposing();
+      Services.Dispose();
 
-        if (SingleConnection==null)
+      if (SingleConnection == null) {
+        return;
+      }
+
+      SqlConnection singleConnectionLocal;
+      lock (singleConnectionGuard) {
+        if (singleConnectionOwner != null) {
+          OrmLog.Warning(
+            Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
+            singleConnectionOwner);
           return;
-
-        lock (singleConnectionGuard) {
-          if (singleConnectionOwner==null) {
-            var driver = Handlers.StorageDriver;
-            driver.CloseConnection(null, SingleConnection);
-            driver.DisposeConnection(null, SingleConnection);
-          }
-          else
-            OrmLog.Warning(
-              Strings.LogUnableToCloseSingleAvailableConnectionItIsStillUsedBySessionX,
-              singleConnectionOwner);
         }
+        else {
+          singleConnectionLocal = SingleConnection;
+          SingleConnection = null;
+        }
+      }
+
+      var driver = Handlers.StorageDriver;
+      if (isAsync) {
+        await driver.CloseConnectionAsync(null, singleConnectionLocal).ConfigureAwait(false);
+        await driver.DisposeConnectionAsync(null, singleConnectionLocal).ConfigureAwait(false);
+      }
+      else {
+        driver.CloseConnection(null, singleConnectionLocal);
+        driver.DisposeConnection(null, singleConnectionLocal);
       }
     }
   }

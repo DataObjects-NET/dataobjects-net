@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.10.12
 
@@ -10,7 +10,9 @@ using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 
@@ -37,17 +39,18 @@ namespace Xtensive.Orm.Rse.Transformation
       return new RawProvider(provider.Header.Select(mapping), newExpression);
     }
 
-    private static Expression<Func<IEnumerable<Tuple>>> RemapRawProviderSource(Expression<Func<IEnumerable<Tuple>>> source, MapTransform mappingTransform)
+    private static Expression<Func<ParameterContext, IEnumerable<Tuple>>> RemapRawProviderSource(
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> source, MapTransform mappingTransform)
     {
-      var selectMethodInfo = typeof(Enumerable)
+      var selectMethodInfo = WellKnownTypes.Enumerable
         .GetMethods()
-        .Single(methodInfo => methodInfo.Name == "Select"
+        .Single(methodInfo => methodInfo.Name == nameof(Enumerable.Select)
           && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == typeof(Func<,>))
-        .MakeGenericMethod(typeof(Tuple), typeof(Tuple));
+        .MakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
 
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
       var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
-      return (Expression<Func<IEnumerable<Tuple>>>)FastExpression.Lambda(newExpression);
+      return (Expression<Func<ParameterContext, IEnumerable<Tuple>>>)FastExpression.Lambda(newExpression, source.Parameters[0]);
     }
 
     // Constructors

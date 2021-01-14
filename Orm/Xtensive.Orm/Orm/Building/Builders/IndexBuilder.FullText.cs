@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.12.16
 
@@ -10,6 +10,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 
 
 namespace Xtensive.Orm.Building.Builders
@@ -43,9 +44,7 @@ namespace Xtensive.Orm.Building.Builders
       var indexesToDefine = hierarchyIndexes.ToList();
       if (indexesToDefine.Any(fti => fti.Type.UnderlyingType != root.UnderlyingType) || indexesToDefine.Count > 1)
         throw new DomainBuilderException(string.Format(Strings.ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable, root.Name));
-      var descendants = root.GetDescendants(true)
-        .AddOne(root)
-        .ToList();
+      var descendants = root.GetDescendants(true).Append(root);
       var indexDef = indexesToDefine[0];
       var primaryIndex = root.Indexes.Single(i => i.IsPrimary && !i.IsVirtual);
       var name = context.NameBuilder.BuildFullTextIndexName(root);
@@ -54,8 +53,9 @@ namespace Xtensive.Orm.Building.Builders
         var fullTextColumn = GetFullTextColumn(root, fullTextFieldDef);
         index.Columns.Add(fullTextColumn);
       }
-      foreach (var type in descendants)
+      foreach (var type in descendants) {
         model.FullTextIndexes.Add(type, index);
+      }
     }
 
     private void BuildFullTextIndexesSingleTable(TypeInfo root, IEnumerable<FullTextIndexDef> hierarchyIndexes)
@@ -105,7 +105,7 @@ namespace Xtensive.Orm.Building.Builders
         FieldInfo field;
         if (!type.Fields.TryGetValue(fullTextFieldDef.TypeFieldName, out field))
           throw new DomainBuilderException(string.Format(Strings.ExColumnXIsNotFound, fullTextFieldDef.TypeFieldName));
-        if (field.ValueType!=typeof (string))
+        if (field.ValueType!=WellKnownTypes.String)
           throw new DomainBuilderException(string.Format(Strings.ExTypeColumnXForFulltextColumnYMustBeTypeOfString, field.Name, column.Name));
         typeColumn = field.Column;
       }

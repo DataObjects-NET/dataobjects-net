@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.03.20
 
@@ -476,16 +476,15 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void ConfusingParameterTest()
     {
-      var parameter = new Parameter<Tuple>();
-      using (new ParameterContext().Activate()) {
-        parameter.Value = Tuple.Create(false);
-        TestQuery(
-          () =>
-            from o in Session.Demand().Query.All<MyEntity>()
-            where o.HasStupidName==parameter.Value.GetValueOrDefault<bool>(0)
-            select o
-          );
-      }
+      var parameter = new Parameter<Tuple>("ConfusingParameter");
+      var parameterContext = new ParameterContext();
+      parameterContext.SetValue(parameter, Tuple.Create(false));
+      TestQuery(
+        () =>
+          from o in Session.Demand().Query.All<MyEntity>()
+          where o.HasStupidName==parameterContext.GetValue(parameter).GetValueOrDefault<bool>(0)
+          select o
+        );
     }
 
     [Test]

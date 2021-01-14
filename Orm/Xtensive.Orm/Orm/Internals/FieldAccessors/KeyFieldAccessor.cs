@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.11.21
 
@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
 {
   internal class KeyFieldAccessor<T> : FieldAccessor<T> 
   {
-    private static readonly T @default;
+    private static readonly T @default = default;
 
     /// <inheritdoc/>
     public override bool AreSameValues(object oldValue, object newValue)

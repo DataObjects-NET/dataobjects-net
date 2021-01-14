@@ -1,6 +1,6 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
@@ -64,6 +64,8 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Loads logging configuration from the specified configuration section.
     /// </summary>
+    /// <param name="configuration">A <see cref="System.Configuration.Configuration"/>
+    /// instance to load from.</param>
     /// <param name="sectionName">Name of configuration section.</param>
     /// <returns>Loaded configuration.</returns>
     public static LoggingConfiguration Load(System.Configuration.Configuration configuration, string sectionName)

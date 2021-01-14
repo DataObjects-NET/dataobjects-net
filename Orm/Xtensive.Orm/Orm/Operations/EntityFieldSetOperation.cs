@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.10.22
 
@@ -10,7 +10,7 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Security.Permissions;
 using Xtensive.Core;
-
+using Xtensive.Orm.Internals;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
@@ -115,11 +115,11 @@ namespace Xtensive.Orm.Operations
     // Serialization
 
     /// <inheritdoc/>
-    protected EntityFieldSetOperation(SerializationInfo info, StreamingContext context)
+    private EntityFieldSetOperation(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
       var session = Session.Demand();
-      if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
+      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(Field.ValueType)) {
         // deserializing entity
         var value = info.GetString("value");
         if (!value.IsNullOrEmpty()) {
@@ -127,8 +127,8 @@ namespace Xtensive.Orm.Operations
 //          ValueKey.TypeReference = new TypeReference(ValueKey.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         }
       }
-      else if (typeof (Structure).IsAssignableFrom(Field.ValueType)) {
-        var tuple = (Tuple) info.GetValue("value", typeof (Tuple));
+      else if (WellKnownOrmTypes.Structure.IsAssignableFrom(Field.ValueType)) {
+        var tuple = (Tuple) info.GetValue("value", WellKnownOrmTypes.Tuple);
         Value = session.Services.Get<DirectPersistentAccessor>()
           .CreateStructure(Field.ValueType, tuple);
       }
@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Operations
     {
       base.GetObjectData(info, context);
       var structureValue = Value as Structure;
-      if (typeof(IEntity).IsAssignableFrom(Field.ValueType)) {
+      if (WellKnownOrmInterfaces.Entity.IsAssignableFrom(Field.ValueType)) {
         // serializing entity value as key
         if (ValueKey != null)
           info.AddValue("value", ValueKey.Format());
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Operations
       }
       else if (structureValue != null) {
         // serializing structure value as tuple
-        info.AddValue("value", structureValue.Tuple.ToRegular(), typeof (Tuple));
+        info.AddValue("value", structureValue.Tuple.ToRegular(), WellKnownOrmTypes.Tuple);
       }
       else
         info.AddValue("value", Value, Field.ValueType);

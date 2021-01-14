@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
@@ -8,8 +8,9 @@ using System;
 using System.Data.Common;
 using System.Linq;
 using System.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using MySql.Data.MySqlClient;
-using Xtensive.Core;
 using Xtensive.Orm;
 using Xtensive.Sql.Drivers.MySql.Resources;
 using Xtensive.Sql.Info;
@@ -21,7 +22,6 @@ namespace Xtensive.Sql.Drivers.MySql
   /// </summary>
   public class DriverFactory : SqlDriverFactory
   {
-    private const string DataSourceFormat = "{0}:{1}/{2}";
     private const string DatabaseAndSchemaQuery = "select database(), schema()";
 
     /// <inheritdoc/>
@@ -34,20 +34,24 @@ namespace Xtensive.Sql.Drivers.MySql
 
       // host, port, database
       builder.Server = url.Host;
-      if (url.Port!=0)
+      if (url.Port != 0) {
         builder.Port = (uint) url.Port;
+      }
+
       builder.Database = url.Resource ?? string.Empty;
 
       // user, password
-      if (string.IsNullOrEmpty(url.User))
+      if (string.IsNullOrEmpty(url.User)) {
         throw new Exception(Strings.ExUserNameRequired);
+      }
 
       builder.UserID = url.User;
       builder.Password = url.Password;
 
       // custom options
-      foreach (var param in url.Params)
+      foreach (var param in url.Params) {
         builder[param.Key] = param.Value;
+      }
 
       return builder.ToString();
     }
@@ -73,35 +77,59 @@ namespace Xtensive.Sql.Drivers.MySql
           : configuration.ForcedServerVersion;
         var version = ParseVersion(versionString);
 
-        var builder = new MySqlConnectionStringBuilder(connectionString);
-        var dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);
         var defaultSchema = GetDefaultSchema(connection);
-        var coreServerInfo = new CoreServerInfo {
-          ServerVersion = version,
-          ConnectionString = connectionString,
-          MultipleActiveResultSets = false,
-          DatabaseName = defaultSchema.Database,
-          DefaultSchemaName = defaultSchema.Schema,
-        };
-
-        if (version.Major < 5)
-          throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
-        if (version.Major==5 && version.Minor==0)
-          return new v5_0.Driver(coreServerInfo);
-        if (version.Major==5 && version.Minor==1)
-          return new v5_1.Driver(coreServerInfo);
-        if (version.Major==5 && version.Minor==5)
-          return new v5_5.Driver(coreServerInfo);
-        if (version.Major==5 && version.Minor==6)
-          return new v5_6.Driver(coreServerInfo);
-        return new v5_6.Driver(coreServerInfo);
+        return CreateDriverInstance(connectionString, version, defaultSchema);
       }
     }
 
     /// <inheritdoc/>
-    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
+    protected override async Task<SqlDriver> CreateDriverAsync(
+      string connectionString, SqlDriverConfiguration configuration, CancellationToken token)
     {
-      return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+      var connection = new MySqlConnection(connectionString);
+      await using (connection.ConfigureAwait(false)) {
+        await connection.OpenAsync(token).ConfigureAwait(false);
+        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, token).ConfigureAwait(false);
+        var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
+          ? connection.ServerVersion
+          : configuration.ForcedServerVersion;
+        var version = ParseVersion(versionString);
+
+        var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwait(false);
+        return CreateDriverInstance(connectionString, version, defaultSchema);
+      }
     }
+
+    private static SqlDriver CreateDriverInstance(string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+    {
+      var coreServerInfo = new CoreServerInfo {
+        ServerVersion = version,
+        ConnectionString = connectionString,
+        MultipleActiveResultSets = false,
+        DatabaseName = defaultSchema.Database,
+        DefaultSchemaName = defaultSchema.Schema,
+      };
+
+      if (version.Major < 5) {
+        throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
+      }
+
+      return version.Major switch {
+        5 when version.Minor == 0 => new v5_0.Driver(coreServerInfo),
+        5 when version.Minor == 1 => new v5_1.Driver(coreServerInfo),
+        5 when version.Minor == 5 => new v5_5.Driver(coreServerInfo),
+        5 when version.Minor == 6 => new v5_6.Driver(coreServerInfo),
+        _ => new v5_6.Driver(coreServerInfo)
+      };
+    }
+
+    /// <inheritdoc/>
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction) =>
+      SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+
+    /// <inheritdoc/>
+    protected override Task<DefaultSchemaInfo> ReadDefaultSchemaAsync(
+      DbConnection connection, DbTransaction transaction, CancellationToken token) =>
+      SqlHelper.ReadDatabaseAndSchemaAsync(DatabaseAndSchemaQuery, connection, transaction, token);
   }
 }

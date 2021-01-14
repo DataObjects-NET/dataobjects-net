@@ -1,12 +1,12 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.11.19
 
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
@@ -17,15 +17,17 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public ReadOnlyCollection<BaseFieldNode> NestedNodes { get; private set; }
 
-    public IEnumerable<Key> ExtractKeys(object target)
+    public IReadOnlyCollection<Key> ExtractKeys(object target)
     {
-      if (target==null)
-        return Enumerable.Empty<Key>();
+      if (target == null) {
+        return Array.Empty<Key>();
+      }
+
       var entity = (Entity) target;
       var referenceKey = entity.GetReferenceKey(Field);
-      return referenceKey==null
-        ? Enumerable.Empty<Key>()
-        : Enumerable.Repeat(referenceKey, 1);
+      return referenceKey == null
+        ? Array.Empty<Key>()
+        : new[] {referenceKey};
     }
 
     public IHasNestedNodes ReplaceNestedNodes(ReadOnlyCollection<BaseFieldNode> nestedNodes)

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.17
 
@@ -86,6 +86,9 @@ namespace Xtensive.Orm.Rse.Transformation
     /// </summary>
     /// <param name="resolveOuterColumn">A <see langword="delegate"/> invoked when outer column usage is to be rewritten.</param>
     /// <param name="mappings">The mappings.</param>
+    /// <param name="ignoreMissing">Indicates if the newly created <see cref="TupleAccessRewriter"/>
+    /// should ignore rewriting accessors missing in the <paramref name="mappings"/> collection
+    /// or not resolvable by <paramref name="resolveOuterColumn"/> delegate.</param>
     public TupleAccessRewriter(IList<int> mappings, Func<ApplyParameter, int, int> resolveOuterColumn, bool ignoreMissing)
     {
       this.ignoreMissing = ignoreMissing;

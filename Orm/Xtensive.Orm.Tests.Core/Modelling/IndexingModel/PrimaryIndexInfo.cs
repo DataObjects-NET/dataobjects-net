@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.03.20
 
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Core.Modelling.IndexingModel
     /// </summary>
     public void PopulateValueColumns()
     {
-      var keySet = EnumerableExtensions.ToHashSet(KeyColumns.Select(kc => kc.Value));
+      var keySet = KeyColumns.Select(kc => kc.Value).ToHashSet();
 
       foreach (var column in Parent.Columns.Where(c => !keySet.Contains(c)))
         new ValueColumnRef(this, column);

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.10.09
 
@@ -83,14 +83,9 @@ namespace Xtensive.Orm.Providers
       return CreateQueryPart(task.Request, parameterNamePrefix, task.ParameterContext);
     }
 
-    public CommandPart CreateQueryPart(IQueryRequest request)
+    public CommandPart CreateQueryPart(IQueryRequest request, ParameterContext parameterContext)
     {
-      return CreateQueryPart(request, DefaultParameterNamePrefix, null);
-    }
-
-    public CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix)
-    {
-      return CreateQueryPart(request, parameterNamePrefix, null);
+      return CreateQueryPart(request, DefaultParameterNamePrefix, parameterContext);
     }
 
     public virtual CommandPart CreateQueryPart(IQueryRequest request, string parameterNamePrefix, ParameterContext parameterContext)
@@ -103,70 +98,69 @@ namespace Xtensive.Orm.Providers
       var configuration = new SqlPostCompilerConfiguration();
       var result = new CommandPart();
 
-      using (parameterContext.ActivateSafely()) {
-        foreach (var binding in request.ParameterBindings) {
-          object parameterValue = GetParameterValue(binding);
-          switch (binding.BindingType) {
-          case QueryParameterBindingType.Regular:
-            break;
-          case QueryParameterBindingType.SmartNull:
-            // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
-            if (IsHandledLikeNull(parameterValue)) {
-              configuration.AlternativeBranches.Add(binding);
-              continue;
-            }
-            break;
-          case QueryParameterBindingType.BooleanConstant:
-            // expanding true/false parameters to constants to help query optimizer with branching
-            if ((bool) parameterValue)
-              configuration.AlternativeBranches.Add(binding);
+      foreach (var binding in request.ParameterBindings) {
+        object parameterValue = GetParameterValue(binding, parameterContext);
+        switch (binding.BindingType) {
+        case QueryParameterBindingType.Regular:
+          break;
+        case QueryParameterBindingType.SmartNull:
+          // replacing "x = @p" with "x is null" when @p = null (or empty string in case of Oracle)
+          if (IsHandledLikeNull(parameterValue)) {
+            configuration.AlternativeBranches.Add(binding);
             continue;
-          case QueryParameterBindingType.LimitOffset:
-            // not parameter, just inlined constant
-            configuration.PlaceholderValues.Add(binding, parameterValue.ToString());
-            continue;
-          case QueryParameterBindingType.NonZeroLimitOffset:
-            // Like "LimitOffset" but we handle zero value specially
-            // We replace value with 1 and activate special branch that evaluates "where" part to "false"
-            var stringValue = parameterValue.ToString();
-            if (stringValue=="0") {
-              configuration.PlaceholderValues.Add(binding, "1");
-              configuration.AlternativeBranches.Add(binding);
-            }
-            else
-              configuration.PlaceholderValues.Add(binding, stringValue);
-            continue;
-          case QueryParameterBindingType.RowFilter:
-            var filterData = (List<Tuple>) parameterValue;
-            var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;
-            if (filterData==null) {
-              configuration.AlternativeBranches.Add(binding);
-              continue;
-            }
-            var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
-            var filterValues = new List<string[]>();
-            for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
-              var tuple = filterData[tupleIndex];
-              var parameterReferences = new string[tuple.Count];
-              for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
-                var name = string.Format(RowFilterParameterNameFormat, commonPrefix, tupleIndex, fieldIndex);
-                var value = tuple.GetValueOrDefault(fieldIndex);
-                parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
-                AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
-              }
-              filterValues.Add(parameterReferences);
-            }
-            configuration.DynamicFilterValues.Add(binding, filterValues);
-            continue;
-          default:
-            throw new ArgumentOutOfRangeException("binding.BindingType");
           }
-          // regular case -> just adding the parameter
-          string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
-          configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
-          AddParameter(result, binding, parameterName, parameterValue);
+          break;
+        case QueryParameterBindingType.BooleanConstant:
+          // expanding true/false parameters to constants to help query optimizer with branching
+          if ((bool) parameterValue)
+            configuration.AlternativeBranches.Add(binding);
+          continue;
+        case QueryParameterBindingType.LimitOffset:
+          // not parameter, just inlined constant
+          configuration.PlaceholderValues.Add(binding, parameterValue.ToString());
+          continue;
+        case QueryParameterBindingType.NonZeroLimitOffset:
+          // Like "LimitOffset" but we handle zero value specially
+          // We replace value with 1 and activate special branch that evaluates "where" part to "false"
+          var stringValue = parameterValue.ToString();
+          if (stringValue=="0") {
+            configuration.PlaceholderValues.Add(binding, "1");
+            configuration.AlternativeBranches.Add(binding);
+          }
+          else
+            configuration.PlaceholderValues.Add(binding, stringValue);
+          continue;
+        case QueryParameterBindingType.RowFilter:
+          var filterData = (List<Tuple>) parameterValue;
+          var rowTypeMapping = ((QueryRowFilterParameterBinding) binding).RowTypeMapping;
+          if (filterData==null) {
+            configuration.AlternativeBranches.Add(binding);
+            continue;
+          }
+          var commonPrefix = GetParameterName(parameterNamePrefix, ref parameterIndex);
+          var filterValues = new List<string[]>();
+          for (int tupleIndex = 0; tupleIndex < filterData.Count; tupleIndex++) {
+            var tuple = filterData[tupleIndex];
+            var parameterReferences = new string[tuple.Count];
+            for (int fieldIndex = 0; fieldIndex < tuple.Count; fieldIndex++) {
+              var name = string.Format(RowFilterParameterNameFormat, commonPrefix, tupleIndex, fieldIndex);
+              var value = tuple.GetValueOrDefault(fieldIndex);
+              parameterReferences[fieldIndex] = Driver.BuildParameterReference(name);
+              AddRegularParameter(result, rowTypeMapping[fieldIndex], name, value);
+            }
+            filterValues.Add(parameterReferences);
+          }
+          configuration.DynamicFilterValues.Add(binding, filterValues);
+          continue;
+        default:
+          throw new ArgumentOutOfRangeException("binding.BindingType");
         }
+        // regular case -> just adding the parameter
+        string parameterName = GetParameterName(parameterNamePrefix, ref parameterIndex);
+        configuration.PlaceholderValues.Add(binding, Driver.BuildParameterReference(parameterName));
+        AddParameter(result, binding, parameterName, parameterValue);
       }
+
       result.Statement = compilationResult.GetCommandText(configuration);
       return result;
     }
@@ -176,10 +170,10 @@ namespace Xtensive.Orm.Providers
       return parameterValue==null || emptyStringIsNull && parameterValue.Equals(string.Empty);
     }
 
-    private static object GetParameterValue(QueryParameterBinding binding)
+    private static object GetParameterValue(QueryParameterBinding binding, ParameterContext parameterContext)
     {
       try {
-        return binding.ValueAccessor.Invoke();
+        return binding.ValueAccessor.Invoke(parameterContext);
       }
       catch(Exception exception) {
         throw new TargetInvocationException(Strings.ExExceptionHasBeenThrownByTheParameterValueAccessor, exception);

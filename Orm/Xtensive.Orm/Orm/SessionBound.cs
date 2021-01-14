@@ -1,18 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
 using System;
 using System.Diagnostics;
 using Xtensive.Core;
-
-
-using Xtensive.IoC;
-using Xtensive.Orm.Model;
-using Xtensive.Orm.Operations;
-
 
 namespace Xtensive.Orm
 {
@@ -72,13 +66,14 @@ namespace Xtensive.Orm
     /// <param name="session"><see cref="Orm.Session"/>, to which current instance 
     /// is bound.</param>
     /// <exception cref="ArgumentNullException"><paramref name="session"/> is <see langword="null" />.</exception>
+    /// <exception cref="ObjectDisposedException"><paramref name="session"/> is disposed.</exception>
     protected SessionBound(Session session)
     {
       if (session==null)
         throw new InvalidOperationException(
           Strings.ExSessionIsNotOpen);
+      session.EnsureNotDisposed();
 
-      ArgumentValidator.EnsureArgumentNotNull(session, "session");
       this.session = session;
     }
   }

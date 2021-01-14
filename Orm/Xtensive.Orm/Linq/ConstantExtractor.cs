@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.05.06
 
@@ -106,7 +106,7 @@ namespace Xtensive.Linq
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       this.lambda = lambda;
       this.constantFilter = constantFilter ?? DefaultConstantFilter;
-      constantParameter = Expression.Parameter(typeof(object[]), "constants");
+      constantParameter = Expression.Parameter(WellKnownTypes.ObjectArray, "constants");
     }
   }
 }

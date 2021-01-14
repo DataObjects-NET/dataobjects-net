@@ -1,0 +1,37 @@
+[main] Provider for MS SQL Server was branched out into a separate project
+[main] Events for changes cancelling ported from 5.0.x
+[main] QueryCommand now implements IDisposable interface
+[main] TupleDescriptor no longer implements IList<T>
+[main] TupleDescriptor.GetCommonPartLength(TupleDescriptor) method was removed
+[main] TupleDescriptor.IsValueType(int) method was removed
+[main] KeyExpression.KeyFields property changed its return type from ReadOnlyCollection<FieldExpression> to IReadOnlyList<FieldExpression>
+[main] One of the TupleExtensions.CopyTo() methods changed 'map' parameter type from int[] to IReadOnlyList<int>
+[main] WrappingTransformTupleBase.Arguments property changed the return type from object[] to IReadOnlyList<object>
+[main] TransformedTuple.Arguments property changed the return type from object[] to IReadOnlyList<object>
+[main] MapTransform.SingleSourceMap and MapTransform.SingleSourceMap properties changed the return type from int[] to IReadOnlyList<int>
+[main] Intoduced protected MapTransform.SetMap() and MapTransform.SetSingleSourceMap() methods to set correspoding properties value
+[main] One of the MapTransform constructors changed its 'map' parameter type from int[] to IReadOnlyList<int>
+[main] CutInTransform.Sources property changed the return type from TupleDescriptor[] to IReadOnlyList<TupleDescriptor>
+[main] CombineTransform.Sources property changed the return type from TupleDescriptor[] to IReadOnlyList<TupleDescriptor>
+[main] SelectProvider.ColumnIndexes property changed the return type from int[] to IReadOnlyList<int>
+[main] IncludeProvider.FilteredColumns property changed the return type from int[] to IReadOnlyList<int>
+[main] Introduced ListExtensions.IndexOf<T>(this IReadOnlyList<T>, T item) extensions method
+[main] ComparisonRules.Composite property changed its return type from ComparisonRules[] to IReadOnlyList<ComparisonRules>
+[main] Constructors of SelectProvider and IncludeProvider changed type of some of their parameters from int[] to IReadOnlyList<int>
+[main] ArrayExtensions.Copy() methods marked [Obsolete] and will be removed in future
+[main] Segment<T> struct became readonly
+[main] SqlConnection was extended with abstract ClearUnderlyingConnection method
+[main] BindingCollection<TKey, TValue> now implements IReadOnlyCollection<KeyValuePair<TKey, TValue>> instead of IEnumerable<KeyValuePair<TKey, TValue>>
+[main] Several SqlDml.Join methods changed their signature by using parameters of IReadOnlyList<> inteface instead of IList<> interface
+[main] General performance and memory usage improvements
+[main] Query translation performance improvements
+[main] Materializer can work with non-private members
+[main] Improved work of In/Contains over local collections with collections of Keys
+[main] Fixed certain cases when system attribute [OverrideFieldName] may cause problems
+[main] Fixed concurrency issues
+[main] Fixed possible corruption EntityChangeRegistry contents
+[main] Fixed issue when reference synchronization couldn't clear reference of removing entity
+[main] Fixed issue when field value validation can force lazy-load fields to be fetched
+[main] Fixed cases when extra SELECT wrapping appeared just because of TypeId constant column
+[sqlserver] Updated version of referenced System.Data.SqlClient
+[bulkoperations] Made possible to use Contains() for collections in Bulk operations as well as In()

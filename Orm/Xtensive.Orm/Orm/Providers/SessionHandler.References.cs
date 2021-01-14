@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.08.19
 
@@ -35,11 +35,9 @@ namespace Xtensive.Orm.Providers
       var recordSet = pair.First;
       var parameter = pair.Second;
       var parameterContext = new ParameterContext();
-      ExecutableProvider executableProvider;
-      using (parameterContext.Activate()) {
-        parameter.Value = target.Key.Value;
-        executableProvider = Session.Compile(recordSet);
-      }
+      parameterContext.SetValue(parameter, target.Key.Value);
+      ExecutableProvider executableProvider = Session.Compile(recordSet);
+
       var queryTask = new QueryTask(executableProvider, Session.GetLifetimeToken(), parameterContext);
       Session.RegisterInternalDelayedQuery(queryTask);
 
@@ -99,7 +97,7 @@ namespace Xtensive.Orm.Providers
     private static Pair<CompilableProvider, Parameter<Tuple>> BuildReferencingQuery(AssociationInfo association)
     {
       var provider = (CompilableProvider)null;
-      var parameter = new Parameter<Tuple>();
+      var parameter = new Parameter<Tuple>("pTuple");
       switch (association.Multiplicity) {
         case Multiplicity.ZeroToOne:
         case Multiplicity.ManyToOne: {

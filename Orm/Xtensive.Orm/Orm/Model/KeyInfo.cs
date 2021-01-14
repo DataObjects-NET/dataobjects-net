@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.02.13
 
@@ -189,6 +189,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
+    /// <param name="name">Name of the newly created <see cref="KeyInfo"/> instance.</param>
     /// <param name="fields">The key fields.</param>
     /// <param name="columns">The key columns.</param>
     /// <param name="tupleDescriptor">Key tuple descriptor.</param>

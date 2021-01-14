@@ -1,12 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputPath>..\..\_Build\$(Configuration)\lib\</OutputPath>
     <DocumentationFile />
   </PropertyGroup>
-  <PropertyGroup>
-    <TargetFramework>netcoreapp2.0</TargetFramework>
-  </PropertyGroup>
-  <Import Project="..\..\MSBuild\DataObjects.Net.InternalBuild.targets" />
+  <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
   <ItemGroup>
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />
     <PackageReference Include="NUnit" Version="3.12.0" />

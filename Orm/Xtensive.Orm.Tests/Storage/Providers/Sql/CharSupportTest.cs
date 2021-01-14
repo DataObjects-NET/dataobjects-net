@@ -1,12 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.20
 
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
@@ -63,9 +64,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var rs = GetRseQuery<MyEntity>();
+        var parameterContext = new ParameterContext();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
-          .GetRecordSet(Session.Current)
+          .GetRecordSetReader(Session.Current, parameterContext)
+          .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(3, result.Count);
@@ -83,10 +86,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       using (var transaction = session.OpenTransaction()) {
         var y = 'Y';
         var rs = GetRseQuery<MyEntity>();
+        var parameterContext = new ParameterContext();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0) == y)
-          .GetRecordSet(Session.Current)
+          .GetRecordSetReader(Session.Current, parameterContext)
+          .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);
@@ -101,10 +106,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var rs = GetRseQuery<MyEntity>();
+        var parameterContext = new ParameterContext();
         var result = rs
           .Select(rs.Header.IndexOf(charColumn))
           .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
-          .GetRecordSet(Session.Current)
+          .GetRecordSetReader(Session.Current, parameterContext)
+          .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
           .ToList();
         Assert.AreEqual(1, result.Count);

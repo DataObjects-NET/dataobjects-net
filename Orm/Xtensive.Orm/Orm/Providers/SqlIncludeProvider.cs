@@ -1,18 +1,14 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
-
-using Xtensive.Orm;
-using Xtensive.Tuples;
+using Xtensive.Core;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
@@ -22,29 +18,54 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed class SqlIncludeProvider : SqlTemporaryDataProvider
   {
-    public const string RowFilterDataName = "RowFilterData";
-    
-    private readonly Func<IEnumerable<Tuple>> filterDataSource;
+    private class RowFilterParameter : Parameter<List<Tuple>>, IEquatable<RowFilterParameter>
+    {
+      private readonly TemporaryTableDescriptor temporaryTableDescriptor;
 
-    private new IncludeProvider Origin { get { return (IncludeProvider) base.Origin; } }
+      public bool Equals(RowFilterParameter other) =>
+        !ReferenceEquals(null, other)
+        && (ReferenceEquals(this, other) || ReferenceEquals(temporaryTableDescriptor, other.temporaryTableDescriptor));
+
+      public override bool Equals(object obj) =>
+        !ReferenceEquals(null, obj)
+        && (ReferenceEquals(this, obj) || (obj is RowFilterParameter rowFilterParameter && Equals(rowFilterParameter)));
+
+      public override int GetHashCode() => temporaryTableDescriptor != null ? temporaryTableDescriptor.GetHashCode() : 0;
+
+      public RowFilterParameter(TemporaryTableDescriptor temporaryTableDescriptor) : base("RowFilterData")
+      {
+        this.temporaryTableDescriptor = temporaryTableDescriptor;
+      }
+    }
+
+    private readonly Func<ParameterContext, IEnumerable<Tuple>> filterDataSource;
+
+    private new IncludeProvider Origin => (IncludeProvider) base.Origin;
+
+    internal static Parameter<List<Tuple>> CreateFilterParameter(TemporaryTableDescriptor temporaryTableDescriptor) =>
+      new RowFilterParameter(temporaryTableDescriptor);
 
     /// <inheritdoc/>
-    protected override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override void OnBeforeEnumerate(Rse.Providers.EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
+      var parameterContext = ((EnumerationContext) context).ParameterContext;
       switch (Origin.Algorithm) {
       case IncludeAlgorithm.Auto:
-        var filterData = filterDataSource.Invoke().ToList();
-        if (filterData.Count > WellKnown.MaxNumberOfConditions)
+        var filterData = filterDataSource.Invoke(parameterContext).ToList();
+        if (filterData.Count > WellKnown.MaxNumberOfConditions) {
           LockAndStore(context, filterData);
-        else
-          context.SetValue(filterDataSource, RowFilterDataName, filterData);
+        }
+        else {
+          parameterContext.SetValue(CreateFilterParameter(tableDescriptor), filterData);
+        }
+
         break;
       case IncludeAlgorithm.ComplexCondition:
         // nothing
         break;
       case IncludeAlgorithm.TemporaryTable:
-        LockAndStore(context, filterDataSource.Invoke());
+        LockAndStore(context, filterDataSource.Invoke(parameterContext));
         break;
       default:
         throw new ArgumentOutOfRangeException("Origin.Algorithm");
@@ -52,7 +73,7 @@ namespace Xtensive.Orm.Providers
     }
 
     /// <inheritdoc/>
-    protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
+    protected internal override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
       ClearAndUnlock(context);
       base.OnAfterEnumerate(context);
@@ -72,7 +93,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="source">The source.</param>
     public SqlIncludeProvider(
       HandlerAccessor handlers, QueryRequest request,
-      TemporaryTableDescriptor tableDescriptor, Func<IEnumerable<Tuple>> filterDataSource,
+      TemporaryTableDescriptor tableDescriptor, Func<ParameterContext, IEnumerable<Tuple>> filterDataSource,
       IncludeProvider origin, ExecutableProvider source)
       : base(handlers, request, tableDescriptor, origin, new []{source})
     {

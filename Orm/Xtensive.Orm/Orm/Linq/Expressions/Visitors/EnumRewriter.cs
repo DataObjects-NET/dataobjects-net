@@ -1,4 +1,8 @@
-﻿using System;
+﻿// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Linq.Expressions;
 using Xtensive.Reflection;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
@@ -27,7 +31,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       if (expression.Type.StripNullable().IsEnum) {
         var underlyingType = Enum.GetUnderlyingType(expression.Type.StripNullable());
         if (expression.Type.IsNullable())
-          underlyingType = typeof (Nullable<>).MakeGenericType(underlyingType);
+          underlyingType = WellKnownTypes.NullableOfT.MakeGenericType(underlyingType);
         return Expression.Convert(expression, underlyingType);
       }
       return expression;
@@ -38,7 +42,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       if (c.Type.StripNullable().IsEnum) {
         var underlyingType = Enum.GetUnderlyingType(c.Type.StripNullable());
         if (c.Type.IsNullable())
-          underlyingType = typeof (Nullable<>).MakeGenericType(underlyingType);
+          underlyingType = WellKnownTypes.NullableOfT.MakeGenericType(underlyingType);
         var underlyingTypeValue = Convert.ChangeType(c.Value, underlyingType);
         var constantExpression = Expression.Constant(underlyingTypeValue);
         return Expression.Convert(constantExpression, c.Type);

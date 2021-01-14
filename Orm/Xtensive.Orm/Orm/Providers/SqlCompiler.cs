@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Providers
         var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;
         var bindings = result.Second;
-        if (column.Type.StripNullable()==typeof (bool))
+        if (column.Type.StripNullable()==WellKnownTypes.Bool)
           predicate = GetBooleanColumnExpression(predicate);
         AddInlinableColumn(provider, column, sqlSelect, predicate);
         allBindings = allBindings.Concat(bindings);
@@ -300,9 +300,9 @@ namespace Xtensive.Orm.Providers
       return CreateProvider(query, parameterBindings, provider, compiledSource);
     }
 
-    private static Func<object> GetSeekKeyElementAccessor(Func<Tuple> seekKeyAccessor, int index)
+    private static Func<ParameterContext, object> GetSeekKeyElementAccessor(Func<ParameterContext, Tuple> seekKeyAccessor, int index)
     {
-      return () => seekKeyAccessor.Invoke().GetValue(index);
+      return (context) => seekKeyAccessor.Invoke(context).GetValue(index);
     }
 
     /// <inheritdoc/>

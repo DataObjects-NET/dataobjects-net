@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.06.16
 
@@ -151,9 +151,10 @@ namespace Xtensive.Orm.Tests.Model
           var a2 = new A();
           var rs = a1.TypeInfo.Indexes.PrimaryIndex.GetQuery();
 
-          foreach (Tuple tuple in rs.GetRecordSet(Session.Current)) {
+          var parameterContext = new ParameterContext();
+          foreach (Tuple tuple in rs.GetRecordSetReader(Session.Current, parameterContext).ToEnumerable()) {
             var rs2 = a1.TypeInfo.Indexes.PrimaryIndex.GetQuery();
-            foreach (Tuple tuple2 in rs2.GetRecordSet(Session.Current)) {
+            foreach (Tuple tuple2 in rs2.GetRecordSetReader(Session.Current, parameterContext).ToEnumerable()) {
               TestLog.Debug(tuple2.ToString());
             }
           }

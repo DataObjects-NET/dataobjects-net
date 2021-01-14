@@ -1,6 +1,6 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.09.06
 
@@ -142,6 +142,7 @@ namespace Xtensive.Orm.Validation
     /// Throws configuration error with specified message.
     /// </summary>
     /// <param name="message">Configuration error message.</param>
+    /// <param name="innerException">An <see cref="Exception"/> instance to be used as inner exception.</param>
     protected void ThrowConfigurationError(string message, Exception innerException = null)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(message, "message");

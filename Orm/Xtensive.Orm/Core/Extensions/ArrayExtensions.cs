@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Anton U. Rogozhin
 // Reimplemented by: Dmitri Maximov
 // Created:    2007.07.04
@@ -175,6 +175,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="items">The items to select from.</param>
+    /// <param name="comparer">A function that compares two items.</param>
     /// <param name="index">The offset of the item to select from the ordered sequence.</param>
     /// <returns>The specified item from the ordered sequence of items.</returns>
     public static TItem Select<TItem>(this TItem[] items, Func<TItem, TItem, int> comparer, int index)

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.07
 
@@ -8,9 +8,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Extractor : v09.Extractor
   {
-    protected override string GetIndexQuery()
+    protected override string BuildExtractIndexesQuery(ExtractionContext context)
     {
-      string query = @"
+      var query = @"
   SELECT
     t.schema_id,
     t.object_id,
@@ -57,7 +57,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     ic.is_included_column,
     ic.key_ordinal,
     ic.index_column_id";
-      query = PerformReplacements(query);
+      query = context.PerformReplacements(query);
       return query;
     }
 

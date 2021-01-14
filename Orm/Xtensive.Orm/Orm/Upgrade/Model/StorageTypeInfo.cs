@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.03.24
 
@@ -117,9 +117,7 @@ namespace Xtensive.Orm.Upgrade.Model
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (StorageTypeInfo))
-        return false;
-      return Equals((StorageTypeInfo) obj);
+      return obj is StorageTypeInfo otherStorageTypeInfo && Equals(otherStorageTypeInfo);
     }
 
     /// <inheritdoc/>

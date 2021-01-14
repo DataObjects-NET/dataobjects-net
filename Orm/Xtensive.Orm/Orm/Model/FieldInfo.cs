@@ -13,6 +13,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
+using Xtensive.Reflection;
 using Xtensive.Sorting;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
@@ -348,19 +349,14 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public Type ValueType
     {
+      [DebuggerStepThrough] get => valueType;
       [DebuggerStepThrough]
-      get { return valueType; }
-      [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         valueType = value;
-        if (valueType.IsGenericType) {
-          if (valueType.GetGenericTypeDefinition()==typeof (Nullable<>))
-            IsEnum = Nullable.GetUnderlyingType(valueType).IsEnum;
-        }
-        else
-          IsEnum = value.IsEnum;
+        IsEnum = valueType.IsNullable()
+          ? valueType.GetGenericArguments()[0].IsEnum
+          : valueType.IsEnum;
       }
     }
 
@@ -661,7 +657,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether field is dynamically defined.
     /// </summary>
-    public bool IsDynalicallyDefined { get { return UnderlyingProperty==null; } }
+    [Obsolete("Use IsDynamicallyDefined property")]
+    public bool IsDynalicallyDefined => IsDynamicallyDefined;
+
+    /// <summary>
+    /// Gets a value indicating whether field is dynamically defined.
+    /// </summary>
+    public bool IsDynamicallyDefined => UnderlyingProperty == null;
 
     private void GetColumns(ColumnInfoCollection result)
     {
@@ -740,7 +742,6 @@ namespace Xtensive.Orm.Model
         return false;
       if (ReferenceEquals(this, obj))
         return true;
-      FieldInfo mappedField;
       return
         obj.declaringType == declaringType &&
         obj.valueType == valueType &&

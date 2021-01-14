@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.12.07
 
@@ -48,7 +48,7 @@ namespace Xtensive.Orm
     /// <exception cref="T:System.ArgumentNullException">The <paramref name="info"/> parameter is null. </exception>
     ///   
     /// <exception cref="T:System.Runtime.Serialization.SerializationException">The class name is null or <see cref="P:System.Exception.HResult"/> is zero (0). </exception>
-    protected QueryTranslationException(SerializationInfo info, StreamingContext context)
+    private QueryTranslationException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
     }

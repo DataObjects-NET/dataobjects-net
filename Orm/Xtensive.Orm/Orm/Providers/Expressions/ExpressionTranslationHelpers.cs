@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.09.18
 
 using System;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -14,77 +15,77 @@ namespace Xtensive.Orm.Providers
   {
     public static SqlExpression ToBool(SqlExpression target)
     {
-      return Cast(target, typeof (bool));
+      return Cast(target, WellKnownTypes.Bool);
     }
 
     public static SqlExpression ToInt(SqlExpression target)
     {
-      return Cast(target, typeof (int));
+      return Cast(target, WellKnownTypes.Int32);
     }
 
     public static SqlExpression ToDouble(SqlExpression target)
     {
-      return Cast(target, typeof (double));
+      return Cast(target, WellKnownTypes.Double);
     }
 
     public static SqlExpression ToLong(SqlExpression target)
     {
-      return Cast(target, typeof (long));
+      return Cast(target, WellKnownTypes.Int64);
     }
 
     public static SqlExpression ToSbyte(SqlExpression target)
     {
-      return Cast(target, typeof (sbyte));
+      return Cast(target, WellKnownTypes.SByte);
     }
 
     public static SqlExpression ToShort(SqlExpression target)
     {
-      return Cast(target, typeof (short));
+      return Cast(target, WellKnownTypes.Int16);
     }
 
     public static SqlExpression ToFloat(SqlExpression target)
     {
-      return Cast(target, typeof (float));
+      return Cast(target, WellKnownTypes.Single);
     }
     
     public static SqlExpression ToDecimal(SqlExpression target)
     {
-      return Cast(target, typeof (decimal));
+      return Cast(target, WellKnownTypes.Decimal);
     }
     
     public static SqlExpression ToByte(SqlExpression target)
     {
-      return Cast(target, typeof (byte));
+      return Cast(target, WellKnownTypes.Byte);
     }
 
     public static SqlExpression ToChar(SqlExpression target)
     {
-      return Cast(target, typeof (string));
+      return Cast(target, WellKnownTypes.String);
     }
 
     public static SqlExpression ToDateTime(SqlExpression target)
     {
-      return Cast(target, typeof (DateTime));
+      return Cast(target, WellKnownTypes.DateTime);
     }
 
     public static SqlExpression ToUint(SqlExpression target)
     {
-      return Cast(target, typeof (uint));
+      return Cast(target, WellKnownTypes.UInt32);
     }
 
     public static SqlExpression ToUlong(SqlExpression target)
     {
-      return Cast(target, typeof (ulong));
+      return Cast(target, WellKnownTypes.UInt64);
     }
 
     public static SqlExpression ToUshort(SqlExpression target)
     {
-      return Cast(target, typeof (ushort));
+      return Cast(target, WellKnownTypes.UInt16);
     }
 
     public static SqlExpression ToString(SqlExpression target)
     {
-      return Cast(target, typeof (string));
+      return Cast(target, WellKnownTypes.String);
     }
 
     private static SqlExpression Cast(SqlExpression target, Type type)

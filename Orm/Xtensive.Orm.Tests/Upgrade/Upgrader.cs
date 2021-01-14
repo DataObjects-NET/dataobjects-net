@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.20
 
@@ -36,21 +36,11 @@ namespace Xtensive.Orm.Tests.Upgrade
       });
     }
 
-    public override bool IsEnabled {
-      get {
-        return isEnabled;
-      }
-    }
-    
-    protected override string DetectAssemblyVersion()
-    {
-      return runningVersion;
-    }
+    public override bool IsEnabled => isEnabled;
 
-    public override bool CanUpgradeFrom(string oldVersion)
-    {
-      return true;
-    }
+    protected override string DetectAssemblyVersion() => runningVersion;
+
+    public override bool CanUpgradeFrom(string oldVersion) => true;
 
     protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
     {
@@ -84,95 +74,94 @@ namespace Xtensive.Orm.Tests.Upgrade
         yield return new RenameTypeHint(
           "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(BusinessContact));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Address", typeof (Address));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Address", typeof(Address));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", typeof (Employee));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", typeof(Employee));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof (Order));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof(Order));
 
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Product", typeof (Product));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Product", typeof(Product));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Category", typeof (ProductGroup));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Category", typeof(ProductGroup));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Boy", typeof (Boy));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Boy", typeof(Boy));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Girl", typeof (Girl));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Girl", typeof(Girl));
 
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity1", typeof (Entity1));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity1", typeof(Entity1));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity2", typeof (Entity2));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity2", typeof(Entity2));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity3", typeof (Entity3));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity3", typeof(Entity3));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity4", typeof (Entity4));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Entity4", typeof(Entity4));
 
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure1", typeof (Structure1));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure1", typeof(Structure1));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure2", typeof (Structure2));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure2", typeof(Structure2));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure3", typeof (Structure3));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure3", typeof(Structure3));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure4", typeof (Structure4));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Structure4", typeof(Structure4));
 
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer1", typeof (StructureContainer1));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer1", typeof(StructureContainer1));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer2", typeof (StructureContainer2));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer2", typeof(StructureContainer2));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer3", typeof (StructureContainer3));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer3", typeof(StructureContainer3));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer4", typeof (StructureContainer4));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.StructureContainer4", typeof(StructureContainer4));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", typeof (MyStructureOwner));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", typeof(MyStructureOwner));
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.ReferencedEntity", typeof (ReferencedEntity));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.ReferencedEntity", typeof(ReferencedEntity));
 
 
         // renaming fields
-        yield return new RenameFieldHint(typeof (Order), "OrderNumber", "Number");
+        yield return new RenameFieldHint(typeof(Order), "OrderNumber", "Number");
 
-        yield return new RenameFieldHint(typeof (NewSync<>), "Root", "NewRoot");
+        yield return new RenameFieldHint(typeof(NewSync<>), "Root", "NewRoot");
 
-        yield return new RenameFieldHint(typeof (Product), "Name", "Title");
-        yield return new RenameFieldHint(typeof (Product), "Category", "Group");
-        yield return new RenameFieldHint(typeof (ProductGroup), "Id", "GroupId");
-        yield return new RenameFieldHint(typeof (Boy), "FriendlyGirls", "MeetWith");
-        yield return new RenameFieldHint(typeof (Girl), "FriendlyBoys", "MeetWith");
-        yield return new RenameFieldHint(typeof (Entity1), "Id", "Code");
-        yield return new RenameFieldHint(typeof (Entity2), "Id", "Code");
-        yield return new RenameFieldHint(typeof (Entity3), "Id", "Code");
-        yield return new RenameFieldHint(typeof (Entity4), "Id", "Code");
-        
-        yield return new RenameFieldHint(typeof (Structure1), "E1", "MyE1");
-        yield return new RenameFieldHint(typeof (Structure2), "E2", "MyE2");
-        yield return new RenameFieldHint(typeof (Structure3), "E3", "MyE3");
-        yield return new RenameFieldHint(typeof (Structure4), "E4", "MyE4");
+        yield return new RenameFieldHint(typeof(Product), "Name", "Title");
+        yield return new RenameFieldHint(typeof(Product), "Category", "Group");
+        yield return new RenameFieldHint(typeof(ProductGroup), "Id", "GroupId");
+        yield return new RenameFieldHint(typeof(Boy), "FriendlyGirls", "MeetWith");
+        yield return new RenameFieldHint(typeof(Girl), "FriendlyBoys", "MeetWith");
+        yield return new RenameFieldHint(typeof(Entity1), "Id", "Code");
+        yield return new RenameFieldHint(typeof(Entity2), "Id", "Code");
+        yield return new RenameFieldHint(typeof(Entity3), "Id", "Code");
+        yield return new RenameFieldHint(typeof(Entity4), "Id", "Code");
+
+        yield return new RenameFieldHint(typeof(Structure1), "E1", "MyE1");
+        yield return new RenameFieldHint(typeof(Structure2), "E2", "MyE2");
+        yield return new RenameFieldHint(typeof(Structure3), "E3", "MyE3");
+        yield return new RenameFieldHint(typeof(Structure4), "E4", "MyE4");
 
         // type changes
-        yield return new ChangeFieldTypeHint(typeof (Person), "PassportNumber");
-        yield return new ChangeFieldTypeHint(typeof (Order), "Number");
+        yield return new ChangeFieldTypeHint(typeof(Person), "PassportNumber");
+        yield return new ChangeFieldTypeHint(typeof(Order), "Number");
 
         // copying data
         yield return new CopyFieldHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof (BusinessContact));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "FirstName", typeof(BusinessContact));
         yield return new CopyFieldHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof (BusinessContact));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Employee", "LastName", typeof(BusinessContact));
         if (!IncludeTypeIdModifier.IsEnabled)
           yield return new CopyFieldHint(
-            "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof (MyStructureOwner), "Reference");
-        
+            "Xtensive.Orm.Tests.Upgrade.Model.Version1.MyStructureOwner", "Structure", typeof(MyStructureOwner), "Reference");
+
       }
     }
 
-     private IEnumerable<UpgradeHint> Version1To3Hints
+    private IEnumerable<UpgradeHint> Version1To3Hints
     {
-      get
-      {
+      get {
         yield return new RenameTypeHint(
-          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof (Model.Version3.Order));
+          "Xtensive.Orm.Tests.Upgrade.Model.Version1.Order", typeof(Model.Version3.Order));
         yield return new RenameTypeHint(
           "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person", typeof(Model.Version3.Person));
       }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.10
 
@@ -64,7 +64,8 @@ namespace Xtensive.Orm
     IVersionSetProvider,
     IContext<SessionScope>, 
     IHasExtensions,
-    IDisposable
+    IDisposable,
+    IAsyncDisposable
   {
     private const string IdentifierFormat = "#{0}";
     private const string FullNameFormat   = "{0}, #{1}";
@@ -234,24 +235,24 @@ namespace Xtensive.Orm
         throw new ObjectDisposedException(Strings.ExSessionIsAlreadyDisposed);
     }
 
-    internal void ActivateInternally()
+    internal void AttachToScope(SessionScope sessionScope)
     {
-      disposableSet.Add(new SessionScope(this));
+      sessionScope.Session = this;
+      _ = disposableSet.Add(sessionScope);
     }
 
-    internal EnumerationContext CreateEnumerationContext()
+    internal EnumerationContext CreateEnumerationContext(ParameterContext parameterContext)
     {
       Persist(PersistReason.Query);
-      ProcessUserDefinedDelayedQueries(true);
-      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+      _ = ProcessUserDefinedDelayedQueries(true);
+      return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
-    internal async Task<EnumerationContext> CreateEnumerationContextForAsyncQuery(CancellationToken token)
+    internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext, CancellationToken token)
     {
-      Persist(PersistReason.Other);
-      token.ThrowIfCancellationRequested();
-      await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
-      return new Providers.EnumerationContext(this, GetEnumerationContextOptions());
+      await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
+      _ = await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
+      return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
     }
 
     private EnumerationContextOptions GetEnumerationContextOptions()
@@ -302,12 +303,18 @@ namespace Xtensive.Orm
       storageNode = node;
     }
 
-    public ExecutableProvider Compile(CompilableProvider provider)
+    // gets node directly
+    internal StorageNode GetStorageNodeInternal()
+    {
+      return storageNode;
+    }
+
+    internal ExecutableProvider Compile(CompilableProvider provider)
     {
       return CompilationService.Compile(provider, CompilationService.CreateConfiguration(this));
     }
 
-    public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
+    internal ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {
       return CompilationService.Compile(provider, configuration);
     }
@@ -423,9 +430,11 @@ namespace Xtensive.Orm
       using (var tx = OpenAutoTransaction()) {
         var entities = Query.Many<Entity>(keys);
         var result = new VersionSet();
-        foreach (var entity in entities)
-          if (entity!=null)
-            result.Add(entity, false);
+        foreach (var entity in entities) {
+          if (entity != null) {
+            _ = result.Add(entity, false);
+          }
+        }
         tx.Complete();
         return result;
       }
@@ -437,6 +446,7 @@ namespace Xtensive.Orm
     /// Selects storage node identifier by <paramref name="nodeId"/>.
     /// </summary>
     /// <param name="nodeId">Node identifier.</param>
+    [Obsolete("Use StorageNode instances to open a session to them instead")]
     public void SelectStorageNode([NotNull] string nodeId)
     {
       ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
@@ -506,7 +516,7 @@ namespace Xtensive.Orm
 
     // Constructors
 
-    internal Session(Domain domain, SessionConfiguration configuration, bool activate)
+    internal Session(Domain domain, StorageNode selectedStorageNode, SessionConfiguration configuration, bool activate)
       : base(domain)
     {
       Guid = Guid.NewGuid();
@@ -519,6 +529,7 @@ namespace Xtensive.Orm
       identifier = Interlocked.Increment(ref lastUsedIdentifier);
       CommandTimeout = configuration.DefaultCommandTimeout;
       allowSwitching = configuration.Supports(SessionOptions.AllowSwitching);
+      storageNode = selectedStorageNode;
 
       // Handlers
       Handlers = domain.Handlers;
@@ -558,8 +569,9 @@ namespace Xtensive.Orm
       disableAutoSaveChanges = !configuration.Supports(SessionOptions.AutoSaveChanges);
 
       // Perform activation
-      if (activate)
-        ActivateInternally();
+      if (activate) {
+        AttachToScope(new SessionScope());
+      }
 
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
@@ -570,10 +582,21 @@ namespace Xtensive.Orm
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
     /// </summary>
-    public void Dispose()
+    public void Dispose() => DisposeImpl(false).GetAwaiter().GetResult();
+
+    /// <summary>
+    /// Asynchronously performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+    /// </summary>
+    public ValueTask DisposeAsync() => DisposeImpl(true);
+
+    private async ValueTask DisposeImpl(bool isAsync)
     {
-      if (isDisposed)
+      if (isDisposed) {
         return;
+      }
+
+      sessionLifetimeToken.Expire();
+
       try {
         if (IsDebugEventLoggingEnabled) {
           OrmLog.Debug(Strings.LogSessionXDisposing, this);
@@ -583,7 +606,12 @@ namespace Xtensive.Orm
         Events.NotifyDisposing();
 
         Services.DisposeSafely();
-        Handler.DisposeSafely();
+        if (isAsync) {
+          await Handler.DisposeSafelyAsync().ConfigureAwait(false);
+        }
+        else {
+          Handler.DisposeSafely();
+        }
         CommandProcessorContextProvider.DisposeSafely();
 
         Domain.ReleaseSingleConnection();

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.06.13
 
@@ -159,6 +159,8 @@ namespace Xtensive.Reflection
     /// Gets the interface member implementation in its implementor.
     /// </summary>
     /// <param name="member">The member to get the implementation member for.</param>
+    /// <param name="implementor">A <see cref="Type"/> implementing an <see langword="interface"/>
+    /// where the specified <paramref name="member"/> is declared.</param>
     /// <returns>Implementation member;
     /// <see langword="null" />, if no implementation member maps to the specified one.</returns>
     public static MemberInfo GetImplementation(this MemberInfo member, Type implementor)

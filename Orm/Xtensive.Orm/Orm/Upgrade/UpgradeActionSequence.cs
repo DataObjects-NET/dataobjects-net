@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.07.15
 
@@ -8,6 +8,8 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Upgrade
@@ -20,21 +22,16 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the number of all actions in sequence (including non-transactional commands).
     /// </summary>
-    public int Count
-    {
-      get
-      {
-        return NonTransactionalPrologCommands.Count
-          + PreCleanupDataCommands.Count
-          + CleanupDataCommands.Count
-          + PreUpgradeCommands.Count
-          + UpgradeCommands.Count
-          + CopyDataCommands.Count
-          + PostCopyDataCommands.Count
-          + CleanupCommands.Count
-          + NonTransactionalEpilogCommands.Count;
-      }
-    }
+    public int Count =>
+      NonTransactionalPrologCommands.Count
+      + PreCleanupDataCommands.Count
+      + CleanupDataCommands.Count
+      + PreUpgradeCommands.Count
+      + UpgradeCommands.Count
+      + CopyDataCommands.Count
+      + PostCopyDataCommands.Count
+      + CleanupCommands.Count
+      + NonTransactionalEpilogCommands.Count;
 
     /// <summary>
     /// Gets or sets pre-cleanup data commands.
@@ -97,29 +94,67 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="nonTransactionalProcessor">Non-transactional processor.</param>
     public void ProcessWith(Action<IEnumerable<string>> regularProcessor, Action<IEnumerable<string>> nonTransactionalProcessor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(regularProcessor, "regularProcessor");
-      ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, "nonTransactionalProcessor");
+      ArgumentValidator.EnsureArgumentNotNull(regularProcessor, nameof(regularProcessor));
+      ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, nameof(nonTransactionalProcessor));
 
-      if (NonTransactionalPrologCommands.Count > 0)
+      if (NonTransactionalPrologCommands.Count > 0) {
         nonTransactionalProcessor.Invoke(NonTransactionalPrologCommands);
+      }
 
-      var batchSequence =
-        new[] {
-          PreCleanupDataCommands,
-          CleanupDataCommands,
-          PreUpgradeCommands,
-          UpgradeCommands,
-          CopyDataCommands,
-          PostCopyDataCommands,
-          CleanupCommands
-        }
-        .Where(batch => batch.Count > 0);
-
-      foreach (var batch in batchSequence)
+      foreach (var batch in EnumerateTransactionalCommandBatches()) {
         regularProcessor.Invoke(batch);
+      }
 
-      if (NonTransactionalEpilogCommands.Count > 0)
+      if (NonTransactionalEpilogCommands.Count > 0) {
         nonTransactionalProcessor.Invoke(NonTransactionalEpilogCommands);
+      }
+    }
+
+    /// <summary>
+    /// Asynchronously handles action sequence with specified processors.
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="regularProcessor">Transactional processor.</param>
+    /// <param name="nonTransactionalProcessor">Non-transactional processor.</param>
+    /// <param name="token">The cancellation token to interrupt asynchronous execution if needed.</param>
+    public async Task ProcessWithAsync(
+      Func<IEnumerable<string>, CancellationToken, Task> regularProcessor,
+      Func<IEnumerable<string>, CancellationToken, Task> nonTransactionalProcessor,
+      CancellationToken token)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(regularProcessor, nameof(regularProcessor));
+      ArgumentValidator.EnsureArgumentNotNull(nonTransactionalProcessor, nameof(nonTransactionalProcessor));
+
+      if (NonTransactionalPrologCommands.Count > 0) {
+        await nonTransactionalProcessor.Invoke(NonTransactionalPrologCommands, token).ConfigureAwait(false);
+      }
+
+      foreach (var batch in EnumerateTransactionalCommandBatches()) {
+        await regularProcessor.Invoke(batch, token).ConfigureAwait(false);
+      }
+
+      if (NonTransactionalEpilogCommands.Count > 0) {
+        await nonTransactionalProcessor.Invoke(NonTransactionalEpilogCommands, token).ConfigureAwait(false);
+      }
+    }
+
+    private IEnumerable<IReadOnlyCollection<string>> EnumerateTransactionalCommandBatches()
+    {
+      IEnumerable<IReadOnlyCollection<string>> EnumerateAllCommandBatches()
+      {
+        yield return PreCleanupDataCommands;
+        yield return CleanupDataCommands;
+        yield return PreUpgradeCommands;
+        yield return UpgradeCommands;
+        yield return CopyDataCommands;
+        yield return PostCopyDataCommands;
+        yield return CleanupCommands;
+      }
+
+      foreach (var p in EnumerateAllCommandBatches().Where(batch => batch.Count > 0)) {
+        yield return p;
+      }
     }
 
     /// <inheritdoc/>
@@ -131,10 +166,7 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UpgradeActionSequence"/> class.

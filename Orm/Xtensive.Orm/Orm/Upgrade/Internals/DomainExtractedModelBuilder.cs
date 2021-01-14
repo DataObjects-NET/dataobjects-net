@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+﻿// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.02.23
 
@@ -25,7 +25,6 @@ namespace Xtensive.Orm.Upgrade.Internals
   {
     private readonly string collationName;
     private readonly string typeIdColumnName;
-    private readonly DomainConfiguration domainConfiguration;
     private readonly StorageModel model;
     private readonly MappingResolver mappingResolver;
     private readonly ProviderInfo provider;
@@ -141,7 +140,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
       column.IsNullable = columnInfo.Type.IsNullable;
 
-      if (columnInfo.Type.Type == typeof(string) && collationName != null)
+      if (columnInfo.Type.Type == WellKnownTypes.String && collationName != null)
         column.Collation = table.Schema.Collations[collationName] ?? new Collation(table.Schema, collationName);
     }
 
@@ -222,7 +221,8 @@ namespace Xtensive.Orm.Upgrade.Internals
           sequenceInfo.Increment);
       sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
       if (!provider.Supports(ProviderFeatures.InsertDefaultValues)) {
-        var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(typeof (int)));
+        var fakeColumn = sequenceTable.CreateColumn(
+          WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));
         fakeColumn.IsNullable = true;
       }
     }
@@ -277,12 +277,14 @@ namespace Xtensive.Orm.Upgrade.Internals
       ArgumentValidator.EnsureArgumentNotNull(services, "services");
       ArgumentValidator.EnsureArgumentNotNull(model, "model");
       this.model = model;
-      this.mappingResolver = services.MappingResolver;
-      this.provider = services.ProviderInfo;
-      this.driver = services.StorageDriver;
       this.makeSharedFinally = makeSharedFinally;
 
-      this.targetResult = new SchemaExtractionResult();
+      mappingResolver = services.MappingResolver;
+      provider = services.ProviderInfo;
+      driver = services.StorageDriver;
+      typeIdColumnName = services.NameBuilder.TypeIdColumnName;
+
+      targetResult = new SchemaExtractionResult();
 
       if (provider.Supports(ProviderFeatures.Collations)) {
         var collation = services.Configuration.Collation;

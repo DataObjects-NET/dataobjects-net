@@ -1,11 +1,12 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.04.24
 
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -118,27 +119,18 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class ExtractSuperClassTest
   {
-    private Domain BuildDomain(Type sampleType, DomainUpgradeMode mode)
-    {
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = mode;
-      configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
-      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
-      return Domain.Build(configuration);
-    }
-
     [Test]
     public void UpgradeTest()
     {
-      using (var domain1 = BuildDomain(typeof (Model1.Client), DomainUpgradeMode.Recreate))
+      using (var domain1 = BuildDomain(typeof(Model1.Client), DomainUpgradeMode.Recreate))
       using (var session = domain1.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var client = new Model1.Client {Name = "TheClient", RegistrationDate = DateTime.Today};
-        var clientRef = new Model1.ClientRef {Ref = {Client = client}};
+        var client = new Model1.Client { Name = "TheClient", RegistrationDate = DateTime.Today };
+        var clientRef = new Model1.ClientRef { Ref = { Client = client } };
         tx.Complete();
       }
 
-      using (var domain2 = BuildDomain(typeof (Model2.Client), DomainUpgradeMode.PerformSafely))
+      using (var domain2 = BuildDomain(typeof(Model2.Client), DomainUpgradeMode.PerformSafely))
       using (var session = domain2.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var client = Query.All<Model2.Contractor>().Single();
@@ -148,6 +140,50 @@ namespace Xtensive.Orm.Tests.Upgrade
         var clientRef = Query.All<Model2.ClientRef>().Single();
         Assert.That(clientRef.Ref.Client, Is.EqualTo(client));
       }
+    }
+
+    [Test]
+    public async Task UpgradeAsyncTest()
+    {
+      using (var domain1 = BuildDomain(typeof(Model1.Client), DomainUpgradeMode.Recreate))
+      using (var session = domain1.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var client = new Model1.Client { Name = "TheClient", RegistrationDate = DateTime.Today };
+        var clientRef = new Model1.ClientRef { Ref = { Client = client } };
+        tx.Complete();
+      }
+
+      using (var domain2 = await BuildDomainAsync(typeof(Model2.Client), DomainUpgradeMode.PerformSafely))
+      using (var session = domain2.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var client = Query.All<Model2.Contractor>().Single();
+        Assert.That(client.Name, Is.EqualTo("TheClient"));
+        Assert.That(client.RegistrationDate, Is.EqualTo(DateTime.Today));
+
+        var clientRef = Query.All<Model2.ClientRef>().Single();
+        Assert.That(clientRef.Ref.Client, Is.EqualTo(client));
+      }
+    }
+
+    private Domain BuildDomain(Type sampleType, DomainUpgradeMode mode)
+    {
+      var configuration = BuildDomainConfiguration(sampleType, mode);
+      return Domain.Build(configuration);
+    }
+
+    private Task<Domain> BuildDomainAsync(Type sampleType, DomainUpgradeMode mode)
+    {
+      var configuration = BuildDomainConfiguration(sampleType, mode);
+      return Domain.BuildAsync(configuration);
+    }
+
+    private DomainConfiguration BuildDomainConfiguration(Type sampleType, DomainUpgradeMode mode)
+    {
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = mode;
+      configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
+      configuration.Types.Register(sampleType.Assembly, sampleType.Namespace);
+      return configuration;
     }
   }
 }

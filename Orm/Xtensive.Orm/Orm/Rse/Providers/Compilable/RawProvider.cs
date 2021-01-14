@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.07.09
 
@@ -24,17 +24,17 @@ namespace Xtensive.Orm.Rse.Providers
   public sealed class RawProvider : CompilableProvider
   {
     private readonly RecordSetHeader header;
-    private Func<IEnumerable<Tuple>> compiledSource;
+    private Func<ParameterContext, IEnumerable<Tuple>> compiledSource;
 
     /// <summary>
     /// Raw data source - an array of tuples.
     /// </summary>
-    public Expression<Func<IEnumerable<Tuple>>> Source { get; private set; }
+    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> Source { get; private set; }
 
     /// <summary>
     /// Gets the compiled <see cref="Source"/>.
     /// </summary>
-    public Func<IEnumerable<Tuple>> CompiledSource {
+    public Func<ParameterContext, IEnumerable<Tuple>> CompiledSource {
       get {
         if (compiledSource==null)
           compiledSource = Source.CachingCompile();
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
-    public RawProvider(RecordSetHeader header, Expression<Func<IEnumerable<Tuple>>> source)
+    public RawProvider(RecordSetHeader header, Expression<Func<ParameterContext, IEnumerable<Tuple>>> source)
       : base(ProviderType.Raw)
     {
       Source = source;

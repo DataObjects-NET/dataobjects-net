@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.07.25
 
@@ -19,13 +19,15 @@ namespace Xtensive.Orm.Validation
   {
     private abstract class ValidationHandler
     {
+      private static readonly Type ValidationHandlerType = typeof(ValidationHandler<>);
+
       protected abstract void Configure(object min, object max);
 
       public abstract bool Validate(object value);
 
       public static ValidationHandler Create(Type valueType, object min, object max)
       {
-        var validatorType = typeof (ValidationHandler<>).MakeGenericType(valueType);
+        var validatorType = ValidationHandlerType.MakeGenericType(valueType);
         var result = (ValidationHandler) Activator.CreateInstance(validatorType);
         result.Configure(min, max);
         return result;
@@ -87,7 +89,7 @@ namespace Xtensive.Orm.Validation
       if (Min==null && Max==null)
         ThrowConfigurationError(Strings.MaxOrMinPropertyShouldBeSpecified);
 
-      if (!field.ValueType.IsOfGenericInterface(typeof (IComparable<>)))
+      if (!field.ValueType.IsOfGenericInterface(WellKnownInterfaces.ComparableOfT))
         ThrowConfigurationError(Strings.FieldShouldBeOfComparableType);
 
       handler = ValidationHandler.Create(field.ValueType, Min, Max);

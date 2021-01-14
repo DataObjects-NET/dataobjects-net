@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.10.22
 
@@ -65,8 +65,7 @@ namespace Xtensive.Orm
       
       var executionContext = new OperationExecutionContext(session);
       bool isSystemOperationLog = LogType==OperationLogType.SystemOperationLog;
-      KeyMapping keyMapping = null;
-      Transaction transaction = null;
+      KeyMapping keyMapping;
 
       using (session.Activate()) {
         using (isSystemOperationLog ? session.OpenSystemLogicOnlyRegion() : null) 
@@ -172,7 +171,7 @@ namespace Xtensive.Orm
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="logType">Type of the log.</param>
-    /// <param name="operations">The operations to add (using <see cref="Log"/> method).</param>
+    /// <param name="operations">The operations to add (using <see cref="Log(Xtensive.Orm.IOperation)"/> method).</param>
     public OperationLog(OperationLogType logType, IEnumerable<IOperation> operations)
       : this(logType)
     {

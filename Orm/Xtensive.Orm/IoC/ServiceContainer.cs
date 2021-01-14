@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
@@ -207,9 +207,9 @@ namespace Xtensive.IoC
 
       var possibleArgs =
         Enumerable.Empty<object[]>()
-          .AddOne(new[] {configuration, parent})
-          .AddOne(new[] {configuration})
-          .AddOne(new[] {parent});
+          .Append(new[] {configuration, parent})
+          .Append(new[] {configuration})
+          .Append(new[] {parent});
       foreach (var args in possibleArgs) {
         var ctor = containerType.GetConstructor(args);
         if (ctor!=null)
@@ -225,6 +225,7 @@ namespace Xtensive.IoC
     /// <summary>
     /// Creates <see cref="IServiceContainer"/> by default configuration.
     /// </summary>
+    /// <param name="configuration">An <see cref="AppConfiguration"/> instance.</param>
     /// <returns><see cref="IServiceContainer"/> for the default configuration.</returns>
     public static IServiceContainer Create(AppConfiguration configuration)
     {
@@ -234,6 +235,7 @@ namespace Xtensive.IoC
     /// <summary>
     /// Creates <see cref="IServiceContainer"/> by its configuration.
     /// </summary>
+    /// <param name="configuration">An <see cref="AppConfiguration"/> instance.</param>
     /// <param name="name">The name of container configuration to create container for.</param>
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>
     public static IServiceContainer Create(AppConfiguration configuration, string name)
@@ -244,6 +246,7 @@ namespace Xtensive.IoC
     /// <summary>
     /// Creates <see cref="IServiceContainer"/> by its configuration.
     /// </summary>
+    /// <param name="configuration">An <see cref="AppConfiguration"/> instance.</param>
     /// <param name="name">The name of container configuration to create container for.</param>
     /// <param name="parent">The parent container.</param>
     /// <returns><see cref="IServiceContainer"/> for the specified named configuration.</returns>

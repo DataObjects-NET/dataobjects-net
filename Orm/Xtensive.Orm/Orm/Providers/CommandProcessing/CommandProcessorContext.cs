@@ -1,21 +1,28 @@
-// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.07.12
 
 using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Xtensive.Core;
 
 namespace Xtensive.Orm.Providers
 {
   /// <summary>
   /// Context for <see cref="CommandProcessor"/> and its descendants used during command execution.
   /// </summary>
-  public sealed class CommandProcessorContext : IDisposable
+  public sealed class CommandProcessorContext : IDisposable, IAsyncDisposable
   {
     /// <summary>
-    /// Gets the value indicating that partial execution is preferered if it is possible.
+    /// <see cref="ParameterContext"/> instance with the values of parameters of currently executing query.
+    /// </summary>
+    public ParameterContext ParameterContext { get; }
+
+    /// <summary>
+    /// Gets the value indicating that partial execution is preferred if it is possible.
     /// </summary>
     public bool AllowPartialExecution { get; internal set; }
 
@@ -25,7 +32,7 @@ namespace Xtensive.Orm.Providers
     public Queue<SqlTask> ProcessingTasks { get; internal set; }
 
     /// <summary>
-    /// Active command which executes current protion of requests.
+    /// Active command which executes current portion of requests.
     /// </summary>
     public Command ActiveCommand { get; internal set; }
 
@@ -41,20 +48,33 @@ namespace Xtensive.Orm.Providers
 
     internal event EventHandler Disposed;
 
-    public void Dispose()
+    public void Dispose() => DisposeImpl(false).GetAwaiter().GetResult();
+
+    public ValueTask DisposeAsync() => DisposeImpl(true);
+
+    private async ValueTask DisposeImpl(bool isAsync)
     {
-      if (ActiveTasks!=null) {
+      if (ActiveTasks != null) {
         ActiveTasks.Clear();
         ActiveTasks = null;
       }
-      if (ProcessingTasks!=null) {
+
+      if (ProcessingTasks != null) {
         ProcessingTasks.Clear();
         ProcessingTasks = null;
       }
-      if (ActiveCommand!=null) {
-        ActiveCommand.Dispose();
+
+      if (ActiveCommand != null) {
+        if (isAsync) {
+          await ActiveCommand.DisposeAsync().ConfigureAwait(false);
+        }
+        else {
+          ActiveCommand.Dispose();
+        }
+
         ActiveCommand = null;
       }
+
       NotifyDisposed();
     }
 
@@ -64,13 +84,9 @@ namespace Xtensive.Orm.Providers
         Disposed(this, EventArgs.Empty);
     }
 
-    internal CommandProcessorContext()
-      : this(false)
+    internal CommandProcessorContext(ParameterContext parameterContext, bool allowPartialExecution = false)
     {
-    }
-
-    internal CommandProcessorContext(bool allowPartialExecution)
-    {
+      ParameterContext = parameterContext;
       AllowPartialExecution = allowPartialExecution;
       ProcessingTasks = new Queue<SqlTask>();
       ActiveTasks = new List<SqlLoadTask>();

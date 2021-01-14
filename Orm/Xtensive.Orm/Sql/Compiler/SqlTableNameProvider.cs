@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System.Collections.Generic;
 using Xtensive.Collections;
@@ -15,7 +15,6 @@ namespace Xtensive.Sql.Compiler
   {
     private readonly Dictionary<SqlTable, string> aliasMap = new Dictionary<SqlTable, string>(16);
     private readonly Set<string> aliasIndex = new Set<string>();
-    private int counter;
     private byte prefixIndex;
     private byte suffix;
     private readonly SqlCompilerContext context;

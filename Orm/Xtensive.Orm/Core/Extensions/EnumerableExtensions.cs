@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.05.16
 
@@ -14,9 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Collections.Graphs;
-using Xtensive.Core;
 using Xtensive.Orm.Internals;
-using Xtensive.Orm.Linq;
 
 
 namespace Xtensive.Core
@@ -124,18 +122,6 @@ namespace Xtensive.Core
         action.Invoke(item);
     }
 
-    /// </summary>
-    /// <typeparam name="T">The type of sequence item.</typeparam>
-    /// <param name="source">The sequence to convert.</param>
-    /// <returns>A new <see cref="HashSet{T}"/> instance containing 
-    /// all the unique items from the <paramref name="source"/> sequence.</returns>
-    [Obsolete("Use System.Linq.Enumerable.ToHashSet<T>() instead")]
-    public static HashSet<T> ToHashSet<T>(this IEnumerable<T> source)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new HashSet<T>(source);
-    }
-
     /// <summary>
     /// Converts the sequence to the <see cref="ChainedBuffer{T}"/>.
     /// </summary>
@@ -174,7 +160,7 @@ namespace Xtensive.Core
     ///<returns>Hash code, calculated by enumerable items. If enumerable is null or empty returns 0.</returns>
     public static int CalculateHashCode<TItem>(this IEnumerable<TItem> items)
     {
-      if (items==null) 
+      if (items==null)
         return 0;
       return items.Aggregate(0, (previousValue, item) => previousValue ^ item.GetHashCode());
     }
@@ -248,30 +234,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Constructs <see cref="IEnumerable{T}"/> from
-    /// this <see cref="IEnumerable{T}"/> and specified <see cref="IEnumerable{T}"/>
-    /// by creating a <see cref="Pair{TFirst,TSecond}"/> from each pair of items.
-    /// If one input <see cref="IEnumerable{T}"/> is short,
-    /// excess elements of the longer <see cref="IEnumerable{T}"/> are discarded.
-    /// </summary>
-    /// <typeparam name="TLeft">Type of first <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <typeparam name="TRight">Type of second <see cref="IEnumerable{T}"/>.</typeparam>
-    /// <param name="leftSequence">First <see cref="IEnumerable{T}"/>.</param>
-    /// <param name="rightSequence">Second <see cref="IEnumerable{T}"/>.</param>
-    /// <returns>Zip result.</returns>
-    public static IEnumerable<Pair<TLeft,TRight>> Zip<TLeft, TRight>(
-      this IEnumerable<TLeft> leftSequence, IEnumerable<TRight> rightSequence)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(leftSequence, "leftSequence");
-      ArgumentValidator.EnsureArgumentNotNull(rightSequence, "rightSequence");
-
-      using (var leftEnum = leftSequence.GetEnumerator())
-      using (var rightEnum = rightSequence.GetEnumerator())
-        while (leftEnum.MoveNext() && rightEnum.MoveNext())
-          yield return new Pair<TLeft, TRight>(leftEnum.Current, rightEnum.Current);
-    }
-
-    /// <summary>
     /// If <paramref name="sequence"/> is not <see langword="null"/>, creates an array from <see cref="IEnumerable{T}"/>.
     /// Otherwise, returns empty array.
     /// </summary>
@@ -299,7 +261,7 @@ namespace Xtensive.Core
     {
       if (length == 0)
         return Array.Empty<T>();
-      
+
       var result = new T[length];
       using (var e = sequence.GetEnumerator()) {
         for (var i = 0; i < length && e.MoveNext(); i++)
@@ -307,7 +269,7 @@ namespace Xtensive.Core
       }
       return result;
     }
-    
+
     /// <summary>
     /// Gets the items from the segment.
     /// </summary>
@@ -325,6 +287,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to add to sequence.</param>
     /// <returns>New sequence with both <paramref name="source"/> and <paramref name="value"/> items inside without duplicates.</returns>
     /// <remarks>If source sequence is null, it's equals to empty sequence. If value is null, it will not added to result sequence.</remarks>
+    [Obsolete("Use Enumerable.Append method instead.")]
     public static IEnumerable<T> AddOne<T>(this IEnumerable<T> source, T value)
     {
       source = source ?? EnumerableUtils<T>.Empty;
@@ -523,94 +486,31 @@ namespace Xtensive.Core
     /// <summary>
     /// Runs delayed query as async operation or returns enumerable as a task.
     /// </summary>
+    /// <remarks>Multiple active operations are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
     /// <typeparam name="T">Type of items in sequence.</typeparam>
     /// <param name="source">Delayed query sequence or regular enumerable.</param>
     /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete("Use AsAsync(IEnumerable<T>) method instead.")]
-    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IEnumerable<T> source)
-    {
-      return AsAsync(source, CancellationToken.None);
-    }
+    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
+    public static Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source) =>
+      AsAsync(source, CancellationToken.None);
 
     /// <summary>
     /// Runs delayed query as async operation or returns enumerable as a task.
     /// </summary>
+    /// <remarks>Multiple active operations are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed.</remarks>
     /// <typeparam name="T">Type of items in sequence.</typeparam>
     /// <param name="source">Delayed query sequence or regular enumerable.</param>
     /// <param name="token">A token to cancel operation.</param>
     /// <returns>Task that runs delayed query or completed task with source.</returns>
-    [Obsolete("Use AsAsync(IEnumerable<T>, CancellationToken) method instead.")]
-    public static Task<IEnumerable<T>> AsAsyncTask<T>(this IEnumerable<T> source, CancellationToken token)
-    {
-      return AsAsync(source, token);
-    }
-
-    /// <summary>
-    /// Runs delayed query as async operation or returns enumerable as a task.
-    /// </summary>
-    /// <typeparam name="T">Type of items in sequence.</typeparam>
-    /// <param name="source">Delayed query sequence or regular enumerable.</param>
-    /// <returns>Task that runs delayed query or completed task with source.</returns>
-    public static Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source)
-    {
-      return AsAsync(source, CancellationToken.None);
-    }
-
-    /// <summary>
-    /// Runs delayed query as async operation or returns enumerable as a task.
-    /// </summary>
-    /// <typeparam name="T">Type of items in sequence.</typeparam>
-    /// <param name="source">Delayed query sequence or regular enumerable.</param>
-    /// <param name="token">A token to cancel operation.</param>
-    /// <returns>Task that runs delayed query or completed task with source.</returns>
+    [Obsolete("AsAsync method is obsolete. In case it is used for delayed query execution DelayedQuery.ExecuteAsync method should be used instead.")]
     public static async Task<IEnumerable<T>> AsAsync<T>(this IEnumerable<T> source, CancellationToken token)
     {
-      var delayedSequence = source as DelayedSequence<T>;
-      if (delayedSequence!=null) {
-        if (!delayedSequence.LifetimeToken.IsActive)
-          throw new InvalidOperationException(Strings.ExThisInstanceIsExpiredDueToTransactionBoundaries);
-        if (delayedSequence.Task.Result==null)
-          await delayedSequence.Session.ExecuteDelayedUserQueriesAsync(false, token).ConfigureAwait(false);
-        return delayedSequence;
+      if (source is DelayedQuery<T> delayedQuery) {
+        return await delayedQuery.ExecuteAsync(token).ConfigureAwait(false);
       }
-      return await Task.FromResult(source);
-    }
-
-    /// <summary>
-    /// Converts IEnumerable of <typeparamref name="TItem"/> to IEnumerator of <typeparamref name="TItem"/>.
-    /// </summary>
-    /// <typeparam name="TItem">Type of elements.</typeparam>
-    /// <param name="enumerable">Enumerable to convert</param>
-    /// <param name="afterEnumerationAction">Action which invoked after enumeration even if enumreation fails.</param>
-    /// <param name="parameterForAction">Object parameter for <paramref name="afterEnumerationAction"/> action.</param>
-    /// <returns>IEnumerator of <typeparamref name="TItem"/>.</returns>
-    internal static IEnumerator<TItem> ToEnumerator<TItem>(this IEnumerable<TItem> enumerable, Action<object> afterEnumerationAction, object parameterForAction)
-    {
-      try {
-        foreach (var item in enumerable) 
-          yield return item;
-      }
-      finally {
-        afterEnumerationAction.Invoke(parameterForAction);
-      }
-    }
-
-    /// <summary>
-    /// Converts IEnumerable of <typeparamref name="TItem"/> to IEnumerator of <typeparamref name="TItem"/>.
-    /// </summary>
-    /// <typeparam name="TItem">Type of elements.</typeparam>
-    /// <param name="enumerable">Enumerable to convert</param>
-    /// <param name="afterEnumerationAction">Action which invoked after enumeration even if enumreation fails.</param>
-    /// <returns>IEnumerator of <typeparamref name="TItem"/>.</returns>
-    internal static IEnumerator<TItem> ToEnumerator<TItem>(this IEnumerable<TItem> enumerable, Action afterEnumerationAction)
-    {
-      try {
-        foreach (var item in enumerable)
-          yield return item;
-      }
-      finally {
-        afterEnumerationAction.Invoke();
-      }
+      return await Task.FromResult(source).ConfigureAwait(false);
     }
   }
 }

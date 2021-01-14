@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.05.01
 
@@ -31,6 +31,11 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="sourceSchema">The source schema.</param>
     /// <param name="targetSchema">The target schema.</param>
     /// <param name="schemaHints">The upgrade hints.</param>
+    /// <param name="upgradeHints"><see cref="UpgradeHint"/>s to be applied.</param>
+    /// <param name="schemaUpgradeMode">A <see cref="SchemaUpgradeMode"/> being used.</param>
+    /// <param name="model">A <see cref="DomainModel"/> of a storage.</param>
+    /// <param name="briefExceptionFormat">Indicates whether brief or full exception format should be used.</param>
+    /// <param name="upgradeStage">A current <see cref="UpgradeStage"/>.</param>
     /// <returns>Comparison result.</returns>
     public static SchemaComparisonResult Compare(
       StorageModel sourceSchema, StorageModel targetSchema, 
@@ -271,7 +276,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var filter = schemaUpgradeMode!=SchemaUpgradeMode.ValidateCompatible
         ? (Func<Type, bool>) (targetType => true)
-        : targetType => targetType.In(typeof (TableInfo), typeof (StorageColumnInfo));
+        : targetType => targetType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo);
       var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Select(action => action.Difference.Target.GetType())
@@ -279,7 +284,7 @@ namespace Xtensive.Orm.Upgrade
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
         .Select(action => action.Difference.Source.GetType())
-        .Any(sourceType => sourceType.In(typeof (TableInfo), typeof (StorageColumnInfo)));
+        .Any(sourceType => sourceType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo));
 
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;

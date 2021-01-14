@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.11.20
 
 using System;
 using System.Runtime.Serialization;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 
@@ -18,8 +19,6 @@ namespace Xtensive.Orm.Operations
   [Serializable]
   public abstract class EntitySetOperation : EntityFieldOperation
   {
-    private readonly static Type entitySetBaseType = typeof (EntitySetBase);
-
     /// <summary>
     /// Gets the entity set involved into this operation.
     /// </summary>
@@ -44,7 +43,7 @@ namespace Xtensive.Orm.Operations
     {
       Type fieldType;
       string fieldName = string.Empty;
-      if (field.IsDynalicallyDefined) {
+      if (field.IsDynamicallyDefined) {
         fieldType = field.ValueType;
         var name = field.Name;
       }
@@ -53,11 +52,11 @@ namespace Xtensive.Orm.Operations
         var name = field.UnderlyingProperty.GetShortName(true);
       }
       
-      if (!entitySetBaseType.IsAssignableFrom(fieldType))
+      if (!WellKnownOrmTypes.EntitySetBase.IsAssignableFrom(fieldType))
           throw new ArgumentOutOfRangeException(
             Strings.ExTypeOfXMustBeADescendantOfYType,
               fieldName,
-              entitySetBaseType.GetShortName());
+              WellKnownOrmTypes.EntitySetBase.GetShortName());
     }
 
     /// <inheritdoc/>

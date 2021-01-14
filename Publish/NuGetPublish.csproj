@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <NoBuild>true</NoBuild>
@@ -8,10 +8,8 @@
     <CopyBuildOutputToOutputDirectory>false</CopyBuildOutputToOutputDirectory>
     <CopyOutputSymbolsToOutputDirectory>false</CopyOutputSymbolsToOutputDirectory>
     <CopyDocumentationFileToOutputDirectory>false</CopyDocumentationFileToOutputDirectory>
-    <TargetFramework>netstandard2.0</TargetFramework>
     <IncludeBuildOutput>false</IncludeBuildOutput>
     <PackageId>tmp</PackageId>
-    <PackageOutputPath>$(BaseIntermediateOutputPath)</PackageOutputPath>
     <RunAnalyzersDuringBuild>false</RunAnalyzersDuringBuild>
     <RunAnalyzersDuringLiveAnalysis>false</RunAnalyzersDuringLiveAnalysis>
     <RunAnalyzers>false</RunAnalyzers>
@@ -27,28 +25,37 @@
   </Target>
 
   <ItemGroup Label="Build order">
-    <ProjectReference Include="$(SolutionDir)\Extensions\**\*.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
-    <ProjectReference Include="$(SolutionDir)\Orm\**\*.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
-    <ProjectReference Include="$(SolutionDir)\Weaver\**\*.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
+    <ProjectReference Include="$(SolutionDir)Extensions\**\*.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="$(SolutionDir)Orm\**\*.csproj" ReferenceOutputAssembly="false" />
+    <ProjectReference Include="$(SolutionDir)Weaver\**\*.csproj" ReferenceOutputAssembly="false" />
   </ItemGroup>
   <!-- You can add to this list in User.Directory.Build.props -->
   <ItemGroup>
-    <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.$(Version).nupkg" />
-    <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.BulkOperations.$(Version).nupkg" />
-    <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.Logging.NLog.$(Version).nupkg" />
-    <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.Security.$(Version).nupkg" />
-    <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.SqlServer.$(Version).nupkg" />
-    <NugetPublishInput Include="$(SolutionDir)_Build\Release\packages\Xtensive.Orm.Tracking.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.BulkOperations.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Firebird.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Localization.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Logging.log4net.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Logging.NLog.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.MySql.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Oracle.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.PostgreSql.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Reprocessing.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Security.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Sqlite.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.SqlServer.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Tracking.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Web.$(Version).nupkg" />
   </ItemGroup>
 
   <!-- If package-lock.json has changed, perform an NPM install -->
   <Target Name="PublishToNuget" AfterTargets="Pack" DependsOnTargets="Pack">
     <Message Importance="high" Text="Publish nupkg %(NugetPublishInput.Identity) to server" />
     <!-- Create empty valid NuGet.Config file and add credentials there -->
-    <WriteLinesToFile File="$(SolutionDir)_Build\Release\packages\NuGet.Config" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;configuration&gt;&lt;/configuration&gt;" Overwrite="True" />
-    <Exec Command="dotnet nuget add source $(DoNugetFeedUrl) --username $(DoNugetFeedUserName) --password $(DoNugetFeedPassword) --store-password-in-clear-text --configfile NuGet.Config" WorkingDirectory="$(SolutionDir)_Build\Release\packages" />
+    <WriteLinesToFile File="$(PackageOutputPath)NuGet.Config" Lines="&lt;?xml version=&quot;1.0&quot; encoding=&quot;utf-8&quot;?&gt;&lt;configuration&gt;&lt;/configuration&gt;" Overwrite="True" />
+    <Exec Command="dotnet nuget add source $(DoNugetFeedUrl) --username $(DoNugetFeedUserName) --password $(DoNugetFeedPassword) --store-password-in-clear-text --configfile NuGet.Config" WorkingDirectory="$(PackageOutputPath)" />
     <!-- Push packages using credentials from NuGet.Config file and then delete NuGet.Config  -->
-    <Exec Command="dotnet nuget push %(NugetPublishInput.Identity) --force-english-output --timeout 60 --api-key az --source $(DoNugetFeedUrl)" WorkingDirectory="$(SolutionDir)_Build\Release\packages" />
-    <Delete Files="$(SolutionDir)_Build\Release\packages\NuGet.Config" />
+    <Exec Command="dotnet nuget push %(NugetPublishInput.Identity) --force-english-output --timeout 60 --api-key az --source $(DoNugetFeedUrl)" WorkingDirectory="$(PackageOutputPath)" />
+    <Delete Files="$(PackageOutputPath)NuGet.Config" />
   </Target>
 </Project>

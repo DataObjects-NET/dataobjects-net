@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.12.31
 
@@ -68,12 +68,12 @@ namespace Xtensive.Orm.Manual.FutureQueries
           orderby person.Name
           select person
           );
-        var managedPersonCount = session.Query.ExecuteDelayed(qe => (
+        var managedPersonCount = session.Query.CreateDelayedQuery(qe => (
           from person in qe.All<Person>()
           where person.Manager!=null
           select person
           ).Count());
-        var personsWithEmployees = session.Query.ExecuteDelayed(qe =>
+        var personsWithEmployees = session.Query.CreateDelayedQuery(qe =>
           from person in session.Query.All<Person>()
           where person.Employees.Count!=0
           select person

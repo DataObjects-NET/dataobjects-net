@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.03.23
 
@@ -99,7 +99,9 @@ namespace Xtensive.Orm.Upgrade.Model
         var pkColumns = PrimaryKey.KeyColumns;
         var fkColumns = ForeignKeyColumns;
 
-        if (pkColumns.Count()!=pkColumns.Zip(fkColumns).Where(p => CompareKeyColumns(p.First, p.Second)).Count()) {
+        if (pkColumns.Count!=pkColumns
+          .Zip(fkColumns, (pkColumn, fkColumn) => new Pair<KeyColumnRef, ForeignKeyColumnRef>(pkColumn, fkColumn))
+          .Count(p => CompareKeyColumns(p.First, p.Second))) {
           ea.Execute(() => {
             throw new ValidationException(
               Strings.ExInvalidForeignKeyStructure, Path);

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.07.16
 
@@ -18,14 +18,8 @@ namespace Xtensive.Orm.Rse.Providers
   /// The single enumeration attempt context for the <see cref="ExecutableProvider"/>.
   /// </summary>
   [Serializable]
-  public abstract class EnumerationContext : Context<EnumerationScope>
+  public abstract class EnumerationContext
   {
-    /// <summary>
-    /// Gets the current <see cref="EnumerationContext"/>.
-    /// </summary>
-    public static EnumerationContext Current {
-      get { return EnumerationScope.CurrentContext; }
-    }
 
     private readonly Dictionary<Pair<object, string>, object> cache = new Dictionary<Pair<object, string>, object>();
 
@@ -82,30 +76,6 @@ namespace Xtensive.Orm.Rse.Providers
     {
       return (Options & requiredOptions)==requiredOptions;
     }
-
-    #region IContext<...> methods
-
-    /// <inheritdoc/>
-    public override bool IsActive
-    {
-      get { return EnumerationScope.CurrentContext==this; }
-    }
-
-    #endregion
-
-    #region EnsureXxx methods
-
-    /// <summary>
-    /// Ensures the context is active.
-    /// </summary>
-    /// <exception cref="InvalidOperationException">Context is not active.</exception>
-    public void EnsureIsActive()
-    {
-      if (EnumerationScope.CurrentContext!=this)
-        throw new InvalidOperationException(string.Format(Strings.ExXMustBeActive, GetType().GetShortName()));
-    }
-
-    #endregion
 
 
     // Constructors

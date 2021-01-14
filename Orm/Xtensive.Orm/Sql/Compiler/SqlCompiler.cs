@@ -1,16 +1,17 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-
+using Xtensive.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Index = Xtensive.Sql.Model.Index;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -1738,7 +1739,7 @@ namespace Xtensive.Sql.Compiler
       : base(driver)
     {
       translator = driver.Translator;
-      decimalType = driver.TypeMappings[typeof (Decimal)].MapType();
+      decimalType = driver.TypeMappings[WellKnownTypes.Decimal].MapType();
     }
   }
 }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2009.04.07
 
@@ -470,7 +470,7 @@ namespace Xtensive.Modelling.Comparison
         EnumerableUtils.Unfold(difference, d => d.Parent).Reverse();
       var currentDiffs = 
         EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse();
-      var commonDiffs = diffs.Zip(currentDiffs).Where(p => p.First==p.Second).Select(p => p.First);
+      var commonDiffs = diffs.Zip(currentDiffs, (first, second) => new Pair<Difference>(first, second)).Where(p => p.First==p.Second).Select(p => p.First);
       var newDiffs = diffs.Except(commonDiffs);
       var query =
         from diff in newDiffs
@@ -735,33 +735,33 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>The highest common base type.</returns>
     protected static Type GetCommonBase(object source, object target)
     {
-      var sourceAncestors = GetAncestors(source==null ? typeof (object) : source.GetType());
-      var targetAncestors = GetAncestors(target==null ? typeof (object) : target.GetType());
-      var sourceType = sourceAncestors[sourceAncestors.Count - 1];
-      var targetType = targetAncestors[targetAncestors.Count - 1];
-      if (sourceType.IsAssignableFrom(targetType))
+      var sourceType = source?.GetType() ?? WellKnownTypes.Object;
+      var targetType = target?.GetType() ?? WellKnownTypes.Object;
+
+      if (sourceType.IsAssignableFrom(targetType)) {
         return targetType;
-      if (targetType.IsAssignableFrom(sourceType))
-        return sourceType;
-      var commonBase = typeof (object);
-      for (int i = 0; i < Math.Min(sourceAncestors.Count, targetAncestors.Count); i++) {
-        var ancestor = sourceAncestors[i];
-        if (ancestor!=targetAncestors[i])
-          break;
-        commonBase = ancestor;
       }
-      return commonBase;
+
+      if (targetType.IsAssignableFrom(sourceType)) {
+        return sourceType;
+      }
+
+      var sourceAncestors = GetAncestors(sourceType).ToHashSet();
+      foreach (var ancestorType in GetAncestors(targetType)) {
+        if (sourceAncestors.Contains(ancestorType)) {
+          return ancestorType;
+        }
+      }
+
+      return WellKnownTypes.Object;
     }
 
-    private static List<Type> GetAncestors(Type type)
+    private static IEnumerable<Type> GetAncestors(Type type)
     {
-      var list = new List<Type>();
-      while (type!=typeof(object)) {
-        list.Insert(0, type);
+      while (type != null) {
+        yield return type;
         type = type.BaseType;
       }
-      list.Insert(0, typeof(object));
-      return list;
     }
 
     #endregion

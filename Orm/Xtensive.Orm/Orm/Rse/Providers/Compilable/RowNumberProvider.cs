@@ -1,12 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.03.05
 
 using System;
 using Xtensive.Collections;
-
+using Xtensive.Reflection;
 using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse.Providers
     public RowNumberProvider(CompilableProvider source, string columnName)
       : base(ProviderType.RowNumber, source)
     {
-      SystemColumn = new SystemColumn(columnName, Source.Header.Length, typeof(long));
+      SystemColumn = new SystemColumn(columnName, Source.Header.Length, WellKnownTypes.Int64);
       Initialize();
     }
   }
