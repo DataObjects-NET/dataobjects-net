@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Ustinov
 // Created:    2007.07.10
 
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets a Collection of columns that are included into the index.
+    /// Gets a collection of columns that are included into the index.
     /// </summary>
     public ColumnInfoCollection IncludedColumns
     {
@@ -235,7 +235,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is primary index.
+    /// Gets a value indicating whether this instance is primary index.
     /// </summary>
     public bool IsPrimary
     {
@@ -244,7 +244,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is typed index.
+    /// Gets a value indicating whether this instance is typed index.
     /// </summary>
     public bool IsTyped
     {
@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is unique index.
+    /// Gets a value indicating whether this instance is unique index.
     /// </summary>
     public bool IsUnique
     {
@@ -262,7 +262,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is abstract.
+    /// Gets a value indicating whether this instance is abstract.
     /// </summary>
     public bool IsAbstract
     {
@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Gets or sets a value indicating whether this instance is virtual index.
+    /// Gets a value indicating whether this instance is virtual index.
     /// </summary>
     public bool IsVirtual
     {

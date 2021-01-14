@@ -22,19 +22,21 @@ namespace Xtensive.Orm.BulkOperations
     where T : class, IEntity
   {
     public readonly QueryProvider QueryProvider;
+    public readonly QueryBuilder QueryBuilder;
     public List<QueryParameterBinding> Bindings;
+    public SqlTableRef JoinedTableRef;
+
     protected readonly DomainHandler DomainHandler;
     protected readonly PrimaryIndexMapping[] PrimaryIndexes;
-    public readonly QueryBuilder QueryBuilder;
-    public readonly Session Session;
     protected readonly TypeInfo TypeInfo;
-    public SqlTableRef JoinedTableRef;
+
+    public Session Session { get { return QueryBuilder.Session; } }
 
     public int Execute()
     {
       EnsureTransactionIsStarted();
-      QueryProvider.Session.SaveChanges();
-      var value = ExecuteInternal();
+      Session.SaveChanges();
+      int value = ExecuteInternal();
       DirectStateAccessor.Get(QueryProvider.Session).Invalidate();
       return value;
     }
@@ -77,15 +79,15 @@ namespace Xtensive.Orm.BulkOperations
     {
       QueryProvider = queryProvider;
       var entityType = typeof (T);
-      Session = queryProvider.Session;
-      DomainHandler = Session.Domain.Services.Get<DomainHandler>();
+      var session = queryProvider.Session;
+      DomainHandler = session.Domain.Services.Get<DomainHandler>();
       TypeInfo = GetTypeInfo(entityType);
-      var mapping = Session.StorageNode.Mapping;
+      var mapping = session.StorageNode.Mapping;
       PrimaryIndexes = TypeInfo.AffectedIndexes
         .Where(i => i.IsPrimary)
         .Select(i => new PrimaryIndexMapping(i, mapping[i.ReflectedType]))
         .ToArray();
-      QueryBuilder = Session.Services.Get<QueryBuilder>();
+      QueryBuilder = session.Services.Get<QueryBuilder>();
     }
   }
 }

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
@@ -12,6 +12,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
     private const int MaxIdentifierLength = 64;
+    private const int DoNotKnow = int.MaxValue;
 
     private readonly string databaseName;
     private readonly string defaultSchemaName;
@@ -194,6 +195,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       queryInfo.MaxComparisonOperations = 1000;
       queryInfo.MaxNestedSubqueriesAmount = 32; //TODO: Determine max nested sub queries and variables.
       queryInfo.ParameterPrefix = "?";
+      queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |

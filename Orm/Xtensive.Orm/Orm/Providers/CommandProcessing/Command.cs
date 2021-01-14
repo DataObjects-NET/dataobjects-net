@@ -31,50 +31,52 @@ namespace Xtensive.Orm.Providers
 
     public int Count => statements.Count;
 
+    internal int ParametersCount => underlyingCommand.Parameters.Count;
+
     public void AddPart(CommandPart part)
     {
       if (prepared) {
-        throw new InvalidOperationException("Unable to change command: it is already prepared");
+        throw new InvalidOperationException(Strings.ExUnableToChangeCommandItIsAlreadyPrepared);
       }
 
       statements.Add(part.Statement);
 
       foreach (var parameter in part.Parameters) {
-        underlyingCommand.Parameters.Add(parameter);
+        _ = underlyingCommand.Parameters.Add(parameter);
       }
 
-      if (part.Resources.Count == 0) {
+      if (part.Resources.Count==0) {
         return;
       }
 
       resources ??= new DisposableSet();
 
       foreach (var resource in part.Resources) {
-        resources.Add(resource);
+        _ = resources.Add(resource);
       }
     }
 
     public int ExecuteNonQuery()
     {
-      Prepare();
+      _ = Prepare();
       return origin.Driver.ExecuteNonQuery(origin.Session, underlyingCommand);
     }
 
     public void ExecuteReader()
     {
-      Prepare();
+      _ = Prepare();
       reader = origin.Driver.ExecuteReader(origin.Session, underlyingCommand);
     }
 
     public async Task<int> ExecuteNonQueryAsync(CancellationToken token)
     {
-      Prepare();
+      _ = Prepare();
       return await origin.Driver.ExecuteNonQueryAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
     }
 
     public async Task ExecuteReaderAsync(CancellationToken token)
     {
-      Prepare();
+      _ = Prepare();
       reader = await origin.Driver.ExecuteReaderAsync(origin.Session, underlyingCommand, token).ConfigureAwait(false);
     }
 

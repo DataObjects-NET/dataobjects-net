@@ -99,6 +99,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var keyExpression = (KeyExpression) Key.BindParameter(parameter, processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, parameter, DefaultIfEmpty);
+      result.IsNullable = IsNullable;
       processedExpressions.Add(this, result);
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
       foreach (var field in fields) {
@@ -118,6 +119,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
       var keyExpression = (KeyExpression) Key.RemoveOuterParameter(processedExpressions);
       var result = new EntityExpression(PersistentType, keyExpression, null, DefaultIfEmpty);
+      result.IsNullable = IsNullable;
       processedExpressions.Add(this, result);
       var processedFields = new List<PersistentFieldExpression>(fields.Count);
       foreach (var field in fields) {
@@ -132,10 +134,10 @@ namespace Xtensive.Orm.Linq.Expressions
     public static void Fill(EntityExpression entityExpression, int offset)
     {
       using (new RemapScope()) {
-        entityExpression.Remap(offset, new Dictionary<Expression, Expression>());
+        _ = entityExpression.Remap(offset, new Dictionary<Expression, Expression>());
       }
       var typeInfo = entityExpression.PersistentType;
-      foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfType<FieldExpression>().Select(field=>field.Field))) {
+      foreach (var nestedField in typeInfo.Fields.Except(entityExpression.Fields.OfType<FieldExpression>().Select(field => field.Field))) {
         var nestedFieldExpression = BuildNestedFieldExpression(nestedField, offset);
         if (nestedFieldExpression is FieldExpression fieldExpression) {
           fieldExpression.Owner = entityExpression;
@@ -189,12 +191,10 @@ namespace Xtensive.Orm.Linq.Expressions
       var result = new EntityExpression(typeInfo, keyExpression, null, entityFieldExpression.DefaultIfEmpty) {
         Fields = fields
       };
-      if (entityFieldExpression.OuterParameter == null) {
-        return result;
-      }
-
-      return (EntityExpression) result.BindParameter(
-        entityFieldExpression.OuterParameter, new Dictionary<Expression, Expression>());
+      return entityFieldExpression.OuterParameter == null
+        ? result
+        : (EntityExpression) result.BindParameter(
+          entityFieldExpression.OuterParameter, new Dictionary<Expression, Expression>());
     }
 
     private static PersistentFieldExpression BuildNestedFieldExpression(FieldInfo nestedField, int offset)

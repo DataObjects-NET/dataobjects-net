@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2014.04.10
 
@@ -8,16 +8,17 @@ using System;
 using System.Data.Common;
 using Npgsql;
 using NpgsqlTypes;
+using Xtensive.Reflection.PostgreSql;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal sealed class PolygonMapper : PostgreSqlTypeMapper
   {
-    private static readonly string PolygonTypeName = typeof (NpgsqlPolygon).AssemblyQualifiedName;
+    private static readonly string PolygonTypeName = WellKnownTypes.NpgsqlPolygonType.AssemblyQualifiedName;
 
     public override void BindValue(DbParameter parameter, object value)
     {
-      if (value==null) {
+      if (value == null) {
         parameter.Value = DBNull.Value;
         return;
       }

@@ -5,6 +5,7 @@
 // Created:    2009.08.20
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -19,21 +20,31 @@ namespace Xtensive.Orm.Providers
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
       var part = Factory.CreateQueryPart(task, GetParameterPrefix(context));
+      if (PendCommandPart(context.ActiveCommand, part)) {
+        return;
+      }
       context.ActiveCommand.AddPart(part);
       context.ActiveTasks.Add(task);
+      context.CurrentTask = null;
     }
 
     void ISqlTaskProcessor.ProcessTask(SqlPersistTask task, CommandProcessorContext context)
     {
       if (task.ValidateRowCount) {
         ProcessUnbatchedTask(task, context);
+        context.CurrentTask = null;
         return;
       }
-
-      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix(context));
+      var sequence = Factory.CreatePersistParts(task, GetParameterPrefix(context)).ToChainedBuffer();
+      if (PendCommandParts(context.ActiveCommand, sequence)) {
+        // higly recommended to no tear apart persist actions if they are batchable
+        return;
+      }
       foreach (var part in sequence) {
         context.ActiveCommand.AddPart(part);
       }
+
+      context.CurrentTask = null;
     }
 
     public override void RegisterTask(SqlTask task) => tasks.Enqueue(task);
@@ -45,11 +56,11 @@ namespace Xtensive.Orm.Providers
       PutTasksForExecution(context);
 
       while (context.ProcessingTasks.Count >= batchSize) {
-        ExecuteBatch(batchSize, null, context);
+        _ = ExecuteBatch(batchSize, null, context);
       }
 
-      if (!context.AllowPartialExecution) {
-        ExecuteBatch(context.ProcessingTasks.Count, null, context);
+      while (!context.AllowPartialExecution && context.ProcessingTasks.Count > 0) {
+        _ = ExecuteBatch(context.ProcessingTasks.Count, null, context);
       }
     }
 
@@ -58,11 +69,11 @@ namespace Xtensive.Orm.Providers
       PutTasksForExecution(context);
 
       while (context.ProcessingTasks.Count >= batchSize) {
-        await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
       }
 
-      if (!context.AllowPartialExecution) {
-        await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
+      while (!context.AllowPartialExecution && context.ProcessingTasks.Count > 0) {
+        _ = await ExecuteBatchAsync(context.ProcessingTasks.Count, null, context, token).ConfigureAwait(false);
       }
     }
 
@@ -72,33 +83,40 @@ namespace Xtensive.Orm.Providers
       PutTasksForExecution(context);
 
       while (context.ProcessingTasks.Count >= batchSize) {
-        ExecuteBatch(batchSize, null, context);
+        _ = ExecuteBatch(batchSize, null, context);
       }
 
-      return ExecuteBatch(context.ProcessingTasks.Count, request, context).CreateReader(request.GetAccessor());
+      for (;;) {
+        var result = ExecuteBatch(context.ProcessingTasks.Count, request, context);
+        if (result != null && context.ProcessingTasks.Count == 0) {
+          return result.CreateReader(request.GetAccessor());
+        }
+      }
     }
 
     public override async Task<DataReader> ExecuteTasksWithReaderAsync(QueryRequest request,
       CommandProcessorContext context, CancellationToken token)
     {
-      context.ProcessingTasks = new Queue<SqlTask>(tasks);
-      tasks.Clear();
+      context.AllowPartialExecution = false;
+      PutTasksForExecution(context);
 
       while (context.ProcessingTasks.Count >= batchSize) {
-        await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
+        _ = await ExecuteBatchAsync(batchSize, null, context, token).ConfigureAwait(false);
       }
 
-      return (await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false))
-        .CreateReader(request.GetAccessor());
+      for (; ; ) {
+        var result = await ExecuteBatchAsync(context.ProcessingTasks.Count, request, context, token).ConfigureAwait(false);
+        if (result != null && context.ProcessingTasks.Count == 0) {
+          return result.CreateReader(request.GetAccessor());
+        }
+      }
     }
 
     #region Private / internal methods
 
     private Command ExecuteBatch(int numberOfTasks, QueryRequest lastRequest, CommandProcessorContext context)
     {
-      var shouldReturnReader = lastRequest != null;
-
-      if (numberOfTasks == 0 && !shouldReturnReader) {
+      if (numberOfTasks == 0 && lastRequest == null) {
         return null;
       }
 
@@ -106,26 +124,36 @@ namespace Xtensive.Orm.Providers
 
       AllocateCommand(context);
 
+      var shouldReturnReader = false;
       try {
         while (numberOfTasks > 0 && tasksToProcess.Count > 0) {
-          numberOfTasks--;
-          var task = tasksToProcess.Dequeue();
+          var task = tasksToProcess.Peek();
+          context.CurrentTask = task;
           task.ProcessWith(this, context);
+          if(context.CurrentTask==null) {
+            numberOfTasks--;
+            _ = tasksToProcess.Dequeue();
+          }
+          else {
+            break;
+          }
         }
 
         var command = context.ActiveCommand;
-        if (shouldReturnReader) {
+        if (lastRequest != null && tasksToProcess.Count == 0) {
           var part = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
-          command.AddPart(part);
+          if (!PendCommandPart(command, part)) {
+            shouldReturnReader = true;
+            command.AddPart(part);
+          }
         }
 
-        if (command.Count == 0) {
+        if (command.Count==0) {
           return null;
         }
-
         var hasQueryTasks = context.ActiveTasks.Count > 0;
         if (!hasQueryTasks && !shouldReturnReader) {
-          command.ExecuteNonQuery();
+          _ = command.ExecuteNonQuery();
           return null;
         }
 
@@ -139,7 +167,6 @@ namespace Xtensive.Orm.Providers
             while (command.NextRow()) {
               result.Add(command.ReadTupleWith(accessor));
             }
-
             _ = command.NextResult();
             currentQueryTask++;
           }
@@ -151,7 +178,6 @@ namespace Xtensive.Orm.Providers
         if (!shouldReturnReader) {
           context.ActiveCommand.Dispose();
         }
-
         ReleaseCommand(context);
       }
     }
@@ -159,9 +185,7 @@ namespace Xtensive.Orm.Providers
     private async Task<Command> ExecuteBatchAsync(int numberOfTasks, QueryRequest lastRequest,
       CommandProcessorContext context, CancellationToken token)
     {
-      var shouldReturnReader = lastRequest != null;
-
-      if (numberOfTasks == 0 && !shouldReturnReader) {
+      if (numberOfTasks == 0 && lastRequest == null) {
         return null;
       }
 
@@ -169,25 +193,36 @@ namespace Xtensive.Orm.Providers
 
       AllocateCommand(context);
 
+      var shouldReturnReader = false;
       try {
         while (numberOfTasks > 0 && tasksToProcess.Count > 0) {
-          numberOfTasks--;
-          var task = tasksToProcess.Dequeue();
+          var task = tasksToProcess.Peek();
+          context.CurrentTask = task;
           task.ProcessWith(this, context);
+          if (context.CurrentTask == null) {
+            numberOfTasks--;
+            _ = tasksToProcess.Dequeue();
+          }
+          else {
+            break;
+          }
         }
 
         var command = context.ActiveCommand;
-        if (shouldReturnReader) {
-          command.AddPart(Factory.CreateQueryPart(lastRequest, context.ParameterContext));
+        if (lastRequest != null && tasksToProcess.Count == 0) {
+          var part = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
+          if (!PendCommandPart(command, part)) {
+            shouldReturnReader = true;
+            command.AddPart(part);
+          }
         }
 
-        if (command.Count == 0) {
+        if (command.Count==0) {
           return null;
         }
-
         var hasQueryTasks = context.ActiveTasks.Count > 0;
         if (!hasQueryTasks && !shouldReturnReader) {
-          await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+          _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
           return null;
         }
 
@@ -198,11 +233,10 @@ namespace Xtensive.Orm.Providers
             var queryTask = context.ActiveTasks[currentQueryTask];
             var accessor = queryTask.Request.GetAccessor();
             var result = queryTask.Output;
-            while (await command.NextRowAsync(token).ConfigureAwait(false)) {
+            while (command.NextRow()) {
               result.Add(command.ReadTupleWith(accessor));
             }
-
-            _ = await command.NextResultAsync(token).ConfigureAwait(false);
+            _ = command.NextResult();
             currentQueryTask++;
           }
         }
@@ -221,7 +255,7 @@ namespace Xtensive.Orm.Providers
     private void ProcessUnbatchedTask(SqlPersistTask task, CommandProcessorContext context)
     {
       if (context.ActiveCommand.Count > 0) {
-        context.ActiveCommand.ExecuteNonQuery();
+        _ = context.ActiveCommand.ExecuteNonQuery();
         ReleaseCommand(context);
         AllocateCommand(context);
       }
@@ -233,12 +267,14 @@ namespace Xtensive.Orm.Providers
     {
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
-        using var command = Factory.CreateCommand();
-        command.AddPart(part);
-        var affectedRowsCount = command.ExecuteNonQuery();
-        if (affectedRowsCount == 0) {
-          throw new VersionConflictException(string.Format(
-            Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+        using (var command = Factory.CreateCommand()) {
+          ValidateCommandParameters(part);
+          command.AddPart(part);
+          var affectedRowsCount = command.ExecuteNonQuery();
+          if (affectedRowsCount == 0) {
+            throw new VersionConflictException(string.Format(
+              Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+          }
         }
       }
     }
@@ -263,14 +299,37 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private static string GetParameterPrefix(CommandProcessorContext context) => $"p{context.ActiveCommand.Count + 1}_";
+    private bool PendCommandPart(Command currentCommand, CommandPart partToAdd) =>
+      PendCommandParts(currentCommand, new[] { partToAdd });
+
+    private bool PendCommandParts(Command currentCommand, ICollection<CommandPart> partsToAdd)
+    {
+      var currentCount = (currentCommand != null) ? currentCommand.ParametersCount : 0;
+      var behavior = GetCommandExecutionBehavior(partsToAdd, currentCount);
+      if (behavior == ExecutionBehavior.AsOneCommand) {
+        return false;
+      }
+      return behavior == ExecutionBehavior.TooLargeForAnyCommand
+        ? throw new ParametersLimitExceededException(currentCount + partsToAdd.Sum(x => x.Parameters.Count), MaxQueryParameterCount)
+        : true;
+    }
+
+    private void ValidateCommandParameters(CommandPart commandPart)
+    {
+      if (GetCommandExecutionBehavior(new[] { commandPart }, 0) == ExecutionBehavior.TooLargeForAnyCommand) {
+        throw new ParametersLimitExceededException(commandPart.Parameters.Count, MaxQueryParameterCount);
+      }
+    }
+
+    private static string GetParameterPrefix(CommandProcessorContext context) =>
+      string.Format("p{0}_", context.ActiveCommand.Count + 1);
 
     #endregion
 
     // Constructors
 
-    public BatchingCommandProcessor(CommandFactory factory, int batchSize)
-      : base(factory)
+    public BatchingCommandProcessor(CommandFactory factory, int batchSize, int maxQueryParameterCount)
+      : base(factory, maxQueryParameterCount)
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, nameof(batchSize));
       this.batchSize = batchSize;

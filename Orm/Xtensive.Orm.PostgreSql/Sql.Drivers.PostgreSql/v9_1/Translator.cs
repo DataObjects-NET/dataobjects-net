@@ -1,6 +1,6 @@
-// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.10.10
 
@@ -12,21 +12,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_1
 {
   internal class Translator : v9_0.Translator
   {
-    public override string Translate(SqlCompilerContext context, object literalValue)
-    {
-      var array = literalValue as byte[];
-      if (array==null)
-        return base.Translate(context, literalValue);
-
-      var result = new StringBuilder(array.Length * 2 + 6);
-
-      result.Append(@"E'\\x");
-      result.AppendHexArray(array);
-      result.Append("'");
-
-      return result.ToString();
-    }
-
     // Constructors
 
     public Translator(SqlDriver driver)

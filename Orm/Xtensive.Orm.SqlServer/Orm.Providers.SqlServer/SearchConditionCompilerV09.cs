@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.12.08
 
@@ -11,6 +11,7 @@ using System.Text;
 using Xtensive.Orm.FullTextSearchCondition;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 using Xtensive.Orm.FullTextSearchCondition.Nodes;
+using Xtensive.SqlServer.Resources;
 
 namespace Xtensive.Orm.Providers.SqlServer
 {

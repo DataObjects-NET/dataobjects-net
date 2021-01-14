@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2009-2010 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -113,8 +113,10 @@ namespace Xtensive.Sql
 
     public static bool IsArithmeticExpression(SqlExpression node)
     {
-      if (node==null)
+      if (node==null) {
         return true;
+      }
+
       switch (node.NodeType) {
         case SqlNodeType.Add:
         case SqlNodeType.Avg:
@@ -149,6 +151,9 @@ namespace Xtensive.Sql
         case SqlNodeType.DateTimeMinusInterval:
         case SqlNodeType.DateTimePlusInterval:
         case SqlNodeType.DateTimeMinusDateTime:
+        case SqlNodeType.DateTimeOffsetMinusInterval:
+        case SqlNodeType.DateTimeOffsetPlusInterval:
+        case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
           return true;
         case SqlNodeType.Variant:
           var variant = (SqlVariant) node;

@@ -10,6 +10,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Reflection.PostgreSql;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -19,8 +20,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
-      var rankColumnName = provider.Header.Columns.Last().Name;
-      var stringTypeMapping = Driver.GetTypeMapping(typeof(string));
+      var rankColumnName = provider.Header.Columns[provider.Header.Columns.Count - 1].Name;
+      var stringTypeMapping = Driver.GetTypeMapping(WellKnownTypes.StringType);
       var binding = new QueryParameterBinding(stringTypeMapping,
         provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
@@ -30,7 +31,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var query = BuildProviderQuery(index);
       var table = Mapping[realPrimaryIndex.ReflectedType];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference,
-        table.Columns.Select(column => column.Name).Append(rankColumnName).ToList());
+        table.Columns.Select(column => column.Name).Append(rankColumnName).ToArray(table.Columns.Count + 1));
       var fromTableRef = SqlDml.QueryRef(fromTable);
       foreach (var column in query.Columns) {
         select.Columns.Add(fromTableRef.Columns[column.Name] ?? column);
@@ -54,8 +55,10 @@ namespace Xtensive.Orm.Providers.PostgreSql
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)
     {
       var result = base.ProcessAggregate(source, sourceColumns, aggregateColumn);
-      if (aggregateColumn.AggregateType==AggregateType.Sum || aggregateColumn.AggregateType==AggregateType.Avg)
+      if (aggregateColumn.AggregateType == AggregateType.Sum || aggregateColumn.AggregateType == AggregateType.Avg) {
         result = SqlDml.Cast(result, Driver.MapValueType(aggregateColumn.Type));
+      }
+
       return result;
     }
 

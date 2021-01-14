@@ -147,7 +147,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Occurs when <see cref="Entity"/> is about to remove.
     /// </summary>
-    public event EventHandler<EntityEventArgs> EntityRemoving;
+    public event EventHandler<EntityRemovingEventArgs> EntityRemoving;
 
     /// <summary>
     /// Occurs when <see cref="Entity"/> removed.
@@ -381,10 +381,11 @@ namespace Xtensive.Orm
         EntityFieldValueSetCompleted(this, new EntityFieldValueSetCompletedEventArgs(entity, field, oldValue, newValue, exception));
     }
 
-    internal void NotifyEntityRemoving(Entity entity)
+    internal void NotifyEntityRemoving(Entity entity, EntityRemoveReason reason)
     {
-      if (EntityRemoving!=null && AreNotificationsEnabled())
-        EntityRemoving(this, new EntityEventArgs(entity));
+      if (EntityRemoving != null && AreNotificationsEnabled()) {
+        EntityRemoving(this, new EntityRemovingEventArgs(entity, reason));
+      }
     }
 
     internal void NotifyEntityRemove(Entity entity)
