@@ -4,6 +4,8 @@
 // Created by: Denis Krjuchkov
 // Created:    2009.11.26
 
+using System.Collections.Generic;
+using System.Linq;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
@@ -13,10 +15,12 @@ namespace Xtensive.Orm.Tests.Storage
 {
   public class NestedTransactionsTest : TransactionsTestBase
   {
+    private StorageProviderInfo storageProviderInfo;
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
       Domain.OpenSession();
+      storageProviderInfo = StorageProviderInfo.Instance;
     }
 
     public override void TestFixtureTearDown()
@@ -129,6 +133,107 @@ namespace Xtensive.Orm.Tests.Storage
       }
       Assert.IsNull(Session.Current.Transaction);
       Assert.IsNull(StorageTestHelper.GetNativeTransaction());
+    }
+
+    [Test]
+    public void RollbackNestedTransactionWithActiveEnumeratorTest()
+    {
+      var session = Session.Demand();
+      using (var outerTx = session.OpenTransaction()) {
+        _ = new Hexagon();
+        _ = new Hexagon();
+        _ = new Hexagon();
+
+        IEnumerator<int> enumerator = null;
+        var innerTx = session.OpenTransaction(TransactionOpenMode.New);
+
+        enumerator = session.Query.All<Hexagon>()
+          .Select(item => item.Id).AsEnumerable().GetEnumerator();
+        _ = enumerator.MoveNext();
+
+        if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)) {
+          _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
+        }
+        else {
+          Assert.DoesNotThrow(() => innerTx.Dispose());
+        }
+      }
+    }
+
+    [Test]
+    public void RollbackNestedTransactionWithActiveEnumeratorAndThenCompleteOutermostTest()
+    {
+      var session = Session.Demand();
+      using (var outerTx = session.OpenTransaction()) {
+        _ = new Hexagon();
+        _ = new Hexagon();
+        _ = new Hexagon();
+
+        IEnumerator<int> enumerator = null;
+        var innerTx = session.OpenTransaction(TransactionOpenMode.New);
+
+        enumerator = session.Query.All<Hexagon>()
+          .Select(item => item.Id).AsEnumerable().GetEnumerator();
+        _ = enumerator.MoveNext();
+
+        if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)) {
+          _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
+        }
+        else {
+          Assert.DoesNotThrow(() => innerTx.Dispose());
+        }
+        outerTx.Complete();
+      }
+    }
+
+    [Test]
+    public void CommitNestedTransactionWithActiveEnumeratorAndRollbackOutermostTest()
+    {
+      var session = Session.Demand();
+      using (var outerTx = session.OpenTransaction()) {
+        _ = new Hexagon();
+        _ = new Hexagon();
+        _ = new Hexagon();
+
+        IEnumerator<int> enumerator = null;
+        var innerTx = session.OpenTransaction(TransactionOpenMode.New);
+
+        enumerator = session.Query.All<Hexagon>()
+          .Select(item => item.Id).AsEnumerable().GetEnumerator();
+        _ = enumerator.MoveNext();
+
+        innerTx.Complete();
+        innerTx.Dispose();
+      }
+    }
+
+    [Test]
+    public void CommitNestedTransactionWithActiveEnumeratorAndCommitOutermostTest()
+    {
+      var session = Session.Demand();
+      var outerTx = session.OpenTransaction();
+      _ = new Hexagon();
+      _ = new Hexagon();
+      _ = new Hexagon();
+
+      IEnumerator<int> enumerator = null;
+      var innerTx = session.OpenTransaction(TransactionOpenMode.New);
+
+      enumerator = session.Query.All<Hexagon>()
+        .Select(item => item.Id).AsEnumerable().GetEnumerator();
+      _ = enumerator.MoveNext();
+
+      innerTx.Complete();
+      innerTx.Dispose();
+
+      outerTx.Complete();
+      if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)) {
+        var exception = Assert.Throws<StorageException>(() => outerTx.Dispose());
+        Assert.That(exception.InnerException, Is.InstanceOf<System.Data.SqlClient.SqlException>());
+      }
+      else {
+        Assert.DoesNotThrow(() => outerTx.Dispose());
+      }
     }
   }
 }
