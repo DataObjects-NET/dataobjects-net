@@ -16,26 +16,27 @@ namespace Xtensive.Orm.Tests.Storage
   public class NestedTransactionsTest : TransactionsTestBase
   {
     private StorageProviderInfo storageProviderInfo;
+    private Session globalSession;
+
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
-      Domain.OpenSession();
+      globalSession = Domain.OpenSession();
       storageProviderInfo = StorageProviderInfo.Instance;
     }
 
-    public override void TestFixtureTearDown()
-    {
-      Session.Current.DisposeSafely();
-    }
+    protected override void CheckRequirements()
+      => Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
+
+    public override void TestFixtureTearDown() => globalSession.DisposeSafely();
 
     [Test]
     public void UnmodifiedStateIsValidInInnerTransactionTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var outerScope = Session.Demand().OpenTransaction()) {
+      using (var outerScope = globalSession.OpenTransaction()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
-        using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
+        using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           AssertStateIsValid(theHexagon);
           Assert.AreEqual(theHexagon.Kwanza, 0);
           AssertStateIsValid(theHexagon);
@@ -47,11 +48,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ModifiedStateIsValidInInnerTransactionTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var outerScope = Session.Demand().OpenTransaction()) {
+      using (var outerScope = globalSession.OpenTransaction()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
-        using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
+        using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           theHexagon.IncreaseKwanza();
           AssertStateIsValid(theHexagon);
           Assert.AreEqual(theHexagon.Kwanza, 1);
@@ -63,11 +63,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void UnmodifiedStateIsValidInOuterTransactionAfterInnerTransactionRolledBackTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var outerScope = Session.Demand().OpenTransaction()) {
+      using (var outerScope = globalSession.OpenTransaction()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
-        using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
+        using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           // rollback
         }
         AssertStateIsValid(theHexagon);
@@ -78,11 +77,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ModifiedStateIsInvalidInOuterTransactionAfterInnerTransactionRolledBackTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var outerScope = Session.Demand().OpenTransaction()) {
+      using (var outerScope = globalSession.OpenTransaction()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
-        using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
+        using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           theHexagon.IncreaseKwanza();
           // rollback
         }
@@ -94,11 +92,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void UnmodifiedStateIsValidInOuterTransactionAfterInnerTransactionCommitedTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var outerScope = Session.Demand().OpenTransaction()) {
+      using (var outerScope = globalSession.OpenTransaction()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
-        using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
+        using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           innerScope.Complete();
         }
         AssertStateIsValid(theHexagon);
@@ -109,11 +106,10 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ModifiedStateIsValidInOuterTransactionAfterInnerTransactionCommitedTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var outerScope = Session.Demand().OpenTransaction()) {
+      using (var outerScope = globalSession.OpenTransaction()) {
         var outerTransaction = Transaction.Current;
         var theHexagon = new Hexagon();
-        using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
+        using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
           theHexagon.IncreaseKwanza();
           innerScope.Complete();
         }
@@ -125,9 +121,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void WrongNestedTransactionUsageTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Savepoints);
-      using (var outerScope = Session.Demand().OpenTransaction())
-      using (var innerScope = Session.Demand().OpenTransaction(TransactionOpenMode.New)) {
+      using (var outerScope = globalSession.OpenTransaction())
+      using (var innerScope = globalSession.OpenTransaction(TransactionOpenMode.New)) {
         outerScope.Complete();
         AssertEx.ThrowsInvalidOperationException(outerScope.Dispose);
       }
