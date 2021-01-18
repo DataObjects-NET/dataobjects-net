@@ -18,6 +18,8 @@ namespace Xtensive.Orm.Rse.Transformation
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
     private readonly CompilableProvider rootProvider;
 
+    private bool hasGrouping;
+
     public virtual CompilableProvider RemoveRedundantColumns()
     {
       mappings.Add(rootProvider, Enumerable.Range(0, rootProvider.Header.Length).ToList());
@@ -224,7 +226,13 @@ namespace Xtensive.Orm.Rse.Transformation
         .Select(c => c.SourceIndex)
         .Union(provider.GroupColumnIndexes);
       mappings[provider.Source] = Merge(mappings[provider], map);
+
+      if (provider.GroupColumnIndexes.Length > 0) {
+        hasGrouping = true;
+      }
+
       var source = VisitCompilable(provider.Source);
+      hasGrouping = false;
 
       var sourceMap = mappings[provider.Source];
       var currentMap = mappings[provider];
@@ -290,6 +298,28 @@ namespace Xtensive.Orm.Rse.Transformation
       if (newSource==provider.Source)
         return provider;
       return new RowNumberProvider(newSource, rowNumberColumn.Name);
+    }
+
+    protected override Provider VisitStore(StoreProvider provider)
+    {
+      var compilableSource = provider.Source as CompilableProvider;
+      if (compilableSource == null)
+        return provider;
+
+      if (hasGrouping) {
+        mappings.Add(provider.Sources[0],
+          Merge(mappings[provider], provider.Header.Columns.Select((c, i) => i)));
+      }
+      else {
+        OnRecursionEntrance(provider);
+      }
+
+      var source = VisitCompilable(compilableSource);
+
+      _ = OnRecursionExit(provider);
+      if (source == compilableSource)
+        return provider;
+      return new StoreProvider(source, provider.Name);
     }
 
     protected override Provider VisitConcat(ConcatProvider provider)
