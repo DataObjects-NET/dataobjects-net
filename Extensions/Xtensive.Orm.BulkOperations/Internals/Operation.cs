@@ -81,13 +81,13 @@ namespace Xtensive.Orm.BulkOperations
       var entityType = typeof (T);
       var session = queryProvider.Session;
       DomainHandler = session.Domain.Services.Get<DomainHandler>();
+      QueryBuilder = session.Services.Get<QueryBuilder>();
       TypeInfo = GetTypeInfo(entityType);
       var mapping = session.StorageNode.Mapping;
       PrimaryIndexes = TypeInfo.AffectedIndexes
         .Where(i => i.IsPrimary)
         .Select(i => new PrimaryIndexMapping(i, mapping[i.ReflectedType]))
         .ToArray();
-      QueryBuilder = session.Services.Get<QueryBuilder>();
     }
   }
 }
