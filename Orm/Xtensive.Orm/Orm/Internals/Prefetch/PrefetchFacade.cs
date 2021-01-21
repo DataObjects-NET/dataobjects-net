@@ -44,26 +44,27 @@ namespace Xtensive.Orm.Internals.Prefetch
       var aggregatedNodes = NodeAggregator<T>.Aggregate(nodes);
       var resultQueue = new Queue<T>();
       var container = new StrongReferenceContainer(null);
+      var enumerationIdentifier = Guid.NewGuid();
       foreach (var item in source) {
         resultQueue.Enqueue(item);
         if (item!=null)
           foreach (var extractorNode in aggregatedNodes)
-            container.JoinIfPossible(RegisterPrefetch(extractorNode.ExtractKeys(item), extractorNode));
+            container.JoinIfPossible(RegisterPrefetch(extractorNode.ExtractKeys(item), extractorNode, enumerationIdentifier));
         if (currentTaskCount==sessionHandler.PrefetchTaskExecutionCount)
           continue;
         while (container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks()))
-          container.JoinIfPossible(ProcessFetchedElements());
+          container.JoinIfPossible(ProcessFetchedElements(enumerationIdentifier));
         while (resultQueue.Count > 0)
           yield return resultQueue.Dequeue();
         currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       }
       while (container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks()))
-        container.JoinIfPossible(ProcessFetchedElements());
+        container.JoinIfPossible(ProcessFetchedElements(enumerationIdentifier));
       while (resultQueue.Count > 0)
         yield return resultQueue.Dequeue();
     }
 
-    private StrongReferenceContainer RegisterPrefetch(IEnumerable<Key> keys, IHasNestedNodes fieldContainer)
+    private StrongReferenceContainer RegisterPrefetch(IEnumerable<Key> keys, IHasNestedNodes fieldContainer, Guid enumerationId)
     {
       var container = new StrongReferenceContainer(null);
       TypeInfo modelType = null;
@@ -81,10 +82,10 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (!fieldDescriptorCache.TryGetValue(cacheKey, out fieldDescriptors)) {
           fieldDescriptors = PrefetchHelper
             .GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type)
-            .Concat(fieldContainer.NestedNodes.Select(fn => new PrefetchFieldDescriptor(fn.Field, false, true))).ToList();
+            .Concat(fieldContainer.NestedNodes.Select(fn => new PrefetchFieldDescriptor(fn.Field, false, true, enumerationId))).ToList();
           fieldDescriptorCache.Add(cacheKey, fieldDescriptors);
         }
-        container.JoinIfPossible(sessionHandler.Prefetch(key, type, fieldDescriptors));
+        _ = container.JoinIfPossible(sessionHandler.Prefetch(key, type, fieldDescriptors));
       }
       var nestedContainers = fieldContainer.NestedNodes.OfType<IHasNestedNodes>();
       foreach (var nestedContainer in nestedContainers)
@@ -93,7 +94,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       return container;
     }
 
-    private StrongReferenceContainer ProcessFetchedElements()
+    private StrongReferenceContainer ProcessFetchedElements(Guid enumerationId)
     {
       var container = new StrongReferenceContainer(null);
       taskCount = sessionHandler.PrefetchTaskExecutionCount;
@@ -119,7 +120,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           }
           keys.AddRange(nestedNodes.ExtractKeys(entityState.Entity));
         }
-        container.JoinIfPossible(RegisterPrefetch(keys, nestedNodes));
+        container.JoinIfPossible(RegisterPrefetch(keys, nestedNodes, enumerationId));
       }
       return container;
     }

@@ -57,6 +57,22 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public FieldInfo Field { get; private set; }
 
+    /// <summary>
+    /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
+    /// </summary>
+    public long Count
+    {
+      get {
+        if (Owner.IsRemoved) {
+          return 0; // WPF tries to use EntitySets of removed Entities
+        }
+
+        EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
+        EnsureCountIsLoaded();
+        return (long) State.TotalItemCount;
+      }
+    }
+
     internal EntitySetState State { get; private set; }
 
     /// <summary>
@@ -73,7 +89,7 @@ namespace Xtensive.Orm
       if (Owner.IsRemoved)
         yield break; // WPF tries to enumerate EntitySets of removed Entities
 
-      Prefetch();
+      PrefetchInternal();
       foreach (var key in State) {
         var entity = Session.Query.SingleOrDefault(key);
         if (entity==null) {
@@ -103,21 +119,7 @@ namespace Xtensive.Orm
     public void Prefetch(int? maxItemCount)
     {
       EnsureOwnerIsNotRemoved();
-      EnsureIsLoaded(maxItemCount);
-    }
-
-    /// <summary>
-    /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
-    /// </summary>
-    public long Count {
-      get {
-        if (Owner.IsRemoved)
-          return 0; // WPF tries to use EntitySets of removed Entities
-
-        EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
-        EnsureCountIsLoaded();
-        return (long) State.TotalItemCount;
-      }
+      EnsureIsLoaded(maxItemCount, State.ShouldUseForcePrefetch(null));
     }
 
     /// <summary>
@@ -781,19 +783,29 @@ namespace Xtensive.Orm
       return false;
     }
 
-    private void EnsureIsLoaded(int? maxItemCount)
+    private void PrefetchInternal()
+    {
+      EnsureOwnerIsNotRemoved();
+      EnsureIsLoaded(null, false);
+    }
+
+    private void EnsureIsLoaded(int? maxItemCount, bool ignoreFullyLoaded = false)
     {
       if (CheckStateIsLoaded()) {
-        if (State.IsFullyLoaded)
+        if (State.IsFullyLoaded && !ignoreFullyLoaded) {
           return;
+        }
+        State.TotalItemCount = null;
         var requestedItemCount = maxItemCount.HasValue
           ? (int) maxItemCount
           : int.MaxValue;
-        if (State.CachedItemCount > requestedItemCount)
+        if (State.CachedItemCount > requestedItemCount) {
           return;
+        }
       }
-      using (Session.Activate())
+      using (Session.Activate()) {
         Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
+      }
     }
 
     private void EnsureCountIsLoaded()

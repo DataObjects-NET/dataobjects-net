@@ -71,11 +71,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static void RegisterAllEntitySetTasks(IEnumerable<GraphContainer> containers)
     {
-      foreach (var container in containers) {
+      foreach (var container in containers.Where(c => c.EntitySetTasks != null)) {
         var entitySetPrefetchTasks = container.EntitySetTasks;
-        if (entitySetPrefetchTasks!=null) {
-          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks)
-            entitySetPrefetchTask.RegisterQueryTask();
+        foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
+          entitySetPrefetchTask.RegisterQueryTask();
         }
       }
     }

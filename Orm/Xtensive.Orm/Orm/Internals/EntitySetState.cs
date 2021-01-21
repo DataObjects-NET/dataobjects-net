@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Xtensive.Caching;
+using Xtensive.Core;
 using KeyCache = Xtensive.Caching.ICache<Xtensive.Orm.Key, Xtensive.Orm.Key>;
 
 namespace Xtensive.Orm.Internals
@@ -40,8 +41,8 @@ namespace Xtensive.Orm.Internals
     private readonly EntitySetBase owner;
     private readonly bool isDisconnected;
 
+    private Guid lastManualPrefetchId;
     private bool isLoaded;
-    
     private long? totalItemCount;
     private int version;
     private IDictionary<Key, Key> addedKeys;
@@ -134,10 +135,11 @@ namespace Xtensive.Orm.Internals
     /// <param name="keys">The keys.</param>
     public void Update(IEnumerable<Key> keys, long? count)
     {
-      if (!isDisconnected)
-        UpdateStateRegular(keys, count);
+
+      if (HasChanges)
+        UpdateCachedState(keys, count);
       else
-        UpdateStateDisconnected(keys, count);
+        UpdateSyncedState(keys, count);
     }
 
     /// <summary>
@@ -272,6 +274,34 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    internal bool ShouldUseForcePrefetch(Guid? currentPrefetchOperation)
+    {
+      if (currentPrefetchOperation.HasValue) {
+        if (currentPrefetchOperation.Value == lastManualPrefetchId)
+          return false;
+        lastManualPrefetchId = currentPrefetchOperation.Value;
+      }
+      if (isDisconnected)
+        return true;
+      if (Session.Transaction != null)
+        switch (Session.Transaction.Outermost.IsolationLevel) {
+          case System.Transactions.IsolationLevel.ReadCommitted:
+          case System.Transactions.IsolationLevel.ReadUncommitted:
+            return true;
+          case System.Transactions.IsolationLevel.RepeatableRead:
+            return string.Equals(Session.Handlers.ProviderInfo.ProviderName, WellKnown.Provider.SqlServer, StringComparison.Ordinal);
+          default:
+            return false;
+        }
+      return false;
+    }
+
+    internal void SetLastManualPrefetchId(Guid? prefetchOperationId)
+    {
+      if (prefetchOperationId.HasValue)
+        lastManualPrefetchId = prefetchOperationId.Value;
+    }
+
     /// <inheritdoc/>
     protected override void Invalidate()
     {
@@ -323,7 +353,7 @@ namespace Xtensive.Orm.Internals
     #endregion
 
 
-    private void UpdateStateRegular(IEnumerable<Key> keys, long? count)
+    private void UpdateSyncedState(IEnumerable<Key> keys, long? count)
     {
       FetchedKeys.Clear();
       TotalItemCount = count;
@@ -332,19 +362,20 @@ namespace Xtensive.Orm.Internals
       Rebind();
     }
 
-    private void UpdateStateDisconnected(IEnumerable<Key> syncronizedKeys, long? count)
+    public void UpdateCachedState(IEnumerable<Key> keys, long? count)
     {
       FetchedKeys.Clear();
-      var countExceptRemoved = 0;
-      foreach (var key in syncronizedKeys) {
+      var becameRemovedOnSever = removedKeys.Keys.ToHashSet();
+      TotalItemCount = count;
+      foreach (var key in keys) {
+        if (addedKeys.ContainsKey(key))
+          addedKeys.Remove(key);
+        else if (becameRemovedOnSever.Contains(key))
+          becameRemovedOnSever.Remove(key);
         FetchedKeys.Add(key);
-        if (!removedKeys.ContainsKey(key))
-          countExceptRemoved++;
       }
-      TotalItemCount = count.HasValue
-        ? countExceptRemoved + AddedItemsCount
-        : count;
-      Rebind();
+      foreach (var removedOnServer in becameRemovedOnSever)
+        removedKeys.Remove(removedOnServer);
     }
 
     private void EnsureFetchedKeysIsNotNull()
@@ -379,6 +410,7 @@ namespace Xtensive.Orm.Internals
       owner = entitySet;
       version = int.MinValue;
       isDisconnected = entitySet.Session.IsDisconnected;
+      lastManualPrefetchId = Guid.Empty;
     }
   }
 }

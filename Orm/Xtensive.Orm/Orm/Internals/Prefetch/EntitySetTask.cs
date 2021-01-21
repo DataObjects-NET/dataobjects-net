@@ -91,9 +91,12 @@ namespace Xtensive.Orm.Internals.Prefetch
     public void RegisterQueryTask()
     {
       EntitySetState state;
-      if (isOwnerCached && manager.Owner.LookupState(ownerKey, ReferencingField, out state))
-        if (state==null || state.IsFullyLoaded)
+      if (isOwnerCached && manager.Owner.LookupState(ownerKey, ReferencingField, out state)) {
+        if (state == null || (state.IsFullyLoaded && !state.ShouldUseForcePrefetch(referencingFieldDescriptor.PrefetchOperationId))) {
           return;
+        }
+      }
+
       itemsQueryTask = CreateQueryTask();
       manager.Owner.Session.RegisterInternalDelayedQuery(itemsQueryTask);
     }
@@ -136,8 +139,11 @@ namespace Xtensive.Orm.Internals.Prefetch
           }
         }
       }
-      manager.Owner.UpdateState(ownerKey, ReferencingField,
-        ItemCountLimit==null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
+      var updatedState = manager.Owner.UpdateState(ownerKey, ReferencingField,
+        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
+      if (updatedState != null) {
+        updatedState.SetLastManualPrefetchId(referencingFieldDescriptor.PrefetchOperationId);
+      }
     }
 
     public bool Equals(EntitySetTask other)
