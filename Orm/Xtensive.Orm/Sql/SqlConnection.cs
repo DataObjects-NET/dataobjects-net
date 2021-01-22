@@ -498,7 +498,7 @@ namespace Xtensive.Sql
     protected void EnsureTransactionIsAlive()
     {
       if (ActiveTransaction != null && ActiveTransaction.Connection == null)
-        throw new InvalidOperationException(Strings.ExActiveTransactionIsNoLongerUsable);
+        throw new ActiveTransactionIsNoLongerUsableException();
     }
 
     /// <summary>
