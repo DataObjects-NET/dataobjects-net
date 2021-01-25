@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.10.20
 
@@ -24,10 +24,12 @@ namespace Xtensive.Orm.Internals.Prefetch
       var batchExecuted = 0;
       try {
         var rootEntityContainers = containers
-          .Where(container => container.RootEntityContainer!=null)
+          .Where(container => container.RootEntityContainer != null)
           .Select(container => container.RootEntityContainer);
-        foreach (var container in rootEntityContainers)
+        foreach (var container in rootEntityContainers) {
           AddTask(container);
+        }
+
         RegisterAllEntityGroupTasks();
         RegisterAllEntitySetTasks(containers);
 
@@ -39,13 +41,16 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         var referencedEntityContainers = containers
           .Select(container => container.ReferencedEntityContainers)
-          .Where(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers!=null)
+          .Where(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers != null)
           .SelectMany(referencedEntityPrefetchContainers => referencedEntityPrefetchContainers);
-        foreach (var container in referencedEntityContainers)
+        foreach (var container in referencedEntityContainers) {
           AddTask(container);
+        }
 
-        if (tasks.Count==0)
+        if (tasks.Count == 0) {
           return batchExecuted;
+        }
+
         RegisterAllEntityGroupTasks();
 
         batchExecuted += manager.Owner.Session.ExecuteInternalDelayedQueries(skipPersist) ? 1 : 0;
@@ -60,11 +65,10 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static void UpdateCacheFromAllEntitySetTasks(IEnumerable<GraphContainer> containers)
     {
-      foreach (var container in containers) {
+      foreach (var container in containers.Where(c => c.EntitySetTasks != null)) {
         var entitySetPrefetchTasks = container.EntitySetTasks;
-        if (entitySetPrefetchTasks!=null) {
-          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks)
-            entitySetPrefetchTask.UpdateCache();
+        foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
+          entitySetPrefetchTask.UpdateCache();
         }
       }
     }
@@ -82,10 +86,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     private void AddTask(EntityContainer container)
     {
       var newTask = container.GetTask();
-      if (newTask!=null) {
+      if (newTask != null) {
         var existingTask = tasks[newTask];
         if (existingTask == null) {
-          tasks.Add(newTask);
+          _ = tasks.Add(newTask);
           existingTask = newTask;
         }
         existingTask.AddKey(container.Key, container.ExactType);
@@ -102,8 +106,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private void RegisterAllEntityGroupTasks()
     {
-      foreach (var task in tasks)
+      foreach (var task in tasks) {
         task.RegisterQueryTasks();
+      }
     }
 
 
