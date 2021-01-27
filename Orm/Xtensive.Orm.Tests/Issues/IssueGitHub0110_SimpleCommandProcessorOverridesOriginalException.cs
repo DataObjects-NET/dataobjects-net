@@ -84,6 +84,8 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueGitHub0110_SimpleCommandProcessorOverridesOriginalException : AutoBuildTest
   {
+    private static ManualResetEvent theStarter;
+
     protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer);
 
     protected override DomainConfiguration BuildConfiguration()
@@ -115,6 +117,16 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
+    [SetUp]
+    public void InitStarter() => theStarter = new ManualResetEvent(false);
+
+    [TearDown]
+    public void DisposeStarter()
+    {
+      theStarter.DisposeSafely();
+      theStarter = null;
+    }
+
     [Test]
     public void MainTest()
     {
@@ -125,6 +137,10 @@ namespace Xtensive.Orm.Tests.Issues
       var task2 = new System.Threading.Tasks.Task(Outer, task2State);
       task1.Start();
       task2.Start();
+
+      Thread.Sleep(500);
+
+      _ = theStarter.Set();
 
       while (!task1State.Ended && !task1State.Ended) {
         Thread.Sleep(100);
@@ -138,6 +154,8 @@ namespace Xtensive.Orm.Tests.Issues
     private static void Outer(object state)
     {
       var operationState = (OperationState) state;
+
+      _ = theStarter.WaitOne();
       try {
         using (var session = operationState.Domain.OpenSession(SessionType.User))
         using (var tx = session.OpenTransaction()) {
