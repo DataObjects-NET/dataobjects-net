@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Providers
           ValidateCommandParameters(part);
           context.ActiveCommand.AddPart(part);
           var affectedRowsCount = context.ActiveCommand.ExecuteNonQuery();
-          if (task.ValidateRowCount && affectedRowsCount==0) {
+          if (task.ValidateRowCount && affectedRowsCount == 0) {
             throw new VersionConflictException(string.Format(
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
           }
@@ -41,8 +41,8 @@ namespace Xtensive.Orm.Providers
         finally {
           context.ActiveCommand.DisposeSafely();
           ReleaseCommand(context);
-          AllocateCommand(context);
         }
+        AllocateCommand(context);
       }
     }
 
