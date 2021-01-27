@@ -146,11 +146,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(person, Is.Not.Null);
         Assert.That(person.Id, Is.EqualTo(outerSessionPersonId));
 
-        var countOuter = 0;
-        foreach (var item in person.Sports) {
-          countOuter++;
-        }
-
+        var countOuter = person.Sports.AsEnumerable().Count();
         Assert.That(countOuter, Is.EqualTo(actualCountInStorage));
 
         using (var innerSession = Domain.OpenSession(configuration)) {
@@ -159,10 +155,7 @@ namespace Xtensive.Orm.Tests.Issues
           _ = person1.Sports.Add(sport3);
           innerSession.SaveChanges();
 
-          var countInner = 0;
-          foreach (var item in person1.Sports) {
-            countInner++;
-          }
+          var countInner = person1.Sports.AsEnumerable().Count();
           Assert.That(countInner, Is.EqualTo(3));
 
           person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
@@ -170,23 +163,21 @@ namespace Xtensive.Orm.Tests.Issues
 
           Assert.That(actualCountInStorage, Is.EqualTo(3));
 
-          countInner = 0;
-          foreach (var item in person1.Sports) {
-            countInner++;
-          }
-
+          countInner = person1.Sports.AsEnumerable().Count();
           Assert.That(countInner, Is.EqualTo(actualCountInStorage));
         }
 
+        // autoprefetch
+        countOuter = person.Sports.AsEnumerable().Count();
+        Assert.That(countOuter, Is.EqualTo(2));
+
+        // force manual prefetch
         person.Sports.Prefetch();
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
 
         Assert.That(actualCountInStorage, Is.EqualTo(3));
 
-        countOuter = 0;
-        foreach (var item in person.Sports) {
-          countOuter++;
-        }
+        countOuter = person.Sports.AsEnumerable().Count();
         Assert.That(countOuter, Is.EqualTo(actualCountInStorage));
       }
     }
@@ -217,11 +208,7 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(person, Is.Not.Null);
         Assert.That(person.Id, Is.EqualTo(outerSessionPersonId));
 
-        var countOuter = 0;
-        foreach (var item in person.Sports) {
-          countOuter++;
-        }
-
+        var countOuter = person.Sports.AsEnumerable().Count();
         Assert.That(countOuter, Is.EqualTo(actualCountInStorage));
 
         using (var innerSession = Domain.OpenSession(configuration)) {
@@ -230,10 +217,7 @@ namespace Xtensive.Orm.Tests.Issues
           _ = person1.Sports.Add(sport3);
           innerSession.SaveChanges();
 
-          var countInner = 0;
-          foreach (var item in person1.Sports) {
-            countInner++;
-          }
+          var countInner = person1.Sports.AsEnumerable().Count();
           Assert.That(countInner, Is.EqualTo(3));
 
           person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
@@ -241,23 +225,21 @@ namespace Xtensive.Orm.Tests.Issues
 
           Assert.That(actualCountInStorage, Is.EqualTo(3));
 
-          countInner = 0;
-          foreach (var item in person1.Sports) {
-            countInner++;
-          }
-
+          countInner = person1.Sports.AsEnumerable().Count();
           Assert.That(countInner, Is.EqualTo(actualCountInStorage));
         }
 
+        // autoprefetch
+        countOuter = person.Sports.AsEnumerable().Count();
+        Assert.That(countOuter, Is.EqualTo(2));
+
+        //force manual prefetch
         person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
 
         Assert.That(actualCountInStorage, Is.EqualTo(3));
 
-        countOuter = 0;
-        foreach (var item in person.Sports) {
-          countOuter++;
-        }
+        countOuter = person.Sports.AsEnumerable().Count();
         Assert.That(countOuter, Is.EqualTo(actualCountInStorage));
       }
     }
@@ -302,9 +284,12 @@ namespace Xtensive.Orm.Tests.Issues
           innerSessionTx.Complete();
         }
 
+        // autoprefetch
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));
+
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
         Assert.That(actualCountInStorage, Is.EqualTo(1));
-        person.Sports.Prefetch();
+        person.Sports.Prefetch();// force manual prefetch
         Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
       }
     }
@@ -346,11 +331,14 @@ namespace Xtensive.Orm.Tests.Issues
           innerSessionTx.Complete();
         }
 
+        // autoprefetch
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));
+
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
         Assert.That(actualCountInStorage, Is.EqualTo(1));
 
         Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
-        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();// force manual prefetch
         Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
       }
     }
@@ -393,9 +381,11 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var innerTx = outerSession.OpenTransaction(TransactionOpenMode.New, IsolationLevel.RepeatableRead)) {
+          Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));// autoprefetch
+
           actualCountInStorage = outerSession.Query.All<Sports>().Count();
           Assert.That(actualCountInStorage, Is.EqualTo(1));
-          person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();// force manual prefetch
           Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
         }
       }
@@ -441,9 +431,12 @@ namespace Xtensive.Orm.Tests.Issues
           innerSessionTx.Complete();
         }
 
+        // autoprefetch
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));
+
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
         Assert.That(actualCountInStorage, Is.EqualTo(1));
-        person.Sports.Prefetch();
+        person.Sports.Prefetch();// force manual prefetch
         Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
       }
     }
@@ -485,11 +478,14 @@ namespace Xtensive.Orm.Tests.Issues
           innerSessionTx.Complete();
         }
 
+        // autoprefetch
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));
+
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
         Assert.That(actualCountInStorage, Is.EqualTo(1));
 
         Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
-        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();// force manual prefetch
         Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
       }
     }
@@ -532,9 +528,11 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var innerTx = outerSession.OpenTransaction(TransactionOpenMode.New, IsolationLevel.RepeatableRead)) {
+          Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));// autoprefetch
+
           actualCountInStorage = outerSession.Query.All<Sports>().Count();
           Assert.That(actualCountInStorage, Is.EqualTo(1));
-          person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();// force manual prefetch
           Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
         }
       }
@@ -580,6 +578,9 @@ namespace Xtensive.Orm.Tests.Issues
           innerSessionTx.Complete();
         }
 
+        // autoprefetch
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));
+
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
         if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
           Assert.That(actualCountInStorage, Is.EqualTo(1));
@@ -587,7 +588,7 @@ namespace Xtensive.Orm.Tests.Issues
         else {
           Assert.That(actualCountInStorage, Is.EqualTo(0));
         }
-        person.Sports.Prefetch();
+        person.Sports.Prefetch();// force manual prefetch
         Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
       }
     }
@@ -629,6 +630,9 @@ namespace Xtensive.Orm.Tests.Issues
           innerSessionTx.Complete();
         }
 
+        // autoprefetch
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));
+
         actualCountInStorage = outerSession.Query.All<Sports>().Count();
         if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
           Assert.That(actualCountInStorage, Is.EqualTo(1));
@@ -638,7 +642,7 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
-        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();// force manual prefetch
         Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
       }
     }
@@ -681,6 +685,8 @@ namespace Xtensive.Orm.Tests.Issues
         }
 
         using (var innerTx = outerSession.OpenTransaction(TransactionOpenMode.New, IsolationLevel.RepeatableRead)) {
+          Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(0));// autoprefetch
+
           actualCountInStorage = outerSession.Query.All<Sports>().Count();
           if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
             Assert.That(actualCountInStorage, Is.EqualTo(1));
@@ -689,7 +695,7 @@ namespace Xtensive.Orm.Tests.Issues
             Assert.That(actualCountInStorage, Is.EqualTo(0));
           }
 
-          person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();// force manual prefetch
           Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
         }
       }
