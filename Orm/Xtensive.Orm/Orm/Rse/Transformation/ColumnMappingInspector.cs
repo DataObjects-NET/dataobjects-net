@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Rse.Transformation
       var source = VisitCompilable(provider.Source);
       var sourceMap = mappings[provider.Source];
 
-      var indexColumns = new List<int>();
-      var newMappings = new List<int>();
+      var indexColumns = new List<int>(provider.ColumnIndexes.Count);
+      var newMappings = new List<int>(provider.ColumnIndexes.Count);
 
       var currentItemIndex = 0;
       foreach(var item in provider.ColumnIndexes) {
