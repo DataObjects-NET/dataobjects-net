@@ -56,8 +56,8 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    private readonly IDictionary<Identifier, List<EntityState>> removedReferences = new Dictionary<Identifier, List<EntityState>>();
-    private readonly IDictionary<Identifier, List<EntityState>> addedReferences = new Dictionary<Identifier, List<EntityState>>();
+    private readonly IDictionary<Identifier, HashSet<EntityState>> removedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
+    private readonly IDictionary<Identifier, HashSet<EntityState>> addedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
     private readonly object accessGuard = new object();
 
     public int RemovedReferencesCount { get { return removedReferences.Values.Sum(el => el.Count); } }
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Internals
         return Enumerable.Empty<EntityState>();
 
       var key = MakeKey(target, association);
-      List<EntityState> removedMap;
+      HashSet<EntityState> removedMap;
       if (removedReferences.TryGetValue(key, out removedMap))
         return removedMap;
       return EnumerableUtils<EntityState>.Empty;
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Internals
         return Enumerable.Empty<EntityState>();
 
       var key = MakeKey(target, association);
-      List<EntityState> removedMap;
+      HashSet<EntityState> removedMap;
       if (addedReferences.TryGetValue(key, out removedMap))
         return removedMap;
       return EnumerableUtils<EntityState>.Empty;
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Internals
 
     private void RegisterRemoveInternal(Identifier oldKey, EntityState referencingState)
     {
-      List<EntityState> references;
+      HashSet<EntityState> references;
       if (addedReferences.TryGetValue(oldKey, out references)) {
         if (references.Remove(referencingState)) {
           if (references.Count==0)
@@ -146,17 +146,16 @@ namespace Xtensive.Orm.Internals
         }
       }
       if (removedReferences.TryGetValue(oldKey, out references)) {
-        if (references.Contains(referencingState))
+        if (!references.Add(referencingState))
           throw new InvalidOperationException(Strings.ExReferenceRregistrationErrorReferenceRemovalIsAlreadyRegistered);
-        references.Add(referencingState);
         return;
       }
-      removedReferences.Add(oldKey, new List<EntityState>{referencingState});
+      removedReferences.Add(oldKey, new HashSet<EntityState>{referencingState});
     }
 
     private void RegisterAddInternal(Identifier newKey, EntityState referencingState)
     {
-      List<EntityState> references;
+      HashSet<EntityState> references;
       if (removedReferences.TryGetValue(newKey, out references)) {
         if (references.Remove(referencingState))
           if (references.Count==0)
@@ -164,12 +163,11 @@ namespace Xtensive.Orm.Internals
         return;
       }
       if (addedReferences.TryGetValue(newKey, out references)) {
-        if (references.Contains(referencingState))
+        if (!references.Add(referencingState))
           throw new InvalidOperationException(Strings.ExReferenceRegistrationErrorReferenceAdditionIsAlreadyRegistered);
-        references.Add(referencingState);
         return;
       }
-      addedReferences.Add(newKey, new List<EntityState>{referencingState});
+      addedReferences.Add(newKey, new HashSet<EntityState>{referencingState});
     }
 
     private Identifier MakeKey(EntityState state, AssociationInfo association)
