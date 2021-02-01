@@ -245,6 +245,623 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void ClientProfileWithReadUncommitedTest1()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>()
+          .Prefetch(p => p.Sports)
+          .FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+          innerSessionTx.Complete();
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(1));
+        person.Sports.Prefetch();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithReadUncommitedTest2()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>()
+          .Prefetch(p => p.Sports)
+          .FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          //rollback
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(0));
+        person.Sports.Prefetch();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithReadUncommitedTest3()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+          innerSessionTx.Complete();
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(1));
+
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithReadUncommitedTest4()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          //rollback
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(0));
+
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithReadCommitedTest1()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadCommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>()
+          .Prefetch(p => p.Sports)
+          .FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadCommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+          innerSessionTx.Complete();
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(1));
+        person.Sports.Prefetch();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithReadCommitedTest2()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadCommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>()
+          .Prefetch(p => p.Sports)
+          .FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadUncommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          //rollback
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(0));
+        person.Sports.Prefetch();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithReadCommitedTest3()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadCommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadCommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+          innerSessionTx.Complete();
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(1));
+
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithReadCommitedTest4()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.ReadCommitted)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.ReadCommitted)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          //rollback
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(0));
+
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithRepeatableReadTest1()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>()
+          .Prefetch(p => p.Sports)
+          .FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+          innerSessionTx.Complete();
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+        }
+        else {
+          Assert.That(actualCountInStorage, Is.EqualTo(0));
+        }
+
+        person.Sports.Prefetch();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithRepeatableReadTest2()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>()
+          .Prefetch(p => p.Sports)
+          .FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          //rollback
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(0));
+        person.Sports.Prefetch();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithRepeatableReadTest3()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+          innerSessionTx.Complete();
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        if (StorageProviderInfo.Instance.Provider == StorageProvider.SqlServer) {
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+        }
+        else {
+          Assert.That(actualCountInStorage, Is.EqualTo(0));
+        }
+
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
+    public void ClientProfileWithRepeatableReadTest4()
+    {
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+
+      using (var outerSession = Domain.OpenSession())
+      using (var tx = outerSession.OpenTransaction()) {
+        var person = new Person(outerSession) { Name = "Jordi" };
+        tx.Complete();
+      }
+
+      var configuration = new SessionConfiguration(SessionOptions.ClientProfile);
+
+      var actualCountInStorage = 0;
+      using (var outerSession = Domain.OpenSession(configuration))
+      using (var outerSessionTx = outerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+
+        var person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+        using (var innerSession = Domain.OpenSession(configuration))
+        using (var innerSessionTx = innerSession.OpenTransaction(IsolationLevel.RepeatableRead)) {
+          var person1 = innerSession.Query.All<Person>()
+            .Prefetch(p => p.Sports)
+            .FirstOrDefault();
+          var sport3 = new Sports(innerSession);
+          sport3.Valor = 30;
+          _ = person1.Sports.Add(sport3);
+          innerSession.SaveChanges();
+
+          actualCountInStorage = innerSession.Query.All<Sports>().Count();
+          Assert.That(actualCountInStorage, Is.EqualTo(1));
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          person1 = innerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+          Assert.That(person1.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+
+          //rollback
+        }
+
+        actualCountInStorage = outerSession.Query.All<Sports>().Count();
+        Assert.That(actualCountInStorage, Is.EqualTo(0));
+
+        Assert.That(outerSession.Query.All<Sports>().Count(), Is.EqualTo(actualCountInStorage));
+        person = outerSession.Query.All<Person>().Prefetch(p => p.Sports).FirstOrDefault();
+        Assert.That(person.Sports.AsEnumerable().Count(), Is.EqualTo(actualCountInStorage));
+      }
+    }
+
+    [Test]
     public void ReadUncommitedTest1()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
