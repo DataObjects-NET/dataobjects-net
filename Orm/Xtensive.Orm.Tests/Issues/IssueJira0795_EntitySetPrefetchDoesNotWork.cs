@@ -651,7 +651,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ClientProfileWithRepeatableReadTest1()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite | StorageProvider.MySql);
 
       using (var outerSession = Domain.OpenSession())
       using (var tx = outerSession.OpenTransaction()) {
@@ -707,7 +707,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ClientProfileWithRepeatableReadTest2()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite | StorageProvider.MySql);
 
       using (var outerSession = Domain.OpenSession())
       using (var tx = outerSession.OpenTransaction()) {
@@ -758,7 +758,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ClientProfileWithRepeatableReadTest3()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite | StorageProvider.MySql);
 
       using (var outerSession = Domain.OpenSession())
       using (var tx = outerSession.OpenTransaction()) {
@@ -813,7 +813,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ClientProfileWithRepeatableReadTest4()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite | StorageProvider.MySql);
 
       using (var outerSession = Domain.OpenSession())
       using (var tx = outerSession.OpenTransaction()) {
