@@ -291,9 +291,6 @@ namespace Xtensive.Orm.Internals
 
         lastManualPrefetchId = currentPrefetchOperation.Value;
       }
-      if (isDisconnected) {
-        return true;
-      }
 
       if (Session.Transaction != null) {
         switch (Session.Transaction.Outermost.IsolationLevel) {
@@ -305,6 +302,10 @@ namespace Xtensive.Orm.Internals
           default:
             return false;
         }
+      }
+
+      if (isDisconnected) {
+        return true;
       }
 
       return false;
