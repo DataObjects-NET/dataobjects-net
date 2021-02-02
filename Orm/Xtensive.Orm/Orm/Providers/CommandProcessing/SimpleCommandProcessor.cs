@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Providers
           }
         }
         finally {
-          context.ActiveCommand.Dispose();
+          context.ActiveCommand.DisposeSafely();
           ReleaseCommand(context);
         }
       }
