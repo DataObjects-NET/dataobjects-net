@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.06.23
 
@@ -10,6 +10,7 @@ using System.Data.Common;
 using System.Security;
 using Npgsql;
 using NpgsqlTypes;
+using Xtensive.Reflection.PostgreSql;
 
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
@@ -28,83 +29,83 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       case TypeCode.DateTime:
         return true;
       }
-      //if (type==typeof (DateTimeOffset))
-      //  return true;
-      if (type==typeof(Guid))
+      if (type == WellKnownTypes.DateTimeOffsetType) {
         return true;
-      if (type==typeof(TimeSpan))
+      }
+      if (type == WellKnownTypes.GuidType) {
         return true;
-      if (type==typeof(byte[]))
+      }
+      if (type == WellKnownTypes.TimeSpanType) {
         return true;
+      }
+      if (type == WellKnownTypes.ByteArrayType) {
+        return true;
+      }
       return false;
     }
 
     public override void BindByte(DbParameter parameter, object value)
     {
-      if(value==null)
+      if(value == null) {
         base.BindByte(parameter, value);
-      else
+      }
+      else {
         base.BindByte(parameter, Convert.ToByte(value));
+      }
     }
 
     public override void BindShort(DbParameter parameter, object value)
     {
-      if (value==null)
+      if (value == null) {
         base.BindShort(parameter, value);
-      else
+      }
+      else {
         base.BindShort(parameter, Convert.ToInt16(value));
+      }
     }
 
     public override void BindInt(DbParameter parameter, object value)
     {
-      if (value==null)
+      if (value == null) {
         base.BindInt(parameter, value);
-      else
+      }
+      else {
         base.BindInt(parameter, Convert.ToInt32(value));
+      }
     }
 
     public override void BindLong(DbParameter parameter, object value)
     {
-      if (value==null)
+      if (value == null) {
         base.BindLong(parameter, value);
-      else
+      }
+      else {
         base.BindLong(parameter, Convert.ToInt64(value));
+      }
     }
 
     public override void BindSByte(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int16;
-      if (value==null)
-        parameter.Value = DBNull.Value;
-      else
-        parameter.Value = Convert.ToInt16(value);
+      parameter.Value = value == null ? DBNull.Value : (object) Convert.ToInt16(value);
     }
 
     public override void BindUShort(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int32;
-      if (value==null)
-        parameter.Value = DBNull.Value;
-      else
-        parameter.Value = Convert.ToInt32(value);
+      parameter.Value = value == null ? DBNull.Value : (object) Convert.ToInt32(value);
     }
     
     public override void BindUInt(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Int64;
-      if (value==null)
-        parameter.Value = DBNull.Value;
-      else
-        parameter.Value = Convert.ToInt64(value);
+      parameter.Value = value == null ? DBNull.Value : (object) Convert.ToInt64(value);
     }
 
     public override void BindULong(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.Decimal;
-      if (value == null)
-        parameter.Value = DBNull.Value;
-      else
-        parameter.Value = Convert.ToDecimal(value);
+      parameter.Value = value == null ? DBNull.Value : (object) Convert.ToDecimal(value);
     }
 
     [SecuritySafeCritical]
@@ -112,7 +113,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var nativeParameter = (NpgsqlParameter) parameter;
       nativeParameter.NpgsqlDbType = NpgsqlDbType.Interval;
-      nativeParameter.Value = value!=null
+      nativeParameter.Value = value != null
         ? (object) new NpgsqlTimeSpan((TimeSpan) value)
         : DBNull.Value;
     }
@@ -120,20 +121,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override void BindGuid(DbParameter parameter, object value)
     {
       parameter.DbType = DbType.String;
-      parameter.Value = value==null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
+      parameter.Value = value == null ? (object) DBNull.Value : SqlHelper.GuidToString((Guid) value);
     }
 
-    /*
     [SecuritySafeCritical]
     public override void BindDateTimeOffset(DbParameter parameter, object value)
     {
       var nativeParameter = (NpgsqlParameter) parameter;
-      nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTZ;
-      nativeParameter.NpgsqlValue = value!=null
-        ? (object)(NpgsqlTimeStampTZ) (DateTimeOffset) value
-        : (object)DBNull.Value;
+      nativeParameter.NpgsqlDbType = NpgsqlDbType.TimestampTz;
+      nativeParameter.NpgsqlValue = value ?? DBNull.Value;
     }
-    */
 
     public override SqlValueType MapByte(int? length, int? precision, int? scale)
     {
@@ -193,22 +190,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return nativeReader.GetDecimal(index);
     }
 
-    /*
     [SecuritySafeCritical]
     public override object ReadDateTimeOffset(DbDataReader reader, int index)
     {
-      var nativeReader = (NpgsqlDataReader)reader;
-      return (DateTimeOffset)nativeReader.GetTimeStampTZ(index);
-    }
-    */
-
-    protected virtual SqlValueType ReduceDecimalScale(SqlValueType sqlType, int newScale)
-    {
-      if (sqlType.Type!=SqlType.Decimal)
-        return sqlType;
-      if (!sqlType.Precision.HasValue)
-        return sqlType;
-      return new SqlValueType(sqlType.Type, sqlType.Precision.Value, newScale);
+      var nativeReader = (NpgsqlDataReader) reader;
+      var value = nativeReader.GetFieldValue<DateTimeOffset>(index);
+      return value;
     }
 
     // Constructors

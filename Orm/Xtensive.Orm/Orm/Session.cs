@@ -250,9 +250,25 @@ namespace Xtensive.Orm
 
     internal async Task<EnumerationContext> CreateEnumerationContextAsync(ParameterContext parameterContext, CancellationToken token)
     {
-      await PersistAsync(PersistReason.Other, token).ConfigureAwait(false);
-      _ = await ProcessUserDefinedDelayedQueriesAsync(token).ConfigureAwait(false);
+      await PersistAsync(PersistReason.Query, token).ConfigureAwait(false);
+      _ = await ProcessUserDefinedDelayedQueriesAsync(true, token).ConfigureAwait(false);
       return new Providers.EnumerationContext(this, parameterContext, GetEnumerationContextOptions());
+    }
+
+    internal void CheckForSwitching()
+    {
+      var currentSession = SessionScope.CurrentSession; // Not Session.Current -
+      // to avoid possible comparison with Session provided by Session.Resolver.
+      if (currentSession == null) {
+        return;
+      }
+      if (currentSession == this) {
+        return;
+      }
+      if (currentSession.Transaction == null || (allowSwitching && currentSession.allowSwitching)) {
+        return;
+      }
+      throw new InvalidOperationException(string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
     }
 
     private EnumerationContextOptions GetEnumerationContextOptions()
@@ -478,7 +494,7 @@ namespace Xtensive.Orm
       where T : IEntity
     {
       using (var tx = OpenAutoTransaction()) {
-        RemovalProcessor.Remove(entities.Cast<Entity>().ToList());
+        RemovalProcessor.Remove(entities.Cast<Entity>().ToList(), EntityRemoveReason.User);
         tx.Complete();
       }
     }
@@ -624,6 +640,7 @@ namespace Xtensive.Orm
         EntityStateCache.Clear();
         ReferenceFieldsChangesRegistry.Clear();
         NonPairedReferencesRegistry.Clear();
+        Extensions.Clear();
       }
       finally {
         isDisposed = true;

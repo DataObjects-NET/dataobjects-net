@@ -154,7 +154,9 @@ namespace Xtensive.Modelling.Comparison
           ProcessStage(UpgradeStage.Cleanup, actions);
 
           var validationHints = new HintSet(CurrentModel, TargetModel);
-          Hints.OfType<IgnoreHint>().ForEach(validationHints.Add);
+          Hints.OfType<IgnoreHint>()
+            .Where(h => CurrentModel.Resolve(h.Path, false) != null && SourceModel.Resolve(h.Path, false) != null)
+            .ForEach(validationHints.Add);
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
           if (diff != null) {
             CoreLog.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
@@ -162,7 +164,7 @@ namespace Xtensive.Modelling.Comparison
             CoreLog.Info(Strings.LogItemFormat, Strings.Difference);
             CoreLog.Info("{0}", diff);
             CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
-              new ActionSequence {actions});
+              new ActionSequence() { actions });
             CoreLog.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
             TargetModel.Dump();
             CoreLog.Info(Strings.LogItemFormat, Strings.ActualTargetModel);

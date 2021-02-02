@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Providers
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
       var part = Factory.CreateQueryPart(task);
+      ValidateCommandParameters(part);
       context.ActiveCommand.AddPart(part);
       context.ActiveTasks.Add(task);
     }
@@ -28,29 +29,25 @@ namespace Xtensive.Orm.Providers
       var sequence = Factory.CreatePersistParts(task);
       foreach (var part in sequence) {
         try {
+          ValidateCommandParameters(part);
           context.ActiveCommand.AddPart(part);
           var affectedRowsCount = context.ActiveCommand.ExecuteNonQuery();
-          if (task.ValidateRowCount && affectedRowsCount==0)
+          if (task.ValidateRowCount && affectedRowsCount == 0) {
             throw new VersionConflictException(string.Format(
               Strings.ExVersionOfEntityWithKeyXDiffersFromTheExpectedOne, task.EntityKey));
+          }
         }
         finally {
           context.ActiveCommand.DisposeSafely();
           ReleaseCommand(context);
-          AllocateCommand(context);
         }
+        AllocateCommand(context);
       }
     }
 
-    public override void RegisterTask(SqlTask task)
-    {
-      tasks.Enqueue(task);
-    }
+    public override void RegisterTask(SqlTask task) => tasks.Enqueue(task);
 
-    public override void ClearTasks()
-    {
-      tasks.Clear();
-    }
+    public override void ClearTasks() => tasks.Clear();
 
     public override void ExecuteTasks(CommandProcessorContext context)
     {
@@ -63,7 +60,7 @@ namespace Xtensive.Orm.Providers
           var task = context.ProcessingTasks.Dequeue();
           task.ProcessWith(this, context);
           var loadTask = context.ActiveTasks.FirstOrDefault();
-          if (loadTask!=null) {
+          if (loadTask != null) {
             context.ActiveCommand.ExecuteReader();
             var enumerator = context.ActiveCommand.CreateReader(loadTask.Request.GetAccessor());
             using (enumerator) {
@@ -118,6 +115,7 @@ namespace Xtensive.Orm.Providers
 
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
+      ValidateCommandParameters(commandPart);
       lastRequestCommand.AddPart(commandPart);
       lastRequestCommand.ExecuteReader();
       return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
@@ -135,16 +133,24 @@ namespace Xtensive.Orm.Providers
 
       var lastRequestCommand = Factory.CreateCommand();
       var commandPart = Factory.CreateQueryPart(lastRequest, context.ParameterContext);
+      ValidateCommandParameters(commandPart);
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
       await lastRequestCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
       return lastRequestCommand.CreateReader(lastRequest.GetAccessor());
     }
 
+    private void ValidateCommandParameters(CommandPart commandPart)
+    {
+      if (GetCommandExecutionBehavior(new[] { commandPart }, 0) == ExecutionBehavior.TooLargeForAnyCommand) {
+        throw new ParametersLimitExceededException(commandPart.Parameters.Count, MaxQueryParameterCount);
+      }
+    }
+
     // Constructors
 
-      public SimpleCommandProcessor(CommandFactory factory)
-      : base(factory)
+    public SimpleCommandProcessor(CommandFactory factory, int maxQueryParameterCount)
+      : base(factory, maxQueryParameterCount)
     {
       tasks = new Queue<SqlTask>();
     }

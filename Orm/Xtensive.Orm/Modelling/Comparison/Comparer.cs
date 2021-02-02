@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
 using System.Threading;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -735,33 +734,33 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>The highest common base type.</returns>
     protected static Type GetCommonBase(object source, object target)
     {
-      var sourceAncestors = GetAncestors(source==null ? WellKnownTypes.Object : source.GetType());
-      var targetAncestors = GetAncestors(target==null ? WellKnownTypes.Object : target.GetType());
-      var sourceType = sourceAncestors[sourceAncestors.Count - 1];
-      var targetType = targetAncestors[targetAncestors.Count - 1];
-      if (sourceType.IsAssignableFrom(targetType))
+      var sourceType = source?.GetType() ?? WellKnownTypes.Object;
+      var targetType = target?.GetType() ?? WellKnownTypes.Object;
+
+      if (sourceType.IsAssignableFrom(targetType)) {
         return targetType;
-      if (targetType.IsAssignableFrom(sourceType))
-        return sourceType;
-      var commonBase = WellKnownTypes.Object;
-      for (int i = 0; i < Math.Min(sourceAncestors.Count, targetAncestors.Count); i++) {
-        var ancestor = sourceAncestors[i];
-        if (ancestor!=targetAncestors[i])
-          break;
-        commonBase = ancestor;
       }
-      return commonBase;
+
+      if (targetType.IsAssignableFrom(sourceType)) {
+        return sourceType;
+      }
+
+      var sourceAncestors = GetAncestors(sourceType).ToHashSet();
+      foreach (var ancestorType in GetAncestors(targetType)) {
+        if (sourceAncestors.Contains(ancestorType)) {
+          return ancestorType;
+        }
+      }
+
+      return WellKnownTypes.Object;
     }
 
-    private static List<Type> GetAncestors(Type type)
+    private static IEnumerable<Type> GetAncestors(Type type)
     {
-      var list = new List<Type>();
-      while (type!=WellKnownTypes.Object) {
-        list.Insert(0, type);
+      while (type != null) {
+        yield return type;
         type = type.BaseType;
       }
-      list.Insert(0, WellKnownTypes.Object);
-      return list;
     }
 
     #endregion

@@ -173,8 +173,12 @@ namespace Xtensive.Orm.Internals.Prefetch
       object key = new Pair<object, CacheKey>(itemsQueryCachingRegion, cacheKey);
       Func<object, object> generator = CreateRecordSetLoadingItems;
       var session = manager.Owner.Session;
+      var scope = new CompiledQueryProcessingScope(null, null, parameterContext, false);
       QueryProvider = (CompilableProvider) session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
-      var executableProvider = session.Compile(QueryProvider);
+      ExecutableProvider executableProvider;
+      using (scope.Enter()) {
+        executableProvider = session.Compile(QueryProvider);
+      }
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }
 

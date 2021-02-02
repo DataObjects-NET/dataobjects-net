@@ -5,29 +5,43 @@
 
   <!-- Compute intermediate values. To avoid conflicts name all custom variables with Do prefix. -->
   <PropertyGroup>
-    <DoBuildNumber>$(BUILD_NUMBER)</DoBuildNumber>
-    <DoBuildNumber Condition="'$(DoBuildNumber)'==''">0</DoBuildNumber>
     <DoBuildYear>$([System.DateTime]::Today.Year)</DoBuildYear>
     <DoProductName>DataObjects.Net</DoProductName>
     <DoProductAuthors>Xtensive LLC and contributors</DoProductAuthors>
     <DoProductCopyright>2003-$(DoBuildYear) $(DoProductAuthors)</DoProductCopyright>
-    <DoVersionSuffix Condition="'$(DoVersionSuffix)'=='dev'">dev-$(DoBuildNumber)</DoVersionSuffix>
+
     <DoMajor>$([System.Version]::new($(DoVersion)).Major)</DoMajor>
     <DoMinor>$([System.Version]::new($(DoVersion)).Minor)</DoMinor>
-    <DoPatch>$([System.Version]::new($(DoVersion)).Build)</DoPatch>
-    <DoVersionName>$(DoMajor).$(DoMinor).$(DoPatch)</DoVersionName>
-    <DoVersionName Condition="'$(DoVersionSuffix)'!=''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
+    <DoBuild>$([System.Version]::new($(DoVersion)).Build)</DoBuild>
+    <DoRevision>$([System.Version]::new($(DoVersion)).Revision)</DoRevision>
+
+    <DoFileRevision>$(BUILD_NUMBER)</DoFileRevision>
+    <DoFileRevision Condition="'$(DoFileRevision)' == '' AND '$(DoRevision)' != '-1'">$(DoRevision)</DoFileRevision>
+    <DoFileRevision Condition="'$(DoFileRevision)' == ''">0</DoFileRevision>
+
+    <DoVersionSuffix Condition="'$(DoVersionSuffix)' == 'dev'">dev-$(DoFileRevision)</DoVersionSuffix>
+
+    <DoVersionName>$(DoMajor).$(DoMinor).$(DoBuild)</DoVersionName>
+    <DoVersionName Condition="'$(DoRevision)' != '-1'">$(DoVersionName).$(DoRevision)</DoVersionName>
+    <DoVersionName Condition="'$(DoVersionSuffix)' != ''">$(DoVersionName)-$(DoVersionSuffix)</DoVersionName>
+
     <DoPackageIcon>$(MSBuildThisFileDirectory)do-nuget.png</DoPackageIcon>
+
+    <DoGeneratePackage>true</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName) == 'TestCommon'">false</DoGeneratePackage>
+    <DoGeneratePackage Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</DoGeneratePackage>
   </PropertyGroup>
 
   <PropertyGroup>
+    <NoLogo>true</NoLogo>
+    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <NoLogo>true</NoLogo>
-    <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <ArtifactsDir Condition="'$(ArtifactsDir)'==''">$(SolutionDir)_Build\</ArtifactsDir>
     <BaseIntermediateOutputPath>$(ArtifactsDir)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
@@ -40,25 +54,6 @@
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
 
-  <PropertyGroup>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Weaver'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName) == 'TestCommon'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</GeneratePackageOnBuild>
-    <GeneratePackageOnBuild Condition="$(GeneratePackageOnBuild)=='' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-
-    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
-    <EmbedUntrackedSources>true</EmbedUntrackedSources>
-    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <SourceRoot Include="$(MSBuildThisFileDirectory)/"/>
-    <PackageReference Condition="$(GeneratePackageOnBuild) == 'true'"
-                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
-  </ItemGroup>
-
   <!-- Populate standard properties. -->
   <PropertyGroup>
     <Product>$(DoProductName)</Product>
@@ -66,7 +61,7 @@
     <Authors>$(DoProductAuthors)</Authors>
     <Version>$(DoVersionName)</Version>
     <AssemblyVersion>$(DoMajor).$(DoMinor).0.0</AssemblyVersion>
-    <FileVersion>$(DoMajor).$(DoMinor).$(DoPatch).$(DoBuildNumber)</FileVersion>
+    <FileVersion>$(DoMajor).$(DoMinor).$(DoBuild).$(DoFileRevision)</FileVersion>
     <Copyright>$(DoProductCopyright)</Copyright>
     <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
     <PackageIcon>do-nuget.png</PackageIcon>
@@ -75,9 +70,19 @@
     <PackageOutputPath>$(BaseOutputPath)packages\</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
+
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
+    <GeneratePackageOnBuild Condition="$(DoGeneratePackage) == 'true' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+    <EmbedUntrackedSources>true</EmbedUntrackedSources>
+    <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
 
   <ItemGroup>
+    <SourceRoot Include="$(SolutionDir)"/>
+    <PackageReference Condition="$(DoGeneratePackage) == 'true'"
+                      Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
     <None Include="$(DoPackageIcon)" Visible="false" >
       <PackagePath>.</PackagePath>
       <Pack>true</Pack>

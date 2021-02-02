@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.02.02
 
@@ -90,37 +90,39 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.Activate())
-      using (var transaction = session.OpenTransaction())
-      {
-        IHasProcess owner = new SalesUnitVersion();
-        IQueryable<ProductUsage> q = null;
-        if (owner is IHasRecipe)
+      using (var transaction = session.OpenTransaction()) {
+        var owner = (IHasProcess)new SalesUnitVersion();
+        var q = (IQueryable <ProductUsage>) null;
+        if (owner is IHasRecipe) {
           q = SafeUnion(q, Query.All<RecipeProductUsage>().Where(u => u.Owner.ID == owner.ID));
-        if (owner is IHasConsumable)
+        }
+        if (owner is IHasConsumable) {
           q = SafeUnion(q, Query.All<ConsumableUsage>().Where(u => u.Owner.ID == owner.ID));
-        if (owner is IHasPackingMaterial)
+        }
+        if (owner is IHasPackingMaterial) {
           q = SafeUnion(q, Query.All<PackingMaterialUsage>().Where(u => u.Owner.ID == owner.ID));
+        }
 
-        if (q == null)
+        if (q == null) {
           throw new InvalidOperationException();
-
+        }
         Assert.DoesNotThrow(()=>q.ToArray());
       }
     }
 
     private IQueryable<ProductUsage> SafeUnion(IQueryable<ProductUsage> x, IQueryable<ProductUsage> y)
     {
-      if (x == null)
-        return y;
-      if (y == null)
-        return x;
-      return x.Union(y);
+      return x == null
+        ? y
+        : y == null
+          ? x
+          : x.Union(y);
     }
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var c = base.BuildConfiguration();
-      c.Types.Register(typeof (SalesUnitVersion).Assembly, typeof (SalesUnitVersion).Namespace);
+      c.Types.Register(typeof(SalesUnitVersion).Assembly, typeof(SalesUnitVersion).Namespace);
       c.UpgradeMode = DomainUpgradeMode.Recreate;
       return c;
     }

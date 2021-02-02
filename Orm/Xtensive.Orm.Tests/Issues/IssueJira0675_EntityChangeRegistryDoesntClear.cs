@@ -1,4 +1,8 @@
-﻿using System;
+// Copyright (C) 2016-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
@@ -36,6 +40,21 @@ namespace Xtensive.Orm.Tests.Issues.CustomerBug1Model
     [Field]
     public int Value { get; set; }
   }
+
+  [HierarchyRoot]
+  public class Alert : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public string Data { get; set; }
+
+    public Alert(Session session)
+      : base(session)
+    {
+    }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Issues
@@ -47,8 +66,16 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void TestTransactionRollbackOnDeadLock()
     {
-      System.Threading.Tasks.Task task1 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities(1));
-      System.Threading.Tasks.Task task2 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities(2));
+      var task1 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities(1));
+      var task2 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities(2));
+      System.Threading.Tasks.Task.WaitAll(task1, task2);
+    }
+
+    [Test]
+    public void TestTransactionIsUnsuableAfterDeadlock()
+    {
+      var task1 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities1(1));
+      var task2 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities1(2));
       System.Threading.Tasks.Task.WaitAll(task1, task2);
     }
 
@@ -59,19 +86,19 @@ namespace Xtensive.Orm.Tests.Issues
         TestEntityWithUniqueIndex a;
         TestEntityWithUniqueIndex b;
         using (var transaction = session.OpenTransaction()) {
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 1,
             Value = 1,
           };
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 2,
             Value = 2
           };
           transaction.Complete();
         }
 
-        a = session.Query.All<TestEntityWithUniqueIndex>().First(el=>el.Index==1);
-        b = session.Query.All<TestEntityWithUniqueIndex>().First(el=>el.Index==2);
+        a = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 1);
+        b = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 2);
 
         try {
           using (var trasaction = session.OpenTransaction()) {
@@ -96,20 +123,20 @@ namespace Xtensive.Orm.Tests.Issues
         TestEntityWithUniqueIndex a;
         TestEntityWithUniqueIndex b;
         using (var transaction = session.OpenTransaction()) {
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 3,
             Value = 3,
           };
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 4,
             Value = 4
           };
           transaction.Complete();
         }
 
-        a = session.Query.All<TestEntityWithUniqueIndex>().First(el=>el.Index==3);
-        b = session.Query.All<TestEntityWithUniqueIndex>().First(el=>el.Index==4);
-        Assert.Throws<InvalidOperationException>(()=>a.Value = 5);
+        a = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 3);
+        b = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 4);
+        _ = Assert.Throws<InvalidOperationException>(() => a.Value = 5);
       }
     }
 
@@ -120,21 +147,21 @@ namespace Xtensive.Orm.Tests.Issues
         TestEntityWithUniqueIndex a;
         TestEntityWithUniqueIndex b;
         using (var transaction = session.OpenTransaction()) {
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 5,
             Value = 5,
           };
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 6,
             Value = 6
           };
           transaction.Complete();
         }
 
-        a = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index==5);
-        b = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index==6);
+        a = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 5);
+        b = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 6);
 
-        Assert.Throws<InvalidOperationException>(()=>a.Remove());
+        _ = Assert.Throws<InvalidOperationException>(()=>a.Remove());
       }
     }
 
@@ -142,46 +169,46 @@ namespace Xtensive.Orm.Tests.Issues
     public void DeleteInsideTransaction()
     {
       using (var session = Domain.OpenSession()) {
-        TestEntityWithUniqueIndex aaa;
-        TestEntityWithUniqueIndex bbb;
-        TestEntityWithUniqueIndex ccc;
+        TestEntityWithUniqueIndex a;
+        TestEntityWithUniqueIndex b;
+        TestEntityWithUniqueIndex c;
         using (var transaction = session.OpenTransaction()) {
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 7,
             Value = 7,
           };
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 8,
             Value = 8
           };
-          new TestEntityWithUniqueIndex {
+          _ = new TestEntityWithUniqueIndex {
             Index = 9,
             Value = 9
           };
           transaction.Complete();
         }
 
-        aaa = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index==7);
-        bbb = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index==8);
-        ccc = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index==9);
+        a = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 7);
+        b = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 8);
+        c = session.Query.All<TestEntityWithUniqueIndex>().First(el => el.Index == 9);
 
         try {
           using (var transaction = session.OpenTransaction()) {
-            aaa.Value = 8;
-            ccc.Remove();
+            a.Value = 8;
+            c.Remove();
 
             transaction.Complete();
           }
         }
         catch(Exception){}
 
-        Assert.That(aaa.Index, Is.EqualTo(7));
-        Assert.That(aaa.Value, Is.EqualTo(7));
-        Assert.That(bbb.Index, Is.EqualTo(8));
-        Assert.That(bbb.Value, Is.EqualTo(8));
-        Assert.That(ccc.IsRemoved, Is.False);
-        Assert.That(ccc.Index, Is.EqualTo(9));
-        Assert.That(ccc.Value, Is.EqualTo(9));
+        Assert.That(a.Index, Is.EqualTo(7));
+        Assert.That(a.Value, Is.EqualTo(7));
+        Assert.That(b.Index, Is.EqualTo(8));
+        Assert.That(b.Value, Is.EqualTo(8));
+        Assert.That(c.IsRemoved, Is.False);
+        Assert.That(c.Index, Is.EqualTo(9));
+        Assert.That(c.Value, Is.EqualTo(9));
         Assert.That(session.EntityChangeRegistry.Count, Is.EqualTo(0));
       }
     }
@@ -190,8 +217,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
-        for (int i = 0; i < MaxEntities; i++) {
-          new TestEntity() {Index = i, Value = 1};
+        for (var i = 0; i < MaxEntities; i++) {
+          _ = new TestEntity() { Index = i, Value = 1 };
         }
         t.Complete();
       }
@@ -204,12 +231,11 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void UpdateEntities(int instanceId)
     {
-      for (int i = 0; i < MaxEntities; i++) {
-        using (Session session = Domain.OpenSession()) {
-          int retryCount = 3;
-          for (int retry = 0; ; retry++) {
-
-            int initialValue = 0;
+      for (var i = 0; i < MaxEntities; i++) {
+        using (var session = Domain.OpenSession()) {
+          var retryCount = 3;
+          for (var retry = 0; ; retry++) {
+            var initialValue = 0;
             try {
               initialValue = GetEntityValue(session, i);
               UpdateEntity(session, i);
@@ -222,7 +248,47 @@ namespace Xtensive.Orm.Tests.Issues
               {
                 if (retry + 1 < retryCount) {
                   Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
-                  int currentValue = GetEntityValue(session, i);
+                  var currentValue = GetEntityValue(session, i);
+                  if (currentValue != initialValue) {
+                    Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                  }
+                  continue;
+                }
+                else {
+                  Console.WriteLine("Deadlock detected on last try : giving up on UpdateEntities2({0})", i);
+                  throw;
+                }
+              }
+              else {
+                throw;
+              }
+            }
+          }
+        }
+      }
+    }
+
+    private void UpdateEntities1(int instanceId)
+    {
+      for (var i = 0; i < MaxEntities; i++) {
+        using (var session = Domain.OpenSession())
+        using (session.Activate()) {
+          var retryCount = 3;
+          for (var retry = 0; ; retry++) {
+            var initialValue = 0;
+
+            try {
+              initialValue = GetEntityValue1(session, i);
+              UpdateEntity1(session, i);
+              break;
+            }
+            catch (Exception ex) {
+              if (ex is DeadlockException ||
+                  ex is TransactionSerializationFailureException ||
+                  (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException))) {
+                if (retry + 1 < retryCount) {
+                  Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
+                  var currentValue = GetEntityValue(session, i);
                   if (currentValue != initialValue) {
                     Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})", instanceId, i);
                   }
@@ -245,9 +311,8 @@ namespace Xtensive.Orm.Tests.Issues
     private int GetEntityValue(Session session, int i)
     {
       int initialValue;
-      using (TransactionScope t = session.OpenTransaction())
-      {
-        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index == i);
+      using (var t = session.OpenTransaction()) {
+        var entity = Query.All<TestEntity>().Single(e => e.Index == i);
         initialValue = entity.Value;
         t.Complete();
       }
@@ -256,11 +321,77 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void UpdateEntity(Session session, int i)
     {
-      using (TransactionScope t = session.OpenTransaction()) {
-        TestEntity entity = Query.All<TestEntity>().Single(e => e.Index == i);
-        int initialValue = entity.Value;
+      using (var t = session.OpenTransaction()) {
+        var entity = Query.All<TestEntity>().Single(e => e.Index == i);
+        var initialValue = entity.Value;
         entity.Value++;
         t.Complete(); // rollback
+      }
+    }
+
+    private static int GetEntityValue1(Session session, int i)
+    {
+      var initialValue = 0;
+      var deadlockDetected = false;
+      var transactionScope = session.OpenTransaction();
+      try {
+        var entity = Query.All<TestEntity>().Single(e => e.Index == i);
+        initialValue = entity.Value;
+        session.SaveChanges();
+      }
+      catch (Exception ex) {
+        if (ex is DeadlockException ||
+            ex is TransactionSerializationFailureException ||
+            (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException))) {
+          Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})");
+          deadlockDetected = true;
+          _ = new Alert(session);
+        }
+        else {
+          throw;
+        }
+      }
+
+      transactionScope.Complete();
+      if (deadlockDetected) {
+        _ = Assert.Throws<InvalidOperationException>(() => transactionScope.Dispose());
+      }
+      else {
+        Assert.DoesNotThrow(() => transactionScope.Dispose());
+      }
+      return initialValue;
+    }
+
+    private void UpdateEntity1(Session session, int i)
+    {
+      var deadlockDetected = false;
+
+      var transactionScope = session.OpenTransaction();
+      try {
+        var entity = Query.All<TestEntity>().Single(e => e.Index == i);
+        var initialValue = entity.Value;
+        entity.Value++;
+        session.SaveChanges();
+      }
+      catch (Exception ex) {
+        if (ex is DeadlockException ||
+            ex is TransactionSerializationFailureException ||
+            (ex is TargetInvocationException && (ex.InnerException is DeadlockException || ex.InnerException is TransactionSerializationFailureException))) {
+          Console.WriteLine("Deadlock detected : retrying transactional method for UpdateEntities({0}, {1})");
+          deadlockDetected = true;
+          _ = new Alert(session);
+        }
+        else {
+          throw;
+        }
+      }
+
+      transactionScope.Complete();
+      if (deadlockDetected) {
+        _ = Assert.Throws<InvalidOperationException>(() => transactionScope.Dispose());
+      }
+      else {
+        Assert.DoesNotThrow(() => transactionScope.Dispose());
       }
     }
 
@@ -268,9 +399,9 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof(TestEntity).Assembly, typeof (TestEntity).Namespace);
+      configuration.Types.Register(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
 
-      SessionConfiguration defaultSessionConfig = configuration.Sessions.Default;
+      var defaultSessionConfig = configuration.Sessions.Default;
       if (defaultSessionConfig==null) {
         defaultSessionConfig = new SessionConfiguration(WellKnown.Sessions.Default);
         configuration.Sessions.Add(defaultSessionConfig);

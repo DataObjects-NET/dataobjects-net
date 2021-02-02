@@ -5,6 +5,7 @@
 // Created:    2012.02.29
 
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Linq;
 using System.Threading;
@@ -23,17 +24,23 @@ namespace Xtensive.Orm.Providers
     private readonly StorageDriver driver;
     private readonly Session session;
 
-    public CommandWithDataReader ExecuteReader(ISqlCompileUnit statement)
+    public CommandWithDataReader ExecuteReader(
+      ISqlCompileUnit statement, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
       EnsureConnectionIsOpen();
-      return ExecuteReader(connection.CreateCommand(Compile(statement)));
+      return ExecuteReader(connection.CreateCommand(Compile(statement)), commandBehavior);
     }
 
+    public Task<CommandWithDataReader> ExecuteReaderAsync(
+      ISqlCompileUnit statement, CancellationToken token = default) =>
+      ExecuteReaderAsync(statement, CommandBehavior.Default, token);
+
     public async Task<CommandWithDataReader> ExecuteReaderAsync(
-      ISqlCompileUnit statement, CancellationToken token = default)
+      ISqlCompileUnit statement, CommandBehavior commandBehavior, CancellationToken token = default)
     {
       await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
-      return await ExecuteReaderAsync(connection.CreateCommand(Compile(statement)), token).ConfigureAwait(false);
+      return await ExecuteReaderAsync(
+        connection.CreateCommand(Compile(statement)), commandBehavior, token).ConfigureAwait(false);
     }
 
     public int ExecuteNonQuery(ISqlCompileUnit statement)
@@ -68,16 +75,22 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    public CommandWithDataReader ExecuteReader(string commandText)
+    public CommandWithDataReader ExecuteReader(
+      string commandText, CommandBehavior commandBehavior = CommandBehavior.Default)
     {
       EnsureConnectionIsOpen();
-      return ExecuteReader(connection.CreateCommand(commandText));
+      return ExecuteReader(connection.CreateCommand(commandText), commandBehavior);
     }
 
-    public async Task<CommandWithDataReader> ExecuteReaderAsync(string commandText, CancellationToken token = default)
+    public Task<CommandWithDataReader> ExecuteReaderAsync(string commandText, CancellationToken token = default) =>
+      ExecuteReaderAsync(commandText, CommandBehavior.Default, token);
+
+    public async Task<CommandWithDataReader> ExecuteReaderAsync(
+      string commandText, CommandBehavior commandBehavior, CancellationToken token = default)
     {
       await EnsureConnectionIsOpenAsync(token).ConfigureAwait(false);
-      return await ExecuteReaderAsync(connection.CreateCommand(commandText), token).ConfigureAwait(false);
+      return await ExecuteReaderAsync(
+        connection.CreateCommand(commandText), commandBehavior, token).ConfigureAwait(false);
     }
 
     public int ExecuteNonQuery(string commandText)
@@ -242,11 +255,11 @@ namespace Xtensive.Orm.Providers
       return driver.Compile(statement, session.StorageNode.Configuration).GetCommandText();
     }
 
-    private CommandWithDataReader ExecuteReader(DbCommand command)
+    private CommandWithDataReader ExecuteReader(DbCommand command, CommandBehavior commandBehavior)
     {
       DbDataReader reader;
       try {
-        reader = driver.ExecuteReader(session, command);
+        reader = driver.ExecuteReader(session, command, commandBehavior);
       }
       catch {
         command.Dispose();
@@ -255,11 +268,11 @@ namespace Xtensive.Orm.Providers
       return new CommandWithDataReader(command, reader);
     }
 
-    private async Task<CommandWithDataReader> ExecuteReaderAsync(DbCommand command, CancellationToken token)
+    private async Task<CommandWithDataReader> ExecuteReaderAsync(DbCommand command, CommandBehavior commandBehavior, CancellationToken token)
     {
       DbDataReader reader;
       try {
-        reader = await driver.ExecuteReaderAsync(session, command, token).ConfigureAwait(false);
+        reader = await driver.ExecuteReaderAsync(session, command, commandBehavior, token).ConfigureAwait(false);
       }
       catch {
         await command.DisposeAsync().ConfigureAwait(false);

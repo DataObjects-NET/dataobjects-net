@@ -26,13 +26,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
     {
       var result = new RelOptions();
       var options = value as string[];
-      if (options==null)
+      if (options == null) {
         return result;
-      for (int i = 0; i < options.Length; i++) {
+      }
+      for (var i = 0; i < options.Length; i++) {
         options[i] = options[i].Trim();
         string optionName;
         string optionValue = "";
-        int pos = options[i].IndexOf('=');
+        var pos = options[i].IndexOf('=');
         if (pos >= 0) {
           optionName = options[i].Substring(0, pos).ToLower();
           optionValue = options[i].Substring(pos + 1);
@@ -53,8 +54,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
     /// <returns></returns>
     protected virtual void ReadRelOption(string optionName, string optionValue, RelOptions options)
     {
-      if (optionName=="fillfactor") {
-        byte.TryParse(optionValue, out var value);
+      if (optionName == "fillfactor") {
+        _ = byte.TryParse(optionValue, out var value);
         if (value > 0) {
           options.FillFactor = value;
         }
@@ -72,7 +73,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
     protected override void ReadSpecialIndexProperties(DbDataReader dr, Index i)
     {
       base.ReadSpecialIndexProperties(dr, i);
-      if (dr["reloptions"]!=DBNull.Value) {
+      if (dr["reloptions"] != DBNull.Value) {
         var ro = ParseRelOptions(dr["reloptions"]);
         i.FillFactor = ro.FillFactor;
       }

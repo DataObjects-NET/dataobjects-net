@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
+using Xtensive.SqlServer.Resources;
 using SqlServerConnection = System.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer
