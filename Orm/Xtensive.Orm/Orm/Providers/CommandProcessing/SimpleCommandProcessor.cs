@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Providers
           }
         }
         finally {
-          await context.ActiveCommand.DisposeAsync().ConfigureAwait(false);
+          await context.ActiveCommand.DisposeSafelyAsync().ConfigureAwait(false);
           ReleaseCommand(context);
         }
       }
