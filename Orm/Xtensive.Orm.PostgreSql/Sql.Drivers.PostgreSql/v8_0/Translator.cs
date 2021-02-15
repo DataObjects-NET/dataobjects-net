@@ -844,7 +844,22 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
       return new string(chars);
     }
-
+    
+    public override string Translate(SqlCompilerContext context, SqlLike node, LikeSection section)
+    {
+      switch (section) {
+        case LikeSection.Entry:
+          return "(";
+        case LikeSection.Exit:
+          return ")";
+        case LikeSection.Like:
+          return node.Not ? "NOT ILIKE" : "ILIKE";
+        case LikeSection.Escape:
+          return "ESCAPE";
+        default:
+          return string.Empty;
+      }
+    }
 
     // Constructors
 
