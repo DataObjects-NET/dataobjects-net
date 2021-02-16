@@ -188,6 +188,19 @@ namespace Xtensive.Modelling.Comparison.Hints
       return nodeHintMap.Values.Count > 0;
     }
 
+    public bool HasHints<THint>(Node node)
+      where THint : Hint
+    {
+      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+
+      if (!hintMap.ContainsKey(node))
+        hintMap.Add(node, new Dictionary<Type, object>());
+      var nodeHintMap = hintMap.GetValueOrDefault(node);
+      if (nodeHintMap == null)
+        return false;
+      return nodeHintMap.ContainsKey(typeof(THint));
+    }
+
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
