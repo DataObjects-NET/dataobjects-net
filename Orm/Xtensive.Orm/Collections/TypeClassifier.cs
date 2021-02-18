@@ -29,6 +29,11 @@ namespace Xtensive.Collections
       return GetItems(typeof (TClass));
     }
 
+    public int GetItemCount<TClass>()
+    {
+      return GetItemCount(typeof(TClass));
+    }
+
     // Constructors
 
     /// <inheritdoc/>

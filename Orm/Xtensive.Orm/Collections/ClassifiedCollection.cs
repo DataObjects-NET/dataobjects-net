@@ -124,6 +124,12 @@ namespace Xtensive.Collections
       return classified.Keys;
     }
 
+    public int GetItemCount(TClass @class)
+    {
+      var items = classified.GetValueOrDefault(@class);
+      return items != null ? items.Count : 0;
+    }
+
     #region IEnumerable<...> members
 
     IEnumerator IEnumerable.GetEnumerator()

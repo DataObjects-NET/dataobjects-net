@@ -539,7 +539,7 @@ namespace Xtensive.Orm.Upgrade
       var handlers = Domain.Demand().Handlers;
       // It's important to use same StoredDomainModel of current domain
       // in both UpgradeHintsProcessor and HintGenerator instances.
-      var hintGenerator = new HintGenerator(result.TypeMapping, result.ReverseTypeMapping, result.FieldMapping, result.Hints, handlers, context.Services.MappingResolver, extractedSchema, currentDomainModel, oldModel);
+      var hintGenerator = new HintGenerator(result, handlers, context.Services.MappingResolver, extractedSchema, currentDomainModel, oldModel);
       var hints = hintGenerator.Run();
       context.UpgradedTypesMapping = hints.UpgradedTypesMapping;
       context.Hints.Clear();

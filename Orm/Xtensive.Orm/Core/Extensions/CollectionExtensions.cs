@@ -207,5 +207,33 @@ namespace Xtensive.Core
       for (var i = source.Count - 1; i >= 0; i--)
         yield return source[i];
     }
+
+    /// <summary>
+    /// Projects each element of a sequence into two elements of new form and adds it to the first or the second array respectively.
+    /// </summary>
+    /// <typeparam name="TSource">Type of source sequence.</typeparam>
+    /// <typeparam name="TFirst">Type of elements of first result array.</typeparam>
+    /// <typeparam name="TSecond">Type of elements of first result array.</typeparam>
+    /// <param name="source">A collection of values to invoke a transform functions on.</param>
+    /// <param name="firstArraySelector">A transform function to apply to each element to get element of the first array.</param>
+    /// <param name="secondArraySelector">A transform function to apply to each element to get element of the second array.</param>
+    /// <returns>Pair of two arrays.</returns>
+    internal static Pair<TFirst[], TSecond[]> SelectToArrays<TSource, TFirst,TSecond>(
+      this ICollection<TSource> source, Func<TSource, TFirst> firstArraySelector, Func<TSource, TSecond> secondArraySelector)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentValidator.EnsureArgumentNotNull(firstArraySelector, nameof(firstArraySelector));
+      ArgumentValidator.EnsureArgumentNotNull(secondArraySelector, nameof(secondArraySelector));
+
+      var first = new TFirst[source.Count];
+      var second = new TSecond[source.Count];
+      var index = 0;
+      foreach (var item in source) {
+        first[index] = firstArraySelector(item);
+        second[index] = secondArraySelector(item);
+        index++;
+      }
+      return new Pair<TFirst[], TSecond[]>(first, second);
+    }
   }
 }

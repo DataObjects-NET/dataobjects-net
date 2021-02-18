@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly StoredDomainModel extractedModel;
     private readonly StoredDomainModel currentModel;
 
+    private readonly UpgradeHintsProcessingResult processingResults;
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping;
     private readonly Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping;
     private readonly Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping;
@@ -721,45 +722,40 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public HintGenerator(Dictionary<StoredTypeInfo, StoredTypeInfo> typeMapping,
-      Dictionary<StoredTypeInfo, StoredTypeInfo> reverseTypeMapping,
-      Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping,
-      NativeTypeClassifier<UpgradeHint> hints,
+    public HintGenerator(UpgradeHintsProcessingResult hintsProcessingResult,
       HandlerAccessor handlers,
       MappingResolver resolver,
       StorageModel extractedStorageModel,
       StoredDomainModel currentDomainModel,
       StoredDomainModel extractedDomainModel)
     {
-      ArgumentValidator.EnsureArgumentNotNull(typeMapping, "typeMapping");
-      ArgumentValidator.EnsureArgumentNotNull(reverseTypeMapping, "reverseTypeMapping");
-      ArgumentValidator.EnsureArgumentNotNull(fieldMapping, "fieldMapping");
-      ArgumentValidator.EnsureArgumentNotNull(hints, "hints");
-      ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
-      ArgumentValidator.EnsureArgumentNotNull(resolver, "resolver");
-      ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, "extractedStorageModel");
-      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, "currentDomainModel");
-      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, "extractedDomainModel");
+      ArgumentValidator.EnsureArgumentNotNull(hintsProcessingResult, nameof(hintsProcessingResult));
+      ArgumentValidator.EnsureArgumentNotNull(handlers, nameof(handlers));
+      ArgumentValidator.EnsureArgumentNotNull(resolver, nameof(resolver));
+      ArgumentValidator.EnsureArgumentNotNull(extractedStorageModel, nameof(extractedStorageModel));
+      ArgumentValidator.EnsureArgumentNotNull(currentDomainModel, nameof(currentDomainModel));
+      ArgumentValidator.EnsureArgumentNotNull(extractedDomainModel, nameof(extractedDomainModel));
 
-      this.typeMapping = typeMapping;
-      this.reverseTypeMapping = reverseTypeMapping;
-      this.fieldMapping = fieldMapping;
-      this.hints = hints;
+      processingResults = hintsProcessingResult;
 
-      extractedModelFields = new Dictionary<StoredTypeInfo, StoredFieldInfo[]>();
+      typeMapping = hintsProcessingResult.TypeMapping;
+      reverseTypeMapping = hintsProcessingResult.ReverseTypeMapping;
+      fieldMapping = hintsProcessingResult.FieldMapping;
+      hints = hintsProcessingResult.Hints;
 
       this.extractedStorageModel = extractedStorageModel;
       this.resolver = resolver;
-
       nameBuilder = handlers.NameBuilder;
 
       currentModel = currentDomainModel;
       currentModel.UpdateReferences();
 
+      extractedModelFields = new Dictionary<StoredTypeInfo, StoredFieldInfo[]>();
       extractedModel = extractedDomainModel;
 
-      foreach (var type in extractedModel.Types)
+      foreach (var type in extractedModel.Types) {
         extractedModelFields.Add(type, type.Fields.Flatten(f => f.Fields, null, true).ToArray());
+      }
     }
   }
 }
