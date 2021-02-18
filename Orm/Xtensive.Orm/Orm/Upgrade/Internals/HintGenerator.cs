@@ -35,6 +35,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly Dictionary<StoredTypeInfo, StoredFieldInfo[]> extractedModelFields;
 
     private readonly NativeTypeClassifier<UpgradeHint> hints;
+    private readonly HashSet<StoredTypeInfo> suspiciousTypes;
 
     private readonly List<Hint> schemaHints = new List<Hint>();
 
@@ -49,6 +50,7 @@ namespace Xtensive.Orm.Upgrade
       GenerateCopyColumnHints(copyFieldHints);
 
       var removedTypes = GetRemovedTypes(extractedModel);
+      GenerateRecreateHints(removedTypes);
       GenerateRecordCleanupHints(removedTypes, false);
 
       var movedTypes = GetMovedTypes(extractedModel);
@@ -187,6 +189,21 @@ namespace Xtensive.Orm.Upgrade
             GetColumnPath(sourceType, columnPair.First),
             GetColumnPath(target, columnPair.Second)));
         schemaHints.Add(new CopyDataHint(sourceTablePath, identities, copiedColumns));
+      }
+    }
+
+    private void GenerateRecreateHints(ICollection<StoredTypeInfo> removedTypes)
+    {
+      var capacity = currentModel.Types.Length - typeMapping.Count;
+      var newTypes = new Dictionary<string, StoredTypeInfo>(capacity, StringComparer.Ordinal);
+      processingResults.CurrentNonConnectorTypes.Where(t => !reverseTypeMapping.ContainsKey(t))
+        .ForEach(t => newTypes.Add($"{t.MappingDatabase}.{t.MappingSchema}.{t.MappingName}", t));
+
+      foreach (var rType in removedTypes) {
+        if (!suspiciousTypes.Contains(rType)
+          || !newTypes.TryGetValue($"{rType.MappingDatabase}.{rType.MappingSchema}.{rType.MappingName}", out var conflictedNewType))
+          continue;
+        schemaHints.Add(new RecreateTableHint(GetTablePath(rType)));
       }
     }
 
@@ -742,6 +759,7 @@ namespace Xtensive.Orm.Upgrade
       reverseTypeMapping = hintsProcessingResult.ReverseTypeMapping;
       fieldMapping = hintsProcessingResult.FieldMapping;
       hints = hintsProcessingResult.Hints;
+      suspiciousTypes = hintsProcessingResult.SuspiciousTypes;
 
       this.extractedStorageModel = extractedStorageModel;
       this.resolver = resolver;
