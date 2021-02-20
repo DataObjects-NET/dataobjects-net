@@ -1,3 +1,7 @@
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -5,20 +9,18 @@ using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
+using Xtensive.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Services;
+using Xtensive.Orm.Upgrade;
 using OneToOneStructure = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.OneToOneStructure;
 using NewColumnWithinTable = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.NewColumnWithinTable;
 using RemoveColumnWithinTable = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.RemoveColumnWithinTable;
 using NewTable = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.NewTable;
 using RemoveTable = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.RemoveTable;
-
-using ConnectorType = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.ConnectorType;
-using Xtensive.Orm.Upgrade;
-using Xtensive.Collections;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {
@@ -753,90 +755,6 @@ namespace Xtensive.Orm.Tests.Upgrade
 
 namespace Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel
 {
-  namespace ConnectorType
-  {
-    namespace Before
-    {
-      [HierarchyRoot]
-      public class Author : Entity
-      {
-        [Field, Key]
-        public int Id { get; private set; }
-
-        [Field]
-        public string Name { get; set; }
-
-        [Field]
-        [Association(PairTo = nameof(Book.Authors))]
-        public EntitySet<Book> Books { get; private set; }
-      }
-
-      [HierarchyRoot]
-      public class Book : Entity
-      {
-        [Field, Key]
-        public int Id { get; private set; }
-
-        [Field]
-        public string Name { get; set; }
-
-        [Field]
-        public EntitySet<Author> Authors { get; private set; }
-      }
-    }
-
-    namespace After
-    {
-      [HierarchyRoot]
-      public class Author : Entity
-      {
-        [Field, Key]
-        public int Id { get; private set; }
-
-        [Field]
-        public string Name { get; set; }
-
-        [Field]
-        [Association(PairTo = nameof(Book.Authors))]
-        public EntitySet<Book> Books { get; private set; }
-      }
-
-      [HierarchyRoot]
-      [Index(nameof(NewUniqueName), Unique = true)]
-      public class Book : Entity
-      {
-        [Field, Key]
-        public int Id { get; private set; }
-
-        [Field]
-        public string Name { get; set; }
-
-        [Field]
-        public string NewUniqueName { get; set; }
-
-        [Field]
-        public EntitySet<Author> Authors { get; private set; }
-      }
-
-      public class CustomUpgradeHandler : UpgradeHandler
-      {
-        public override bool CanUpgradeFrom(string oldVersion) => true;
-
-        public override void OnUpgrade()
-        {
-          base.OnUpgrade();
-
-          var session = UpgradeContext.Session;
-          foreach (var item in session.Query.All<Book>()) {
-            item.NewUniqueName = Guid.NewGuid().ToString();
-          }
-          session.SaveChanges();
-        }
-      }
-    }
-  }
-
-
   namespace OneToOneStructure
   {
     namespace Before
