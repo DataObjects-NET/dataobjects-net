@@ -1,6 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
     <DocumentationFile />
     <Optimize>false</Optimize>
   </PropertyGroup>
