@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.10.14
 
@@ -18,55 +18,51 @@ namespace Xtensive.Orm.Tests.Core.Logging
   {
     private const string filePath = "Log.txt";
 
-    [OneTimeSetUp]
-    public void SetUp()
-    {
-      LogManager.Default.Initialize(Configuration);
-    }
-
     [Test]
     public void OrmLogTest()
     {
-      if (File.Exists(filePath))
+      if (File.Exists(filePath)) {
         File.Delete(filePath);
+      }
+
       OrmLog.Debug("Test message", null);
       OrmLog.Debug("Test message with parameter {0}", new object[] { 1 });
-      OrmLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = OrmLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       OrmLog.Debug("Test message", new object[] { 1 });
       OrmLog.Debug("Test message {0}", null);
-      OrmLog.Debug(new Exception("Some exeption"));
+      _ = OrmLog.Debug(new Exception("Some exeption"));
       OrmLog.Debug(null, new object[] { 1 });
 
       OrmLog.Info("Test message", null);
       OrmLog.Info("Test message with parameter {0}", new object[] { 1 });
-      OrmLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = OrmLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       OrmLog.Info("Test message", new object[] { 1 });
       OrmLog.Info("Test message {0}", null);
-      OrmLog.Info(new Exception("Some exeption"));
+      _ = OrmLog.Info(new Exception("Some exeption"));
       OrmLog.Info(null, new object[] { 1 });
 
       OrmLog.Warning("Test message", null);
       OrmLog.Warning("Test message with parameter {0}", new object[] { 1 });
-      OrmLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = OrmLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       OrmLog.Warning("Test message", new object[] { 1 });
       OrmLog.Warning("Test message {0}", null);
-      OrmLog.Warning(new Exception("Some exeption"));
+      _ = OrmLog.Warning(new Exception("Some exeption"));
       OrmLog.Warning(null, new object[] { 1 });
 
       OrmLog.Error("Test message", null);
       OrmLog.Error("Test message with parameter {0}", new object[] { 1 });
-      OrmLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = OrmLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       OrmLog.Error("Test message", new object[] { 1 });
       OrmLog.Error("Test message {0}", null);
-      OrmLog.Error(new Exception("Some exeption"));
+      _ = OrmLog.Error(new Exception("Some exeption"));
       OrmLog.Error(null, new object[] { 1 });
 
       OrmLog.FatalError("Test message", null);
       OrmLog.FatalError("Test message with parameter {0}", new object[] { 1 });
-      OrmLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = OrmLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       OrmLog.FatalError("Test message", new object[] { 1 });
       OrmLog.FatalError("Test message {0}", null);
-      OrmLog.FatalError(new Exception("Some exeption"));
+      _ = OrmLog.FatalError(new Exception("Some exeption"));
       OrmLog.FatalError(null, new object[] { 1 });
 
       Assert.IsTrue(File.Exists(filePath));
@@ -80,42 +76,42 @@ namespace Xtensive.Orm.Tests.Core.Logging
         File.Delete(filePath);
       BuildLog.Debug("Test message", null);
       BuildLog.Debug("Test message with parameter {0}", new object[] { 1 });
-      BuildLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = BuildLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       BuildLog.Debug("Test message", new object[] { 1 });
       BuildLog.Debug("Test message {0}", null);
-      BuildLog.Debug(new Exception("Some exeption"));
+      _ = BuildLog.Debug(new Exception("Some exeption"));
       BuildLog.Debug(null, new object[] { 1 });
 
       BuildLog.Info("Test message", null);
       BuildLog.Info("Test message with parameter {0}", new object[] { 1 });
-      BuildLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = BuildLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       BuildLog.Info("Test message", new object[] { 1 });
       BuildLog.Info("Test message {0}", null);
-      BuildLog.Info(new Exception("Some exeption"));
+      _ = BuildLog.Info(new Exception("Some exeption"));
       BuildLog.Info(null, new object[] { 1 });
 
       BuildLog.Warning("Test message", null);
       BuildLog.Warning("Test message with parameter {0}", new object[] { 1 });
-      BuildLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = BuildLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       BuildLog.Warning("Test message", new object[] { 1 });
       BuildLog.Warning("Test message {0}", null);
-      BuildLog.Warning(new Exception("Some exeption"));
+      _ = BuildLog.Warning(new Exception("Some exeption"));
       BuildLog.Warning(null, new object[] { 1 });
 
       BuildLog.Error("Test message", null);
       BuildLog.Error("Test message with parameter {0}", new object[] { 1 });
-      BuildLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = BuildLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       BuildLog.Error("Test message", new object[] { 1 });
       BuildLog.Error("Test message {0}", null);
-      BuildLog.Error(new Exception("Some exeption"));
+      _ = BuildLog.Error(new Exception("Some exeption"));
       BuildLog.Error(null, new object[] { 1 });
 
       BuildLog.FatalError("Test message", null);
       BuildLog.FatalError("Test message with parameter {0}", new object[] { 1 });
-      BuildLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = BuildLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       BuildLog.FatalError("Test message", new object[] { 1 });
       BuildLog.FatalError("Test message {0}", null);
-      BuildLog.FatalError(new Exception("Some exeption"));
+      _ = BuildLog.FatalError(new Exception("Some exeption"));
       BuildLog.FatalError(null, new object[] { 1 });
 
       Assert.IsTrue(File.Exists(filePath));
@@ -178,42 +174,42 @@ namespace Xtensive.Orm.Tests.Core.Logging
         File.Delete(filePath);
       SqlLog.Debug("Test message", null);
       SqlLog.Debug("Test message with parameter {0}", new object[] { 1 });
-      SqlLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = SqlLog.Debug(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       SqlLog.Debug("Test message", new object[] { 1 });
       SqlLog.Debug("Test message {0}", null);
-      SqlLog.Debug(new Exception("Some exeption"));
+      _ = SqlLog.Debug(new Exception("Some exeption"));
       SqlLog.Debug(null, new object[] { 1 });
 
       SqlLog.Info("Test message", null);
       SqlLog.Info("Test message with parameter {0}", new object[] { 1 });
-      SqlLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = SqlLog.Info(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       SqlLog.Info("Test message", new object[] { 1 });
       SqlLog.Info("Test message {0}", null);
-      SqlLog.Info(new Exception("Some exeption"));
+      _ = SqlLog.Info(new Exception("Some exeption"));
       SqlLog.Info(null, new object[] { 1 });
 
       SqlLog.Warning("Test message", null);
       SqlLog.Warning("Test message with parameter {0}", new object[] { 1 });
-      SqlLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = SqlLog.Warning(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       SqlLog.Warning("Test message", new object[] { 1 });
       SqlLog.Warning("Test message {0}", null);
-      SqlLog.Warning(new Exception("Some exeption"));
+      _ = SqlLog.Warning(new Exception("Some exeption"));
       SqlLog.Warning(null, new object[] { 1 });
 
       SqlLog.Error("Test message", null);
       SqlLog.Error("Test message with parameter {0}", new object[] { 1 });
-      SqlLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = SqlLog.Error(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       SqlLog.Error("Test message", new object[] { 1 });
       SqlLog.Error("Test message {0}", null);
-      SqlLog.Error(new Exception("Some exeption"));
+      _ = SqlLog.Error(new Exception("Some exeption"));
       SqlLog.Error(null, new object[] { 1 });
 
       SqlLog.FatalError("Test message", null);
       SqlLog.FatalError("Test message with parameter {0}", new object[] { 1 });
-      SqlLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
+      _ = SqlLog.FatalError(new Exception("Some exception"), "Test message with parameter {0}", new object[] { 1 });
       SqlLog.FatalError("Test message", new object[] { 1 });
       SqlLog.FatalError("Test message {0}", null);
-      SqlLog.FatalError(new Exception("Some exeption"));
+      _ = SqlLog.FatalError(new Exception("Some exeption"));
       SqlLog.FatalError(null, new object[] { 1 });
 
       Assert.IsTrue(File.Exists(filePath));
