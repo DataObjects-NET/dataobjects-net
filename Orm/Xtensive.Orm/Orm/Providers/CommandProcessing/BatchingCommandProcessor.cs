@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Providers
       }
       finally {
         if (!shouldReturnReader) {
-          context.ActiveCommand.Dispose();
+          context.ActiveCommand.DisposeSafely();
         }
         ReleaseCommand(context);
       }
@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Providers
       }
       finally {
         if (!shouldReturnReader) {
-          context.ActiveCommand.Dispose();
+          context.ActiveCommand.DisposeSafely();
         }
         ReleaseCommand(context);
       }
