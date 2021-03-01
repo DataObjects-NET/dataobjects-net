@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -375,12 +375,11 @@ namespace Xtensive.Orm.Internals
       Rebind();
     }
 
-    public void UpdateCachedState(IEnumerable<Key> keys, long? count)
+    public void UpdateCachedState(IEnumerable<Key> syncronizedKeys, long? count)
     {
       FetchedKeys.Clear();
       var becameRemovedOnSever = new HashSet<Key>(removedKeys.Keys);
-      TotalItemCount = count;
-      foreach (var key in keys) {
+      foreach (var key in syncronizedKeys) {
         if (addedKeys.ContainsKey(key)) {
           _ = addedKeys.Remove(key);
         }
@@ -392,6 +391,10 @@ namespace Xtensive.Orm.Internals
       foreach (var removedOnServer in becameRemovedOnSever) {
         _ = removedKeys.Remove(removedOnServer);
       }
+
+      TotalItemCount = count.HasValue
+        ? FetchedKeys.Count - removedKeys.Count + AddedItemsCount
+        : count;
     }
 
     private void EnsureFetchedKeysIsNotNull()
