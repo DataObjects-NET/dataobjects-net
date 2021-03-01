@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
@@ -7,9 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using Xtensive.Core;
-
-using Xtensive.Collections;
 
 namespace Xtensive.Collections
 {
@@ -19,13 +18,16 @@ namespace Xtensive.Collections
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class CollectionBase<TItem>: CollectionBaseSlim<TItem>,
-    ICollectionChangeNotifier<TItem>
+    ICollectionChangeNotifier<TItem>,
+    IDeserializationCallback
   {
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangedHandler;
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+
+    [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+
+    [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private CollectionEventBroker<TItem> eventBroker;
 
     /// <summary>
@@ -33,18 +35,21 @@ namespace Xtensive.Collections
     /// </summary>
     /// <param name="index">The zero-based index of the element to get or set.</param>
     /// <returns>The element at the specified index.</returns>
-    public override TItem this[int index] {
-      get {
-        return base[index];
-      }
+    public override TItem this[int index]
+    {
+      get => base[index];
       set {
-        if (index < 0 || index >= Count)
-          throw new IndexOutOfRangeException();
+        if (index < 0 || index >= Count) {
+          throw new IndexOutOfRangeException(nameof(index));
+        }
+
         OnValidate(value);
-        TItem oldValue = base[index];
-        if ((oldValue==null && value==null) ||
-          (oldValue!=null && oldValue.Equals(value)))
+        var oldValue = base[index];
+        if ((oldValue == null && value == null) ||
+          (oldValue != null && oldValue.Equals(value))) {
           return;
+        }
+
         OnChanging();
         OnRemoving(oldValue, index);
         OnInserting(value, index);
@@ -68,8 +73,10 @@ namespace Xtensive.Collections
     /// <param name="value">Item to insert.</param>
     public override void Insert(int index, TItem value)
     {
-      if (index < 0 || index > Count)
+      if (index < 0 || index > Count) {
         throw new ArgumentOutOfRangeException("index");
+      }
+
       OnValidate(value);
       OnChanging();
       OnInserting(value, index);
@@ -91,14 +98,16 @@ namespace Xtensive.Collections
     /// <param name="index">The zero-based index of the element to remove.</param>
     public override void RemoveAt(int index)
     {
-      if (index < 0 || index >= Count)
+      if (index < 0 || index >= Count) {
         throw new ArgumentOutOfRangeException("index");
-      TItem o = base[index];
-      OnValidate(o);
+      }
+
+      var item = base[index];
+      OnValidate(item);
       OnChanging();
-      OnRemoving(o, index);
+      OnRemoving(item, index);
       base.RemoveAt(index);
-      OnRemoved(o, index);
+      OnRemoved(item, index);
       OnChanged();
     }
 
@@ -110,8 +119,11 @@ namespace Xtensive.Collections
     {
       OnChanging();
       OnClearing();
-      foreach (TItem item in Items)
+
+      foreach (var item in Items) {
         TryUnsubscribe(item);
+      }
+
       base.Clear();
       OnCleared();
       OnChanged();
@@ -124,7 +136,7 @@ namespace Xtensive.Collections
     public override void Add(TItem value)
     {
       OnValidate(value);
-      int index = Count;
+      var index = Count;
       OnChanging();
       OnInserting(value, index);
       base.Add(value);
@@ -141,8 +153,9 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public override void AddRange(IEnumerable<TItem> collection)
     {
-      foreach (TItem item in collection)
+      foreach (var item in collection) {
         Add(item);
+      }
     }
 
     /// <summary>
@@ -152,9 +165,11 @@ namespace Xtensive.Collections
     public override bool Remove(TItem value)
     {
       OnValidate(value);
-      int index = IndexOf(value);
-      if (index < 0)
+      var index = IndexOf(value);
+      if (index < 0) {
         return false;
+      }
+
       OnChanging();
       OnRemoving(value, index);
       base.RemoveAt(index);
@@ -165,17 +180,14 @@ namespace Xtensive.Collections
 
     private CollectionEventBroker<TItem> EventBroker {
       get {
-        if (eventBroker==null)
+        if (eventBroker == null) {
           eventBroker = new CollectionEventBroker<TItem>();
+        }
         return eventBroker;
       }
     }
 
-    private bool EventBrokerExists {
-      get {
-        return eventBroker!=null;
-      }
-    }
+    private bool EventBrokerExists => eventBroker != null;
 
     /// <summary>
     /// Tries to subscribe the collection on 
@@ -184,8 +196,7 @@ namespace Xtensive.Collections
     /// <param name="item">The item to try.</param>
     protected void TrySubscribe(TItem item)
     {
-      IChangeNotifier notifier = item as IChangeNotifier;
-      if (notifier != null) {
+      if (item is IChangeNotifier notifier) {
         notifier.Changing += itemChangingHandler;
         notifier.Changed += itemChangedHandler;
       }
@@ -198,8 +209,7 @@ namespace Xtensive.Collections
     /// <param name="item">The item to try.</param>
     protected void TryUnsubscribe(TItem item)
     {
-      IChangeNotifier notifier = item as IChangeNotifier;
-      if (notifier != null) {
+      if (item is IChangeNotifier notifier) {
         notifier.Changing -= itemChangingHandler;
         notifier.Changed -= itemChangedHandler;
       }
@@ -213,8 +223,9 @@ namespace Xtensive.Collections
     /// </summary>
     protected virtual void OnChanging()
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnChanging(this, new ChangeNotifierEventArgs("Changing"));
+      }
     }
 
     /// <summary>
@@ -223,8 +234,9 @@ namespace Xtensive.Collections
     /// </summary>
     protected virtual void OnChanged()
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnChanged(this, new ChangeNotifierEventArgs("Changed"));
+      }
     }
 
     /// <summary>
@@ -233,8 +245,9 @@ namespace Xtensive.Collections
     /// </summary>
     protected virtual void OnClearing()
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnClearing(this, new ChangeNotifierEventArgs("Clearing"));
+      }
     }
 
     /// <summary>
@@ -243,8 +256,9 @@ namespace Xtensive.Collections
     /// </summary>
     protected virtual void OnCleared()
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnCleared(this, new ChangeNotifierEventArgs("Cleared"));
+      }
     }
 
     /// <summary>
@@ -255,8 +269,9 @@ namespace Xtensive.Collections
     /// <param name="value">The value to insert.</param>
     protected virtual void OnInserting(TItem value, int index)
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnInserting(this, new CollectionChangeNotifierEventArgs<TItem>(value, index));
+      }
     }
 
     /// <summary>
@@ -268,8 +283,9 @@ namespace Xtensive.Collections
     protected virtual void OnInserted(TItem value, int index)
     {
       TrySubscribe(value);
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnInserted(this, new CollectionChangeNotifierEventArgs<TItem>(value, index));
+      }
     }
 
     /// <summary>
@@ -280,8 +296,9 @@ namespace Xtensive.Collections
     /// <param name="value">The element to remove.</param>
     protected virtual void OnRemoving(TItem value, int index)
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnRemoving(this, new CollectionChangeNotifierEventArgs<TItem>(value, index));
+      }
     }
 
     /// <summary>
@@ -293,8 +310,9 @@ namespace Xtensive.Collections
     protected virtual void OnRemoved(TItem value, int index)
     {
       TryUnsubscribe(value);
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnRemoved(this, new CollectionChangeNotifierEventArgs<TItem>(value, index));
+      }
     }
 
     /// <summary>
@@ -309,8 +327,10 @@ namespace Xtensive.Collections
     /// </remarks>
     protected virtual void OnValidate(TItem value)
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnValidate(this, new CollectionChangeNotifierEventArgs<TItem>(value));
+      }
+
       ArgumentValidator.EnsureArgumentNotNull(value, "value");
     }
 
@@ -321,8 +341,9 @@ namespace Xtensive.Collections
     /// <param name="e">The <see cref="ChangeNotifierEventArgs"/> instance containing the event data.</param>
     protected virtual void OnItemChanging(object sender, ChangeNotifierEventArgs e)
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnItemChanging(this, new CollectionChangeNotifierEventArgs<TItem>((TItem)sender));
+      }
     }
 
     /// <summary>
@@ -332,8 +353,9 @@ namespace Xtensive.Collections
     /// <param name="e">The <see cref="ChangeNotifierEventArgs"/> instance containing the event data.</param>
     protected virtual void OnItemChanged(object sender, ChangeNotifierEventArgs e)
     {
-      if (EventBrokerExists)
+      if (EventBrokerExists) {
         EventBroker.RaiseOnItemChanged(this, new CollectionChangeNotifierEventArgs<TItem>((TItem)sender));
+      }
     }
 
     #endregion
@@ -448,13 +470,14 @@ namespace Xtensive.Collections
     {
       itemChangingHandler = OnItemChanging;
       itemChangedHandler = OnItemChanged;
-      foreach (TItem item in this)
+      foreach (var item in this) {
         TrySubscribe(item);
+      }
     }
 
 
     // Constructors
-    
+
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
@@ -482,5 +505,7 @@ namespace Xtensive.Collections
     {
       Initialize();
     }
+
+    void IDeserializationCallback.OnDeserialization(object sender) => Initialize();
   }
 }
