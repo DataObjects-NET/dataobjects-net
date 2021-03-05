@@ -47,8 +47,8 @@
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
     <BaseOutputPath>$(ArtifactsDir)bin\$(Configuration)\</BaseOutputPath>
     <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))
-		OR $(MSBuildProjectName) == 'TestCommon'
-		OR $(MSBuildProjectName) == 'Xtensive.Orm.Manual'">$(ArtifactsDir)tests\$(Configuration)\</BaseOutputPath>
+      OR $(MSBuildProjectName) == 'TestCommon'
+      OR $(MSBuildProjectName) == 'Xtensive.Orm.Manual'">$(ArtifactsDir)tests\$(Configuration)\</BaseOutputPath>
     <OutputPath>$(BaseOutputPath)lib\</OutputPath>
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
