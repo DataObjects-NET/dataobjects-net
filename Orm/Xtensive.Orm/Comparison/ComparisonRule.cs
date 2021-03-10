@@ -7,9 +7,8 @@
 using System;
 using System.Globalization;
 using System.Runtime.Serialization;
+using System.Security;
 using Xtensive.Core;
-
-
 
 namespace Xtensive.Comparison
 {
@@ -201,6 +200,7 @@ namespace Xtensive.Comparison
       Culture = (cultureId != int.MinValue) ? CultureInfo.GetCultureInfo(cultureId) : null;
     }
 
+    [SecurityCritical]
     void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
     {
       if(info == null) {

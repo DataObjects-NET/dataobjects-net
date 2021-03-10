@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
 using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -20,38 +21,29 @@ namespace Xtensive.Comparison
     private ThreadSafeDictionary<Pair<Type>, int> results;
 
     protected override IAdvancedComparer<Type> CreateNew(ComparisonRules rules)
-    {
-      return new TypeComparer(Provider, ComparisonRules.Combine(rules));
-    }
+      => new TypeComparer(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(Type x, Type y)
     {
-      if (x==y)
-        return 0;
-      return results.GetValue(new Pair<Type>(x, y), 
-        (pair, _this) => {
-          int result = _this.BaseComparer1.Compare(pair.First.FullName, pair.Second.FullName);
-          if (result==0)
-            result = _this.BaseComparer2.Compare(pair.First.Assembly, pair.Second.Assembly);
-          return result;
-        }, 
-        this);
+      return x == y
+        ? 0
+        : results.GetValue(new Pair<Type>(x, y), generator, this);
+
+      static int generator(Pair<Type> pair, TypeComparer _this)
+      {
+        var result = _this.BaseComparer1.Compare(pair.First.FullName, pair.Second.FullName);
+        if (result == 0) {
+          result = _this.BaseComparer2.Compare(pair.First.Assembly, pair.Second.Assembly);
+        }
+        return result;
+      }
     }
 
-    public override bool Equals(Type x, Type y)
-    {
-      return x==y;
-    }
+    public override bool Equals(Type x, Type y) => x == y;
 
-    public override int GetHashCode(Type obj)
-    {
-      return AdvancedComparerStruct<Type>.System.GetHashCode(obj);
-    }
+    public override int GetHashCode(Type obj) => AdvancedComparerStruct<Type>.System.GetHashCode(obj);
 
-    private void Initialize()
-    {
-      results = ThreadSafeDictionary<Pair<Type>, int>.Create(new object());
-    }
+    private void Initialize() => results = ThreadSafeDictionary<Pair<Type>, int>.Create(new object());
 
 
     // Constructors
@@ -62,9 +54,11 @@ namespace Xtensive.Comparison
       Initialize();
     }
 
-    public override void OnDeserialization(object sender)
+    public TypeComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
-      Initialize();
     }
+
+    public override void OnDeserialization(object sender) => Initialize();
   }
 }

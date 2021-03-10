@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.23
 
@@ -21,49 +21,32 @@ namespace Xtensive.Comparison
     private int nullHashCode;
 
     protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
-    {
-      return new ObjectComparer<T>(Provider, ComparisonRules.Combine(rules));
-    }
+      => new ObjectComparer<T>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T x, T y)
     {
       if (ReferenceEquals(x, null)) {
-        if (ReferenceEquals(y, null))
-          return 0;
-        else
-          return -DefaultDirectionMultiplier;
+        return ReferenceEquals(y, null) ? 0 : -DefaultDirectionMultiplier;
       }
       else {
-        if (ReferenceEquals(y, null))
-          return DefaultDirectionMultiplier;
-        else
-          return x.CompareTo(y) * DefaultDirectionMultiplier;
+        return ReferenceEquals(y, null)
+          ? DefaultDirectionMultiplier
+          : x.CompareTo(y) * DefaultDirectionMultiplier;
       }
     }
 
     public override bool Equals(T x, T y)
     {
       if (ReferenceEquals(x, null)) {
-        if (ReferenceEquals(y, null))
-          return true;
-        else
-          return false;
+        return ReferenceEquals(y, null);
       }
       else {
-        if (ReferenceEquals(y, null))
-          return false;
-        else
-          return x.Equals(y);
+        return ReferenceEquals(y, null) ? false : x.Equals(y);
       }
     }
 
     public override int GetHashCode(T obj)
-    {
-      if (ReferenceEquals(obj, null))
-        return nullHashCode;
-      else
-        return obj.GetHashCode();
-    }
+      => ReferenceEquals(obj, null) ? nullHashCode : obj.GetHashCode();
 
     private void Initialize()
     {
@@ -79,6 +62,11 @@ namespace Xtensive.Comparison
       : base(provider, comparisonRules)
     {
       Initialize();
+    }
+
+    public ObjectComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
 
     public override void OnDeserialization(object sender)

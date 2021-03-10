@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: 
 // Created:    2008.03.06
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Conversion;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -20,19 +21,12 @@ namespace Xtensive.Comparison
   [Serializable]
   public sealed class CastingComparer<TSource, TTarget>: AdvancedComparerBase<TTarget>
   {
-    private static readonly Converter<TTarget, TSource> toSource = AdvancedConverterStruct<TTarget, TSource>.Default.Convert;
-    private static readonly Converter<TSource, TTarget> toTarget = AdvancedConverterStruct<TSource, TTarget>.Default.Convert;
-    private readonly AdvancedComparer<TSource> sourceComparer;
-
-    internal class AsymmetricCompareHandler<TSecond>:
+    private class AsymmetricCompareHandler<TSecond> :
       IComparer<TTarget, TSecond>
     {
       private readonly Func<TSource, TSecond, int> baseCompare;
 
-      public int Compare(TTarget x, TSecond y)
-      {
-        return baseCompare(toSource(x), y);
-      }
+      public int Compare(TTarget x, TSecond y) => baseCompare(ToSource(x), y);
 
       public AsymmetricCompareHandler(Func<TSource, TSecond, int> baseCompare)
       {
@@ -40,44 +34,38 @@ namespace Xtensive.Comparison
       }
     }
 
+    private static readonly Converter<TTarget, TSource> ToSource = AdvancedConverterStruct<TTarget, TSource>.Default.Convert;
+    private static readonly Converter<TSource, TTarget> ToTarget = AdvancedConverterStruct<TSource, TTarget>.Default.Convert;
+
+    private readonly AdvancedComparer<TSource> sourceComparer;
+
     /// <inheritdoc/>
     protected override IAdvancedComparer<TTarget> CreateNew(ComparisonRules rules)
-    {
-      return new CastingComparer<TSource, TTarget>(sourceComparer.ApplyRules(rules));
-    }
+      => new CastingComparer<TSource, TTarget>(sourceComparer.ApplyRules(rules));
 
     /// <inheritdoc/>
     public override int Compare(TTarget x, TTarget y)
-    {
-      return sourceComparer.Compare(toSource(x), toSource(y));
-    }
+      => sourceComparer.Compare(ToSource(x), ToSource(y));
 
     /// <inheritdoc/>
-    public override bool Equals(TTarget x, TTarget y)
-    {
-      return sourceComparer.Equals(toSource(x), toSource(y));
-    }
+    public override bool Equals(TTarget x, TTarget y) => sourceComparer.Equals(ToSource(x), ToSource(y));
 
     /// <inheritdoc/>
-    public override int GetHashCode(TTarget obj)
-    {
-      return sourceComparer.GetHashCode(toSource(obj));
-    }
+    public override int GetHashCode(TTarget obj) => sourceComparer.GetHashCode(ToSource(obj));
 
     /// <inheritdoc/>
-    public override TTarget GetNearestValue(TTarget value, Direction direction)
-    {
-      return toTarget(sourceComparer.GetNearestValue(toSource(value), direction));
-    }
+    public override TTarget GetNearestValue(TTarget value, Direction direction) => ToTarget(sourceComparer.GetNearestValue(ToSource(value), direction));
 
     /// <inheritdoc/>
     public override Func<TTarget, TSecond, int> GetAsymmetric<TSecond>()
     {
-      Func<TSource, TSecond, int> asymmetricCompare = sourceComparer.GetAsymmetric<TSecond>();
-      if (asymmetricCompare == null)
+      var asymmetricCompare = sourceComparer.GetAsymmetric<TSecond>();
+      if (asymmetricCompare == null) {
         throw new NotSupportedException();
-      AsymmetricCompareHandler<TSecond> h = new AsymmetricCompareHandler<TSecond>(asymmetricCompare);
-      return h.Compare;
+      }
+
+      var handler = new AsymmetricCompareHandler<TSecond>(asymmetricCompare);
+      return handler.Compare;
     }
 
 
@@ -90,15 +78,20 @@ namespace Xtensive.Comparison
       : base(sourceComparer.Provider, sourceComparer.ComparisonRules)
     {
       this.sourceComparer = sourceComparer;
-      ValueRangeInfo<TSource> vi = sourceComparer.ValueRangeInfo;
+      var vi = sourceComparer.ValueRangeInfo;
       ValueRangeInfo =
         new ValueRangeInfo<TTarget>(
           vi.HasMinValue,
-          vi.HasMinValue ? toTarget(vi.MinValue) : default(TTarget),
+          vi.HasMinValue ? ToTarget(vi.MinValue) : default(TTarget),
           vi.HasMaxValue,
-          vi.HasMaxValue ? toTarget(vi.MaxValue) : default(TTarget),
+          vi.HasMaxValue ? ToTarget(vi.MaxValue) : default(TTarget),
           vi.HasDeltaValue,
-          vi.HasDeltaValue ? toTarget(vi.DeltaValue) : default(TTarget));
+          vi.HasDeltaValue ? ToTarget(vi.DeltaValue) : default(TTarget));
+    }
+
+    public CastingComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
   }
 }

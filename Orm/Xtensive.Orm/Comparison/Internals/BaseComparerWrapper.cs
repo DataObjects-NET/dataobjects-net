@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Comparison
@@ -14,35 +15,27 @@ namespace Xtensive.Comparison
     where T: TBase
   {
     protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
-    {
-      return new BaseComparerWrapper<T, TBase>(Provider, ComparisonRules.Combine(rules));
-    }
+      => new BaseComparerWrapper<T, TBase>(Provider, ComparisonRules.Combine(rules));
 
-    public override int Compare(T x, T y)
-    {
-      return BaseComparer.Compare(x, y);
-    }
+    public override int Compare(T x, T y) => BaseComparer.Compare(x, y);
 
-    public override bool Equals(T x, T y)
-    {
-      return BaseComparer.Equals(x, y);
-    }
+    public override bool Equals(T x, T y) => BaseComparer.Equals(x, y);
 
-    public override int GetHashCode(T obj)
-    {
-      return BaseComparer.GetHashCode(obj);
-    }
+    public override int GetHashCode(T obj) => BaseComparer.GetHashCode(obj);
 
     public override T GetNearestValue(T value, Direction direction)
-    {
-      return (T)BaseComparer.GetNearestValue(value, direction);
-    }
+      => (T) BaseComparer.GetNearestValue(value, direction);
 
 
     // Constructors
 
     public BaseComparerWrapper(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
+    {
+    }
+
+    public BaseComparerWrapper(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
     }
   }
