@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -35,6 +35,21 @@ namespace Xtensive.Orm
       }
 
       return Prefetch(source, Session.Demand(), expression);
+    }
+
+    /// <summary>
+    /// Registers fields specified by <paramref name="expression"/> for prefetch.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
+    /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
+    /// <param name="source">The source query.</param>
+    /// <param name="expression">The expression specifying a field to be prefetched.</param>
+    /// <returns>An <see cref="IEnumerable{TElement}"/> of source items.</returns>
+    public static PrefetchQuery<TElement> Prefetch<TElement, TFieldValue>(
+      this DelayedQuery<TElement> source,
+      Expression<Func<TElement, TFieldValue>> expression)
+    {
+      return new PrefetchQuery<TElement>(source.Session, source).RegisterPath(expression);
     }
 
     /// <summary>
