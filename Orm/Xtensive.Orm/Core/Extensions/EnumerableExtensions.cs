@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -14,7 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Collections.Graphs;
-using Xtensive.Orm.Internals;
+using Xtensive.Orm;
 
 
 namespace Xtensive.Core
