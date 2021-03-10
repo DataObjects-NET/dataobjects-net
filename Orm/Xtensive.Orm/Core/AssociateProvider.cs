@@ -147,7 +147,17 @@ namespace Xtensive.Core
         var associate1 = CreateAssociate<TKey1, TAssociate>(out var foundFor);
         var associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
         // Preferring non-null ;)
-        var associate = associate1 ?? associate2 ?? PreferAssociate<TKey1, TKey2, TAssociate>(associate1, associate2);
+        TAssociate associate = null;
+        if (associate1 == null) {
+          associate = associate2;
+        }
+        else if (associate2 == null) {
+          associate = associate1;
+        }
+        else {
+          // Both are non-null; preferring one of two
+          associate = PreferAssociate<TKey1, TKey2, TAssociate>(associate1, associate2);
+        }
         if (associate == null) {
           // Try to get complex associate (create it manually)
           associate = CreateCustomAssociate<TKey1, TKey2, TAssociate>();
@@ -161,9 +171,9 @@ namespace Xtensive.Core
             }
             throw new InvalidOperationException(string.Format(
               Strings.ExCantFindAssociate2, stringBuilder,
-              typeof (TAssociate).GetShortName(),
-              typeof (TKey1).GetShortName(),
-              typeof (TKey2).GetShortName()));
+              typeof(TAssociate).GetShortName(),
+              typeof(TKey1).GetShortName(),
+              typeof(TKey2).GetShortName()));
           }
         }
         return ConvertAssociate<TKey1, TKey2, TAssociate, TResult>(associate);
