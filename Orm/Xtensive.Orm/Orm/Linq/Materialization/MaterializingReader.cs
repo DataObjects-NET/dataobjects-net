@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -11,13 +11,13 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.Linq.Materialization
 {
-  public interface IMaterializingReader<out TItem>
+  internal interface IMaterializingReader<out TItem>
   {
     IEnumerator<TItem> AsEnumerator();
     IAsyncEnumerator<TItem> AsAsyncEnumerator();
   }
 
-  public class MaterializingReader<TItem>: IMaterializingReader<TItem>, IEnumerator<TItem>, IAsyncEnumerator<TItem>
+  internal class MaterializingReader<TItem>: IMaterializingReader<TItem>, IEnumerator<TItem>, IAsyncEnumerator<TItem>
   {
     private readonly RecordSetReader recordSetReader;
     private readonly MaterializationContext context;
