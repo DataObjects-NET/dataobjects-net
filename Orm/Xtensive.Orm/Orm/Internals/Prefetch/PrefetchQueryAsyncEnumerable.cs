@@ -34,6 +34,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var aggregatedNodes = NodeAggregator<TItem>.Aggregate(nodes);
       var resultQueue = new Queue<TItem>();
       strongReferenceContainer = new StrongReferenceContainer(null);
+      var enumerationIdentifier = Guid.NewGuid();
 
       async IAsyncEnumerable<TItem> ProcessItem(TItem item1)
       {
@@ -41,8 +42,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (item1 != null) {
           foreach (var extractorNode in aggregatedNodes) {
             var fetchedItems =
-              await RegisterPrefetchAsync(extractorNode.ExtractKeys(item1), extractorNode, token).ConfigureAwait(false);
-            strongReferenceContainer.JoinIfPossible(fetchedItems);
+              await RegisterPrefetchAsync(extractorNode.ExtractKeys(item1), extractorNode, enumerationIdentifier, token).ConfigureAwait(false);
+            _ = strongReferenceContainer.JoinIfPossible(fetchedItems);
           }
         }
 
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
         while (strongReferenceContainer.JoinIfPossible(
           await sessionHandler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false))) {
-          strongReferenceContainer.JoinIfPossible(await ProcessFetchedElementsAsync(token).ConfigureAwait(false));
+          _ = strongReferenceContainer.JoinIfPossible(await ProcessFetchedElementsAsync(enumerationIdentifier, token).ConfigureAwait(false));
         }
 
         while (resultQueue.TryDequeue(out var resultItem)) {
@@ -83,7 +84,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       while (strongReferenceContainer.JoinIfPossible(
         await sessionHandler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false))) {
-        strongReferenceContainer.JoinIfPossible(await ProcessFetchedElementsAsync(token).ConfigureAwait(false));
+        _ = strongReferenceContainer.JoinIfPossible(await ProcessFetchedElementsAsync(enumerationIdentifier, token).ConfigureAwait(false));
       }
 
       while (resultQueue.TryDequeue(out var resultItem)) {
@@ -92,7 +93,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     private async Task<StrongReferenceContainer> RegisterPrefetchAsync(IReadOnlyCollection<Key> keys,
-      IHasNestedNodes fieldContainer, CancellationToken token)
+      IHasNestedNodes fieldContainer, Guid enumerationId, CancellationToken token)
     {
       var container = new StrongReferenceContainer(null);
       TypeInfo modelType = null;
@@ -112,12 +113,12 @@ namespace Xtensive.Orm.Internals.Prefetch
         if (!fieldDescriptorCache.TryGetValue(cacheKey, out var fieldDescriptors)) {
           fieldDescriptors = PrefetchHelper
             .GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, type)
-            .Concat(fieldContainer.NestedNodes.Select(fn => new PrefetchFieldDescriptor(fn.Field, false, true)))
+            .Concat(fieldContainer.NestedNodes.Select(fn => new PrefetchFieldDescriptor(fn.Field, false, true, enumerationId)))
             .ToList();
           fieldDescriptorCache.Add(cacheKey, fieldDescriptors);
         }
 
-        container.JoinIfPossible(
+        _ = container.JoinIfPossible(
           await sessionHandler.PrefetchAsync(key, type, fieldDescriptors, token).ConfigureAwait(false));
       }
 
@@ -129,14 +130,14 @@ namespace Xtensive.Orm.Internals.Prefetch
       return container;
     }
 
-    private async Task<StrongReferenceContainer> ProcessFetchedElementsAsync(CancellationToken token)
+    private async Task<StrongReferenceContainer> ProcessFetchedElementsAsync(Guid enumerationId, CancellationToken token)
     {
       var container = new StrongReferenceContainer(null);
       while (unknownTypeQueue.TryDequeue(out var unknownKey)) {
         var unknownType = session.EntityStateCache[unknownKey, false].Type;
         var unknownDescriptors =
           PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
-        await sessionHandler.PrefetchAsync(unknownKey, unknownType, unknownDescriptors, token).ConfigureAwait(false);
+        _ = await sessionHandler.PrefetchAsync(unknownKey, unknownType, unknownDescriptors, token).ConfigureAwait(false);
       }
 
       while (prefetchQueue.TryDequeue(out var pair)) {
@@ -146,7 +147,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         foreach (var parentKey in parentKeys) {
           var entityState = session.EntityStateCache[parentKey, false];
           if (entityState == null) {
-            container.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(true, token).ConfigureAwait(false));
+            _ = container.JoinIfPossible(await sessionHandler.ExecutePrefetchTasksAsync(true, token).ConfigureAwait(false));
             entityState = session.EntityStateCache[parentKey, false];
             if (entityState == null) {
               throw new InvalidOperationException(string.Format(Strings.ExCannotResolveEntityWithKeyX, parentKey));
@@ -156,7 +157,7 @@ namespace Xtensive.Orm.Internals.Prefetch
           keys.AddRange(nestedNodes.ExtractKeys(entityState.Entity));
         }
 
-        container.JoinIfPossible(await RegisterPrefetchAsync(keys, nestedNodes, token).ConfigureAwait(false));
+        _ = container.JoinIfPossible(await RegisterPrefetchAsync(keys, nestedNodes, enumerationId, token).ConfigureAwait(false));
       }
 
       return container;

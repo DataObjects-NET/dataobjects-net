@@ -36,17 +36,16 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       public override bool Equals(object obj)
       {
-        if (ReferenceEquals(null, obj))
+        if (ReferenceEquals(null, obj)) {
           return false;
-        if (obj.GetType()!=typeof (RootContainerCacheKey))
+        }
+        if (obj.GetType() != typeof (RootContainerCacheKey)) {
           return false;
+        }
         return Equals((RootContainerCacheKey) obj);
       }
 
-      public override int GetHashCode()
-      {
-        return hashCode;
-      }
+      public override int GetHashCode() => hashCode;
 
 
       // Constructors
@@ -113,10 +112,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       ArgumentValidator.EnsureArgumentNotNull(key, nameof(key));
       ArgumentValidator.EnsureArgumentNotNull(descriptors, nameof(descriptors));
-      if (descriptors.Count==0) {
+
+      if (descriptors.Count == 0) {
         return null;
       }
-
       try {
         EnsureKeyTypeCorrespondsToSpecifiedType(key, type);
 
@@ -129,7 +128,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         var currentType = type;
         var isKeyTypeExact = currentKey.HasExactType
           || currentKey.TypeReference.Type.IsLeaf
-          || currentKey.TypeReference.Type==type;
+          || currentKey.TypeReference.Type == type;
         if (isKeyTypeExact) {
           currentType = currentKey.TypeReference.Type;
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
@@ -137,23 +136,23 @@ namespace Xtensive.Orm.Internals.Prefetch
         else {
           ArgumentValidator.EnsureArgumentNotNull(currentType, "type");
           EnsureAllFieldsBelongToSpecifiedType(descriptors, currentType);
-          SetUpContainers(currentKey, currentKey.TypeReference.Type,
+          _ = SetUpContainers(currentKey, currentKey.TypeReference.Type,
             PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, currentKey.TypeReference.Type),
             true, ownerState, true);
           var hierarchyRoot = currentKey.TypeReference.Type;
           selectedFields = descriptors
-            .Where(descriptor => descriptor.Field.DeclaringType!=hierarchyRoot)
+            .Where(descriptor => descriptor.Field.DeclaringType != hierarchyRoot)
             .ToList();
         }
-        SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState, ReferenceEquals(descriptors, selectedFields));
+        _ = SetUpContainers(currentKey, currentType, selectedFields, isKeyTypeExact, ownerState, ReferenceEquals(descriptors, selectedFields));
 
         StrongReferenceContainer container = null;
         if (graphContainers.Count >= MaxContainerCount) {
           container = await ExecuteTasks(false, isAsync, token).ConfigureAwait(false);
         }
 
-        if (referenceContainer!=null) {
-          referenceContainer.JoinIfPossible(container);
+        if (referenceContainer != null) {
+          _ = referenceContainer.JoinIfPossible(container);
           return referenceContainer;
         }
         return container;
@@ -172,7 +171,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private async ValueTask<StrongReferenceContainer> ExecuteTasks(bool skipPersist, bool isAsync, CancellationToken token)
     {
-      if (graphContainers.Count==0) {
+      if (graphContainers.Count == 0) {
         referenceContainer = null;
         return null;
       }
@@ -183,7 +182,6 @@ namespace Xtensive.Orm.Internals.Prefetch
         foreach (var graphContainer in graphContainers) {
           graphContainer.NotifyAboutExtractionOfKeysWithUnknownType();
         }
-
         return referenceContainer;
       }
       finally {
@@ -200,10 +198,10 @@ namespace Xtensive.Orm.Internals.Prefetch
     public bool TryGetTupleOfNonRemovedEntity(ref Key key, out EntityState state)
     {
       state = null;
-      bool isRemoved;
-      var entityState = GetCachedEntityState(ref key, out isRemoved);
-      if (isRemoved)
+      var entityState = GetCachedEntityState(ref key, out var isRemoved);
+      if (isRemoved) {
         return false;
+      }
       if (entityState != null) {
         SaveStrongReference(entityState);
         state = entityState;
@@ -217,41 +215,45 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var result = GetGraphContainer(key, type, exactType);
       var areAnyColumns = false;
-      var haveColumnsBeenSet = false;
-      if (canUseCache)
-        haveColumnsBeenSet = TrySetCachedColumnIndexes(result, descriptors, state);
+      var haveColumnsBeenSet = canUseCache
+        ? TrySetCachedColumnIndexes(result, descriptors, state)
+        : false;
+
       foreach (var descriptor in descriptors) {
         if (descriptor.Field.IsEntity && descriptor.FetchFieldsOfReferencedEntity && !type.IsAuxiliary) {
           areAnyColumns = true;
           result.RegisterReferencedEntityContainer(state, descriptor);
         }
-        else if (descriptor.Field.IsEntitySet)
+        else if (descriptor.Field.IsEntitySet) {
           result.RegisterEntitySetTask(state, descriptor);
-        else
+        }
+        else {
           areAnyColumns = true;
+        }
       }
-      if (!haveColumnsBeenSet && areAnyColumns)
+      if (!haveColumnsBeenSet && areAnyColumns) {
         result.AddEntityColumns(ExtractColumns(descriptors));
+      }
       return result;
     }
 
     public void SaveStrongReference(EntityState reference)
     {
-      if (referenceContainer==null)
+      if (referenceContainer == null) {
         referenceContainer = new StrongReferenceContainer(null);
-      referenceContainer.Join(new StrongReferenceContainer(reference));
+      }
+      _ = referenceContainer.Join(new StrongReferenceContainer(reference));
     }
 
     public EntityState GetCachedEntityState(ref Key key, out bool isRemoved)
     {
-      EntityState cachedState;
-      if (Owner.LookupState(key, out cachedState)) {
+      if (Owner.LookupState(key, out var cachedState)) {
         if (cachedState == null) {
           isRemoved = false;
           return null;
         }
         key = cachedState.Key;
-        isRemoved = cachedState.PersistenceState==PersistenceState.Removed;
+        isRemoved = cachedState.PersistenceState == PersistenceState.Removed;
         return cachedState.IsTupleLoaded ? cachedState : null;
       }
       isRemoved = false;
@@ -279,26 +281,35 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static void EnsureKeyTypeCorrespondsToSpecifiedType(Key key, TypeInfo type)
     {
-      if (type == null || key.TypeReference.Type == type)
+      if (type == null || key.TypeReference.Type == type) {
         return;
-      if (!key.TypeReference.Type.IsInterface && !type.IsInterface)
-        if (key.TypeReference.Type.Hierarchy == type.Hierarchy)
+      }
+
+      if (!key.TypeReference.Type.IsInterface && !type.IsInterface) {
+        if (key.TypeReference.Type.Hierarchy == type.Hierarchy) {
           return;
-        else
+        }
+        else {
           throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
+        }
+      }
+
       if (type.GetInterfaces(true).Contains(key.TypeReference.Type)
-        || key.TypeReference.Type.GetInterfaces(true).Contains(type))
+        || key.TypeReference.Type.GetInterfaces(true).Contains(type)) {
         return;
+      }
+
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
     private static void EnsureAllFieldsBelongToSpecifiedType(IList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
     {
-      for (int i = 0; i < descriptors.Count; i++) {
+      for (var i = 0; i < descriptors.Count; i++) {
         var declaringType = descriptors[i].Field.DeclaringType;
-        if (type!=declaringType && !declaringType.UnderlyingType.IsAssignableFrom(type.UnderlyingType))
+        if (type != declaringType && !declaringType.UnderlyingType.IsAssignableFrom(type.UnderlyingType)) {
           throw new InvalidOperationException(
-            String.Format(Strings.ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors, descriptors[i].Field, type));
+            string.Format(Strings.ExFieldXIsNotDeclaredInTypeYOrInOneOfItsAncestors, descriptors[i].Field, type));
+        }
       }
     }
 
@@ -307,7 +318,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var newTaskContainer = new GraphContainer(key, type, exactType, this);
       var registeredTaskContainer = graphContainers[newTaskContainer];
       if (registeredTaskContainer == null) {
-        graphContainers.Add(newTaskContainer);
+        _ = graphContainers.Add(newTaskContainer);
         return newTaskContainer;
       }
       return registeredTaskContainer;
@@ -316,13 +327,12 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static IEnumerable<ColumnInfo> ExtractColumns(IEnumerable<PrefetchFieldDescriptor> descriptors)
     {
       foreach (var descriptor in descriptors) {
-        IEnumerable<ColumnInfo> columns;
-        if (descriptor.Field.IsStructure && !descriptor.FetchLazyFields)
-          columns = descriptor.Field.Columns.Where(column => !column.Field.IsLazyLoad);
-        else
-          columns = descriptor.Field.Columns;
-        foreach (var column in columns)
+        var columns = descriptor.Field.IsStructure && !descriptor.FetchLazyFields
+          ? descriptor.Field.Columns.Where(column => !column.Field.IsLazyLoad)
+          : descriptor.Field.Columns;
+        foreach (var column in columns) {
           yield return column;
+        }
       }
     }
 
@@ -331,9 +341,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var result = false;
       if (container.RootEntityContainer == null) {
-        SortedDictionary<int, ColumnInfo> columns;
-        List<int> columnsToBeLoaded;
-        GetCachedColumnIndexes(container.Type, descriptors, out columns, out columnsToBeLoaded);
+        GetCachedColumnIndexes(container.Type, descriptors, out var columns, out var columnsToBeLoaded);
         container.CreateRootEntityContainer(columns, state == null ? columnsToBeLoaded : null);
         result = true;
       }

@@ -1,3 +1,7 @@
+// Copyright (C) 2010-2020 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,11 +22,13 @@ namespace Xtensive.Orm.Rse.Transformation
     private readonly CompilableProviderVisitor outerColumnUsageVisitor;
     private readonly CompilableProvider rootProvider;
 
+    private bool hasGrouping;
+
     public virtual CompilableProvider RemoveRedundantColumns()
     {
-      mappings.Add(rootProvider, Enumerable.Range(0, rootProvider.Header.Length).ToList());
+      mappings.Add(rootProvider, CollectionUtils.RangeToList(0, rootProvider.Header.Length));
       var visitedProvider = VisitCompilable(rootProvider);
-      return visitedProvider!=rootProvider
+      return visitedProvider != rootProvider
         ? visitedProvider
         : rootProvider;
     }
@@ -31,13 +37,16 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override Provider VisitInclude(IncludeProvider provider)
     {
-      int sourceLength = provider.Source.Header.Length;
+      var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = Merge(mappings[provider].Where(i => i < sourceLength), provider.FilteredColumns);
       var source = VisitCompilable(provider.Source);
       mappings[provider] = Merge(mappings[provider], mappings[provider.Source]);
-      if (source==provider.Source)
+      if (source == provider.Source) {
         return provider;
-      var filteredColumns = provider.FilteredColumns.Select(el => mappings[provider].IndexOf(el)).ToArray();
+      }
+      var filteredColumns = provider.FilteredColumns
+        .Select(el => mappings[provider].IndexOf(el))
+        .ToArray(provider.FilteredColumns.Count);
       return new IncludeProvider(source, provider.Algorithm, provider.IsInlined,
         provider.FilterDataSource, provider.ResultColumnName, filteredColumns);
     }
@@ -45,43 +54,55 @@ namespace Xtensive.Orm.Rse.Transformation
     protected override Provider VisitSelect(SelectProvider provider)
     {
       var requiredColumns = mappings[provider];
-      var remappedColumns = requiredColumns.Select(c => provider.ColumnIndexes[c]).ToList();
+      var remappedColumns = requiredColumns
+        .Select(c => provider.ColumnIndexes[c])
+        .ToList(requiredColumns.Count);
+
       mappings[provider.Source] = remappedColumns;
       var source = VisitCompilable(provider.Source);
       var sourceMap = mappings[provider.Source];
-      var columns = provider.ColumnIndexes
-        .Select((i, j) => new Pair<int>(sourceMap.IndexOf(i), j))
-        .Where(i => i.First >= 0)
-        .ToList();
-      mappings[provider] = columns.Select(c => c.Second).ToList();
-      var indexColumns = columns.Select(c => c.First).ToList();
-      if (source==provider.Source)
-        return provider;
-      return new SelectProvider(source, indexColumns.ToArray());
+
+      var indexColumns = new List<int>(provider.ColumnIndexes.Count);
+      var newMappings = new List<int>(provider.ColumnIndexes.Count);
+
+      var currentItemIndex = 0;
+      foreach(var item in provider.ColumnIndexes) {
+        var indexInMap = sourceMap.IndexOf(item);
+        if (indexInMap >= 0) {
+          indexColumns.Add(indexInMap);
+          newMappings.Add(currentItemIndex);
+        }
+        currentItemIndex++;
+      }
+
+      mappings[provider] = newMappings;
+      return source == provider.Source
+        ? provider
+        : new SelectProvider(source, indexColumns.ToArray());
     }
 
     /// <inheritdoc/>
     protected override Provider VisitFreeText(FreeTextProvider provider)
     {
-      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
+      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
     protected override Provider VisitContainsTable(ContainsTableProvider provider)
     {
-      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
+      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
     protected override Provider VisitIndex(IndexProvider provider)
     {
-      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
+      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
     protected override Provider VisitSeek(SeekProvider provider)
     {
-      mappings[provider] = Enumerable.Range(0, provider.Header.Length).ToList();
+      mappings[provider] = CollectionUtils.RangeToList(0, provider.Header.Length);
       return provider;
     }
 
@@ -92,19 +113,16 @@ namespace Xtensive.Orm.Rse.Transformation
       mappings[provider] = mappings[provider.Source];
 
       var predicate = TranslateLambda(provider, provider.Predicate);
-      if (newSourceProvider==provider.Source && predicate==provider.Predicate)
-        return provider;
-      return new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
+      return newSourceProvider == provider.Source && predicate == provider.Predicate
+        ? provider
+        : new FilterProvider(newSourceProvider, (Expression<Func<Tuple, bool>>) predicate);
     }
 
     protected override Provider VisitJoin(JoinProvider provider)
     {
       // split
 
-      List<int> leftMapping;
-      List<int> rightMapping;
-
-      SplitMappings(provider, out leftMapping, out rightMapping);
+      SplitMappings(provider, out var leftMapping, out var rightMapping);
 
       leftMapping = Merge(leftMapping, provider.EqualIndexes.Select(p => p.First));
       rightMapping = Merge(rightMapping, provider.EqualIndexes.Select(p => p.Second));
@@ -115,10 +133,11 @@ namespace Xtensive.Orm.Rse.Transformation
 
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
 
-      if (newLeftProvider==provider.Left && newRightProvider==provider.Right)
+      if (newLeftProvider == provider.Left && newRightProvider == provider.Right) {
         return provider;
+      }
 
-      var newIndexes = new List<Pair<int>>();
+      var newIndexes = new List<Pair<int>>(provider.EqualIndexes.Length);
       foreach (var pair in provider.EqualIndexes) {
         var newLeftIndex = leftMapping.IndexOf(pair.First);
         var newRightIndex = rightMapping.IndexOf(pair.Second);
@@ -129,10 +148,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     protected override Provider VisitPredicateJoin(PredicateJoinProvider provider)
     {
-      List<int> leftMapping;
-      List<int> rightMapping;
-
-      SplitMappings(provider, out leftMapping, out rightMapping);
+      SplitMappings(provider, out var leftMapping, out var rightMapping);
 
       leftMapping.AddRange(mappingsGatherer.Gather(provider.Predicate,
         provider.Predicate.Parameters[0]));
@@ -144,10 +160,11 @@ namespace Xtensive.Orm.Rse.Transformation
       VisitJoin(ref leftMapping, ref newLeftProvider, ref rightMapping, ref newRightProvider);
       mappings[provider] = MergeMappings(provider.Left, leftMapping, rightMapping);
       var predicate = TranslateJoinPredicate(leftMapping, rightMapping, provider.Predicate);
-      if (newLeftProvider==provider.Left && newRightProvider==provider.Right
-        && provider.Predicate==predicate)
-        return provider;
-      return new PredicateJoinProvider(newLeftProvider, newRightProvider, (Expression<Func<Tuple, Tuple, bool>>) predicate, provider.JoinType);
+
+      return newLeftProvider == provider.Left && newRightProvider == provider.Right
+        && provider.Predicate == predicate
+        ? provider
+        : new PredicateJoinProvider(newLeftProvider, newRightProvider, (Expression<Func<Tuple, Tuple, bool>>) predicate, provider.JoinType);
     }
 
     protected override Provider VisitSort(SortProvider provider)
@@ -159,52 +176,50 @@ namespace Xtensive.Orm.Rse.Transformation
       var order = new DirectionCollection<int>();
       foreach (var pair in provider.Order) {
         var index = sourceMap.IndexOf(pair.Key);
-        if (index < 0)
+        if (index < 0) {
           throw Exceptions.InternalError(Strings.ExOrderKeyNotFoundInMapping, OrmLog.Instance);
+        }
         order.Add(index, pair.Value);
       }
       mappings[provider] = sourceMap;
 
-      if (source==provider.Source)
-        return provider;
-      return new SortProvider(source, order);
+      return source == provider.Source ? provider : new SortProvider(source, order);
     }
 
     protected override Provider VisitApply(ApplyProvider provider)
     {
       // split
 
-      List<int> leftMapping;
-      List<int> rightMapping;
+      SplitMappings(provider, out var leftMapping, out var rightMapping);
 
-      SplitMappings(provider, out leftMapping, out rightMapping);
-
-      ApplyParameter applyParameter = provider.ApplyParameter;
+      var applyParameter = provider.ApplyParameter;
       var currentOuterUsages = new List<int>();
 
       outerColumnUsages.Add(applyParameter, currentOuterUsages);
-      outerColumnUsageVisitor.VisitCompilable(provider.Right);
-      outerColumnUsages.Remove(applyParameter);
+      _ = outerColumnUsageVisitor.VisitCompilable(provider.Right);
+      _ = outerColumnUsages.Remove(applyParameter);
 
       leftMapping = Merge(leftMapping, currentOuterUsages);
 
-      if (leftMapping.Count==0)
+      if (leftMapping.Count == 0) {
         leftMapping.Add(0);
+      }
 
       // visit
 
       var oldMappings = ReplaceMappings(provider.Left, leftMapping);
-      CompilableProvider newLeftProvider = VisitCompilable(provider.Left);
+      var newLeftProvider = VisitCompilable(provider.Left);
       leftMapping = mappings[provider.Left];
 
-      ReplaceMappings(provider.Right, rightMapping);
+      _ = ReplaceMappings(provider.Right, rightMapping);
       outerColumnUsages.Add(applyParameter, leftMapping);
-      CompilableProvider newRightProvider = VisitCompilable(provider.Right);
-      outerColumnUsages.Remove(applyParameter);
+      var newRightProvider = VisitCompilable(provider.Right);
+      _ = outerColumnUsages.Remove(applyParameter);
 
       var pair = OverrideRightApplySource(provider, newRightProvider, rightMapping);
-      if (pair.First==null)
+      if (pair.First == null) {
         rightMapping = mappings[provider.Right];
+      }
       else {
         newRightProvider = pair.First;
         rightMapping = pair.Second;
@@ -213,9 +228,9 @@ namespace Xtensive.Orm.Rse.Transformation
 
       mappings[provider] = Merge(leftMapping, rightMapping.Select(map => map + provider.Left.Header.Length));
 
-      if (newLeftProvider==provider.Left && newRightProvider==provider.Right)
-        return provider;
-      return new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
+      return newLeftProvider == provider.Left && newRightProvider == provider.Right
+        ? provider
+        : new ApplyProvider(applyParameter, newLeftProvider, newRightProvider, provider.IsInlined, provider.SequenceType, provider.ApplyType);
     }
 
     protected override Provider VisitAggregate(AggregateProvider provider)
@@ -224,93 +239,118 @@ namespace Xtensive.Orm.Rse.Transformation
         .Select(c => c.SourceIndex)
         .Union(provider.GroupColumnIndexes);
       mappings[provider.Source] = Merge(mappings[provider], map);
+
+      if (provider.GroupColumnIndexes.Length > 0) {
+        hasGrouping = true;
+      }
+
       var source = VisitCompilable(provider.Source);
+      hasGrouping = false;
 
       var sourceMap = mappings[provider.Source];
       var currentMap = mappings[provider];
 
-      var columns = new List<AggregateColumnDescriptor>();
-      for (int i = 0; i < provider.AggregateColumns.Length; i++) {
-        int columnIndex = i + provider.GroupColumnIndexes.Length;
+      mappings[provider] = provider.Header.Columns.Select(c => c.Index).ToList(provider.Header.Columns.Count);
+
+      if (source == provider.Source) {
+        return provider;
+      }
+
+      var columns = new List<AggregateColumnDescriptor>(provider.AggregateColumns.Length);
+      for (var i = 0; i < provider.AggregateColumns.Length; i++) {
+        var columnIndex = i + provider.GroupColumnIndexes.Length;
         if (currentMap.BinarySearch(columnIndex) >= 0) {
           var column = provider.AggregateColumns[i];
           columns.Add(new AggregateColumnDescriptor(column.Name, sourceMap.IndexOf(column.SourceIndex), column.AggregateType));
         }
       }
-      mappings[provider] = provider.Header.Columns.Select(c => c.Index).ToList();
-      var groupColumnIndexes = provider.GroupColumnIndexes.Select(index => sourceMap.IndexOf(index));
 
-      if (source==provider.Source)
-        return provider;
-      return new AggregateProvider(source, groupColumnIndexes.ToArray(), columns.ToArray());
+      var groupColumnIndexes = provider.GroupColumnIndexes
+        .Select(index => sourceMap.IndexOf(index))
+        .ToArray(provider.GroupColumnIndexes.Length);
+
+      return new AggregateProvider(source, groupColumnIndexes, columns.ToArray());
     }
 
     protected override Provider VisitCalculate(CalculateProvider provider)
     {
-      int sourceLength = provider.Source.Header.Length;
+      var sourceLength = provider.Source.Header.Length;
       var usedColumns = mappings[provider];
       var sourceMapping = Merge(
         mappings[provider].Where(i => i < sourceLength),
-        provider.CalculatedColumns.SelectMany(c => mappingsGatherer.Gather(c.Expression))
-        );
+        provider.CalculatedColumns.SelectMany(c => mappingsGatherer.Gather(c.Expression)));
+
       mappings[provider.Source] = sourceMapping;
       var newSourceProvider = VisitCompilable(provider.Source);
       mappings[provider] = mappings[provider.Source];
 
-      bool translated = false;
-      var descriptors = new List<CalculatedColumnDescriptor>(provider.CalculatedColumns.Length);
+      var translated = false;
+      var descriptors = new List<CalculatedColumnDescriptor>(usedColumns.Count);
       var currentMapping = mappings[provider];
-      for (int calculatedColumnIndex = 0; calculatedColumnIndex < provider.CalculatedColumns.Length; calculatedColumnIndex++) {
+      for (var calculatedColumnIndex = 0; calculatedColumnIndex < provider.CalculatedColumns.Length; calculatedColumnIndex++) {
         if (usedColumns.Contains(provider.CalculatedColumns[calculatedColumnIndex].Index)) {
           currentMapping.Add(provider.Source.Header.Length + calculatedColumnIndex);
           var column = provider.CalculatedColumns[calculatedColumnIndex];
           var expression = TranslateLambda(provider, column.Expression);
-          if (expression!=column.Expression)
+          if (expression != column.Expression) {
             translated = true;
+          }
           var ccd = new CalculatedColumnDescriptor(column.Name, column.Type, (Expression<Func<Tuple, object>>) expression);
           descriptors.Add(ccd);
         }
       }
       mappings[provider] = currentMapping;
-      if (descriptors.Count==0)
+      if (descriptors.Count == 0) {
         return newSourceProvider;
-      if (!translated && newSourceProvider==provider.Source && descriptors.Count==provider.CalculatedColumns.Length)
-        return provider;
-      return new CalculateProvider(newSourceProvider, descriptors.ToArray());
+      }
+
+      return !translated && newSourceProvider == provider.Source && descriptors.Count == provider.CalculatedColumns.Length
+        ? provider
+        : new CalculateProvider(newSourceProvider, descriptors.ToArray());
     }
 
     protected override Provider VisitRowNumber(RowNumberProvider provider)
     {
-      int sourceLength = provider.Source.Header.Length;
+      var sourceLength = provider.Source.Header.Length;
       mappings[provider.Source] = mappings[provider].Where(i => i < sourceLength).ToList();
       var newSource = VisitCompilable(provider.Source);
       var currentMapping = mappings[provider.Source];
       var rowNumberColumn = provider.Header.Columns.Last();
       mappings[provider] = Merge(currentMapping, EnumerableUtils.One(rowNumberColumn.Index));
-      if (newSource==provider.Source)
+      return newSource == provider.Source
+        ? provider
+        : new RowNumberProvider(newSource, rowNumberColumn.Name);
+    }
+
+    protected override Provider VisitStore(StoreProvider provider)
+    {
+      if (!(provider.Source is CompilableProvider compilableSource)) {
         return provider;
-      return new RowNumberProvider(newSource, rowNumberColumn.Name);
+      }
+
+      if (hasGrouping) {
+        mappings.Add(provider.Sources[0],
+          Merge(mappings[provider], provider.Header.Columns.Select((c, i) => i)));
+      }
+      else {
+        OnRecursionEntrance(provider);
+      }
+
+      var source = VisitCompilable(compilableSource);
+
+      _ = OnRecursionExit(provider);
+      return source == compilableSource
+        ? provider
+        : new StoreProvider(source, provider.Name);
     }
 
-    protected override Provider VisitConcat(ConcatProvider provider)
-    {
-      return VisitSetOperationProvider(provider);
-    }
+    protected override Provider VisitConcat(ConcatProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitExcept(ExceptProvider provider)
-    {
-      return VisitSetOperationProvider(provider);
-    }
+    protected override Provider VisitExcept(ExceptProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitIntersect(IntersectProvider provider)
-    {
-      return VisitSetOperationProvider(provider);
-    }
+    protected override Provider VisitIntersect(IntersectProvider provider) => VisitSetOperationProvider(provider);
 
-    protected override Provider VisitUnion(UnionProvider provider)
-    {
-      return VisitSetOperationProvider(provider);
-    }
+    protected override Provider VisitUnion(UnionProvider provider) => VisitSetOperationProvider(provider);
 
     private Provider VisitSetOperationProvider(BinaryProvider provider)
     {
@@ -321,47 +361,48 @@ namespace Xtensive.Orm.Rse.Transformation
       var newLeftProvider = VisitCompilable(provider.Left);
       leftMapping = mappings[provider.Left];
 
-      ReplaceMappings(provider.Right, rightMapping);
+      _ = ReplaceMappings(provider.Right, rightMapping);
       var newRightProvider = VisitCompilable(provider.Right);
       rightMapping = mappings[provider.Right];
       RestoreMappings(oldMappings);
 
       var expectedColumns = mappings[provider];
       mappings[provider] = Merge(leftMapping, rightMapping);
-      if (newLeftProvider==provider.Left && newRightProvider==provider.Right)
+      if (newLeftProvider == provider.Left && newRightProvider == provider.Right) {
         return provider;
-
+      }
 
       newLeftProvider = BuildSetOperationSource(newLeftProvider, expectedColumns, leftMapping);
       newRightProvider = BuildSetOperationSource(newRightProvider, expectedColumns, rightMapping);
       switch (provider.Type) {
-      case ProviderType.Concat:
-        return new ConcatProvider(newLeftProvider, newRightProvider);
-      case ProviderType.Intersect:
-        return new IntersectProvider(newLeftProvider, newRightProvider);
-      case ProviderType.Except:
-        return new ExceptProvider(newLeftProvider, newRightProvider);
-      case ProviderType.Union:
-        return new UnionProvider(newLeftProvider, newRightProvider);
-      default:
-        throw new ArgumentOutOfRangeException();
+        case ProviderType.Concat:
+          return new ConcatProvider(newLeftProvider, newRightProvider);
+        case ProviderType.Intersect:
+          return new IntersectProvider(newLeftProvider, newRightProvider);
+        case ProviderType.Except:
+          return new ExceptProvider(newLeftProvider, newRightProvider);
+        case ProviderType.Union:
+          return new UnionProvider(newLeftProvider, newRightProvider);
+        default:
+          throw new ArgumentOutOfRangeException();
       }
     }
 
-    private static CompilableProvider BuildSetOperationSource(CompilableProvider provider, IEnumerable<int> expectedColumns, IList<int> returningColumns)
+    private static CompilableProvider BuildSetOperationSource(CompilableProvider provider, ICollection<int> expectedColumns, IList<int> returningColumns)
     {
-      if (provider.Type==ProviderType.Select)
+      if (provider.Type == ProviderType.Select) {
         return provider;
+      }
+
       var columns = expectedColumns
-        .Select(originalIndex => new {OriginalIndex = originalIndex, NewIndex = returningColumns.IndexOf(originalIndex)})
-        .Select(x => x.NewIndex < 0 ? x.OriginalIndex : x.NewIndex).ToArray();
+        .Select(originalIndex => new { OriginalIndex = originalIndex, NewIndex = returningColumns.IndexOf(originalIndex) })
+        .Select(x => x.NewIndex < 0 ? x.OriginalIndex : x.NewIndex).ToArray(expectedColumns.Count);
       return new SelectProvider(provider, columns);
     }
 
-    protected virtual Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
-    {
-      return new Pair<CompilableProvider, List<int>>(provider, requestedMapping);
-    }
+    protected virtual Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider,
+      CompilableProvider provider, List<int> requestedMapping) =>
+      new Pair<CompilableProvider, List<int>>(provider, requestedMapping);
 
     #endregion
 
@@ -393,42 +434,40 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private static List<int> MergeMappings(Provider originalLeft, List<int> leftMap, List<int> rightMap)
     {
-      int leftCount = originalLeft.Header.Length;
-      List<int> result = leftMap
+      var leftCount = originalLeft.Header.Length;
+      var result = leftMap
         .Concat(rightMap.Select(i => i + leftCount))
-        .ToList();
+        .ToList(leftMap.Count + rightMap.Count);
       return result;
     }
 
     private void SplitMappings(BinaryProvider provider, out List<int> leftMapping, out List<int> rightMapping)
     {
-      List<int> binaryMapping = mappings[provider];
-      leftMapping = new List<int>();
-      rightMapping = new List<int>();
-      int leftCount = provider.Left.Header.Length;
-      int index = 0;
+      var binaryMapping = mappings[provider];
+      leftMapping = new List<int>(binaryMapping.Count);
+      var leftCount = provider.Left.Header.Length;
+      var index = 0;
       while (index < binaryMapping.Count && binaryMapping[index] < leftCount) {
         leftMapping.Add(binaryMapping[index]);
         index++;
       }
-      for (int i = index; i < binaryMapping.Count; i++)
+      rightMapping = new List<int>(binaryMapping.Count - index);
+      for (var i = index; i < binaryMapping.Count; i++) {
         rightMapping.Add(binaryMapping[i] - leftCount);
+      }
     }
 
     private void RegisterOuterMapping(ApplyParameter parameter, int value)
     {
-      List<int> map;
-      if (outerColumnUsages.TryGetValue(parameter, out map))
-        if (!map.Contains(value))
-          map.Add(value);
+      if (outerColumnUsages.TryGetValue(parameter, out var map) && !map.Contains(value)) {
+        map.Add(value);
+      }
     }
 
     private int ResolveOuterMapping(ApplyParameter parameter, int value)
     {
-      int result = outerColumnUsages[parameter].IndexOf(value);
-      if (result < 0)
-        return value;
-      return result;
+      var result = outerColumnUsages[parameter].IndexOf(value);
+      return result < 0 ? value : result;
     }
 
     private Expression TranslateLambda(Provider originalProvider, LambdaExpression expression)
@@ -455,11 +494,11 @@ namespace Xtensive.Orm.Rse.Transformation
       // visit
 
       var oldMapping = ReplaceMappings(left, leftMapping);
-      CompilableProvider newLeftProvider = VisitCompilable(left);
+      var newLeftProvider = VisitCompilable(left);
       leftMapping = mappings[left];
 
-      ReplaceMappings(right, rightMapping);
-      CompilableProvider newRightProvider = VisitCompilable(right);
+      _ = ReplaceMappings(right, rightMapping);
+      var newRightProvider = VisitCompilable(right);
       rightMapping = mappings[right];
       RestoreMappings(oldMapping);
       left = newLeftProvider;
@@ -473,10 +512,7 @@ namespace Xtensive.Orm.Rse.Transformation
       return oldMappings;
     }
 
-    private void RestoreMappings(Dictionary<Provider, List<int>> savedMappings)
-    {
-      mappings = savedMappings;
-    }
+    private void RestoreMappings(Dictionary<Provider, List<int>> savedMappings) => mappings = savedMappings;
 
     #endregion
 
@@ -491,8 +527,8 @@ namespace Xtensive.Orm.Rse.Transformation
       mappingsGatherer = new TupleAccessGatherer((a, b) => { });
 
       var outerMappingsGatherer = new TupleAccessGatherer(RegisterOuterMapping);
-      outerColumnUsageVisitor = new CompilableProviderVisitor((_, e) => {
-        outerMappingsGatherer.Gather(e);
+      outerColumnUsageVisitor = new CompilableProviderVisitor((p, e) => {
+        _ = outerMappingsGatherer.Gather(e);
         return e;
       });
     }
