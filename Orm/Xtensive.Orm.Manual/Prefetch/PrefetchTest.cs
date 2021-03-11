@@ -375,5 +375,93 @@ namespace Xtensive.Orm.Manual.Prefetch
         transactionScope.Complete();
       }
     }
+
+    [Test]
+    public void CachedQueryTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        var employee = new Person(session) { Name = "Employee", Photo = new byte[] { 8, 0 } };
+        var manager = new Person(session) { Name = "Manager", Photo = new byte[] { 8, 0 } };
+        _ = manager.Employees.Add(employee);
+        transactionScope.Complete();
+      }
+
+      using (var session = Domain.OpenSession())// no session activation!
+      using (var transactionScope = session.OpenTransaction()) {
+        var people = session.Query.Execute(q => q.All<Person>())
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees // EntitySet Employees
+            .Prefetch(e => e.Photo)) // and lazy load field of each of its items
+          .Prefetch(p => p.Manager); // Referenced entity
+        foreach (var person in people) {
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+
+      using (var session = Domain.OpenSession())// no session activation!
+      using (var transactionScope = session.OpenTransaction()) {
+        var people = session.Query.Execute(q => q.All<Person>())
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
+          .Prefetch(p => p.Manager.Photo); // Referenced entity and lazy load field for each of them
+        foreach (var person in people) {
+          var accessor = DirectStateAccessor.Get(person);
+          Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
+          Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
+          if (person.ManagerKey != null) {
+            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
+          }
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+    }
+
+    [Test]
+    public async Task CachedQueryAsyncTest()
+    {
+      await using (var session = await Domain.OpenSessionAsync())
+      using (var transactionScope = session.OpenTransaction()) {
+        var employee = new Person(session) { Name = "Employee", Photo = new byte[] { 8, 0 } };
+        var manager = new Person(session) { Name = "Manager", Photo = new byte[] { 8, 0 } };
+        _ = manager.Employees.Add(employee);
+        transactionScope.Complete();
+      }
+
+      await using (var session = await Domain.OpenSessionAsync())// no session activation!
+      using (var transactionScope = session.OpenTransaction()) {
+        var people = (await session.Query.ExecuteAsync(q => q.All<Person>()))
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees // EntitySet Employees
+            .Prefetch(e => e.Photo)) // and lazy load field of each of its items
+          .Prefetch(p => p.Manager); // Referenced entity
+        foreach (var person in people) {
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+
+      await using (var session = await Domain.OpenSessionAsync())// no session activation!
+      using (var transactionScope = session.OpenTransaction()) {
+        var people = (await session.Query.ExecuteAsync(q => q.All<Person>()))
+          .Prefetch(p => p.Photo) // Lazy load field
+          .Prefetch(p => p.Employees.Prefetch(e => e.Photo)) // EntitySet Employees and lazy load field of each of its items with the limit on number of items to be loaded
+          .Prefetch(p => p.Manager.Photo); // Referenced entity and lazy load field for each of them
+        await foreach (var person in people.AsAsyncEnumerable()) {
+          var accessor = DirectStateAccessor.Get(person);
+          Assert.That(accessor.GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
+          Assert.That(accessor.GetFieldState("Manager"), Is.EqualTo(PersistentFieldState.Loaded));
+          if (person.ManagerKey != null) {
+            Assert.IsNotNull(DirectStateAccessor.Get(session)[person.ManagerKey]);
+            Assert.That(DirectStateAccessor.Get(person.Manager).GetFieldState("Photo"), Is.EqualTo(PersistentFieldState.Loaded));
+          }
+          // some code here...
+        }
+        transactionScope.Complete();
+      }
+    }
   }
 }
