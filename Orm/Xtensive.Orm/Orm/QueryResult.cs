@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -19,6 +19,8 @@ namespace Xtensive.Orm
     {
       private readonly IEnumerable<TItem> items;
 
+      public Session Session => null;
+
       public IEnumerator<TItem> AsEnumerator() => items.GetEnumerator();
 
       public IAsyncEnumerator<TItem> AsAsyncEnumerator() => throw new System.NotSupportedException();
@@ -29,8 +31,11 @@ namespace Xtensive.Orm
       }
     }
 
-    private readonly IMaterializingReader<TItem> reader;
     private readonly StateLifetimeToken lifetimeToken;
+
+
+    // DO NOT ENUMERATE this reader anywhere outside this class
+    internal IMaterializingReader<TItem> Reader { get; }
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -39,7 +44,7 @@ namespace Xtensive.Orm
     public IEnumerator<TItem> GetEnumerator()
     {
       EnsureResultsAlive();
-      return reader.AsEnumerator();
+      return Reader.AsEnumerator();
     }
 
     /// <summary>
@@ -48,7 +53,7 @@ namespace Xtensive.Orm
     public async IAsyncEnumerable<TItem> AsAsyncEnumerable()
     {
       EnsureResultsAlive();
-      var enumerator = reader.AsAsyncEnumerator();
+      var enumerator = Reader.AsAsyncEnumerator();
       while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
         yield return enumerator.Current;
       }
@@ -63,13 +68,13 @@ namespace Xtensive.Orm
 
     internal QueryResult(IMaterializingReader<TItem> reader, StateLifetimeToken lifetimeToken)
     {
-      this.reader = reader;
+      this.Reader = reader;
       this.lifetimeToken = lifetimeToken;
     }
 
     internal QueryResult(IEnumerable<TItem> items)
     {
-      reader = new EnumerableReader(items);
+      Reader = new EnumerableReader(items);
       this.lifetimeToken = default;
     }
   }

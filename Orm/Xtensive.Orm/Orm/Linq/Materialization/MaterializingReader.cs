@@ -13,6 +13,7 @@ namespace Xtensive.Orm.Linq.Materialization
 {
   internal interface IMaterializingReader<out TItem>
   {
+    Session Session { get; }
     IEnumerator<TItem> AsEnumerator();
     IAsyncEnumerator<TItem> AsAsyncEnumerator();
   }
@@ -24,6 +25,8 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly ParameterContext parameterContext;
     private readonly IItemMaterializer<TItem> itemMaterializer;
     private readonly Queue<Action> materializationQueue;
+
+    public Session Session => context.Session;
 
     public IEnumerator<TItem> AsEnumerator()
     {
