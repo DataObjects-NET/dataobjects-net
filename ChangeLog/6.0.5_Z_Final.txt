@@ -1,0 +1,9 @@
+[main] EntitySet<T>.Prefetch() now re-fetches items in Client profile and in certain transaction isolation levels
+[main] Prefetch extension re-fetches EntitySet<T> items in Client profile and in certain transaction isolation levels
+[main] SessionScope is not derrived from Scope but stand alone class. Functionality remains the same.
+[main] Improved session activation mechanism to work with asynchronous Session opening
+[main] Fixed SimpleCommandProcessor internal command allocation issue which caused 'swollowing' of genuin exception
+[main] Fixed certain cases of incorrect temporary table column structure while using grouping
+[main] Correct command disposal by CommandProcessors
+[mysql] Updated client library package
+[log4net] Updated log4net package

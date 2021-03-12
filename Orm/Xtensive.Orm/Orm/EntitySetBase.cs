@@ -49,39 +49,53 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the owner of this instance.
     /// </summary>
-    public Entity Owner { get { return owner; } }
+    public Entity Owner => owner;
 
     /// <inheritdoc/>
-    Persistent IFieldValueAdapter.Owner { get { return Owner; } }
+    Persistent IFieldValueAdapter.Owner => Owner;
 
     /// <inheritdoc/>
     public FieldInfo Field { get; private set; }
+
+    /// <summary>
+    /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
+    /// </summary>
+    public long Count
+    {
+      get {
+        if (Owner.IsRemoved) {
+          return 0; // WPF tries to use EntitySets of removed Entities
+        }
+
+        EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
+        EnsureCountIsLoaded();
+        return (long) State.TotalItemCount;
+      }
+    }
 
     internal EntitySetState State { get; private set; }
 
     /// <summary>
     /// Gets the entities contained in this <see cref="EntitySetBase"/>.
     /// </summary>
-    protected internal IEnumerable<IEntity> Entities {
-      get {
-        return InnerGetEntities().ToTransactional(Session);
-      }
-    }
+    protected internal IEnumerable<IEntity> Entities
+      => InnerGetEntities().ToTransactional(Session);
 
     private IEnumerable<IEntity> InnerGetEntities()
     {
-      if (Owner.IsRemoved)
+      if (Owner.IsRemoved) {
         yield break; // WPF tries to enumerate EntitySets of removed Entities
+      }
 
-      Prefetch();
+      PrefetchInternal();
       foreach (var key in State) {
         var entity = Session.Query.SingleOrDefault(key);
-        if (entity==null) {
+        if (entity == null) {
           if (!key.IsTemporary(Session.Domain)) {
             Session.RemoveOrCreateRemovedEntity(key.TypeReference.Type.UnderlyingType, key, EntityRemoveReason.Other);
-            EntityState entityState;
-            if (Session.LookupStateInCache(key, out entityState))
+            if (Session.LookupStateInCache(key, out var entityState)) {
               entity = entityState.Entity;
+            }
           }
         }
         yield return entity;
@@ -91,10 +105,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Prefetches the entity set completely - i.e. ensures it is fully loaded.
     /// </summary>
-    public void Prefetch()
-    {
-      Prefetch(null);
-    }
+    public void Prefetch() => Prefetch(null);
 
     /// <summary>
     /// Prefetches the entity set - i.e. ensures it is either completely or partially loaded.
@@ -103,21 +114,7 @@ namespace Xtensive.Orm
     public void Prefetch(int? maxItemCount)
     {
       EnsureOwnerIsNotRemoved();
-      EnsureIsLoaded(maxItemCount);
-    }
-
-    /// <summary>
-    /// Gets the number of elements contained in the <see cref="EntitySetBase"/>.
-    /// </summary>
-    public long Count {
-      get {
-        if (Owner.IsRemoved)
-          return 0; // WPF tries to use EntitySets of removed Entities
-
-        EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
-        EnsureCountIsLoaded();
-        return (long) State.TotalItemCount;
-      }
+      EnsureIsLoaded(maxItemCount, State.ShouldUseForcePrefetch(null));
     }
 
     /// <summary>
@@ -131,13 +128,13 @@ namespace Xtensive.Orm
     public bool Contains(Key key)
     {
       EnsureOwnerIsNotRemoved();
-      if (key==null || !Field.ItemType.IsAssignableFrom(key.TypeInfo.UnderlyingType))
+      if (key==null || !Field.ItemType.IsAssignableFrom(key.TypeInfo.UnderlyingType)) {
         return false;
+      }
 
-      EntityState entityState;
-      if (Session.LookupStateInCache(key, out entityState))
-        return Contains(key, entityState.TryGetEntity());
-      return Contains(key, null);
+      return Session.LookupStateInCache(key, out var entityState)
+        ? Contains(key, entityState.TryGetEntity())
+        : Contains(key, null);
     }
 
     /// <summary>
@@ -156,20 +153,24 @@ namespace Xtensive.Orm
     /// </summary>
     protected void EnsureOwnerIsNotRemoved()
     {
-      if (Owner.IsRemoved)
+      if (Owner.IsRemoved) {
         throw new InvalidOperationException(Strings.ExEntityIsRemoved);
+      }
     }
 
     #region System-level event-like members
 
     private void SystemInitialize()
     {
-      if (Session.IsSystemLogicOnly)
+      if (Session.IsSystemLogicOnly) {
         return;
+      }
+
       var subscriptionInfo = GetSubscription(EntityEventBroker.InitializeEntitySetEventKey);
-      if (subscriptionInfo.Second!=null)
+      if (subscriptionInfo.Second != null) {
         ((Action<Key, FieldInfo>) subscriptionInfo.Second)
           .Invoke(subscriptionInfo.First, Field);
+      }
       OnInitialize();
     }
 
@@ -179,13 +180,15 @@ namespace Xtensive.Orm
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyEntitySetItemAdding(this, item);
 
-        if (Session.IsSystemLogicOnly)
+        if (Session.IsSystemLogicOnly) {
           return;
+        }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddingEntitySetItemEventKey);
-        if (subscriptionInfo.Second!=null)
+        if (subscriptionInfo.Second != null) {
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, item);
+        }
         OnAdding(item);
       }
     }
@@ -196,16 +199,19 @@ namespace Xtensive.Orm
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyEntitySetItemAdd(this, item);
 
-        if (Session.IsSystemLogicOnly)
+        if (Session.IsSystemLogicOnly) {
           return;
+        }
 
-        if (CanBeValidated)
+        if (CanBeValidated) {
           Session.ValidationContext.RegisterForValidation(Owner);
+        }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.AddEntitySetItemEventKey);
-        if (subscriptionInfo.Second!=null)
+        if (subscriptionInfo.Second != null) {
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, item);
+        }
         OnAdd(item);
         NotifyCollectionChanged(NotifyCollectionChangedAction.Add, item, index);
       }
@@ -225,12 +231,14 @@ namespace Xtensive.Orm
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyEntitySetItemRemoving(this, item);
 
-        if (Session.IsSystemLogicOnly)
+        if (Session.IsSystemLogicOnly) {
           return;
+        }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemovingEntitySetItemEventKey);
-        if (subscriptionInfo.Second!=null)
+        if (subscriptionInfo.Second != null) {
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second).Invoke(subscriptionInfo.First, Field, item);
+        }
         OnRemoving(item);
       }
     }
@@ -241,16 +249,20 @@ namespace Xtensive.Orm
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyEntitySetItemRemoved(Owner, this, item);
 
-        if (Session.IsSystemLogicOnly)
+        if (Session.IsSystemLogicOnly) {
           return;
+        }
 
-        if (CanBeValidated)
+        if (CanBeValidated) {
           Session.ValidationContext.RegisterForValidation(Owner);
+        }
 
         var subscriptionInfo = GetSubscription(EntityEventBroker.RemoveEntitySetItemEventKey);
-        if (subscriptionInfo.Second!=null)
+        if (subscriptionInfo.Second != null) {
           ((Action<Key, FieldInfo, Entity>) subscriptionInfo.Second)
             .Invoke(subscriptionInfo.First, Field, item);
+        }
+
         OnRemove(item);
         NotifyCollectionChanged(NotifyCollectionChangedAction.Remove, item, index);
       }
@@ -270,14 +282,17 @@ namespace Xtensive.Orm
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyEntitySetClearing(this);
 
-        if (Session.IsSystemLogicOnly)
+        if (Session.IsSystemLogicOnly) {
           return;
+        }
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearingEntitySetEventKey);
-          if (subscriptionInfo.Second!=null)
+          if (subscriptionInfo.Second != null) {
             ((Action<Key, FieldInfo>) subscriptionInfo.Second)
               .Invoke(subscriptionInfo.First, Field);
+          }
+
           OnClearing();
         }
       }
@@ -289,17 +304,20 @@ namespace Xtensive.Orm
       using (Session.Operations.EnableSystemOperationRegistration()) {
         Session.Events.NotifyEntitySetClear(this);
 
-        if (Session.IsSystemLogicOnly)
+        if (Session.IsSystemLogicOnly) {
           return;
+        }
 
-        if (CanBeValidated)
+        if (CanBeValidated) {
           Session.ValidationContext.RegisterForValidation(Owner);
+        }
 
         using (Session.Operations.EnableSystemOperationRegistration()) {
           var subscriptionInfo = GetSubscription(EntityEventBroker.ClearEntitySetEventKey);
-          if (subscriptionInfo.Second!=null)
+          if (subscriptionInfo.Second != null) {
             ((Action<Key, FieldInfo>) subscriptionInfo.Second)
               .Invoke(subscriptionInfo.First, Field);
+          }
           OnClear();
           NotifyCollectionChanged(NotifyCollectionChangedAction.Reset, null, null);
         }
@@ -348,12 +366,14 @@ namespace Xtensive.Orm
     /// <param name="propertyName">Name of the changed property.</param>
     protected void NotifyPropertyChanged(string propertyName)
     {
-      if (!Session.EntityEvents.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers) {
         return;
+      }
       var subscriptionInfo = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
-      if (subscriptionInfo.Second != null)
+      if (subscriptionInfo.Second != null) {
         ((PropertyChangedEventHandler) subscriptionInfo.Second)
           .Invoke(this, new PropertyChangedEventArgs(propertyName));
+      }
     }
 
     /// <summary>
@@ -364,36 +384,44 @@ namespace Xtensive.Orm
     /// <param name="index">The index on the item, if available.</param>
     protected void NotifyCollectionChanged(NotifyCollectionChangedAction action, Entity item, int? index)
     {
-      if (!Session.EntityEvents.HasSubscribers)
+      if (!Session.EntityEvents.HasSubscribers) {
         return;
+      }
+
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
       if (subscriptionInfo.Second != null) {
         var handler = (NotifyCollectionChangedEventHandler) subscriptionInfo.Second;
-        if (action==NotifyCollectionChangedAction.Reset)
+        if (action == NotifyCollectionChangedAction.Reset) {
           handler.Invoke(this, new NotifyCollectionChangedEventArgs(action));
+        }
         else if (!index.HasValue) {
-          if (action==NotifyCollectionChangedAction.Remove) {
+          if (action == NotifyCollectionChangedAction.Remove) {
             // Workaround for WPF / non-WPF subscribers
             var invocationList = handler.GetInvocationList();
             foreach (var @delegate in invocationList) {
               var typedDelegate = (NotifyCollectionChangedEventHandler) @delegate;
               var subscriberAssemblyName = @delegate.Method.DeclaringType.Assembly.FullName;
-              if (subscriberAssemblyName.StartsWith(presentationFrameworkAssemblyPrefix, StringComparison.Ordinal))
+              if (subscriberAssemblyName.StartsWith(presentationFrameworkAssemblyPrefix, StringComparison.Ordinal)) {
                 // WPF can't handle "Remove" event w/o item index
                 typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+              }
 #if DEBUG
-              else if (subscriberAssemblyName.StartsWith(storageTestsAssemblyPrefix, StringComparison.Ordinal))
+              else if (subscriberAssemblyName.StartsWith(storageTestsAssemblyPrefix, StringComparison.Ordinal)) {
                 typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+              }
 #endif
-              else
+              else {
                 typedDelegate.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+              }
             }
           }
-          else
+          else {
             handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item));
+          }
         }
-        else
+        else {
           handler.Invoke(this, new NotifyCollectionChangedEventArgs(action, item, index.GetValueOrDefault()));
+        }
       }
       NotifyPropertyChanged("Count");
     }
@@ -406,9 +434,11 @@ namespace Xtensive.Orm
     protected Pair<Key, Delegate> GetSubscription(object eventKey)
     {
       var entityKey = GetOwnerKey(Owner);
-      if (entityKey!=null)
+      if (entityKey != null) {
         return new Pair<Key, Delegate>(entityKey,
           Session.EntityEvents.GetSubscriber(entityKey, Field, eventKey));
+      }
+
       return new Pair<Key, Delegate>(null, null);
     }
 
@@ -493,27 +523,25 @@ namespace Xtensive.Orm
     internal bool Contains(Entity item)
     {
       EnsureOwnerIsNotRemoved();
-      if (item==null || !Field.ItemType.IsAssignableFrom(item.TypeInfo.UnderlyingType))
-        return false;
-      return Contains(item.Key, item);
+      return item != null && Field.ItemType.IsAssignableFrom(item.TypeInfo.UnderlyingType)
+        && Contains(item.Key, item);
     }
 
-    internal bool Add(Entity item)
-    {
-      return Add(item, null, null);
-    }
+    internal bool Add(Entity item) => Add(item, null, null);
 
     internal bool Add(Entity item, SyncContext syncContext, RemovalContext removalContext)
     {
-      if (Contains(item))
+      if (Contains(item)) {
         return false;
+      }
 
       try {
         var operations = Session.Operations;
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
           var itemKey = item.Key;
-          if (operations.CanRegisterOperation)
+          if (operations.CanRegisterOperation) {
             operations.RegisterOperation(new EntitySetItemAddOperation(Owner.Key, Field, itemKey));
+          }
 
           SystemBeforeAdd(item);
 
@@ -534,7 +562,7 @@ namespace Xtensive.Orm
                 TypeReferenceAccuracy.ExactType,
                 combinedTuple);
 
-              Session.CreateOrInitializeExistingEntity(auxiliaryType.UnderlyingType, combinedKey);
+              _ = Session.CreateOrInitializeExistingEntity(auxiliaryType.UnderlyingType, combinedKey);
               Session.ReferenceFieldsChangesRegistry.Register(Owner.Key, itemKey, combinedKey, Field);
             }
 
@@ -545,17 +573,21 @@ namespace Xtensive.Orm
           };
 
           operations.NotifyOperationStarting();
-          if (association.IsPaired)
+          if (association.IsPaired) {
             Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
               OperationType.Add, association, Owner, item, finalizer);
-          else
+          }
+          else {
             finalizer.Invoke();
+          }
 
           // removalContext is unused here, since Add is never
           // invoked in reference cleanup process directly
 
-          if (!skipOwnerVersionChange)
-            Owner.UpdateVersionInfo(Owner, Field);
+          if (!skipOwnerVersionChange) {
+            _ = Owner.UpdateVersionInfo(Owner, Field);
+          }
+
           SystemAdd(item, index);
           SystemAddCompleted(item, null);
           scope.Complete();
@@ -568,23 +600,22 @@ namespace Xtensive.Orm
       }
     }
 
-    internal bool Remove(Entity item)
-    {
-      return Remove(item, null, null);
-    }
+    internal bool Remove(Entity item) => Remove(item, null, null);
 
     internal bool Remove(Entity item, SyncContext syncContext, RemovalContext removalContext)
     {
-      if (!Contains(item))
+      if (!Contains(item)) {
         return false;
+      }
 
       try {
         var operations = Session.Operations;
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
           var itemKey = item.Key;
-          if (operations.CanRegisterOperation)
+          if (operations.CanRegisterOperation) {
             operations.RegisterOperation(new EntitySetItemRemoveOperation(Owner.Key, Field, itemKey));
+          }
 
           SystemBeforeRemove(item);
 
@@ -615,11 +646,13 @@ namespace Xtensive.Orm
           };
 
           operations.NotifyOperationStarting();
-          if (association.IsPaired)
+          if (association.IsPaired) {
             Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
               OperationType.Remove, association, Owner, item, finalizer);
-          else
+          }
+          else {
             finalizer.Invoke();
+          }
 
           if (removalContext!=null) {
             // Postponing finalizers (events)
@@ -627,8 +660,10 @@ namespace Xtensive.Orm
               try {
                 try {
                   index = GetItemIndex(State, itemKey); // Necessary, since index can be already changed
-                  if (!skipOwnerVersionChange)
-                    Owner.UpdateVersionInfo(Owner, Field);
+                  if (!skipOwnerVersionChange) {
+                    _ = Owner.UpdateVersionInfo(Owner, Field);
+                  }
+
                   SystemRemove(item, index);
                   SystemRemoveCompleted(item, null);
                   scope.Complete();
@@ -645,16 +680,19 @@ namespace Xtensive.Orm
             return true;
           }
 
-          if (!skipOwnerVersionChange)
-            Owner.UpdateVersionInfo(Owner, Field);
+          if (!skipOwnerVersionChange) {
+            _ = Owner.UpdateVersionInfo(Owner, Field);
+          }
+
           SystemRemove(item, index);
           SystemRemoveCompleted(item, null);
           scope.Complete();
           return true;
         }
         finally {
-          if (removalContext==null)
+          if (removalContext == null) {
             scope.DisposeSafely();
+          }
         }
       }
       catch (Exception e) {
@@ -672,15 +710,16 @@ namespace Xtensive.Orm
       try {
         var operations = Session.Operations;
         using (var scope = operations.BeginRegistration(Operations.OperationType.System)) {
-          if (operations.CanRegisterOperation)
-            operations.RegisterOperation(
-              new EntitySetClearOperation(Owner.Key, Field));
+          if (operations.CanRegisterOperation) {
+            operations.RegisterOperation(new EntitySetClearOperation(Owner.Key, Field));
+          }
 
           SystemBeforeClear();
           operations.NotifyOperationStarting();
 
-          foreach (var entity in Entities.ToList())
-            Remove(entity);
+          foreach (var entity in Entities.ToList()) {
+            _ = Remove(entity);
+          }
 
           SystemClear();
           SystemClearCompleted(null);
@@ -693,20 +732,11 @@ namespace Xtensive.Orm
       }
     }
 
-    internal bool Add(IEntity item)
-    {
-      return Add((Entity) item);
-    }
+    internal bool Add(IEntity item) => Add((Entity) item);
 
-    internal bool Remove(IEntity item)
-    {
-      return Remove((Entity) item);
-    }
+    internal bool Remove(IEntity item) => Remove((Entity) item);
 
-    internal bool Contains(IEntity item)
-    {
-      return Contains((Entity) item);
-    }
+    internal bool Contains(IEntity item) => Contains((Entity) item);
 
     #endregion
 
@@ -716,30 +746,38 @@ namespace Xtensive.Orm
       where TElement: IEntity
     {
       EnsureOwnerIsNotRemoved();
-      foreach (var item in items)
-        Add(item);
+      foreach (var item in items) {
+        _ = Add(item);
+      }
     }
 
     internal void IntersectWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
       EnsureOwnerIsNotRemoved();
-      if (this==other)
+      if (this == other) {
         return;
-      var otherEntities = other.Cast<IEntity>().ToHashSet();
-      foreach (var item in Entities.ToList())
-        if (!otherEntities.Contains(item))
-          Remove(item);
+      }
+
+      var otherEntities = new HashSet<IEntity>(other.Cast<IEntity>());
+      foreach (var item in Entities.ToList()) {
+        if (!otherEntities.Contains(item)) {
+          _ = Remove(item);
+        }
+      }
     }
 
     internal void UnionWith<TElement>(IEnumerable<TElement> other)
       where TElement : IEntity
     {
       EnsureOwnerIsNotRemoved();
-      if (this == other)
+      if (this == other) {
         return;
-      foreach (var item in other)
-        Add(item);
+      }
+
+      foreach (var item in other) {
+        _ = Add(item);
+      }
     }
 
     internal void ExceptWith<TElement>(IEnumerable<TElement> other)
@@ -750,8 +788,9 @@ namespace Xtensive.Orm
         Clear();
         return;
       }
-      foreach (var item in other)
-        Remove(item);
+      foreach (var item in other) {
+        _ = Remove(item);
+      }
     }
 
     #endregion
@@ -770,8 +809,10 @@ namespace Xtensive.Orm
 
     internal bool CheckStateIsLoaded()
     {
-      if (State.IsLoaded)
+      if (State.IsLoaded) {
         return true;
+      }
+
       if (Owner.State.PersistenceState == PersistenceState.New) {
         State.TotalItemCount = State.AddedItemsCount;
         State.IsLoaded = true;
@@ -781,25 +822,37 @@ namespace Xtensive.Orm
       return false;
     }
 
-    private void EnsureIsLoaded(int? maxItemCount)
+    private void PrefetchInternal()
+    {
+      EnsureOwnerIsNotRemoved();
+      EnsureIsLoaded(null, false);
+    }
+
+    private void EnsureIsLoaded(int? maxItemCount, bool ignoreFullyLoaded = false)
     {
       if (CheckStateIsLoaded()) {
-        if (State.IsFullyLoaded)
+        if (State.IsFullyLoaded && !ignoreFullyLoaded) {
           return;
+        }
+        State.TotalItemCount = null;
         var requestedItemCount = maxItemCount.HasValue
           ? (int) maxItemCount
           : int.MaxValue;
-        if (State.CachedItemCount > requestedItemCount)
+        if (State.CachedItemCount > requestedItemCount) {
           return;
+        }
       }
-      using (Session.Activate())
+      using (Session.Activate()) {
         Session.Handler.FetchEntitySet(Owner.Key, Field, maxItemCount);
+      }
     }
 
     private void EnsureCountIsLoaded()
     {
-      if (State.TotalItemCount!=null)
+      if (State.TotalItemCount != null) {
         return;
+      }
+
       using (new ParameterContext().Activate()) {
         ownerParameter.Value = owner;
         var cachedState = GetEntitySetTypeState();
@@ -811,14 +864,17 @@ namespace Xtensive.Orm
     {
       // state check
       var foundInCache = State.Contains(key);
-      if (foundInCache)
+      if (foundInCache) {
         return true;
+      }
+
       var ownerState = Owner.PersistenceState;
       var itemState = item == null
         ? PersistenceState.Synchronized
         : item.PersistenceState;
-      if (PersistenceState.New.In(ownerState, itemState) || State.IsFullyLoaded)
+      if (PersistenceState.New.In(ownerState, itemState) || State.IsFullyLoaded) {
         return false;
+      }
 
       // association check
       if (item != null) {
@@ -833,10 +889,12 @@ namespace Xtensive.Orm
       EnsureIsLoaded(WellKnown.EntitySetPreloadCount);
 
       foundInCache = State.Contains(key);
-      if (foundInCache)
+      if (foundInCache) {
         return true;
-      if (State.IsFullyLoaded)
+      }
+      if (State.IsFullyLoaded) {
         return false;
+      }
 
       bool foundInDatabase;
       using (new ParameterContext().Activate()) {
@@ -845,17 +903,17 @@ namespace Xtensive.Orm
           .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value);
         foundInDatabase = entitySetTypeState.SeekProvider.GetRecordSet(Session).FirstOrDefault()!=null;
       }
-      if (foundInDatabase)
+      if (foundInDatabase) {
         State.Register(key);
+      }
       return foundInDatabase;
     }
 
     private static Key GetOwnerKey(Persistent owner)
     {
-      var asFieldValueAdapter = owner as IFieldValueAdapter;
-      if (asFieldValueAdapter != null)
-        return GetOwnerKey(asFieldValueAdapter.Owner);
-      return ((Entity) owner).Key;
+      return owner is IFieldValueAdapter asFieldValueAdapter
+        ? GetOwnerKey(asFieldValueAdapter.Owner)
+        : ((Entity) owner).Key;
     }
 
     private EntitySetTypeState GetEntitySetTypeState()
@@ -895,38 +953,41 @@ namespace Xtensive.Orm
       var seekTransform = new MapTransform(true, keyDescriptor, map);
 
       Func<Tuple, Entity> itemCtor = null;
-      if (association.AuxiliaryType!=null)
+      if (association.AuxiliaryType != null) {
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
           association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
           ArrayUtils<Type>.EmptyArray);
+      }
+
       return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
     }
 
     private int? GetItemIndex(EntitySetState state, Key key)
     {
-      if (!state.IsFullyLoaded)
+      if (!state.IsFullyLoaded) {
         return null;
-      if (!Session.EntityEvents.HasSubscribers)
+      }
+      if (!Session.EntityEvents.HasSubscribers) {
         return null;
+      }
       var subscriptionInfo = GetSubscription(EntityEventBroker.CollectionChangedEventKey);
-      if (subscriptionInfo.Second==null)
+      if (subscriptionInfo.Second == null) {
         return null;
+      }
 
       // Ok, it seems there is a reason
       // to waste linear time on calculating this...
-      int i = 0;
+      var i = 0;
       foreach (var cachedKey in state) {
-        if (key==cachedKey)
+        if (key == cachedKey) {
           return i;
+        }
         i++;
       }
       return null;
     }
 
-    internal static void ExecuteOnValidate(EntitySetBase target)
-    {
-      target.OnValidate();
-    }
+    internal static void ExecuteOnValidate(EntitySetBase target) => target.OnValidate();
 
     #endregion
 
@@ -941,7 +1002,7 @@ namespace Xtensive.Orm
     /// <param name="ctorType">The type, which constructor has invoked this method.</param>
     protected void Initialize(Type ctorType)
     {
-      if (ctorType==GetType() && !isInitialized) {
+      if (ctorType == GetType() && !isInitialized) {
         isInitialized = true;
         Initialize();
       }
@@ -950,10 +1011,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Performs initialization of the <see cref="EntitySetBase"/>.
     /// </summary>
-    protected virtual void Initialize()
-    {
-      SystemInitialize();
-    }
+    protected virtual void Initialize() => SystemInitialize();
 
 
     // Constructors
@@ -970,8 +1028,8 @@ namespace Xtensive.Orm
       Field = field;
       State = new EntitySetState(this);
       var association = Field.Associations.Last();
-      if (association.AuxiliaryType!=null && association.IsMaster) {
-        Domain domain = Session.Domain;
+      if (association.AuxiliaryType != null && association.IsMaster) {
+        var domain = Session.Domain;
         var itemType = domain.Model.Types[Field.ItemType];
         auxilaryTypeKeyTransform = new CombineTransform(
           false,
@@ -979,10 +1037,9 @@ namespace Xtensive.Orm
           itemType.Key.TupleDescriptor);
       }
 
-      if (association.Multiplicity!= Multiplicity.ManyToOne && association.Multiplicity!=Multiplicity.OneToMany)
-        skipOwnerVersionChange = false;
-      else
-        skipOwnerVersionChange = Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
+      skipOwnerVersionChange = association.Multiplicity != Multiplicity.ManyToOne && association.Multiplicity != Multiplicity.OneToMany
+        ? false
+        : Session.Domain.Configuration.VersioningConvention.DenyEntitySetOwnerVersionChange;
 
       Initialize(typeof (EntitySetBase));
     }
