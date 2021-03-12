@@ -28,35 +28,33 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       public readonly FieldInfo ReferencingField;
       public readonly int? ItemCountLimit;
-      private int cachedHashCode;
+      private readonly int cachedHashCode;
 
       public bool Equals(CacheKey other)
       {
-        return (ItemCountLimit==null) == (other.ItemCountLimit==null)
+        return (ItemCountLimit == null) == (other.ItemCountLimit == null)
           && Equals(other.ReferencingField, ReferencingField);
       }
 
       public override bool Equals(object obj)
       {
-        if (ReferenceEquals(null, obj))
+        if (ReferenceEquals(null, obj)) {
           return false;
-        if (obj.GetType()!=typeof (CacheKey))
+        }
+        if (obj.GetType() != typeof (CacheKey)) {
           return false;
+        }
         return Equals((CacheKey) obj);
       }
 
-      public override int GetHashCode()
-      {
-        return cachedHashCode;
-      }
-
+      public override int GetHashCode() => cachedHashCode;
 
       // Constructors
 
       public CacheKey(FieldInfo referencingField, int? itemCountLimit)
       {
-        this.ReferencingField = referencingField;
-        this.ItemCountLimit = itemCountLimit;
+        ReferencingField = referencingField;
+        ItemCountLimit = itemCountLimit;
         unchecked {
           cachedHashCode = (ReferencingField.GetHashCode()*397)
                            ^ (ItemCountLimit.HasValue ? 1 : 0);
@@ -85,80 +83,96 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public void RegisterQueryTask()
     {
-      EntitySetState state;
-      if (isOwnerCached && manager.Owner.LookupState(ownerKey, ReferencingField, out state))
-        if (state==null || state.IsFullyLoaded)
+      if (isOwnerCached && manager.Owner.LookupState(ownerKey, ReferencingField, out var state)) {
+        if (state == null || (state.IsFullyLoaded && !state.ShouldUseForcePrefetch(referencingFieldDescriptor.PrefetchOperationId))) {
           return;
+        }
+      }
+
       itemsQueryTask = CreateQueryTask();
       manager.Owner.Session.RegisterInternalDelayedQuery(itemsQueryTask);
     }
 
     public void UpdateCache()
     {
-      if (itemsQueryTask==null)
+      if (itemsQueryTask == null) {
         return;
+      }
+
       var areToNotifyAboutKeys = !manager.Owner.Session.Domain.Model
         .Types[referencingFieldDescriptor.Field.ItemType].IsLeaf;
       var reader = manager.Owner.Session.Domain.EntityDataReader;
       var records = reader.Read(itemsQueryTask.Result, QueryProvider.Header, manager.Owner.Session);
       var entityKeys = new List<Key>(itemsQueryTask.Result.Count);
-      List<Pair<Key, Tuple>> auxEntities = null;
       var association = ReferencingField.Associations.Last();
-      if (association.AuxiliaryType!=null)
-        auxEntities = new List<Pair<Key, Tuple>>(itemsQueryTask.Result.Count);
+      var auxEntities = (association.AuxiliaryType != null)
+        ? new List<Pair<Key, Tuple>>(itemsQueryTask.Result.Count)
+        : null;
+
       foreach (var record in records) {
-        for (int i = 0; i < record.Count; i++) {
+        for (var i = 0; i < record.Count; i++) {
           var key = record.GetKey(i);
-          if (key==null)
+          if (key == null) {
             continue;
+          }
           var tuple = record.GetTuple(i);
-          if (tuple==null)
+          if (tuple == null) {
             continue;
-          if (association.AuxiliaryType!=null)
-            if (i==0)
+          }
+          if (association.AuxiliaryType != null) {
+            if (i == 0) {
               auxEntities.Add(new Pair<Key, Tuple>(key, tuple));
+            }
             else {
               manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
               entityKeys.Add(key);
-              if (areToNotifyAboutKeys)
+              if (areToNotifyAboutKeys) {
                 referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
+              }
             }
+          }
           else {
             manager.SaveStrongReference(manager.Owner.UpdateState(key, tuple));
             entityKeys.Add(key);
-            if (areToNotifyAboutKeys)
+            if (areToNotifyAboutKeys) {
               referencingFieldDescriptor.NotifySubscriber(ownerKey, key);
+            }
           }
         }
       }
-      manager.Owner.UpdateState(ownerKey, ReferencingField,
-        ItemCountLimit==null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
+      var updatedState = manager.Owner.UpdateState(ownerKey, ReferencingField,
+        ItemCountLimit == null || entityKeys.Count < ItemCountLimit, entityKeys, auxEntities);
+      if (updatedState != null) {
+        updatedState.SetLastManualPrefetchId(referencingFieldDescriptor.PrefetchOperationId);
+      }
     }
 
     public bool Equals(EntitySetTask other)
     {
-      if (ReferenceEquals(null, other))
+      if (ReferenceEquals(null, other)) {
         return false;
-      if (ReferenceEquals(this, other))
+      }
+      if (ReferenceEquals(this, other)) {
         return true;
+      }
       return other.cacheKey.Equals(cacheKey);
     }
 
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (ReferenceEquals(null, obj)) {
         return false;
-      if (ReferenceEquals(this, obj))
+      }
+      if (ReferenceEquals(this, obj)) {
         return true;
-      if (obj.GetType()!=typeof (EntitySetTask))
+      }
+      if (obj.GetType() != typeof (EntitySetTask)) {
         return false;
+      }
       return Equals((EntitySetTask) obj);
     }
 
-    public override int GetHashCode()
-    {
-      return cacheKey.GetHashCode();
-    }
+    public override int GetHashCode() => cacheKey.GetHashCode();
 
     #region Private / internal methods
 
@@ -188,11 +202,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       var association = pair.Second.ReferencingField.Associations.Last();
       var primaryTargetIndex = association.TargetType.Indexes.PrimaryIndex;
       var resultColumns = new List<int>(primaryTargetIndex.Columns.Count);
-      CompilableProvider result;
-      if (association.AuxiliaryType == null)
-        result = CreateQueryForDirectAssociation(pair, primaryTargetIndex, resultColumns);
-      else
-        result = CreateQueryForAssociationViaAuxType(pair, primaryTargetIndex, resultColumns);
+      var result = association.AuxiliaryType == null
+        ? CreateQueryForDirectAssociation(pair, primaryTargetIndex, resultColumns)
+        : CreateQueryForAssociationViaAuxType(pair, primaryTargetIndex, resultColumns);
       result = result.Select(resultColumns.ToArray());
       if (pair.Second.ItemCountLimit != null)
         result = result.Take(context => context.GetValue(itemCountLimitParameter));
@@ -234,10 +246,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     private static void AddResultColumnIndexes(ICollection<int> indexes, IndexInfo index,
       int columnIndexOffset)
     {
-      for (int i = 0; i < index.Columns.Count; i++) {
+      for (var i = 0; i < index.Columns.Count; i++) {
         var column = index.Columns[i];
-        if (PrefetchHelper.IsFieldToBeLoadedByDefault(column.Field))
+        if (PrefetchHelper.IsFieldToBeLoadedByDefault(column.Field)) {
           indexes.Add(i + columnIndexOffset);
+        }
       }
     }
 
@@ -245,15 +258,19 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var joiningColumns = new Pair<int>[primaryIndex.KeyColumns.Count];
       var firstColumnIndex = primaryIndex.Columns.IndexOf(primaryIndex.KeyColumns[0].Key);
-      for (int i = 0; i < joiningColumns.Length; i++)
-        if (hasAuxType)
+      for (var i = 0; i < joiningColumns.Length; i++) {
+        if (hasAuxType) {
           joiningColumns[i] =
             new Pair<int>(associationIndex.Columns.IndexOf(associationIndex.ValueColumns[i]),
               firstColumnIndex + i);
-        else
+        }
+        else {
           joiningColumns[i] =
             new Pair<int>(associationIndex.Columns.IndexOf(primaryIndex.KeyColumns[i].Key),
               firstColumnIndex + i);
+        }
+      }
+
       return joiningColumns;
     }
 
