@@ -64,7 +64,7 @@ namespace Xtensive.Orm
       this QueryResult<TElement> source,
       Expression<Func<TElement, TFieldValue>> expression)
     {
-      var session = source.Reader.Session;
+      var session = source.Session;
       if (session != null) {
         return new PrefetchQuery<TElement>(session, source).RegisterPath(expression);
       }

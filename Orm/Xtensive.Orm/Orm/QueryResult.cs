@@ -5,6 +5,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Xtensive.Orm.Linq.Materialization;
 
 namespace Xtensive.Orm
@@ -32,10 +33,10 @@ namespace Xtensive.Orm
     }
 
     private readonly StateLifetimeToken lifetimeToken;
+    private readonly IMaterializingReader<TItem> reader;
 
-
-    // DO NOT ENUMERATE this reader anywhere outside this class
-    internal IMaterializingReader<TItem> Reader { get; }
+    [CanBeNull]
+    internal Session Session => reader.Session;
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -44,7 +45,7 @@ namespace Xtensive.Orm
     public IEnumerator<TItem> GetEnumerator()
     {
       EnsureResultsAlive();
-      return Reader.AsEnumerator();
+      return reader.AsEnumerator();
     }
 
     /// <summary>
@@ -53,7 +54,7 @@ namespace Xtensive.Orm
     public async IAsyncEnumerable<TItem> AsAsyncEnumerable()
     {
       EnsureResultsAlive();
-      var enumerator = Reader.AsAsyncEnumerator();
+      var enumerator = reader.AsAsyncEnumerator();
       while (await enumerator.MoveNextAsync().ConfigureAwait(false)) {
         yield return enumerator.Current;
       }
@@ -68,14 +69,14 @@ namespace Xtensive.Orm
 
     internal QueryResult(IMaterializingReader<TItem> reader, StateLifetimeToken lifetimeToken)
     {
-      this.Reader = reader;
+      this.reader = reader;
       this.lifetimeToken = lifetimeToken;
     }
 
     internal QueryResult(IEnumerable<TItem> items)
     {
-      Reader = new EnumerableReader(items);
-      this.lifetimeToken = default;
+      reader = new EnumerableReader(items);
+      lifetimeToken = default;
     }
   }
 }
