@@ -14,6 +14,8 @@ namespace Xtensive.Orm.Reprocessing.Tests
 {
   public class Reprocessing : AutoBuildTest
   {
+    private bool treatNullAsUniqueValue;
+
     private int Bar2Count()
     {
       return Domain.Execute(session => Queryable.Count(session.Query.All<Bar2>()));
@@ -189,6 +191,12 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
+    public override void SetUp()
+    {
+      base.SetUp();
+      treatNullAsUniqueValue = Domain.StorageProviderInfo.ProviderName == WellKnown.Provider.SqlServer;
+    }
+
     [Test]
     public void Test()
     {
@@ -320,30 +328,36 @@ namespace Xtensive.Orm.Reprocessing.Tests
     [Test]
     public void UniqueConstraintViolationExceptionPrimary()
     {
-      int i = 0;
+      var i = 0;
       Domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).Execute(
         session => {
-          new Foo(session, i);
+          _ = new Foo(session, i);
           i++;
-          if (i < 5)
-            new Foo(session, i);
-        }
-        );
-      Assert.That(i, Is.EqualTo(5));
+          if (i < 5) {
+            _ = new Foo(session, i);
+          }
+        });
+      if (treatNullAsUniqueValue) {
+        Assert.That(i, Is.EqualTo(5));
+      }
+      else {
+        Assert.That(i, Is.EqualTo(1));
+      }
     }
 
     [Test]
     public void UniqueConstraintViolationExceptionUnique()
     {
-      int i = 0;
-      bool b = false;
+      var i = 0;
+      var b = false;
       ExecuteActionStrategy.HandleUniqueConstraintViolation.Error += (sender, args) => b = true;
       Domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).Execute(
         session => {
-          new Foo(session) {Name = "test"};
+          _ = new Foo(session) { Name = "test" };
           i++;
-          if (i < 5)
-            new Foo(session) {Name = "test"};
+          if (i < 5) {
+            _ = new Foo(session) { Name = "test" };
+          }
         });
       Assert.That(i, Is.EqualTo(5));
       Assert.That(b, Is.True);
