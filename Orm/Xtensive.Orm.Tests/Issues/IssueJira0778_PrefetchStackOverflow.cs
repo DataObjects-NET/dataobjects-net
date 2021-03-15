@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.10.24
 
@@ -43,6 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
         //try to avoid long population
         var domain = base.BuildDomain(firstTryConfig);
         ValidateTestData(domain);
+        return domain;
       }
       catch (SchemaSynchronizationException exception) {
         //schemas differ
@@ -53,15 +54,16 @@ namespace Xtensive.Orm.Tests.Issues
         // create so override existing schema and publish correct data
         isSchemaRecreated = true;
       }
-      var secondTry = configuration.Clone();
-      secondTry.UpgradeMode = DomainUpgradeMode.Recreate;
-      return base.BuildDomain(secondTry);
+      var secondTryConfig = configuration.Clone();
+      secondTryConfig.UpgradeMode = DomainUpgradeMode.Recreate;
+      return base.BuildDomain(secondTryConfig);
     }
 
     protected override void PopulateData()
     {
-      if (isSchemaRecreated)
+      if (!isSchemaRecreated) {
         return;
+      }
 
       PopulateEmployeeHierarchy(Domain);
       PopulateCustomers(Domain);
@@ -73,7 +75,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.Default| SessionOptions.AutoActivation) {DefaultCommandTimeout = 3000}))
+      var sessionConfig = new SessionConfiguration(SessionOptions.Default | SessionOptions.AutoActivation) { DefaultCommandTimeout = 3000 };
+      using (var session = Domain.OpenSession(sessionConfig))
       using (var tx = session.OpenTransaction()) {
         ExecuteAsync(session);
       }
@@ -91,7 +94,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(a => a.SomeObject);
 
         var localResult = result.ToList();
-        int count = 0;
+        var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var aaaa in localResult) {
           Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference1, aaaa.Reference1.Address, aaaa.Reference1.Passport);
@@ -122,7 +125,7 @@ namespace Xtensive.Orm.Tests.Issues
           );
 
         var localResult = result.ToList();
-        int count = 0;
+        var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var aaaa in localResult) {
           Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference1, aaaa.Reference1.Address, aaaa.Reference1.Passport);
@@ -166,7 +169,7 @@ namespace Xtensive.Orm.Tests.Issues
           );
 
         var localResult = result.ToList();
-        int count = 0;
+        var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var aaaa in localResult) {
           Console.WriteLine("Reference {0}, Address {1}, Passport {2}", aaaa.Reference1, aaaa.Reference1.Address, aaaa.Reference1.Passport);
@@ -214,7 +217,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Prefetch(o => o.NextOperation)
           .ToList();
 
-        int count = 0;
+        var count = 0;
         session.Events.DbCommandExecuted += (sender, args) => count++;
         foreach (var op in result) {
           Console.WriteLine("Prevoius operation {0}", op.PreviousOperation);
@@ -232,7 +235,7 @@ namespace Xtensive.Orm.Tests.Issues
         .ToList();
 
       Assert.That(recipients.Count, Is.AtLeast(1000));
-      int counter = 0;
+      var counter = 0;
       session.Events.DbCommandExecuted += (sender, args) => counter++;
       foreach (var recipient in recipients) {
         var contact = recipient.Contact;
@@ -253,15 +256,16 @@ namespace Xtensive.Orm.Tests.Issues
         var Cs = session.Query.ExecuteDelayed(q => q.All<CCCC>().Count());
 
         var isValid = recipientCount.Value==CustomerCount &&
-          employeeCount.Value== 45 &&
+          employeeCount.Value == 45 &&
           boss.Value != null &&
           contactCount.Value > CustomerCount * 3 &&
           As.Value == 10 &&
           Bs.Value == 100 &&
           Cs.Value == 1000;
 
-        if (!isValid)
+        if (!isValid) {
           throw new TestDataInvalidException();
+        }
       }
     }
 
@@ -273,58 +277,58 @@ namespace Xtensive.Orm.Tests.Issues
         var gm = new Employee(session, "General", "Manager");
         var ipDirector = new Employee(session, "Investment & Placement", "Director");
         var pManager = new Employee(session, "Placement", "Director");
-        new Employee(session, "Placement", "Staff #1");
-        new Employee(session, "Placement", "Staff #2");
-        new Employee(session, "Placement", "Staff #3");
+        _ = new Employee(session, "Placement", "Staff #1");
+        _ = new Employee(session, "Placement", "Staff #2");
+        _ = new Employee(session, "Placement", "Staff #3");
 
         var iManager = new Employee(session, "Investment", "Manager");
-        new Employee(session, "Investment", "Staff #1");
-        new Employee(session, "Investment", "Staff #2");
-        new Employee(session, "Investment", "Staff #3");
+        _ = new Employee(session, "Investment", "Staff #1");
+        _ = new Employee(session, "Investment", "Staff #2");
+        _ = new Employee(session, "Investment", "Staff #3");
 
         var bdsManager = new Employee(session, "Business Development", "S.Manager");
-        new Employee(session, "Projects Marketing and Exhibition Team", "Member #1");
-        new Employee(session, "Projects Marketing and Exhibition Team", "Member #2");
-        new Employee(session, "Projects Marketing and Exhibition Team", "Member #3");
+        _ = new Employee(session, "Projects Marketing and Exhibition Team", "Member #1");
+        _ = new Employee(session, "Projects Marketing and Exhibition Team", "Member #2");
+        _ = new Employee(session, "Projects Marketing and Exhibition Team", "Member #3");
 
-        new Employee(session, "Projects Marketing and Exhibition Team", "Member #1");
-        new Employee(session, "Projects Marketing and Exhibition Team", "Member #2");
-        new Employee(session, "Projects Marketing and Exhibition Team", "Member #3");
+        _ = new Employee(session, "Projects Marketing and Exhibition Team", "Member #1");
+        _ = new Employee(session, "Projects Marketing and Exhibition Team", "Member #2");
+        _ = new Employee(session, "Projects Marketing and Exhibition Team", "Member #3");
 
         var pdDirector = new Employee(session, "Project Development", "Director");
-        new Employee(session, "Project", "Architect #1");
-        new Employee(session, "Project", "Architect #2");
-        new Employee(session, "Project", "Architect #3");
+        _ = new Employee(session, "Project", "Architect #1");
+        _ = new Employee(session, "Project", "Architect #2");
+        _ = new Employee(session, "Project", "Architect #3");
 
-        new Employee(session, "Project", "Manager #1");
-        new Employee(session, "Project", "Manager #2");
-        new Employee(session, "Project", "Manager #3");
+        _ = new Employee(session, "Project", "Manager #1");
+        _ = new Employee(session, "Project", "Manager #2");
+        _ = new Employee(session, "Project", "Manager #3");
 
         var hraDirector = new Employee(session, "HR & Admin", "Director");
-        new Employee(session, "HR", "Staff #1");
-        new Employee(session, "HR", "Staff #2");
-        new Employee(session, "HR", "Staff #3");
+        _ = new Employee(session, "HR", "Staff #1");
+        _ = new Employee(session, "HR", "Staff #2");
+        _ = new Employee(session, "HR", "Staff #3");
 
-        new Employee(session, "Admin", "Staff #1");
-        new Employee(session, "Admin", "Staff #2");
-        new Employee(session, "Admin", "Staff #3");
+        _ = new Employee(session, "Admin", "Staff #1");
+        _ = new Employee(session, "Admin", "Staff #2");
+        _ = new Employee(session, "Admin", "Staff #3");
 
-        new Employee(session, "Support", "Serviceman #1");
-        new Employee(session, "Support", "Serviceman #2");
-        new Employee(session, "Support", "Serviceman #3");
+        _ = new Employee(session, "Support", "Serviceman #1");
+        _ = new Employee(session, "Support", "Serviceman #2");
+        _ = new Employee(session, "Support", "Serviceman #3");
 
         var fitDirector = new Employee(session, "Finance & IT", "Director");
         var chiefAccountant = new Employee(session, "Chief", "Accountant");
 
-        new Employee(session, "Accountant", "Clerk #1");
-        new Employee(session, "Accountant", "Clerk #2");
-        new Employee(session, "Accountant", "Clerk #3");
-        new Employee(session, "Accountant", "Clerk #4");
-        new Employee(session, "Accountant", "Clerk #5");
+        _ = new Employee(session, "Accountant", "Clerk #1");
+        _ = new Employee(session, "Accountant", "Clerk #2");
+        _ = new Employee(session, "Accountant", "Clerk #3");
+        _ = new Employee(session, "Accountant", "Clerk #4");
+        _ = new Employee(session, "Accountant", "Clerk #5");
 
-        new Employee(session, "IT","Administrator #1");
-        new Employee(session, "IT", "Administrator #2");
-        new Employee(session, "IT", "Administrator #3");
+        _ = new Employee(session, "IT","Administrator #1");
+        _ = new Employee(session, "IT", "Administrator #2");
+        _ = new Employee(session, "IT", "Administrator #3");
 
         tx.Complete();
       }
@@ -334,11 +338,11 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        for (int i = 0; i < CustomerCount; i++) {
+        for (var i = 0; i < CustomerCount; i++) {
           var customer = new Customer(session, Guid.NewGuid().ToString(), Guid.NewGuid().ToString());
-          new Contact(session, customer, ContactType.Email, ContactGenerator.GetEmail());
-          new Contact(session, customer, ContactType.Fax, ContactGenerator.GetPhone());
-          new Contact(session, customer, ContactType.Phone, ContactGenerator.GetPhone());
+          _ = new Contact(session, customer, ContactType.Email, ContactGenerator.GetEmail());
+          _ = new Contact(session, customer, ContactType.Fax, ContactGenerator.GetPhone());
+          _ = new Contact(session, customer, ContactType.Phone, ContactGenerator.GetPhone());
         }
         tx.Complete();
       }
@@ -349,9 +353,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         foreach (var employee in session.Query.All<Employee>()) {
-          new Contact(session, employee, ContactType.Email, ContactGenerator.GetEmail()) {Active = true};
-          new Contact(session, employee, ContactType.Fax, ContactGenerator.GetPhone()) {Active = true};
-          new Contact(session, employee, ContactType.Phone, ContactGenerator.GetPhone()) {Active= true};
+          _ = new Contact(session, employee, ContactType.Email, ContactGenerator.GetEmail()) { Active = true };
+          _ = new Contact(session, employee, ContactType.Fax, ContactGenerator.GetPhone()) { Active = true };
+          _ = new Contact(session, employee, ContactType.Phone, ContactGenerator.GetPhone()) { Active= true };
         }
         tx.Complete();
       }
@@ -359,13 +363,13 @@ namespace Xtensive.Orm.Tests.Issues
 
     public static void PopulateRecipients(Domain domain)
     {
-      Random random = new Random();
+      var random = new Random();
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var customers = session.Query.All<Customer>().ToArray();
         foreach (var customer in customers) {
           var contactsToChoose = customer.Contacts.ToArray();
-          new Recipient(session, new Audience(session)) {
+          _ = new Recipient(session, new Audience(session)) {
             Contact = contactsToChoose[random.Next(0, contactsToChoose.Length)],
             Active = true,
             Data = Guid.NewGuid().ToString(),
@@ -380,7 +384,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           var aaaa = new AAAA {
             Reference1 = new ReferenceEntity1 {
               Reference = new ReferenceEntity10(),
@@ -429,7 +433,7 @@ namespace Xtensive.Orm.Tests.Issues
             },
             SomeObject = Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())
           };
-          for (int j = 0; j < 10; j++) {
+          for (var j = 0; j < 10; j++) {
             var bbbb = new BBBB {
               Reference4 = new ReferenceEntity4() {
                 Reference = new ReferenceEntity10(),
@@ -478,7 +482,7 @@ namespace Xtensive.Orm.Tests.Issues
               },
               SomeObject = Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())
             };
-            for (int k = 0; k < 10; k++) {
+            for (var k = 0; k < 10; k++) {
               var cccc = new CCCC {
                 Reference7 = new ReferenceEntity7 {
                   Reference = new ReferenceEntity10(),
@@ -527,9 +531,9 @@ namespace Xtensive.Orm.Tests.Issues
                 },
                 SomeObject = Encoding.UTF8.GetBytes(Guid.NewGuid().ToString())
               };
-              bbbb.CCCCs.Add(cccc);
+              _ = bbbb.CCCCs.Add(cccc);
             }
-            aaaa.Bbbbs.Add(bbbb);
+            _ = aaaa.Bbbbs.Add(bbbb);
           }
         }
         tx.Complete();
@@ -542,27 +546,22 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
 {
   public class ContactGenerator
   {
-    private static Random Random = new Random();
+    private static readonly Random Randomizer = new Random();
 
     public const string Template = "+7({0}){1}-{2}-{3}";
     public readonly static string[] Hosts = new[] {"@gimail.com", "@jahoo.com", "@inlook.com", "@tindax.ru"};
 
     public static string GetEmail()
-    {
-      return Guid.NewGuid().ToString().Replace('-', '_') + Hosts[Random.Next(0, 4)];
-    }
+      => Guid.NewGuid().ToString().Replace('-', '_') + Hosts[Randomizer.Next(0, 4)];
 
-    public static string GetFax()
-    {
-      return GetPhone();
-    }
+    public static string GetFax() => GetPhone();
 
     public static string GetPhone()
     {
-      var code = Random.Next(900, 950);
-      var block1 = Random.Next(100, 1000);
-      var block2 = Random.Next(10, 100);
-      var block3 = Random.Next(10, 100);
+      var code = Randomizer.Next(900, 950);
+      var block1 = Randomizer.Next(100, 1000);
+      var block2 = Randomizer.Next(10, 100);
+      var block3 = Randomizer.Next(10, 100);
       return string.Format(Template, code, block1, block2, block3);
     }
   }
@@ -570,9 +569,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
   public static class Extensions
   {
     public static IQueryable<Recipient> Active(this IQueryable<Recipient> source)
-    {
-      return source.Where(e => e.Active);
-    }
+      => source.Where(e => e.Active);
   }
 
   public enum ContactType
@@ -674,7 +671,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
     [Field]
     public bool MarketingUpdatesEnabled { get; set; }
 
-    [Field(DefaultSqlExpression = "GETUTCDATE()")]
+    [Field]
     public DateTime ModifiedOn { get; set; }
 
     public Contact(Session session, IHasContacts owner, ContactType type, string value)
@@ -684,6 +681,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
       Type = type;
       MarketingUpdatesEnabled = true;
       Value = value;
+      ModifiedOn = DateTime.UtcNow;
     }
   }
 
@@ -700,7 +698,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
     public EntitySet<Contact> Contacts { get; private set; }
 
     public Employee(Session session, string firstName, string lastName)
-      :base(session)
+      : base(session)
     {
       FirstName = firstName;
       LastName = lastName;
@@ -720,7 +718,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
     public EntitySet<Contact> Contacts { get; private set; }
 
     public Customer(Session session, string firstName, string lastName)
-      :base(session)
+      : base(session)
     {
       FistName = firstName;
       LastName = lastName;
@@ -988,14 +986,13 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
 
     public override string ToString()
     {
-      var builder = new StringBuilder();
-
-      builder.Append(Building);
-      builder.Append(Street).Append(", ");
-      builder.Append(City).Append(", ");
-      builder.Append(Region).Append(", ");
-      builder.Append(Index).Append(", ");
-      builder.Append(Country);
+      var builder = new StringBuilder()
+        .Append(Building)
+        .Append($"{Street}, ")
+        .Append($"{City}, ")
+        .Append($"{Region}, ")
+        .Append($"{Index}, ")
+        .Append(Country);
 
       return builder.ToString();
     }
@@ -1009,9 +1006,6 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0778_PrefetchStackOverflowModel
     [Field(Length = 128)]
     public string Number { get; set; }
 
-    public override string ToString()
-    {
-      return Series + " " + Number;
-    }
+    public override string ToString() => $"{Series} {Number}";
   }
 }
