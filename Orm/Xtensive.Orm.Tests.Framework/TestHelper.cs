@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.02.09
 
@@ -28,11 +28,12 @@ namespace Xtensive.Orm.Tests
     /// <param name="preferFullRatherThanFast">Full rather then fast collection should be performed.</param>
     public static void CollectGarbage(bool preferFullRatherThanFast)
     {
-      int baseSleepTime = 1;
-      if (preferFullRatherThanFast)
+      var baseSleepTime = 1;
+      if (preferFullRatherThanFast) {
         baseSleepTime = 100;
+      }
 
-      for (int i = 0; i<5; i++) {
+      for (var i = 0; i<5; i++) {
         Thread.Sleep(baseSleepTime);
         GC.Collect(GC.MaxGeneration, GCCollectionMode.Forced);
         GC.WaitForPendingFinalizers();
@@ -47,6 +48,38 @@ namespace Xtensive.Orm.Tests
     public static System.Configuration.Configuration GetConfigurationForAssembly(this object instanceOfTypeFromAssembly)
     {
       return instanceOfTypeFromAssembly.GetType().Assembly.GetAssemblyConfiguration();
+    }
+
+    /// <summary>
+    /// Cuts down resolution of <see cref="DateTime"/> value if needed.
+    /// </summary>
+    /// <param name="origin">The value to fix.</param>
+    /// <param name="provider">Type of provider.</param>
+    /// <returns>New value with less resolution if <paramref name="provider"/> requires it or untouched <paramref name="origin"/> if the provider doesn't</returns>
+    public static DateTime FixDateTimeForProvider(this DateTime origin, StorageProvider provider)
+    {
+      long? divider;
+      switch (provider) {
+        case StorageProvider.MySql:
+          divider = 10000000;
+          break;
+        case StorageProvider.Firebird:
+          divider = 1000;
+          break;
+        case StorageProvider.PostgreSql:
+          divider = 10;
+          break;
+        default:
+          divider = null;
+          break;
+      }
+
+      if (!divider.HasValue) {
+        return origin;
+      }
+      var ticks = origin.Ticks;
+      var newTicks = ticks - (ticks % divider.Value);
+      return new DateTime(newTicks);
     }
   }
 }

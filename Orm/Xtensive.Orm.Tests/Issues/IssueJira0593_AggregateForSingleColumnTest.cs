@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
 // Created:    2016.09.02
 
@@ -675,10 +675,10 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<DateTime> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min(), query.Min(c => c));
-      Assert.AreEqual(localArray.Min(), query.Min());
-      Assert.AreEqual(localArray.Max(), query.Max(c => c));
-      Assert.AreEqual(localArray.Max(), query.Max());
+      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Min(c => c));
+      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Min());
+      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Max(c => c));
+      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Max());
       Assert.AreEqual(localArray.Count(), query.Count());
     }
 
@@ -695,20 +695,20 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<Guid> query)
     {
       var localArray = query.ToArray();
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
       Assert.AreEqual(localArray.Count(), query.Count());
     }
 
     private static void CheckQueryable(IQueryable<Guid?> query)
     {
       var localArray = query.ToArray();
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
       Assert.AreEqual(localArray.Count(), query.Count());
     }
 
