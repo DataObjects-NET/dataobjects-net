@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.02
 
@@ -22,10 +22,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetAnonymousTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {InvoicesFiled = c.Invoices});
+        .Select(c => new { InvoicesFiled = c.Invoices });
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .Select(c => new {InvoicesFiled = c.Invoices });
+        .Select(c => new { InvoicesFiled = c.Invoices });
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
@@ -34,11 +34,11 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetSelectManyAnonymousTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {InvoicesFiled = c.Invoices })
+        .Select(c => new { InvoicesFiled = c.Invoices })
         .SelectMany(i => i.InvoicesFiled);
       var expected = Session.Query.All<Customer>()
         .ToList()
-        .Select(c => new {InvoicesFiled = c.Invoices })
+        .Select(c => new { InvoicesFiled = c.Invoices })
         .SelectMany(i => i.InvoicesFiled);
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
@@ -51,8 +51,9 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Session.Query.All<Customer>().AsEnumerable().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
       Assert.Greater(result.Count, 0);
       Assert.AreEqual(expected.Count, result.Count);
-      for (int i = 0; i < result.Count; i++)
+      for (var i = 0; i < result.Count; i++) {
         Assert.AreSame(expected[i], result[i]);
+      }
     }
 
     [Test]
@@ -124,7 +125,7 @@ namespace Xtensive.Orm.Tests.Linq
 
     private static Customer GetCustomer()
     {
-      return Session.Demand().Query.All<Customer>().Where(c => c.FirstName=="Luis").Single();
+      return Session.Demand().Query.All<Customer>().Where(c => c.FirstName == "Aaron").Single();
     }
   }
 }

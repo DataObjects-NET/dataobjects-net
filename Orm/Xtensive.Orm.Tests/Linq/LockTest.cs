@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.08.25
 
@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void UpdateLockThrowTest()
     {
+      Require.ProviderIsNot(StorageProvider.MySql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Update, LockBehavior.Wait,
         LockMode.Update, LockBehavior.ThrowIfLocked);
 //      Assert.AreEqual(typeof(StorageException), catchedException.GetType());
@@ -37,21 +38,22 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CachingTest()
     {
-      List<int> trackIds = new List<int>(32);
+      var trackIds = new List<int>(32);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (var i = 0; i < trackIds.Capacity; i++)
-          trackIds.Add(new AudioTrack() {Name = "SomeTrack"}.TrackId);
+        for (var i = 0; i < trackIds.Capacity; i++) {
+          trackIds.Add(new AudioTrack() { Name = "SomeTrack" }.TrackId);
+        }
 
         transaction.Complete();
       }
 
-      ConcurrentBag<Pair<int>> results = new ConcurrentBag<Pair<int>>();
+      var results = new ConcurrentBag<Pair<int>>();
       var source = trackIds.Select(t => new {PId = t, Bag = results});
 
-      Parallel.ForEach(
+      _ = Parallel.ForEach(
         source,
-        new ParallelOptions {MaxDegreeOfParallelism = 4},
+        new ParallelOptions { MaxDegreeOfParallelism = 4 },
         (sourceItem, state, currentItteration) => {
           using (var session = Domain.OpenSession())
           using (var transaction = session.OpenTransaction()) {
@@ -62,8 +64,9 @@ namespace Xtensive.Orm.Tests.Linq
             };
             session.Events.DbCommandExecuting += handler;
 
-            if (trackToLock!=null)
+            if (trackToLock != null) {
               trackToLock.Lock(LockMode.Update, LockBehavior.Wait);
+            }
 
             session.Events.DbCommandExecuting -= handler;
           }
@@ -71,7 +74,7 @@ namespace Xtensive.Orm.Tests.Linq
 
       try {
         Assert.That(results.Count, Is.EqualTo(trackIds.Capacity));
-        Assert.That(results.All(t => t.First==t.Second), Is.True);
+        Assert.That(results.All(t => t.First == t.Second), Is.True);
       }
       finally {
         using (var session = Domain.OpenSession())
@@ -86,9 +89,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void LockNewlyCreatedEntity()
     {
-      var track = new AudioTrack() {Name = "SomeTrack"};
-      using (Session.DisableSaveChanges())
+      Require.ProviderIsNot(StorageProvider.MySql);
+      var track = new AudioTrack() { Name = "SomeTrack" };
+      using (Session.DisableSaveChanges()) {
         track.Lock(LockMode.Exclusive, LockBehavior.ThrowIfLocked);
+      }
     }
 
     [Test]
@@ -99,15 +104,16 @@ namespace Xtensive.Orm.Tests.Linq
       var expected = Session.Query.All<Customer>().Where(c => c.Key == key)
         .Lock(LockMode.Update, LockBehavior.Wait).ToList();
       Exception catchedException = null;
-      int countAfterSkip = 0;
+      var countAfterSkip = 0;
       var secondThread = new Thread(() => {
         try {
           using (var session = Domain.OpenSession())
-          using (session.OpenTransaction())
+          using (session.OpenTransaction()) {
             countAfterSkip = session.Query.All<Customer>()
               .Where(c => c.Key == key)
               .Lock(LockMode.Update, LockBehavior.Skip)
               .ToList().Count;
+          }
         }
         catch(Exception e) {
           catchedException = e;
@@ -115,8 +121,10 @@ namespace Xtensive.Orm.Tests.Linq
       });
       secondThread.Start();
       secondThread.Join();
-      if (catchedException != null)
+      if (catchedException != null) {
         throw catchedException;
+      }
+
       Assert.AreEqual(0, countAfterSkip);
     }
 
@@ -141,7 +149,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ShareLockTest()
     {
-      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
+      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql | StorageProvider.MySql);
       var catchedException = ExecuteConcurrentQueries(LockMode.Shared, LockBehavior.ThrowIfLocked,
         LockMode.Shared, LockBehavior.ThrowIfLocked);
       Assert.IsNull(catchedException);
@@ -152,7 +160,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.PostgreSql);
       var customerKey = Session.Query.All<Customer>().First().Key;
-      var invoiceKey = Session.Query.All<Invoice>().Where(i => i.Customer.Key==customerKey).First().Key;
+      var invoiceKey = Session.Query.All<Invoice>().Where(i => i.Customer.Key == customerKey).First().Key;
       Exception firstThreadException = null;
       Exception result = null;
       var firstEvent = new ManualResetEvent(false);
@@ -161,31 +169,32 @@ namespace Xtensive.Orm.Tests.Linq
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction()) {
-            session.Query.All<Customer>().Where(c => c.Key == customerKey)
+            _ = session.Query.All<Customer>().Where(c => c.Key == customerKey)
               .Join(session.Query.All<Invoice>().Where(i => i.Key == invoiceKey), c => c, i => i.Customer, (c, i) => c)
               .Lock(LockMode.Update, LockBehavior.Wait).ToList();
-            secondEvent.Set();
-            firstEvent.WaitOne();
+            _ = secondEvent.Set();
+            _ = firstEvent.WaitOne();
           }
         }
         catch(Exception e) {
           firstThreadException = e;
-          secondEvent.Set();
+          _ = secondEvent.Set();
           return;
         }
       });
       firstThread.Start();
-      secondEvent.WaitOne();
+      _ = secondEvent.WaitOne();
       var secondException = ExecuteQueryAtSeparateThread(s => s.Query.All<Customer>()
-        .Where(c => c.Key==customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+        .Where(c => c.Key == customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), secondException.GetType());
       var thirdException = ExecuteQueryAtSeparateThread(s => s.Query.All<Invoice>()
-        .Where(i => i.Key==invoiceKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+        .Where(i => i.Key == invoiceKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), thirdException.GetType());
-      firstEvent.Set();
+      _ = firstEvent.Set();
       firstThread.Join();
-      if (firstThreadException != null)
+      if (firstThreadException != null) {
         throw firstThreadException;
+      }
     }
 
     [Test]
@@ -198,10 +207,12 @@ namespace Xtensive.Orm.Tests.Linq
       var catchedException = ExecuteQueryAtSeparateThread(s =>
         s.Query.All<Customer>().Where(c => c == customer).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
       Assert.AreEqual(typeof(StorageException), catchedException.GetType());
+
       using (var session = Domain.OpenSession())
-      using (session.OpenTransaction())
+      using (session.OpenTransaction()) {
         AssertEx.Throws<StorageException>(() =>
           session.Query.Single<Customer>(customerKey).Lock(LockMode.Update, LockBehavior.ThrowIfLocked));
+      }
     }
 
     private Exception ExecuteConcurrentQueries(LockMode lockMode0, LockBehavior lockBehavior0,
@@ -216,36 +227,38 @@ namespace Xtensive.Orm.Tests.Linq
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction()) {
-            session.Query.All<Customer>().Where(c => c.Key == key).Lock(lockMode0, lockBehavior0).ToList();
-            secondEvent.Set();
-            firstEvent.WaitOne();
+            _ = session.Query.All<Customer>().Where(c => c.Key == key).Lock(lockMode0, lockBehavior0).ToList();
+            _ = secondEvent.Set();
+            _ = firstEvent.WaitOne();
           }
         }
         catch(Exception e) {
           firstThreadException = e;
-          secondEvent.Set();
+          _ = secondEvent.Set();
           return;
         }
       });
       firstThread.Start();
-      secondEvent.WaitOne();
-      if (firstThreadException != null)
+      _ = secondEvent.WaitOne();
+      if (firstThreadException != null) {
         throw firstThreadException;
+      }
+
       result = ExecuteQueryAtSeparateThread(s => s.Query.All<Customer>()
         .Where(c => c.Key == key).Lock(lockMode1, lockBehavior1));
-      firstEvent.Set();
+      _ = firstEvent.Set();
       firstThread.Join();
       return result;
     }
 
-    private Exception ExecuteQueryAtSeparateThread<T>(Func<Session,IQueryable<T>> query)
+    private Exception ExecuteQueryAtSeparateThread<T>(Func<Session, IQueryable<T>> query)
     {
       Exception result = null;
       var thread = new Thread(() => {
         try {
           using (var session = Domain.OpenSession())
           using (session.OpenTransaction()) {
-            query.Invoke(session).ToList();
+            _ = query.Invoke(session).ToList();
           }
         }
         catch(Exception e) {
