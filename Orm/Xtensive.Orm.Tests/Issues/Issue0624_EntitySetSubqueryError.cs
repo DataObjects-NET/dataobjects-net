@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2010.03.24
 
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override void CheckRequirements()
     {
       base.CheckRequirements();
-      Require.ProviderIsNot(StorageProvider.Oracle);
+      Require.ProviderIsNot(StorageProvider.Oracle | StorageProvider.MySql);
     }
 
     protected override DomainConfiguration BuildConfiguration()
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void MainTest()
+    public void Test01()
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
@@ -92,17 +92,47 @@ namespace Xtensive.Orm.Tests.Issues
         session.SaveChanges();
 
         var ids = new[] { controlId, messageId };
-        var itemsX = session.Query.All<Control>().Where(a => a.Messages.Select(b => b.Id).Any(id => ids.Contains(id))).ToList();
-        Assert.AreEqual(1, itemsX.Count);
-        Assert.AreSame(control, itemsX[0]);
-        var itemsA = session.Query.All<Control>().Where(a => ids.Any(id => a.Messages.Select(b => b.Id).Contains(id))).ToList();
-        Assert.AreEqual(1, itemsA.Count);
-        Assert.AreSame(control, itemsA[0]);
         var itemsB = session.Query.All<Control>().Where(a => ids.ContainsAny(a.Messages.Select(b => b.Id))).ToList();
         Assert.AreEqual(1, itemsB.Count);
         Assert.AreSame(control, itemsB[0]);
         t.Complete();
-      }  
+      }
+    }
+
+    [Test]
+    public void Test02()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var controlId = Guid.NewGuid();
+        var messageId = Guid.NewGuid();
+        var control = new Control(controlId);
+        var message = new ControlMessage(messageId) { Owner = control };
+        session.SaveChanges();
+
+        var ids = new[] { controlId, messageId };
+        var itemsA = session.Query.All<Control>().Where(a => ids.Any(id => a.Messages.Select(b => b.Id).Contains(id))).ToList();
+        Assert.AreEqual(1, itemsA.Count);
+        Assert.AreSame(control, itemsA[0]);
+      }
+    }
+
+    [Test]
+    public void Test03()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var controlId = Guid.NewGuid();
+        var messageId = Guid.NewGuid();
+        var control = new Control(controlId);
+        var message = new ControlMessage(messageId) { Owner = control };
+        session.SaveChanges();
+
+        var ids = new[] { controlId, messageId };
+        var itemsX = session.Query.All<Control>().Where(a => a.Messages.Select(b => b.Id).Any(id => ids.Contains(id))).ToList();
+        Assert.AreEqual(1, itemsX.Count);
+        Assert.AreSame(control, itemsX[0]);
+      }
     }
   }
 }
