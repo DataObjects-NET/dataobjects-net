@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2007.11.30
 
@@ -18,14 +18,14 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaModel
   [Index("Name")]
   public interface IHasName : IEntity
   {
-    [Field(Length = 1000)]
+    [Field(Length = 250)]
     string Name { get; set; }
   }
 
   [Index("Name")]
   public interface IHasName2 : IEntity
   {
-    [Field(Length = 1000)]
+    [Field(Length = 250)]
     string Name { get; set; }
   }
 
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaModel
   {
     public string Name { get; set; }
 
-    [Field(Length = 1000)]
+    [Field(Length = 250)]
     public virtual string Tag { get; set; }
   }
 
@@ -188,7 +188,7 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration configuration = base.BuildConfiguration();
+      var configuration = base.BuildConfiguration();
       ConcreteTableInheritanceBuilder.IsEnabled = true;
       SingleTableInheritanceBuilder.IsEnabled = false;
       return configuration;
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Model.InheritanceSchemaTests
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration configuration = base.BuildConfiguration();
+      var configuration = base.BuildConfiguration();
       ConcreteTableInheritanceBuilder.IsEnabled = false;
       SingleTableInheritanceBuilder.IsEnabled = true;
       return configuration;
