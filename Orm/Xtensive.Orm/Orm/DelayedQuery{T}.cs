@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -10,9 +10,10 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq;
 
-namespace Xtensive.Orm.Internals
+namespace Xtensive.Orm
 {
   /// <summary>
   /// Represents a delayed sequence query (query where result can be enumerated after an execution).
