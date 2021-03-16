@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       Require.ProviderIs(StorageProvider.MySql);
       ExecuteInsideSession(() => {
-        var firstMillisecondDateTime = FirstMillisecondDateTime.FixDateTimeForProvider(StorageProvider.MySql);
+        var firstMillisecondDateTime = FirstMillisecondDateTime.FixDateTimeForProvider(StorageProviderInfo.Instance);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Millisecond == firstMillisecondDateTime.Millisecond);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Second == WrongMillisecondDateTime.Millisecond);
       });

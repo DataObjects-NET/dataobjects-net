@@ -179,6 +179,7 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void MinusDateTimeTest()
     {
+      Require.ProviderIsNot(StorageProvider.MySql);
       ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime - SecondDateTime == FirstDateTime - SecondDateTime);
         RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - SecondDateTime == FirstMillisecondDateTime - SecondDateTime);
@@ -187,6 +188,26 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime - SecondDateTime == FirstDateTime - WrongDateTime);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - SecondDateTime == FirstMillisecondDateTime - WrongDateTime);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime - SecondDateTime == NullableDateTime - WrongDateTime);
+      });
+    }
+
+    [Test]
+    public void MysqlMinisDateTimeTest()
+    {
+      Require.ProviderIs(StorageProvider.MySql);
+      ExecuteInsideSession(() => {
+        var firstDateTime = FirstDateTime.FixDateTimeForProvider(StorageProviderInfo.Instance);
+        var firstMillisecondDateTime = FirstMillisecondDateTime.FixDateTimeForProvider(StorageProviderInfo.Instance);
+        var secondDateTime = SecondDateTime.FixDateTimeForProvider(StorageProviderInfo.Instance);
+        var nullableDateTime = NullableDateTime.FixDateTimeForProvider(StorageProviderInfo.Instance);
+
+        RunTest<SingleDateTimeEntity>(c => c.DateTime - secondDateTime == firstDateTime - secondDateTime);
+        RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - secondDateTime == firstMillisecondDateTime - secondDateTime);
+        RunTest<SingleDateTimeEntity>(c => c.NullableDateTime - secondDateTime == nullableDateTime - secondDateTime);
+
+        RunWrongTest<SingleDateTimeEntity>(c => c.DateTime - secondDateTime == firstDateTime - WrongDateTime);
+        RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime - secondDateTime == firstMillisecondDateTime - WrongDateTime);
+        RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime - secondDateTime == nullableDateTime - WrongDateTime);
       });
     }
   }

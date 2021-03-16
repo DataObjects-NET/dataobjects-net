@@ -675,10 +675,10 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<DateTime> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Min(c => c));
-      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Min());
-      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Max(c => c));
-      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance.Provider), query.Max());
+      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Min(c => c));
+      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Min());
+      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Max(c => c));
+      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Max());
       Assert.AreEqual(localArray.Count(), query.Count());
     }
 

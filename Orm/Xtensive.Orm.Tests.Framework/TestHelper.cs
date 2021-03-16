@@ -56,12 +56,13 @@ namespace Xtensive.Orm.Tests
     /// <param name="origin">The value to fix.</param>
     /// <param name="provider">Type of provider.</param>
     /// <returns>New value with less resolution if <paramref name="provider"/> requires it or untouched <paramref name="origin"/> if the provider doesn't</returns>
-    public static DateTime FixDateTimeForProvider(this DateTime origin, StorageProvider provider)
+    public static DateTime FixDateTimeForProvider(this DateTime origin, StorageProviderInfo providerInfo)
     {
       long? divider;
+      var provider = providerInfo.Provider;
       switch (provider) {
         case StorageProvider.MySql:
-          divider = 10000000;
+          divider = providerInfo.Info.StorageVersion < StorageProviderVersion.MySql56 ? 10000000 : 10;
           break;
         case StorageProvider.Firebird:
           divider = 1000;
