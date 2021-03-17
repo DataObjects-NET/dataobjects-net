@@ -181,34 +181,44 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void ExtractForeignKeys()
     {
+      // PRAGMA foreign_key_list - retuns column list for all foreign key
+      // row structure:
+      // 0 - id (numeric value, identifier, unique across foreign keys but non-unique across results)
+      // 1 - seq (numeric value, describes order within foreign key)
+      // 2 - table (string value, foreign table name)
+      // 3 - from (string value, local column name)
+      // 4 - to (string value, referenced column)
+      // 5 - on_update (string value, action on update)
+      // 6 - on_delete (string value, action on delete)
+      // 7 - match (string value, always NONE)
+
       foreach (var table in schema.Tables) {
         var select = string.Format("PRAGMA foreign_key_list([{0}])", table.Name);
 
-        int lastColumnPosition = int.MaxValue;
-        ForeignKey constraint = null;
+        var lastColumnPosition = int.MaxValue;
+        ForeignKey foreignKey = null;
         Table referencingTable = null;
         Table referencedTable = null;
 
         using (var cmd = Connection.CreateCommand(select))
         using (IDataReader reader = cmd.ExecuteReader()) {
-          ForeignKey foreignKey = null;
           while (reader.Read()) {
-            var foreignKeyName = String.Format(CultureInfo.InvariantCulture, "FK_{0}_{1}", referencingTable.Name, ReadStringOrNull(reader, 2));
+            var columnPosition = ReadInt(reader, 1);
 
-            int columnPosition = ReadInt(reader, 5);
             if (columnPosition <= lastColumnPosition) {
               referencingTable = table;
-              constraint = referencingTable.CreateForeignKey(foreignKeyName);
+              var foreignKeyName = string.Format(CultureInfo.InvariantCulture, "FK_{0}_{1}", referencingTable.Name, ReadStringOrNull(reader, 2));
+              foreignKey = referencingTable.CreateForeignKey(foreignKeyName);
 
-              ReadCascadeAction(constraint, reader, 7);
+              ReadCascadeAction(foreignKey, reader, 6);
               var referencedSchema = table.Schema; //Schema same as current
               referencedTable = referencedSchema.Tables[ReadStringOrNull(reader, 2)];
-              constraint.ReferencedTable = referencedTable;
+              foreignKey.ReferencedTable = referencedTable;
             }
             var referencingColumn = referencingTable.TableColumns[reader.GetString(3)];
             var referencedColumn = referencedTable.TableColumns[reader.GetString(4)];
-            constraint.Columns.Add(referencingColumn);
-            constraint.ReferencedColumns.Add(referencedColumn);
+            foreignKey.Columns.Add(referencingColumn);
+            foreignKey.ReferencedColumns.Add(referencedColumn);
             lastColumnPosition = columnPosition;
           }
         }
