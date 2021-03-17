@@ -5,7 +5,7 @@ using TestCommon.Model;
 
 namespace Xtensive.Orm.BulkOperations.Tests
 {
-  internal class ReferenceFields : AutoBuildTest
+  internal class ReferenceFields : BulkOperationBaseTest
   {
     [Test]
     public void InsertClientSideReferenceField()

@@ -12,7 +12,7 @@ using TestCommon.Model;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
-  public class Reprocessing : AutoBuildTest
+  public class Reprocessing : ReprocessingBaseTest
   {
     private bool treatNullAsUniqueValue;
 
@@ -32,25 +32,25 @@ namespace Xtensive.Orm.Reprocessing.Tests
       {
         domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
           session => {
-            Interlocked.Increment(ref Count);
-            new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            _ = Interlocked.Increment(ref Count);
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
             if (first) {
-              session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
-              if (wait1!=null) {
-                wait1.Set();
-                wait2.WaitOne();
+              _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
+              if (wait1 != null) {
+                _ = wait1.Set();
+                _ = wait2.WaitOne();
                 wait1 = null;
               }
-              session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
+              _ = session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
             }
             else {
-              session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
-              if (wait2!=null) {
-                wait2.Set();
-                wait1.WaitOne();
+              _ = session.Query.All<Bar>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
+              if (wait2 != null) {
+                _ = wait2.Set();
+                _ = wait1.WaitOne();
                 wait2 = null;
               }
-              session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
+              _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
             }
           });
       }
@@ -61,26 +61,27 @@ namespace Xtensive.Orm.Reprocessing.Tests
         TransactionOpenMode? transactionOpenMode,
         Action<bool, IsolationLevel?, TransactionOpenMode?> action)
       {
-        using (Session session = domain.OpenSession())
-        using (Xtensive.Orm.TransactionScope tran = isolationLevel==null ? null : session.OpenTransaction())
+        using (var session = domain.OpenSession())
+        using (var tran = isolationLevel == null ? null : session.OpenTransaction())
         using (session.Activate()) {
-          if (tran!=null) {
+          if (tran != null) {
             session.EnsureTransactionIsStarted();
-            new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
           }
           if (first) {
-            if (wait1!=null && wait2!=null) {
-              wait1.Set();
-              wait2.WaitOne();
+            if (wait1 != null && wait2 != null) {
+              _ = wait1.Set();
+              _ = wait2.WaitOne();
             }
           }
-          else if (wait1!=null && wait2!=null) {
-            wait2.Set();
-            wait1.WaitOne();
+          else if (wait1 != null && wait2 != null) {
+            _ = wait2.Set();
+            _ = wait1.WaitOne();
           }
           action(first, isolationLevel, transactionOpenMode);
-          if (tran!=null)
+          if (tran!=null) {
             tran.Complete();
+          }
         }
       }
 
@@ -94,16 +95,16 @@ namespace Xtensive.Orm.Reprocessing.Tests
         domain.WithStrategy(strategy).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
           session => {
             session.EnsureTransactionIsStarted();
-            new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
             if (first) {
-              if (wait1!=null && wait2!=null) {
-                wait1.Set();
-                wait2.WaitOne();
+              if (wait1 != null && wait2 != null) {
+                _ = wait1.Set();
+                _ = wait2.WaitOne();
               }
             }
             else if (wait1!=null && wait2!=null) {
-              wait2.Set();
-              wait1.WaitOne();
+              _ = wait2.Set();
+              _ = wait1.WaitOne();
             }
             action(first, isolationLevel, transactionOpenMode);
           });
@@ -119,8 +120,8 @@ namespace Xtensive.Orm.Reprocessing.Tests
             session.Remove(session.Query.All<Foo>());
             session.Remove(session.Query.All<Bar>());
             session.Remove(session.Query.All<Bar2>());
-            new Bar(session);
-            new Foo(session);
+            _ = new Bar(session);
+            _ = new Foo(session);
           });
         Parallel.Invoke(
           () => action(true, isolationLevel, transactionOpenMode),
@@ -132,24 +133,24 @@ namespace Xtensive.Orm.Reprocessing.Tests
       {
         domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
           session => {
-            Interlocked.Increment(ref Count);
+            _ = Interlocked.Increment(ref Count);
             session.EnsureTransactionIsStarted();
-            new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
-            string name = "test";
-            if (!session.Query.All<Foo>().Any(a => a.Name==name)) {
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            var name = "test";
+            if (!session.Query.All<Foo>().Any(a => a.Name == name)) {
               if (first) {
-                if (wait1!=null && wait2!=null) {
-                  wait1.Set();
-                  wait2.WaitOne();
+                if (wait1 != null && wait2 != null) {
+                  _ = wait1.Set();
+                  _ = wait2.WaitOne();
                   wait1 = null;
                 }
               }
-              else if (wait2!=null && wait2!=null) {
-                wait2.Set();
-                wait1.WaitOne();
+              else if (wait2 != null && wait2 != null) {
+                _ = wait2.Set();
+                _ = wait1.WaitOne();
                 wait2 = null;
               }
-              new Foo(session) {Name = name};
+              _ = new Foo(session) {Name = name};
             }
             session.SaveChanges();
           });
@@ -160,26 +161,26 @@ namespace Xtensive.Orm.Reprocessing.Tests
       {
         domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
           session => {
-            Interlocked.Increment(ref Count);
+            _ = Interlocked.Increment(ref Count);
             session.EnsureTransactionIsStarted();
-            new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
-            int id = 10;
-            if (session.Query.SingleOrDefault<Foo>(id)==null) {
-              AutoResetEvent w1 = wait1;
-              AutoResetEvent w2 = wait2;
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            var id = 10;
+            if (session.Query.SingleOrDefault<Foo>(id) == null) {
+              var w1 = wait1;
+              var w2 = wait2;
               if (first) {
-                if (w1!=null && w2!=null) {
-                  w1.Set();
-                  w2.WaitOne();
+                if (w1 != null && w2 != null) {
+                  _ = w1.Set();
+                  _ = w2.WaitOne();
                   wait1 = null;
                 }
               }
-              else if (w1!=null && w2!=null) {
-                w2.Set();
-                w1.WaitOne();
+              else if (w1 != null && w2 != null) {
+                _ = w2.Set();
+                _ = w1.WaitOne();
                 wait2 = null;
               }
-              new Foo(session, id) {Name = Guid.NewGuid().ToString()};
+              _ = new Foo(session, id) { Name = Guid.NewGuid().ToString() };
             }
             session.SaveChanges();
           });
@@ -191,9 +192,9 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
-    public override void SetUp()
+    public override void TestFixtureSetUp()
     {
-      base.SetUp();
+      base.TestFixtureSetUp();
       treatNullAsUniqueValue = Domain.StorageProviderInfo.ProviderName == WellKnown.Provider.SqlServer;
     }
 

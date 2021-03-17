@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Localization.Tests
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof(AutoBuildTest).Assembly, typeof(AutoBuildTest).Namespace);
+      configuration.Types.Register(typeof(LocalizationBaseTest).Assembly, typeof(LocalizationBaseTest).Namespace);
       configuration.DefaultSchema = DefaultNodeSchema;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;

@@ -7,22 +7,21 @@ using Xtensive.Orm.Localization.Tests.Model;
 namespace Xtensive.Orm.Localization.Tests
 {
   [TestFixture]
-  public class QueryTests : AutoBuildTest
+  public class QueryTests : LocalizationBaseTest
   {
-    protected override void PopulateDatabase()
+    protected override void PopulateData()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var ts = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
 
-          // populating database
-          var welcomePage = new Page(session);
-          welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
-          welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
-          welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
-          welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
+        // populating database
+        var welcomePage = new Page(session);
+        welcomePage.Localizations[EnglishCulture].Title = EnglishTitle;
+        welcomePage.Localizations[EnglishCulture].Content = EnglishContent;
+        welcomePage.Localizations[SpanishCulture].Title = SpanishTitle;
+        welcomePage.Localizations[SpanishCulture].Content = SpanishContent;
 
-          ts.Complete();
-        }
+        ts.Complete();
       }
     }
 
@@ -35,7 +34,7 @@ namespace Xtensive.Orm.Localization.Tests
 
           string title = EnglishTitle;
           var query = from p in session.Query.All<Page>()
-          where p.Title==title
+          where p.Title == title
           select p;
           Assert.AreEqual(1, query.Count());
 
@@ -48,20 +47,19 @@ namespace Xtensive.Orm.Localization.Tests
     public void ExplicitJoinTest()
     {
       Thread.CurrentThread.CurrentCulture = EnglishCulture;
-      using (var session = Domain.OpenSession()) {
-        using (var ts = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
 
-          using (new LocalizationScope(SpanishCulture)) {
-            var query = from p in session.Query.All<Page>()
-                        join pl in session.Query.All<PageLocalization>()
-                          on p equals pl.Target
-                        where pl.CultureName == LocalizationContext.Current.CultureName && pl.Title == SpanishTitle
-                        select p;
-            Assert.AreEqual(1, query.Count());
-          }
-
-          ts.Complete();
+        using (new LocalizationScope(SpanishCulture)) {
+          var query = from p in session.Query.All<Page>()
+                      join pl in session.Query.All<PageLocalization>()
+                        on p equals pl.Target
+                      where pl.CultureName == LocalizationContext.Current.CultureName && pl.Title == SpanishTitle
+                      select p;
+          Assert.AreEqual(1, query.Count());
         }
+
+        ts.Complete();
       }
     }
 
@@ -69,16 +67,15 @@ namespace Xtensive.Orm.Localization.Tests
     public void QueryForLocalizationPairTest()
     {
       Thread.CurrentThread.CurrentCulture = EnglishCulture;
-      using (var session = Domain.OpenSession()) {
-        using (var ts = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
 
-          var pairs = from pair in session.Query.All<Page, PageLocalization>()
-          where pair.Localization.Title==EnglishTitle
-          select pair.Target;
-          Assert.AreEqual(1, pairs.Count());
+        var pairs = from pair in session.Query.All<Page, PageLocalization>()
+                    where pair.Localization.Title == EnglishTitle
+                    select pair.Target;
+        Assert.AreEqual(1, pairs.Count());
 
-          ts.Complete();
-        }
+        ts.Complete();
       }
     }
 
@@ -86,16 +83,15 @@ namespace Xtensive.Orm.Localization.Tests
     public void UnknownCultureTest()
     {
       Thread.CurrentThread.CurrentCulture = new System.Globalization.CultureInfo("ru-RU");
-      using (var session = Domain.OpenSession()) {
-        using (var ts = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var ts = session.OpenTransaction()) {
 
-          var query = from p in session.Query.All<Page>()
-          select p.Title;
-          Console.Write(query.First());
-          Assert.AreEqual(1, query.Count());
+        var query = from p in session.Query.All<Page>()
+                    select p.Title;
+        Console.Write(query.First());
+        Assert.AreEqual(1, query.Count());
 
-          ts.Complete();
-        }
+        ts.Complete();
       }
     }
   }

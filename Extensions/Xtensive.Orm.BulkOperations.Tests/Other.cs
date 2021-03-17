@@ -13,7 +13,7 @@ using Xtensive.Orm.Rse;
 
 namespace Xtensive.Orm.BulkOperations.Tests
 {
-  internal class Other : AutoBuildTest
+  internal class Other : BulkOperationBaseTest
   {
     [Test]
     public void CompositeKeyUpdate()
@@ -46,9 +46,9 @@ namespace Xtensive.Orm.BulkOperations.Tests
         var bar2 = new Bar(session);
         var bar3 = new Bar(session);
         _ = bar3.Foo.Add(new Foo(session) { Name = "Foo" });
-        string s = "test";
+        var s = "test";
 
-        int deleted = session.Query.All<Bar>().Where(a => a.Name == s).Delete();
+        var deleted = session.Query.All<Bar>().Where(a => a.Name == s).Delete();
         Assert.That(bar1.IsRemoved, Is.True);
         Assert.That(bar2.IsRemoved, Is.False);
         Assert.That(bar3.IsRemoved, Is.False);

@@ -44,19 +44,19 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues.Model
 
 namespace Xtensive.Orm.BulkOperations.Tests.Issues
 {
-  public class IssueJira0560_ChangeFieldWhichDefinedInAncestorClassBug : AutoBuildTest
+  public class IssueJira0560_ChangeFieldWhichDefinedInAncestorClassBug : BulkOperationBaseTest
   {
     [Test]
     public void UpdateTest()
     {
-      List<int> keys = new List<int>();
+      var keys = new List<int>();
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < 10; i++) {
+        for (var i = 0; i < 10; i++) {
           var owner = new PreservedService();
           keys.Add(owner.Id);
-          new ServiceMaterial { Active = false, Owner = owner };
+          _ = new ServiceMaterial { Active = false, Owner = owner };
         }
         transaction.Complete();
       }
