@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
@@ -6,9 +6,9 @@
 
 using System;
 using System.Globalization;
+using System.Runtime.Serialization;
+using System.Security;
 using Xtensive.Core;
-
-
 
 namespace Xtensive.Comparison
 {
@@ -16,8 +16,9 @@ namespace Xtensive.Comparison
   /// Describes how to compare values of comparable objects.
   /// </summary>
   [Serializable]
-  public struct ComparisonRule : 
-    IEquatable<ComparisonRule>
+  public struct ComparisonRule :
+    IEquatable<ComparisonRule>,
+    ISerializable
   {
     /// <summary>
     /// Predefined rule with <see cref="Direction"/> = <see cref="Core.Direction.None"/>.
@@ -50,7 +51,7 @@ namespace Xtensive.Comparison
     /// </summary>
     /// <returns>The same rule, but with inverted direction.</returns>
     public ComparisonRule Invert()
-    {      
+    {
       return new ComparisonRule((Direction)(-((int)Direction)), Culture);     
     }
 
@@ -187,6 +188,28 @@ namespace Xtensive.Comparison
     {
       Direction = direction;
       Culture = culture;
+    }
+
+    private ComparisonRule(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null) {
+        throw new ArgumentNullException(nameof(info));
+      }
+      Direction = (Direction) info.GetSByte(nameof(Direction));
+      var cultureId = info.GetInt32(nameof(Culture));
+      Culture = (cultureId != int.MinValue) ? CultureInfo.GetCultureInfo(cultureId) : null;
+    }
+
+    [SecurityCritical]
+    void ISerializable.GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      if(info == null) {
+        throw new ArgumentNullException(nameof(info));
+      }
+      info.AddValue(nameof(Direction), (sbyte) Direction);
+
+      var cultureId = (Culture != null) ? Culture.LCID : int.MinValue;
+      info.AddValue(nameof(Culture), cultureId);
     }
   }
 }

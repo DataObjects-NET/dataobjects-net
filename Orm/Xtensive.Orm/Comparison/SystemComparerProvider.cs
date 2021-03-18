@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.02.10
 
 using System;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
@@ -29,16 +30,20 @@ namespace Xtensive.Comparison
     protected override TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
     {
       TAssociate associate = base.CreateAssociate<TKey, TAssociate>(out foundFor);
-      if (associate is ISystemComparer<TKey>)
-        return associate;
-      else
-        return (TAssociate) SystemComparer<TKey>.Instance;
+      return associate is ISystemComparer<TKey>
+        ? associate
+        : (TAssociate) SystemComparer<TKey>.Instance;
     }
 
 
     // Constructors
 
     private SystemComparerProvider()
+    {
+    }
+
+    public SystemComparerProvider(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
     }
   }

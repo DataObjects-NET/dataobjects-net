@@ -1,10 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2007.12.17
 
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using NUnit.Framework;
 using Xtensive.Comparison;
@@ -26,7 +28,33 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     [Test]
     public void SerializationTest()
     {
-      AdvancedComparer<short> comparer = AdvancedComparer<short>.Default;
+      SerializationTest<int[]>();
+      SerializationTest<Guid>();
+      SerializationTest<bool>();
+      SerializationTest<byte>();
+      SerializationTest<sbyte>();
+      SerializationTest<short>();
+      SerializationTest<int>();
+      SerializationTest<long>();
+      SerializationTest<ushort>();
+      SerializationTest<uint>();
+      SerializationTest<ulong>();
+      SerializationTest<float>();
+      SerializationTest<double>();
+      SerializationTest<decimal>();
+      SerializationTest<Direction>();
+      SerializationTest<IEnumerable<int>>();
+      SerializationTest<char>();
+      SerializationTest<string>();
+      SerializationTest<short?>();
+      SerializationTest<Pair<int>>();
+      SerializationTest<Pair<int, long>>();
+      SerializationTest<Xtensive.Tuples.Tuple>();
+    }
+
+    private void SerializationTest<T>()
+    {
+      var comparer = AdvancedComparer<T>.Default;
       Assert.IsNotNull(comparer.Compare);
       var deserializedComparer = Cloner.Clone(comparer);
       Assert.IsNotNull(deserializedComparer.Compare);
@@ -38,7 +66,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     public void GettingDefaultComparerPerformanceTest()
     {
       GettingDefaultComparerLoop(100);
-      int count = 1000000;
+      var count = 1000000;
       using (new Measurement("Getting default comparer", count)) {
         GettingDefaultComparerLoop(count);
       }
@@ -46,42 +74,43 @@ namespace Xtensive.Orm.Tests.Core.Comparison
 
     private static void GettingDefaultComparerLoop(int count)
     {
-      for (int i = 0; i < count; i++) {
-        ComparerProvider.Default.GetComparer<bool>();
-        ComparerProvider.Default.GetComparer<byte>();
-        ComparerProvider.Default.GetComparer<char>();
-        ComparerProvider.Default.GetComparer<short>();
-        ComparerProvider.Default.GetComparer<ushort>();
-        ComparerProvider.Default.GetComparer<int>();
-        ComparerProvider.Default.GetComparer<uint>();
-        ComparerProvider.Default.GetComparer<long>();
-        ComparerProvider.Default.GetComparer<ulong>();
-        ComparerProvider.Default.GetComparer<string>();
+      for (var i = 0; i < count; i++) {
+        _ = ComparerProvider.Default.GetComparer<bool>();
+        _ = ComparerProvider.Default.GetComparer<byte>();
+        _ = ComparerProvider.Default.GetComparer<char>();
+        _ = ComparerProvider.Default.GetComparer<short>();
+        _ = ComparerProvider.Default.GetComparer<ushort>();
+        _ = ComparerProvider.Default.GetComparer<int>();
+        _ = ComparerProvider.Default.GetComparer<uint>();
+        _ = ComparerProvider.Default.GetComparer<long>();
+        _ = ComparerProvider.Default.GetComparer<ulong>();
+        _ = ComparerProvider.Default.GetComparer<string>();
       }
     }
 
 
     private class TestClass
     {
+#pragma warning disable IDE0044, IDE0051 // Add readonly modifier + Remove unused private members
       private string x;
       private int y;
+#pragma warning restore IDE0044, IDE0051 // Add readonly modifier + Remove unused private members
     }
-     
 
     [Test]
     public void ClassTest()
     {
-      AdvancedComparerStruct<TestClass> dd = AdvancedComparerStruct<TestClass>.System;
+      _ = AdvancedComparerStruct<TestClass>.System;
     }
 
     [Test]
     public void Int32ComparerTest()
     {
-      int o1 = 1;
-      int o2 = 2;
-      AdvancedComparer<int> comparer = AdvancedComparer<int>.Default;
+      var o1 = 1;
+      var o2 = 2;
+      var comparer = AdvancedComparer<int>.Default;
       Assert.IsNotNull(comparer);
-      Assert.AreEqual("Int32Comparer", comparer.Implementation.GetType().Name);
+      Assert.AreEqual(nameof(Int32Comparer), comparer.Implementation.GetType().Name);
       Assert.Greater(comparer.Compare(o2,o1), 0);
       Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
       Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
@@ -95,22 +124,22 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     [Test]
     public void StringComparerTest()
     {
-      string o1 = "1";
-      string o2 = "2";
-      AdvancedComparer<string> comparer = AdvancedComparer<string>.Default;
+      var o1 = "1";
+      var o2 = "2";
+      var comparer = AdvancedComparer<string>.Default;
       Assert.IsNotNull(comparer);
       Assert.AreEqual("StringComparer", comparer.Implementation.GetType().Name);
       Assert.Greater(comparer.Compare(o2,o1), 0);
       Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
       Assert.IsFalse(comparer.ValueRangeInfo.HasMaxValue);
       Assert.AreEqual(null, comparer.ValueRangeInfo.MinValue);
-      AssertEx.ThrowsInvalidOperationException(delegate {string s = comparer.ValueRangeInfo.MaxValue;});
+      AssertEx.ThrowsInvalidOperationException(delegate { var s = comparer.ValueRangeInfo.MaxValue; });
 
-      char z = char.MaxValue;
-      char y = unchecked ((char) (char.MaxValue - 1));
-      char a = char.MinValue;
-            
-      string str = "BCD";
+      var z = char.MaxValue;
+      var y = unchecked ((char) (char.MaxValue - 1));
+      var a = char.MinValue;
+
+      var str = "BCD";
       str = comparer.GetNearestValue(str, Direction.Negative);
       Assert.AreEqual("BCC" + z, str);
       str = comparer.GetNearestValue(str, Direction.Negative);
@@ -135,95 +164,13 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       Assert.IsNull(comparer.GetNearestValue(string.Empty, Direction.Negative));
       Assert.AreEqual(string.Empty, comparer.GetNearestValue(null, Direction.Positive));
       Assert.AreEqual(char.MaxValue.ToString(), comparer.GetNearestValue(char.MaxValue.ToString(), Direction.Positive));
-      AssertEx.Throws<ArgumentOutOfRangeException>(delegate { comparer.GetNearestValue(str, Direction.None); });
+      AssertEx.Throws<ArgumentOutOfRangeException>(delegate { _ = comparer.GetNearestValue(str, Direction.None); });
     }
-
-//    [Test]
-//    public void EntireComparerTest()
-//    {
-//      AdvancedComparer<Entire<int>> comparer = AdvancedComparer<Entire<int>>.Default;
-//      Assert.IsNotNull(comparer);
-//      Assert.AreEqual("EntireComparer`1", comparer.Implementation.GetType().Name);
-//      Assert.AreEqual(comparer.Compare((Entire<int>)Entire<int>.Create(InfinityType.Positive), (Entire<int>)Entire<int>.Create(InfinityType.Positive)), 0);
-//      Assert.AreEqual(comparer.Compare((Entire<int>)Entire<int>.Create(InfinityType.Negative), (Entire<int>)Entire<int>.Create(InfinityType.Negative)), 0);
-//      Assert.Greater(comparer.Compare((Entire<int>)Entire<int>.Create(InfinityType.Positive), (Entire<int>)Entire<int>.Create(InfinityType.Negative)), 0);
-//      Assert.Greater(comparer.Compare((Entire<int>)Entire<int>.Create(InfinityType.Positive), (Entire<int>)Entire<int>.Create(100)), 0);
-//      Assert.Less(comparer.Compare((Entire<int>)Entire<int>.Create(InfinityType.Negative), (Entire<int>)Entire<int>.Create(InfinityType.Positive)), 0);
-//      Assert.Less(comparer.Compare((Entire<int>)Entire<int>.Create(InfinityType.Negative), (Entire<int>)Entire<int>.Create(100)), 0);
-//      Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
-//      Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
-//      Assert.IsTrue(comparer.ValueRangeInfo.HasDeltaValue);
-//      Assert.AreEqual(Entire<int>.MinValue, comparer.ValueRangeInfo.MinValue);
-//      Assert.AreEqual(Entire<int>.MaxValue, comparer.ValueRangeInfo.MaxValue);
-//      Assert.AreEqual(Entire<int>.Create(1), comparer.ValueRangeInfo.DeltaValue);      
-//    }
-
-//    [Test]
-//    public void EntireInterfaceComparerTest()
-//    {
-//      AdvancedComparer<IEntire<int>> comparer = AdvancedComparer<IEntire<int>>.Default;
-//      Assert.IsNotNull(comparer);
-//      Assert.AreEqual("EntireInterfaceComparer`1", comparer.Implementation.GetType().Name);
-//      Assert.AreEqual(comparer.Compare(Entire<int>.Create(InfinityType.Positive), Entire<int>.Create(InfinityType.Positive)), 0);
-//      Assert.AreEqual(comparer.Compare(Entire<int>.Create(InfinityType.Negative), Entire<int>.Create(InfinityType.Negative)), 0);
-//      Assert.Greater(comparer.Compare(Entire<int>.Create(InfinityType.Positive), Entire<int>.Create(InfinityType.Negative)), 0);
-//      Assert.Greater(comparer.Compare(Entire<int>.Create(InfinityType.Positive), Entire<int>.Create(100)), 0);
-//      Assert.Less(comparer.Compare(Entire<int>.Create(InfinityType.Negative), Entire<int>.Create(InfinityType.Positive)), 0);
-//      Assert.Less(comparer.Compare(Entire<int>.Create(InfinityType.Negative), Entire<int>.Create(100)), 0);
-//      Assert.AreNotEqual(comparer.Compare(new Entire<int>(1, Direction.Positive), new Entire<int>(2)), 0);
-//      Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
-//      Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
-//      Assert.IsTrue(comparer.ValueRangeInfo.HasDeltaValue);
-//      Assert.AreEqual(Entire<int>.MinValue, comparer.ValueRangeInfo.MinValue);
-//      Assert.AreEqual(Entire<int>.MaxValue, comparer.ValueRangeInfo.MaxValue);
-//      Assert.AreEqual(Entire<int>.Create(1), comparer.ValueRangeInfo.DeltaValue);
-//    }
-
-//    [Test]
-//    public void ReversedComparerTest()
-//    {
-//      {
-//        AdvancedComparer<Reversed<int>> comparer = AdvancedComparer<Reversed<int>>.Default;
-//        Assert.IsNotNull(comparer);
-//        Assert.AreEqual("ReversedComparer`1", comparer.Implementation.GetType().Name);
-//        Assert.Less(comparer.Compare(10, 1), 0);
-//        Assert.Greater(comparer.Compare(1, 10), 0);
-//        Assert.AreEqual(comparer.Compare(10, 10), 0);
-//        Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
-//        Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
-//        Assert.IsTrue(comparer.ValueRangeInfo.HasDeltaValue);
-//        Assert.AreEqual(new Reversed<int>(int.MaxValue), new Reversed<int>(int.MaxValue));
-//        Assert.AreEqual(new Reversed<int>(int.MaxValue), comparer.ValueRangeInfo.MinValue);
-//        Assert.AreEqual(new Reversed<int>(int.MinValue), comparer.ValueRangeInfo.MaxValue);
-//        Assert.AreEqual(new Reversed<int>(1), comparer.ValueRangeInfo.DeltaValue);
-//      }
-//
-//      {
-//        AdvancedComparer<Reversed<int?>> comparer = AdvancedComparer<Reversed<int?>>.Default;
-//        Assert.IsNotNull(comparer);
-//        Assert.AreEqual("ReversedComparer`1", comparer.Implementation.GetType().Name);
-//        Assert.Less(comparer.Compare(10, 1), 0);
-//        Assert.Greater(comparer.Compare(1, 10), 0);
-//        Assert.AreEqual(comparer.Compare(10, 10), 0);
-//        Assert.Greater(comparer.Compare(1, 10), 0);
-//        Assert.Less(comparer.Compare(10, 1), 0);
-//        Assert.AreEqual(comparer.Compare(10, 10), 0);
-//        Assert.Greater(comparer.Compare(null, 10), 0);
-//        Assert.AreEqual(comparer.Compare(null, null), 0);
-//        Assert.Less(comparer.Compare(10, null), 0);
-//        Assert.IsTrue(comparer.ValueRangeInfo.HasMinValue);
-//        Assert.IsTrue(comparer.ValueRangeInfo.HasMaxValue);
-//        Assert.IsTrue(comparer.ValueRangeInfo.HasDeltaValue);
-//        Assert.AreEqual(new Reversed<int?>(int.MaxValue), comparer.ValueRangeInfo.MinValue);
-//        Assert.AreEqual(new Reversed<int?>(), comparer.ValueRangeInfo.MaxValue);
-//        Assert.AreEqual(new Reversed<int?>(1), comparer.ValueRangeInfo.DeltaValue);
-//      }
-//    }
 
     [Test]
     public void NullableComparerTest()
     {
-      AdvancedComparer<int?> comparer = AdvancedComparer<int?>.Default;
+      var comparer = AdvancedComparer<int?>.Default;
       Assert.IsNotNull(comparer);
       Assert.AreEqual("NullableComparer`1", comparer.Implementation.GetType().Name);
       Assert.Greater(comparer.Compare(10, 1), 0);
@@ -246,7 +193,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     [Test]
     public void EnumComparerTest()
     {
-      AdvancedComparer<Direction> comparer = AdvancedComparer<Direction>.System;
+      var comparer = AdvancedComparer<Direction>.System;
       Assert.IsNotNull(comparer);
       Assert.AreEqual("EnumComparer`2", comparer.Implementation.GetType().Name);
       Assert.Greater(comparer.Compare(Direction.Positive, Direction.Negative), 0);
@@ -273,9 +220,9 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     [Test]
     public void CustomComparerTest()
     {
-      Wrapper<int> o1 = new Wrapper<int>(1);
-      Wrapper<int> o2 = new Wrapper<int>(2);
-      AdvancedComparer<Wrapper<int>> comparer = AdvancedComparer<Wrapper<int>>.Default;
+      var o1 = new Wrapper<int>(1);
+      var o2 = new Wrapper<int>(2);
+      var comparer = AdvancedComparer<Wrapper<int>>.Default;
       Assert.IsNotNull(comparer);
       AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "WrapperComparer*");
       Assert.Greater(comparer.Compare(o2,o1), 0);
@@ -284,9 +231,9 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     [Test]
     public void CustomComparerTest2()
     {
-      Wrapper2<int, int> o1 = new Wrapper2<int, int>(0,1);
-      Wrapper2<int, int> o2 = new Wrapper2<int, int>(0,2);
-      AdvancedComparer<Wrapper2<int, int>> comparer = AdvancedComparer<Wrapper2<int, int>>.Default;
+      var o1 = new Wrapper2<int, int>(0,1);
+      var o2 = new Wrapper2<int, int>(0,2);
+      var comparer = AdvancedComparer<Wrapper2<int, int>>.Default;
       Assert.IsNotNull(comparer);
       AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "Wrapper2Comparer*");
       Assert.Greater(comparer.Compare(o2,o1), 0);
@@ -295,9 +242,9 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     [Test]
     public void InheritedComparerTest()
     {
-      Wrapper2a<int, int> o1 = new Wrapper2a<int, int>(0,1);
-      Wrapper2a<int, int> o2 = new Wrapper2a<int, int>(0,2);
-      AdvancedComparer<Wrapper2a<int, int>> comparer = AdvancedComparer<Wrapper2a<int, int>>.Default;
+      var o1 = new Wrapper2a<int, int>(0,1);
+      var o2 = new Wrapper2a<int, int>(0,2);
+      var comparer = AdvancedComparer<Wrapper2a<int, int>>.Default;
       Assert.IsNotNull(comparer);
       AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "BaseComparerWrapper*");
       Assert.AreEqual(comparer.Compare(o2,o1), 0);
@@ -306,50 +253,12 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     [Test]
     public void CastingComparerTest()
     {
-      Wrapper1<int> o1 = new Wrapper1<int>(1);
-      Wrapper1<int> o2 = new Wrapper1<int>(2);
-      AdvancedComparer<Wrapper<int>> comparer = AdvancedComparer<Wrapper1<int>>.Default.Cast<Wrapper<int>>();
+      var o1 = new Wrapper1<int>(1);
+      var o2 = new Wrapper1<int>(2);
+      var comparer = AdvancedComparer<Wrapper1<int>>.Default.Cast<Wrapper<int>>();
       Assert.IsNotNull(comparer);
       AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "CastingComparer*");
       Assert.Greater(comparer.Compare(o2,o1), 0);
-    }
-
-//    [Test]
-//    public void TupleEntireComparerTest()
-//    {
-//      List<Type> fields = new List<Type>(3);
-//      fields.AddRange(new Type[] {typeof(int), typeof(bool), typeof(string)});
-//      TupleDescriptor tupleDescriptor = TupleDescriptor.Create(fields);
-//      Tuple tuple = Tuple.Create(tupleDescriptor);
-//      tuple.SetValue(0, 1);
-//      tuple.SetValue(1, true);
-//      tuple.SetValue(2, "TupleEntire");
-//      IEntire<Tuple> entire1 = Entire<Tuple>.Create(tuple);
-//      IEntire<Tuple> entire2 = Entire<Tuple>.Create(tuple);
-//      AdvancedComparer<IEntire<Tuple>> comparer = AdvancedComparer<IEntire<Tuple>>.Default;
-//      AssertEx.IsPatternMatch(comparer.Implementation.GetType().Name, "EntireInterfaceComparer*");
-//
-////      entire2.Shift(1);
-////      Assert.IsFalse(c.Equals(entire1, entire2));
-////      Assert.AreEqual(-1, c.Compare(entire1, entire2));
-////
-////      entire1.Shift();
-////      Assert.IsFalse(c.Equals(entire1, entire2));
-////      Assert.AreEqual(1, c.Compare(entire1, entire2));
-////
-////      entire2.Shift();
-////      Assert.IsTrue(c.Equals(entire1, entire2));
-////      Assert.AreEqual(0, c.Compare(entire1, entire2));
-//    }
-
-    int ToReflect1(Direction d)
-    {
-      return (int) d;
-    }
-
-    Direction ToReflect2(int i)
-    {
-      return (Direction) i;
     }
   }
 }

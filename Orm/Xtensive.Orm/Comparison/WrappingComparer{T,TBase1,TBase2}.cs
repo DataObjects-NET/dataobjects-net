@@ -1,10 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.21
 
 using System;
+using System.Runtime.Serialization;
+using System.Security;
 using Xtensive.Core;
 
 
@@ -42,6 +44,21 @@ namespace Xtensive.Comparison
       ArgumentValidator.EnsureArgumentNotNull(provider, "provider");
       BaseComparer1 = provider.GetComparer<TBase1>().ApplyRules(comparisonRules[0]);
       BaseComparer2 = provider.GetComparer<TBase2>().ApplyRules(comparisonRules[1]);
+    }
+
+    public WrappingComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      BaseComparer1 = (AdvancedComparerStruct<TBase1>) info.GetValue(nameof(BaseComparer1), typeof(AdvancedComparerStruct<TBase1>));
+      BaseComparer2 = (AdvancedComparerStruct<TBase2>) info.GetValue(nameof(BaseComparer2), typeof(AdvancedComparerStruct<TBase2>));
+    }
+
+    [SecurityCritical]
+    public override void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      base.GetObjectData(info, context);
+      info.AddValue(nameof(BaseComparer1), BaseComparer1, BaseComparer1.GetType());
+      info.AddValue(nameof(BaseComparer2), BaseComparer2, BaseComparer2.GetType());
     }
   }
 }

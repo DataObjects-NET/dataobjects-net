@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
 using System;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Comparison
@@ -19,35 +20,23 @@ namespace Xtensive.Comparison
 
     public override int Compare(Pair<T1, T2> x, Pair<T1, T2> y)
     {
-      int result = BaseComparer1.Compare(x.First, y.First);
-      if (result != 0)
-        return result;
-      return BaseComparer2.Compare(x.Second, y.Second);
+      var result = BaseComparer1.Compare(x.First, y.First);
+      return result != 0 ? result : BaseComparer2.Compare(x.Second, y.Second);
     }
 
     public override bool Equals(Pair<T1, T2> x, Pair<T1, T2> y)
-    {
-      if (!BaseComparer1.Equals(x.First, y.First))
-        return false;
-      return BaseComparer2.Equals(x.Second, y.Second);
-    }
+      => BaseComparer1.Equals(x.First, y.First) && BaseComparer2.Equals(x.Second, y.Second);
 
     public override int GetHashCode(Pair<T1, T2> obj)
     {
-      int result = BaseComparer1.GetHashCode(obj.First);
+      var result = BaseComparer1.GetHashCode(obj.First);
       return result ^ BaseComparer2.GetHashCode(obj.Second);
     }
 
     public override Pair<T1, T2> GetNearestValue(Pair<T1, T2> value, Direction direction)
-    {
-      return new Pair<T1, T2>(value.First, BaseComparer2.GetNearestValue(value.Second, direction));
-    }
+      => new Pair<T1, T2>(value.First, BaseComparer2.GetNearestValue(value.Second, direction));
 
-
-    // Constructors
-
-    public PairComparer(IComparerProvider provider, ComparisonRules comparisonRules)
-      : base(provider, comparisonRules)
+    private void Initialize()
     {
       Pair<T1, T2> minValue, maxValue, deltaValue;
       bool hasMinValue = false, hasMaxValue = false, hasDeltaValue = false;
@@ -66,6 +55,21 @@ namespace Xtensive.Comparison
         hasDeltaValue = true;
       }
       ValueRangeInfo = new ValueRangeInfo<Pair<T1, T2>>(hasMinValue, minValue, hasMaxValue, maxValue, hasDeltaValue, deltaValue);
+    }
+
+
+    // Constructors
+
+    public PairComparer(IComparerProvider provider, ComparisonRules comparisonRules)
+      : base(provider, comparisonRules)
+    {
+      Initialize();
+    }
+
+    public PairComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
+      Initialize();
     }
   }
 }
