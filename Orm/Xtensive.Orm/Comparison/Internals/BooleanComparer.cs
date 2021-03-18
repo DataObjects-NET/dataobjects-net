@@ -22,7 +22,7 @@ namespace Xtensive.Comparison
         throw Exceptions.InvalidArgument(direction, "direction");
       }
 
-      return direction == ComparisonRules.Value.Direction ? true : false;
+      return direction == ComparisonRules.Value.Direction;
     }
 
 

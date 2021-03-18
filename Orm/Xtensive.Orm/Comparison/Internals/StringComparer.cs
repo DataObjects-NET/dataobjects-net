@@ -117,7 +117,6 @@ namespace Xtensive.Comparison
     public StringComparer(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-
     }
 
     public override void OnDeserialization(object sender)
