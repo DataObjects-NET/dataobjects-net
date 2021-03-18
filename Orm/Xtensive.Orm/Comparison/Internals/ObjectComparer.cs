@@ -41,7 +41,7 @@ namespace Xtensive.Comparison
         return ReferenceEquals(y, null);
       }
       else {
-        return ReferenceEquals(y, null) ? false : x.Equals(y);
+        return !ReferenceEquals(y, null) && x.Equals(y);
       }
     }
 
