@@ -193,11 +193,9 @@ namespace Xtensive.Modelling.Comparison.Hints
     {
       ArgumentValidator.EnsureArgumentNotNull(node, "node");
 
-      if (!hintMap.ContainsKey(node))
-        hintMap.Add(node, new Dictionary<Type, object>());
-      var nodeHintMap = hintMap.GetValueOrDefault(node);
-      if (nodeHintMap == null)
-        return false;
+      if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
+        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
+      }
       return nodeHintMap.ContainsKey(typeof(THint));
     }
 
