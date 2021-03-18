@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 
 namespace Xtensive.Comparison
@@ -15,35 +16,25 @@ namespace Xtensive.Comparison
     ISystemComparer<KeyValuePair<T1, T2>>
   {
     protected override IAdvancedComparer<KeyValuePair<T1, T2>> CreateNew(ComparisonRules rules)
-    {
-      return new KeyValuePairComparer<T1, T2>(Provider, ComparisonRules.Combine(rules));
-    }
+      => new KeyValuePairComparer<T1, T2>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(KeyValuePair<T1, T2> x, KeyValuePair<T1, T2> y)
     {
-      int result = BaseComparer1.Compare(x.Key, y.Key);
-      if (result != 0)
-        return result;
-      return BaseComparer2.Compare(x.Value, y.Value);
+      var result = BaseComparer1.Compare(x.Key, y.Key);
+      return result != 0 ? result : BaseComparer2.Compare(x.Value, y.Value);
     }
 
     public override bool Equals(KeyValuePair<T1, T2> x, KeyValuePair<T1, T2> y)
-    {
-      if (!BaseComparer1.Equals(x.Key, y.Key))
-        return false;
-      return BaseComparer2.Equals(x.Value, y.Value);
-    }
+      => BaseComparer1.Equals(x.Key, y.Key) && BaseComparer2.Equals(x.Value, y.Value);
 
     public override int GetHashCode(KeyValuePair<T1, T2> obj)
     {
-      int result = BaseComparer1.GetHashCode(obj.Key);
+      var result = BaseComparer1.GetHashCode(obj.Key);
       return result ^ BaseComparer2.GetHashCode(obj.Value);
     }
 
     public override KeyValuePair<T1, T2> GetNearestValue(KeyValuePair<T1, T2> value, Direction direction)
-    {
-      return new KeyValuePair<T1, T2>(value.Key, BaseComparer2.GetNearestValue(value.Value, direction));
-    }
+      => new KeyValuePair<T1, T2>(value.Key, BaseComparer2.GetNearestValue(value.Value, direction));
 
 
     // Constructors
@@ -68,6 +59,11 @@ namespace Xtensive.Comparison
         hasDeltaValue = true;
       }
       ValueRangeInfo = new ValueRangeInfo<KeyValuePair<T1, T2>>(hasMinValue, minValue, hasMaxValue, maxValue, hasDeltaValue, deltaValue);
+    }
+
+    public KeyValuePairComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
   }
 }

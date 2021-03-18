@@ -1,58 +1,50 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.01.16
 
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
   [Serializable]
-  internal sealed class EnumerableInterfaceComparer<TEnumerable, T>: WrappingComparer<TEnumerable, T>,
+  internal sealed class EnumerableInterfaceComparer<TEnumerable, T> : WrappingComparer<TEnumerable, T>,
     ISystemComparer<TEnumerable>
     where TEnumerable: class, IEnumerable<T>
   {
     protected override IAdvancedComparer<TEnumerable> CreateNew(ComparisonRules rules)
-    {
-      return new EnumerableInterfaceComparer<TEnumerable,T>(Provider, ComparisonRules.Combine(rules));
-    }
+      => new EnumerableInterfaceComparer<TEnumerable, T>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(TEnumerable x, TEnumerable y)
     {
       if (x == null) {
-        if (y == null)
-          return 0;
-        else
-          return -DefaultDirectionMultiplier;
+        return y == null ? 0 : -DefaultDirectionMultiplier;
       }
       else {
-        if (y == null)
+        if (y == null) {
           return DefaultDirectionMultiplier;
+        }
         else {
-          IEnumerator<T> ex = x.GetEnumerator();
-          IEnumerator<T> ey = y.GetEnumerator();
-          int i = 1;
+          var ex = x.GetEnumerator();
+          var ey = y.GetEnumerator();
+          var i = 1;
           while (true) {
-            bool hasX = ex.MoveNext();
-            bool hasY = ey.MoveNext();
+            var hasX = ex.MoveNext();
+            var hasY = ey.MoveNext();
             if (!hasX) {
-              if (!hasY)
-                return 0;
-              else
-                return -i * DefaultDirectionMultiplier;
+              return !hasY ? 0 : -i * DefaultDirectionMultiplier;
             }
             else {
-              if (!hasY)
+              if (!hasY) {
                 return i * DefaultDirectionMultiplier;
+              }
               else {
-                int r = BaseComparer.Compare(ex.Current, ey.Current);
+                var r = BaseComparer.Compare(ex.Current, ey.Current);
                 if (r != 0) {
-                  if (r<0)
-                    return -i;
-                  else
-                    return i;
+                  return r < 0 ? -i : i;
                 }
               }
             }
@@ -65,32 +57,29 @@ namespace Xtensive.Comparison
     public override bool Equals(TEnumerable x, TEnumerable y)
     {
       if (x == null) {
-        if (y == null)
-          return true;
-        else
-          return false;
+        return y == null;
       }
       else {
-        if (y == null)
+        if (y == null) {
           return false;
+        }
         else {
-          IEnumerator<T> ex = x.GetEnumerator();
-          IEnumerator<T> ey = y.GetEnumerator();
+          var ex = x.GetEnumerator();
+          var ey = y.GetEnumerator();
           while (true) {
-            bool hasX = ex.MoveNext();
-            bool hasY = ey.MoveNext();
+            var hasX = ex.MoveNext();
+            var hasY = ey.MoveNext();
             if (!hasX) {
-              if (!hasY)
-                return true;
-              else
-                return false;
+              return !hasY;
             }
             else {
-              if (!hasY)
+              if (!hasY) {
                 return false;
+              }
               else {
-                if (!BaseComparer.Equals(ex.Current, ey.Current))
+                if (!BaseComparer.Equals(ex.Current, ey.Current)) {
                   return false;
+                }
               }
             }
           }
@@ -100,11 +89,14 @@ namespace Xtensive.Comparison
 
     public override int GetHashCode(TEnumerable obj)
     {
-      if (obj == null)
+      if (obj == null) {
         return 0;
-      int hashCode = 0;
-      foreach (T current in obj)
+      }
+
+      var hashCode = 0;
+      foreach (T current in obj) {
         hashCode ^= BaseComparer.GetHashCode(current);
+      }
       return hashCode;
     }
 
@@ -115,6 +107,11 @@ namespace Xtensive.Comparison
       : base(provider, comparisonRules)
     {
       ValueRangeInfo = new ValueRangeInfo<TEnumerable>(true, null, false, null, false, null);
+    }
+
+    public EnumerableInterfaceComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
   }
 }

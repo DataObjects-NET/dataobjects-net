@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
@@ -162,6 +162,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
           Thread thread = Thread.CurrentThread;
           using (new Measurement("Execute", log ? MeasurementOptions.Log : 0, passCount))
             for (int j = 0; j < passCount; j++) {
+              
               IAsyncResult r = d.BeginInvoke(null, null);
               d.EndInvoke(r);
             }
@@ -197,12 +198,14 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
           LockTest(sf, 256);
           LockTest(sf, 1024);
         }
-        InvokeAsyncTest(sf, 1);
-        if (!warmup) {
-          InvokeAsyncTest(sf, 2);
-          InvokeAsyncTest(sf, 4);
-          InvokeAsyncTest(sf, 8);
-        }
+        // Commented out due to lack of support for BeginInvoke/EndInvoke
+        // and using tasks and async/await is probably what original purpose of the test
+        //InvokeAsyncTest(sf, 1);
+        //if (!warmup) {
+        //  InvokeAsyncTest(sf, 2);
+        //  InvokeAsyncTest(sf, 4);
+        //  InvokeAsyncTest(sf, 8);
+        //}
       }
     }
 

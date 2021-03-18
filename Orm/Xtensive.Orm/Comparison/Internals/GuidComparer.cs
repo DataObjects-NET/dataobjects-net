@@ -1,10 +1,11 @@
 // Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
 // Created:    2007.11.28
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
@@ -12,9 +13,7 @@ namespace Xtensive.Comparison
   internal sealed class GuidComparer: ValueTypeComparer<Guid>
   {
     protected override IAdvancedComparer<Guid> CreateNew(ComparisonRules rules)
-    {
-      return new GuidComparer(Provider, ComparisonRules.Combine(rules));
-    }
+      => new GuidComparer(Provider, ComparisonRules.Combine(rules));
 
 
     // Constructors
@@ -26,6 +25,11 @@ namespace Xtensive.Comparison
         true, Guid.Empty,
         true, new Guid(0xFFFFFFFF, 0xFFFF, 0xFFFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF),
         false, Guid.Empty);
+    }
+
+    public GuidComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
   }
 }

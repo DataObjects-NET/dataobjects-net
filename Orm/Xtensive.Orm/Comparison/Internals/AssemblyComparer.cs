@@ -1,11 +1,12 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.22
 
 using System;
 using System.Reflection;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
@@ -14,43 +15,39 @@ namespace Xtensive.Comparison
     ISystemComparer<Assembly>
   {
     protected override IAdvancedComparer<Assembly> CreateNew(ComparisonRules rules)
-    {
-      return new AssemblyComparer(Provider, ComparisonRules.Combine(rules));
-    }
+      => new AssemblyComparer(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(Assembly x, Assembly y)
     {
-      if (ReferenceEquals(x, y))
+      if (ReferenceEquals(x, y)) {
         return 0;
+      }
       if (x == null) {
-        if (y == null)
-          return 0;
-        else
-          return -DefaultDirectionMultiplier;
+        return y == null ? 0 : -DefaultDirectionMultiplier;
       }
       else {
-        if (y==null)
-          return DefaultDirectionMultiplier;
-        else
-          return BaseComparer.Compare(x.FullName, y.FullName);
+        return y == null
+          ? DefaultDirectionMultiplier
+          : BaseComparer.Compare(x.FullName, y.FullName);
       }
     }
 
     public override bool Equals(Assembly x, Assembly y)
-    {
-      return ReferenceEquals(x, y);
-    }
+      => ReferenceEquals(x, y);
 
     public override int GetHashCode(Assembly obj)
-    {
-      return BaseComparer.GetHashCode(obj.FullName);
-    }
+      => BaseComparer.GetHashCode(obj.FullName);
 
 
     // Constructors
 
     public AssemblyComparer(IComparerProvider provider, ComparisonRules comparisonRules) 
       : base(provider, comparisonRules)
+    {
+    }
+
+    public AssemblyComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
     }
   }

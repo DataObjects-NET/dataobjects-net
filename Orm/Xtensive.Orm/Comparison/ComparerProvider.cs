@@ -1,12 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
 // Created:    2008.01.14
 
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Runtime.Serialization;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -20,8 +21,8 @@ namespace Xtensive.Comparison
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
   {
-    private static readonly ComparerProvider defaultProvider = new ComparerProvider();
-    private static readonly SystemComparerProvider systemProvider = SystemComparerProvider.Instance;
+    private static readonly ComparerProvider DefaultProvider = new ComparerProvider();
+    private static readonly SystemComparerProvider SystemProvider = SystemComparerProvider.Instance;
 
     /// <summary>
     /// Gets default instance of this type.
@@ -29,7 +30,7 @@ namespace Xtensive.Comparison
     public static ComparerProvider Default
     {
       [DebuggerStepThrough]
-      get { return defaultProvider; }
+      get => DefaultProvider;
     }
 
     /// <summary>
@@ -39,16 +40,14 @@ namespace Xtensive.Comparison
     public static SystemComparerProvider System
     {
       [DebuggerStepThrough]
-      get { return systemProvider; }
+      get => SystemProvider;
     }
 
     #region IComparerProvider Members
 
     /// <inheritdoc/>
     public virtual AdvancedComparer<T> GetComparer<T>()
-    {
-      return GetAssociate<T, IAdvancedComparer<T>, AdvancedComparer<T>>();
-    }
+      => GetAssociate<T, IAdvancedComparer<T>, AdvancedComparer<T>>();
 
     #endregion
 
@@ -57,27 +56,30 @@ namespace Xtensive.Comparison
     /// <inheritdoc/>
     protected override TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
     {
-      TAssociate associate = base.CreateAssociate<TKey, TAssociate>(out foundFor);
-      if (associate!=null)
+      var associate = base.CreateAssociate<TKey, TAssociate>(out foundFor);
+      if (associate != null) {
         return associate;
+      }
       // Ok, null, but probably just because type cast has failed;
       // let's try to wrap it. TKey is type for which we're getting
       // the comparer.
-      IAdvancedComparerBase comparer = base.CreateAssociate<TKey, IAdvancedComparerBase>(out foundFor);
-      if (foundFor==null) {
+      var comparer = base.CreateAssociate<TKey, IAdvancedComparerBase>(out foundFor);
+      if (foundFor == null) {
         CoreLog.Warning(Strings.LogCantFindAssociateFor,
           TypeSuffixes.ToDelimitedString(" \\ "),
-          typeof (TAssociate).GetShortName(),
-          typeof (TKey).GetShortName());
+          typeof(TAssociate).GetShortName(),
+          typeof(TKey).GetShortName());
         return null;
       }
-      if (foundFor==typeof (TKey))
+      if (foundFor == typeof(TKey)) {
         return (TAssociate) comparer;
-      Type baseComparerWrapperType = typeof (BaseComparerWrapper<,>);
+      }
+
+      var baseComparerWrapperType = typeof(BaseComparerWrapper<,>);
       associate =
-        baseComparerWrapperType.Activate(new Type[] {typeof (TKey), foundFor}, ConstructorParams) as
+        baseComparerWrapperType.Activate(new Type[] { typeof(TKey), foundFor }, ConstructorParams) as
           TAssociate;
-      if (associate!=null) {
+      if (associate != null) {
         CoreLog.Warning(Strings.LogGenericAssociateIsUsedFor,
           baseComparerWrapperType.GetShortName(),
           typeof (TKey).GetShortName(),
@@ -98,10 +100,9 @@ namespace Xtensive.Comparison
     /// <inheritdoc/>
     protected override TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)
     {
-      if (ReferenceEquals(associate, null))
-        return default(TResult);
-      else
-        return (TResult) (object) new AdvancedComparer<TKey>((IAdvancedComparer<TKey>) associate);
+      return ReferenceEquals(associate, null)
+        ? default(TResult)
+        : (TResult) (object) new AdvancedComparer<TKey>((IAdvancedComparer<TKey>) associate);
     }
 
     #endregion
@@ -114,10 +115,15 @@ namespace Xtensive.Comparison
     /// </summary>
     protected ComparerProvider()
     {
-      TypeSuffixes = new[] {"Comparer"};
+      TypeSuffixes = new[] { "Comparer" };
       ConstructorParams = new object[] {this, ComparisonRules.Positive};
-      Type t = typeof (BooleanComparer);
+      var t = typeof (BooleanComparer);
       AddHighPriorityLocation(t.Assembly, t.Namespace);
+    }
+
+    protected ComparerProvider(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
   }
 }
