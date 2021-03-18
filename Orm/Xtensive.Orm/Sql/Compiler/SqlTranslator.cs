@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Globalization;
@@ -1577,21 +1577,28 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlValueType type)
     {
-      if (type.TypeName!=null)
+      if (type.TypeName != null) {
         return type.TypeName;
+      }
 
-      DataTypeInfo dti = Driver.ServerInfo.DataTypes[type.Type];
-      if (dti==null)
-        throw new NotSupportedException(String.Format(Strings.ExTypeXIsNotSupported, type.Type));
-      string text = dti.NativeTypes.First();
+      var dataTypeInfo = Driver.ServerInfo.DataTypes[type.Type];
+      if (dataTypeInfo == null) {
+        throw new NotSupportedException(string.Format(Strings.ExTypeXIsNotSupported,
+          (type.Type == SqlType.Unknown) ? type.TypeName : type.Type.Name));
+      }
 
-      if (type.Length.HasValue)
-        return text + "(" + type.Length + ")";
-      if (type.Precision.HasValue && type.Scale.HasValue)
-        return text + "(" + type.Precision + "," + type.Scale + ")";
-      if (type.Precision.HasValue)
-        return text + "(" + type.Precision + ")";
-      return text;
+      var typeName = dataTypeInfo.NativeTypes.First();
+
+      if (type.Length.HasValue) {
+        return $"{typeName}({type.Length})";
+      }
+      if (type.Precision.HasValue && type.Scale.HasValue) {
+        return $"{typeName}({type.Precision},{type.Scale})";
+      }
+      if (type.Precision.HasValue) {
+        return $"{typeName}({type.Precision})";
+      }
+      return typeName;
     }
 
     public virtual string Translate(SqlFunctionType type)
