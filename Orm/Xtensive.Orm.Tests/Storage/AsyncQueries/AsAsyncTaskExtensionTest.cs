@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -12,6 +12,45 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.ConcurrentCommandProcessorExecutionModel;
+
+namespace Xtensive.Orm.Tests.Storage.ConcurrentCommandProcessorExecutionModel
+{
+  [HierarchyRoot]
+  public class TestEntity : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public string Name { get; set; }
+
+    [Field]
+    public DateTime CreationDate { get; set; }
+
+    [Field]
+    public long Value { get; set; }
+
+    public TestEntity(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  [HierarchyRoot]
+  public class EntitySetContainer : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public EntitySet<TestEntity> EntitySet { get; set; }
+
+    public EntitySetContainer(Session session)
+      : base(session)
+    {
+    }
+  }
+}
 
 namespace Xtensive.Orm.Tests.Storage
 {
