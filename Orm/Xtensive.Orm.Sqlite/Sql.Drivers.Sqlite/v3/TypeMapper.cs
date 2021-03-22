@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.04.29
 
@@ -19,6 +19,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private ValueRange<DateTimeOffset> dateTimeOffsetRange;
 
     private const string DateTimeOffsetFormat = "yyyy-MM-dd HH:mm:ss.fffK";
+    private const string DateTimeFormat = "yyyy-MM-dd HH:mm:ss.fff";
 
     public override object ReadBoolean(DbDataReader reader, int index)
     {
@@ -58,9 +59,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     public override void BindDateTime(DbParameter parameter, object value)
     {
-      if (value!=null)
-        value = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
-      base.BindDateTime(parameter, value);
+      parameter.DbType = DbType.String;
+      if (value == null) {
+        parameter.Value = DBNull.Value;
+        return;
+      }
+      var correctValue = ValueRangeValidator.Correct((DateTime) value, dateTimeRange);
+      parameter.Value = correctValue.ToString(DateTimeFormat, CultureInfo.InvariantCulture);
     }
 
     public override void BindDateTimeOffset(DbParameter parameter, object value)
