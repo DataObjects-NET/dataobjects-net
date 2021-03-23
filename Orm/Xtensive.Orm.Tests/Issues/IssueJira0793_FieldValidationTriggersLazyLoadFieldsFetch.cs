@@ -89,11 +89,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0793_FieldValidationTriggersLazyLoa
 
     private void Encount(object sender, DbCommandEventArgs eventArgs)
     {
-      var text = eventArgs.Command.CommandText.Substring(0, 6);
-      if (text.Equals("SELECT", StringComparison.OrdinalIgnoreCase)) {
+      var text = eventArgs.Command.CommandText.Substring(0, 30);
+      if (text.Contains("SELECT", StringComparison.OrdinalIgnoreCase)) {
         SelectCount++;
       }
-      else if (text.Equals("UPDATE", StringComparison.OrdinalIgnoreCase)) {
+      else if (text.Contains("UPDATE", StringComparison.OrdinalIgnoreCase)) {
         UpdateCount++;
       }
       else {
