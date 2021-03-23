@@ -9,6 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
@@ -214,6 +215,16 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void SubquerySingleSQLiteTest()
+    {
+      Require.ProviderIs(StorageProvider.Sqlite, "SQLite allows to have more that one row in result of subquery that represents column.");
+      var customersCount = Session.Query.All<Customer>().Count(c => c.Invoices.Count > 0);
+      var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Single());
+      var list = result.ToList();
+      Assert.AreEqual(customersCount, list.Count);
+    }
+
+    [Test]
     public void SubquerySingleExpectedException1Test()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
@@ -224,7 +235,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubquerySingleExpectedException2Test()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
       var exceptionThrown = false;
       var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Single());
       try {
