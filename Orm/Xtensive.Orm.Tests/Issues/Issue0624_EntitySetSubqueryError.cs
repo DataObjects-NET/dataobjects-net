@@ -69,7 +69,6 @@ namespace Xtensive.Orm.Tests.Issues
   {
     protected override void CheckRequirements()
     {
-      base.CheckRequirements();
       Require.ProviderIsNot(StorageProvider.Oracle | StorageProvider.MySql);
     }
 
@@ -102,6 +101,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test02()
     {
+      Require.AnyFeatureSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
+
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var controlId = Guid.NewGuid();

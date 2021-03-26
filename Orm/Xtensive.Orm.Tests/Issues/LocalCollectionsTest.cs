@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.07.10
 
@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (TextEntity).Assembly, typeof (TextEntity).Namespace);
+      config.Types.Register(typeof(TextEntity).Assembly, typeof(TextEntity).Namespace);
       return config;
     }
 
@@ -41,16 +41,20 @@ namespace Xtensive.Orm.Tests.Issues
       using (var s = Domain.OpenSession()) {
         using (var t = s.OpenTransaction()) {
 
+          var itemCount = StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)
+            ? 64000 / 250 //64K limit of Firebird / 250 (which is lenght of field) :)
+            : 800;
+
           var strings = new HashSet<string>();
-          for (int i = 0; i < 800; i++) {
-            strings.Add(i.ToString());
+          for (var i = 0; i < itemCount; i++) {
+            _ = strings.Add(i.ToString());
           }
 
           var existing = s.Query.All<TextEntity>()
             .Where(i => i.Text.In(strings))
             .Select(i => i.Text);
           foreach (var text in strings.Except(existing)) {
-            new TextEntity {Text = text};
+            _ = new TextEntity { Text = text };
           }
           t.Complete();
           // Rollback
