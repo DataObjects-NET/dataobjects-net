@@ -539,12 +539,27 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void NestedQueryTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       var tracks = Session.Query.All<Track>();
       var result = from pd in
         from t in tracks
         select new { ProductKey = t.Key, t.Name, TotalPrice = t.UnitPrice * t.UnitPrice }
-      where pd.TotalPrice > 100
+      where pd.TotalPrice > 3.96005m
       select new { PKey = pd.ProductKey, pd.Name, Total = pd.TotalPrice };
+
+      var list = result.ToList(213);
+    }
+
+    [Test]
+    public void NestedQueryFirebirdTest()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+      var tracks = Session.Query.All<Track>();
+      var result = from pd in
+        from t in tracks
+        select new { ProductKey = t.Key, t.Name, TotalPrice = t.UnitPrice + t.UnitPrice }
+        where pd.TotalPrice > 3
+        select new { PKey = pd.ProductKey, pd.Name, Total = pd.TotalPrice };
 
       var list = result.ToList();
     }

@@ -1,9 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
+using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
@@ -38,7 +39,22 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
-      Assert.IsTrue(expected.SequenceEqual(result));
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite)) {
+        var storage = result.AsEnumerable().Where(c => !c.StartsWith('S'));
+        var local = expected.Where(c => !c.StartsWith('S'));
+        Assert.IsTrue(local.SequenceEqual(storage));
+        var storageHashset = result.AsEnumerable().Where(c => c.StartsWith('S')).ToHashSet();
+        local = expected.Where(c => c.StartsWith('S'));
+        var count = 0;
+        foreach (var item in local) {
+          Assert.That(storageHashset.Contains(item));
+          count++;
+        }
+        Assert.That(storageHashset.Count, Is.EqualTo(count));
+      }
+      else {
+        Assert.IsTrue(expected.SequenceEqual(result));
+      }
       QueryDumper.Dump(result);
     }
 
@@ -95,7 +111,23 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
-      Assert.IsTrue(expected.SequenceEqual(result));
+
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite)) {
+        var storage = result.AsEnumerable().Where(c => !c.StartsWith('S'));
+        var local = expected.Where(c => !c.StartsWith('S'));
+        Assert.IsTrue(local.SequenceEqual(storage));
+        var storageHashset = result.AsEnumerable().Where(c => c.StartsWith('S')).ToHashSet();
+        local = expected.Where(c => c.StartsWith('S'));
+        var count = 0;
+        foreach (var item in local) {
+          Assert.That(storageHashset.Contains(item));
+          count++;
+        }
+        Assert.That(storageHashset.Count, Is.EqualTo(count));
+      }
+      else {
+        Assert.IsTrue(expected.SequenceEqual(result));
+      }
       QueryDumper.Dump(result);
     }
 
@@ -316,6 +348,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .OrderBy(c => c.LastName)
         .Skip(5);
+
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }

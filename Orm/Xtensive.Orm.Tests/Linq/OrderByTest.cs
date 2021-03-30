@@ -1,9 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.01.29
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
@@ -85,11 +86,11 @@ namespace Xtensive.Orm.Tests.Linq
     {
       IQueryable<Customer> customers = Session.Query.All<Customer>();
       var result = customers
-        .Select(c => new {c.Address.Country, c})
+        .Select(c => new {c.SupportRep.EmployeeId, c})
         .OrderBy(x => x);
-      var expected = customers.ToList()
-        .Select(c => new {c.Address.Country, c})
-        .OrderBy(x => x.Country)
+      var expected = Customers
+        .Select(c => new {c.SupportRep.EmployeeId, c})
+        .OrderBy(x => x.EmployeeId)
         .ThenBy(x => x.c.CustomerId);
       Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -308,10 +309,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ThenByTest()
     {
-      var result = Session.Query.All<Customer>().OrderBy(c => c.Address.Country)
+      var result = Session.Query.All<Customer>().OrderBy(c => c.SupportRep.EmployeeId)
         .ThenBy(c => c.Phone).Select(c => c.Address.City);
-      var expected = Customers.OrderBy(c => c.Address.Country)
+      var expected = Customers.OrderBy(c => c.SupportRep.EmployeeId)
         .ThenBy(c => c.Phone).Select(c => c.Address.City);
+
       Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
