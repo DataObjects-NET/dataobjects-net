@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.06.01
 
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
     [Test]
     public void QueryTest()
     {
-      var expected = Session.Query.All<Invoice>().Count();
+      var expected = Invoices.Count();
       var result = Session.Query.All<IHasCommission>().ToList();
       Assert.AreEqual(expected, result.Count);
       Assert.IsTrue(result.All(i => i!=null));
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
     public void QueryByInterfaceTest()
     {
       var actual = Session.Query.All<IHasCommission>().ToList();
-      var expected = Session.Query.All<Invoice>().ToList();
+      var expected = Invoices;
       Assert.AreEqual(0, expected.Except(actual.Cast<Invoice>()).Count());
     }
   }

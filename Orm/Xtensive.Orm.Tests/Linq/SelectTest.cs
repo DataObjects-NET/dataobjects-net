@@ -60,9 +60,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(customer => customer.CustomerId)
         .Select(customer => customer["Phone"])
         .AsEnumerable();
-      var expected = Session.Query
-        .All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .OrderBy(customer => customer.CustomerId)
         .Select(customer => customer["Phone"]);
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -87,9 +85,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(invoice => invoice.InvoiceId)
         .Select(invoice => invoice["Customer"])
         .AsEnumerable();
-      var expected = Session.Query
-        .All<Invoice>()
-        .AsEnumerable()
+      var expected = Invoices
         .OrderBy(invoice => invoice.InvoiceId)
         .Select(invoice => invoice["Customer"]);
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -103,9 +99,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(customer => customer.CustomerId)
         .Select(customer => customer["Address"])
         .AsEnumerable();
-      var expected = Session.Query
-        .All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .OrderBy(customer => customer.CustomerId)
         .Select(customer => customer["Address"]);
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -172,7 +166,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectUsingContextTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var expectedCount = Session.Query.All<Invoice>().Count();
+      var expectedCount = Invoices.Count();
       var context = new Context();
       var actualCount = context.Invoices.Count();
       var list = context.Invoices.ToList();
@@ -790,9 +784,7 @@ namespace Xtensive.Orm.Tests.Linq
           .ToArray()
           .OrderBy(item => item.String)
           .ToArray();
-      var expected =
-        Session.Query.All<Customer>()
-          .ToArray()
+      var expected = Customers
           .Select(c => new {
             String = c.CustomerId,
             Char0 = c.Email[0],
@@ -832,9 +824,7 @@ namespace Xtensive.Orm.Tests.Linq
           .ToArray()
           .OrderBy(item => item.String)
           .ToArray();
-      var expected =
-        Session.Query.All<Customer>()
-          .ToArray()
+      var expected = Customers
           .Select(c => new {
             String = c.FirstName,
             IndexOfChar = c.FirstName.IndexOf(_char),
@@ -867,9 +857,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(c => c.FirstName.Contains('L'))
           .OrderBy(c => c.CustomerId)
           .ToArray();
-      var expected =
-        Session.Query.All<Customer>()
-          .ToList()
+      var expected = Customers
           .Where(c => c.FirstName.Contains('L') || c.FirstName.Contains('l'))
           .OrderBy(c => c.CustomerId)
           .ToArray();
@@ -885,9 +873,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Where(c => c.FirstName.Contains('L'))
           .OrderBy(c => c.CustomerId)
           .ToArray();
-      var expected =
-        Session.Query.All<Customer>()
-          .ToList()
+      var expected = Customers
           .Where(c => c.FirstName.Contains('L'))
           .OrderBy(c => c.CustomerId)
           .ToArray();
@@ -995,8 +981,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers().Single(c2 => c2 == c));
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .Select(c => GetCustomers().AsEnumerable().Single(c2 => c2 == c));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
@@ -1007,8 +992,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers(1).Single(c2 => c2 == c));
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .Select(c => GetCustomers(1).AsEnumerable().Single(c2 => c2 == c));
       Assert.AreEqual(0, expected.Except(query).Count());
     }
@@ -1020,8 +1004,7 @@ namespace Xtensive.Orm.Tests.Linq
       var count = 1;
       var query = Session.Query.All<Customer>()
         .Select(c => GetCustomers(count).Single(c2 => c2 == c));
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .Select(c => GetCustomers(count).AsEnumerable().Single(c2 => c2 == c));
       Assert.AreEqual(0, expected.Except(query).Count());
     }

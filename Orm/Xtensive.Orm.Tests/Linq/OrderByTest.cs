@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(x => new {x, x.Invoice.Customer})
         .Select(x => new {x, x.Invoice.Customer});
 
-      var expected = Session.Query.All<InvoiceLine>().ToList()
+      var expected = InvoiceLines
         .Select(il => new {InvoiceLine = il, Invoice = il.Invoice})
         .OrderBy(x => x.InvoiceLine.InvoiceLineId)
         .ThenBy(x => x.Invoice.InvoiceId)
@@ -139,8 +139,8 @@ namespace Xtensive.Orm.Tests.Linq
         join i in Session.Query.All<Invoice>().OrderBy(i => i.InvoiceDate) on c equals i.Customer
         select new {c.LastName, i.InvoiceDate};
       var expected =
-        from c in Session.Query.All<Customer>().ToList().OrderBy(c => c.LastName)
-        join i in Session.Query.All<Invoice>().ToList().OrderBy(i => i.InvoiceDate) on c equals i.Customer
+        from c in Customers.OrderBy(c => c.LastName)
+        join i in Invoices.OrderBy(i => i.InvoiceDate) on c equals i.Customer
         select new {c.LastName, i.InvoiceDate};
       Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Customer>()
         .OrderBy(c => c.CustomerId)
         .Select(c => new {c.Fax, c.Phone});
-      var expected = Customers.ToList()
+      var expected = Customers
         .OrderBy(c => c.CustomerId)
         .Select(c => new {c.Fax, c.Phone});
       Assert.That(result, Is.Not.Empty);
@@ -195,8 +195,8 @@ namespace Xtensive.Orm.Tests.Linq
         where c==i.Customer
         select new {c.LastName, i.InvoiceDate};
       var expected =
-        from c in Session.Query.All<Customer>().ToList().OrderBy(c => c.LastName)
-        from i in Session.Query.All<Invoice>().ToList().OrderBy(i => i.InvoiceDate)
+        from c in Customers.OrderBy(c => c.LastName)
+        from i in Invoices.OrderBy(i => i.InvoiceDate)
         where c==i.Customer
         select new {c.LastName, i.InvoiceDate};
       Assert.That(result, Is.Not.Empty);
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       IQueryable<string> result = Session.Query.All<Customer>().OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
-      var expected = Session.Query.All<Customer>().ToList().OrderBy(c => c.CompanyName)
+      var expected = Customers.OrderBy(c => c.CompanyName)
         .OrderBy(c => c.Address.Country).Select(c => c.Address.City);
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -223,8 +223,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .OrderBy(c => c)
         .Select(c => c);
-      var expected = Session.Query.All<Customer>()
-        .ToList()
+      var expected = Customers
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c)
@@ -238,7 +237,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
       var result = Session.Query.All<Invoice>().Select(i => i.DesignatedEmployee).Distinct();
-      var expected = Session.Query.All<Invoice>().ToList().Select(i => i.DesignatedEmployee).Distinct();
+      var expected = Invoices.Select(i => i.DesignatedEmployee).Distinct();
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(0, result.ToList().Except(expected).Count());
     }

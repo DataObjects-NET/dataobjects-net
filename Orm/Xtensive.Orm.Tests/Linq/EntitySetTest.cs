@@ -23,8 +23,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>()
         .Select(c => new { InvoicesFiled = c.Invoices });
-      var expected = Session.Query.All<Customer>()
-        .ToList()
+      var expected = Customers
         .Select(c => new { InvoicesFiled = c.Invoices });
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
@@ -36,8 +35,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Customer>()
         .Select(c => new { InvoicesFiled = c.Invoices })
         .SelectMany(i => i.InvoicesFiled);
-      var expected = Session.Query.All<Customer>()
-        .ToList()
+      var expected = Customers
         .Select(c => new { InvoicesFiled = c.Invoices })
         .SelectMany(i => i.InvoicesFiled);
       Assert.AreEqual(0, expected.Except(result).Count());
@@ -48,7 +46,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetSelectTest()
     {
       var result = Session.Query.All<Customer>().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
-      var expected = Session.Query.All<Customer>().AsEnumerable().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
+      var expected = Customers.OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
       Assert.Greater(result.Count, 0);
       Assert.AreEqual(expected.Count, result.Count);
       for (var i = 0; i < result.Count; i++) {
@@ -62,7 +60,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customer = GetCustomer();
       var expected = customer
         .Invoices
-        .ToList()
+        .AsEnumerable()
         .OrderBy(i => i.InvoiceId)
         .Select(i => i.InvoiceId)
         .ToList();
@@ -85,7 +83,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void CountTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var expected = Session.Query.All<Invoice>().Count();
+      var expected = Invoices.Count();
       var count = Session.Query.All<Customer>()
         .Select(c => c.Invoices.Count)
         .ToList()
@@ -123,9 +121,9 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(customer.Invoices.Count, result.ToList().Count);
     }
 
-    private static Customer GetCustomer()
+    private Customer GetCustomer()
     {
-      return Session.Demand().Query.All<Customer>().Where(c => c.FirstName == "Aaron").Single();
+      return Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").Single();
     }
   }
 }

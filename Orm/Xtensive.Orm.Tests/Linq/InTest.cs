@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.09.30
 
@@ -29,10 +29,10 @@ namespace Xtensive.Orm.Tests.Linq
       var query2 = from c in Session.Query.All<Customer>()
       where !c.FirstName.In("Michelle", "Jack")
       select c.Invoices;
-      var expected1 = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected1 = from c in Customers
       where !list.Contains(c.FirstName)
       select c.Invoices;
-      var expected2 = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected2 = from c in Customers
       where !c.FirstName.In(list)
       select c.Invoices;
       Assert.That(query1, Is.Not.Empty);
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query2 = from invoice in Session.Query.All<Invoice>()
       where (invoice.Commission).In(list2)
       select invoice;
-      var expected = from invoice in Session.Query.All<Invoice>().AsEnumerable()
+      var expected = from invoice in Invoices
       where (invoice.Commission).In(list1)
       select invoice;
       Assert.That(query1, Is.Not.Empty);
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from invoice in Session.Query.All<Invoice>()
       where !((int) invoice.Commission).In(list)
       select invoice;
-      var expected = from invoice in Session.Query.All<Invoice>().AsEnumerable()
+      var expected = from invoice in Invoices
       where !((int) invoice.Commission).In(list)
       select invoice;
       Assert.That(query, Is.Not.Empty);
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from track in Session.Query.All<Track>()
       where track.Milliseconds.In(list)
       select track;
-      var expected = from track in Session.Query.All<Track>().AsEnumerable()
+      var expected = from track in Tracks
       where track.Milliseconds.In(list)
       select track;
       Assert.That(query, Is.Not.Empty);
@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from invoice in Session.Query.All<Invoice>()
       where !((decimal) invoice.InvoiceId).In(list)
       select invoice;
-      var expected = from invoice in Session.Query.All<Invoice>().AsEnumerable()
+      var expected = from invoice in Invoices
       where !((decimal) invoice.InvoiceId).In(list)
       select invoice;
       Assert.That(query, Is.Not.Empty);
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from c in Session.Query.All<Customer>()
       where !c.In(list)
       select c.Invoices;
-      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected = from c in Customers
       where !c.In(list)
       select c.Invoices;
       Assert.That(query, Is.Not.Empty);
@@ -163,7 +163,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from c in Session.Query.All<Customer>()
       where !c.Address.In(list)
       select c.Invoices;
-      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected = from c in Customers
       where !c.Address.In(list)
       select c.Invoices;
       Assert.That(query, Is.Not.Empty);
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = new[] {new {FirstName = "Michelle"}, new {FirstName = "Jack"}};
       var query = Session.Query.All<Customer>().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
-      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
+      var expected = Customers.Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = new[] {new {Id1 = "Michelle", Id2 = "Michelle"}, new {Id1 = "Jack", Id2 = "Jack"}};
       var query = Session.Query.All<Customer>().Where(c => new {Id1 = c.FirstName, Id2 = c.FirstName}.In(list)).Select(c => c.Invoices);
-      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => new {Id1 = c.FirstName, Id2 = c.FirstName}.In(list)).Select(c => c.Invoices);
+      var expected = Customers.Where(c => new {Id1 = c.FirstName, Id2 = c.FirstName}.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from invoice in Session.Query.All<Invoice>()
       where !invoice.Commission.In(list)
       select invoice;
-      var expected = from invoice in Session.Query.All<Invoice>().AsEnumerable()
+      var expected = from invoice in Invoices
       where !invoice.Commission.In(list)
       select invoice;
       Assert.That(query, Is.Not.Empty);
@@ -226,7 +226,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from c in Session.Query.All<Customer>()
       where !c.In(list)
       select c.Invoices;
-      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected = from c in Customers
       where !c.In(list)
       select c.Invoices;
       Assert.That(query, Is.Not.Empty);
@@ -243,7 +243,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from c in Session.Query.All<Customer>()
       where !c.Address.In(list)
       select c.Invoices;
-      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected = from c in Customers
       where !c.Address.In(list)
       select c.Invoices;
       Assert.That(query, Is.Not.Empty);
@@ -256,7 +256,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = Session.Query.All<Customer>().Take(10).Select(c => new {c.FirstName});
       var query = Session.Query.All<Customer>().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
-      var expected = Session.Query.All<Customer>().AsEnumerable().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
+      var expected = Customers.Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from track in Session.Query.All<Track>()
       where track.Milliseconds.In(includeAlgorithm, list)
       select track;
-      var expected = from track in Session.Query.All<Track>().AsEnumerable()
+      var expected = from track in Tracks
       where track.Milliseconds.In(includeAlgorithm, list)
       select track;
       Assert.That(query, Is.Not.Empty);
@@ -293,7 +293,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from track in Session.Query.All<Track>()
       where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
       select track;
-      var expected = from track in Session.Query.All<Track>().AsEnumerable()
+      var expected = from track in Tracks
       where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
       select track;
       Assert.That(query, Is.Not.Empty);
@@ -318,9 +318,9 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual("Leonie", result2[0]);
     }
 
-    private static IEnumerable<Customer> GetCustomers(params string[] customerNames)
+    private IEnumerable<Customer> GetCustomers(params string[] customerNames)
     {
-      return Session.Demand().Query.Execute(qe => qe.All<Customer>().Where(customer => customer.FirstName.In(customerNames)));
+      return Session.Query.Execute(qe => qe.All<Customer>().Where(customer => customer.FirstName.In(customerNames)));
     }
   }
 }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Elena Vakhtina
 // Created:    2009.04.06
 
@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Intersect(c.Invoices).Select(o => o.PaymentDate)
       orderby r
       select r;
-      var expected = from c in Session.Query.All<Customer>().ToList()
+      var expected = from c in Customers
       from r in (c.Invoices)
         .Intersect(c.Invoices).Select(o => o.PaymentDate)
       orderby r
