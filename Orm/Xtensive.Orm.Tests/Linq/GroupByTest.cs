@@ -531,7 +531,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupBySelectKeyWithSelectCalculableColumnTest()
     {
-      IQueryable<string> result = Session.Query.All<Track>().GroupBy(t => t.Name).Select(g => g.Key + "String");
+      //avoid great amout of data for grouping, some storages are painfully slow with such operation
+      var result = Session.Query.All<Employee>().GroupBy(t => t.LastName).Select(g => g.Key + "String");
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
@@ -539,7 +540,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupBySelectKeyWithCalculableColumnTest()
     {
-      var result = Session.Query.All<Track>().GroupBy(t => t.Name + "String");
+      //avoid great amout of data for grouping, some storages are painfully slow with such operation
+      var result = Session.Query.All<Employee>().GroupBy(t => t.LastName + "String");
       var list = result.ToList();
       Assert.That(result, Is.Not.Empty);
       DumpGrouping(result);
