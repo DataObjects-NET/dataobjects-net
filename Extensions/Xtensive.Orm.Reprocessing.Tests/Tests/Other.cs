@@ -1,9 +1,8 @@
-﻿using System.Linq;
+using System.Linq;
 using System.Transactions;
 using NUnit.Framework;
 using TestCommon.Model;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Reprocessing.Configuration;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
@@ -13,10 +12,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
     {
       #region Non-public methods
 
-      protected override bool OnError(ExecuteErrorEventArgs context)
-      {
-        return context.Attempt < 2;
-      }
+      protected override bool OnError(ExecuteErrorEventArgs context) => context.Attempt < 2;
 
       #endregion
     }
@@ -24,16 +20,17 @@ namespace Xtensive.Orm.Reprocessing.Tests
     [Test]
     public void ExecuteStrategy()
     {
-      int i = 0;
+      var i = 0;
       try {
-        ReprocessingConfiguration config = Domain.GetReprocessingConfiguration();
+        var config = Domain.GetReprocessingConfiguration();
         config.DefaultExecuteStrategy = typeof (TestExecuteStrategy);
         Domain.Execute(
           session => {
-            new Foo(session) {Name = "test"};
+            _ = new Foo(session) {Name = "test"};
             i++;
-            if (i < 5)
-              new Foo(session) {Name = "test"};
+            if (i < 5) {
+              _ = new Foo(session) {Name = "test"};
+            }
           });
       }
       catch {
@@ -55,19 +52,21 @@ namespace Xtensive.Orm.Reprocessing.Tests
     [Test]
     public void NestedSessionReuse()
     {
-      Domain.Execute(session1 => Domain.Execute(session2 => Assert.That(session1, Is.SameAs(session2))));
+      Domain.Execute(session1 =>
+        Domain.WithExternalSession(session1)
+          .Execute(session2 => Assert.That(session1, Is.SameAs(session2))));
     }
 
     [Test]
     public void Test()
     {
       Domain.Execute(session => {
-        new Foo(session);
+        _ = new Foo(session);
       });
       Domain.Execute(session => {
-        session.Query.All<Foo>().ToArray();
+        _ = session.Query.All<Foo>().ToArray();
         Domain.WithIsolationLevel(IsolationLevel.Serializable).Execute(session2 => {
-          session2.Query.All<Foo>().ToArray();
+          _ = session2.Query.All<Foo>().ToArray();
         });
       });
     }
@@ -75,21 +74,18 @@ namespace Xtensive.Orm.Reprocessing.Tests
     [Test]
     public void ParentIsDisconnectedState()
     {
-      Domain.Execute(session =>
-                       {
-                         new Bar(session);
-                       });
+      Domain.Execute(session => {
+        _ = new Bar(session);
+      });
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
-      using(session.Activate())
-      {
+      using(session.Activate()) {
         var bar = session.Query.All<Bar>().FirstOrDefault();
-        bar=new Bar(session);
+        bar = new Bar(session);
         session.SaveChanges();
-        Domain.Execute(session1 =>
-                         {
-                           bar = session1.Query.All<Bar>().FirstOrDefault();
-                           bar=new Bar(session1);
-                         });
+        Domain.WithExternalSession(session).Execute(session1 => {
+          bar = session1.Query.All<Bar>().FirstOrDefault();
+          bar = new Bar(session1);
+        });
         session.SaveChanges();
       }
       Domain.Execute(session => Assert.That(session.Query.All<Bar>().Count(), Is.EqualTo(3)));

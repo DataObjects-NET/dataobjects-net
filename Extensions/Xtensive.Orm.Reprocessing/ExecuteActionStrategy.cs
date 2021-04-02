@@ -47,30 +47,27 @@ namespace Xtensive.Orm.Reprocessing
     /// </returns>
     public virtual T Execute<T>(ExecutionContext<T> context)
     {
-      int i = 0;
-      while (true)
-      {
+      var i = 0;
+      while (true) {
         Session session = null;
         TransactionScope tran = null;
-        bool needBreak = false;
+        var needBreak = false;
         Transaction transaction = null;
-        try
-        {
+        try {
           T result;
-          SessionScope sessionScope = null;
-          try
-          {
-            try
-            {
-              IsolationLevel isolationLevel = context.IsolationLevel;
-              SystemTransaction currentTransaction = SystemTransaction.Current;
+          var disposeSession = false;
+          //SessionScope sessionScope = null;
+          try {
+            try {
+              var isolationLevel = context.IsolationLevel;
+              var currentTransaction = SystemTransaction.Current;
               if (isolationLevel == IsolationLevel.Unspecified && currentTransaction != null)
                 isolationLevel = currentTransaction.IsolationLevel;
-              session = SessionScope.CurrentSession;
-              if (session == null)
-              {
+              session = context.ExternalSession;
+              if (session == null) {
                 session = context.Domain.OpenSession();
-                sessionScope = session.Activate();
+                disposeSession = true;
+                //sessionScope = session.Activate();
               }
               if (currentTransaction != null && session.Transaction != null)
                 session.EnsureTransactionIsStarted();
@@ -82,41 +79,43 @@ namespace Xtensive.Orm.Reprocessing
               result = context.Function(session);
               tran.Complete();
             }
-            finally
-            {
-              try
-              {
+            finally {
+              try {
                 tran.DisposeSafely();
               }
-              catch (StorageException e)
-              {
+              catch (StorageException e) {
                 if (e.InnerException == null || !(e.InnerException is InvalidOperationException) ||
-                    e.InnerException.Source != "System.Data")
+                    e.InnerException.Source != "System.Data") {
                   throw;
-                if (tran.Transaction.IsNested)
+                }
+
+                if (tran.Transaction.IsNested) {
                   needBreak = true;
+                }
               }
             }
           }
-          finally
-          {
-            sessionScope.DisposeSafely();
-            if (SessionScope.CurrentSession != session)
+          finally {
+            if (disposeSession) {
               session.DisposeSafely();
+            }
           }
           return result;
         }
-        catch (Exception e)
-        {
+        catch (Exception e) {
           if ((SystemTransaction.Current != null &&
                SystemTransaction.Current.TransactionInformation.DistributedIdentifier != Guid.Empty) ||
-              (transaction != null && (transaction.State == TransactionState.Active || transaction.IsDisconnected)))
+              (transaction != null && (transaction.State == TransactionState.Active || transaction.IsDisconnected))) {
             throw;
-          if (e is RollbackTransactionException)
+          }
+          if (e is RollbackTransactionException) {
             return default(T);
+          }
+
           i++;
-          if (needBreak || !HandleException(new ExecuteErrorEventArgs(e, session, transaction, i)))
+          if (needBreak || !HandleException(new ExecuteErrorEventArgs(e, session, transaction, i))) {
             throw;
+          }
         }
       }
     }
@@ -128,12 +127,15 @@ namespace Xtensive.Orm.Reprocessing
     /// <returns>The singleton.</returns>
     public static IExecuteActionStrategy GetSingleton(Type type)
     {
-      if (type==typeof (HandleReprocessableExceptionStrategy))
+      if (type == typeof(HandleReprocessableExceptionStrategy)) {
         return HandleReprocessableException;
-      if (type==typeof (HandleUniqueConstraintViolationStrategy))
+      }
+      if (type == typeof(HandleUniqueConstraintViolationStrategy)) {
         return HandleUniqueConstraintViolation;
-      if (type==typeof (NoReprocessStrategy))
+      }
+      if (type == typeof(NoReprocessStrategy)) {
         return NoReprocess;
+      }
       return Singletons.GetOrAdd(type, a => (IExecuteActionStrategy) Activator.CreateInstance(type));
     }
 
@@ -144,10 +146,7 @@ namespace Xtensive.Orm.Reprocessing
     /// </summary>
     /// <param name="eventArgs">The <see cref="Xtensive.Orm.Reprocessing.ExecuteErrorEventArgs"/> instance containing the exception data.</param>
     /// <returns>True if needs to reprocess the task, otherwise false.</returns>
-    protected virtual bool HandleException(ExecuteErrorEventArgs eventArgs)
-    {
-      return false;
-    }
+    protected virtual bool HandleException(ExecuteErrorEventArgs eventArgs) => false;
 
     /// <summary>
     /// Raises the <see cref="E:Error"/> event.
@@ -156,8 +155,10 @@ namespace Xtensive.Orm.Reprocessing
     /// <returns>True if needs to reprocess the task.</returns>
     protected virtual bool OnError(ExecuteErrorEventArgs eventArgs)
     {
-      if (Error!=null)
+      if (Error != null) {
         Error(this, eventArgs);
+      }
+
       return eventArgs.Attempt < Attempts;
     }
 

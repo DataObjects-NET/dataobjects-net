@@ -1,17 +1,13 @@
-﻿using System;
+using System;
 using System.Transactions;
 
 namespace Xtensive.Orm.Reprocessing
 {
   internal class ExecuteConfiguration : IExecuteConfiguration
   {
-    public ExecuteConfiguration(Domain domain)
-    {
-      Domain = domain;
-      IsolationLevel = IsolationLevel.Unspecified;
-    }
-
     protected Domain Domain { get; private set; }
+
+    public Session ExternalSession { get; set; }
 
     public IExecuteActionStrategy Strategy { get; set; }
 
@@ -37,14 +33,33 @@ namespace Xtensive.Orm.Reprocessing
       return this;
     }
 
+    public IExecuteConfiguration WithExternalSession(Session session)
+    {
+      ExternalSession = session;
+      return this;
+    }
+
     public void Execute(Action<Session> action)
     {
-      Domain.ExecuteInternal(IsolationLevel, TransactionOpenMode, Strategy, action);
+      if (ExternalSession != null) {
+        Domain.ExecuteInternal(ExternalSession, IsolationLevel, TransactionOpenMode, Strategy, action);
+      }
+      else {
+        Domain.ExecuteInternal(IsolationLevel, TransactionOpenMode, Strategy, action);
+      }
     }
 
     public T Execute<T>(Func<Session, T> func)
     {
-      return Domain.ExecuteInternal(IsolationLevel, TransactionOpenMode, Strategy, func);
+      return (ExternalSession != null)
+        ? Domain.ExecuteInternal(ExternalSession, IsolationLevel, TransactionOpenMode, Strategy, func)
+        : Domain.ExecuteInternal(IsolationLevel, TransactionOpenMode, Strategy, func);
+    }
+
+    public ExecuteConfiguration(Domain domain)
+    {
+      Domain = domain;
+      IsolationLevel = IsolationLevel.Unspecified;
     }
   }
 }
