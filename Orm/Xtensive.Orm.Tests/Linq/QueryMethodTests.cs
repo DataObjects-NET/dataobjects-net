@@ -4,6 +4,7 @@
 // Created by: Alexey Gamzov
 // Created:    2010.01.15
 
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Collections;
@@ -41,7 +42,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
-      var expected = EnumerableUtils.One(Customers.First());
+      var expected = GetExpectedCustomerAsSequence();
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -81,7 +82,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
-      var expected = EnumerableUtils.One(Customers.First());
+      var expected = GetExpectedCustomerAsSequence();
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -138,6 +139,14 @@ namespace Xtensive.Orm.Tests.Linq
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    private IEnumerable<Customer> GetExpectedCustomerAsSequence()
+    {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
+        return EnumerableUtils.One(Session.Query.All<Customer>().OrderBy(c => c.CustomerId).AsEnumerable().First());
+      }
+      return EnumerableUtils.One(Customers.First());
     }
   }
 }
