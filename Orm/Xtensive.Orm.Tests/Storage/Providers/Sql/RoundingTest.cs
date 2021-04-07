@@ -23,11 +23,11 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void TruncateTest()
     {
-      Query.All<X>().Select(x => new { Decimal = x.FDecimal, DecimalTruncate = Math.Truncate(x.FDecimal) })
+      Query.All<DecimalContainer>().Select(x => new { Decimal = x.d18_9, DecimalTruncate = Math.Truncate(x.d18_9) })
         .GroupBy(x => x.DecimalTruncate)
         .ForEach(i => i.ForEach(x => AreEqual(Math.Truncate(x.Decimal), x.DecimalTruncate)));
 
-      Query.All<X>().Select(x => new { Double = x.FDouble, DoubleTruncate = Math.Truncate(x.FDouble) })
+      Query.All<DoubleContainer>().Select(x => new { Double = x.FDouble, DoubleTruncate = Math.Truncate(x.FDouble) })
         .GroupBy(x => x.DoubleTruncate)
         .ForEach(i => i.ForEach(x => AreEqual(Math.Truncate(x.Double), x.DoubleTruncate)));
     }
@@ -35,12 +35,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void CeilTest()
     {
-      Query.All<X>()
-        .Select(x => new { Decimal = x.FDecimal, DecimalCeiling = Math.Ceiling(x.FDecimal) })
+      Query.All<DecimalContainer>()
+        .Select(x => new { Decimal = x.d18_9, DecimalCeiling = Math.Ceiling(x.d18_9) })
         .GroupBy(x => x.DecimalCeiling)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Ceiling(i.Decimal), x.Key)));
 
-      Query.All<X>()
+      Query.All<DoubleContainer>()
         .Select(x => new { Double = x.FDouble, DoubleCeiling = Math.Ceiling(x.FDouble) })
         .GroupBy(x => x.DoubleCeiling)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Ceiling(i.Double), x.Key)));
@@ -49,12 +49,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void FloorTest()
     {
-      Query.All<X>()
-        .Select(x => new { Decimal = x.FDecimal, DecimalFloor = Math.Floor(x.FDecimal) })
+      Query.All<DecimalContainer>()
+        .Select(x => new { Decimal = x.d18_9, DecimalFloor = Math.Floor(x.d18_9) })
         .GroupBy(x => x.DecimalFloor)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Floor(i.Decimal), x.Key)));
 
-      Query.All<X>()
+      Query.All<DoubleContainer>()
         .Select(x => new { Double = x.FDouble, DoubleFloor = Math.Floor(x.FDouble) })
         .GroupBy(x => x.DoubleFloor)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Floor(i.Double), x.Key)));
@@ -63,12 +63,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void RoundDefaultToZeroDigitsTest()
     {
-      Query.All<X>()
-        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal) })
+      Query.All<DecimalContainer>()
+        .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9) })
         .GroupBy(x => x.DecimalRound)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal), x.Key)));
 
-      Query.All<X>()
+      Query.All<DoubleContainer>()
         .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble) })
         .GroupBy(x => x.DoubleRound)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double), x.Key)));
@@ -79,39 +79,41 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     {
       if (ExpectNotSupported()) {
         var ex = Assert.Throws<QueryTranslationException>(() =>
-          Query.All<X>().Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1) })
+          Query.All<DecimalContainer>().Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1) })
             .GroupBy(x => x.DecimalRound).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
         Assert.That(ex.InnerException.Message.Contains("Power", StringComparison.Ordinal));
 
         ex = Assert.Throws<QueryTranslationException>(() =>
-          Query.All<X>().Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1) })
+          Query.All<DoubleContainer>().Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1) })
             .GroupBy(x => x.DoubleRound).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
         Assert.That(ex.InnerException.Message.Contains("Power", StringComparison.Ordinal));
       }
       else {
-        Query.All<X>()
-          .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1) })
+        Query.All<DecimalContainer>()
+          .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1) })
           .GroupBy(x => x.DecimalRound)
           .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, 1), x.Key)));
 
-        Query.All<X>()
+        Query.All<DoubleContainer>()
           .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1) })
           .GroupBy(x => x.DoubleRound)
           .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, 1), x.Key)));
       }
+
+      
     }
 
     [Test]
     public void RoundToEvenToZeroDigitsTest()
     {
-      Query.All<X>()
-        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, MidpointRounding.ToEven) })
+      Query.All<DecimalContainer>()
+        .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, MidpointRounding.ToEven) })
         .GroupBy(x => x.DecimalRound)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, MidpointRounding.ToEven), x.Key)));
 
-      Query.All<X>()
+      Query.All<DoubleContainer>()
         .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, MidpointRounding.ToEven) })
         .GroupBy(x => x.DoubleRound)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, MidpointRounding.ToEven), x.Key)));
@@ -122,24 +124,24 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     {
       if (ExpectNotSupported()) {// sqlite has no support for Power operation
         var ex = Assert.Throws<QueryTranslationException>(() =>
-          Query.All<X>().Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1, MidpointRounding.ToEven) })
+          Query.All<DecimalContainer>().Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1, MidpointRounding.ToEven) })
             .GroupBy(x => x.DecimalRound).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
         Assert.That(ex.InnerException.Message.Contains("Power", StringComparison.Ordinal));
 
         ex = Assert.Throws<QueryTranslationException>(() =>
-          Query.All<X>().Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.ToEven) })
+          Query.All<DoubleContainer>().Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.ToEven) })
             .GroupBy(x => x.DoubleRound).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
         Assert.That(ex.InnerException.Message.Contains("Power", StringComparison.Ordinal));
       }
       else {
-        Query.All<X>()
-          .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1, MidpointRounding.ToEven) })
+        Query.All<DecimalContainer>()
+          .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1, MidpointRounding.ToEven) })
           .GroupBy(x => x.DecimalRound)
           .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, 1, MidpointRounding.ToEven), x.Key)));
 
-        Query.All<X>()
+        Query.All<DoubleContainer>()
           .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.ToEven) })
           .GroupBy(x => x.DoubleRound)
           .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, 1, MidpointRounding.ToEven), x.Key)));
@@ -149,12 +151,12 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     [Test]
     public void RoundAwayFromZeroToZeroDigitsTest()
     {
-      Query.All<X>()
-        .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, MidpointRounding.AwayFromZero) })
+      Query.All<DecimalContainer>()
+        .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, MidpointRounding.AwayFromZero) })
         .GroupBy(x => x.DecimalRound)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, MidpointRounding.AwayFromZero), x.Key)));
 
-      Query.All<X>()
+      Query.All<DoubleContainer>()
         .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, MidpointRounding.AwayFromZero) })
         .GroupBy(x => x.DoubleRound)
         .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, MidpointRounding.AwayFromZero), x.Key)));
@@ -165,24 +167,24 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
     {
       if (ExpectNotSupported()) {
         var ex = Assert.Throws<QueryTranslationException>(() =>
-          Query.All<X>().Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1, MidpointRounding.AwayFromZero) })
+          Query.All<DecimalContainer>().Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1, MidpointRounding.AwayFromZero) })
             .GroupBy(x => x.DecimalRound).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
         Assert.That(ex.InnerException.Message.Contains("Power", StringComparison.Ordinal));
 
         ex = Assert.Throws<QueryTranslationException>(() =>
-          Query.All<X>().Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.AwayFromZero) })
+          Query.All<DoubleContainer>().Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.AwayFromZero) })
             .GroupBy(x => x.DoubleRound).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
         Assert.That(ex.InnerException.Message.Contains("Power", StringComparison.Ordinal));
       }
       else {
-        Query.All<X>()
-          .Select(x => new { Decimal = x.FDecimal, DecimalRound = Math.Round(x.FDecimal, 1, MidpointRounding.AwayFromZero) })
+        Query.All<DecimalContainer>()
+          .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1, MidpointRounding.AwayFromZero) })
           .GroupBy(x => x.DecimalRound)
           .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, 1, MidpointRounding.AwayFromZero), x.Key)));
 
-        Query.All<X>()
+        Query.All<DoubleContainer>()
           .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1, MidpointRounding.AwayFromZero) })
           .GroupBy(x => x.DoubleRound)
           .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, 1, MidpointRounding.AwayFromZero), x.Key)));
@@ -229,7 +231,9 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
       };
 
       foreach (var value in testValues) {
-        _ = new X { FDouble = (double) value, FDecimal = value };
+        _ = new DoubleContainer { FDouble = (double) value };
+        _ = new DecimalContainer { d18_9 = value };
+        //_ = new X { FDouble = (double) value, FDecimal = value };
       }
     }
 

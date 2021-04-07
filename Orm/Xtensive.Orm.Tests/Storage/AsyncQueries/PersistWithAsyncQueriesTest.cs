@@ -103,6 +103,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task QueryFirstWaitLaterTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands, so having two readers opened is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
@@ -128,6 +129,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task QueryFirstWaitLaterInDiffferentOrderTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()){
         var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();
@@ -216,6 +218,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeFirstAsyncQueryAwaitTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having two readers opened is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         _ = new TestEntity(session);
@@ -244,6 +247,7 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task PersistBeforeSecondAsyncQueryAwaitTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands, so having opened reader for query and making changes saved is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().AsAsync();
@@ -300,6 +304,7 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task PersistBeforeBothAsyncQueriesAndDelayedWaitTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands, so having opened reader for query and making changes saved is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         _ = new TestEntity(session) { Value = 101 };
@@ -363,6 +368,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeFirstAsyncQueryAndDalayedAwaitTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands, so having two readers opened is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         _ = new TestEntity(session);
@@ -391,6 +397,7 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task PersistBeforeSecondAsyncQueryAndDelayedAwaitTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery =  session.Query.All<TestEntity>().AsAsync();
@@ -504,6 +511,7 @@ namespace Xtensive.Orm.Tests.Storage
     public async Task ManualSavingDuringAsyncQueryExecutionTest()
     {
       Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         _ = new TestEntity(session);
@@ -562,6 +570,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task ManualSavingDuringEnumerationTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = session.Query.All<TestEntity>().AsAsync();

@@ -1,6 +1,6 @@
 // Copyright (C) 2014-2021 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2014.04.14
 
@@ -850,6 +850,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ClientProfileSameExceptionWhenDoublePersistInsideTransaction()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "UniqueVauleConstraint breaks the outermost transaction.");
+
       using (var session = Domain.OpenSession(clientProfile)) {
         using (var transaction = session.OpenTransaction()) {
           var authorWithUniqueName = new Author {Name = "Peter"};

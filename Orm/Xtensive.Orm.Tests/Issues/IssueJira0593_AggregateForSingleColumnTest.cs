@@ -118,6 +118,8 @@ namespace Xtensive.Orm.Tests.Issues
     private const int EntityCount = 20;
     private const string FilterCondition = "3";
 
+    private const decimal FloatValueAccuracy = 0.00001m;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -584,10 +586,15 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<float> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
-      Assert.AreEqual(localArray.Sum(), query.Sum());
-      Assert.AreEqual(localArray.Average(), query.Average(c => c));
-      Assert.AreEqual(localArray.Average(), query.Average());
+      Assert.That(Math.Abs(query.Sum(c => c) - localArray.Sum()), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Sum() - localArray.Sum()), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
+      //Assert.AreEqual(localArray.Sum(), query.Sum());
+
+      Assert.That(Math.Abs(query.Average(c => c) - localArray.Average()), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Average() - localArray.Average()), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Average(), query.Average(c => c));
+      //Assert.AreEqual(localArray.Average(), query.Average());
       Assert.AreEqual(localArray.Min(), query.Min(c => c));
       Assert.AreEqual(localArray.Min(), query.Min());
       Assert.AreEqual(localArray.Max(), query.Max(c => c));
@@ -598,10 +605,15 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<float?> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
-      Assert.AreEqual(localArray.Sum(), query.Sum());
-      Assert.AreEqual(localArray.Average(), query.Average(c => c));
-      Assert.AreEqual(localArray.Average(), query.Average());
+
+      Assert.That(Math.Abs(query.Sum(c => c).Value - localArray.Sum().Value), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Sum().Value - localArray.Sum().Value), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
+      //Assert.AreEqual(localArray.Sum(), query.Sum());
+      Assert.That(Math.Abs(query.Average(c => c).Value - localArray.Average().Value), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Average().Value - localArray.Average().Value), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Average(), query.Average(c => c));
+      //Assert.AreEqual(localArray.Average(), query.Average());
       Assert.AreEqual(localArray.Min(), query.Min(c => c));
       Assert.AreEqual(localArray.Min(), query.Min());
       Assert.AreEqual(localArray.Max(), query.Max(c => c));
