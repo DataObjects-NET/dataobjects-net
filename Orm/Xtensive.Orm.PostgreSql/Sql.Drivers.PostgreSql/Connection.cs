@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -9,6 +9,7 @@ using Npgsql;
 using System.Data;
 using System.Data.Common;
 using Xtensive.Orm;
+using System;
 
 namespace Xtensive.Sql.Drivers.PostgreSql
 {
@@ -43,6 +44,38 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+    }
+
+    public override void Commit()
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+
+      try {
+        if (!IsTransactionCompleted()) {
+          ActiveTransaction.Commit();
+        }
+      }
+      finally {
+        ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
+    }
+
+    public override void Rollback()
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+
+      try {
+        if (!IsTransactionCompleted()) {
+          ActiveTransaction.Rollback();
+        }
+      }
+      finally {
+        ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
     }
 
     /// <inheritdoc/>
@@ -90,9 +123,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       underlyingConnection = null;
     }
 
+    private bool IsTransactionCompleted()
+    {
+      return activeTransaction != null && activeTransaction.IsCompleted;
+    }
+
     // Constructors
 
-   [SecuritySafeCritical]
+    [SecuritySafeCritical]
    public Connection(SqlDriver driver)
       : base(driver)
     {
