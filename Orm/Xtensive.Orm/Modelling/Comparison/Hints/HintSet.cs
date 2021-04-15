@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
@@ -186,6 +186,17 @@ namespace Xtensive.Modelling.Comparison.Hints
         return false;
 
       return nodeHintMap.Values.Count > 0;
+    }
+
+    public bool HasHints<THint>(Node node)
+      where THint : Hint
+    {
+      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+
+      if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
+        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
+      }
+      return nodeHintMap.ContainsKey(typeof(THint));
     }
 
     #region IEnumerable<...> methods

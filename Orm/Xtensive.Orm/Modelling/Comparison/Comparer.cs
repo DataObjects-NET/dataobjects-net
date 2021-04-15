@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -228,6 +228,10 @@ namespace Xtensive.Modelling.Comparison
         return movementInfo;
       }
 
+      var recreateHint = Hints.GetHint<RecreateTableHint>(source);
+      if (recreateHint != null) {
+        movementInfo |= MovementInfo.Removed | MovementInfo.Created;// recreated;
+      }
       var sc = StringComparer.OrdinalIgnoreCase;
 
       // both source!=null && target!=null
@@ -611,9 +615,9 @@ namespace Xtensive.Modelling.Comparison
         return false;
 
       return 
-        Hints.GetHints<CopyDataHint>(source).Any()
-        || Hints.GetHints<DeleteDataHint>(source).Any()
-        || Hints.GetHints<UpdateDataHint>(source).Any();
+        Hints.HasHints<CopyDataHint>(source)
+        || Hints.HasHints<DeleteDataHint>(source)
+        || Hints.HasHints<UpdateDataHint>(source);
     }
 
     /// <summary>

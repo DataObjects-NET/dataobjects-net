@@ -292,6 +292,104 @@ namespace Xtensive.Core
     }
 
     /// <summary>
+    /// Creates a <see cref="Dictionary{TKey, TValue}"/> with pre-defined capacity from an <see cref="IEnumerable{T}"/>
+    /// according to a specified key selector function.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <typeparam name="TKey">The type of the key elements.</typeparam>
+    /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="capacity">Initial dictionary capacity.</param>
+    /// <returns>A <see cref="Dictionary{TKey, TValue}"/> that contains keys and values.</returns>
+    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(this IEnumerable<TSource> source, Func<TSource, TKey> keySelector, int capacity)
+    {
+      return ToDictionary<TSource, TKey, TSource>(source, keySelector, InstanceSelector, capacity);
+
+      static TSource InstanceSelector(TSource x)
+      {
+        return x;
+      }
+    }
+
+    /// <summary>
+    /// Creates a <see cref="Dictionary{TKey, TValue}"/> with pre-defined capacity from an <see cref="IEnumerable{T}"/>
+    /// according to a specified key selector function.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <typeparam name="TKey">The type of the key elements.</typeparam>
+    /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
+    /// <param name="capacity">Initial dictionary capacity.</param>
+    /// <returns>A <see cref="Dictionary{TKey, TValue}"/> that contains keys and values.</returns>
+    public static Dictionary<TKey, TSource> ToDictionary<TSource, TKey>(
+      this IEnumerable<TSource> source,
+      Func<TSource, TKey> keySelector,
+      IEqualityComparer<TKey> comparer,
+      int capacity)
+    {
+      return ToDictionary<TSource, TKey, TSource>(source, keySelector, InstanceSelector, comparer, capacity);
+
+      static TSource InstanceSelector(TSource x)
+      {
+        return x;
+      }
+    }
+
+    /// <summary>
+    /// Creates a <see cref="Dictionary{TKey, TValue}"/> with pre-defined capacity from an <see cref="IEnumerable{T}"/>
+    /// according to a specified key selector function.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <typeparam name="TKey">The type of the key elements.</typeparam>
+    /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="elementSelector">A funtion to extract a value from each element.</param>
+    /// <param name="capacity">Initial dictionary capacity.</param>
+    /// <returns>A <see cref="Dictionary{TKey, TValue}"/> that contains keys and values.</returns>
+    public static Dictionary<TKey, TValue> ToDictionary<TSource, TKey, TValue>(
+      this IEnumerable<TSource> source,
+      Func<TSource, TKey> keySelector,
+      Func<TSource, TValue> elementSelector,
+      int capacity)
+    {
+      return ToDictionary(source, keySelector, elementSelector, null, capacity);
+    }
+
+    /// <summary>
+    /// Creates a <see cref="Dictionary{TKey, TValue}"/> with pre-defined capacity from an <see cref="IEnumerable{T}"/>
+    /// according to a specified key selector function.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the elements of source.</typeparam>
+    /// <typeparam name="TKey">The type of the key elements.</typeparam>
+    /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
+    /// <param name="keySelector">A function to extract a key from each element.</param>
+    /// <param name="elementSelector">A funtion to extract a value from each element.</param>
+    /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
+    /// <param name="capacity">Initial dictionary capacity.</param>
+    /// <returns>A <see cref="Dictionary{TKey, TValue}"/> that contains keys and values.</returns>
+    public static Dictionary<TKey, TValue> ToDictionary<TSource, TKey, TValue>(
+      this IEnumerable<TSource> source,
+      Func<TSource, TKey> keySelector,
+      Func<TSource, TValue> elementSelector,
+      IEqualityComparer<TKey> equalityComparer,
+      int capacity)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentValidator.EnsureArgumentNotNull(keySelector, nameof(keySelector));
+      ArgumentValidator.EnsureArgumentNotNull(elementSelector, nameof(elementSelector));
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, nameof(capacity));
+
+      var dictionary = equalityComparer != null
+        ? new Dictionary<TKey, TValue>(capacity, equalityComparer)
+        : new Dictionary<TKey, TValue>(capacity);
+      foreach (var item in source) {
+        dictionary.Add(keySelector(item), elementSelector(item));
+      }
+      return dictionary;
+    }
+
+    /// <summary>
     /// Gets the items from the segment.
     /// </summary>
     /// <param name="segment">The segment.</param>

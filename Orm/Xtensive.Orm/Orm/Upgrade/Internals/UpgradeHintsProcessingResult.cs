@@ -1,31 +1,36 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.01.22
 
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Orm.Model.Stored;
 
 namespace Xtensive.Orm.Upgrade.Internals
 {
   internal sealed class UpgradeHintsProcessingResult
   {
-    public NativeTypeClassifier<UpgradeHint> Hints { get; private set; }
+    public NativeTypeClassifier<UpgradeHint> Hints { get; }
 
-    public Dictionary<StoredTypeInfo, StoredTypeInfo> TypeMapping { get; private set; }
+    public Dictionary<StoredTypeInfo, StoredTypeInfo> TypeMapping { get; }
 
-    public Dictionary<StoredTypeInfo, StoredTypeInfo> ReverseTypeMapping { get; private set; }
+    public Dictionary<StoredTypeInfo, StoredTypeInfo> ReverseTypeMapping { get; }
 
-    public Dictionary<StoredFieldInfo, StoredFieldInfo> FieldMapping { get; private set; }
+    public Dictionary<StoredFieldInfo, StoredFieldInfo> FieldMapping { get; }
 
-    public Dictionary<StoredFieldInfo, StoredFieldInfo> ReverseFieldMapping { get; private set; }
+    public Dictionary<StoredFieldInfo, StoredFieldInfo> ReverseFieldMapping { get; }
 
-    public Dictionary<string, StoredTypeInfo> CurrentModelTypes { get; private set; }
+    public Dictionary<string, StoredTypeInfo> CurrentModelTypes { get; }
 
-    public List<StoredTypeInfo> SuspiciousTypes { get; set; }
+    public HashSet<StoredTypeInfo> SuspiciousTypes { get; }
+
+    public IReadOnlyList<StoredTypeInfo> CurrentNonConnectorTypes { get; }
+
+    public IReadOnlyList<StoredTypeInfo> ExtractedNonConnectorTypes { get; }
 
     public bool AreAllTypesMapped()
     {
@@ -44,8 +49,20 @@ namespace Xtensive.Orm.Upgrade.Internals
       Dictionary<StoredFieldInfo, StoredFieldInfo> fieldMapping,
       Dictionary<StoredFieldInfo, StoredFieldInfo> reverseFieldMapping,
       Dictionary<string, StoredTypeInfo> currentModelTypes,
-      List<StoredTypeInfo> suspiciousTypes)
+      HashSet<StoredTypeInfo> suspiciousTypes,
+      IReadOnlyList<StoredTypeInfo> currentNonConnectorTypes,
+      IReadOnlyList<StoredTypeInfo> extractedNonConnectorTypes)
     {
+      ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
+      ArgumentValidator.EnsureArgumentNotNull(typeMapping, nameof(typeMapping));
+      ArgumentValidator.EnsureArgumentNotNull(reverseTypeMapping, nameof(reverseTypeMapping));
+      ArgumentValidator.EnsureArgumentNotNull(fieldMapping, nameof(fieldMapping));
+      ArgumentValidator.EnsureArgumentNotNull(reverseFieldMapping, nameof(reverseFieldMapping));
+      ArgumentValidator.EnsureArgumentNotNull(currentModelTypes, nameof(currentModelTypes));
+      ArgumentValidator.EnsureArgumentNotNull(suspiciousTypes, nameof(suspiciousTypes));
+      ArgumentValidator.EnsureArgumentNotNull(currentNonConnectorTypes, nameof(suspiciousTypes));
+      ArgumentValidator.EnsureArgumentNotNull(extractedNonConnectorTypes, nameof(suspiciousTypes));
+
       Hints = hints;
       TypeMapping = typeMapping;
       ReverseTypeMapping = reverseTypeMapping;
@@ -53,6 +70,8 @@ namespace Xtensive.Orm.Upgrade.Internals
       ReverseFieldMapping = reverseFieldMapping;
       CurrentModelTypes = currentModelTypes;
       SuspiciousTypes = suspiciousTypes;
+      CurrentNonConnectorTypes = currentNonConnectorTypes;
+      ExtractedNonConnectorTypes = extractedNonConnectorTypes;
     }
   }
 }
