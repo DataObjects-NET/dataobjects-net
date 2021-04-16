@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.08.28
 
@@ -232,8 +232,10 @@ namespace Xtensive.Orm.Providers
 
     private static int GetFieldIndex(TypeInfo type, ColumnInfo column)
     {
-      FieldInfo field;
-      if (!type.Fields.TryGetValue(column.Field.Name, out field))
+      if (!type.Fields.TryGetValue(column.Field.Name, out var field) 
+        || field.Column == null
+        || field.Column.ValueType != column.ValueType
+        || field.Column.Name != column.Name)
         return -1;
       return field.MappingInfo.Offset;
     }
