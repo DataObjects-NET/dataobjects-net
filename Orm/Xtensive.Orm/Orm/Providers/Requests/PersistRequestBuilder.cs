@@ -232,10 +232,9 @@ namespace Xtensive.Orm.Providers
 
     private static int GetFieldIndex(TypeInfo type, ColumnInfo column)
     {
-      if (!type.Fields.TryGetValue(column.Field.Name, out var field) 
+      if (!type.Fields.TryGetValue(column.Field.Name, out var field)
         || field.Column == null
-        || field.Column.ValueType != column.ValueType
-        || field.Column.Name != column.Name)
+        || field.Column.ValueType != column.ValueType)
         return -1;
       return field.MappingInfo.Offset;
     }
