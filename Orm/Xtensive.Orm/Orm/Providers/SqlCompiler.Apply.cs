@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -17,7 +17,7 @@ using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler
   {
     /// <inheritdoc/>
     protected override SqlProvider VisitApply(ApplyProvider provider)
@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Providers
         ? (IReadOnlyList<SqlColumn>) leftTable.Columns
         : left.Request.Statement.Columns;
 
-      var rightShouldUseReference = ShouldUseQueryReference(provider, right);
+      var rightShouldUseReference = ShouldUseQueryReference(provider, right) || forceApplyViaReference;
       var rightTable = rightShouldUseReference
         ? right.PermanentReference
         : right.Request.Statement.From;
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Providers
         ? (IReadOnlyList<SqlColumn>) rightTable.Columns
         : right.Request.Statement.Columns;
 
-      var joinType = provider.ApplyType==JoinType.LeftOuter
+      var joinType = provider.ApplyType == JoinType.LeftOuter
         ? SqlJoinType.LeftOuterApply
         : SqlJoinType.CrossApply;
 
