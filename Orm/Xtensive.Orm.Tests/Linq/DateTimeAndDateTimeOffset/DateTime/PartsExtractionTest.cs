@@ -129,9 +129,9 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     {
       Require.ProviderIs(StorageProvider.SqlServer);
       ExecuteInsideSession(() => {
-        var testDateTimeOffset = DateTimeOffset.Parse(testValueString);
-        _ = new SingleDateTimeOffsetEntity() { MillisecondDateTimeOffset = testDateTimeOffset };
-        RunTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.Date == testDateTimeOffset.Date);
+        var testDateTime = DateTime.Parse(testValueString);
+        _ = new SingleDateTimeEntity() { MillisecondDateTime = testDateTime };
+        RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Date == testDateTime.Date);
       });
     }
 
