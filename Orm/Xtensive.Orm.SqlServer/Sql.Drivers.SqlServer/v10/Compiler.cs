@@ -149,11 +149,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         + SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, dateTimeOffset) * NanosecondsPerMillisecond;
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset) =>
-      SqlDml.Cast(
-        SqlDml.DateTimePlusInterval(
-          Switchoffset(dateTimeOffset, UtcTimeZone),
-          SqlDml.DateTimeMinusDateTime(SqlDml.Native("getdate()"), SqlDml.Native("getutcdate()"))),
-        SqlType.DateTime);
+      SqlDml.Cast(DateTimeOffsetToLocalTime(dateTimeOffset), SqlType.DateTime);
 
     private static SqlUserFunctionCall ToDateTimeOffset(SqlExpression dateTime, SqlExpression offsetInMinutes) =>
       SqlDml.FunctionCall("TODATETIMEOFFSET", dateTime, offsetInMinutes);
