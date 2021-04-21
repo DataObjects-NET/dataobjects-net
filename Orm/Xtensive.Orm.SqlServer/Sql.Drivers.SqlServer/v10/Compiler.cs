@@ -130,19 +130,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     #region Static helpers
 
-    private static SqlExpression DateTimeOffsetTruncate(SqlExpression dateTimeOffset)
-    {
-      return SqlDml.Cast(
-        DateAddMillisecond(
-          DateAddSecond(
-            DateAddMinute(
-              DateAddHour(dateTimeOffset,
-                -SqlDml.Extract(SqlDateTimeOffsetPart.Hour, dateTimeOffset)),
-              -SqlDml.Extract(SqlDateTimeOffsetPart.Minute, dateTimeOffset)),
-            -SqlDml.Extract(SqlDateTimeOffsetPart.Second, dateTimeOffset)),
-          -SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, dateTimeOffset)),
-        SqlType.DateTime);
-    }
+    private static SqlExpression DateTimeOffsetTruncate(SqlExpression dateTimeOffset) =>
+      SqlDml.Cast(
+        SqlDml.Cast(dateTimeOffset, new SqlValueType(SqlDateTypeName)),
+        new SqlValueType(SqlDateTime2TypeName));
 
     private static SqlExpression DateTimeOffsetTruncateOffset(SqlExpression dateTimeOffset)
     {
