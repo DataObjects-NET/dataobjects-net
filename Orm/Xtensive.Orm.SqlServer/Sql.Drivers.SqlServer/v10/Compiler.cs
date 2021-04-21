@@ -143,10 +143,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
         Switchoffset(dateTimeOffset, UtcTimeZone));
 
     private static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset) =>
-      SqlDml.Extract(SqlDateTimeOffsetPart.Hour, dateTimeOffset) * (60 * 60 * NanosecondsPerSecond)
-        + SqlDml.Extract(SqlDateTimeOffsetPart.Minute, dateTimeOffset) * (60 * NanosecondsPerSecond)
-        + SqlDml.Extract(SqlDateTimeOffsetPart.Second, dateTimeOffset) * NanosecondsPerSecond
-        + SqlDml.Extract(SqlDateTimeOffsetPart.Millisecond, dateTimeOffset) * NanosecondsPerMillisecond;
+      DateDiffMillisecond(
+        SqlDml.Native("'00:00:00.0000000'"),
+        SqlDml.Cast(dateTimeOffset, new SqlValueType("time")))
+      * NanosecondsPerMillisecond;
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset) =>
       SqlDml.Cast(DateTimeOffsetToLocalTime(dateTimeOffset), SqlType.DateTime);
