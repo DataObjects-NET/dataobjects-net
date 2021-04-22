@@ -1,8 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Concurrent;
 using System.Transactions;
 using Xtensive.Core;
-using Xtensive.Orm.Configuration;
 using SystemTransaction = System.Transactions.Transaction;
 
 namespace Xtensive.Orm.Reprocessing
@@ -56,21 +55,23 @@ namespace Xtensive.Orm.Reprocessing
         try {
           T result;
           var disposeSession = false;
-          //SessionScope sessionScope = null;
           try {
             try {
               var isolationLevel = context.IsolationLevel;
               var currentTransaction = SystemTransaction.Current;
-              if (isolationLevel == IsolationLevel.Unspecified && currentTransaction != null)
+              if (isolationLevel == IsolationLevel.Unspecified && currentTransaction != null) {
                 isolationLevel = currentTransaction.IsolationLevel;
+              }
+
               session = context.ExternalSession;
               if (session == null) {
                 session = context.Domain.OpenSession();
                 disposeSession = true;
-                //sessionScope = session.Activate();
               }
-              if (currentTransaction != null && session.Transaction != null)
+              if (currentTransaction != null && session.Transaction != null) {
                 session.EnsureTransactionIsStarted();
+              }
+
               tran = (currentTransaction != null && currentTransaction.TransactionInformation.DistributedIdentifier != Guid.Empty) ||
                      (session.Transaction != null && session.Transaction.IsDisconnected)
                        ? session.OpenTransaction(isolationLevel)
@@ -85,7 +86,7 @@ namespace Xtensive.Orm.Reprocessing
               }
               catch (StorageException e) {
                 if (e.InnerException == null || !(e.InnerException is InvalidOperationException) ||
-                    e.InnerException.Source != "System.Data") {
+                    !e.InnerException.Source.Equals("System.Data", StringComparison.Ordinal)) {
                   throw;
                 }
 
