@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
     public void NestedSessionReuse()
     {
       Domain.Execute(session1 =>
-        Domain.WithExternalSession(session1)
+        Domain.WithSession(session1)
           .Execute(session2 => Assert.That(session1, Is.SameAs(session2))));
     }
 
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
         var bar = session.Query.All<Bar>().FirstOrDefault();
         bar = new Bar(session);
         session.SaveChanges();
-        Domain.WithExternalSession(session).Execute(session1 => {
+        Domain.WithSession(session).Execute(session1 => {
           bar = session1.Query.All<Bar>().FirstOrDefault();
           bar = new Bar(session1);
         });

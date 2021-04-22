@@ -138,9 +138,9 @@ namespace Xtensive.Orm.Reprocessing
     /// <param name="domain">The domain.</param>
     /// <param name="session">The external session to use.</param>
     /// <returns>Created <see cref="IExecuteConfiguration"/>.</returns>
-    public static IExecuteConfiguration WithExternalSession(this Domain domain, Session session)
+    public static IExecuteConfiguration WithSession(this Domain domain, Session session)
     {
-      return new ExecuteConfiguration(domain).WithExternalSession(session);
+      return new ExecuteConfiguration(domain).WithSession(session);
     }
 
     #region Non-public methods

@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Reprocessing
     /// </summary>
     /// <param name="session">Session to use.</param>
     /// <returns>This instance.</returns>
-    IExecuteConfiguration WithExternalSession(Session session);
+    IExecuteConfiguration WithSession(Session session);
 
     /// <summary>
     /// Executes specified reprocessable <paramref name="action"/>.

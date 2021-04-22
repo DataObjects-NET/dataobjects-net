@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Reprocessing
       return this;
     }
 
-    public IExecuteConfiguration WithExternalSession(Session session)
+    public IExecuteConfiguration WithSession(Session session)
     {
       ExternalSession = session;
       return this;

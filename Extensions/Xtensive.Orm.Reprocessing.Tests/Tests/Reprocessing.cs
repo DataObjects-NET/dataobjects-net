@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
         Action<bool, IsolationLevel?, TransactionOpenMode?> action)
       {
         domain.WithStrategy(strategy)
-          .WithExternalSession(session)
+          .WithSession(session)
           .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
           .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
           .Execute(
