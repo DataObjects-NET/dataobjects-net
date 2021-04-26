@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Kudelin
@@ -252,7 +252,8 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<AClassTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+
         foreach (var expectedString in expectedStrings) {
           Assert.That(result.Contains(expectedString), Is.True);
         }
@@ -261,7 +262,8 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<AConcreteTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+
         foreach (var expectedString in expectedStrings) {
           Assert.That(result.Contains(expectedString), Is.True);
         }
@@ -271,7 +273,8 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<ASingleTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+
         foreach (var expectedString in expectedStrings) {
           Assert.That(result.Contains(expectedString), Is.True);
         }
@@ -284,45 +287,46 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B2ClassTable>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
 
-        var result2 = session.Query.All<AClassTable>().OfType<B2ClassTable>()
+        var result2 = session.Query.All<AClassTable>()
+          .OfType<B2ClassTable>()
           .OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
 
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
 
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B2ConcreteTable>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
 
         var result2 = session.Query.All<AConcreteTable>().OfType<B2ConcreteTable>()
           .OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
 
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
 
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B2SingleTable>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
 
         var result2 = session.Query.All<ASingleTable>().OfType<B2SingleTable>()
           .OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
 
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
     }
 
@@ -332,13 +336,15 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B1ClassTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(2));
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(2));
         new[] { "100000String1", "200000String2" }
           .ForEach(s => Assert.That(result1.Contains(s), Is.True));
 
         var result2 = session.Query.All<B2ClassTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+
         Assert.That(result2.Single(), Is.EqualTo("300000String3"));
       }
 
@@ -346,13 +352,15 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B1ConcreteTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(2));
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(2));
         new[] { "100000String1", "200000String2" }
           .ForEach(s => Assert.That(result1.Contains(s), Is.True));
 
         var result2 = session.Query.All<B2ConcreteTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+
         Assert.That(result2.Single(), Is.EqualTo("300000String3"));
       }
 
@@ -360,13 +368,13 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B1SingleTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(2));
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
+        Assert.That(result1.Count, Is.EqualTo(2));
         new[] { "100000String1", "200000String2" }
           .ForEach(s => Assert.That(result1.Contains(s), Is.True));
 
         var result2 = session.Query.All<B2SingleTable>().OfType<IB1>()
-          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToArray();
+          .Select(x => x.Field3.Value2.Value1 + x.Field4).ToList(4);
         Assert.That(result2.Single(), Is.EqualTo("300000String3"));
       }
     }
@@ -377,13 +385,15 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B1ClassTable>().OfType<AClassTable>()
-          .Select(x => x.Field2).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(2));
+          .Select(x => x.Field2).ToList(8);
+
+        Assert.That(result1.Count, Is.EqualTo(2));
         new[] { 1000, 2000 }
           .ForEach(i => Assert.That(result1.Contains(i), Is.True));
 
         var result2 = session.Query.All<B2ClassTable>().OfType<AClassTable>()
-          .Select(x => x.Field2).ToArray();
+          .Select(x => x.Field2).ToList(8);
+
         Assert.That(result2.Single(), Is.EqualTo(3000));
       }
 
@@ -391,13 +401,15 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B1ConcreteTable>().OfType<AConcreteTable>()
-          .Select(x => x.Field2).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(2));
+          .Select(x => x.Field2).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(2));
         new[] { 1000, 2000 }
           .ForEach(i => Assert.That(result1.Contains(i), Is.True));
 
         var result2 = session.Query.All<B2ConcreteTable>().OfType<AConcreteTable>()
-          .Select(x => x.Field2).ToArray();
+          .Select(x => x.Field2).ToList(4);
+
         Assert.That(result2.Single(), Is.EqualTo(3000));
       }
 
@@ -405,13 +417,15 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result1 = session.Query.All<B1SingleTable>().OfType<ASingleTable>()
-          .Select(x => x.Field2).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(2));
+          .Select(x => x.Field2).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(2));
         new[] { 1000, 2000 }
           .ForEach(i => Assert.That(result1.Contains(i), Is.True));
 
         var result2 = session.Query.All<B2SingleTable>().OfType<ASingleTable>()
-          .Select(x => x.Field2).ToArray();
+          .Select(x => x.Field2).ToList(4);
+
         Assert.That(result2.Single(), Is.EqualTo(3000));
       }
     }
@@ -422,21 +436,24 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<B1ClassTable>().OfType<B2ClassTable>()
-          .Select(x => x.Field2).ToArray();
+          .Select(x => x.Field2);
+
         Assert.That(result, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<B1ConcreteTable>().OfType<B2ConcreteTable>()
-          .Select(x => x.Field2).ToArray();
+          .Select(x => x.Field2);
+
         Assert.That(result, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<B1SingleTable>().OfType<B2SingleTable>()
-          .Select(x => x.Field2).ToArray();
+          .Select(x => x.Field2);
+
         Assert.That(result, Is.Empty);
       }
     }
@@ -447,21 +464,24 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<B1ClassTable>().OfType<B3ClassTable>()
-          .Select(x => x.Field3).ToArray();
+          .Select(x => x.Field3);
+
         Assert.That(result, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<B1ConcreteTable>().OfType<B3ConcreteTable>()
-          .Select(x => x.Field3).ToArray();
+          .Select(x => x.Field3);
+
         Assert.That(result, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var result = session.Query.All<B1SingleTable>().OfType<B3SingleTable>()
-          .Select(x => x.Field3).ToArray();
+          .Select(x => x.Field3);
+
         Assert.That(result, Is.Empty);
       }
     }
@@ -472,38 +492,42 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AClassTable>().OfType<IB1>();
+        var result1 = source.Select(x => x.Field3.Value1).ToList(4);
 
-        var result1 = source.Select(x => x.Field3.Value1).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(3));
+        Assert.That(result1.Count, Is.EqualTo(3));
         new[] { 10000, 20000, 30000 }
           .ForEach(i => Assert.That(result1.Contains(i)));
 
-        var result2 = source.OfType<B3ClassTable>().Select(x => x.Field3.Value1).ToArray();
+        var result2 = source.OfType<B3ClassTable>().Select(x => x.Field3.Value1);
+
         Assert.That(result2, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AConcreteTable>().OfType<IB1>();
+        var result1 = source.Select(x => x.Field3.Value1).ToList(4);
 
-        var result1 = source.Select(x => x.Field3.Value1).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(3));
+        Assert.That(result1.Count, Is.EqualTo(3));
         new[] { 10000, 20000, 30000 }
           .ForEach(i => Assert.That(result1.Contains(i)));
 
-        var result2 = source.OfType<B3ConcreteTable>().Select(x => x.Field3.Value1).ToArray();
+        var result2 = source.OfType<B3ConcreteTable>().Select(x => x.Field3.Value1);
+
         Assert.That(result2, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<ASingleTable>().OfType<IB1>();
-        var result1 = source.Select(x => x.Field3.Value1).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(3));
+        var result1 = source.Select(x => x.Field3.Value1).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(3));
         new[] { 10000, 20000, 30000 }
           .ForEach(i => Assert.That(result1.Contains(i)));
 
-        var result2 = source.OfType<B3SingleTable>().Select(x => x.Field3.Value1).ToArray();
+        var result2 = source.OfType<B3SingleTable>().Select(x => x.Field3.Value1);
+
         Assert.That(result2, Is.Empty);
       }
     }
@@ -514,31 +538,37 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AClassTable>().OfType<IB1>();
-        var result1 = source.ToArray().OfType<IC>().Select(x => x.Field5).ToArray();
-        var result2 = source.OfType<IC>().Select(x => x.Field5).ToArray();
+
+        var result1 = source.AsEnumerable().OfType<IC>().Select(x => x.Field5).ToList(4);
+        var result2 = source.OfType<IC>().Select(x => x.Field5).ToList(4);
+
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AConcreteTable>().OfType<IB1>();
-        var result1 = source.ToArray().OfType<IC>().Select(x => x.Field5).ToArray();
-        var result2 = source.OfType<IC>().Select(x => x.Field5).ToArray();
+
+        var result1 = source.AsEnumerable().OfType<IC>().Select(x => x.Field5).ToList(4);
+        var result2 = source.OfType<IC>().Select(x => x.Field5).ToList(4);
+
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<ASingleTable>().OfType<IB1>();
-        var result1 = source.ToArray().OfType<IC>().Select(x => x.Field5).ToArray();
-        var result2 = source.OfType<IC>().Select(x => x.Field5).ToArray();
+
+        var result1 = source.AsEnumerable().OfType<IC>().Select(x => x.Field5).ToList(4);
+        var result2 = source.OfType<IC>().Select(x => x.Field5).ToList(4);
+
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
     }
 
@@ -548,31 +578,37 @@ namespace Xtensive.Orm.Tests.Linq
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AClassTable>().OfType<IB1>();
-        var result1 = source.ToArray().OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
-        var result2 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
+
+        var result1 = source.AsEnumerable().OfType<IBaseInterface>().Select(x => x.BaseField).ToList(4);
+        var result2 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToList(4);
+
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AConcreteTable>().OfType<IB1>();
-        var result1 = source.ToArray().OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
-        var result2 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
+
+        var result1 = source.AsEnumerable().OfType<IBaseInterface>().Select(x => x.BaseField).ToList(4);
+        var result2 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToList(4);
+
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<ASingleTable>().OfType<IB1>();
-        var result1 = source.ToArray().OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
-        var result2 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
+
+        var result1 = source.AsEnumerable().OfType<IBaseInterface>().Select(x => x.BaseField).ToList(4);
+        var result2 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToList(4);
+
         Assert.That(result1, Is.Not.Empty);
-        Assert.That(result1.Length, Is.EqualTo(result2.Length));
-        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Length));
+        Assert.That(result1.Count, Is.EqualTo(result2.Count));
+        Assert.That(result1.Intersect(result2).Count(), Is.EqualTo(result1.Count));
       }
     }
 
@@ -612,19 +648,21 @@ namespace Xtensive.Orm.Tests.Linq
         var query = session.Query.All<AClassTable>().OfType<IB1>()
           .OfType<IBaseEntity>();
 
-        var result1 = query.Select(x => x.Field1).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(3));
+        var result1 = query.Select(x => x.Field1).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(3));
         new[] { 10, 20, 30 }
           .ForEach(i => Assert.That(result1.Contains(i)));
 
-        var result2 = query.OfType<AClassTable>().Select(x => x.Field1).ToArray();
-        Assert.That(result2.Length, Is.EqualTo(3));
+        var result2 = query.OfType<AClassTable>().Select(x => x.Field1).ToList(4);
+        Assert.That(result2.Count, Is.EqualTo(3));
         new[] { 10, 20, 30 }
           .ForEach(i => Assert.That(result2.Contains(i)));
 
         var result3 = query.OfType<AClassTable>().OfType<IBaseEntity>()
-          .OfType<C1ClassTable>().Select(x => x.Field1).ToArray();
-        Assert.That(result3.Length, Is.EqualTo(2));
+          .OfType<C1ClassTable>().Select(x => x.Field1).ToList(4);
+
+        Assert.That(result3.Count, Is.EqualTo(2));
         new[] { 10, 20 }
           .ForEach(i => Assert.That(result3.Contains(i)));
       }
@@ -634,19 +672,22 @@ namespace Xtensive.Orm.Tests.Linq
         var query = session.Query.All<AConcreteTable>().OfType<IB1>()
           .OfType<IBaseEntity>();
 
-        var result1 = query.Select(x => x.Field1).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(3));
+        var result1 = query.Select(x => x.Field1).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(3));
         new[] { 10, 20, 30 }
           .ForEach(i => Assert.That(result1.Contains(i)));
 
-        var result2 = query.OfType<AConcreteTable>().Select(x => x.Field1).ToArray();
-        Assert.That(result2.Length, Is.EqualTo(3));
+        var result2 = query.OfType<AConcreteTable>().Select(x => x.Field1).ToList(4);
+
+        Assert.That(result2.Count, Is.EqualTo(3));
         new[] { 10, 20, 30 }
           .ForEach(i => Assert.That(result2.Contains(i)));
 
         var result3 = query.OfType<AConcreteTable>().OfType<IBaseEntity>()
-          .OfType<C1ConcreteTable>().Select(x => x.Field1).ToArray();
-        Assert.That(result3.Length, Is.EqualTo(2));
+          .OfType<C1ConcreteTable>().Select(x => x.Field1).ToList(4);
+
+        Assert.That(result3.Count, Is.EqualTo(2));
         new[] { 10, 20 }
           .ForEach(i => Assert.That(result3.Contains(i)));
       }
@@ -656,19 +697,22 @@ namespace Xtensive.Orm.Tests.Linq
         var query = session.Query.All<ASingleTable>().OfType<IB1>()
           .OfType<IBaseEntity>();
 
-        var result1 = query.Select(x => x.Field1).ToArray();
-        Assert.That(result1.Length, Is.EqualTo(3));
+        var result1 = query.Select(x => x.Field1).ToList(4);
+
+        Assert.That(result1.Count, Is.EqualTo(3));
         new[] { 10, 20, 30 }
           .ForEach(i => Assert.That(result1.Contains(i)));
 
-        var result2 = query.OfType<ASingleTable>().Select(x => x.Field1).ToArray();
-        Assert.That(result2.Length, Is.EqualTo(3));
+        var result2 = query.OfType<ASingleTable>().Select(x => x.Field1).ToList(4);
+
+        Assert.That(result2.Count, Is.EqualTo(3));
         new[] { 10, 20, 30 }
           .ForEach(i => Assert.That(result2.Contains(i)));
 
         var result3 = query.OfType<ASingleTable>().OfType<IBaseEntity>()
-          .OfType<C1SingleTable>().Select(x => x.Field1).ToArray();
-        Assert.That(result3.Length, Is.EqualTo(2));
+          .OfType<C1SingleTable>().Select(x => x.Field1).ToList(4);
+
+        Assert.That(result3.Count, Is.EqualTo(2));
         new[] { 10, 20 }
           .ForEach(i => Assert.That(result3.Contains(i)));
       }
@@ -683,13 +727,13 @@ namespace Xtensive.Orm.Tests.Linq
         var source = session.Query.All<AClassTable>().OfType<IC>()
           .SelectMany(x => x.Field6);
 
-        var result1 = source.OfType<IC>().Select(x => x.Field5).ToArray();
+        var result1 = source.OfType<IC>().Select(x => x.Field5).AsEnumerable();
         Assert.That(result1.Single(), Is.EqualTo(3.5));
 
-        var result2 = source.OfType<IB1>().Select(x => x.Field3.Value1).ToArray();
+        var result2 = source.OfType<IB1>().Select(x => x.Field3.Value1).AsEnumerable();
         Assert.That(result2.Single(), Is.EqualTo(20000));
 
-        var result3 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
+        var result3 = source.OfType<IBaseInterface>().Select(x => x.BaseField).AsEnumerable();
         Assert.That(result3.Single(), Is.EqualTo(2));
       }
 
@@ -699,13 +743,13 @@ namespace Xtensive.Orm.Tests.Linq
         var source = session.Query.All<AConcreteTable>().OfType<IC>()
           .SelectMany(x => x.Field6);
 
-        var result1 = source.OfType<IC>().Select(x => x.Field5).ToArray();
+        var result1 = source.OfType<IC>().Select(x => x.Field5).AsEnumerable();
         Assert.That(result1.Single(), Is.EqualTo(3.5));
 
-        var result2 = source.OfType<IB1>().Select(x => x.Field3.Value1).ToArray();
+        var result2 = source.OfType<IB1>().Select(x => x.Field3.Value1).AsEnumerable();
         Assert.That(result2.Single(), Is.EqualTo(20000));
 
-        var result3 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
+        var result3 = source.OfType<IBaseInterface>().Select(x => x.BaseField).AsEnumerable();
         Assert.That(result3.Single(), Is.EqualTo(2));
       }
 
@@ -715,13 +759,13 @@ namespace Xtensive.Orm.Tests.Linq
         var source = session.Query.All<ASingleTable>().OfType<IC>()
           .SelectMany(x => x.Field6);
 
-        var result1 = source.OfType<IC>().Select(x => x.Field5).ToArray();
+        var result1 = source.OfType<IC>().Select(x => x.Field5).AsEnumerable();
         Assert.That(result1.Single(), Is.EqualTo(3.5));
 
-        var result2 = source.OfType<IB1>().Select(x => x.Field3.Value1).ToArray();
+        var result2 = source.OfType<IB1>().Select(x => x.Field3.Value1).AsEnumerable();
         Assert.That(result2.Single(), Is.EqualTo(20000));
 
-        var result3 = source.OfType<IBaseInterface>().Select(x => x.BaseField).ToArray();
+        var result3 = source.OfType<IBaseInterface>().Select(x => x.BaseField).AsEnumerable();
         Assert.That(result3.Single(), Is.EqualTo(2));
       }
     }
@@ -733,54 +777,54 @@ namespace Xtensive.Orm.Tests.Linq
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AClassTable>();
 
-        var result1A = source.ToArray().OfType<IC>().OfType<IBaseEntity>();
+        var result1A = source.AsEnumerable().OfType<IC>().OfType<IBaseEntity>();
         var result1B = source.OfType<IC>().OfType<IBaseEntity>();
 
-        var result2A = source.ToArray().OfType<IB3ClassTable>().OfType<IBaseEntity>();
+        var result2A = source.AsEnumerable().OfType<IB3ClassTable>().OfType<IBaseEntity>();
         var result2B = source.OfType<IB3ClassTable>().OfType<IBaseEntity>();
 
-        var resultA = result1A.Union(result2A).Select(x => x.Field1).ToArray();
-        var resultB = result1B.Union(result2B).Select(x => x.Field1).ToArray();
+        var resultA = result1A.Union(result2A).Select(x => x.Field1).ToList(8);
+        var resultB = result1B.Union(result2B).Select(x => x.Field1).ToList(8);
 
         Assert.That(resultA, Is.Not.Empty);
-        Assert.That(resultA.Length, Is.EqualTo(resultB.Length));
-        Assert.That(resultA.Intersect(resultB).Count(), Is.EqualTo(resultA.Length));
+        Assert.That(resultA.Count, Is.EqualTo(resultB.Count));
+        Assert.That(resultA.Intersect(resultB).Count(), Is.EqualTo(resultA.Count));
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<AConcreteTable>();
 
-        var result1A = source.ToArray().OfType<IC>().OfType<IBaseEntity>();
+        var result1A = source.AsEnumerable().OfType<IC>().OfType<IBaseEntity>();
         var result1B = source.OfType<IC>().OfType<IBaseEntity>();
 
-        var result2A = source.ToArray().OfType<IB3ConcreteTable>().OfType<IBaseEntity>();
+        var result2A = source.AsEnumerable().OfType<IB3ConcreteTable>().OfType<IBaseEntity>();
         var result2B = source.OfType<IB3ConcreteTable>().OfType<IBaseEntity>();
 
-        var resultA = result1A.Union(result2A).Select(x => x.Field1).ToArray();
-        var resultB = result1B.Union(result2B).Select(x => x.Field1).ToArray();
+        var resultA = result1A.Union(result2A).Select(x => x.Field1).ToList(8);
+        var resultB = result1B.Union(result2B).Select(x => x.Field1).ToList(8);
 
         Assert.That(resultA, Is.Not.Empty);
-        Assert.That(resultA.Length, Is.EqualTo(resultB.Length));
-        Assert.That(resultA.Intersect(resultB).Count(), Is.EqualTo(resultA.Length));
+        Assert.That(resultA.Count, Is.EqualTo(resultB.Count));
+        Assert.That(resultA.Intersect(resultB).Count(), Is.EqualTo(resultA.Count));
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var source = session.Query.All<ASingleTable>();
 
-        var result1A = source.ToArray().OfType<IC>().OfType<IBaseEntity>();
+        var result1A = source.AsEnumerable().OfType<IC>().OfType<IBaseEntity>();
         var result1B = source.OfType<IC>().OfType<IBaseEntity>();
 
-        var result2A = source.ToArray().OfType<IB3SingleTable>().OfType<IBaseEntity>();
+        var result2A = source.AsEnumerable().OfType<IB3SingleTable>().OfType<IBaseEntity>();
         var result2B = source.OfType<IB3SingleTable>().OfType<IBaseEntity>();
 
-        var resultA = result1A.Union(result2A).Select(x => x.Field1).ToArray();
-        var resultB = result1B.Union(result2B).Select(x => x.Field1).ToArray();
+        var resultA = result1A.Union(result2A).Select(x => x.Field1).ToList(8);
+        var resultB = result1B.Union(result2B).Select(x => x.Field1).ToList(8);
 
         Assert.That(resultA, Is.Not.Empty);
-        Assert.That(resultA.Length, Is.EqualTo(resultB.Length));
-        Assert.That(resultA.Intersect(resultB).Count(), Is.EqualTo(resultA.Length));
+        Assert.That(resultA.Count, Is.EqualTo(resultB.Count));
+        Assert.That(resultA.Intersect(resultB).Count(), Is.EqualTo(resultA.Count));
       }
     }
 
@@ -789,91 +833,120 @@ namespace Xtensive.Orm.Tests.Linq
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var source1A = session.Query.All<AClassTable>().ToArray().OfType<IBaseEntity>();
+        var source1A = session.Query.All<AClassTable>().AsEnumerable().OfType<IBaseEntity>();
         var source1B = session.Query.All<AClassTable>().OfType<IBaseEntity>();
 
-        var source2A = session.Query.All<AConcreteTable>().ToArray().OfType<IBaseEntity>();
+        var source2A = session.Query.All<AConcreteTable>().AsEnumerable().OfType<IBaseEntity>();
         var source2B = session.Query.All<AConcreteTable>().OfType<IBaseEntity>();
 
-        var result1A = source1A.Union(source2A).Select(x => x.Field1).ToList();
-        var result1B = source2B.Union(source1B).Select(x => x.Field1).ToList();
+        var result1A = source1A.Union(source2A).Select(x => x.Field1).ToList(8);
+        var result1B = source2B.Union(source1B).Select(x => x.Field1).ToList(8);
 
         Assert.That(result1A, Is.Not.Empty);
         Assert.That(result1B.Count, Is.EqualTo(result1A.Count));
         Assert.That(result1A.Except(result1B), Is.Empty);
 
-        var result2A = source1B.Union(source2B).ToArray().OfType<B3ClassTable>().Select(x => x.Field4)
-          .ToList();
-        var result2B = source1B.Union(source2B).OfType<B3ClassTable>().Select(x => x.Field4).ToList();
+        var result2A = source1B
+          .Union(source2B)
+          .AsEnumerable()
+          .OfType<B3ClassTable>()
+          .Select(x => x.Field4)
+          .ToList(8);
+
+        var result2B = source1B
+          .Union(source2B)
+          .OfType<B3ClassTable>()
+          .Select(x => x.Field4)
+          .ToList(8);
 
         Assert.That(result2A, Is.Not.Empty);
         Assert.That(result2B.Count, Is.EqualTo(result2A.Count));
         Assert.That(result2A.Except(result2B), Is.Empty);
 
-        var result3 = session.Query.All<AClassTable>().OfType<AConcreteTable>().ToArray();
+        var result3 = session.Query.All<AClassTable>()
+          .OfType<AConcreteTable>().ToList(4);
         Assert.That(result3, Is.Empty);
 
-        var result4 = session.Query.All<AConcreteTable>().OfType<IB3ClassTable>().ToArray();
+        var result4 = session.Query.All<AConcreteTable>()
+          .OfType<IB3ClassTable>().ToList(4);
         Assert.That(result4, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var source1A = session.Query.All<AConcreteTable>().ToArray().OfType<IBaseEntity>();
+        var source1A = session.Query.All<AConcreteTable>().AsEnumerable().OfType<IBaseEntity>();
         var source1B = session.Query.All<AConcreteTable>().OfType<IBaseEntity>();
 
-        var source2A = session.Query.All<ASingleTable>().ToArray().OfType<IBaseEntity>();
+        var source2A = session.Query.All<ASingleTable>().AsEnumerable().OfType<IBaseEntity>();
         var source2B = session.Query.All<ASingleTable>().OfType<IBaseEntity>();
 
-        var result1A = source1A.Union(source2A).Select(x => x.Field1).ToArray();
-        var result1B = source2B.Union(source1B).Select(x => x.Field1).ToArray();
+        var result1A = source1A.Union(source2A).Select(x => x.Field1).ToList(8);
+        var result1B = source2B.Union(source1B).Select(x => x.Field1).ToList(8);
 
         Assert.That(result1A, Is.Not.Empty);
-        Assert.That(result1B.Length, Is.EqualTo(result1A.Length));
+        Assert.That(result1B.Count, Is.EqualTo(result1A.Count));
         Assert.That(result1A.Except(result1B), Is.Empty);
 
-        var result2A = source1B.Union(source2B).ToArray().OfType<B3ConcreteTable>().Select(x => x.Field4)
-          .ToArray();
-        var result2B = source1B.Union(source2B).OfType<B3ConcreteTable>().Select(x => x.Field4).ToArray();
+        var result2A = source1B.Union(source2B)
+          .AsEnumerable()
+          .OfType<B3ConcreteTable>().Select(x => x.Field4)
+          .ToList(8);
+
+        var result2B = source1B
+          .Union(source2B)
+          .OfType<B3ConcreteTable>()
+          .Select(x => x.Field4)
+          .ToList(8);
 
         Assert.That(result2A, Is.Not.Empty);
-        Assert.That(result2B.Length, Is.EqualTo(result2A.Length));
+        Assert.That(result2B.Count, Is.EqualTo(result2A.Count));
         Assert.That(result2A.Except(result2B), Is.Empty);
 
-        var result3 = session.Query.All<AConcreteTable>().OfType<ASingleTable>().ToArray();
+        var result3 = session.Query.All<AConcreteTable>().OfType<ASingleTable>();
         Assert.That(result3, Is.Empty);
 
-        var result4 = session.Query.All<ASingleTable>().OfType<IB3ConcreteTable>().ToArray();
+        var result4 = session.Query.All<ASingleTable>().OfType<IB3ConcreteTable>();
         Assert.That(result4, Is.Empty);
       }
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var source1A = session.Query.All<ASingleTable>().ToArray().OfType<IBaseEntity>();
+        var source1A = session.Query.All<ASingleTable>().AsEnumerable().OfType<IBaseEntity>();
         var source1B = session.Query.All<ASingleTable>().OfType<IBaseEntity>();
 
-        var source2A = session.Query.All<AClassTable>().ToArray().OfType<IBaseEntity>();
+        var source2A = session.Query.All<AClassTable>().AsEnumerable().OfType<IBaseEntity>();
         var source2B = session.Query.All<AClassTable>().OfType<IBaseEntity>();
 
-        var result1A = source1A.Union(source2A).Select(x => x.Field1).ToArray();
-        var result1B = source2B.Union(source1B).Select(x => x.Field1).ToArray();
+        var result1A = source1A.Union(source2A).Select(x => x.Field1).ToList(8);
+        var result1B = source2B.Union(source1B).Select(x => x.Field1).ToList(8);
 
         Assert.That(result1A, Is.Not.Empty);
-        Assert.That(result1B.Length, Is.EqualTo(result1A.Length));
+        Assert.That(result1B.Count, Is.EqualTo(result1A.Count));
         Assert.That(result1A.Except(result1B), Is.Empty);
 
-        var result2A = source1B.Union(source2B).ToArray().OfType<B3SingleTable>().Select(x => x.Field4)
-          .ToArray();
-        var result2B = source1B.Union(source2B).OfType<B3SingleTable>().Select(x => x.Field4).ToArray();
+        var result2A = source1B
+          .Union(source2B)
+          .AsEnumerable()
+          .OfType<B3SingleTable>()
+          .Select(x => x.Field4)
+          .ToList(8);
+
+        var result2B = source1B
+          .Union(source2B)
+          .OfType<B3SingleTable>()
+          .Select(x => x.Field4)
+          .ToList(8);
 
         Assert.That(result2A, Is.Not.Empty);
-        Assert.That(result2B.Length, Is.EqualTo(result2A.Length));
+        Assert.That(result2B.Count, Is.EqualTo(result2A.Count));
         Assert.That(result2A.Except(result2B), Is.Empty);
 
-        var result3 = session.Query.All<ASingleTable>().OfType<AClassTable>().ToArray();
+        var result3 = session.Query.All<ASingleTable>()
+          .OfType<AClassTable>().ToList(8);
         Assert.That(result3, Is.Empty);
 
-        var result4 = session.Query.All<AClassTable>().OfType<IB3SingleTable>().ToArray();
+        var result4 = session.Query.All<AClassTable>()
+          .OfType<IB3SingleTable>().ToList(8);
         Assert.That(result4, Is.Empty);
       }
     }
