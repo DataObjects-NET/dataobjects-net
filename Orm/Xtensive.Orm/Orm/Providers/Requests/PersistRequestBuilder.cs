@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Providers
         return ParameterTransmissionType.Regular;
       }
 
-      if (column.DataType.Type==SqlType.VarCharMax) {
+      if (column.DataType.Type == SqlType.VarCharMax) {
         return ParameterTransmissionType.CharacterLob;
       }
 
@@ -244,8 +244,9 @@ namespace Xtensive.Orm.Providers
     {
       if (!type.Fields.TryGetValue(column.Field.Name, out var field)
         || field.Column == null
-        || field.Column.ValueType != column.ValueType)
+        || field.Column.ValueType != column.ValueType) {
         return -1;
+      }
       return field.MappingInfo.Offset;
     }
 
