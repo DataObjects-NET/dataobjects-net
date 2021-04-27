@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
 // Created:    2009.02.13
 
@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Providers
     private readonly ProviderInfo providerInfo;
     private readonly bool temporaryTablesSupported;
     private readonly HashSet<Column> rootColumns = new HashSet<Column>();
+    private readonly bool forceApplyViaReference;
 
     private bool anyTemporaryTablesRequired;
 
@@ -562,6 +563,7 @@ namespace Xtensive.Orm.Providers
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
+      forceApplyViaReference = handlers.ProviderInfo.ProviderName.Equals(WellKnown.Provider.PostgreSql);
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);

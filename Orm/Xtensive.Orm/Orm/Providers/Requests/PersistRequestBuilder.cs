@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.08.28
 
@@ -55,12 +55,13 @@ namespace Xtensive.Orm.Providers
         return new List<PersistRequest> {batchRequest}.AsReadOnly();
       }
 
-      foreach (var item in result)
+      foreach (var item in result) {
         item.Prepare();
+      }
 
       return result.AsReadOnly();
     }
-    
+
     protected virtual List<PersistRequest> BuildInsertRequest(PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
@@ -71,7 +72,7 @@ namespace Xtensive.Orm.Providers
         var bindings = new List<PersistParameterBinding>();
 
         foreach (var column in index.Columns) {
-          int fieldIndex = GetFieldIndex(context.Type, column);
+          var fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
             var binding = GetBinding(context, column, table, fieldIndex);
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
@@ -94,7 +95,7 @@ namespace Xtensive.Orm.Providers
         var bindings = new List<PersistParameterBinding>();
 
         foreach (var column in index.Columns) {
-          int fieldIndex = GetFieldIndex(context.Type, column);
+          var fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0 && context.Task.ChangedFields[fieldIndex]) {
             var binding = GetBinding(context, column, table, fieldIndex);
             query.Values[tableRef[column.Name]] = binding.ParameterReference;
@@ -112,12 +113,14 @@ namespace Xtensive.Orm.Providers
         var isValidRequest = hasColumnUpdates
           || requiresVersionValidation && AddFakeVersionColumnUpdate(context, query, tableRef);
 
-        if (!isValidRequest)
+        if (!isValidRequest) {
           continue;
+        }
 
         query.Where = BuildKeyFilter(context, tableRef, bindings);
-        if (requiresVersionValidation)
+        if (requiresVersionValidation) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
+        }
         result.Add(CreatePersistRequest(query, bindings,context.NodeConfiguration));
       }
 
@@ -127,14 +130,15 @@ namespace Xtensive.Orm.Providers
     protected virtual List<PersistRequest> BuildRemoveRequest(PersistRequestBuilderContext context)
     {
       var result = new List<PersistRequest>();
-      for (int i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
+      for (var i = context.AffectedIndexes.Count - 1; i >= 0; i--) {
         var index = context.AffectedIndexes[i];
         var tableRef = SqlDml.TableRef(context.Mapping[index.ReflectedType]);
         var query = SqlDml.Delete(tableRef);
         var bindings = new List<PersistParameterBinding>();
         query.Where = BuildKeyFilter(context, tableRef, bindings);
-        if (context.Task.ValidateVersion)
+        if (context.Task.ValidateVersion) {
           query.Where &= BuildVersionFilter(context, tableRef, bindings);
+        }
         result.Add(CreatePersistRequest(query, bindings, context.NodeConfiguration));
       }
       return result;
@@ -144,14 +148,13 @@ namespace Xtensive.Orm.Providers
     {
       SqlExpression result = null;
       foreach (var column in context.PrimaryIndex.KeyColumns.Keys) {
-        var fieldIndex = GetFieldIndex(context.Type, column);
-        PersistParameterBinding binding;
-        if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+        if (!context.ParameterBindings.TryGetValue(column, out var binding)) {
           var typeMapping = driver.GetTypeMapping(column);
+          var fieldIndex = GetFieldIndex(context.Type, column);
           binding = new PersistParameterBinding(typeMapping, fieldIndex);
           context.ParameterBindings.Add(column, binding);
         }
-        result &= filteredTable[column.Name]==binding.ParameterReference;
+        result &= filteredTable[column.Name] == binding.ParameterReference;
         currentBindings.Add(binding);
       }
       return result;
@@ -162,22 +165,26 @@ namespace Xtensive.Orm.Providers
       SqlExpression result = null;
       foreach (var column in context.Type.GetVersionColumns()) {
         var fieldIndex = GetFieldIndex(context.Type, column);
-        if (!context.Task.AvailableFields[fieldIndex])
+        if (!context.Task.AvailableFields[fieldIndex]) {
           continue;
-        PersistParameterBinding binding;
-        if (!context.VersionParameterBindings.TryGetValue(column, out binding)) {
+        }
+
+        if (!context.VersionParameterBindings.TryGetValue(column, out var binding)) {
           var typeMapping = driver.GetTypeMapping(column);
           binding = new PersistParameterBinding(typeMapping, fieldIndex, ParameterTransmissionType.Regular, PersistParameterBindingType.VersionFilter);
           context.VersionParameterBindings.Add(column, binding);
         }
         var filteredColumn = filteredTable[column.Name];
-        if (filteredColumn.IsNullReference())
+        if (filteredColumn.IsNullReference()) {
           continue;
+        }
         var filterValue = binding.ParameterReference;
         // Handle decimal precision issue
-        if (Type.GetTypeCode(column.ValueType)==TypeCode.Decimal)
+        if (Type.GetTypeCode(column.ValueType) == TypeCode.Decimal) {
           filterValue = SqlDml.Cast(filterValue, driver.MapValueType(column));
-        result &= SqlDml.Variant(binding, filteredColumn==filterValue, SqlDml.IsNull(filteredColumn));
+        }
+
+        result &= SqlDml.Variant(binding, filteredColumn == filterValue, SqlDml.IsNull(filteredColumn));
         currentBindings.Add(binding);
       }
       return result;
@@ -185,20 +192,22 @@ namespace Xtensive.Orm.Providers
 
     protected PersistRequest CreatePersistRequest(SqlStatement query, IEnumerable<PersistParameterBinding> bindings, NodeConfiguration nodeConfiguration)
     {
-      if (Handlers.Domain.Configuration.ShareStorageSchemaOverNodes)
-        return new PersistRequest(driver, query, bindings, nodeConfiguration);
-      return new PersistRequest(driver, query, bindings);
+      return Handlers.Domain.Configuration.ShareStorageSchemaOverNodes
+        ? new PersistRequest(driver, query, bindings, nodeConfiguration)
+        : new PersistRequest(driver, query, bindings);
     }
 
     private bool AddFakeVersionColumnUpdate(PersistRequestBuilderContext context, SqlUpdate update, SqlTableRef filteredTable)
     {
       foreach (var column in context.Type.GetVersionColumns()) {
         var columnExpression = filteredTable[column.Name];
-        if (columnExpression.IsNullReference())
+        if (columnExpression.IsNullReference()) {
           continue;
-        int index = GetFieldIndex(context.Type, column);
-        if (index < 0 || !context.Task.AvailableFields[index])
+        }
+        var index = GetFieldIndex(context.Type, column);
+        if (index < 0 || !context.Task.AvailableFields[index]) {
           continue;
+        }
         update.Values.Add(columnExpression, columnExpression);
         return true;
       }
@@ -207,8 +216,7 @@ namespace Xtensive.Orm.Providers
 
     private PersistParameterBinding GetBinding(PersistRequestBuilderContext context, ColumnInfo column, Table table, int fieldIndex)
     {
-      PersistParameterBinding binding;
-      if (!context.ParameterBindings.TryGetValue(column, out binding)) {
+      if (!context.ParameterBindings.TryGetValue(column, out var binding)) {
         var typeMapping = driver.GetTypeMapping(column);
         var bindingType = GetTransmissionType(table.TableColumns[column.Name]);
         binding = new PersistParameterBinding(typeMapping, fieldIndex, bindingType);
@@ -219,22 +227,26 @@ namespace Xtensive.Orm.Providers
 
     private ParameterTransmissionType GetTransmissionType(TableColumn column)
     {
-      if (!useLargeObjects)
+      if (!useLargeObjects) {
         return ParameterTransmissionType.Regular;
+      }
 
-      if (column.DataType.Type==SqlType.VarCharMax)
+      if (column.DataType.Type == SqlType.VarCharMax) {
         return ParameterTransmissionType.CharacterLob;
+      }
 
-      if (column.DataType.Type==SqlType.VarBinaryMax)
-        return ParameterTransmissionType.BinaryLob;
-      return ParameterTransmissionType.Regular;
+      return column.DataType.Type == SqlType.VarBinaryMax
+        ? ParameterTransmissionType.BinaryLob
+        : ParameterTransmissionType.Regular;
     }
 
     private static int GetFieldIndex(TypeInfo type, ColumnInfo column)
     {
-      FieldInfo field;
-      if (!type.Fields.TryGetValue(column.Field.Name, out field))
+      if (!type.Fields.TryGetValue(column.Field.Name, out var field)
+        || field.Column == null
+        || field.Column.ValueType != column.ValueType) {
         return -1;
+      }
       return field.MappingInfo.Offset;
     }
 
@@ -245,7 +257,7 @@ namespace Xtensive.Orm.Providers
       providerInfo = Handlers.ProviderInfo;
       useLargeObjects = Handlers.ProviderInfo.Supports(ProviderFeatures.LargeObjects);
     }
-    
+
     // Constructors
 
     /// <summary>
