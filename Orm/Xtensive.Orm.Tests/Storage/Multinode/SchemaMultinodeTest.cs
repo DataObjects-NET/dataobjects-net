@@ -1,4 +1,4 @@
-// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -13,9 +13,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
   [TestFixture]
   public class SchemaMultinodeTest : StandardMultinodeTest
   {
-    private const string DefaultSchema = "n1";
-    private const string SecondSchema = "n2";
-    private const string ThirdSchema = "n3";
+    private const string DefaultSchema = "Model1";
+    private const string SecondSchema = "Model2";
+    private const string ThirdSchema = "Model3";
 
     protected override void CheckRequirements()
     {

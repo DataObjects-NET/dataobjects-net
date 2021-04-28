@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -12,10 +12,10 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
 {
   public abstract class MultischemaTest : MultimappingTest
   {
-    protected const string Schema1Name = "test1";
-    protected const string Schema2Name = "test2";
-    protected const string Schema3Name = "test3";
-    protected const string Schema4Name = "test4";
+    protected const string Schema1Name = "Model1";
+    protected const string Schema2Name = "Model2";
+    protected const string Schema3Name = "Model3";
+    protected const string Schema4Name = "Model4";
 
     protected override void CheckRequirements()
     {
