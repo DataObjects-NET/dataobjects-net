@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.02.09
 
@@ -60,15 +60,12 @@ namespace Xtensive.Orm.Tests.Upgrade.BuildOnEmptySchemaModel
   {
     public class CleanupUpgradeHandler : UpgradeHandler
     {
-      public override bool CanUpgradeFrom(string oldVersion)
-      {
-        return true;
-      }
+      public override bool CanUpgradeFrom(string oldVersion) => true;
 
       public override void OnComplete(Domain domain)
       {
         var cleanUpWorker = SqlWorker.Create(this.UpgradeContext.Services, SqlWorkerTask.DropSchema);
-        cleanUpWorker.Invoke();
+        _ = cleanUpWorker.Invoke();
       }
     }
   }
@@ -121,7 +118,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
       catch (Exception e) {
         TestLog.Error(GetType().GetFullName());
-        TestLog.Error(e);
+        _ = TestLog.Error(e);
         throw;
       }
     }
@@ -130,8 +127,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     protected virtual void RegisterTypes(DomainConfiguration configuration)
     {
-      configuration.Types.Register(typeof (Symbol));
-      configuration.Types.Register(typeof (Symbol2));
+      configuration.Types.Register(typeof(Symbol));
+      configuration.Types.Register(typeof(Symbol2));
     }
 
     protected virtual void CheckRequirements(){}
@@ -165,7 +162,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           foreach (var intValue in Enumerable.Range(1000, 10)) {
-            Symbol.Intern(session, intValue.ToString());
+            _ = Symbol.Intern(session, intValue.ToString());
           }
           transaction.Complete();
         }
@@ -181,13 +178,16 @@ namespace Xtensive.Orm.Tests.Upgrade
 
   public sealed class MultischemaTest : BuildOnEmptySchemaBase
   {
+    private const string Schema1 = WellKnownSchemas.Schema1;
+    private const string Schema2 = WellKnownSchemas.Schema2;
+
     protected override void EnsureDomainWorksCorrectly(Domain domain)
     {
       using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           foreach (var intValue in Enumerable.Range(1000, 10)) {
-            Symbol.Intern(session, intValue.ToString());
+            _ = Symbol.Intern(session, intValue.ToString());
           }
           transaction.Complete();
         }
@@ -208,18 +208,18 @@ namespace Xtensive.Orm.Tests.Upgrade
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
+      configuration.DefaultSchema = Schema1;
+      configuration.MappingRules.Map(typeof(Symbol).Namespace).ToSchema(Schema1);
+      configuration.MappingRules.Map(typeof(Symbol2).Namespace).ToSchema(Schema2);
       return configuration;
     }
 
     protected override DomainConfiguration BuildInitialConfiguration()
     {
       var configuration = base.BuildInitialConfiguration();
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToSchema("Model2");
+      configuration.DefaultSchema = Schema1;
+      configuration.MappingRules.Map(typeof(Symbol).Namespace).ToSchema(Schema1);
+      configuration.MappingRules.Map(typeof(Symbol2).Namespace).ToSchema(Schema2);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -227,13 +227,18 @@ namespace Xtensive.Orm.Tests.Upgrade
 
   public sealed class MultiDatabaseTest : BuildOnEmptySchemaBase
   {
+    private const string DOTests2Db = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+    private const string DOTests1Db = WellKnownDatabases.MultiDatabase.AdditionalDb2;
+
+    private const string DefauldSchema = WellKnownSchemas.Schema1;
+
     protected override void EnsureDomainWorksCorrectly(Domain domain)
     {
       using (domain) {
         using (var session = domain.OpenSession())
         using (var transaction = session.OpenTransaction()) {
           foreach (var intValue in Enumerable.Range(1000, 10)) {
-            Symbol.Intern(session, intValue.ToString());
+            _ = Symbol.Intern(session, intValue.ToString());
           }
           transaction.Complete();
         }
@@ -254,20 +259,20 @@ namespace Xtensive.Orm.Tests.Upgrade
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.DefaultDatabase = "DO-Tests";
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToDatabase("DO-Tests-1");
+      configuration.DefaultDatabase = DOTests2Db;
+      configuration.DefaultSchema = DefauldSchema;
+      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase(DOTests2Db);
+      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToDatabase(DOTests1Db);
       return configuration;
     }
 
     protected override DomainConfiguration BuildInitialConfiguration()
     {
       var configuration = base.BuildInitialConfiguration();
-      configuration.DefaultDatabase = "DO-Tests";
-      configuration.DefaultSchema = "Model1";
-      configuration.MappingRules.Map(typeof (Symbol).Namespace).ToDatabase("DO-Tests");
-      configuration.MappingRules.Map(typeof (Symbol2).Namespace).ToDatabase("DO-Tests-1");
+      configuration.DefaultDatabase = DOTests2Db;
+      configuration.DefaultSchema = DefauldSchema;
+      configuration.MappingRules.Map(typeof(Symbol).Namespace).ToDatabase(DOTests2Db);
+      configuration.MappingRules.Map(typeof(Symbol2).Namespace).ToDatabase(DOTests1Db);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }

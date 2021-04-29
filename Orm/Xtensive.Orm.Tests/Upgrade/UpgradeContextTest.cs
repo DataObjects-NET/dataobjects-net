@@ -1,6 +1,6 @@
-// Copyright (C) 2018 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2018-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2018.09.27
 
@@ -25,23 +25,12 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeContextTestModel
 
   public class AccessGatherer
   {
-    private Dictionary<MethodBase, ProviderInfo> stagesAccess = new Dictionary<MethodBase, ProviderInfo>();
+    private readonly Dictionary<MethodBase, ProviderInfo> stagesAccess = new Dictionary<MethodBase, ProviderInfo>();
 
-    public ProviderInfo this[MethodInfo method]
-    {
-      get
-      {
-        ProviderInfo result;
-        if (stagesAccess.TryGetValue(method, out result))
-          return result;
-        return null;
-      }
-    }
+    public ProviderInfo this[MethodInfo method] =>
+      stagesAccess.TryGetValue(method, out var result) ? result : null;
 
-    public void Add(MethodBase method, ProviderInfo givenProvider)
-    {
-      stagesAccess.Add(method, givenProvider);
-    }
+    public void Add(MethodBase method, ProviderInfo givenProvider) => stagesAccess.Add(method, givenProvider);
   }
 
   public class CustomUpgrader : UpgradeHandler
@@ -160,36 +149,40 @@ namespace Xtensive.Orm.Tests.Upgrade
     private MethodInfo[] upgraderMethods;
 
     [OneTimeSetUp]
-    public void TestFixture()
-    {
-      upgraderMethods = UpgraderMethods();
-    }
+    public void TestFixture() => upgraderMethods = UpgraderMethods();
 
     [Test]
     public void AccessToProviderInfoOnDomainBuildingTest()
     {
       Domain domain;
 
-      using (domain = BuildDomain(DomainUpgradeMode.Recreate))
+      using (domain = BuildDomain(DomainUpgradeMode.Recreate)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.Perform))
+      using (domain = BuildDomain(DomainUpgradeMode.Perform)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.PerformSafely))
+      using (domain = BuildDomain(DomainUpgradeMode.PerformSafely)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.Validate))
+      using (domain = BuildDomain(DomainUpgradeMode.Validate)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.Skip))
+      using (domain = BuildDomain(DomainUpgradeMode.Skip)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.LegacyValidate))
+      using (domain = BuildDomain(DomainUpgradeMode.LegacyValidate)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.LegacySkip))
+      using (domain = BuildDomain(DomainUpgradeMode.LegacySkip)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
     }
 
     [Test]
@@ -201,37 +194,37 @@ namespace Xtensive.Orm.Tests.Upgrade
         AddStorageNode(domain, DomainUpgradeMode.Recreate);
         var gatherer = domain.Extensions.Get<AccessGatherer>();
         ValidateAccess(gatherer);
-        domain.StorageNodeManager.RemoveNode(additionalNodeName);
+        _ = domain.StorageNodeManager.RemoveNode(additionalNodeName);
 
         AddStorageNode(domain, DomainUpgradeMode.Perform);
         gatherer = domain.Extensions.Get<AccessGatherer>();
         ValidateAccess(gatherer);
-        domain.StorageNodeManager.RemoveNode(additionalNodeName);
+        _ = domain.StorageNodeManager.RemoveNode(additionalNodeName);
 
         AddStorageNode(domain, DomainUpgradeMode.PerformSafely);
         gatherer = domain.Extensions.Get<AccessGatherer>();
         ValidateAccess(gatherer);
-        domain.StorageNodeManager.RemoveNode(additionalNodeName);
+        _ = domain.StorageNodeManager.RemoveNode(additionalNodeName);
 
         AddStorageNode(domain, DomainUpgradeMode.Validate);
         gatherer = domain.Extensions.Get<AccessGatherer>();
         ValidateAccess(gatherer);
-        domain.StorageNodeManager.RemoveNode(additionalNodeName);
+        _ = domain.StorageNodeManager.RemoveNode(additionalNodeName);
 
         AddStorageNode(domain, DomainUpgradeMode.Skip);
         gatherer = domain.Extensions.Get<AccessGatherer>();
         ValidateAccess(gatherer);
-        domain.StorageNodeManager.RemoveNode(additionalNodeName);
+        _ = domain.StorageNodeManager.RemoveNode(additionalNodeName);
 
         AddStorageNode(domain, DomainUpgradeMode.LegacySkip);
         gatherer = domain.Extensions.Get<AccessGatherer>();
         ValidateAccess(gatherer);
-        domain.StorageNodeManager.RemoveNode(additionalNodeName);
+        _ = domain.StorageNodeManager.RemoveNode(additionalNodeName);
 
         AddStorageNode(domain, DomainUpgradeMode.LegacyValidate);
         gatherer = domain.Extensions.Get<AccessGatherer>();
         ValidateAccess(gatherer);
-        domain.StorageNodeManager.RemoveNode(additionalNodeName);
+        _ = domain.StorageNodeManager.RemoveNode(additionalNodeName);
       }
     }
 
@@ -241,8 +234,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       foreach (var upgraderMethod in upgraderMethods) {
         var tested = accessGatherer[upgraderMethod];
-        if (tested==null)
+        if (tested == null) {
           continue;
+        }
 
         Assert.That(tested.ConstantPrimaryIndexName, Is.EqualTo(expected.ConstantPrimaryIndexName));
         Assert.That(tested.DefaultDatabase, Is.EqualTo(expected.DefaultDatabase));
@@ -252,8 +246,9 @@ namespace Xtensive.Orm.Tests.Upgrade
         Assert.That(tested.ProviderName, Is.EqualTo(expected.ProviderName));
         Assert.That(tested.StorageVersion, Is.EqualTo(expected.StorageVersion));
 
-        foreach (var supportedType in tested.SupportedTypes)
+        foreach (var supportedType in tested.SupportedTypes) {
           Assert.That(expected.SupportedTypes.Contains(supportedType), Is.True);
+        }
       }
     }
 
@@ -261,8 +256,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(typeof (TestEntity));
-      configuration.Types.Register(typeof (CustomUpgrader));
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgrader));
 
       return Domain.Build(configuration);
     }
@@ -271,9 +266,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      configuration.Types.Register(typeof (TestEntity));
-      configuration.Types.Register(typeof (CustomUpgrader));
-      configuration.DefaultSchema = "dbo";
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgrader));
+      configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
 
       return Domain.Build(configuration);
     }
@@ -281,23 +276,22 @@ namespace Xtensive.Orm.Tests.Upgrade
     private void AddStorageNode(Domain domain, DomainUpgradeMode upgradeMode)
     {
       var nodeConfiguration = new NodeConfiguration(additionalNodeName);
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(WellKnownSchemas.SqlServerDefaultSchema, WellKnownSchemas.Schema1);
       nodeConfiguration.UpgradeMode = upgradeMode;
 
-      domain.StorageNodeManager.AddNode(nodeConfiguration);
+      _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
     }
 
     private MethodInfo[] UpgraderMethods()
     {
-      var upgrader = typeof (CustomUpgrader);
+      var upgrader = typeof(CustomUpgrader);
 
-      var publicMethods = 
+      var publicMethods =
         upgrader.GetMethods(BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
       var protectedMethods =
         upgrader.GetMethods(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
 
       return publicMethods.Union(protectedMethods).ToArray();
     }
-
   }
 }

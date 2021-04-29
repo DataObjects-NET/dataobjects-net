@@ -21,11 +21,11 @@ namespace Xtensive.Orm.Localization.Tests
     private const string Node3Id = "Node3";
     private const string Node4Id = "Node4";
 
-    private const string DefaultNodeSchema = "dbo";
-    private const string FirstNodeSchema = "Model1";
-    private const string SecondNodeSchema = "Model2";
-    private const string ThridNodeSchema = "Model3";
-    private const string ForthNodeSchema = "Model4";
+    private const string DefaultNodeSchema = WellKnownSchemas.Schema1;
+    private const string FirstNodeSchema = WellKnownSchemas.Schema2;
+    private const string SecondNodeSchema = WellKnownSchemas.Schema3;
+    private const string ThridNodeSchema = WellKnownSchemas.Schema4;
+    private const string ForthNodeSchema = WellKnownSchemas.Schema5;
 
     private static readonly CultureInfo EnglishCulture = new CultureInfo("en-US");
     private static readonly string EnglishTitle = "Welcome!";

@@ -12,10 +12,10 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping
 {
   public abstract class MultischemaTest : MultimappingTest
   {
-    protected const string Schema1Name = "Model1";
-    protected const string Schema2Name = "Model2";
-    protected const string Schema3Name = "Model3";
-    protected const string Schema4Name = "Model4";
+    protected const string Schema1Name = WellKnownSchemas.Schema1;
+    protected const string Schema2Name = WellKnownSchemas.Schema2;
+    protected const string Schema3Name = WellKnownSchemas.Schema3;
+    protected const string Schema4Name = WellKnownSchemas.Schema4;
 
     protected override void CheckRequirements()
     {

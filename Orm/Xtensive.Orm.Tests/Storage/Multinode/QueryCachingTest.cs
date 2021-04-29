@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -92,6 +92,10 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 {
   public sealed class QueryCachingTest : MultinodeTest
   {
+    private const string dbo = WellKnownSchemas.SqlServerDefaultSchema;
+    private const string Schema1 = WellKnownSchemas.Schema1;
+    private const string Schema2 = WellKnownSchemas.Schema2;
+
     private readonly object SimpleQueryKey = new object();
     private readonly object FilterByIdQueryKey = new object();
     private readonly object FilterByManyIdsQueryKey = new object();
@@ -109,7 +113,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = dbo;
       return configuration;
     }
 
@@ -117,13 +121,13 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       CustomUpgradeHandler.CurrentNodeId = TestNodeId2;
       var nodeConfiguration = new NodeConfiguration(TestNodeId2);
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       nodeConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
 
       CustomUpgradeHandler.CurrentNodeId = TestNodeId3;
       nodeConfiguration = new NodeConfiguration(TestNodeId3);
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model2");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema2);
       nodeConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
     }

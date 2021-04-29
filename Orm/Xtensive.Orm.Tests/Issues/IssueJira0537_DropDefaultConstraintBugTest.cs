@@ -274,11 +274,11 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0537_DropDefaultConstraintBugTest : AutoBuildTest
   {
-    private const string Database1Name = "DO-Tests-1";
-    private const string Database2Name = "DO-Tests-2";
+    private const string Database1Name = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+    private const string Database2Name = WellKnownDatabases.MultiDatabase.AdditionalDb1;
     private const string CoreAlias = "core";
     private const string WmsAlias = "wms";
-    private const string SpecialSchemaAlias = "dbo";
+    private const string SpecialSchemaAlias = WellKnownSchemas.SqlServerDefaultSchema;
 
     private ConnectionInfo connectionInfo;
 

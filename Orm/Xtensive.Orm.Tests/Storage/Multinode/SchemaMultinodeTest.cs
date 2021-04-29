@@ -13,9 +13,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
   [TestFixture]
   public class SchemaMultinodeTest : StandardMultinodeTest
   {
-    private const string DefaultSchema = "Model1";
-    private const string SecondSchema = "Model2";
-    private const string ThirdSchema = "Model3";
+    private const string DefaultSchema = WellKnownSchemas.Schema1;
+    private const string SecondSchema = WellKnownSchemas.Schema2;
+    private const string ThirdSchema = WellKnownSchemas.Schema3;
 
     protected override void CheckRequirements()
     {
@@ -39,11 +39,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       var configuration = new NodeConfiguration(TestNodeId2) {UpgradeMode = DomainUpgradeMode.Recreate};
       configuration.SchemaMapping.Add(DefaultSchema, SecondSchema);
-      Domain.StorageNodeManager.AddNode(configuration);
+      _ = Domain.StorageNodeManager.AddNode(configuration);
 
       configuration = new NodeConfiguration(TestNodeId3) {UpgradeMode = DomainUpgradeMode.Recreate};
       configuration.SchemaMapping.Add(DefaultSchema, ThirdSchema);
-      Domain.StorageNodeManager.AddNode(configuration);
+      _ = Domain.StorageNodeManager.AddNode(configuration);
     }
   }
 }

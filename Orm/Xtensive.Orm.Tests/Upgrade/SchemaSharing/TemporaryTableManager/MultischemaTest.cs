@@ -1,6 +1,6 @@
-// Copyright (C) 2017 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2017-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2017.03.03
 
@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager
 {
   public class MultischemaTest : SimpleTest
   {
+    protected const string Schema1 = WellKnownSchemas.Schema1;
+    protected const string Schema2 = WellKnownSchemas.Schema2;
+    protected const string Schema3 = WellKnownSchemas.Schema3;
+    protected const string Schema4 = WellKnownSchemas.Schema4;
+
     protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
@@ -22,8 +27,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager
     {
       var configuration = GetDomainConfiguration();
       var domain = Domain.Build(configuration);
-      domain.StorageNodeManager.AddNode(GetNodeConfiguration());
-
+      _ = domain.StorageNodeManager.AddNode(GetNodeConfiguration());
       return domain;
     }
 
@@ -32,20 +36,19 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager
       var configuration = GetDomainConfiguration();
       configuration.ShareStorageSchemaOverNodes = true;
       var domain = Domain.Build(configuration);
-      domain.StorageNodeManager.AddNode(GetNodeConfiguration());
-
+      _ = domain.StorageNodeManager.AddNode(GetNodeConfiguration());
       return domain;
     }
 
     protected override DomainConfiguration GetDomainConfiguration()
     {
       var configuration = base.GetDomainConfiguration();
-      configuration.DefaultSchema = "Model1";
+      configuration.DefaultSchema = Schema1;
 
-      configuration.MappingRules.Map(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace).ToSchema("Model2");
-      configuration.MappingRules.Map(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace).ToSchema("Model2");
+      configuration.MappingRules.Map(typeof(model.Part1.TestEntity1).Assembly, typeof(model.Part1.TestEntity1).Namespace).ToSchema(Schema1);
+      configuration.MappingRules.Map(typeof(model.Part2.TestEntity2).Assembly, typeof(model.Part2.TestEntity2).Namespace).ToSchema(Schema1);
+      configuration.MappingRules.Map(typeof(model.Part3.TestEntity3).Assembly, typeof(model.Part3.TestEntity3).Namespace).ToSchema(Schema2);
+      configuration.MappingRules.Map(typeof(model.Part4.TestEntity4).Assembly, typeof(model.Part4.TestEntity4).Namespace).ToSchema(Schema2);
 
       return configuration;
     }
@@ -59,8 +62,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.TemporaryTableManager
     protected virtual NodeConfiguration GetNodeConfiguration()
     {
       var nodeConfiguration = new NodeConfiguration("Additional");
-      nodeConfiguration.SchemaMapping.Add("Model1", "Model3");
-      nodeConfiguration.SchemaMapping.Add("Model2", "Model4");
+      nodeConfiguration.SchemaMapping.Add(Schema1, Schema3);
+      nodeConfiguration.SchemaMapping.Add(Schema2, Schema4);
       nodeConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       return nodeConfiguration;
     }

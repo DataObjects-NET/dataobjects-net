@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -381,6 +381,9 @@ namespace Xtensive.Orm.Tests.Issues
       public string DefaultSchema { get; set; }
     }
 
+    private const string DOTests1Db = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+    private const string DOTests2Db = WellKnownDatabases.MultiDatabase.AdditionalDb2;
+
     private ClientNodeConfiguration alpha;
     private ClientNodeConfiguration beta;
     private ClientNodeConfiguration main;
@@ -542,27 +545,27 @@ namespace Xtensive.Orm.Tests.Issues
       main = new ClientNodeConfiguration {
         Name = "main",
         ConnectionInfo = ComposeConnectionToMasterDatabase(defaultConnection),
-        InitializationSql = "USE [DO-Tests-1]",
-        DefaultSchema = "dbo"
+        InitializationSql = $"USE [{DOTests1Db}]",
+        DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema
       };
       alpha = new ClientNodeConfiguration {
         Name = "alpha",
         ConnectionInfo = ComposeConnectionToMasterDatabase(defaultConnection),
-        InitializationSql = "USE [DO-Tests-1]",
-        DefaultSchema = "Model1"
+        InitializationSql = $"USE [{DOTests1Db}]",
+        DefaultSchema = WellKnownSchemas.Schema1
       };
 
       beta = new ClientNodeConfiguration {
         Name = "beta",
         ConnectionInfo = ComposeConnectionToMasterDatabase(defaultConnection),
-        InitializationSql = "USE [DO-Tests-2]",
-        DefaultSchema = "Model2"
+        InitializationSql = $"USE [{DOTests2Db}]",
+        DefaultSchema = WellKnownSchemas.Schema2
       };
     }
 
     private ConnectionInfo ComposeConnectionToMasterDatabase(ConnectionInfo baseConnectionInfo)
     {
-      if (baseConnectionInfo.ConnectionUrl==null) {
+      if (baseConnectionInfo.ConnectionUrl == null) {
         throw new InvalidOperationException("Can't convert connection string based ConnectionInfo");
       }
 
@@ -571,7 +574,6 @@ namespace Xtensive.Orm.Tests.Issues
       var password = baseConnectionInfo.ConnectionUrl.Password;
       var host = baseConnectionInfo.ConnectionUrl.Host;
       var port = baseConnectionInfo.ConnectionUrl.Port;
-      var database = "master";
       var parameters = baseConnectionInfo.ConnectionUrl.Params;
 
       var urlTemplate = "{0}://{1}{2}{3}/{4}{5}";
@@ -592,7 +594,7 @@ namespace Xtensive.Orm.Tests.Issues
         parametersPart = parametersPart.TrimEnd('&');
       }
 
-      var newUrl = string.Format(urlTemplate, provider, authentication, host, portPart, database, parametersPart);
+      var newUrl = string.Format(urlTemplate, provider, authentication, host, portPart, WellKnownDatabases.SqlServerMasterDb, parametersPart);
       return new ConnectionInfo(newUrl);
     }
   }

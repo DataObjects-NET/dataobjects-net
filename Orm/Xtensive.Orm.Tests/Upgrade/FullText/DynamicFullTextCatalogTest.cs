@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2017-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2017.07.12
 
@@ -151,6 +151,14 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class DynamicFullTextCatalogTest
   {
+    private const string DOTestsDb = WellKnownDatabases.MultiDatabase.MainDb;
+    private const string DOTests1Db = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+    private const string DOTests2Db = WellKnownDatabases.MultiDatabase.AdditionalDb2;
+
+    private const string dbo = WellKnownSchemas.SqlServerDefaultSchema;
+    private const string Schema1 = WellKnownSchemas.Schema1;
+    private const string Schema2 = WellKnownSchemas.Schema2;
+
     [OneTimeSetUp]
     public void TestFixtureSetUp()
     {
@@ -179,9 +187,9 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void SingleSchemaTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (TestEntity));
-      configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgradeHandler));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -193,7 +201,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
         var database = domain.StorageProviderInfo.DefaultDatabase;
         var schema = domain.StorageProviderInfo.DefaultSchema;
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_{1}", database, schema)));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{database}_{schema}"));
       }
     }
 
@@ -202,10 +210,10 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.ProviderIs(StorageProvider.SqlServer);
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (TestEntity));
-      configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
-      configuration.ConnectionInitializationSql = "USE [DO-Tests-1]";
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgradeHandler));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
+      configuration.ConnectionInitializationSql = $"USE [{DOTests1Db}]";
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = Domain.Build(configuration)) {
@@ -214,7 +222,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         var ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-1_dbo"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests1Db}_{dbo}"));
       }
     }
 
@@ -223,22 +231,25 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multischema);
 
-      var defaultSchemaType = typeof (Database1.Default.TestEntity1);
-      var model1Type = typeof (Database1.Model1.TestEntity2);
-      var model2Type = typeof (Database1.Model2.TestEntity3);
+      var defaultSchemaType = typeof(Database1.Default.TestEntity1);
+      var model1Type = typeof(Database1.Model1.TestEntity2);
+      var model2Type = typeof(Database1.Model2.TestEntity3);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(defaultSchemaType);
       configuration.Types.Register(model1Type);
       configuration.Types.Register(model2Type);
-      configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof(CustomUpgradeHandler));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = dbo;
 
-      configuration.MappingRules.Map(defaultSchemaType.Assembly, defaultSchemaType.Namespace).ToSchema("dbo");
-      configuration.MappingRules.Map(model1Type.Assembly, model1Type.Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(model2Type.Assembly, model2Type.Namespace).ToSchema("Model2");
+      configuration.MappingRules.Map(defaultSchemaType.Assembly, defaultSchemaType.Namespace)
+        .ToSchema(dbo);
+      configuration.MappingRules.Map(model1Type.Assembly, model1Type.Namespace)
+        .ToSchema(WellKnownSchemas.Schema1);
+      configuration.MappingRules.Map(model2Type.Assembly, model2Type.Namespace)
+        .ToSchema(WellKnownSchemas.Schema2);
 
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
@@ -246,23 +257,23 @@ namespace Xtensive.Orm.Tests.Upgrade
         var database = domain.StorageProviderInfo.DefaultDatabase;
 
         var targetModel = domain.Extensions.Get<StorageModel>();
-        var defaultSchemaTable = targetModel.Tables["dbo:TestEntity1"];
+        var defaultSchemaTable = targetModel.Tables[$"{dbo}:TestEntity1"];
         var ftIndex = defaultSchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_dbo", database)));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{database}_{dbo}"));
 
-        var model1SchemaTable = targetModel.Tables["Model1:TestEntity2"];
+        var model1SchemaTable = targetModel.Tables[$"{Schema1}:TestEntity2"];
         ftIndex = model1SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_Model1", database)));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{database}_{Schema1}"));
 
-        var model2SchemaTable = targetModel.Tables["Model2:TestEntity3"];
+        var model2SchemaTable = targetModel.Tables[$"{Schema2}:TestEntity3"];
         ftIndex = model2SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo(string.Format("{0}_Model2", database)));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{database}_{Schema2}"));
       }
     }
 
@@ -270,13 +281,13 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void MultidatabaseTest()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
-      var db1DefaultSchemaType = typeof (Database1.Default.TestEntity1);
-      var db1Model1SchemaType = typeof (Database1.Model1.TestEntity2);
-      var db1Model2SchemaType = typeof (Database1.Model2.TestEntity3);
+      var db1DefaultSchemaType = typeof(Database1.Default.TestEntity1);
+      var db1Model1SchemaType = typeof(Database1.Model1.TestEntity2);
+      var db1Model2SchemaType = typeof(Database1.Model2.TestEntity3);
 
-      var db2DefaultSchemaType = typeof (Database2.Default.TestEntity4);
-      var db2Model1SchemaType = typeof (Database2.Model1.TestEntity5);
-      var db2Model2SchemaType = typeof (Database2.Model2.TestEntity6);
+      var db2DefaultSchemaType = typeof(Database2.Default.TestEntity4);
+      var db2Model1SchemaType = typeof(Database2.Model1.TestEntity5);
+      var db2Model2SchemaType = typeof(Database2.Model2.TestEntity6);
 
       var configuragtion = DomainConfigurationFactory.Create();
       configuragtion.Types.Register(db1DefaultSchemaType);
@@ -287,61 +298,71 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuragtion.Types.Register(db2Model1SchemaType);
       configuragtion.Types.Register(db2Model2SchemaType);
 
-      configuragtion.Types.Register(typeof (CustomUpgradeHandler));
-      configuragtion.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
+      configuragtion.Types.Register(typeof(CustomUpgradeHandler));
+      configuragtion.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
-      configuragtion.DefaultDatabase = "DO-Tests";
-      configuragtion.DefaultSchema = "dbo";
+      configuragtion.DefaultDatabase = DOTestsDb;
+      configuragtion.DefaultSchema = dbo;
 
-      configuragtion.MappingRules.Map(db1DefaultSchemaType.Assembly, db1DefaultSchemaType.Namespace).To("DO-Tests", "dbo");
-      configuragtion.MappingRules.Map(db1Model1SchemaType.Assembly, db1Model1SchemaType.Namespace).To("DO-Tests", "Model1");
-      configuragtion.MappingRules.Map(db1Model2SchemaType.Assembly, db1Model2SchemaType.Namespace).To("DO-Tests", "Model2");
+      configuragtion.MappingRules.Map(db1DefaultSchemaType.Assembly, db1DefaultSchemaType.Namespace)
+        .To(DOTestsDb, dbo);
+      configuragtion.MappingRules.Map(db1Model1SchemaType.Assembly, db1Model1SchemaType.Namespace)
+        .To(DOTestsDb, WellKnownSchemas.Schema1);
+      configuragtion.MappingRules.Map(db1Model2SchemaType.Assembly, db1Model2SchemaType.Namespace)
+        .To(DOTestsDb, WellKnownSchemas.Schema2);
 
-      configuragtion.MappingRules.Map(db2DefaultSchemaType.Assembly, db2DefaultSchemaType.Namespace).To("DO-Tests-1", "dbo");
-      configuragtion.MappingRules.Map(db2Model1SchemaType.Assembly, db2Model1SchemaType.Namespace).To("DO-Tests-1", "Model1");
-      configuragtion.MappingRules.Map(db2Model2SchemaType.Assembly, db2Model2SchemaType.Namespace).To("DO-Tests-1", "Model2");
+      configuragtion.MappingRules.Map(db2DefaultSchemaType.Assembly, db2DefaultSchemaType.Namespace)
+        .To(DOTests1Db, dbo);
+      configuragtion.MappingRules.Map(db2Model1SchemaType.Assembly, db2Model1SchemaType.Namespace)
+        .To(DOTests1Db, WellKnownSchemas.Schema1);
+      configuragtion.MappingRules.Map(db2Model2SchemaType.Assembly, db2Model2SchemaType.Namespace)
+        .To(DOTests1Db, WellKnownSchemas.Schema2);
 
       configuragtion.UpgradeMode = DomainUpgradeMode.Recreate;
 
       using (var domain = Domain.Build(configuragtion)) {
         var targetStorageModel = domain.Extensions.Get<StorageModel>();
 
-        var db1DefaultSchemaTable = targetStorageModel.Tables["DO-Tests:dbo:TestEntity1"];
+        var db1DefaultSchemaTable = targetStorageModel
+          .Tables[$"{DOTestsDb}:{dbo}:TestEntity1"];
         Assert.That(db1DefaultSchemaTable, Is.Not.Null);
         var ftIndex = db1DefaultSchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_dbo"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{dbo}"));
 
-        var db1Model1SchemaTable = targetStorageModel.Tables["DO-Tests:Model1:TestEntity2"];
+        var db1Model1SchemaTable = targetStorageModel
+          .Tables[$"{DOTestsDb}:{Schema1}:TestEntity2"];
         ftIndex = db1Model1SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_Model1"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{Schema1}"));
 
-        var db1Model2SchemaTable = targetStorageModel.Tables["DO-Tests:Model2:TestEntity3"];
+        var db1Model2SchemaTable = targetStorageModel
+          .Tables[$"{DOTestsDb}:{Schema2}:TestEntity3"];
         ftIndex = db1Model2SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_Model2"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{Schema2}"));
 
-        var db2DefaultSchemaTable = targetStorageModel.Tables["DO-Tests-1:dbo:TestEntity4"];
+        var db2DefaultSchemaTable = targetStorageModel
+          .Tables[$"{DOTests1Db}:{dbo}:TestEntity4"];
         ftIndex = db2DefaultSchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-1_dbo"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests1Db}_{dbo}"));
 
-        var db2Model1SchemaTable = targetStorageModel.Tables["DO-Tests-1:Model1:TestEntity5"];
+        var db2Model1SchemaTable = targetStorageModel.Tables[$"{DOTests1Db}:{Schema1}:TestEntity5"];
         ftIndex = db2Model1SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-1_Model1"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests1Db}_{Schema1}"));
 
-        var db2Model2SchemaTable = targetStorageModel.Tables["DO-Tests-1:Model2:TestEntity6"];
+        var db2Model2SchemaTable = targetStorageModel.Tables[$"{DOTests1Db}:{Schema2}:TestEntity6"];
         ftIndex = db2Model2SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-1_Model2"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests1Db}_{Schema2}"));
       }
     }
 
@@ -352,48 +373,48 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (TestEntity));
-      configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgradeHandler));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = dbo;
 
       var nodeConfiguration1 = new NodeConfiguration("AdditionalNode1");
       nodeConfiguration1.UpgradeMode = DomainUpgradeMode.Recreate;
-      nodeConfiguration1.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration1.SchemaMapping.Add(dbo, WellKnownSchemas.Schema1);
 
       var nodeConfiguration2 = new NodeConfiguration("AdditionalNode2");
       nodeConfiguration2.UpgradeMode = DomainUpgradeMode.Recreate;
-      nodeConfiguration2.SchemaMapping.Add("dbo", "Model2");
+      nodeConfiguration2.SchemaMapping.Add(dbo, WellKnownSchemas.Schema2);
 
       using (var domain = Domain.Build(configuration)) {
         var domainStorageModel = domain.Extensions.Get<StorageModel>();
-        var table = domainStorageModel.Tables["dbo:TestEntity"];
+        var table = domainStorageModel.Tables[$"{dbo}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         var ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_dbo"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{dbo}"));
 
         domain.Extensions.Clear();
-        domain.StorageNodeManager.AddNode(nodeConfiguration1);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration1);
         var node1StorageModel = domain.Extensions.Get<StorageModel>();
-        table = node1StorageModel.Tables["Model1:TestEntity"];
+        table = node1StorageModel.Tables[$"{Schema1}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_Model1"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{Schema1}"));
 
         domain.Extensions.Clear();
-        domain.StorageNodeManager.AddNode(nodeConfiguration2);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration2);
         var node2StorageModel = domain.Extensions.Get<StorageModel>();
-        table = node2StorageModel.Tables["Model2:TestEntity"];
+        table = node2StorageModel.Tables[$"{Schema2}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_Model2"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{Schema2}"));
       }
     }
 
@@ -404,51 +425,51 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (TestEntity));
-      configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgradeHandler));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
-      configuration.DefaultSchema = "dbo";
-      configuration.DefaultDatabase = "DO-Tests";
+      configuration.DefaultSchema = dbo;
+      configuration.DefaultDatabase = DOTestsDb;
 
       var nodeConfiguration1 = new NodeConfiguration("AdditionalNode1");
       nodeConfiguration1.UpgradeMode = DomainUpgradeMode.Recreate;
-      nodeConfiguration1.SchemaMapping.Add("dbo", "Model1");
-      nodeConfiguration1.DatabaseMapping.Add("DO-Tests", "DO-Tests-1");
+      nodeConfiguration1.SchemaMapping.Add(dbo, WellKnownSchemas.Schema1);
+      nodeConfiguration1.DatabaseMapping.Add(DOTestsDb, DOTests1Db);
 
       var nodeConfiguration2 = new NodeConfiguration("AdditionalNode2");
       nodeConfiguration2.UpgradeMode = DomainUpgradeMode.Recreate;
-      nodeConfiguration2.SchemaMapping.Add("dbo", "Model2");
-      nodeConfiguration2.DatabaseMapping.Add("DO-Tests", "DO-Tests-2");
+      nodeConfiguration2.SchemaMapping.Add(dbo, WellKnownSchemas.Schema2);
+      nodeConfiguration2.DatabaseMapping.Add(DOTestsDb, DOTests2Db);
 
       using (var domain = Domain.Build(configuration)) {
         var domainStorageModel = domain.Extensions.Get<StorageModel>();
-        var table = domainStorageModel.Tables["DO-Tests:dbo:TestEntity"];
+        var table = domainStorageModel.Tables[$"{DOTestsDb}:{dbo}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         var ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_dbo"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{dbo}"));
 
         domain.Extensions.Clear();
-        domain.StorageNodeManager.AddNode(nodeConfiguration1);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration1);
         var node1StorageModel = domain.Extensions.Get<StorageModel>();
-        table = node1StorageModel.Tables["DO-Tests-1:Model1:TestEntity"];
+        table = node1StorageModel.Tables[$"{DOTests1Db}:{Schema1}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-1_Model1"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests1Db}_{Schema1}"));
 
         domain.Extensions.Clear();
-        domain.StorageNodeManager.AddNode(nodeConfiguration2);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration2);
         var node2StorageModel = domain.Extensions.Get<StorageModel>();
-        table = node2StorageModel.Tables["DO-Tests-2:Model2:TestEntity"];
+        table = node2StorageModel.Tables[$"{DOTests2Db}:{Schema2}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-2_Model2"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests2Db}_{Schema2}"));
       }
     }
 
@@ -459,50 +480,50 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (TestEntity));
-      configuration.Types.Register(typeof (CustomUpgradeHandler));
-      configuration.Types.Register(typeof (CustomFullTextCatalogNameBuilder));
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgradeHandler));
+      configuration.Types.Register(typeof(CustomFullTextCatalogNameBuilder));
 
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = dbo;
 
       var nodeConfiguration1 = new NodeConfiguration("AdditionalNode1");
-      nodeConfiguration1.ConnectionInitializationSql = "USE [DO-Tests-1]";
+      nodeConfiguration1.ConnectionInitializationSql = $"USE [{DOTests1Db}]";
       nodeConfiguration1.UpgradeMode = DomainUpgradeMode.Recreate;
-      nodeConfiguration1.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration1.SchemaMapping.Add(dbo, WellKnownSchemas.Schema1);
 
       var nodeConfiguration2 = new NodeConfiguration("AdditionalNode2");
-      nodeConfiguration2.ConnectionInitializationSql = "USE [DO-Tests-2]";
+      nodeConfiguration2.ConnectionInitializationSql = $"USE [{DOTests2Db}]";
       nodeConfiguration2.UpgradeMode = DomainUpgradeMode.Recreate;
-      nodeConfiguration2.SchemaMapping.Add("dbo", "Model2");
+      nodeConfiguration2.SchemaMapping.Add(dbo, WellKnownSchemas.Schema2);
 
       using (var domain = Domain.Build(configuration)) {
         var domainStorageModel = domain.Extensions.Get<StorageModel>();
-        var table = domainStorageModel.Tables["dbo:TestEntity"];
+        var table = domainStorageModel.Tables[$"{dbo}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         var ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests_dbo"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTestsDb}_{dbo}"));
 
         domain.Extensions.Clear();
-        domain.StorageNodeManager.AddNode(nodeConfiguration1);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration1);
         var node1StorageModel = domain.Extensions.Get<StorageModel>();
-        table = node1StorageModel.Tables["Model1:TestEntity"];
+        table = node1StorageModel.Tables[$"{Schema1}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-1_Model1"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests1Db}_{Schema1}"));
 
         domain.Extensions.Clear();
-        domain.StorageNodeManager.AddNode(nodeConfiguration2);
+        _ = domain.StorageNodeManager.AddNode(nodeConfiguration2);
         var node2StorageModel = domain.Extensions.Get<StorageModel>();
-        table = node2StorageModel.Tables["Model2:TestEntity"];
+        table = node2StorageModel.Tables[$"{Schema2}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo("DO-Tests-2_Model2"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{DOTests2Db}_{Schema2}"));
       }
     }
   }

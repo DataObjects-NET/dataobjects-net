@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2020 Xtensive LLC.
+// Copyright (C) 2015-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -191,6 +191,9 @@ namespace Xtensive.Orm.Tests.Issues
 {
   public class IssueJira0614_MaterializationContextModel
   {
+    private const string Schema1 = WellKnownSchemas.Schema1;
+    private const string Schema2 = WellKnownSchemas.Schema2;
+
     private const string Node2Name = "Node2";
     private const string Node1Name = "Node1";
 
@@ -200,8 +203,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test01()
     {
-      var configuration1 = CreateConfiguration(typeof(Node1.TimesheetCode), DomainUpgradeMode.Recreate, "Model1");
-      var configuration2 = CreateConfiguration(typeof(Node2.TimesheetCode), DomainUpgradeMode.Recreate, "Model2");
+      var configuration1 = CreateConfiguration(typeof(Node1.TimesheetCode), DomainUpgradeMode.Recreate, Schema1);
+      var configuration2 = CreateConfiguration(typeof(Node2.TimesheetCode), DomainUpgradeMode.Recreate, Schema2);
 
       using (var domain = BuildDomain(configuration1)) {
         Assert.That(domain.Model.Types[typeof(Node1.TimesheetCode)].TypeId, Is.EqualTo(288));
@@ -263,8 +266,8 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
 
-      var multinodeDomainConfiguration = CreateConfiguration(typeof(Target.TimesheetCode), DomainUpgradeMode.Skip, "Model1");
-      var nodeConfiguration = CreateNodeConfiguration(Node2Name, "Model1", "Model2", DomainUpgradeMode.Skip);
+      var multinodeDomainConfiguration = CreateConfiguration(typeof(Target.TimesheetCode), DomainUpgradeMode.Skip, Schema1);
+      var nodeConfiguration = CreateNodeConfiguration(Node2Name, Schema1, Schema2, DomainUpgradeMode.Skip);
 
       using (var domain = BuildDomain(multinodeDomainConfiguration, nodeConfiguration)) {
         using (var session = domain.OpenSession()) {
@@ -311,8 +314,8 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void Test02()
     {
-      var configuration1 = CreateConfiguration(typeof(Node1.TimesheetCode), DomainUpgradeMode.Recreate, "Model1");
-      var configuration2 = CreateConfiguration(typeof(Node2.TimesheetCode), DomainUpgradeMode.Recreate, "Model2");
+      var configuration1 = CreateConfiguration(typeof(Node1.TimesheetCode), DomainUpgradeMode.Recreate, Schema1);
+      var configuration2 = CreateConfiguration(typeof(Node2.TimesheetCode), DomainUpgradeMode.Recreate, Schema2);
 
       using (var domain = BuildDomain(configuration1)) {
         Assert.That(domain.Model.Types[typeof(Node1.TimesheetCode)].TypeId, Is.EqualTo(288));
@@ -375,8 +378,8 @@ namespace Xtensive.Orm.Tests.Issues
         }
       }
 
-      var multinodeDomainConfiguration = CreateConfiguration(typeof(Target.TimesheetCode), DomainUpgradeMode.PerformSafely, "Model2");
-      var nodeConfiguration = CreateNodeConfiguration(Node1Name, "Model2", "Model1", DomainUpgradeMode.PerformSafely);
+      var multinodeDomainConfiguration = CreateConfiguration(typeof(Target.TimesheetCode), DomainUpgradeMode.PerformSafely, Schema2);
+      var nodeConfiguration = CreateNodeConfiguration(Node1Name, Schema2, Schema1, DomainUpgradeMode.PerformSafely);
 
       using (var domain = BuildDomain(multinodeDomainConfiguration, nodeConfiguration)) {
         using (var session = domain.OpenSession()) {
@@ -435,13 +438,14 @@ namespace Xtensive.Orm.Tests.Issues
     {
       try{
         var domain = Domain.Build(configuration);
-        if (nodeConfiguration!=null)
-          domain.StorageNodeManager.AddNode(nodeConfiguration);
+        if (nodeConfiguration != null) {
+          _ = domain.StorageNodeManager.AddNode(nodeConfiguration);
+        }
         return domain;
       }
       catch (Exception e) {
         TestLog.Error(GetType().GetFullName());
-        TestLog.Error(e);
+        _ = TestLog.Error(e);
         throw;
       }
     }

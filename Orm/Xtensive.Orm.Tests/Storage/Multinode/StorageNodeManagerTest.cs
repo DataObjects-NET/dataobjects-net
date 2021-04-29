@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -20,18 +20,21 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       public int Id { get; private set; }
     }
 
+    private const string DOTestsDb = WellKnownDatabases.MultiDatabase.MainDb;
+    private const string DOTests1Db = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+
+    private const string dbo = WellKnownSchemas.SqlServerDefaultSchema;
+    private const string Schema1 = WellKnownSchemas.Schema1;
+
     private readonly List<string> NodesToClear = new List<string>();
 
-    protected override void CheckRequirements()
-    {
-      Require.ProviderIs(StorageProvider.SqlServer);
-    }
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer);
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
       config.Types.Register(typeof(TestEntity));
-      config.DefaultSchema = "dbo";
+      config.DefaultSchema = dbo;
       return config;
     }
 
@@ -53,7 +56,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void AddUniqueNodeTest()
     {
       var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       var result = Domain.StorageNodeManager.AddNode(nodeConfiguration);
       Assert.That(result, Is.True);
     }
@@ -62,7 +65,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void AddAlreadyExistingTest()
     {
       var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
 
       var sameConfig = (NodeConfiguration)nodeConfiguration.Clone();
@@ -74,7 +77,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void AddNodeWithNullNameTest()
     {
       var nodeConfiguration = new NodeConfiguration() { UpgradeMode = DomainUpgradeMode.Recreate };
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       _ = Assert.Throws<InvalidOperationException>(() => Domain.StorageNodeManager.AddNode(nodeConfiguration));
     }
 
@@ -82,7 +85,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void AddNodeWithEmptyNameTest()
     {
       var nodeConfiguration = new NodeConfiguration(string.Empty) { UpgradeMode = DomainUpgradeMode.Recreate };
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       _ = Assert.Throws<InvalidOperationException>(() => Domain.StorageNodeManager.AddNode(nodeConfiguration));
     }
 
@@ -96,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void AddNodeForMultidatabaseDomainTest()
     {
       var nodeConfiguration = new NodeConfiguration() { UpgradeMode = DomainUpgradeMode.Recreate };
-      nodeConfiguration.DatabaseMapping.Add("DO-Tests", "DO-Tests-1");
+      nodeConfiguration.DatabaseMapping.Add(DOTestsDb, DOTests1Db);
       _ = Assert.Throws<InvalidOperationException>(() => Domain.StorageNodeManager.AddNode(nodeConfiguration));
     }
 
@@ -110,7 +113,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void GetNodeByEmptyStringTest()
     {
       var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       var result = Domain.StorageNodeManager.AddNode(nodeConfiguration);
       Assert.That(result, Is.True);
 
@@ -124,7 +127,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void GetNodeByExistingNodeNameTest()
     {
       var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       var result = Domain.StorageNodeManager.AddNode(nodeConfiguration);
       Assert.That(result, Is.True);
 
@@ -138,7 +141,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void GetNodeWhichDoesntExistTest()
     {
       var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       var result = Domain.StorageNodeManager.AddNode(nodeConfiguration);
       Assert.That(result, Is.True);
 
@@ -158,7 +161,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     public void RemoveExistingNode()
     {
       var nodeConfiguration = GetBaseNodeConfig();
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(dbo, Schema1);
       var result = Domain.StorageNodeManager.AddNode(nodeConfiguration);
       Assert.That(result, Is.True);
 

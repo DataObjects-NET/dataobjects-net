@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -27,6 +27,12 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       }
     }
 
+    private const string DOTestsDb = WellKnownDatabases.MultiDatabase.MainDb;
+    private const string DOTests1Db = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+
+    private const string dbo = WellKnownSchemas.SqlServerDefaultSchema;
+    private const string Schema1 = WellKnownSchemas.Schema1;
+
     [OneTimeSetUp]
     public void OneTimeSetUp() => Require.ProviderIs(StorageProvider.SqlServer);
 
@@ -35,14 +41,14 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.Types.Register(typeof(TestEntity));
-      domainConfig.DefaultSchema = "dbo";
-      domainConfig.ConnectionInitializationSql = "USE [DO-Tests]";
+      domainConfig.DefaultSchema = dbo;
+      domainConfig.ConnectionInitializationSql = $"USE [{DOTestsDb}]";
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
       var nodeConfig = new NodeConfiguration("Additional");
       nodeConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       nodeConfig.ConnectionInitializationSql = null;
-      nodeConfig.SchemaMapping.Add("dbo", "Model1");
+      nodeConfig.SchemaMapping.Add(dbo, Schema1);
 
       using (var domain = Domain.Build(domainConfig)) {
         using (var session = domain.OpenSession())
@@ -51,7 +57,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           using (var command = service.CreateCommand()) {
             command.CommandText = "SELECT DB_NAME() AS [Current Database];";
             var databaseName = command.ExecuteScalar();
-            Assert.That(databaseName, Is.EqualTo("DO-Tests"));
+            Assert.That(databaseName, Is.EqualTo(DOTestsDb));
           }
         }
 
@@ -63,7 +69,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           using (var command = service.CreateCommand()) {
             command.CommandText = "SELECT DB_NAME() AS [Current Database];";
             var databaseName = command.ExecuteScalar();
-            Assert.That(databaseName, Is.EqualTo("DO-Tests"));
+            Assert.That(databaseName, Is.EqualTo(DOTestsDb));
           }
         }
       }
@@ -74,14 +80,14 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.Types.Register(typeof(TestEntity));
-      domainConfig.DefaultSchema = "dbo";
-      domainConfig.ConnectionInitializationSql = "USE [DO-Tests]";
+      domainConfig.DefaultSchema = dbo;
+      domainConfig.ConnectionInitializationSql = $"USE [{DOTestsDb}]";
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
       var nodeConfig = new NodeConfiguration("Additional");
       nodeConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       nodeConfig.ConnectionInitializationSql = string.Empty;
-      nodeConfig.SchemaMapping.Add("dbo", "Model1");
+      nodeConfig.SchemaMapping.Add(dbo, Schema1);
 
       using (var domain = Domain.Build(domainConfig)) {
         using (var session = domain.OpenSession())
@@ -93,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           using (var command = service.CreateCommand()) {
             command.CommandText = "SELECT DB_NAME() AS [Current Database];";
             var databaseName = command.ExecuteScalar();
-            Assert.That(databaseName, Is.EqualTo("DO-Tests"));
+            Assert.That(databaseName, Is.EqualTo(DOTestsDb));
           }
         }
 
@@ -105,7 +111,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           using (var command = service.CreateCommand()) {
             command.CommandText = "SELECT DB_NAME() AS [Current Database];";
             var databaseName = command.ExecuteScalar();
-            Assert.That(databaseName, Is.EqualTo("DO-Tests"));
+            Assert.That(databaseName, Is.EqualTo(DOTestsDb));
           }
         }
       }
@@ -116,14 +122,14 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.Types.Register(typeof(TestEntity));
-      domainConfig.DefaultSchema = "dbo";
-      domainConfig.ConnectionInitializationSql = "USE [DO-Tests]";
+      domainConfig.DefaultSchema = dbo;
+      domainConfig.ConnectionInitializationSql = $"USE [{DOTestsDb}]";
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
       var nodeConfig = new NodeConfiguration("Additional");
       nodeConfig.UpgradeMode = DomainUpgradeMode.Recreate;
-      nodeConfig.ConnectionInitializationSql = "USE [DO-Tests-1]";
-      nodeConfig.SchemaMapping.Add("dbo", "dbo");
+      nodeConfig.ConnectionInitializationSql = $"USE [{DOTests1Db}]";
+      nodeConfig.SchemaMapping.Add(dbo, dbo);
 
       using (var domain = Domain.Build(domainConfig)) {
         using (var session = domain.OpenSession())
@@ -135,7 +141,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           using (var command = service.CreateCommand()) {
             command.CommandText = "SELECT DB_NAME() AS [Current Database];";
             var databaseName = command.ExecuteScalar();
-            Assert.That(databaseName, Is.EqualTo("DO-Tests"));
+            Assert.That(databaseName, Is.EqualTo(DOTestsDb));
           }
         }
 
@@ -147,7 +153,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
           using (var command = service.CreateCommand()) {
             command.CommandText = "SELECT DB_NAME() AS [Current Database];";
             var databaseName = command.ExecuteScalar();
-            Assert.That(databaseName, Is.EqualTo("DO-Tests-1"));
+            Assert.That(databaseName, Is.EqualTo(DOTests1Db));
           }
         }
       }
