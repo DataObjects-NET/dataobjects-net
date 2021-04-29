@@ -275,7 +275,7 @@ namespace Xtensive.Orm.Tests.Issues
   public class IssueJira0537_DropDefaultConstraintBugTest : AutoBuildTest
   {
     private const string Database1Name = WellKnownDatabases.MultiDatabase.AdditionalDb1;
-    private const string Database2Name = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+    private const string Database2Name = WellKnownDatabases.MultiDatabase.AdditionalDb2;
     private const string CoreAlias = "core";
     private const string WmsAlias = "wms";
     private const string SpecialSchemaAlias = WellKnownSchemas.SqlServerDefaultSchema;
