@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     {
       targetSchemes.Clear();
       theCatalog = new Catalog(catalogName);
-      var targetSchema = schemaName.ToUpperInvariant();
+      var targetSchema = ToUpperInvariantIfNeeded(schemaName);
       targetSchemes.Add(targetSchema);
 
       RegisterReplacements(replacementsRegistry);
@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       theCatalog = new Catalog(catalogName);
       targetSchemes.Clear();
       foreach (var schemaName in schemaNames) {
-        var targetSchema = schemaName.ToUpperInvariant();
+        var targetSchema = ToUpperInvariantIfNeeded(schemaName);
         targetSchemes.Add(targetSchema);
       }
 
@@ -69,6 +69,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       EnsureShemasExists(theCatalog, schemaNames);
       ExtractCatalogContents();
       return theCatalog;
+    }
+
+    protected virtual string ToUpperInvariantIfNeeded(string schemaName)
+    {
+      return schemaName.ToUpperInvariant();
     }
 
     private void ExtractCatalogContents()
@@ -92,7 +97,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         while (reader.Read())
           theCatalog.CreateSchema(reader.GetString(0));
       // choosing the default schema
-      var defaultSchemaName = Driver.CoreServerInfo.DefaultSchemaName.ToUpperInvariant();
+      var defaultSchemaName = ToUpperInvariantIfNeeded(Driver.CoreServerInfo.DefaultSchemaName).ToUpperInvariant();
       var defaultSchema = theCatalog.Schemas[defaultSchemaName];
       theCatalog.DefaultSchema = defaultSchema;
     }
