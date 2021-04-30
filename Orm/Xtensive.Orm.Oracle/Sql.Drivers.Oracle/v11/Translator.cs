@@ -6,11 +6,32 @@
 
 using System;
 using Xtensive.Sql.Compiler;
+using Xtensive.Sql.Ddl;
 
 namespace Xtensive.Sql.Drivers.Oracle.v11
 {
   internal class Translator : v10.Translator
   {
+    //so called INITRANS value
+    protected const int TableTransactionalParallelismLevel = 3;
+    protected const int IndexTransactionalParallelismLevel = 3;
+
+    public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
+    {
+      if (section == CreateTableSection.TableElementsExit)
+        return $") INITRANS {TableTransactionalParallelismLevel} ";
+      return base.Translate(context, node, section);
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    {
+      if (section == CreateIndexSection.ColumnsExit)
+        return $") INITRANS {IndexTransactionalParallelismLevel}";
+      //CreateIndexSection.ColumnsExit:
+      //return ")"
+      return base.Translate(context, node, section);
+    }
+
     public override string Translate(SqlValueType type)
     {
       // we need to explicitly specify maximum interval precision
