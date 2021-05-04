@@ -309,7 +309,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.Int32));
+      CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", GetTypeForInteger(SqlType.Int32));
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
 
@@ -325,7 +325,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
       CreateForeignKeyInDb(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity1_MyEntity1ID");
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreColumn("ReferencedIgnoredColumn").WhenTable("MyEntity2").WhenSchema(schema);
@@ -341,7 +341,7 @@ namespace Xtensive.Orm.Tests.Storage
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] { "Id", "FirstColumn" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64) };
 
       if (createConstraintsWithTable) {
         var delayedOp = CreateTableDelayed(catalog, schema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
@@ -366,7 +366,7 @@ namespace Xtensive.Orm.Tests.Storage
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
 
       if (createConstraintsWithTable) {
         var delayedOp = CreateTableDelayed(catalog, schema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
@@ -393,7 +393,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "Myentity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, schema, "Myentity2", "SimpleIgnoredColumn", GetTypeForInteger(SqlType.Int64));
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
 
@@ -416,7 +416,7 @@ namespace Xtensive.Orm.Tests.Storage
       var catalog = GetCatalog();
       var schema = catalog.Schemas[catalog.DefaultSchema.Name] ?? catalog.Schemas[0];
 
-      schema.Tables["MyEntity2"].CreateColumn("SimpleIgnoredColumn", new SqlValueType(SqlType.Int64)).IsNullable = false;
+      schema.Tables["MyEntity2"].CreateColumn("SimpleIgnoredColumn", GetTypeForInteger(SqlType.Int64)).IsNullable = false;
 
       var alter = SqlDdl.Alter(schema.Tables["MyEntity2"],
         SqlDdl.AddColumn(schema.Tables["MyEntity2"].TableColumns["SimpleIgnoredColumn"]));
@@ -443,7 +443,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, schema, "MyEntity2", "SimpleIgnoredColumn", GetTypeForInteger(SqlType.Int64));
 
       var ignoreRuleCollection = new IgnoreRuleCollection();
       _ = ignoreRuleCollection.IgnoreColumn("SimpleIgnoredColumn").WhenTable("MyEntity2");
@@ -462,7 +462,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
       CreateForeignKeyInDb(catalog, schema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity1_MyEntity1ID");
 
       var ignoreRuleCollection = new IgnoreRuleCollection();
@@ -480,9 +480,9 @@ namespace Xtensive.Orm.Tests.Storage
 
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
-      CreateColumn(catalog, schema, "MyEntity2", "IgnoreFirstColumn", new SqlValueType(SqlType.Int64));
-      CreateColumn(catalog, schema, "MyEntity2", "IgnoreSecondColumn", new SqlValueType(SqlType.Int64));
-      CreateColumn(catalog, schema, "MyEntity2", "IgnoreThirdColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, schema, "MyEntity2", "IgnoreFirstColumn", GetTypeForInteger(SqlType.Int64));
+      CreateColumn(catalog, schema, "MyEntity2", "IgnoreSecondColumn", GetTypeForInteger(SqlType.Int64));
+      CreateColumn(catalog, schema, "MyEntity2", "IgnoreThirdColumn", GetTypeForInteger(SqlType.Int64));
       var ignoreRules = new IgnoreRuleCollection();
       _ = ignoreRules.IgnoreColumn("Ignore*");
 
@@ -497,7 +497,7 @@ namespace Xtensive.Orm.Tests.Storage
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] { "Id", "FirstColumn", "SecondColumn" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
 
       if (createConstraintsWithTable) {
         var delayedOp = CreateTableDelayed(catalog, schema, "IgnoredFirstTable", addedColumnsNames, addedColumnsTypes);
@@ -529,7 +529,7 @@ namespace Xtensive.Orm.Tests.Storage
       var catalog = GetCatalog();
       var schema = catalog.DefaultSchema.Name;
       var addedColumnsNames = new[] { "Id", "FirstColumn", "SecondColumn" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
 
       if (createConstraintsWithTable) {
         var delayedOp = CreateTableDelayed(catalog, schema, "IgnoredTable", addedColumnsNames, addedColumnsTypes);
@@ -554,8 +554,8 @@ namespace Xtensive.Orm.Tests.Storage
       var catalog = GetCatalog();
       var schema = catalog.Schemas[catalog.DefaultSchema.Name] ?? catalog.Schemas[0];
 
-      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredFirstColumn", new SqlValueType(SqlType.Int64));
-      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredSecondColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredFirstColumn", GetTypeForInteger(SqlType.Int64));
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredSecondColumn", GetTypeForInteger(SqlType.Int64));
 
       var ignoreRules = new IgnoreRuleCollection();
       _ = ignoreRules.IgnoreColumn("Ignored*").WhenTable("MyEntity2");
@@ -583,8 +583,8 @@ namespace Xtensive.Orm.Tests.Storage
 
       var catalog = GetCatalog();
       var schema = catalog.Schemas[catalog.DefaultSchema.Name] ?? catalog.Schemas[0];
-      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredFirstColumn", new SqlValueType(SqlType.Int64));
-      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredSecondColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredFirstColumn", GetTypeForInteger(SqlType.Int64));
+      CreateColumn(catalog, schema.Name, "MyEntity2", "IgnoredSecondColumn", GetTypeForInteger(SqlType.Int64));
 
       var ignoreRules = new IgnoreRuleCollection();
       _ = ignoreRules.IgnoreColumn("Ignored*");
@@ -619,11 +619,11 @@ namespace Xtensive.Orm.Tests.Storage
       BuildComplexDomain(DomainUpgradeMode.Recreate, null, new[] { typeof(Model1.Customer) }, new[] { typeof(Model3.MyEntity1) }).Dispose();
 
       catalog = GetCatalog();
-      CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
       CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(catalog, Schema2, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKeyInDb(catalog, Schema2, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
       CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
@@ -648,11 +648,11 @@ namespace Xtensive.Orm.Tests.Storage
       BuildComplexDomain(DomainUpgradeMode.Recreate, null, new[] { typeof(Model1.Customer) }, new[] { typeof(Model3.MyEntity1) }).Dispose();
 
       var secondCatalog = GetCatalog(Multimapping.MultidatabaseTest.Database2Name);
-      CreateColumn(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64), true);
+      CreateColumn(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64), true);
       CreateForeignKeyInDb(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID", true);
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(secondCatalog, defaultSchema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes, true);
       CreatePrimaryKeyInDb(secondCatalog, defaultSchema, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id", true);
       CreateForeignKeyInDb(secondCatalog, defaultSchema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id", true);
@@ -680,11 +680,11 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       catalog = GetCatalog();
-      CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
       CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(catalog, Schema2, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKeyInDb(catalog, Schema2, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
       CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
@@ -717,11 +717,11 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       catalog = GetCatalog();
-      CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64));
+      CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
       CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(catalog, Schema2, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKeyInDb(catalog, Schema2, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
       CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
@@ -751,11 +751,11 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       var secondCatalog = GetCatalog(Multimapping.MultidatabaseTest.Database2Name);
-      CreateColumn(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64), true);
+      CreateColumn(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64), true);
       CreateForeignKeyInDb(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID", true);
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(secondCatalog, defaultSchema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes, true);
       CreatePrimaryKeyInDb(secondCatalog, defaultSchema, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id", true);
       CreateForeignKeyInDb(secondCatalog, defaultSchema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id", true);
@@ -784,10 +784,10 @@ namespace Xtensive.Orm.Tests.Storage
       BuildDomainAndFillData();
 
       var secondCatalog = GetCatalog(Multimapping.MultidatabaseTest.Database2Name);
-      CreateColumn(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", new SqlValueType(SqlType.Int64), true);
+      CreateColumn(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64), true);
       CreateForeignKeyInDb(secondCatalog, defaultSchema, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID", true);
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
-      var addedColumnsTypes = new[] { new SqlValueType(SqlType.Int32), new SqlValueType(SqlType.Int64), new SqlValueType(SqlType.Int64) };
+      var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(secondCatalog, defaultSchema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes, true);
       CreatePrimaryKeyInDb(secondCatalog, defaultSchema, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id", true);
       CreateForeignKeyInDb(secondCatalog, defaultSchema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id", true);
@@ -1129,6 +1129,28 @@ namespace Xtensive.Orm.Tests.Storage
     {
       isMultidatabaseTest = false;
       isMultischemaTest = false;
+    }
+
+    private SqlValueType GetTypeForInteger(SqlType sqlType)
+    {
+      if (!StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)) {
+        return new SqlValueType(sqlType);
+      }
+
+      const int ShortPrecision = 5;
+      const int IntPrecision = 10;
+      const int LongPrecision = 20;
+
+      if (sqlType == SqlType.Int16) {
+        return new SqlValueType(SqlType.Decimal, ShortPrecision, 0);
+      }
+      if (sqlType == SqlType.Int32) {
+        return new SqlValueType(SqlType.Decimal, IntPrecision, 0);
+      }
+      if (sqlType == SqlType.Int64) {
+        return new SqlValueType(SqlType.Decimal, LongPrecision, 0);
+      }
+      return new SqlValueType(sqlType);
     }
   }
 }
