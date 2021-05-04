@@ -23,6 +23,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity1(Session session)
+        : base(session)
+      {
+      }
     }
 
     [HierarchyRoot]
@@ -33,6 +38,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public NewTestEntity1(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -46,6 +56,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity2(Session session)
+        : base(session)
+      {
+      }
     }
 
     [HierarchyRoot]
@@ -56,6 +71,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public NewTestEntity2(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -69,6 +89,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity3(Session session)
+        : base(session)
+      {
+      }
     }
 
     [HierarchyRoot]
@@ -79,6 +104,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public NewTestEntity3(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -92,6 +122,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity4(Session session)
+        : base(session)
+      {
+      }
     }
 
     [HierarchyRoot]
@@ -102,6 +137,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
       [Field]
       public string Text { get; set; }
+
+      public NewTestEntity4(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -207,6 +247,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
 
     private void ValidateNodeBasedQueriesWork(ISqlExecutor sqlExecutor, Session session)
     {
+      var storageNodeText = TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId);
+
       var typeinfo = session.Domain.Model.Types[typeof(Part1.TestEntity1)];
       var testEntity1 = session.StorageNode.Mapping[typeinfo];
       var tableRef = SqlDml.TableRef(testEntity1);
@@ -214,7 +256,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       var text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
 
       typeinfo = session.Domain.Model.Types[typeof(Part2.TestEntity2)];
       var testEntity2 = session.StorageNode.Mapping[typeinfo];
@@ -223,7 +265,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
 
       typeinfo = session.Domain.Model.Types[typeof(Part3.TestEntity3)];
       var testEntity3 = session.StorageNode.Mapping[typeinfo];
@@ -232,7 +274,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
 
       typeinfo = session.Domain.Model.Types[typeof(Part4.TestEntity4)];
       var testEntity4 = session.StorageNode.Mapping[typeinfo];
@@ -241,7 +283,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
     }
 
     private void ValidateSchemaBasedQueriesWork(
@@ -253,6 +295,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       var databaseMap = GetDatabaseMap();
       var schemaMap = GetSchemaMap();
 
+      var storageNodeText = TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId);
+
       var type = typeof(Part1.TestEntity1);
       var catalogName = catalogNameResolver(databaseMap[type]);
       var schemaName = schemaNameResolver(schemaMap[type]);
@@ -262,7 +306,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       var text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
 
       type = typeof(Part2.TestEntity2);
       catalogName = catalogNameResolver(databaseMap[type]);
@@ -273,7 +317,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
 
       type = typeof(Part3.TestEntity3);
       catalogName = catalogNameResolver(databaseMap[type]);
@@ -284,7 +328,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
 
       type = typeof(Part4.TestEntity4);
       catalogName = catalogNameResolver(databaseMap[type]);
@@ -295,7 +339,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
       select.Columns.Add(tableRef["Text"]);
 
       text = sqlExecutor.ExecuteScalar(select);
-      Assert.That(text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      Assert.That(text, Is.EqualTo(storageNodeText));
     }
 
     private string ResolveSharedCatalogName(string baseName) => baseName;
@@ -325,10 +369,10 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
         dictionary.Add(typeof(Part4.TestEntity4), WellKnownDatabases.MultiDatabase.AdditionalDb2);
       }
       else {
-        dictionary.Add(typeof(Part1.TestEntity1), WellKnownDatabases.MultiDatabase.MainDb);
-        dictionary.Add(typeof(Part2.TestEntity2), WellKnownDatabases.MultiDatabase.MainDb);
-        dictionary.Add(typeof(Part3.TestEntity3), WellKnownDatabases.MultiDatabase.MainDb);
-        dictionary.Add(typeof(Part4.TestEntity4), WellKnownDatabases.MultiDatabase.MainDb);
+        dictionary.Add(typeof(Part1.TestEntity1), UpgradeContext.DefaultSchemaInfo.Database);
+        dictionary.Add(typeof(Part2.TestEntity2), UpgradeContext.DefaultSchemaInfo.Database);
+        dictionary.Add(typeof(Part3.TestEntity3), UpgradeContext.DefaultSchemaInfo.Database);
+        dictionary.Add(typeof(Part4.TestEntity4), UpgradeContext.DefaultSchemaInfo.Database);
       }
       return dictionary;
     }
@@ -344,12 +388,14 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor.Model
         dictionary.Add(typeof(Part4.TestEntity4), WellKnownSchemas.Schema3);
       }
       else {
-        dictionary.Add(typeof(Part1.TestEntity1), WellKnownSchemas.SqlServerDefaultSchema);
-        dictionary.Add(typeof(Part2.TestEntity2), WellKnownSchemas.SqlServerDefaultSchema);
-        dictionary.Add(typeof(Part3.TestEntity3), WellKnownSchemas.SqlServerDefaultSchema);
-        dictionary.Add(typeof(Part4.TestEntity4), WellKnownSchemas.SqlServerDefaultSchema);
+        dictionary.Add(typeof(Part1.TestEntity1), UpgradeContext.DefaultSchemaInfo.Schema);
+        dictionary.Add(typeof(Part2.TestEntity2), UpgradeContext.DefaultSchemaInfo.Schema);
+        dictionary.Add(typeof(Part3.TestEntity3), UpgradeContext.DefaultSchemaInfo.Schema);
+        dictionary.Add(typeof(Part4.TestEntity4), UpgradeContext.DefaultSchemaInfo.Schema);
       }
       return dictionary;
     }
+
+    private string TryGetStorageNodeText(string nodeId) => string.IsNullOrEmpty(nodeId) ? "<default>" : nodeId;
   }
 }

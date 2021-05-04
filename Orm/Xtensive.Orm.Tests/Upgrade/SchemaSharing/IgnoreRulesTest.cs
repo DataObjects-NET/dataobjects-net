@@ -281,7 +281,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var ignoredTable = schema.CreateTable("HiddenTable");
-          var idColumn = ignoredTable.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          var idColumn = ignoredTable.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           var name = ignoredTable.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -292,7 +292,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var notInDomainTable1 = schema.CreateTable("NotInDomain1");
-          idColumn = notInDomainTable1.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          idColumn = notInDomainTable1.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           name = notInDomainTable1.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var notInDomainTable2 = schema.CreateTable("NotInDomain2");
-          idColumn = notInDomainTable2.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          idColumn = notInDomainTable2.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           name = notInDomainTable2.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -314,7 +314,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var notInDomainTable3 = schema.CreateTable("NotInDomain3");
-          idColumn = notInDomainTable3.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          idColumn = notInDomainTable3.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           name = notInDomainTable3.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -520,6 +520,28 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
     private SqlValueType GetTypeForString(int? length) =>
       driver.TypeMappings.Mappings[typeof(string)].MapType(length, null, null);
+
+    private SqlValueType GetTypeForInteger(SqlType sqlType)
+    {
+      if (!StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)) {
+        return new SqlValueType(sqlType);
+      }
+
+      const int ShortPrecision = 5;
+      const int IntPrecision = 10;
+      const int LongPrecision = 20;
+
+      if (sqlType == SqlType.Int16) {
+        return new SqlValueType(SqlType.Decimal, ShortPrecision, 0);
+      }
+      if (sqlType == SqlType.Int32) {
+        return new SqlValueType(SqlType.Decimal, IntPrecision, 0);
+      }
+      if (sqlType == SqlType.Int64) {
+        return new SqlValueType(SqlType.Decimal, LongPrecision, 0);
+      }
+      return new SqlValueType(sqlType);
+    }
 
     private Dictionary<string, string> BuildNodeToSchemaMap()
     {

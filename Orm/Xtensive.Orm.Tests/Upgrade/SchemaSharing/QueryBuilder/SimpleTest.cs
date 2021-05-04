@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
     [OneTimeSetUp]
     public void TestFixtureSetup() => CheckRequirements();
 
-    protected virtual void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer);
+    protected virtual void CheckRequirements() => Require.ProviderIsNot(StorageProvider.Firebird);
 
     [Test]
     public void PerformSafelyTest()
@@ -88,12 +88,16 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.QueryBuilder
         foreach (var nodeConfiguration in nodes) {
           var selectedNode = domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
           using (var session = selectedNode.OpenSession())
-          using (session.Activate())
           using (var transaction = session.OpenTransaction()) {
-            _ = new model.Part1.TestEntity1 { Text = session.StorageNodeId };
-            _ = new model.Part2.TestEntity2 { Text = session.StorageNodeId };
-            _ = new model.Part3.TestEntity3 { Text = session.StorageNodeId };
-            _ = new model.Part4.TestEntity4 { Text = session.StorageNodeId };
+
+            var storageNodeIdText = string.IsNullOrEmpty(session.StorageNodeId)
+              ? "<default>"
+              : session.StorageNodeId;
+
+            _ = new model.Part1.TestEntity1(session) { Text = storageNodeIdText };
+            _ = new model.Part2.TestEntity2(session) { Text = storageNodeIdText };
+            _ = new model.Part3.TestEntity3(session) { Text = storageNodeIdText };
+            _ = new model.Part4.TestEntity4(session) { Text = storageNodeIdText };
 
             transaction.Complete();
           }

@@ -37,8 +37,8 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
 
     protected override List<NodeConfiguration> GetNodes(DomainUpgradeMode upgradeMode)
     {
-      var @default = new NodeConfiguration(WellKnown.DefaultNodeId) {UpgradeMode = upgradeMode};
-      var additional = new NodeConfiguration("Additional") {UpgradeMode = upgradeMode};
+      var @default = new NodeConfiguration(WellKnown.DefaultNodeId) { UpgradeMode = upgradeMode };
+      var additional = new NodeConfiguration("Additional") { UpgradeMode = upgradeMode };
       additional.SchemaMapping.Add(Schema1, Schema2);
       additional.SchemaMapping.Add(Schema3, Schema4);
       return new List<NodeConfiguration> {@default, additional};

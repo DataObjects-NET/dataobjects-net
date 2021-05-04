@@ -1,4 +1,4 @@
-// Copyright (C) 2017-2020 Xtensive LLC.
+// Copyright (C) 2017-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
     [OneTimeSetUp]
     public void TestFixtureSetup() => CheckRequirements();
 
-    protected virtual void CheckRequirements() => Require.ProviderIs(StorageProvider.SqlServer);
+    protected virtual void CheckRequirements() => Require.ProviderIsNot(StorageProvider.Firebird);
 
     [Test]
     public void PerformSafelyTest()
@@ -88,16 +88,19 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.SqlExecutor
 
         foreach (var nodeConfiguration in nodes) {
           var selectedNode = domain.StorageNodeManager.GetNode(nodeConfiguration.NodeId);
-          using (var session = selectedNode.OpenSession()) {
-            using (session.Activate())
-            using (var transaction = session.OpenTransaction()) {
-              _ = new model.Part1.TestEntity1 { Text = session.StorageNodeId };
-              _ = new model.Part2.TestEntity2 { Text = session.StorageNodeId };
-              _ = new model.Part3.TestEntity3 { Text = session.StorageNodeId };
-              _ = new model.Part4.TestEntity4 { Text = session.StorageNodeId };
+          using (var session = selectedNode.OpenSession())
+          using (var transaction = session.OpenTransaction()) {
 
-              transaction.Complete();
-            }
+            var storageNodeIdText = string.IsNullOrEmpty(session.StorageNodeId)
+              ? "<default>"
+              : session.StorageNodeId;
+
+            _ = new model.Part1.TestEntity1(session) { Text = storageNodeIdText };
+            _ = new model.Part2.TestEntity2(session) { Text = storageNodeIdText };
+            _ = new model.Part3.TestEntity3(session) { Text = storageNodeIdText };
+            _ = new model.Part4.TestEntity4(session) { Text = storageNodeIdText };
+
+            transaction.Complete();
           }
         }
       }
