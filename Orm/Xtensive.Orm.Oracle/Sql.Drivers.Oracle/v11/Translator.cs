@@ -13,8 +13,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
   internal class Translator : v10.Translator
   {
     //so called INITRANS value
-    protected const int TableTransactionalParallelismLevel = 3;
-    protected const int IndexTransactionalParallelismLevel = 3;
+    protected const int TableTransactionalParallelismLevel = 7;
+    protected const int IndexTransactionalParallelismLevel = 7;
 
     public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
