@@ -12,9 +12,9 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
-using Xtensive.Orm.Tests.Upgrade.SchemaSharing.Model;
+using Xtensive.Orm.Tests.Storage.SchemaSharing.Model;
 
-namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
+namespace Xtensive.Orm.Tests.Storage.SchemaSharing
 {
   [TestFixture]
   public class IgnoreRulesTest : AutoBuildTest
