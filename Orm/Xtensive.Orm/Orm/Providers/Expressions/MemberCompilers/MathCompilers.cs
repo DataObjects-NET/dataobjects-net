@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -607,7 +607,8 @@ namespace Xtensive.Orm.Providers
     {
       var context = ExpressionTranslationContext.Current;
       var provider = context.ProviderInfo.ProviderName;
-      if (provider.Equals(WellKnown.Provider.PostgreSql, StringComparison.Ordinal)) {
+      if (provider.Equals(WellKnown.Provider.PostgreSql, StringComparison.Ordinal)
+        || provider.Equals(WellKnown.Provider.Oracle, StringComparison.Ordinal)) {
         // to fit result into .Net decimal since Npgsql client libarary does not provide a way to make in on reading
         return SqlDml.Cast(value, SqlType.Decimal, precision, scale);
       }
