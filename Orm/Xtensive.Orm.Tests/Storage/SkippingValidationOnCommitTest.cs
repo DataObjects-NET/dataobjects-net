@@ -1,4 +1,8 @@
-﻿using System;
+// Copyright (C) 2017-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,63 +12,72 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Linq;
 using Xtensive.Orm.Tests.Model.Association;
 using Xtensive.Orm.Validation;
-using model1 = Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel.NoConstraintsModel;
-using model2 = Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel.ImmediateConstrainstModel;
-using model3 = Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel.ImmediateAndSkippedContstraintsModel;
-using model4 = Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel.NonImmediateConstraintsModel;
-using model5 = Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel.NonImmediateAndSkippedConstrainstsModel;
+using Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel;
 
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  public class SkippingValidationOnCommitTest
+  public class SkippingValidationOnCommitTest : AutoBuildTest
   {
-    [SetUp]
-    public void BeforeEachTestSetup()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      try {
-        using (var domain = Domain.Build(GetInitialDomainConfiguration())) {
-          PopulateData(domain);
-        }
-      }
-      catch (IgnoreException) {
-        throw;
-      }
-      catch (Exception e) {
-        Debug.WriteLine(e);
-        throw;
-      }
-    }
-
-    private DomainConfiguration GetInitialDomainConfiguration()
-    {
-      var configuration = DomainConfigurationFactory.Create();
+      var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (model1.BaseEntity).Assembly, typeof (model1.BaseEntity).Namespace);
+      configuration.Types.Register(typeof(BaseEntity).Assembly, typeof(BaseEntity).Namespace);
       return configuration;
     }
 
-    private DomainConfiguration GetDomainConfiguration(Type typeOfTargetNamespace)
+    protected override void PopulateData()
     {
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
-      configuration.Types.Register(typeOfTargetNamespace.Assembly, typeOfTargetNamespace.Namespace);
-      return configuration;
-    }
-
-    private void PopulateData(Domain domain)
-    {
-      using (var session = domain.OpenSession())
+      var sessionConfiguration = new SessionConfiguration(SessionOptions.AutoSaveChanges);
+      using (var session = Domain.OpenSession(sessionConfiguration))
+      using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        new model1.EmailTestEntity() {NeverValidatedField = "Email", EmailField = "not email"};
-        new model1.FutureTestEntity() {NeverValidatedField = "Future", DateField = DateTime.Now.AddMonths(-1)};
-        new model1.LenghtTestEntity() {NeverValidatedField = "Length", StringField = "too short"};
-        new model1.NotEmptyTestEntity() {NeverValidatedField = "NotEmpty", StringField = string.Empty};
-        new model1.NotNullOrEmptyTestEntity() {NeverValidatedField = "NotNullOrEmpty", StringField = null};
-        new model1.NotNullTestEntity() {NeverValidatedField = "NotNull", StringField = null};
-        new model1.PastTestEntity() {NeverValidatedField = "Past", DateField = DateTime.Now.AddMonths(1)};
-        new model1.RangeTestEntity() {NeverValidatedField = "Range", LongField = -100};
-        new model1.RegexTestEntity() {NeverValidatedField = "Regex", StringField = "abcd"};
+
+        _ = new EmailTestEntity1() { NeverValidatedField = "Email", EmailField = "not email" };
+        _ = new EmailTestEntity2() { NeverValidatedField = "Email", EmailField = "not email" };
+        _ = new EmailTestEntity3() { NeverValidatedField = "Email", EmailField = "not email" };
+        _ = new EmailTestEntity4() { NeverValidatedField = "Email", EmailField = "not email" };
+
+        _ = new FutureTestEntity1() { NeverValidatedField = "Future", DateField = DateTime.Now.AddMonths(-1) };
+        _ = new FutureTestEntity2() { NeverValidatedField = "Future", DateField = DateTime.Now.AddMonths(-1) };
+        _ = new FutureTestEntity3() { NeverValidatedField = "Future", DateField = DateTime.Now.AddMonths(-1) };
+        _ = new FutureTestEntity4() { NeverValidatedField = "Future", DateField = DateTime.Now.AddMonths(-1) };
+
+        _ = new LenghtTestEntity1() { NeverValidatedField = "Length", StringField = "too short" };
+        _ = new LenghtTestEntity2() { NeverValidatedField = "Length", StringField = "too short" };
+        _ = new LenghtTestEntity3() { NeverValidatedField = "Length", StringField = "too short" };
+        _ = new LenghtTestEntity4() { NeverValidatedField = "Length", StringField = "too short" };
+
+        _ = new NotEmptyTestEntity1() { NeverValidatedField = "NotEmpty", StringField = string.Empty };
+        _ = new NotEmptyTestEntity2() { NeverValidatedField = "NotEmpty", StringField = string.Empty };
+        _ = new NotEmptyTestEntity3() { NeverValidatedField = "NotEmpty", StringField = string.Empty };
+        _ = new NotEmptyTestEntity4() { NeverValidatedField = "NotEmpty", StringField = string.Empty };
+
+        _ = new NotNullOrEmptyTestEntity1() { NeverValidatedField = "NotNullOrEmpty", StringField = null };
+        _ = new NotNullOrEmptyTestEntity2() { NeverValidatedField = "NotNullOrEmpty", StringField = null };
+        _ = new NotNullOrEmptyTestEntity3() { NeverValidatedField = "NotNullOrEmpty", StringField = null };
+        _ = new NotNullOrEmptyTestEntity4() { NeverValidatedField = "NotNullOrEmpty", StringField = null };
+
+        _ = new NotNullTestEntity1() { NeverValidatedField = "NotNull", StringField = null };
+        _ = new NotNullTestEntity2() { NeverValidatedField = "NotNull", StringField = null };
+        _ = new NotNullTestEntity3() { NeverValidatedField = "NotNull", StringField = null };
+        _ = new NotNullTestEntity4() { NeverValidatedField = "NotNull", StringField = null };
+
+        _ = new PastTestEntity1() { NeverValidatedField = "Past", DateField = DateTime.Now.AddMonths(1) };
+        _ = new PastTestEntity2() { NeverValidatedField = "Past", DateField = DateTime.Now.AddMonths(1) };
+        _ = new PastTestEntity3() { NeverValidatedField = "Past", DateField = DateTime.Now.AddMonths(1) };
+        _ = new PastTestEntity4() { NeverValidatedField = "Past", DateField = DateTime.Now.AddMonths(1) };
+
+        _ = new RangeTestEntity1() { NeverValidatedField = "Range", LongField = -100 };
+        _ = new RangeTestEntity2() { NeverValidatedField = "Range", LongField = -100 };
+        _ = new RangeTestEntity3() { NeverValidatedField = "Range", LongField = -100 };
+        _ = new RangeTestEntity4() { NeverValidatedField = "Range", LongField = -100 };
+
+        _ = new RegexTestEntity1() { NeverValidatedField = "Regex", StringField = "abcd" };
+        _ = new RegexTestEntity2() { NeverValidatedField = "Regex", StringField = "abcd" };
+        _ = new RegexTestEntity3() { NeverValidatedField = "Regex", StringField = "abcd" };
+        _ = new RegexTestEntity4() { NeverValidatedField = "Regex", StringField = "abcd" };
 
         transaction.Complete();
       }
@@ -73,37 +86,35 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof(model2.EmailTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<EmailTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -111,73 +122,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.EmailTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void EmailConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model4.EmailTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<EmailTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -185,81 +192,76 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void EmailConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.EmailTestEntity))))
-      {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.EmailTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.EmailTestEntity() {NeverValidatedField = "", EmailField = "not email"};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new EmailTestEntity4() { NeverValidatedField = "", EmailField = "not email" };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void FutureConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model2.FutureTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<FutureTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -267,73 +269,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.FutureTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void FutureConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model4.FutureTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.FutureTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<FutureTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -341,81 +339,76 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void FutureConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.FutureTestEntity))))
-      {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.FutureTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<FutureTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.FutureTestEntity() {NeverValidatedField = "", DateField = DateTime.Now.AddMonths(-1)};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new FutureTestEntity4() { NeverValidatedField = "", DateField = DateTime.Now.AddMonths(-1) };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void LenghtConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model2.EmailTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<LenghtTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -423,73 +416,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void LenghtConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.LenghtTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void LenghtConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof(model4.LenghtTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.LenghtTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<LenghtTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -497,80 +486,76 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void LenghtConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.LenghtTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.LenghtTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<LenghtTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.LenghtTestEntity() {NeverValidatedField = "", StringField = "not email"};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new LenghtTestEntity4() { NeverValidatedField = "", StringField = "not email" };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void NotEmptyConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof(model2.NotEmptyTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<NotEmptyTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -578,73 +563,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.NotEmptyTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void NotEmptyConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof(model4.NotEmptyTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.EmailTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<EmailTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<NotEmptyTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -652,81 +633,76 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.NotEmptyTestEntity))))
-      {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.NotEmptyTestEntity() {NeverValidatedField = "NotEmpty", StringField = ""};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new NotEmptyTestEntity4() { NeverValidatedField = "NotEmpty", StringField = "" };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void NotNullConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model2.NotNullTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<NotNullTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -734,73 +710,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.NotNullTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void NotNullConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model4.NotNullTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<NotNullTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -808,156 +780,146 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.NotNullTestEntity))))
-      {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.NotNullTestEntity() {NeverValidatedField = "NotNull", StringField = null};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new NotNullTestEntity4() { NeverValidatedField = "NotNull", StringField = null };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void NotNullOrEmptyConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model2.NotNullOrEmptyTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<NotNullOrEmptyTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
-      
     }
 
     [Test]
     public void NotNullOrEmptyConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.NotNullOrEmptyTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void NotNullOrEmptyConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof(model4.NotNullOrEmptyTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.NotNullOrEmptyTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<NotNullOrEmptyTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -965,81 +927,76 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotNullOrEmptyConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.NotNullOrEmptyTestEntity))))
-      {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.NotNullOrEmptyTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<NotNullOrEmptyTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.NotNullOrEmptyTestEntity() {NeverValidatedField = "NotNullOrEmpty", StringField = null};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new NotNullOrEmptyTestEntity4() { NeverValidatedField = "NotNullOrEmpty", StringField = null };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void PastConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model2.PastTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<PastTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -1047,73 +1004,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.EmailTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void PastConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model4.PastTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.PastTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<PastTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -1121,80 +1074,76 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void PastConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof (model5.PastTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.PastTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<PastTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.PastTestEntity() { NeverValidatedField = "Past", DateField = DateTime.Now.AddMonths(2) };//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new PastTestEntity4() { NeverValidatedField = "Past", DateField = DateTime.Now.AddMonths(2) };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void RangeConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model2.RangeTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<RangeTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -1202,73 +1151,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.RangeTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void RangeConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model4.RangeTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RangeTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<RangeTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -1276,81 +1221,75 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RangeConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.RangeTestEntity))))
-      {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RangeTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RangeTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.RangeTestEntity() {NeverValidatedField = "Range", LongField = -200};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new RangeTestEntity4() { NeverValidatedField = "Range", LongField = -200 };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
 
     [Test]
     public void RegexConstraintImmediateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model2.RegexTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
-
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model2.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity1>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<RegexTestEntity1>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -1358,73 +1297,69 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegexConstraintImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model3.RegexTestEntity)))) {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model3.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity2>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
       }
     }
 
     [Test]
     public void RegexConstraintNotImmidiateNotSkippedTest()
     {
-      Assert.Throws<ValidationFailedException>(() => {
-        using (var domain = Domain.Build(GetDomainConfiguration(typeof (model4.RegexTestEntity)))) {
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => entity.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            Assert.Throws<ValidationFailedException>(() => session.Validate());
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            var errors = session.ValidateAndGetErrors();
-            Assert.That(errors.Count, Is.EqualTo(1));
-          }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity3>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-          using (var session = domain.OpenSession())
-          using (var transaction = session.OpenTransaction()) {
-            var entity = session.Query.All<model4.RegexTestEntity>().First();
-            entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-            transaction.Complete();
-            //exception on commit
-          }
+      _ = Assert.Throws<ValidationFailedException>(() => {
+        using (var session = Domain.OpenSession())
+        using (var transaction = session.OpenTransaction()) {
+          var entity = session.Query.All<RegexTestEntity3>().First();
+          entity.NeverValidatedField += "(changed)";
+          transaction.Complete();
+          //exception on commit
         }
       });
     }
@@ -1432,44 +1367,41 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void RegexConstraintNotImmediateSkippedTest()
     {
-      using (var domain = Domain.Build(GetDomainConfiguration(typeof(model5.RegexTestEntity))))
-      {
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => entity.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => entity.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          Assert.Throws<ValidationFailedException>(() => session.Validate());
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        _ = Assert.Throws<ValidationFailedException>(() => session.Validate());
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          var errors = session.ValidateAndGetErrors();
-          Assert.That(errors.Count, Is.EqualTo(1));
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        var errors = session.ValidateAndGetErrors();
+        Assert.That(errors.Count, Is.EqualTo(1));
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<model5.RegexTestEntity>().First();
-          entity.NeverValidatedField = entity.NeverValidatedField + "(changed)";
-          transaction.Complete();
-          //no exception on commit
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<RegexTestEntity4>().First();
+        entity.NeverValidatedField += "(changed)";
+        transaction.Complete();
+        //no exception on commit
+      }
 
-        using (var session = domain.OpenSession())
-        using (var transaction = session.OpenTransaction()) {
-          new model5.RegexTestEntity() {NeverValidatedField = "Regex", StringField = "bbbbbb"};//no exception
-          transaction.Complete();
-          // no exception
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new RegexTestEntity4() { NeverValidatedField = "Regex", StringField = "bbbbbb" };//no exception
+        transaction.Complete();
+        // no exception
       }
     }
   }
@@ -1477,414 +1409,316 @@ namespace Xtensive.Orm.Tests.Storage
 
 namespace Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel
 {
-  namespace NoConstraintsModel
+  public abstract class BaseEntity : Entity
   {
-    public abstract class BaseEntity : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
+    [Field, Key]
+    public long Id { get; private set; }
 
-      [Field]
-      public string NeverValidatedField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class EmailTestEntity : BaseEntity
-    {
-      [Field]
-      public string EmailField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class FutureTestEntity : BaseEntity
-    {
-      [Field]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class LenghtTestEntity : BaseEntity
-    {
-      [Field]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullTestEntity : BaseEntity
-    {
-      [Field]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullOrEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class PastTestEntity : BaseEntity
-    {
-      [Field]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RangeTestEntity : BaseEntity
-    {
-      [Field]
-      public long LongField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RegexTestEntity : BaseEntity
-    {
-      [Field]
-      public string StringField { get; set; }
-    } 
+    [Field]
+    public string NeverValidatedField { get; set; }
   }
 
-  namespace ImmediateConstrainstModel
+  #region ImmediateConstraints
+
+  [HierarchyRoot]
+  public class EmailTestEntity1 : BaseEntity
   {
-    public abstract class BaseEntity : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
-
-      [Field]
-      public string NeverValidatedField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class EmailTestEntity : BaseEntity
-    {
-      [Field]
-      [EmailConstraint(IsImmediate = true)]
-      public string EmailField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class FutureTestEntity : BaseEntity
-    {
-      [Field]
-      [FutureConstraint(IsImmediate = true)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class LenghtTestEntity : BaseEntity
-    {
-      [Field]
-      [LengthConstraint(IsImmediate = true, Min = 16)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotEmptyConstraint(IsImmediate = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullConstraint(IsImmediate = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullOrEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullOrEmptyConstraint(IsImmediate = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class PastTestEntity : BaseEntity
-    {
-      [Field]
-      [PastConstraint(IsImmediate = true)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RangeTestEntity : BaseEntity
-    {
-      [Field]
-      [RangeConstraint(IsImmediate = true, Min = 10, Max = 20)]
-      public long LongField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RegexTestEntity : BaseEntity
-    {
-      [Field]
-      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = true)]
-      public string StringField { get; set; }
-    }
+    [Field]
+    [EmailConstraint(IsImmediate = true)]
+    public string EmailField { get; set; }
   }
 
-  namespace ImmediateAndSkippedContstraintsModel
+  [HierarchyRoot]
+  public class FutureTestEntity1 : BaseEntity
   {
-    public abstract class BaseEntity : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
-
-      [Field]
-      public string NeverValidatedField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class EmailTestEntity : BaseEntity
-    {
-      [Field]
-      [EmailConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
-      public string EmailField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class FutureTestEntity : BaseEntity
-    {
-      [Field]
-      [FutureConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class LenghtTestEntity : BaseEntity
-    {
-      [Field]
-      [LengthConstraint(IsImmediate = true, SkipOnTransactionCommit = true, Min = 16)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullOrEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullOrEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class PastTestEntity : BaseEntity
-    {
-      [Field]
-      [PastConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RangeTestEntity : BaseEntity
-    {
-      [Field]
-      [RangeConstraint(IsImmediate = true, SkipOnTransactionCommit = true, Min = 10, Max = 20)]
-      public long LongField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RegexTestEntity : BaseEntity
-    {
-      [Field]
-      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = true, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
+    [Field]
+    [FutureConstraint(IsImmediate = true)]
+    public DateTime DateField { get; set; }
   }
 
-  namespace NonImmediateConstraintsModel
+  [HierarchyRoot]
+  public class LenghtTestEntity1 : BaseEntity
   {
-    public abstract class BaseEntity : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
-
-      [Field]
-      public string NeverValidatedField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class EmailTestEntity : BaseEntity
-    {
-      [Field]
-      [EmailConstraint(IsImmediate = false)]
-      public string EmailField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class FutureTestEntity : BaseEntity
-    {
-      [Field]
-      [FutureConstraint(IsImmediate = false)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class LenghtTestEntity : BaseEntity
-    {
-      [Field]
-      [LengthConstraint(IsImmediate = false, Min = 16)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotEmptyConstraint(IsImmediate = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullConstraint(IsImmediate = false)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullOrEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullOrEmptyConstraint(IsImmediate = false)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class PastTestEntity : BaseEntity
-    {
-      [Field]
-      [PastConstraint(IsImmediate = false)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RangeTestEntity : BaseEntity
-    {
-      [Field]
-      [RangeConstraint(IsImmediate = false, Min = 10, Max = 20)]
-      public long LongField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RegexTestEntity : BaseEntity
-    {
-      [Field]
-      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = false)]
-      public string StringField { get; set; }
-    }
+    [Field]
+    [LengthConstraint(IsImmediate = true, Min = 16)]
+    public string StringField { get; set; }
   }
 
-  namespace NonImmediateAndSkippedConstrainstsModel
+  [HierarchyRoot]
+  public class NotEmptyTestEntity1 : BaseEntity
   {
-    public abstract class BaseEntity : Entity
-    {
-      [Field, Key]
-      public long Id { get; private set; }
-
-      [Field]
-      public string NeverValidatedField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class EmailTestEntity : BaseEntity
-    {
-      [Field]
-      [EmailConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
-      public string EmailField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class FutureTestEntity : BaseEntity
-    {
-      [Field]
-      [FutureConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class LenghtTestEntity : BaseEntity
-    {
-      [Field]
-      [LengthConstraint(IsImmediate = false, SkipOnTransactionCommit = true, Min = 16)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotEmptyConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class NotNullOrEmptyTestEntity : BaseEntity
-    {
-      [Field]
-      [NotNullOrEmptyConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class PastTestEntity : BaseEntity
-    {
-      [Field]
-      [PastConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
-      public DateTime DateField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RangeTestEntity : BaseEntity
-    {
-      [Field]
-      [RangeConstraint(IsImmediate = false, SkipOnTransactionCommit = true, Min = 10, Max = 20)]
-      public long LongField { get; set; }
-    }
-
-    [HierarchyRoot]
-    public class RegexTestEntity : BaseEntity
-    {
-      [Field]
-      [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = false, SkipOnTransactionCommit = true)]
-      public string StringField { get; set; }
-    }
+    [Field]
+    [NotEmptyConstraint(IsImmediate = true)]
+    public string StringField { get; set; }
   }
+
+  [HierarchyRoot]
+  public class NotNullTestEntity1 : BaseEntity
+  {
+    [Field]
+    [NotNullConstraint(IsImmediate = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotNullOrEmptyTestEntity1 : BaseEntity
+  {
+    [Field]
+    [NotNullOrEmptyConstraint(IsImmediate = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class PastTestEntity1 : BaseEntity
+  {
+    [Field]
+    [PastConstraint(IsImmediate = true)]
+    public DateTime DateField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RangeTestEntity1 : BaseEntity
+  {
+    [Field]
+    [RangeConstraint(IsImmediate = true, Min = 10, Max = 20)]
+    public long LongField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RegexTestEntity1 : BaseEntity
+  {
+    [Field]
+    [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = true)]
+    public string StringField { get; set; }
+  }
+
+  #endregion
+
+  #region ImmediateAndSkippedContstraints
+
+  [HierarchyRoot]
+  public class EmailTestEntity2 : BaseEntity
+  {
+    [Field]
+    [EmailConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
+    public string EmailField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class FutureTestEntity2 : BaseEntity
+  {
+    [Field]
+    [FutureConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
+    public DateTime DateField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class LenghtTestEntity2 : BaseEntity
+  {
+    [Field]
+    [LengthConstraint(IsImmediate = true, SkipOnTransactionCommit = true, Min = 16)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotEmptyTestEntity2 : BaseEntity
+  {
+    [Field]
+    [NotEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotNullTestEntity2 : BaseEntity
+  {
+    [Field]
+    [NotNullConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotNullOrEmptyTestEntity2 : BaseEntity
+  {
+    [Field]
+    [NotNullOrEmptyConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class PastTestEntity2 : BaseEntity
+  {
+    [Field]
+    [PastConstraint(IsImmediate = true, SkipOnTransactionCommit = true)]
+    public DateTime DateField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RangeTestEntity2 : BaseEntity
+  {
+    [Field]
+    [RangeConstraint(IsImmediate = true, SkipOnTransactionCommit = true, Min = 10, Max = 20)]
+    public long LongField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RegexTestEntity2 : BaseEntity
+  {
+    [Field]
+    [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = true, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  #endregion
+
+  #region NonImmediateConstraints
+
+  [HierarchyRoot]
+  public class EmailTestEntity3 : BaseEntity
+  {
+    [Field]
+    [EmailConstraint(IsImmediate = false)]
+    public string EmailField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class FutureTestEntity3 : BaseEntity
+  {
+    [Field]
+    [FutureConstraint(IsImmediate = false)]
+    public DateTime DateField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class LenghtTestEntity3 : BaseEntity
+  {
+    [Field]
+    [LengthConstraint(IsImmediate = false, Min = 16)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotEmptyTestEntity3 : BaseEntity
+  {
+    [Field]
+    [NotEmptyConstraint(IsImmediate = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotNullTestEntity3 : BaseEntity
+  {
+    [Field]
+    [NotNullConstraint(IsImmediate = false)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotNullOrEmptyTestEntity3 : BaseEntity
+  {
+    [Field]
+    [NotNullOrEmptyConstraint(IsImmediate = false)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class PastTestEntity3 : BaseEntity
+  {
+    [Field]
+    [PastConstraint(IsImmediate = false)]
+    public DateTime DateField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RangeTestEntity3 : BaseEntity
+  {
+    [Field]
+    [RangeConstraint(IsImmediate = false, Min = 10, Max = 20)]
+    public long LongField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RegexTestEntity3 : BaseEntity
+  {
+    [Field]
+    [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = false)]
+    public string StringField { get; set; }
+  }
+
+  #endregion
+
+  #region NonImmediateAndSkippedConstrainsts
+
+  [HierarchyRoot]
+  public class EmailTestEntity4 : BaseEntity
+  {
+    [Field]
+    [EmailConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
+    public string EmailField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class FutureTestEntity4 : BaseEntity
+  {
+    [Field]
+    [FutureConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
+    public DateTime DateField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class LenghtTestEntity4 : BaseEntity
+  {
+    [Field]
+    [LengthConstraint(IsImmediate = false, SkipOnTransactionCommit = true, Min = 16)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotEmptyTestEntity4 : BaseEntity
+  {
+    [Field]
+    [NotEmptyConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotNullTestEntity4 : BaseEntity
+  {
+    [Field]
+    [NotNullConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class NotNullOrEmptyTestEntity4 : BaseEntity
+  {
+    [Field]
+    [NotNullOrEmptyConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class PastTestEntity4 : BaseEntity
+  {
+    [Field]
+    [PastConstraint(IsImmediate = false, SkipOnTransactionCommit = true)]
+    public DateTime DateField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RangeTestEntity4 : BaseEntity
+  {
+    [Field]
+    [RangeConstraint(IsImmediate = false, SkipOnTransactionCommit = true, Min = 10, Max = 20)]
+    public long LongField { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class RegexTestEntity4 : BaseEntity
+  {
+    [Field]
+    [RegexConstraint("\b[A-Z][A-Z0-9]+\b", IsImmediate = false, SkipOnTransactionCommit = true)]
+    public string StringField { get; set; }
+  }
+
+  #endregion
 }
