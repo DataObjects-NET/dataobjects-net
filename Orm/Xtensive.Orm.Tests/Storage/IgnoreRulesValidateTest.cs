@@ -371,13 +371,13 @@ namespace Xtensive.Orm.Tests.Storage
       if (createConstraintsWithTable) {
         var delayedOp = CreateTableDelayed(catalog, schema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
         CreatePrimaryKeyLocally(catalog, schema, "MyIgnoredEntity", "Id", "PK_MyIgnoredEntity_Id");
-        CreateForeignKeyLocally(catalog, schema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
+        CreateForeignKeyLocally(catalog, schema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntityMyEntity2Id");
         delayedOp();
       }
       else {
         CreateTable(catalog, schema, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
         CreatePrimaryKeyInDb(catalog, schema, "MyIgnoredEntity", "Id", "PK_MyIgnoredEntity_Id");
-        CreateForeignKeyInDb(catalog, schema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
+        CreateForeignKeyInDb(catalog, schema, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntityMyEntity2Id");
       }
 
       var ignoreRules = new IgnoreRuleCollection();
@@ -608,7 +608,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MultischemaValidateTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema | ProviderFeatures.Multidatabase);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
 
       SetMultischema();
 
@@ -620,13 +620,13 @@ namespace Xtensive.Orm.Tests.Storage
 
       catalog = GetCatalog();
       CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
-      CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
+      CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEnt2MyEnt1MyEnt1Id");
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
       var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(catalog, Schema2, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKeyInDb(catalog, Schema2, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
-      CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
+      CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntityMyEntity2Id");
 
       var ignoreRules = new IgnoreRuleCollection();
       _ = ignoreRules.IgnoreColumn("ReferencedIgnoredColumn").WhenSchema(Schema2);
@@ -670,7 +670,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MultischemaUpgrageInPerformModeTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema | ProviderFeatures.Multidatabase);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
 
       SetMultischema();
 
@@ -681,13 +681,13 @@ namespace Xtensive.Orm.Tests.Storage
 
       catalog = GetCatalog();
       CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
-      CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
+      CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEnt2MyEnt1MyEnt1Id");
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
       var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(catalog, Schema2, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKeyInDb(catalog, Schema2, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
-      CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
+      CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntityMyEntity2Id");
 
       var ignoreRules = new IgnoreRuleCollection();
       _ = ignoreRules.IgnoreColumn("ReferencedIgnoredColumn").WhenSchema(Schema2);
@@ -707,7 +707,7 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void MultischemaUpgrageInPerformSafelyModeTest()
     {
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema | ProviderFeatures.Multidatabase);
+      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
 
       SetMultischema();
 
@@ -718,13 +718,13 @@ namespace Xtensive.Orm.Tests.Storage
 
       catalog = GetCatalog();
       CreateColumn(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", GetTypeForInteger(SqlType.Int64));
-      CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEntity2_MyEntity1_MyEntity1ID");
+      CreateForeignKeyInDb(catalog, Schema2, "MyEntity2", "ReferencedIgnoredColumn", "MyEntity1", "Id", "FK_MyEnt2MyEnt1MyEnt1Id");
 
       var addedColumnsNames = new[] { "Id", "FirstColumn", "MyEntity2Id" };
       var addedColumnsTypes = new[] { GetTypeForInteger(SqlType.Int32), GetTypeForInteger(SqlType.Int64), GetTypeForInteger(SqlType.Int64) };
       CreateTable(catalog, Schema2, "MyIgnoredEntity", addedColumnsNames, addedColumnsTypes);
       CreatePrimaryKeyInDb(catalog, Schema2, "MyIgnoredEntity", "Id", "PK_MyIgnoreTable_Id");
-      CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntity_MyEntity2_Id");
+      CreateForeignKeyInDb(catalog, Schema2, "MyIgnoredEntity", "MyEntity2Id", "MyEntity2", "Id", "FK_MyIgnoredEntityMyEntity2Id");
 
       var ignoreRules = new IgnoreRuleCollection();
       _ = ignoreRules.IgnoreColumn("ReferencedIgnoredColumn").WhenSchema(Schema2);
@@ -835,6 +835,7 @@ namespace Xtensive.Orm.Tests.Storage
         foreach (var type in secondPartTypes) {
           config.MappingRules.Map(type.Assembly, type.Namespace).ToSchema(Schema2);
         }
+        config.DefaultSchema = defaultSchema;
       }
       else if (isMultidatabaseTest) {
         foreach (var type in firstPartTypes) {
@@ -844,10 +845,9 @@ namespace Xtensive.Orm.Tests.Storage
         foreach (var type in secondPartTypes) {
           config.MappingRules.Map(type.Assembly, type.Namespace).ToDatabase(Multimapping.MultidatabaseTest.Database2Name);
         }
+        config.DefaultSchema = defaultSchema;
+        config.DefaultDatabase = GetConnectionInfo().ConnectionUrl.GetDatabase();
       }
-
-      config.DefaultSchema = defaultSchema;
-      config.DefaultDatabase = GetConnectionInfo().ConnectionUrl.GetDatabase();
 
       foreach (var type in firstPartTypes.Union(secondPartTypes)) {
         config.Types.Register(type.Assembly, type.Namespace);

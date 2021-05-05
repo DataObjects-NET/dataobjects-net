@@ -11,6 +11,7 @@ using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.NewClientProfileTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.NewClientProfileTestModel
@@ -790,6 +791,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ClientProfileVersionsTest()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle, "ExecuteNonQuery returns -1 all the time so versioning is not working");
+
       var sessionConfiguration = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation | SessionOptions.ValidateEntityVersions);
 
       using (var session = Domain.OpenSession(sessionConfiguration)) {

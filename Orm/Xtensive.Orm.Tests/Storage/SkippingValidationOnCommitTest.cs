@@ -13,6 +13,7 @@ using Xtensive.Orm.Tests.Linq;
 using Xtensive.Orm.Tests.Model.Association;
 using Xtensive.Orm.Validation;
 using Xtensive.Orm.Tests.Storage.SkippingValidationOnCommitTestModel;
+using Xtensive.Orm.Providers;
 
 namespace Xtensive.Orm.Tests.Storage
 {
@@ -527,6 +528,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintImmediateNotSkippedTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entity = session.Query.All<NotEmptyTestEntity1>().First();
@@ -563,6 +566,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintImmediateSkippedTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entity = session.Query.All<NotEmptyTestEntity2>().First();
@@ -597,6 +602,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintNotImmidiateNotSkippedTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entity = session.Query.All<EmailTestEntity3>().First();
@@ -633,6 +640,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void NotEmptyConstraintNotImmediateSkippedTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var entity = session.Query.All<NotEmptyTestEntity4>().First();
