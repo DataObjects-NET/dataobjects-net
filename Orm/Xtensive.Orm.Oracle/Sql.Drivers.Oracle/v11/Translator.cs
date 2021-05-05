@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
+using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Drivers.Oracle.v11
 {
@@ -30,6 +31,14 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
       //CreateIndexSection.ColumnsExit:
       //return ")"
       return base.Translate(context, node, section);
+    }
+
+    public override string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
+    {
+      if (section == NodeSection.Exit) {
+        return node.Ascending ? "ASC NULLS FIRST" : "DESC NULLS LAST";
+      }
+      return string.Empty;
     }
 
     public override string Translate(SqlValueType type)
