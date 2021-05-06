@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2010.10.14
 
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Require.ProviderIsNot(StorageProvider.PostgreSql); // PostgreSql stores intervals with microseconds only
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle); // PostgreSql and Oracle store intervals with microseconds only
       
       long ticks = 123456789;
 
