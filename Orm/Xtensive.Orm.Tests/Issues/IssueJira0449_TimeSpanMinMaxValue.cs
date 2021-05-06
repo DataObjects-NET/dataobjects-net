@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.07.02
 
@@ -36,17 +36,26 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void MainTest()
+    public void MinTest()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle, "Oracle has no resolution for TimeSpan.MinValue");
+
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var created = new EntityWithTimeSpan {Value = TimeSpan.MinValue};
-        var fetched = session.Query.All<EntityWithTimeSpan>().Single(e => e.Value==TimeSpan.MinValue);
+        var fetched = session.Query.All<EntityWithTimeSpan>().Single(e => e.Value == TimeSpan.MinValue);
         Assert.That(fetched, Is.EqualTo(created));
-        created = new EntityWithTimeSpan {Value = TimeSpan.MaxValue};
-        fetched = session.Query.All<EntityWithTimeSpan>().Single(e => e.Value==TimeSpan.MaxValue);
+      }
+    }
+
+    [Test]
+    public void MaxTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var created = new EntityWithTimeSpan { Value = TimeSpan.MaxValue };
+        var fetched = session.Query.All<EntityWithTimeSpan>().Single(e => e.Value == TimeSpan.MaxValue);
         Assert.That(fetched, Is.EqualTo(created));
-        tx.Complete();
       }
     }
   }

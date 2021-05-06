@@ -2112,13 +2112,13 @@ namespace Xtensive.Orm.Tests.Issues
     private void RequireProviderDeniesOrderByNull()
     {
       Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.PostgreSql |
-        StorageProvider.MySql | StorageProvider.Firebird);
+        StorageProvider.MySql | StorageProvider.Firebird | StorageProvider.Oracle);
     }
 
     private void RequireProviderAllowsOrderByNull()
     {
       Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.PostgreSql |
-        StorageProvider.MySql | StorageProvider.Firebird);
+        StorageProvider.MySql | StorageProvider.Firebird | StorageProvider.Oracle);
     }
   }
 }
