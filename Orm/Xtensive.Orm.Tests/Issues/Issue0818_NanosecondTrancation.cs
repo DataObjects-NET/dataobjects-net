@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle); // PostgreSql and Oracle store intervals with microseconds only
+      Require.ProviderIsNot(StorageProvider.PostgreSql); // PostgreSql stores intervals with microseconds only
       
       long ticks = 123456789;
 

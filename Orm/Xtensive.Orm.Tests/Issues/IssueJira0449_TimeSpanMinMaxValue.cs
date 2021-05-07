@@ -38,8 +38,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MinTest()
     {
-      Require.ProviderIsNot(StorageProvider.Oracle, "Oracle has no resolution for TimeSpan.MinValue");
-
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var created = new EntityWithTimeSpan {Value = TimeSpan.MinValue};
