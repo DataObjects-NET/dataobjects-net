@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void BlobTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Session.Query.All<Track>().Select(c => c.Bytes).Distinct();
       var list = result.ToList();
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c.Address.City)
         .Distinct()
         .OrderBy(c => c);
-      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite)) {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite | StorageProvider.Oracle)) {
         var storage = result.AsEnumerable().Where(c => !c.StartsWith('S'));
         var local = expected.Where(c => !c.StartsWith('S'));
         Assert.IsTrue(local.SequenceEqual(storage));
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .OrderBy(c => c);
 
-      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite)) {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite | StorageProvider.Oracle)) {
         var storage = result.AsEnumerable().Where(c => !c.StartsWith('S'));
         var local = expected.Where(c => !c.StartsWith('S'));
         Assert.IsTrue(local.SequenceEqual(storage));
