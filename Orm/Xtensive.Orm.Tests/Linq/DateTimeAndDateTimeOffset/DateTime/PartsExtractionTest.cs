@@ -4,6 +4,7 @@
 // Created by: Alex Groznov
 // Created:    2016.08.01
 
+using System;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model;
 
@@ -127,6 +128,22 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.Date == WrongDateTime.Date);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Date == WrongMillisecondDateTime.Date);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.Date == WrongDateTime.Date);
+      });
+    }
+
+    [Test]
+    [TestCase("2018-10-30 12:15:32.123")]
+    [TestCase("2018-10-30 12:15:32.1234")]
+    [TestCase("2018-10-30 12:15:32.12345")]
+    [TestCase("2018-10-30 12:15:32.123456")]
+    [TestCase("2018-10-30 12:15:32.1234567")]
+    public void ExtractDateFromMicrosecondsTest(string testValueString)
+    {
+      Require.ProviderIs(StorageProvider.SqlServer);
+      ExecuteInsideSession(() => {
+        var testDateTime = DateTime.Parse(testValueString);
+        _ = new SingleDateTimeEntity() { MillisecondDateTime = testDateTime };
+        RunTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.Date == testDateTime.Date);
       });
     }
 

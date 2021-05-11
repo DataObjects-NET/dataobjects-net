@@ -3,7 +3,6 @@ using System.Transactions;
 using NUnit.Framework;
 using TestCommon.Model;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Reprocessing.Configuration;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
@@ -53,9 +52,9 @@ namespace Xtensive.Orm.Reprocessing.Tests
     [Test]
     public void NestedSessionReuse()
     {
-      Domain.Execute(
-        session1 => Domain.Execute(
-          session2 => Assert.That(session1, Is.SameAs(session2))));
+      Domain.Execute(session1 =>
+        Domain.WithSession(session1)
+          .Execute(session2 => Assert.That(session1, Is.SameAs(session2))));
     }
 
     [Test]
@@ -75,13 +74,15 @@ namespace Xtensive.Orm.Reprocessing.Tests
     [Test]
     public void ParentIsDisconnectedState()
     {
-      Domain.Execute(session => { _ = new Bar(session); });
+      Domain.Execute(session => {
+        _ = new Bar(session);
+      });
       using (var session = Domain.OpenSession(new SessionConfiguration(SessionOptions.ClientProfile)))
       using(session.Activate()) {
         var bar = session.Query.All<Bar>().FirstOrDefault();
-        bar=new Bar(session);
+        bar = new Bar(session);
         session.SaveChanges();
-        Domain.Execute(session1 => {
+        Domain.WithSession(session).Execute(session1 => {
           bar = session1.Query.All<Bar>().FirstOrDefault();
           bar = new Bar(session1);
         });

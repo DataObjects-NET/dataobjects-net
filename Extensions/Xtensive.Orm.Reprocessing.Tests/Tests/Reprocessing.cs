@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
         domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
           session => {
             _ = Interlocked.Increment(ref Count);
-            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
             if (first) {
               _ = session.Query.All<Foo>().Lock(LockMode.Exclusive, LockBehavior.Wait).ToArray();
               if (wait1 != null) {
@@ -59,14 +59,13 @@ namespace Xtensive.Orm.Reprocessing.Tests
         bool first,
         IsolationLevel? isolationLevel,
         TransactionOpenMode? transactionOpenMode,
-        Action<bool, IsolationLevel?, TransactionOpenMode?> action)
+        Action<Session, bool, IsolationLevel?, TransactionOpenMode?> action)
       {
         using (var session = domain.OpenSession())
-        using (var tran = isolationLevel == null ? null : session.OpenTransaction())
-        using (session.Activate()) {
+        using (var tran = isolationLevel == null ? null : session.OpenTransaction()) {
           if (tran != null) {
             session.EnsureTransactionIsStarted();
-            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
           }
           if (first) {
             if (wait1 != null && wait2 != null) {
@@ -78,8 +77,8 @@ namespace Xtensive.Orm.Reprocessing.Tests
             _ = wait2.Set();
             _ = wait1.WaitOne();
           }
-          action(first, isolationLevel, transactionOpenMode);
-          if (tran!=null) {
+          action(session, first, isolationLevel, transactionOpenMode);
+          if (tran != null) {
             tran.Complete();
           }
         }
@@ -92,22 +91,55 @@ namespace Xtensive.Orm.Reprocessing.Tests
         IExecuteActionStrategy strategy,
         Action<bool, IsolationLevel?, TransactionOpenMode?> action)
       {
-        domain.WithStrategy(strategy).WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead)).WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New)).Execute(
-          session => {
-            session.EnsureTransactionIsStarted();
-            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
-            if (first) {
-              if (wait1 != null && wait2 != null) {
-                _ = wait1.Set();
-                _ = wait2.WaitOne();
+        domain.WithStrategy(strategy)
+          .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
+          .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
+          .Execute(
+            session => {
+              session.EnsureTransactionIsStarted();
+              _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
+              if (first) {
+                if (wait1 != null && wait2 != null) {
+                  _ = wait1.Set();
+                  _ = wait2.WaitOne();
+                }
               }
-            }
-            else if (wait1!=null && wait2!=null) {
-              _ = wait2.Set();
-              _ = wait1.WaitOne();
-            }
-            action(first, isolationLevel, transactionOpenMode);
-          });
+              else if (wait1 != null && wait2 != null) {
+                _ = wait2.Set();
+                _ = wait1.WaitOne();
+              }
+              action(first, isolationLevel, transactionOpenMode);
+            });
+      }
+
+      public void Parent(
+        Session session,
+        bool first,
+        IsolationLevel? isolationLevel,
+        TransactionOpenMode? transactionOpenMode,
+        IExecuteActionStrategy strategy,
+        Action<bool, IsolationLevel?, TransactionOpenMode?> action)
+      {
+        domain.WithStrategy(strategy)
+          .WithSession(session)
+          .WithIsolationLevel(isolationLevel.GetValueOrDefault(IsolationLevel.RepeatableRead))
+          .WithTransactionOpenMode(transactionOpenMode.GetValueOrDefault(TransactionOpenMode.New))
+          .Execute(
+            session => {
+              session.EnsureTransactionIsStarted();
+              _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
+              if (first) {
+                if (wait1 != null && wait2 != null) {
+                  _ = wait1.Set();
+                  _ = wait2.WaitOne();
+                }
+              }
+              else if (wait1 != null && wait2 != null) {
+                _ = wait2.Set();
+                _ = wait1.WaitOne();
+              }
+              action(first, isolationLevel, transactionOpenMode);
+            });
       }
 
       public void Run(
@@ -135,7 +167,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
           session => {
             _ = Interlocked.Increment(ref Count);
             session.EnsureTransactionIsStarted();
-            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
             var name = "test";
             if (!session.Query.All<Foo>().Any(a => a.Name == name)) {
               if (first) {
@@ -150,7 +182,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
                 _ = wait1.WaitOne();
                 wait2 = null;
               }
-              _ = new Foo(session) {Name = name};
+              _ = new Foo(session) { Name = name };
             }
             session.SaveChanges();
           });
@@ -163,19 +195,19 @@ namespace Xtensive.Orm.Reprocessing.Tests
           session => {
             _ = Interlocked.Increment(ref Count);
             session.EnsureTransactionIsStarted();
-            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) {Name = Guid.NewGuid().ToString()};
+            _ = new Bar2(session, DateTime.Now, Guid.NewGuid()) { Name = Guid.NewGuid().ToString() };
             var id = 10;
-            if (session.Query.SingleOrDefault<Foo>(id) == null) {
+            if (session.Query.SingleOrDefault<Foo>(id)==null) {
               var w1 = wait1;
               var w2 = wait2;
               if (first) {
-                if (w1 != null && w2 != null) {
+                if (w1!=null && w2!=null) {
                   _ = w1.Set();
                   _ = w2.WaitOne();
                   wait1 = null;
                 }
               }
-              else if (w1 != null && w2 != null) {
+              else if (w1!=null && w2!=null) {
                 _ = w2.Set();
                 _ = w1.WaitOne();
                 wait2 = null;
@@ -278,8 +310,9 @@ namespace Xtensive.Orm.Reprocessing.Tests
             b,
             null,
             open,
-            (b1, level1, open1) =>
+            (s, b1, level1, open1) =>
               context.Parent(
+                s,
                 b1,
                 IsolationLevel.Snapshot,
                 open1,
@@ -290,30 +323,24 @@ namespace Xtensive.Orm.Reprocessing.Tests
 
       //ExternalWithTransaction nested snapshot UniqueConstraint
       context = new Context(Domain);
-      var ex =
-        Assert.Throws<AggregateException>(
-          () =>
-            context.Run(
-              IsolationLevel.Snapshot,
-              null,
-              (b, level, open) =>
-                context.External(
-                  b,
-                  level,
-                  open,
-                  (b1, level1, open1) =>
-                    context.Parent(
-                      b1,
-                      level1,
-                      open1,
-                      ExecuteActionStrategy.HandleUniqueConstraintViolation,
-                      context.UniqueConstraintViolation))));
-      Assert.That(
-        ex.InnerExceptions.Single(),
-        Is.TypeOf<InvalidOperationException>().Or.TypeOf<StorageException>().With.Property("InnerException").TypeOf
-          <InvalidOperationException>());
-      Assert.That(context.Count, Is.EqualTo(2));
-      Assert.That(Bar2Count(), Is.EqualTo(3));
+      context.Run(
+        IsolationLevel.Snapshot,
+        null,
+        (b, level, open) =>
+          context.External(
+            b,
+            level,
+            open,
+            (s, b1, level1, open1) =>
+              context.Parent(
+                s,
+                b1,
+                level1,
+                open1,
+                ExecuteActionStrategy.HandleUniqueConstraintViolation,
+                context.UniqueConstraintViolation)));
+      Assert.That(context.Count, Is.EqualTo(3));
+      Assert.That(Bar2Count(), Is.EqualTo(6));
 
       //nested UniqueConstraint with auto transaction
       context = new Context(Domain);
@@ -350,8 +377,8 @@ namespace Xtensive.Orm.Reprocessing.Tests
     public void UniqueConstraintViolationExceptionUnique()
     {
       var i = 0;
-      var b = false;
-      ExecuteActionStrategy.HandleUniqueConstraintViolation.Error += (sender, args) => b = true;
+      var errorNotified = false;
+      ExecuteActionStrategy.HandleUniqueConstraintViolation.Error += (sender, args) => errorNotified = true;
       Domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).Execute(
         session => {
           _ = new Foo(session) { Name = "test" };
@@ -361,7 +388,7 @@ namespace Xtensive.Orm.Reprocessing.Tests
           }
         });
       Assert.That(i, Is.EqualTo(5));
-      Assert.That(b, Is.True);
+      Assert.That(errorNotified, Is.True);
     }
   }
 }
