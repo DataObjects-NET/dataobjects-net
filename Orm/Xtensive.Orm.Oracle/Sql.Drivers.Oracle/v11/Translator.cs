@@ -13,26 +13,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
 {
   internal class Translator : v10.Translator
   {
-    //so called INITRANS value
-    protected const int TableTransactionalParallelismLevel = 7;
-    protected const int IndexTransactionalParallelismLevel = 7;
-
-    public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
-    {
-      if (section == CreateTableSection.TableElementsExit)
-        return $") INITRANS {TableTransactionalParallelismLevel} ";
-      return base.Translate(context, node, section);
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
-    {
-      if (section == CreateIndexSection.ColumnsExit)
-        return $") INITRANS {IndexTransactionalParallelismLevel}";
-      //CreateIndexSection.ColumnsExit:
-      //return ")"
-      return base.Translate(context, node, section);
-    }
-
     public override string Translate(SqlCompilerContext context, SqlOrder node, NodeSection section)
     {
       if (section == NodeSection.Exit) {
