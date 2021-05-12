@@ -28,6 +28,8 @@ namespace Xtensive.Orm.Tests.Issues
 
     private bool isSchemaRecreated = false;
 
+    protected override void CheckRequirements() => Require.ProviderIsNot(StorageProvider.Oracle);
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -39,20 +41,23 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var firstTryConfig = configuration.Clone();
       firstTryConfig.UpgradeMode = DomainUpgradeMode.Validate;
+      Domain domain = null;
       try {
         //try to avoid long population
-        var domain = base.BuildDomain(firstTryConfig);
+        domain = base.BuildDomain(firstTryConfig);
         ValidateTestData(domain);
         return domain;
       }
       catch (SchemaSynchronizationException exception) {
         //schemas differ
         isSchemaRecreated = true;
+        domain.DisposeSafely();
       }
       catch (TestDataInvalidException) {
         // schemas are the same but data in not ok
         // create so override existing schema and publish correct data
         isSchemaRecreated = true;
+        domain.DisposeSafely();
       }
       var secondTryConfig = configuration.Clone();
       secondTryConfig.UpgradeMode = DomainUpgradeMode.Recreate;
@@ -352,10 +357,11 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        foreach (var employee in session.Query.All<Employee>()) {
+        foreach (var employee in session.Query.All<Employee>().ToArray(45)) {
           _ = new Contact(session, employee, ContactType.Email, ContactGenerator.GetEmail()) { Active = true };
           _ = new Contact(session, employee, ContactType.Fax, ContactGenerator.GetPhone()) { Active = true };
           _ = new Contact(session, employee, ContactType.Phone, ContactGenerator.GetPhone()) { Active= true };
+          session.SaveChanges();
         }
         tx.Complete();
       }
@@ -366,7 +372,7 @@ namespace Xtensive.Orm.Tests.Issues
       var random = new Random();
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var customers = session.Query.All<Customer>().ToArray();
+        var customers = session.Query.All<Customer>().ToArray(CustomerCount);
         foreach (var customer in customers) {
           var contactsToChoose = customer.Contacts.ToArray();
           _ = new Recipient(session, new Audience(session)) {
