@@ -76,10 +76,5 @@ namespace Xtensive.Orm.Providers
     Paging = Take | Skip,
     NativePaging = NativeTake | NativeSkip,
     Batches = DdlBatches | DmlBatches,
-
-    // Obsolete features
-    [Obsolete("Use ProviderFeatures.ExclusiveWriterConnection instead.")]
-    SingleSessionAccess = ExclusiveWriterConnection,
-    
   }
 }

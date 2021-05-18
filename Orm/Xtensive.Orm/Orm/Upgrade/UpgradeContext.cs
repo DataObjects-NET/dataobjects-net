@@ -69,12 +69,6 @@ namespace Xtensive.Orm.Upgrade
     public UpgradeStage Stage { get; internal set; }
 
     /// <summary>
-    /// Gets the original <see cref="DomainConfiguration"/>.
-    /// </summary>
-    [Obsolete("Use Configuration property instead.")]
-    public DomainConfiguration OriginalConfiguration { get { return Configuration; } }
-
-    /// <summary>
     /// Gets the <see cref="DomainConfiguration"/>
     /// at the current upgrade stage.
     /// </summary>

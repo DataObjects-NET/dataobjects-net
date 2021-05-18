@@ -22,43 +22,11 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="T">The type of the action argument.</typeparam>
     /// <param name="action">The action.</param>
-    /// <param name="argument">The argument.</param>
-    [Obsolete("Use InvokeTransactionally<T>(Action<T>, Session, T) instead")]
-    public static void InvokeTransactionally<T>(this Action<T> action, T argument)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction()) {
-        action.Invoke(argument);
-        transactionScope.Complete();
-      }
-    }
-
-    /// <summary>
-    /// Invokes the action wrapping it into a transaction.
-    /// </summary>
-    /// <typeparam name="T">The type of the action argument.</typeparam>
-    /// <param name="action">The action.</param>
     /// <param name="session">The session.</param>
     /// <param name="argument">The argument.</param>
     public static void InvokeTransactionally<T>(this Action<T> action, Session session, T argument)
     {
       using (var transactionScope = session.OpenTransaction()) {
-        action.Invoke(argument);
-        transactionScope.Complete();
-      }
-    }
-
-    /// <summary>
-    /// Invokes the action wrapping it into a transaction.
-    /// </summary>
-    /// <typeparam name="T">The type of the action argument.</typeparam>
-    /// <param name="action">The action.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    [Obsolete("Use InvokeTransactionally<T>(Action<T>, Session, IsolationLevel, T) instead")]
-    public static void InvokeTransactionally<T>(this Action<T> action, IsolationLevel isolationLevel, T argument)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         action.Invoke(argument);
         transactionScope.Complete();
       }
@@ -84,39 +52,10 @@ namespace Xtensive.Orm
     /// Invokes the action wrapping it into a transaction.
     /// </summary>
     /// <param name="action">The action.</param>
-    [Obsolete("Use InvokeTransactionally(Action, Session) instead")]
-    public static void InvokeTransactionally(this Action action)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction()) {
-        action.Invoke();
-        transactionScope.Complete();
-      }
-    }
-
-    /// <summary>
-    /// Invokes the action wrapping it into a transaction.
-    /// </summary>
-    /// <param name="action">The action.</param>
     /// <param name="session">The session.</param>
     public static void InvokeTransactionally(this Action action, Session session)
     {
       using (var transactionScope = session.OpenTransaction()){
-        action.Invoke();
-        transactionScope.Complete();
-      }
-    }
-
-    /// <summary>
-    /// Invokes the action wrapping it into a transaction.
-    /// </summary>
-    /// <param name="action">The action.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    [Obsolete("Use InvokeTransactionally(Action, Session, IsolationLevel) instead")]
-    public static void InvokeTransactionally(this Action action, IsolationLevel isolationLevel)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         action.Invoke();
         transactionScope.Complete();
       }
@@ -146,47 +85,11 @@ namespace Xtensive.Orm
     /// <typeparam name="T">The type of the function argument.</typeparam>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="function">The function.</param>
-    /// <param name="argument">The argument.</param>
-    [Obsolete("Use InvokeTransactionally<T, TResult>(Func<T, TResult>, Session, T) instead")]
-    public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, T argument)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction()) {
-        var result = function.Invoke(argument);
-        transactionScope.Complete();
-        return result;
-      }
-    }
-
-    /// <summary>
-    /// Invokes the function wrapping it into a transaction.
-    /// </summary>
-    /// <typeparam name="T">The type of the function argument.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="function">The function.</param>
     /// <param name="session">The session.</param>
     /// <param name="argument">The argument.</param>
     public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, Session session, T argument)
     {
       using (var transactionScope = session.OpenTransaction()) {
-        var result = function.Invoke(argument);
-        transactionScope.Complete();
-        return result;
-      }
-    }
-
-    /// <summary>
-    /// Invokes the function wrapping it into a transaction.
-    /// </summary>
-    /// <typeparam name="T">The type of the function argument.</typeparam>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="function">The function.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    [Obsolete("Use InvokeTransactionally<T, TResult>(Func<T, TResult>, Session, IsolationLevel, T) instead")]
-    public static TResult InvokeTransactionally<T, TResult>(this Func<T, TResult> function, IsolationLevel isolationLevel, T argument)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         var result = function.Invoke(argument);
         transactionScope.Complete();
         return result;
@@ -216,43 +119,10 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="function">The function.</param>
-    [Obsolete("Use InvokeTransactionally<TResult>(Func<TResult>, Session) instead")]
-    public static TResult InvokeTransactionally<TResult>(this Func<TResult> function)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction()) {
-        var result = function.Invoke();
-        transactionScope.Complete();
-        return result;
-      }
-    }
-
-    /// <summary>
-    /// Invokes the function wrapping it into a transaction.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="function">The function.</param>
     /// <param name="session">The session.</param>
     public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, Session session)
     {
       using (var transactionScope = session.OpenTransaction()) {
-        var result = function.Invoke();
-        transactionScope.Complete();
-        return result;
-      }
-    }
-
-    /// <summary>
-    /// Invokes the function wrapping it into a transaction.
-    /// </summary>
-    /// <typeparam name="TResult">The type of the result.</typeparam>
-    /// <param name="function">The function.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    [Obsolete("Use InvokeTransactionally<TResult>(Func<TResult>, Session, IsolationLevel) instead")]
-    public static TResult InvokeTransactionally<TResult>(this Func<TResult> function, IsolationLevel isolationLevel)
-    {
-      var session = Session.Demand();
-      using (var transactionScope = session.OpenTransaction(isolationLevel)) {
         var result = function.Invoke();
         transactionScope.Complete();
         return result;
@@ -287,42 +157,11 @@ namespace Xtensive.Orm
     /// </summary>
     /// <typeparam name="T">The type of item in sequence.</typeparam>
     /// <param name="source">The sequence to convert.</param>
-    /// <returns>"Transactional" version of sequence.</returns>
-    [Obsolete("Use ToTransactional<T>(IEnumerable<T>, Session) method instead.")]
-    public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source)
-    {
-      return source.ToTransactional(Session.Demand(), IsolationLevel.Unspecified);
-    }
-
-    /// <summary>
-    /// Converts the sequence to transactional.
-    /// In fact, it does nothing if current transaction is available;
-    /// otherwise it opens a new transaction, caches the sequence enumeration result,
-    /// closes the transaction and returns cached sequence enumerator.
-    /// </summary>
-    /// <typeparam name="T">The type of item in sequence.</typeparam>
-    /// <param name="source">The sequence to convert.</param>
     /// <param name="session">The session.</param>
     /// <returns>"Transactional" version of sequence.</returns>
     public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, Session session)
     {
       return source.ToTransactional(session, IsolationLevel.Unspecified);
-    }
-
-    /// <summary>
-    /// Converts the sequence to transactional.
-    /// In fact, it does nothing if current transaction is available;
-    /// otherwise it opens a new transaction, caches the sequence enumeration result,
-    /// closes the transaction and returns cached sequence enumerator.
-    /// </summary>
-    /// <typeparam name="T">The type of item in sequence.</typeparam>
-    /// <param name="source">The sequence to convert.</param>
-    /// <param name="isolationLevel">The isolation level.</param>
-    /// <returns>"Transactional" version of sequence.</returns>
-    [Obsolete("Use ToTransactional<T>(IEnumerable<T>, Session, IsolationLevel) method instead.")]
-    public static IEnumerable<T> ToTransactional<T>(this IEnumerable<T> source, IsolationLevel isolationLevel)
-    {
-      return source.ToTransactional(Session.Demand(), isolationLevel);
     }
 
     /// <summary>

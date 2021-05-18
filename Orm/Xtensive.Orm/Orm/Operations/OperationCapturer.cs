@@ -102,20 +102,6 @@ namespace Xtensive.Orm.Operations
     // Factory methods
 
     /// <summary>
-    /// Attaches the operation capturer to the current session.
-    /// </summary>
-    /// <param name="operations">The operation logger to append captured operations to.</param>
-    /// <returns>
-    /// A newly created <see cref="OperationCapturer"/> attached
-    /// to the current session.
-    /// </returns>
-    [Obsolete("Use Attach(Session, IOperationLogger) instead")]
-    public static OperationCapturer Attach(IOperationLogger operations)
-    {
-      return Attach(Session.Demand(), operations);
-    }
-
-    /// <summary>
     /// Attaches the operation capturer to the specified session.
     /// </summary>
     /// <param name="session">The session to attach the capturer to.</param>

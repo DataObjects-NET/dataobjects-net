@@ -15,13 +15,6 @@ namespace Xtensive.Orm
   public interface IOperationSequence : IEnumerable<IOperation>, Core.IOperationSequence
   {
     /// <summary>
-    /// Applies this operation sequence to the <see cref="Session.Current"/> session.
-    /// </summary>
-    /// <returns>Key mapping.</returns>
-    [Obsolete("Use Replay(Session) method instead.")]
-    KeyMapping Replay();
-
-    /// <summary>
     /// Applies this operation sequence to the specified session.
     /// </summary>
     /// <param name="session">The session to apply the sequence to.</param>

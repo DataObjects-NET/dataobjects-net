@@ -68,14 +68,6 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    [Obsolete("Use overload with pattern instead.")]
-    public RegexConstraint()
-    {
-    }
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
     /// <param name="pattern"><see cref="Regex"/> pattern.</param>
     public RegexConstraint(string pattern)
     {

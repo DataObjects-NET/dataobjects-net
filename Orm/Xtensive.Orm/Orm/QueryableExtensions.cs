@@ -242,29 +242,6 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Removes the specified entities using <see cref="Session.Remove{T}"/> method of <see cref="Session"/>. 
-    /// </summary>
-    /// <typeparam name="T">Entity type.</typeparam>
-    /// <param name="entities">The entities.</param>
-    ///  <exception cref="ReferentialIntegrityException">
-    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
-    /// </exception>
-    [Obsolete("Use Session.Remove() instead.")]
-    public static void Remove<T>([InstantHandle] this IEnumerable<T> entities)
-      where T : IEntity
-    {
-      var session = Session.Current;
-      if (session != null)
-        session.Remove(entities);
-      else {
-        var items = entities.Where(e => e != null).ToList();
-        if (items.Count == 0)
-          return;
-        items[0].Session.Remove(items);
-      }
-    }
-
-    /// <summary>
     /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
     /// <typeparam name="T">Type of elements in sequence.</typeparam>

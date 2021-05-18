@@ -105,20 +105,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Attaches the version capturer to the current session.
     /// </summary>
-    /// <param name="versions">The <see cref="VersionSet"/> to append captured versions to.</param>
-    /// <returns>
-    /// A newly created <see cref="VersionCapturer"/> attached
-    /// to the current session.
-    /// </returns>
-    [Obsolete("Use Attach(Session, VersionSet) instead")]
-    public static VersionCapturer Attach(VersionSet versions)
-    {
-      return Attach(Session.Demand(), versions);
-    }
-
-    /// <summary>
-    /// Attaches the version capturer to the current session.
-    /// </summary>
     /// <param name="session">The session to attach the capturer to.</param>
     /// <param name="versions">The <see cref="VersionSet"/> to append captured versions to.</param>
     /// <returns>

@@ -91,11 +91,5 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS does not support DateTimeOffset natively, but allows to emulate it.
     /// </summary>
     DateTimeOffsetEmulation = 1 << 12,
-
-    /// <summary>
-    /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.
-    /// </summary>
-    [Obsolete("Use ServerFeatures.ExclusiveWriterSession instead.")]
-    SingleSessionAccess = ExclusiveWriterConnection,
   }
 }

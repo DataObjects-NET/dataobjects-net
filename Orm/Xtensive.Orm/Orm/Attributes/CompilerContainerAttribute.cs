@@ -21,12 +21,6 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the target type (i.e. type this compiler translates to).
     /// </summary>
-    [Obsolete("Use TargetType instead")]
-    public Type ExtensionType { get { return TargetType; } }
-
-    /// <summary>
-    /// Gets the target type (i.e. type this compiler translates to).
-    /// </summary>
     public Type TargetType { get; private set; }
 
     /// <summary>

@@ -298,20 +298,6 @@ namespace Xtensive.Orm
     #region Attach methods (factory methods)
 
     /// <summary>
-    /// Attaches the validator to the current session.
-    /// </summary>
-    /// <param name="expectedVersions">The set containing expected versions.</param>
-    /// <returns>
-    /// A newly created <see cref="VersionValidator"/> attached
-    /// to the current session.
-    /// </returns>
-    [Obsolete("Use Attach(Session, VersionSet) instead")]
-    public static VersionValidator Attach(VersionSet expectedVersions)
-    {
-      return Attach(Session.Demand(), expectedVersions);
-    }
-
-    /// <summary>
     /// Attaches the validator to the specified session.
     /// </summary>
     /// <param name="session">The session to attach validator to.</param>
@@ -323,18 +309,6 @@ namespace Xtensive.Orm
     public static VersionValidator Attach(Session session, VersionSet expectedVersions)
     {
       return new VersionValidator(session, expectedVersions.Get);
-    }
-
-    /// <summary>
-    /// Attaches the validator to the current session.
-    /// </summary>
-    /// <param name="expectedVersionProvider">The expected version provider.</param>
-    /// <returns>A newly created <see cref="VersionValidator"/> attached
-    /// to the current session.</returns>
-    [Obsolete("Use Attach(Session, Func<Key, VersionInfo>) instead")]
-    public static VersionValidator Attach(Func<Key, VersionInfo> expectedVersionProvider)
-    {
-      return Attach(Session.Demand(), expectedVersionProvider);
     }
 
     /// <summary>

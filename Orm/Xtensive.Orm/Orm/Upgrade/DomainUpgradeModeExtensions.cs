@@ -17,26 +17,6 @@ namespace Xtensive.Orm.Upgrade
     /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Upgrading"/> stage.
     /// </summary>
     /// <param name="upgradeMode">The upgrade mode.</param>
-    [Obsolete("Use IsMultistage() instead")]
-    public static bool RequiresUpgradingStage(this DomainUpgradeMode upgradeMode)
-    {
-      return upgradeMode.IsMultistage();
-    }
-
-    /// <summary>
-    /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Initializing"/> stage.
-    /// </summary>
-    /// <param name="upgradeMode">The upgrade mode.</param>
-    [Obsolete("Use IsMultistage() instead")]
-    public static bool RequiresInitializingStage(this DomainUpgradeMode upgradeMode)
-    {
-      return upgradeMode.IsMultistage();
-    }
-
-    /// <summary>
-    /// Determines whether <paramref name="upgradeMode"/> requires <see cref="UpgradeStage.Upgrading"/> stage.
-    /// </summary>
-    /// <param name="upgradeMode">The upgrade mode.</param>
     public static bool IsMultistage(this DomainUpgradeMode upgradeMode)
     {
       switch (upgradeMode) {

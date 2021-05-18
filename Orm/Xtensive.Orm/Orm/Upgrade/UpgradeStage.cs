@@ -14,11 +14,6 @@ namespace Xtensive.Orm.Upgrade
   public enum UpgradeStage
   {
     /// <summary>
-    /// This stage no longer occurs. It's kept for compatibility with previous versions.
-    /// </summary>
-    [Obsolete("This stage no longer occurs")]
-    Initializing = 0x0,
-    /// <summary>
     /// The second upgrade stage.
     /// All the types are visible, including upgrade-only types;
     /// schema is upgraded; 

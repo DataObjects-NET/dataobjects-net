@@ -29,29 +29,6 @@ namespace Xtensive.Orm.Building
     internal Graph<TypeDef> DependencyGraph { get; private set; }
     internal Validator Validator { get; private set; }
 
-    #region Current property & Demand() method
-
-    /// <summary>
-    /// Gets the current <see cref="BuildingContext"/>.
-    /// </summary>
-    [Obsolete("This property will be removed in future versions.")]
-    public static BuildingContext Current { get { return BuildingScope.Context; } }
-
-    /// <summary>
-    /// Gets the current <see cref="BuildingContext"/>, or throws <see cref="InvalidOperationException"/>, if active context is not found.
-    /// </summary>
-    /// <returns>Current context.</returns>
-    [Obsolete("This method will be removed in future versions.")]
-    public static BuildingContext Demand()
-    {
-      var current = BuildingScope.Context;
-      if (current==null)
-        throw Exceptions.ContextRequired<BuildingContext, BuildingScope>();
-      return current;
-    }
-
-    #endregion
-
     /// <summary>
     /// Gets the configuration of the building <see cref="Orm.Domain"/>.
     /// </summary>

@@ -23,13 +23,6 @@ namespace Xtensive.Orm.Configuration
     #region Defaults
 
     /// <summary>
-    /// Default <see cref="SectionName"/> value:
-    /// "<see langword="Xtensive.Orm" />".
-    /// </summary>
-    [Obsolete("Use WellKnown.DefaultConfigurationSection instead."), UsedImplicitly]
-    public const string DefaultSectionName = WellKnown.DefaultConfigurationSection;
-
-    /// <summary>
     /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value: 
     /// <see langword="16*1024" />.
     /// </summary>
