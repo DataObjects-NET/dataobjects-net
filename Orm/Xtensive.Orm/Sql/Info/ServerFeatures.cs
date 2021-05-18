@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2010.02.05
 
@@ -91,11 +91,5 @@ namespace Xtensive.Sql.Info
     /// Indicates whether RDBMS does not support DateTimeOffset natively, but allows to emulate it.
     /// </summary>
     DateTimeOffsetEmulation = 1 << 12,
-
-    /// <summary>
-    /// Obsolete name for <see cref="ExclusiveWriterConnection"/>.
-    /// </summary>
-    [Obsolete("Use ServerFeatures.ExclusiveWriterSession instead.")]
-    SingleSessionAccess = ExclusiveWriterConnection,
   }
 }

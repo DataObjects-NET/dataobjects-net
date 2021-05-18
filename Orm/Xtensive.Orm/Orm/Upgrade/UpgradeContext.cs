@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Aleksey Gamzov
 // Created:    2008.12.30
 
@@ -67,12 +67,6 @@ namespace Xtensive.Orm.Upgrade
     /// Gets the current upgrade stage.
     /// </summary>
     public UpgradeStage Stage { get; internal set; }
-
-    /// <summary>
-    /// Gets the original <see cref="DomainConfiguration"/>.
-    /// </summary>
-    [Obsolete("Use Configuration property instead.")]
-    public DomainConfiguration OriginalConfiguration { get { return Configuration; } }
 
     /// <summary>
     /// Gets the <see cref="DomainConfiguration"/>

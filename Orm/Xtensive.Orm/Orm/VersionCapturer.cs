@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.03.01
 
@@ -101,20 +101,6 @@ namespace Xtensive.Orm
     #endregion
 
     // Factory methods
-
-    /// <summary>
-    /// Attaches the version capturer to the current session.
-    /// </summary>
-    /// <param name="versions">The <see cref="VersionSet"/> to append captured versions to.</param>
-    /// <returns>
-    /// A newly created <see cref="VersionCapturer"/> attached
-    /// to the current session.
-    /// </returns>
-    [Obsolete("Use Attach(Session, VersionSet) instead")]
-    public static VersionCapturer Attach(VersionSet versions)
-    {
-      return Attach(Session.Demand(), versions);
-    }
 
     /// <summary>
     /// Attaches the version capturer to the current session.

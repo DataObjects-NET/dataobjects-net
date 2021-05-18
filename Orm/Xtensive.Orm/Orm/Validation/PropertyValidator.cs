@@ -1,6 +1,6 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.09.06
 
@@ -16,6 +16,7 @@ namespace Xtensive.Orm.Validation
   public abstract class PropertyValidator : Attribute, IPropertyValidator
   {
     private bool isImmediate;
+    private bool validateOnlyIfModified;
     private bool skipOnTransactionCommiting;
 
     /// <summary>
@@ -23,12 +24,11 @@ namespace Xtensive.Orm.Validation
     /// </summary>
     public bool IsImmediate
     {
-      get { return isImmediate; }
-      set
-      {
-        if (Domain!=null)
+      get => isImmediate;
+      set {
+        if (Domain != null) {
           throw Exceptions.AlreadyInitialized(null);
-
+        }
         isImmediate = value;
       }
     }
@@ -36,19 +36,27 @@ namespace Xtensive.Orm.Validation
     /// <summary>
     /// Gets or sets value indicating wheteher validation should continue only if field value has changed.
     /// </summary>
-    public bool ValidateOnlyIfModified { get; set; }
+    public bool ValidateOnlyIfModified
+    {
+      get => validateOnlyIfModified;
+      set {
+        if (Domain != null) {
+          throw Exceptions.AlreadyInitialized(null);
+        }
+        validateOnlyIfModified = value;
+      }
+    }
 
     /// <summary>
     /// Gets or sets value indicating if current validator should be skipped on a transaction commit.
     /// </summary>
     public bool SkipOnTransactionCommit
     {
-      get { return skipOnTransactionCommiting; }
-      set
-      {
-        if (Domain!=null)
+      get => skipOnTransactionCommiting;
+      set {
+        if (Domain != null) {
           throw Exceptions.AlreadyInitialized(null);
-
+        }
         skipOnTransactionCommiting = value;
       }
     }
@@ -69,16 +77,6 @@ namespace Xtensive.Orm.Validation
     public FieldInfo Field { get; private set; }
 
     /// <summary>
-    /// Gets or sets the <see cref="ConstrainMode"/> to be used on setting property value.
-    /// </summary>
-    [Obsolete("Use IsImmediate property instead.")]
-    public ConstrainMode Mode
-    {
-      get { return IsImmediate ? ConstrainMode.OnSetValue : ConstrainMode.OnValidate; }
-      set { IsImmediate = value==ConstrainMode.OnSetValue; }
-    }
-
-    /// <summary>
     /// Configures this instance.
     /// </summary>
     /// <param name="domain">A domain this validator is bound to.</param>
@@ -86,8 +84,9 @@ namespace Xtensive.Orm.Validation
     /// <param name="field">A persitent field this validator is bound to.</param>
     public virtual void Configure(Domain domain, TypeInfo type, FieldInfo field)
     {
-      if (Domain!=null)
+      if (Domain!=null) {
         throw Exceptions.AlreadyInitialized(null);
+      }
 
       Domain = domain;
       Type = type;
@@ -150,7 +149,7 @@ namespace Xtensive.Orm.Validation
         Strings.ExValidatorXConfigurationFailedOnTypeYFieldZWithMessageA,
         GetType().Name, Type, Field, message);
 
-      var exception = innerException==null
+      var exception = innerException == null
         ? new DomainBuilderException(exceptionMessage)
         : new DomainBuilderException(message, innerException);
 
