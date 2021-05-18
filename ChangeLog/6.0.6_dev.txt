@@ -2,7 +2,7 @@
 [main] Obsolete BuildingContext.Current and BuildingContext.Demand() are removed
 [main] Obsolete DomainConfiguration.DefaultSectionName field is removed
 [main] Obsolete IOperationSection.Replay() and its implementations are removed
-[main] Obsolete OperationCapturer Attach(IOperationLogger) is removed
+[main] Obsolete OperationCapturer.Attach(IOperationLogger) is removed
 [main] Obsolete ProviderFeatures.SingleSessionAccess and ServerFeatures.SingleSessionAccess are removed
 [main] Obsolete DomainUpgradeModeExtensions.RequiresInitializingStage() is removed
 [main] Obsolete UpgradeContext.OriginalConfiguration property is removed
@@ -14,7 +14,7 @@
 [main] Obsolete QueryableExtensions.Remove() is removed
 [main] Obsolete Transaction.Open() methods are removed
 [main] Obsolete TransactionalExtensions.InvokeTransactionally() methods are removed
-[main] Obsolete TypeExtensions.GetTypeInfo() methodsare removed
+[main] Obsolete TypeExtensions.GetTypeInfo() methods are removed
 [main] Obsolete VersionCapturer.Attach() is removed
 [main] Obsolete VersionValidator.Attach() property is removed
 [main] Obsolete WellKnown class members are removed
