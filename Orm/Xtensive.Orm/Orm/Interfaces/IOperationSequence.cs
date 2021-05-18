@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.03.01
 
@@ -14,13 +14,6 @@ namespace Xtensive.Orm
   /// </summary>
   public interface IOperationSequence : IEnumerable<IOperation>, Core.IOperationSequence
   {
-    /// <summary>
-    /// Applies this operation sequence to the <see cref="Session.Current"/> session.
-    /// </summary>
-    /// <returns>Key mapping.</returns>
-    [Obsolete("Use Replay(Session) method instead.")]
-    KeyMapping Replay();
-
     /// <summary>
     /// Applies this operation sequence to the specified session.
     /// </summary>

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.07.23
 
@@ -64,14 +64,6 @@ namespace Xtensive.Orm.Validation
     }
 
     // Constructors
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    [Obsolete("Use overload with pattern instead.")]
-    public RegexConstraint()
-    {
-    }
 
     /// <summary>
     /// Initializes new instance of this type.
