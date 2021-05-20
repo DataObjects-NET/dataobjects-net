@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -74,6 +74,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void TestTransactionIsUnsuableAfterDeadlock()
     {
+      Require.ProviderIs(StorageProvider.SqlServer);
       var task1 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities1(1));
       var task2 = System.Threading.Tasks.Task.Factory.StartNew(() => UpdateEntities1(2));
       System.Threading.Tasks.Task.WaitAll(task1, task2);

@@ -1,12 +1,13 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.11.21
 
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0221_UnableToTranslateAggregateModel;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0221_UnableToTranslateAggregateModel
@@ -55,9 +56,11 @@ namespace Xtensive.Orm.Tests.Issues
 
       CreateSessionAndTransaction();
 
-      new ZamesInfo {Owner = new Zames(), Rank = 1};
-      new ZamesInfo {Owner = new Zames(), Rank = 3};
+      _ = new ZamesInfo {Owner = new Zames(), Rank = 1};
+      _ = new ZamesInfo {Owner = new Zames(), Rank = 3};
     }
+
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
 
     #region Min()
 

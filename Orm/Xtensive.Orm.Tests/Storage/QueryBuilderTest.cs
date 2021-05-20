@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new CheckEntity();
+        _ = new CheckEntity();
         tx.Complete();
       }
     }
@@ -86,7 +86,14 @@ namespace Xtensive.Orm.Tests.Storage
         Assert.That(builder, Is.Not.Null);
 
         var binding = builder.CreateParameterBinding(typeof(int), () => 43);
-        var select = SqlDml.Select(binding.ParameterReference);
+        SqlSelect select;
+        if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
+          //require cast of parameters on sql level
+          select = SqlDml.Select(SqlDml.Cast(binding.ParameterReference, SqlType.Int32));
+        }
+        else {
+          select = SqlDml.Select(binding.ParameterReference);
+        }
 
         var compiled = builder.CompileQuery(select);
         Assert.That(compiled, Is.Not.Null);

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.08.09
 
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0641_IndexFilterExpressionTranslati
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 250)]
     public string Text { get; set; }
 
     [Field]
@@ -29,9 +29,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0641_IndexFilterExpressionTranslati
     [Field]
     public DirectionEnum Direction { get; set; }
 
+#pragma warning disable IDE0051 // Remove unused private members
     private static Expression<Func<BandwidthCall, bool>> NotBilledCalls()
+#pragma warning restore IDE0051 // Remove unused private members
     {
-      return e => e.IsBilled==false && (e.Direction).In(DirectionEnum.FirstIn, DirectionEnum.FirstOut);
+      return e => e.IsBilled == false && (e.Direction).In(DirectionEnum.FirstIn, DirectionEnum.FirstOut);
     }
   }
 
@@ -71,7 +73,7 @@ namespace Xtensive.Orm.Tests.Issues
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
 
       Domain domain = null;
-      Assert.DoesNotThrow(()=> domain = Domain.Build(configuration));
+      Assert.DoesNotThrow(() => domain = Domain.Build(configuration));
       if (domain!=null)
         domain.Dispose();
     }

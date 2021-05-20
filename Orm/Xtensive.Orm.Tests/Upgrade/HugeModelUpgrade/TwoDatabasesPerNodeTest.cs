@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.DefaultDatabase = "DO-Tests";
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultDatabase = WellKnownDatabases.MultiDatabase.MainDb;
+      configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
 
       var partOneType = typeof(TwoPartsModel.PartOne.TestEntityOne0);
       var partTwoType = typeof(TwoPartsModel.PartTwo.TestEntityTwo0);
@@ -33,10 +33,10 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 
       configuration.MappingRules
         .Map(partOneType.Assembly, partOneType.Namespace)
-        .ToDatabase("DO-Tests");
+        .ToDatabase(WellKnownDatabases.MultiDatabase.MainDb);
       configuration.MappingRules
         .Map(partTwoType.Assembly, partTwoType.Namespace)
-        .ToDatabase("DO-Tests-1");
+        .ToDatabase(WellKnownDatabases.MultiDatabase.AdditionalDb1);
       return configuration;
     }
 
@@ -78,18 +78,19 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     protected override IEnumerable<NodeConfiguration> GetAdditionalNodeConfigurations(DomainUpgradeMode upgradeMode)
     {
       var databases = new[] {
-        "DO-Tests-2", "DO-Tests-3",
-        "DO-Tests-4", "DO-Tests-5",
-        "DO-Tests-6", "DO-Tests-7",
-        "DO-Tests-8", "DO-Tests-9",
-        "DO-Tests-10", "DO-Tests-11",
+        WellKnownDatabases.MultiDatabase.AdditionalDb2, WellKnownDatabases.MultiDatabase.AdditionalDb3,
+        WellKnownDatabases.MultiDatabase.AdditionalDb4, WellKnownDatabases.MultiDatabase.AdditionalDb5,
+        WellKnownDatabases.MultiDatabase.AdditionalDb6, WellKnownDatabases.MultiDatabase.AdditionalDb7,
+        WellKnownDatabases.MultiDatabase.AdditionalDb8, WellKnownDatabases.MultiDatabase.AdditionalDb9,
+        WellKnownDatabases.MultiDatabase.AdditionalDb10, WellKnownDatabases.MultiDatabase.AdditionalDb11,
       };
 
       for (int index = 0, nodeIndex=1 ; index < 10; index += 2, nodeIndex++) {
-        var node = new NodeConfiguration("Node" + nodeIndex);
-        node.UpgradeMode = upgradeMode;
-        node.DatabaseMapping.Add("DO-Tests", databases[index]);
-        node.DatabaseMapping.Add("DO-Tests-1", databases[index+1]);
+        var node = new NodeConfiguration("Node" + nodeIndex) {
+          UpgradeMode = upgradeMode
+        };
+        node.DatabaseMapping.Add(WellKnownDatabases.MultiDatabase.MainDb, databases[index]);
+        node.DatabaseMapping.Add(WellKnownDatabases.MultiDatabase.AdditionalDb1, databases[index+1]);
         yield return node;
       }
     }

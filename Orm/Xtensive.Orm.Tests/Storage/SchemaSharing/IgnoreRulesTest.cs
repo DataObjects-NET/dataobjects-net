@@ -1,4 +1,4 @@
-// Copyright (C) 2017-2020 Xtensive LLC.
+// Copyright (C) 2017-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -12,13 +12,16 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
-using Xtensive.Orm.Tests.Upgrade.SchemaSharing.Model;
+using Xtensive.Orm.Tests.Storage.SchemaSharing.Model;
 
-namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
+namespace Xtensive.Orm.Tests.Storage.SchemaSharing
 {
   [TestFixture]
   public class IgnoreRulesTest : AutoBuildTest
   {
+    private const string Schema1 = WellKnownSchemas.Schema1;
+    private const string Schema2 = WellKnownSchemas.Schema2;
+
     private const string MainNodeId = WellKnown.DefaultNodeId;
     private const string AdditionalNodeId = "Additional";
 
@@ -278,7 +281,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var ignoredTable = schema.CreateTable("HiddenTable");
-          var idColumn = ignoredTable.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          var idColumn = ignoredTable.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           var name = ignoredTable.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -289,7 +292,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var notInDomainTable1 = schema.CreateTable("NotInDomain1");
-          idColumn = notInDomainTable1.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          idColumn = notInDomainTable1.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           name = notInDomainTable1.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -300,7 +303,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var notInDomainTable2 = schema.CreateTable("NotInDomain2");
-          idColumn = notInDomainTable2.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          idColumn = notInDomainTable2.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           name = notInDomainTable2.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -311,7 +314,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
           }
 
           var notInDomainTable3 = schema.CreateTable("NotInDomain3");
-          idColumn = notInDomainTable3.CreateColumn("Id", new SqlValueType(SqlType.Int64));
+          idColumn = notInDomainTable3.CreateColumn("Id", GetTypeForInteger(SqlType.Int64));
           idColumn.IsNullable = false;
           name = notInDomainTable3.CreateColumn("Name", GetTypeForString(255));
           name.IsNullable = false;
@@ -518,10 +521,32 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
     private SqlValueType GetTypeForString(int? length) =>
       driver.TypeMappings.Mappings[typeof(string)].MapType(length, null, null);
 
+    private SqlValueType GetTypeForInteger(SqlType sqlType)
+    {
+      if (!StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Oracle)) {
+        return new SqlValueType(sqlType);
+      }
+
+      const int ShortPrecision = 5;
+      const int IntPrecision = 10;
+      const int LongPrecision = 20;
+
+      if (sqlType == SqlType.Int16) {
+        return new SqlValueType(SqlType.Decimal, ShortPrecision, 0);
+      }
+      if (sqlType == SqlType.Int32) {
+        return new SqlValueType(SqlType.Decimal, IntPrecision, 0);
+      }
+      if (sqlType == SqlType.Int64) {
+        return new SqlValueType(SqlType.Decimal, LongPrecision, 0);
+      }
+      return new SqlValueType(sqlType);
+    }
+
     private Dictionary<string, string> BuildNodeToSchemaMap()
     {
       return ProviderInfo.Supports(ProviderFeatures.Multischema)
-        ? new Dictionary<string, string> {{MainNodeId, "Model1"}, {AdditionalNodeId, "Model2"}}
+        ? new Dictionary<string, string> { { MainNodeId, Schema1 }, { AdditionalNodeId, Schema2 } }
         : new Dictionary<string, string>();
     }
 

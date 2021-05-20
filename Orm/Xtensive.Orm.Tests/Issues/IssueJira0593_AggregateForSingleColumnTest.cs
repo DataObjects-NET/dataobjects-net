@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
 // Created:    2016.09.02
 
@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0593_AggregateForSingleColumnModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -117,10 +118,12 @@ namespace Xtensive.Orm.Tests.Issues
     private const int EntityCount = 20;
     private const string FilterCondition = "3";
 
+    private const decimal FloatValueAccuracy = 0.00001m;
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof (TestEntity));
+      config.Types.Register(typeof(TestEntity));
       return config;
     }
 
@@ -149,7 +152,7 @@ namespace Xtensive.Orm.Tests.Issues
             StringField = "StringField" + i,
           };
 
-          if (i % 2==0) {
+          if (i % 2 == 0) {
             entity.NullableSByteField = entity.SByteField;
             entity.NullableByteField = entity.ByteField;
             entity.NullableShortField = entity.ShortField;
@@ -176,17 +179,17 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var localSum = Query.All<TestEntity>().Select(c => c.DecimalField).ToArray().Sum();
-        Assert.AreEqual(Query.All<TestEntity>().Sum(c => c.DecimalField), localSum);
-        Assert.AreEqual(Query.All<TestEntity>().Select(c => c.DecimalField).Sum(c => c), localSum);
-        Assert.AreEqual(Query.All<TestEntity>().Select(c => c.DecimalField).Sum(), localSum);
+        var localSum = session.Query.All<TestEntity>().Select(c => c.DecimalField).ToArray().Sum();
+        Assert.AreEqual(session.Query.All<TestEntity>().Sum(c => c.DecimalField), localSum);
+        Assert.AreEqual(session.Query.All<TestEntity>().Select(c => c.DecimalField).Sum(c => c), localSum);
+        Assert.AreEqual(session.Query.All<TestEntity>().Select(c => c.DecimalField).Sum(), localSum);
 
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.DecimalField : -c.DecimalField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.DecimalField : -c.DecimalField);
         localSum = query.ToArray().Sum();
         Assert.AreEqual(query.Sum(c => c), localSum);
         Assert.AreEqual(query.Sum(), localSum);
 
-        var nullableQuery = Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.NullableDecimalField : -c.NullableDecimalField);
+        var nullableQuery = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.NullableDecimalField : -c.NullableDecimalField);
         var nullableLocalSum = nullableQuery.ToArray().Sum();
         Assert.AreEqual(nullableQuery.Sum(c => c), nullableLocalSum);
         Assert.AreEqual(nullableQuery.Sum(), nullableLocalSum);
@@ -198,12 +201,12 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.IntField : -c.ShortField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.IntField : -c.ShortField);
         var localSum = query.ToArray().Sum();
         Assert.AreEqual(query.Sum(c => c), localSum);
         Assert.AreEqual(query.Sum(), localSum);
 
-        var nullableQuery = Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.DecimalField : -c.NullableDecimalField);
+        var nullableQuery = session.Query.All<TestEntity>().Select(c => c.Name.Contains("3") ? c.DecimalField : -c.NullableDecimalField);
         var nullableLocalSum = nullableQuery.ToArray().Sum();
         Assert.AreEqual(nullableQuery.Sum(c => c), nullableLocalSum);
         Assert.AreEqual(nullableQuery.Sum(), nullableLocalSum);
@@ -217,7 +220,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.SByteField : -c.SByteField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.SByteField : -c.SByteField);
         CheckQueryable(query);
       }
     }
@@ -227,7 +230,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableSByteField : -c.NullableSByteField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableSByteField : -c.NullableSByteField);
         CheckQueryable(query);
       }
     }
@@ -237,7 +240,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.ByteField : -c.ByteField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.ByteField : -c.ByteField);
         CheckQueryable(query);
       }
     }
@@ -247,7 +250,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableByteField : -c.NullableByteField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableByteField : -c.NullableByteField);
         CheckQueryable(query);
       }
     }
@@ -257,7 +260,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.ShortField : -c.ShortField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.ShortField : -c.ShortField);
         CheckQueryable(query);
       }
     }
@@ -267,7 +270,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableShortField : -c.NullableShortField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableShortField : -c.NullableShortField);
         CheckQueryable(query);
       }
     }
@@ -277,7 +280,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.UShortField : -c.UShortField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.UShortField : -c.UShortField);
         CheckQueryable(query);
       }
     }
@@ -287,7 +290,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableUShortField : -c.NullableUShortField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableUShortField : -c.NullableUShortField);
         CheckQueryable(query);
       }
     }
@@ -297,7 +300,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.IntField : -c.IntField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.IntField : -c.IntField);
         CheckQueryable(query);
       }
     }
@@ -307,7 +310,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableIntField : -c.NullableIntField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableIntField : -c.NullableIntField);
         CheckQueryable(query);
       }
     }
@@ -317,7 +320,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.UIntField : -c.UIntField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.UIntField : -c.UIntField);
         CheckQueryable(query);
       }
     }
@@ -327,7 +330,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableUIntField : -c.NullableUIntField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableUIntField : -c.NullableUIntField);
         CheckQueryable(query);
       }
     }
@@ -337,7 +340,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.LongField : -c.LongField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.LongField : -c.LongField);
         CheckQueryable(query);
       }
     }
@@ -347,7 +350,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableLongField : -c.NullableLongField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableLongField : -c.NullableLongField);
         CheckQueryable(query);
       }
     }
@@ -357,7 +360,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? -(long) c.ULongField : (long) c.ULongField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? -(long) c.ULongField : (long) c.ULongField);
         CheckQueryable(query);
       }
     }
@@ -367,7 +370,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? -(long?) c.NullableULongField : (long?) c.NullableULongField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? -(long?) c.NullableULongField : (long?) c.NullableULongField);
         CheckQueryable(query);
       }
     }
@@ -377,7 +380,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.FloatField : -c.FloatField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.FloatField : -c.FloatField);
         CheckQueryable(query);
       }
     }
@@ -387,7 +390,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableFloatField : -c.NullableFloatField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableFloatField : -c.NullableFloatField);
         CheckQueryable(query);
       }
     }
@@ -397,7 +400,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.DoubleField : -c.DoubleField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.DoubleField : -c.DoubleField);
         CheckQueryable(query);
       }
     }
@@ -407,7 +410,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableDoubleField : -c.NullableDoubleField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableDoubleField : -c.NullableDoubleField);
         CheckQueryable(query);
       }
     }
@@ -417,7 +420,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.DecimalField : -c.DecimalField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.DecimalField : -c.DecimalField);
         CheckQueryable(query);
       }
     }
@@ -427,7 +430,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableDecimalField : -c.NullableDecimalField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableDecimalField : -c.NullableDecimalField);
         CheckQueryable(query);
       }
     }
@@ -441,7 +444,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.TimeSpanField : -c.TimeSpanField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.TimeSpanField : -c.TimeSpanField);
         CheckQueryable(query);
       }
     }
@@ -451,7 +454,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableTimeSpanField : -c.NullableTimeSpanField);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableTimeSpanField : -c.NullableTimeSpanField);
         CheckQueryable(query);
       }
     }
@@ -462,7 +465,7 @@ namespace Xtensive.Orm.Tests.Issues
       var now = DateTime.Now;
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.DateTimeField : now);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.DateTimeField : now);
         CheckQueryable(query);
       }
     }
@@ -472,7 +475,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableDateTimeField : null);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableDateTimeField : null);
         CheckQueryable(query);
       }
     }
@@ -483,7 +486,7 @@ namespace Xtensive.Orm.Tests.Issues
       var newGuid = Guid.NewGuid();
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.GuidField : newGuid);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.GuidField : newGuid);
         CheckQueryable(query);
       }
     }
@@ -493,7 +496,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableGuidField : null);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.NullableGuidField : null);
         CheckQueryable(query);
       }
     }
@@ -503,7 +506,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (session.OpenTransaction()) {
-        var query = Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.StringField : c.Name);
+        var query = session.Query.All<TestEntity>().Select(c => c.Name.Contains(FilterCondition) ? c.StringField : c.Name);
         CheckQueryable(query);
       }
     }
@@ -517,8 +520,14 @@ namespace Xtensive.Orm.Tests.Issues
       var localArray = query.ToArray();
       Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
       Assert.AreEqual(localArray.Sum(), query.Sum());
-      Assert.AreEqual(localArray.Average(), query.Average(c => c));
-      Assert.AreEqual(localArray.Average(), query.Average());
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
+        Assert.AreEqual(Math.Truncate(localArray.Average()), query.Average(c => c));
+        Assert.AreEqual(Math.Truncate(localArray.Average()), query.Average());
+      }
+      else {
+        Assert.AreEqual(localArray.Average(), query.Average(c => c));
+        Assert.AreEqual(localArray.Average(), query.Average());
+      }
       Assert.AreEqual(localArray.Min(), query.Min(c => c));
       Assert.AreEqual(localArray.Min(), query.Min());
       Assert.AreEqual(localArray.Max(), query.Max(c => c));
@@ -545,8 +554,14 @@ namespace Xtensive.Orm.Tests.Issues
       var localArray = query.ToArray();
       Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
       Assert.AreEqual(localArray.Sum(), query.Sum());
-      Assert.AreEqual(localArray.Average(), query.Average(c => c));
-      Assert.AreEqual(localArray.Average(), query.Average());
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
+        Assert.AreEqual(Math.Truncate(localArray.Average()), query.Average(c => c));
+        Assert.AreEqual(Math.Truncate(localArray.Average()), query.Average());
+      }
+      else {
+        Assert.AreEqual(localArray.Average(), query.Average(c => c));
+        Assert.AreEqual(localArray.Average(), query.Average());
+      }
       Assert.AreEqual(localArray.Min(), query.Min(c => c));
       Assert.AreEqual(localArray.Min(), query.Min());
       Assert.AreEqual(localArray.Max(), query.Max(c => c));
@@ -571,10 +586,15 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<float> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
-      Assert.AreEqual(localArray.Sum(), query.Sum());
-      Assert.AreEqual(localArray.Average(), query.Average(c => c));
-      Assert.AreEqual(localArray.Average(), query.Average());
+      Assert.That(Math.Abs(query.Sum(c => c) - localArray.Sum()), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Sum() - localArray.Sum()), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
+      //Assert.AreEqual(localArray.Sum(), query.Sum());
+
+      Assert.That(Math.Abs(query.Average(c => c) - localArray.Average()), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Average() - localArray.Average()), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Average(), query.Average(c => c));
+      //Assert.AreEqual(localArray.Average(), query.Average());
       Assert.AreEqual(localArray.Min(), query.Min(c => c));
       Assert.AreEqual(localArray.Min(), query.Min());
       Assert.AreEqual(localArray.Max(), query.Max(c => c));
@@ -585,10 +605,15 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<float?> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
-      Assert.AreEqual(localArray.Sum(), query.Sum());
-      Assert.AreEqual(localArray.Average(), query.Average(c => c));
-      Assert.AreEqual(localArray.Average(), query.Average());
+
+      Assert.That(Math.Abs(query.Sum(c => c).Value - localArray.Sum().Value), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Sum().Value - localArray.Sum().Value), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Sum(), query.Sum(c => c));
+      //Assert.AreEqual(localArray.Sum(), query.Sum());
+      Assert.That(Math.Abs(query.Average(c => c).Value - localArray.Average().Value), Is.LessThan(FloatValueAccuracy));
+      Assert.That(Math.Abs(query.Average().Value - localArray.Average().Value), Is.LessThan(FloatValueAccuracy));
+      //Assert.AreEqual(localArray.Average(), query.Average(c => c));
+      //Assert.AreEqual(localArray.Average(), query.Average());
       Assert.AreEqual(localArray.Min(), query.Min(c => c));
       Assert.AreEqual(localArray.Min(), query.Min());
       Assert.AreEqual(localArray.Max(), query.Max(c => c));
@@ -675,10 +700,10 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<DateTime> query)
     {
       var localArray = query.ToArray();
-      Assert.AreEqual(localArray.Min(), query.Min(c => c));
-      Assert.AreEqual(localArray.Min(), query.Min());
-      Assert.AreEqual(localArray.Max(), query.Max(c => c));
-      Assert.AreEqual(localArray.Max(), query.Max());
+      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Min(c => c));
+      Assert.AreEqual(localArray.Min().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Min());
+      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Max(c => c));
+      Assert.AreEqual(localArray.Max().FixDateTimeForProvider(StorageProviderInfo.Instance), query.Max());
       Assert.AreEqual(localArray.Count(), query.Count());
     }
 
@@ -695,20 +720,20 @@ namespace Xtensive.Orm.Tests.Issues
     private static void CheckQueryable(IQueryable<Guid> query)
     {
       var localArray = query.ToArray();
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
       Assert.AreEqual(localArray.Count(), query.Count());
     }
 
     private static void CheckQueryable(IQueryable<Guid?> query)
     {
       var localArray = query.ToArray();
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
-      Assert.Throws(typeof (QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Min()));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max(c => c)));
+      _ = Assert.Throws(typeof(QueryTranslationException), () => Assert.AreEqual(localArray.Min(), query.Max()));
       Assert.AreEqual(localArray.Count(), query.Count());
     }
 

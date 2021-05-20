@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
 // Created:    2011.01.13
 
@@ -84,11 +84,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     private void ExtractTableColumns()
     {
-      using (
-        var reader = Connection.CreateCommand(GetExtractTableColumnsQuery()).ExecuteReader(CommandBehavior.SingleResult)
-        ) {
+      using (var command = Connection.CreateCommand(GetExtractTableColumnsQuery()))
+      using (var reader = command.ExecuteReader(CommandBehavior.SingleResult)) {
         Table table = null;
-        int lastColumnId = int.MaxValue;
+        var lastColumnId = int.MaxValue;
         while (reader.Read()) {
           int columnSeq = reader.GetInt16(2);
           if (columnSeq <= lastColumnId) {
@@ -99,8 +98,16 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           column.DataType = CreateValueType(reader, 4, 5, 7, 8, 9);
           column.IsNullable = ReadBool(reader, 10);
           var defaultValue = ReadStringOrNull(reader, 11);
-          if (!string.IsNullOrEmpty(defaultValue))
-            column.DefaultValue = SqlDml.Native(defaultValue);
+          if (!string.IsNullOrEmpty(defaultValue)) {
+            defaultValue = defaultValue.TrimStart(' ');
+            if (defaultValue.StartsWith("DEFAULT", StringComparison.OrdinalIgnoreCase)) {
+              defaultValue = defaultValue.Substring(7).TrimStart(' ');
+            }
+            if (!string.IsNullOrEmpty(defaultValue)) {
+              column.DefaultValue = SqlDml.Native(defaultValue);
+            }
+          }
+
           lastColumnId = columnSeq;
         }
       }

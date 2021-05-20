@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.09.07
 
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from c in Session.Query.All<Customer>()
            where !list.Contains(c.FirstName)
            select c.Invoices;
-      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected = from c in Customers
            where !list.Contains(c.FirstName)
            select c.Invoices;
       Assert.That(list, Is.Not.Empty);
@@ -226,7 +226,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ToList();
       var query = Session.Query.All<Customer>()
         .Join(pairs, customer => customer.LastName, pair => pair.First, (customer, pair) => new {customer, pair.Second});
-      var expected = Session.Query.All<Customer>().AsEnumerable()
+      var expected = Customers
         .Join(pairs, customer => customer.LastName, pair => pair.First, (customer, pair) => new {customer, pair.Second});
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -254,12 +254,12 @@ namespace Xtensive.Orm.Tests.Linq
     public void Poco1Test()
     {
       Assert.Throws<QueryTranslationException>(() => {
-        var pocos = Session.Query.All<Customer>()
+        var pocos = Customers
           .Select(customer => new Poco<string>() { Value = customer.LastName })
           .ToList();
         var query = Session.Query.All<Customer>()
           .Join(pocos, customer => customer.LastName, poco => poco.Value, (customer, poco) => poco);
-        var expected = Session.Query.All<Customer>().AsEnumerable()
+        var expected = Customers
           .Join(pocos, customer => customer.LastName, poco => poco.Value, (customer, poco) => poco);
         Assert.That(query, Is.Not.Empty);
         Assert.AreEqual(0, expected.Except(query).Count());
@@ -276,7 +276,7 @@ namespace Xtensive.Orm.Tests.Linq
         .ToList();
       var query = Session.Query.All<Customer>()
         .Join(pocos, customer => customer.LastName, poco => poco.Value1, (customer, poco) => poco.Value1);
-      var expected = Session.Query.All<Customer>().AsEnumerable()
+      var expected = Customers
         .Join(pocos, customer => customer.LastName, poco => poco.Value1, (customer, poco) => poco.Value1);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -289,8 +289,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = Session.Query.All<Customer>()
         .Select(customer => new Poco<string, string>{Value1 = customer.LastName, Value2 = customer.LastName})
         .Select(poco=>new {poco.Value1, poco.Value2});
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .Select(customer => new Poco<string, string>{Value1 = customer.LastName, Value2 = customer.LastName})
         .Select(poco=>new {poco.Value1, poco.Value2});
       Assert.That(query, Is.Not.Empty);
@@ -304,8 +303,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = Session.Query.All<Customer>()
         .Select(customer => new Poco<string, string>(customer.LastName, customer.LastName))
         .Select(poco=>new {poco.Value1, poco.Value2});
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .Select(customer => new Poco<string, string>{Value1 = customer.LastName, Value2 = customer.LastName})
         .Select(poco=>new {poco.Value1, poco.Value2});
       Assert.That(query, Is.Not.Empty);
@@ -320,7 +318,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from c in Session.Query.All<Customer>()
                   where !list.Contains(c.FirstName)
                   select c.Invoices;
-      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected = from c in Customers
                      where !list.Contains(c.FirstName)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
@@ -335,7 +333,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = from c in Session.Query.All<Customer>()
                   where !list.Contains(c.FirstName)
                   select c.Invoices;
-      var expected = from c in Session.Query.All<Customer>().AsEnumerable()
+      var expected = from c in Customers
                      where !list.Contains(c.FirstName)
                      select c.Invoices;
       Assert.That(query, Is.Not.Empty);
@@ -370,7 +368,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(invoice => localInvoiceCommissions.Contains(invoice.Commission));
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Invoice>().AsEnumerable()
+      var expectedQuery = Invoices
         .Where(invoice => localInvoiceCommissions.Contains(invoice.Commission));
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
@@ -383,7 +381,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(invoice => localInvoiceCommissions.Any(commission => commission==invoice.Commission));
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Invoice>().AsEnumerable()
+      var expectedQuery = Invoices
         .Where(invoice => localInvoiceCommissions.Any(commission => commission==invoice.Commission));
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
@@ -397,7 +395,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(invoice => localInvoiceCommissions.All(commission => commission!=invoice.Commission));
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Invoice>().AsEnumerable()
+      var expectedQuery = Invoices
         .Where(invoice => localInvoiceCommissions.All(commission => commission!=invoice.Commission));
       Assert.AreEqual(0, expectedQuery.Except(query).Count());
     }
@@ -411,7 +409,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Join(keys, invoice => invoice.Key, key => key, (invoice, key) => new {invoice, key});
         Assert.That(query, Is.Not.Empty);
         QueryDumper.Dump(query);
-        var expectedQuery = Session.Query.All<Invoice>().AsEnumerable()
+        var expectedQuery = Invoices
           .Join(keys, invoice => invoice.Key, key => key, (invoice, key) => new {invoice, key});
         Assert.AreEqual(0, expectedQuery.Except(query).Count());
       });
@@ -429,7 +427,7 @@ namespace Xtensive.Orm.Tests.Linq
         (invoice, localInvoice) => new {invoice, localInvoice});
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Invoice>().AsEnumerable().Join(
+      var expectedQuery = Invoices.Join(
         localInvoices,
         invoice => invoice,
         localInvoice => localInvoice,
@@ -450,7 +448,7 @@ namespace Xtensive.Orm.Tests.Linq
         (invoice, localInvoice) => new {invoice, localInvoice});
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Invoice>().AsEnumerable().Join(
+      var expectedQuery = Invoices.Join(
         localInvoices,
         invoice => invoice.Commission,
         localInvoice => localInvoice.Commission,
@@ -470,7 +468,7 @@ namespace Xtensive.Orm.Tests.Linq
         (invoice, commission) => new {invoice, commission});
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Invoice>().AsEnumerable().Join(
+      var expectedQuery = Invoices.Join(
         localCommissions,
         invoice => invoice.Commission,
         commission => commission,
@@ -490,7 +488,7 @@ namespace Xtensive.Orm.Tests.Linq
         (invoice, commission) => new {invoice, commission}).Select(x => x.commission);
       Assert.That(query, Is.Not.Empty);
       QueryDumper.Dump(query);
-      var expectedQuery = Session.Query.All<Invoice>().AsEnumerable().Join(
+      var expectedQuery = Invoices.Join(
         localCommissions,
         invoice => invoice.Commission,
         commission => commission,
@@ -549,8 +547,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(i => i.DesignatedEmployee.BirthDate)
         .Intersect(Session.Query.All<Invoice>().ToList().Select(i => i.DesignatedEmployee.BirthDate));
 
-      var expected = Session.Query.All<Invoice>()
-        .AsEnumerable()
+      var expected = Invoices
         .Select(i => i.DesignatedEmployee.BirthDate)
         .Intersect(Session.Query.All<Invoice>().ToList().Select(i => i.DesignatedEmployee.BirthDate));
 
@@ -568,8 +565,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(i => i.DesignatedEmployee)
         .Intersect(Session.Query.All<Invoice>().ToList().Select(i => i.DesignatedEmployee));
 
-      var expected = Session.Query.All<Invoice>()
-        .AsEnumerable()
+      var expected = Invoices
         .Select(i => i.DesignatedEmployee)
         .Intersect(Session.Query.All<Invoice>().ToList().Select(i => i.DesignatedEmployee));
 
@@ -877,7 +873,7 @@ namespace Xtensive.Orm.Tests.Linq
       var queryable = Session.Query.Store(localItems);
       var result = Session.Query.All<Invoice>()
         .Where(invoice => invoice.Commission > queryable.Max(poco=>poco.Value2));
-      var expected = Session.Query.All<Invoice>().AsEnumerable()
+      var expected = Invoices
         .Where(invoice => invoice.Commission > localItems.Max(poco=>poco.Value2));
 
       Assert.That(result, Is.Not.Empty);

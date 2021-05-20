@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <root>
   <Album>
     <Columns>
@@ -61140,7 +61140,7 @@
         <Status>3</Status>
         <ProcessingTime>241828000000000</ProcessingTime>
         <BillingStreetAddress>110 Raeburn Pl</BillingStreetAddress>
-        <BillingCity>Edinburgh </BillingCity>
+        <BillingCity>Edinburgh</BillingCity>
         <BillingState />
         <BillingCountry>United Kingdom</BillingCountry>
         <BillingPostalCode>EH4 1HH</BillingPostalCode>

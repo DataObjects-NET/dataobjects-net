@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.02.24
 
@@ -15,13 +15,10 @@ namespace Xtensive.Orm.Providers
   [CompilerContainer(typeof(SqlExpression))]
   internal static class TimeSpanCompilers
   {
-    private static readonly long TicksPerMillisecond = TimeSpan.FromMilliseconds(1).Ticks;
-
     private static readonly double MillisecondsPerDay = TimeSpan.FromDays(1).TotalMilliseconds;
     private static readonly double MillisecondsPerHour = TimeSpan.FromHours(1).TotalMilliseconds;
     private static readonly double MillisecondsPerMinute = TimeSpan.FromMinutes(1).TotalMilliseconds;
     private static readonly double MillisecondsPerSecond = TimeSpan.FromSeconds(1).TotalMilliseconds;
-    private static readonly double MillisecondsPerTick = TimeSpan.FromTicks(1).TotalMilliseconds;
 
     private const int NanosecondsPerTick = 100;
     private const int NanosecondsPerMillisecond = 1000000;
@@ -272,6 +269,11 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression TimeSpanOperatorUnaryNegation(
       [Type(typeof(TimeSpan))] SqlExpression t)
     {
+      var context = ExpressionTranslationContext.Current;
+      var isOracle = context.ProviderInfo.ProviderName.Equals(WellKnown.Provider.Oracle, StringComparison.Ordinal);
+      if (isOracle) {
+        return (-1 * t);
+      }
       return -t;
     }
 

@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.05.11
 
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Model
 
     public class Hierarchy : Structure
     {
-      [Field(Indexed = true, Length = 300)]
+      [Field(Indexed = true, Length = 250)]
       public string Name { get; set; }
     }
 
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Model
     {
       var configuration = base.BuildConfiguration();
       configuration.NamingConvention.NamingRules = NamingRules.UnderscoreDots;
-      configuration.Types.Register(typeof (Hierarchy).Assembly, typeof (Hierarchy).Namespace);
+      configuration.Types.Register(typeof(Hierarchy).Assembly, typeof(Hierarchy).Namespace);
       return configuration;
     }
 

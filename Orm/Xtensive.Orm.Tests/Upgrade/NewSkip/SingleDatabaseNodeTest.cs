@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -18,9 +18,9 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 {
   public abstract class SingleDatabaseNodeTest : SkipBuildingTestBase
   {
-    private const string DomainDatabase = "DO-Tests-1";
-    private const string Node1Database = "DO-Tests-2";
-    private const string Node2Database = "DO-Tests-3";
+    private const string DomainDatabase = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+    private const string Node1Database = WellKnownDatabases.MultiDatabase.AdditionalDb2;
+    private const string Node2Database = WellKnownDatabases.MultiDatabase.AdditionalDb3;
 
     private const string Node1Name = "Node1";
     private const string Node2Name = "Node2";
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
-      configuration.DefaultDatabase = "DO-Tests-1";
+      configuration.DefaultDatabase = DomainDatabase;
       configuration.ForeignKeyMode = GetForeignKeyMode();
       return configuration;
     }

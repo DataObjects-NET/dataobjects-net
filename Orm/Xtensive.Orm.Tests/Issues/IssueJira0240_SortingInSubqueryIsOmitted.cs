@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.01.25
 
@@ -8,6 +8,7 @@ using System;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0240_SortingInSubqueryIsOmittedModel;
 
 namespace Xtensive.Orm.Tests.Issues.IssueJira0240_SortingInSubqueryIsOmittedModel
@@ -43,18 +44,18 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Container).Assembly, typeof (Container).Namespace);
+      configuration.Types.Register(typeof(Container).Assembly, typeof(Container).Namespace);
       return configuration;
     }
 
     protected override void PopulateData()
     {
-      using (Domain.OpenSession())
-      using (var tx = Session.Current.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
         var c = new Container();
-        new StoredContainer {Container = c, CreationTime = new DateTime(2012, 1, 1), Address = "1"};
-        new StoredContainer {Container = c, CreationTime = new DateTime(2012, 1, 2), Address = "2"};
-        new StoredContainer {Container = c, CreationTime = new DateTime(2012, 1, 3), Address = "3"};
+        _ = new StoredContainer { Container = c, CreationTime = new DateTime(2012, 1, 1), Address = "1" };
+        _ = new StoredContainer { Container = c, CreationTime = new DateTime(2012, 1, 2), Address = "2" };
+        _ = new StoredContainer { Container = c, CreationTime = new DateTime(2012, 1, 3), Address = "3" };
         tx.Complete();
       }
     }
@@ -62,13 +63,15 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void MainTest()
     {
-      using (Domain.OpenSession())
-      using (var tx = Session.Current.OpenTransaction()) {
-        var r = Query.All<Container>()
+      Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
+
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var r = session.Query.All<Container>()
           .Select(c => new {
             c.Id,
             LastLocation = Query.All<StoredContainer>()
-              .Where(s => s.Container==c)
+              .Where(s => s.Container == c)
               .OrderByDescending(s => s.CreationTime)
               .Select(s => s.Address)
               .FirstOrDefault()
@@ -84,10 +87,10 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var container = Query.All<Container>().Single();
+        var container = session.Query.All<Container>().Single();
         var now = DateTime.Now;
-        var lastStoredContainer = Query.All<StoredContainer>()
-          .Where(s => s.Container==container && s.CreationTime <= now)
+        var lastStoredContainer = session.Query.All<StoredContainer>()
+          .Where(s => s.Container == container && s.CreationTime <= now)
           .GroupBy(s => s.CreationTime)
           .OrderByDescending(s => s.Key)
           .FirstOrDefault();

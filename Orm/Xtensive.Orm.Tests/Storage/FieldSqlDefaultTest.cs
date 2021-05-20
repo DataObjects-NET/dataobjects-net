@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -7,6 +7,8 @@
 using System;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Orm.Building;
+using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Storage.FieldSqlDefaultTestModel;
 
@@ -58,13 +60,32 @@ namespace Xtensive.Orm.Tests.Storage.FieldSqlDefaultTestModel
     [Field(DefaultValue = 12.12, DefaultSqlExpression = "12.12")]
     public decimal FDecimal { get; set; }
 
-    [Field(DefaultValue = "2012.12.12", DefaultSqlExpression = "'2013.12.13'")]
+    [Field(DefaultValue = "2012-12-12", DefaultSqlExpression = "'2013-12-13'")]// for oracle it will be set in IModule
     public DateTime FDateTime { get; set; }
     
     [Field(Length = 1000, DefaultValue = "default value", DefaultSqlExpression = "'sql value'")]
     public string FString { get; set; }
   }
-  
+
+  public class OracleDefaultValueModifier : IModule
+  {
+    public void OnBuilt(Domain domain)
+    {
+    }
+
+    public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+    {
+      if (StorageProviderInfo.Instance.Provider != StorageProvider.Oracle) {
+        return;
+      }
+
+      var field = model.Types[nameof(TestEntity)].Fields[nameof(TestEntity.FDateTime)];
+      field.DefaultValue = FormatDate(new DateTime(2012, 12, 12));
+      field.DefaultSqlExpression = $"'{FormatDate(new DateTime(2013, 12, 13))}'";
+    }
+
+    private static string FormatDate(DateTime dateToFormat) => dateToFormat.ToString("dd-MMM-yyyy");
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage
@@ -78,6 +99,7 @@ namespace Xtensive.Orm.Tests.Storage
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(OracleDefaultValueModifier));
       Domain = Domain.Build(configuration);
 
       var driver = TestSqlDriver.Create(Domain.Configuration.ConnectionInfo);
@@ -85,31 +107,29 @@ namespace Xtensive.Orm.Tests.Storage
         connection.Open();
         var command = connection.CreateCommand();
         var translator = driver.Translator;
-        command.CommandText = string.Format("INSERT INTO {0}({1}) values(1);", translator.QuoteIdentifier("TestEntity"), translator.QuoteIdentifier("Id"));
-        command.ExecuteNonQuery(); 
+        command.CommandText = string.Format("INSERT INTO {0}({1}) values(1)", translator.QuoteIdentifier("TestEntity"), translator.QuoteIdentifier("Id"));
+        _ = command.ExecuteNonQuery();
         connection.Close();
       }
 
-
-      using (var session = Domain.OpenSession()) {
-        using (var transaction = session.OpenTransaction()) {
-          var entity = session.Query.All<TestEntity>().First();
-          Assert.AreEqual(1, entity.Id);
-          Assert.AreEqual(64, entity.FByte);
-          Assert.AreEqual(65, entity.FSByte);
-          Assert.AreEqual(66, entity.FShort);
-          Assert.AreEqual(67, entity.FUShort);
-          Assert.AreEqual(68, entity.FInt);
-          Assert.AreEqual(69, entity.FUInt);
-          Assert.AreEqual(70L, entity.FLong);
-          Assert.AreEqual(71L, entity.FULong);
-          Assert.AreEqual(72.0, entity.FFloat);
-          Assert.AreEqual(73.0, entity.FDouble);
-          Assert.AreEqual(12.12M, entity.FDecimal);
-          Assert.AreEqual(DateTime.Parse("2013.12.13"), entity.FDateTime);
-          Assert.AreEqual("sql value", entity.FString);
-          transaction.Complete();
-        }
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var entity = session.Query.All<TestEntity>().First();
+        Assert.AreEqual(1, entity.Id);
+        Assert.AreEqual(64, entity.FByte);
+        Assert.AreEqual(65, entity.FSByte);
+        Assert.AreEqual(66, entity.FShort);
+        Assert.AreEqual(67, entity.FUShort);
+        Assert.AreEqual(68, entity.FInt);
+        Assert.AreEqual(69, entity.FUInt);
+        Assert.AreEqual(70L, entity.FLong);
+        Assert.AreEqual(71L, entity.FULong);
+        Assert.AreEqual(72.0, entity.FFloat);
+        Assert.AreEqual(73.0, entity.FDouble);
+        Assert.AreEqual(12.12M, entity.FDecimal);
+        Assert.AreEqual(DateTime.Parse("2013.12.13"), entity.FDateTime);
+        Assert.AreEqual("sql value", entity.FString);
+        transaction.Complete();
       }
     }
 
@@ -128,7 +148,7 @@ namespace Xtensive.Orm.Tests.Storage
         var command = connection.CreateCommand();
         var translator = driver.Translator;
         command.CommandText = string.Format("INSERT INTO {0} DEFAULT VALUES;", translator.QuoteIdentifier("TestEntity1"));
-        command.ExecuteNonQuery(); 
+        _ = command.ExecuteNonQuery();
         connection.Close();
       }
       

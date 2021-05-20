@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.02.22
 
@@ -35,13 +35,16 @@ namespace Xtensive.Orm.Tests.Issues
       return configuration;
     }
 
+    protected override void CheckRequirements()
+      => Require.AnyFeatureSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
+
     protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new NamedObject {Name = "One"};
-        new NamedObject {Name = "Two"};
-        new NamedObject {Name = "Three"};
+        _ = new NamedObject {Name = "One"};
+        _ = new NamedObject {Name = "Two"};
+        _ = new NamedObject {Name = "Three"};
         tx.Complete();
       }
     }
@@ -49,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void GroupJoinTest()
     {
-      Require.AnyFeatureNotSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
+      Require.AnyFeatureSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var items = new List<int> {2, 3};
@@ -66,7 +69,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void JoinTest()
     {
-      Require.AnyFeatureNotSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
+      Require.AnyFeatureSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var items = new List<int> {1, 2};
@@ -87,7 +90,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void ApplyTest()
     {
-      Require.AnyFeatureNotSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
+      Require.AnyFeatureSupported(ProviderFeatures.TemporaryTableEmulation | ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var items = new List<int> {1, 2, 3};

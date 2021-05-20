@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.08.18
 
@@ -16,14 +16,15 @@ namespace Xtensive.Orm.Tests.Storage
   {
     protected override DomainConfiguration BuildConfiguration()
     {
-      DomainConfiguration config = base.BuildConfiguration();
-      config.Types.Register(Assembly.GetExecutingAssembly(), "Xtensive.Orm.Tests.Storage.BookAuthorModel");
+      var config = base.BuildConfiguration();
+      config.Types.Register(Assembly.GetExecutingAssembly(), typeof(Book).Namespace);
       return config;
     }
 
     [Test]
     public void NotNullableViolationTest()
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite);// no column length supported so no exception thrown
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
           var book = new Book();
@@ -45,10 +46,10 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         using (session.OpenTransaction()) {
-          Author author = new Author();
+          var author = new Author();
           using (var session2 = Domain.OpenSession()) {
             using (session2.OpenTransaction()) {
-              Book book = new Book();
+              var book = new Book();
 
               // Author is bound to another session
               AssertEx.ThrowsInvalidOperationException(() => book.Author = author);

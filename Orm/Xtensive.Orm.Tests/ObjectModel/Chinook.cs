@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Kudelin
 // Created:    2019.09.19
 
@@ -17,6 +17,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     decimal? Commission { get; set; }
   }
 
+  [Index("Title")]
   [HierarchyRoot]
   [DebuggerDisplay("{Title} (AlbumId = {AlbumId})")]
   public class Album : Entity
@@ -51,10 +52,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     [Field(Nullable = false, Length = 20)]
     public string FirstName { get; set; }
 
-    public string FullName
-    {
-      get { return FirstName + " " + LastName; }
-    }
+    public string FullName => FirstName + " " + LastName;
 
     [Field]
     public Address Address { get; set; }
@@ -75,6 +73,7 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public string CompanyName { get; set; }
   }
 
+  [Index("FirstName")]
   [HierarchyRoot]
   [DebuggerDisplay("{FirstName} {LastName} (CustomerId = {CustomerId})")]
   public class Customer : BusinessContact
@@ -216,6 +215,8 @@ namespace Xtensive.Orm.Tests.ObjectModel.ChinookDO
     public EntitySet<Track> Tracks { get; private set; }
   }
 
+  [Index("Composer")]
+  [Index("Milliseconds")]
   [HierarchyRoot(InheritanceSchema.SingleTable)]
   [DebuggerDisplay("{Name} (TrackId = {TrackId})")]
   public abstract class Track : Entity

@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using NUnit.Framework;
+using Xtensive.Orm.Tests;
 
 namespace TestCommon.Tests
 {

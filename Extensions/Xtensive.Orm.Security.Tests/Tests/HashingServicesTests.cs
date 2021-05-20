@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.05.30
 
@@ -14,9 +14,9 @@ using Xtensive.Orm.Security.Cryptography;
 namespace Xtensive.Orm.Security.Tests
 {
   [TestFixture]
-  public class HashingServicesTests : AutoBuildTest
+  public class HashingServicesTests : SecurityTestBase
   {
-    private List<string> values;
+    private readonly List<string> values;
 
     [Test]
     public void PlainHashingServiceTest()

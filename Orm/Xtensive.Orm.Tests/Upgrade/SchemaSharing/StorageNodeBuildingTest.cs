@@ -1,4 +1,4 @@
-// Copyright (C) 2017-2020 Xtensive LLC.
+// Copyright (C) 2017-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -69,6 +69,9 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
 
   public class StorageNodeBuildingTest : AutoBuildTest
   {
+    private const string Schema1 = WellKnownSchemas.Schema1;
+    private const string Schema2 = WellKnownSchemas.Schema2;
+
     private const string MainNodeId = WellKnown.DefaultNodeId;
     private const string AdditionalNodeId = "Additional";
 
@@ -339,7 +342,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing
     private Dictionary<string, string> BuildNodeToSchemaMap()
     {
       return ProviderInfo.Supports(ProviderFeatures.Multischema)
-        ? new Dictionary<string, string> {{MainNodeId, "Model1"}, {AdditionalNodeId, "Model2"}}
+        ? new Dictionary<string, string> { { MainNodeId, Schema1 }, { AdditionalNodeId, Schema2 } }
         : new Dictionary<string, string>();
     }
 

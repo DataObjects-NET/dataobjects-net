@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.09.26
 
@@ -17,6 +17,15 @@ namespace Xtensive.Orm.Providers
 {
   partial class ExpressionProcessor
   {
+    private readonly static Type ObjectType = typeof(object);
+    private readonly static Type BooleanType = typeof(bool);
+    private readonly static Type Int32Type = typeof(int);
+    private readonly static Type CharType = typeof(char);
+
+    private readonly static Type DateTimeType = typeof(DateTime);
+    private readonly static Type DateTimeOffsetType = typeof(DateTimeOffset);
+    private readonly static Type ParameterType = typeof(Parameter);
+
     private SqlExpression TryTranslateCompareExpression(BinaryExpression expression)
     {
       bool isGoodExpression =
@@ -178,6 +187,19 @@ namespace Xtensive.Orm.Providers
       return null;
     }
 
+    private (SqlExpression right, SqlExpression left) BuildByteArraySyntaxComparison(SqlExpression left, SqlExpression right)
+    {
+      var newLeft = (SqlExpression) SqlDml.Literal(0);
+      var newRight = OracleBlobCompare(left, right);
+
+      return (newLeft, newRight);
+    }
+
+    private static SqlExpression OracleBlobCompare(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.FunctionCall("dbms_lob.compare", left, right);
+    }
+
     private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
     {
       var memberCompiler = memberCompilerProvider.GetCompiler(member);
@@ -185,33 +207,30 @@ namespace Xtensive.Orm.Providers
         throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
       return memberCompiler.Invoke(instance, arguments);
     }
-    
+
     private static bool IsCharToIntConvert(Expression e)
     {
       return
-        e.NodeType==ExpressionType.Convert &&
-        e.Type==typeof (int) &&
-        ((UnaryExpression) e).Operand.Type==typeof (char);
+        e.NodeType == ExpressionType.Convert &&
+        e.Type == Int32Type &&
+        ((UnaryExpression) e).Operand.Type == CharType;
     }
 
-    private static bool IsIntConstant(Expression expression)
-    {
-      return expression.NodeType==ExpressionType.Constant && expression.Type==typeof (int);
-    }
+    private static bool IsIntConstant(Expression expression) =>
+      expression.NodeType == ExpressionType.Constant && expression.Type == Int32Type;
 
-    private static bool IsBooleanExpression(Expression expression)
-    {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (bool);
-    }
+    private static bool IsBooleanExpression(Expression expression) =>
+      IsExpressionOf(expression, BooleanType);
 
-    private static bool IsDateTimeExpression(Expression expression)
-    {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTime);
-    }
+    private static bool IsDateTimeExpression(Expression expression) =>
+      IsExpressionOf(expression, DateTimeType);
 
-    private static bool IsDateTimeOffsetExpression(Expression expression)
+    private static bool IsDateTimeOffsetExpression(Expression expression) =>
+      IsExpressionOf(expression, DateTimeOffsetType);
+
+    private static bool IsExpressionOf(Expression expression, Type type)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==typeof (DateTimeOffset);
+      return StripObjectCasts(expression).Type.StripNullable() == type;
     }
 
     private static bool IsComparisonExpression(Expression expression)
@@ -227,8 +246,9 @@ namespace Xtensive.Orm.Providers
 
     private static Expression StripObjectCasts(Expression expression)
     {
-      while (expression.Type==typeof (object) && expression.NodeType==ExpressionType.Convert)
+      while (expression.Type == ObjectType && expression.NodeType == ExpressionType.Convert) {
         expression = GetOperand(expression);
+      }
       return expression;
     }
 
@@ -262,33 +282,37 @@ namespace Xtensive.Orm.Providers
       var expression = accessor.Body;
 
       // Strip cast to object
-      if (expression.NodeType==ExpressionType.Convert)
+      if (expression.NodeType == ExpressionType.Convert) {
         expression = ((UnaryExpression) expression).Operand;
+      }
 
       // Check for closure member access
-      if (expression.NodeType!=ExpressionType.MemberAccess)
+      if (expression.NodeType != ExpressionType.MemberAccess) {
         return null;
+      }
 
       var memberAccess = (MemberExpression) expression;
       var operand = memberAccess.Expression;
-      if (operand==null || !operand.Type.IsClosure())
+      if (operand == null || !operand.Type.IsClosure()) {
         return null;
+      }
+
       var fieldName = memberAccess.Member.Name;
 
       // Check for raw closure
-      if (operand.NodeType==ExpressionType.Constant) {
+      if (operand.NodeType == ExpressionType.Constant) {
         var closureObject = ((ConstantExpression) operand).Value;
         return new QueryParameterIdentity(mapping, closureObject, fieldName, bindingType);
       }
 
       // Check for parameterized closure
-      if (operand.NodeType==ExpressionType.MemberAccess) {
+      if (operand.NodeType == ExpressionType.MemberAccess) {
         memberAccess = (MemberExpression) operand;
         operand = memberAccess.Expression;
-        var isParameter = operand!=null
-          && operand.NodeType==ExpressionType.Constant
-          && typeof (Parameter).IsAssignableFrom(operand.Type)
-          && memberAccess.Member.Name=="Value";
+        var isParameter = operand != null
+          && operand.NodeType == ExpressionType.Constant
+          && ParameterType.IsAssignableFrom(operand.Type)
+          && memberAccess.Member.Name == "Value";
         if (isParameter) {
           var parameterObject = ((ConstantExpression) operand).Value;
           return new QueryParameterIdentity(mapping, parameterObject, fieldName, bindingType);

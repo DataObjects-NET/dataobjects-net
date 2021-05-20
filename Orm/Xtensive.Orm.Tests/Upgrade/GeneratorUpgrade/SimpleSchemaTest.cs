@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2020 Xtensive LLC.
+// Copyright (C) 2018-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Kudelin
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
     {
     }
 
-    protected virtual string[] GetUsedCatalogs() => new[] { "DO-Tests" };
+    protected virtual string[] GetUsedCatalogs() => new[] { WellKnownDatabases.MultiDatabase.MainDb };
 
     [Test]
     public void NoChangesInGeneratorsTest1()

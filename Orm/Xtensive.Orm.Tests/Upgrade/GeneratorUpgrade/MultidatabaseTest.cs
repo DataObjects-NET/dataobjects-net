@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -20,14 +20,14 @@ namespace Xtensive.Orm.Tests.Upgrade.GeneratorUpgrade
 {
   public class MultidatabaseTest : SimpleSchemaTest
   {
-    private const string DefaultDatabase = "DO-Tests";
-    private const string AlternativeDatabase = "DO-Tests-1";
+    private const string DefaultDatabase = WellKnownDatabases.MultiDatabase.MainDb;
+    private const string AlternativeDatabase = WellKnownDatabases.MultiDatabase.AdditionalDb1;
 
     protected override void ApplyCustomConfigurationSettings(DomainConfiguration configuration)
     {
       base.ApplyCustomConfigurationSettings(configuration);
       configuration.DefaultDatabase = DefaultDatabase;
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
       var namespaces = configuration.Types.GroupBy(t => t.Namespace).Select(g => g.Key).ToArray();
       configuration.MappingRules.Map(namespaces[0]).ToDatabase(DefaultDatabase);
       configuration.MappingRules.Map(namespaces[0]).ToDatabase(AlternativeDatabase);

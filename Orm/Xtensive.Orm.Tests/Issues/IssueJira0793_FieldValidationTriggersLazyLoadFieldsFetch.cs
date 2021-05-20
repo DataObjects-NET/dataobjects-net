@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -73,7 +73,11 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0793_FieldValidationTriggersLazyLoa
 
   public class QueryCounter
   {
-    public int Count { get; private set; }
+    public int SelectCount { get; private set; }
+
+    public int UpdateCount { get; private set; }
+
+    public int OverallCount => SelectCount + UpdateCount;
 
     public Disposable Attach(Session session)
     {
@@ -81,13 +85,25 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0793_FieldValidationTriggersLazyLoa
       return new Disposable((disposing) => session.Events.DbCommandExecuted -= Encount);
     }
 
-    public void Reset() => Count = 0;
+    public void Reset() => SelectCount = UpdateCount = 0;
 
-    private void Encount(object sender, DbCommandEventArgs eventArgs) => Count++;
+    private void Encount(object sender, DbCommandEventArgs eventArgs)
+    {
+      var text = eventArgs.Command.CommandText.Substring(0, 30);
+      if (text.Contains("SELECT", StringComparison.OrdinalIgnoreCase)) {
+        SelectCount++;
+      }
+      else if (text.Contains("UPDATE", StringComparison.OrdinalIgnoreCase)) {
+        UpdateCount++;
+      }
+      else {
+        throw new ArgumentOutOfRangeException("eventArgs.Command.CommandText");
+      }
+    }
 
     public QueryCounter()
     {
-      Count = 0;
+      Reset();
     }
   }
 }
@@ -104,12 +120,15 @@ namespace Xtensive.Orm.Tests.Issues
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(Book).Assembly, typeof(Book).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      configuration.Sessions[WellKnown.Sessions.Default].BatchSize = 1;
       return configuration;
     }
 
     protected override void PopulateData()
     {
-      using (var session = Domain.OpenSession())
+      var sessionConfig = new SessionConfiguration(SessionOptions.Default | SessionOptions.AutoActivation);
+
+      using (var session = Domain.OpenSession(sessionConfig))
       using (var transaction = session.OpenTransaction()) {
         var author = new Author() {
           FirstName = "Ivan",
@@ -122,9 +141,9 @@ namespace Xtensive.Orm.Tests.Issues
           Author = author
         };
 
-        new Chapter() { Title = "Chapter #1", Description = "Detailed description of Chapter #1", Owner = book };
-        new Chapter() { Title = "Chapter #2", Description = "Detailed description of Chapter #2", Owner = book };
-        new Chapter() { Title = "Chapter #3", Description = "Detailed description of Chapter #3", Owner = book };
+        _ = new Chapter() { Title = "Chapter #1", Description = "Detailed description of Chapter #1", Owner = book };
+        _ = new Chapter() { Title = "Chapter #2", Description = "Detailed description of Chapter #2", Owner = book };
+        _ = new Chapter() { Title = "Chapter #3", Description = "Detailed description of Chapter #3", Owner = book };
 
         oblomovKey = book.Key;
         goncharovKey = author.Key;
@@ -144,7 +163,9 @@ namespace Xtensive.Orm.Tests.Issues
           oblomov.Title = "Oblomov by Goncharov";
           transaction.Complete();
         }
-        Assert.That(counter.Count, Is.EqualTo(2));
+        Assert.That(counter.OverallCount, Is.EqualTo(2));
+        Assert.That(counter.SelectCount, Is.EqualTo(1));
+        Assert.That(counter.UpdateCount, Is.EqualTo(1));
         counter.Reset();
       }
     }
@@ -160,7 +181,9 @@ namespace Xtensive.Orm.Tests.Issues
           goncharov.FirstName = goncharov.FirstName + "modified"; // should prefetch lazy load field
           transaction.Complete();
         }
-        Assert.That(counter.Count, Is.EqualTo(3));
+        Assert.That(counter.OverallCount, Is.EqualTo(3));
+        Assert.That(counter.SelectCount, Is.EqualTo(2)); // 1 select + 1 fetch
+        Assert.That(counter.UpdateCount, Is.EqualTo(1));
         counter.Reset();
       }
     }
@@ -177,12 +200,16 @@ namespace Xtensive.Orm.Tests.Issues
           }
           transaction.Complete();
         }
-        Assert.That(counter.Count, Is.EqualTo(2));
+
+        Assert.That(counter.OverallCount, Is.EqualTo(4));
+        Assert.That(counter.SelectCount, Is.EqualTo(1)); // select items only, no fetch
+        Assert.That(counter.UpdateCount, Is.EqualTo(3));
+
         counter.Reset();
       }
 
       using (var session = Domain.OpenSession()) {
-        int updatedItems = 0;
+        var updatedItems = 0;
         using (counter.Attach(session))
         using (var transaction = session.OpenTransaction()) {
           foreach(var chapter in session.Query.All<Chapter>()) {
@@ -191,7 +218,11 @@ namespace Xtensive.Orm.Tests.Issues
           }
           transaction.Complete();
         }
-        Assert.That(counter.Count, Is.EqualTo(5)); // query + fetches + update
+
+        Assert.That(counter.OverallCount, Is.EqualTo(7));
+        Assert.That(counter.SelectCount, Is.EqualTo(4)); // query + fetches
+        Assert.That(counter.UpdateCount, Is.EqualTo(3)); // updates
+
         counter.Reset();
       }
     }

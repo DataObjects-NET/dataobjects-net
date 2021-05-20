@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.12.30
 
@@ -256,18 +256,15 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestMo
 
   public class Upgrader : UpgradeHandler
   {
-    public override bool CanUpgradeFrom(string oldVersion)
-    {
-      return true;
-    }
+    public override bool CanUpgradeFrom(string oldVersion) => true;
 
     protected override void  AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
     {
-      hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.StoredObject", typeof (WMS.StoredObject)));
-      hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.Area", typeof (Core.Area)));
-      hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.AnotherStoredObject", typeof (WMS.AnotherStoredObject)));
-      hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.AnotherArea", typeof (Core.AnotherArea)));
-      hints.Add(new ChangeFieldTypeHint(typeof (Core.AnotherArea), "NotEmpty"));
+      _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.StoredObject", typeof(WMS.StoredObject)));
+      _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.Area", typeof(Core.Area)));
+      _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.AnotherStoredObject", typeof(WMS.AnotherStoredObject)));
+      _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.AnotherArea", typeof(Core.AnotherArea)));
+      _ = hints.Add(new ChangeFieldTypeHint(typeof(Core.AnotherArea), "NotEmpty"));
     }
   }
 }
@@ -277,14 +274,13 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   public class IssueJira0537_DropDefaultConstraintBugTest : AutoBuildTest
   {
-    private const string Database1Name = "DO-Tests-1";
-    private const string Database2Name = "DO-Tests-2";
+    private const string Database1Name = WellKnownDatabases.MultiDatabase.AdditionalDb1;
+    private const string Database2Name = WellKnownDatabases.MultiDatabase.AdditionalDb2;
     private const string CoreAlias = "core";
     private const string WmsAlias = "wms";
-    private const string SpecialSchemaAlias = "dbo";
+    private const string SpecialSchemaAlias = WellKnownSchemas.SqlServerDefaultSchema;
 
     private ConnectionInfo connectionInfo;
-    private string connectionString;
 
     private static string multiDatabaseConnectionString;
     private static string singleDatabaseConnectionStringDatabase1;
@@ -296,16 +292,13 @@ namespace Xtensive.Orm.Tests.Issues
       Require.AllFeaturesSupported(ProviderFeatures.Multidatabase);
     }
 
-    protected override void PopulateData()
-    {
-      BuildSingleDomain(Database1Name);
-    }
+    protected override void PopulateData() => BuildSingleDomain(Database1Name);
 
     [OneTimeSetUp]
     public override void TestFixtureSetUp()
     {
-      InitializeConnectionStrings();
       CheckRequirements();
+      InitializeConnectionStrings();
       CleanUp();
       PopulateData();
     }
@@ -318,52 +311,53 @@ namespace Xtensive.Orm.Tests.Issues
 
     private static void BuildMultipleDomain(string coreDatabaseName, string wmsDatabaseName)
     {
-      var domainConfiguration = new DomainConfiguration(multiDatabaseConnectionString);
+      var domainConfiguration = new DomainConfiguration(multiDatabaseConnectionString) {
+        DefaultDatabase = WmsAlias,
+        DefaultSchema = SpecialSchemaAlias,
+        UpgradeMode = DomainUpgradeMode.PerformSafely
+      };
 
-      domainConfiguration.DefaultDatabase = WmsAlias;
-      domainConfiguration.DefaultSchema = SpecialSchemaAlias;
+      var coreDatabase = new DatabaseConfiguration(CoreAlias) {
+        RealName = coreDatabaseName
+      };
 
-      var coreDatabase = new DatabaseConfiguration(CoreAlias);
-      coreDatabase.RealName = coreDatabaseName;
-      
-      var wmsDatabase = new DatabaseConfiguration(WmsAlias);
-      wmsDatabase.RealName = wmsDatabaseName;
+      var wmsDatabase = new DatabaseConfiguration(WmsAlias) {
+        RealName = wmsDatabaseName
+      };
 
       domainConfiguration.Databases.Add(coreDatabase);
-      
-
       domainConfiguration.Databases.Add(wmsDatabase);
 
-      domainConfiguration.Types.Register(typeof (Model2.Upgrader).Assembly, typeof (Model2.Upgrader).Namespace);
+      domainConfiguration.Types.Register(typeof(Model2.Upgrader).Assembly, typeof(Model2.Upgrader).Namespace);
 
-      domainConfiguration.MappingRules.Map(typeof (Model2.Core.Area).Namespace).ToDatabase(CoreAlias);
-      domainConfiguration.MappingRules.Map(typeof (Model2.WMS.StoredObject).Namespace).ToDatabase(WmsAlias);
-
-      domainConfiguration.UpgradeMode = DomainUpgradeMode.PerformSafely;
+      domainConfiguration.MappingRules.Map(typeof(Model2.Core.Area).Namespace).ToDatabase(CoreAlias);
+      domainConfiguration.MappingRules.Map(typeof(Model2.WMS.StoredObject).Namespace).ToDatabase(WmsAlias);
 
       using (var domain = Domain.Build(domainConfiguration)) { }
     }
 
     private static void BuildSingleDomain(string wmsDatabaseName)
     {
-      var domainConfiguration = new DomainConfiguration(singleDatabaseConnectionStringDatabase1);
-      domainConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
-      domainConfiguration.DefaultSchema = SpecialSchemaAlias;
-      domainConfiguration.DefaultDatabase = WmsAlias;
+      var domainConfiguration = new DomainConfiguration(singleDatabaseConnectionStringDatabase1) {
+        UpgradeMode = DomainUpgradeMode.Recreate,
+        DefaultSchema = SpecialSchemaAlias,
+        DefaultDatabase = WmsAlias
+      };
 
-      var wmsDatabase = new DatabaseConfiguration(WmsAlias);
-      wmsDatabase.RealName = wmsDatabaseName;
+      var wmsDatabase = new DatabaseConfiguration(WmsAlias) {
+        RealName = wmsDatabaseName
+      };
 
       domainConfiguration.Databases.Add(wmsDatabase);
 
       domainConfiguration.MappingRules.Map(typeof (Model1.Area).Namespace).To(WmsAlias, SpecialSchemaAlias);
 
-      domainConfiguration.Types.Register(typeof (Model1.Area));
-      domainConfiguration.Types.Register(typeof (Model1.StoredObject));
-      domainConfiguration.Types.Register(typeof (Model1.AnotherArea));
-      domainConfiguration.Types.Register(typeof (Model1.AnotherStoredObject));
+      domainConfiguration.Types.Register(typeof(Model1.Area));
+      domainConfiguration.Types.Register(typeof(Model1.StoredObject));
+      domainConfiguration.Types.Register(typeof(Model1.AnotherArea));
+      domainConfiguration.Types.Register(typeof(Model1.AnotherStoredObject));
 
-      domainConfiguration.Databases.Add(wmsDatabaseName);
+      _ = domainConfiguration.Databases.Add(wmsDatabaseName);
 
       using (var domain = Domain.Build(domainConfiguration)) { }
     }
@@ -392,14 +386,16 @@ namespace Xtensive.Orm.Tests.Issues
           foreach (var dropConstraintText in from foreignKeyInfo in foreignKeys
             from foreignKey in foreignKeyInfo.ForeignKeys
             select driver.Compile(SqlDdl.Alter(foreignKeyInfo.Table, SqlDdl.DropConstraint(foreignKey))).GetCommandText()) {
-            using (var command = connection.CreateCommand(dropConstraintText))
-              command.ExecuteNonQuery();
+            using (var command = connection.CreateCommand(dropConstraintText)) {
+              _ = command.ExecuteNonQuery();
+            }
           }
 
           foreach (var table in schema.Tables) {
             var dropTableText = driver.Compile(SqlDdl.Drop(table, true)).GetCommandText();
-            using (var command = connection.CreateCommand(dropTableText))
-              command.ExecuteNonQuery();
+            using (var command = connection.CreateCommand(dropTableText)) {
+              _ = command.ExecuteNonQuery();
+            }
           }
         }
         finally {
@@ -410,20 +406,24 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void InitializeConnectionStrings()
     {
-      var stringBuilder = new StringBuilder();
+      
       connectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
 
-      stringBuilder.AppendFormat("{0}://", connectionInfo.ConnectionUrl.Protocol);
-      if (!string.IsNullOrEmpty(connectionInfo.ConnectionUrl.User) && !string.IsNullOrEmpty(connectionInfo.ConnectionUrl.Password))
-        stringBuilder.AppendFormat("{0}:{1}@", connectionInfo.ConnectionUrl.User, connectionInfo.ConnectionUrl.Password);
-      stringBuilder.AppendFormat("{0}{1}", connectionInfo.ConnectionUrl.Host, (connectionInfo.ConnectionUrl.Port > 0) ? string.Format(":{0}", connectionInfo.ConnectionUrl.Port) : string.Empty);
-      stringBuilder.Append("/{0}{1}");
+      var connectionUrl = connectionInfo.ConnectionUrl;
+
+      var initialString = (!string.IsNullOrEmpty(connectionUrl.User) && !string.IsNullOrEmpty(connectionUrl.Password))
+        ? string.Format("{0}://{1}:{2}@", connectionUrl.Protocol, connectionUrl.User, connectionUrl.Password)
+        : string.Format("{0}://", connectionUrl.Protocol);
+
+      var stringBuilder = new StringBuilder(initialString)
+        .AppendFormat("{0}{1}", connectionUrl.Host, (connectionUrl.Port > 0) ? string.Format(":{0}", connectionUrl.Port) : string.Empty)
+        .Append("/{0}{1}");
+
       var paramsString = string.Empty;
-      foreach (var pair in connectionInfo.ConnectionUrl.Params) {
-        if (string.IsNullOrEmpty(paramsString))
-          paramsString += string.Format("?{0}={1}", pair.Key, pair.Value);
-        else
-          paramsString += string.Format("&{0}={1}", pair.Key, pair.Value);
+      foreach (var pair in connectionUrl.Params) {
+        paramsString += string.IsNullOrEmpty(paramsString)
+          ? string.Format("?{0}={1}", pair.Key, pair.Value)
+          : string.Format("&{0}={1}", pair.Key, pair.Value);
       }
 
       singleDatabaseConnectionStringDatabase1 = string.Format(stringBuilder.ToString(), Database1Name, paramsString);

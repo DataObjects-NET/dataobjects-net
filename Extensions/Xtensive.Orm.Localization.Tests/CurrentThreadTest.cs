@@ -5,7 +5,7 @@ using Xtensive.Orm.Localization.Tests.Model;
 
 namespace Xtensive.Orm.Localization.Tests
 {
-  public class CurrentThreadTest : AutoBuildTest
+  public class CurrentThreadTest : LocalizationBaseTest
   {
     [Test]
     public void MainTest()

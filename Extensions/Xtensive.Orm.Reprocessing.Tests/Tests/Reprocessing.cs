@@ -12,8 +12,10 @@ using TestCommon.Model;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
-  public class Reprocessing : AutoBuildTest
+  public class Reprocessing : ReprocessingBaseTest
   {
+    private bool treatNullAsUniqueValue;
+
     private int Bar2Count()
     {
       return Domain.Execute(session => Queryable.Count(session.Query.All<Bar2>()));
@@ -222,6 +224,12 @@ namespace Xtensive.Orm.Reprocessing.Tests
       }
     }
 
+    public override void TestFixtureSetUp()
+    {
+      base.TestFixtureSetUp();
+      treatNullAsUniqueValue = Domain.StorageProviderInfo.ProviderName == WellKnown.Provider.SqlServer;
+    }
+
     [Test]
     public void Test()
     {
@@ -348,16 +356,21 @@ namespace Xtensive.Orm.Reprocessing.Tests
     [Test]
     public void UniqueConstraintViolationExceptionPrimary()
     {
-      int i = 0;
+      var i = 0;
       Domain.WithStrategy(ExecuteActionStrategy.HandleUniqueConstraintViolation).Execute(
         session => {
-          new Foo(session, i);
+          _ = new Foo(session, i);
           i++;
-          if (i < 5)
-            new Foo(session, i);
-        }
-        );
-      Assert.That(i, Is.EqualTo(5));
+          if (i < 5) {
+            _ = new Foo(session, i);
+          }
+        });
+      if (treatNullAsUniqueValue) {
+        Assert.That(i, Is.EqualTo(5));
+      }
+      else {
+        Assert.That(i, Is.EqualTo(1));
+      }
     }
 
     [Test]

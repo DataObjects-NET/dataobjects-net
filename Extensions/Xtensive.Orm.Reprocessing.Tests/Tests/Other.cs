@@ -6,7 +6,7 @@ using Xtensive.Orm.Configuration;
 
 namespace Xtensive.Orm.Reprocessing.Tests
 {
-  public class Other : AutoBuildTest
+  public class Other : ReprocessingBaseTest
   {
     private class TestExecuteStrategy : HandleUniqueConstraintViolationStrategy
     {

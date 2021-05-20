@@ -1,11 +1,12 @@
 using System.Globalization;
 using NUnit.Framework;
-using TestCommon;
+using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Localization.Tests
 {
   [TestFixture]
-  public abstract class AutoBuildTest
+  public abstract class LocalizationBaseTest : AutoBuildTest
   {
     public static CultureInfo EnglishCulture = new CultureInfo("en-US");
     public static string EnglishTitle = "Welcome!";
@@ -15,20 +16,12 @@ namespace Xtensive.Orm.Localization.Tests
     public static string SpanishTitle = "Bienvenido!";
     public static string SpanishContent = "Mis amigos mejores! Bienvenido a mi cumpleanos!";
 
-    protected Domain Domain { get; private set; }
-
-    [OneTimeSetUp]
-    public void OneTimeSetUp()
+    protected override DomainConfiguration BuildConfiguration()
     {
-      var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof (AutoBuildTest).Assembly, typeof (AutoBuildTest).Namespace);
-      Domain = Domain.Build(configuration);
-      PopulateDatabase();
-    }
-
-    protected virtual void PopulateDatabase()
-    {
+      var configuration = base.BuildConfiguration();
+      configuration.Types.Register(typeof(ILocalizable<>).Assembly);
+      configuration.Types.Register(typeof(LocalizationBaseTest).Assembly, typeof(LocalizationBaseTest).Namespace);
+      return configuration;
     }
   }
 }

@@ -21,9 +21,25 @@
 [main] Obsolete ServerFeatures property is removed
 [main] Fixed possible cases of broken serialization due to comparers
 [main] Fixed rare cases of insert wrong data into some table columns for SingleTable hierarchies
-[sqlserver] Fixed incorrect DateTimeOffset.Date part extraction
-[sqlserver] Improved translation of DateTimeOffset.LocalDateTime and DateTimeOffset.TimeOfDay parts extraction
+[main] Exception message about unsupported by storage type became more informative
+[firebird] Another error code that means unique contraint violation is treated correctly
+[firebird] Improved formatting for Float and Double constants within queries
+[firebird] Improved work with DateTime query parameters
+[firebird] Fixed columns' default value extraction
+[mysql] Another error code that means unique contraint violation is treated correctly
+[mysql] Fixed DateTime.DayOfWeek translation
+[oracle] Changed NULLs ordering settings. Now order is the same as in .NET
+[oracle] Improved resolution of TimeSpan literal values on translation
+[oracle] Starting from v11 schema names don't have to be in upper-case as storage allowes names in any case
+[oracle] Improved translation of Math.Ceiling(), Math.Truncate() and Math.Floor()
+[oracle] Fixed byte array fields comparison translation e.g. in Where statements
+[oracle] Improved translation of DateTimeOffset's LocalDateTime, ToLocalTime() and ToUniversalTime() members
 [postgresql] Improved performance of First(), FirstOrDefault() being subqueries
-[postgresql] Improved translation of Math.Ceiling(), Math.Truncate() and Math.Floor()
+[postgresql] Improved translation of Math.Ceiling(), Math.Truncate() and Math.Floor() methods
+[postgresql] Skip Commit/Rollback operations for already completed transaction to prevent exception overlaping
+[sqlite] Fixed some foreign key extraction issues
+[sqlite] Improved work with DateTime query parameters
+[sqlserver] Fixed incorrect DateTimeOffset.Date part extraction
+[sqlserver] Improved translation of DateTimeOffset's LocalDateTime and TimeOfDay members
 [reprocessing] ExecuteActionStrategy.Execute doesn't get external session though Session.Current at all
-[reprocessing] Introduced DomainExtension.WithSession and IExecuteConfiguration WithSession methods to pass external session
+[reprocessing] Introduced DomainExtension.WithSession() and IExecuteConfiguration.WithSession() methods to pass external session
