@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.12.23
 
@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Tests.Issues
       [Field, Key]
       public long Id { get; private set; }
 
-      [Field]
+      [Field(Length = 25)]
       public string Name { get; set; }
 
       [Field, Association(OnTargetRemove = OnRemoveAction.Clear)]
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Issues
       [Field, Key(1)]
       public long LastEventId { get; private set; }
 
-      [Field(Length = 300)]
+      [Field(Length = 25)]
       public string ApplicationName { get; set; }
 
       [Field]
@@ -73,9 +73,8 @@ namespace Xtensive.Orm.Tests.Issues
         var ApplicationName = "Name";
         var defaultTopic = new Topic() { Name = topicName };
         var subscription = new Subscription(1, 1) {ApplicationName = ApplicationName};
-        defaultTopic.Subscriptions.Add(subscription);
+        _ = defaultTopic.Subscriptions.Add(subscription);
 
-        
         var subTopic = (from topic in session.Query.All<Topic>() where topic.Name == topicName select topic).SingleOrDefault<Topic>();
         var subscriptions = subTopic.Subscriptions;
         var result = from sub in subscriptions where sub.ApplicationName == ApplicationName select sub;

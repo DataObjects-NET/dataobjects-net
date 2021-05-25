@@ -1,4 +1,4 @@
-// Copyright (C) 2015-2020 Xtensive LLC.
+// Copyright (C) 2015-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -20,8 +20,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
   [TestFixture]
   public class TypeIdAllocationTest
   {
-    private const string FirstSchema = "Model1";
-    private const string SecondSchema = "Model2";
+    private const string FirstSchema = WellKnownSchemas.Schema1;
+    private const string SecondSchema = WellKnownSchemas.Schema2;
 
     [OneTimeSetUp]
     public void TestFixtureSetup() => CheckRequirements();
@@ -156,20 +156,28 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var defaultNodeSchema = additionalNode.Id == FirstSchema ? SecondSchema : FirstSchema;
 
       if (!isRecreate) {
-        Assert.That(domainModel.Types.Entities
-          .Where(e => !e.IsSystem).All(e => e.TypeId == defaultNode.TypeIdRegistry[e]), Is.True);
-        Assert.That(domainModel.Types.Entities
-          .Where(e => !e.IsSystem).All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, defaultNodeSchema) == defaultNode.TypeIdRegistry[e]));
-        Assert.That(domainModel.Types.Entities
-          .Where(e => !e.IsSystem).All(e => e.TypeId != additionalNode.TypeIdRegistry[e]), Is.True);
-        Assert.That(domainModel.Types.Entities
-          .Where(e => !e.IsSystem).All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, additionalNodeSchema) == additionalNode.TypeIdRegistry[e]));
+        Assert.That(
+          domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => e.TypeId == defaultNode.TypeIdRegistry[e]),
+          Is.True);
+        Assert.That(
+          domainModel.Types.Entities
+            .Where(e => !e.IsSystem)
+            .All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, defaultNodeSchema) == defaultNode.TypeIdRegistry[e]),
+          Is.True);
+        Assert.That(
+          domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => e.TypeId!=additionalNode.TypeIdRegistry[e]),
+          Is.True);
+        Assert.That(
+          domainModel.Types.Entities
+            .Where(e => !e.IsSystem)
+            .All(e => TypeIdentifierMapper.GetTypeId(e.UnderlyingType, additionalNodeSchema) == additionalNode.TypeIdRegistry[e]),
+          Is.True);
       }
       else {
         Assert.That(domainModel.Types.Entities.All(e => e.TypeId == defaultNode.TypeIdRegistry[e]), Is.True);
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => defaultNode.TypeIdRegistry[e] < 300));
+        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => defaultNode.TypeIdRegistry[e] < 300), Is.True);
         Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => e.TypeId == additionalNode.TypeIdRegistry[e]), Is.True);
-        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => additionalNode.TypeIdRegistry[e] < 300));
+        Assert.That(domainModel.Types.Entities.Where(e => !e.IsSystem).All(e => additionalNode.TypeIdRegistry[e] < 300), Is.True);
       }
     }
 
@@ -216,21 +224,23 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.Name = "FirstSingleSchemaDomain";
-      configuration.DefaultSchema = "Model1";
+      configuration.DefaultSchema = FirstSchema;
       configurations[0] = configuration;
 
       configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
       configuration.Name = "SecondSingleSchemaDomain";
-      configuration.DefaultSchema = "Model2";
+      configuration.DefaultSchema = SecondSchema;
       configurations[1] = configuration;
 
       return configurations;
     }
 
     private Pair<DomainConfiguration, NodeConfiguration> BuildMultitnodeConfiguration(
-      DomainUpgradeMode domainUpgradeMode, DomainUpgradeMode nodeUpgradeMode, string masterSchema, string slaveSchema)
+      DomainUpgradeMode domainUpgradeMode,
+      DomainUpgradeMode nodeUpgradeMode,
+      string masterSchema, string slaveSchema)
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.DefaultSchema = masterSchema;
@@ -251,8 +261,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.TypeIdExtractionTestModel
 {
   public class TypeIdentifierMapper
   {
-    private static Dictionary<string, int> typeIdOffsetMap = new Dictionary<string, int>();
-    private static Dictionary<Type, int> typeIdOffsets = new Dictionary<Type, int>();
+    private static readonly Dictionary<string, int> typeIdOffsetMap = new Dictionary<string, int>();
+    private static readonly Dictionary<Type, int> typeIdOffsets = new Dictionary<Type, int>();
 
     public static int GetTypeIdOffset(Type type)
     {
@@ -262,11 +272,10 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.TypeIdExtractionTestModel
     public static int GetTypeId(Type type, string model)
     {
       var typeIdBase = typeIdOffsetMap[model];
-      int typeIdOffset;
-      if (!typeIdOffsets.TryGetValue(type, out typeIdOffset)) {
-        throw new InvalidOperationException();
+      if (typeIdOffsets.TryGetValue(type, out var typeIdOffset)) {
+        return typeIdBase + typeIdOffset;
       }
-      return typeIdBase + typeIdOffset;
+      throw new InvalidOperationException();
     }
 
     private static void SetTypeOffsets(IDictionary<Type, int> typeMap)
@@ -283,8 +292,8 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.TypeIdExtractionTestModel
 
     private static void SetBaseTypeIds()
     {
-      typeIdOffsetMap["Model1"] = 300;
-      typeIdOffsetMap["Model2"] = 400;
+      typeIdOffsetMap[WellKnownSchemas.Schema1] = 300;
+      typeIdOffsetMap[WellKnownSchemas.Schema2] = 400;
     }
 
     static TypeIdentifierMapper()
@@ -536,7 +545,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode.TypeIdExtractionTestModel
     public override void OnPrepare()
     {
       var isNodeBuilding = UpgradeContext.ParentDomain != null;
-      var schemaName = (isNodeBuilding)
+      var schemaName = isNodeBuilding
         ? UpgradeContext.NodeConfiguration.SchemaMapping.Apply(UpgradeContext.Configuration.DefaultSchema)
         : UpgradeContext.Configuration.DefaultSchema;
 

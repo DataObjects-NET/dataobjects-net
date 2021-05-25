@@ -1,6 +1,6 @@
 // Copyright (C) 2014-2021 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2014.04.14
 
@@ -11,6 +11,7 @@ using System.Threading;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.NewClientProfileTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.NewClientProfileTestModel
@@ -790,6 +791,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ClientProfileVersionsTest()
     {
+      Require.ProviderIsNot(StorageProvider.Oracle, "ExecuteNonQuery returns -1 all the time so versioning is not working");
+
       var sessionConfiguration = new SessionConfiguration(SessionOptions.ClientProfile | SessionOptions.AutoActivation | SessionOptions.ValidateEntityVersions);
 
       using (var session = Domain.OpenSession(sessionConfiguration)) {
@@ -850,6 +853,8 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public void ClientProfileSameExceptionWhenDoublePersistInsideTransaction()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "UniqueVauleConstraint breaks the outermost transaction.");
+
       using (var session = Domain.OpenSession(clientProfile)) {
         using (var transaction = session.OpenTransaction()) {
           var authorWithUniqueName = new Author {Name = "Peter"};

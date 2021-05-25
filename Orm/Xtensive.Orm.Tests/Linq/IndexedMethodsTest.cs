@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.12.14
 
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectIndexedTest()
     {
       var result = Session.Query.All<Invoice>().OrderBy(i => i.InvoiceId).Select((invoice, index) => new {invoice, index}).ToList();
-      var expected = Session.Query.All<Invoice>().AsEnumerable().OrderBy(i => i.InvoiceId).Select((invoice, index) => new {invoice, index}).ToList();
+      var expected = Invoices.OrderBy(i => i.InvoiceId).Select((invoice, index) => new {invoice, index}).ToList();
       Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
@@ -45,12 +45,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectManyIndexedTest()
     {
-      var count = Session.Query.All<Customer>().Count();
+      var count = Customers.Count();
       var result = Session.Query.All<Customer>()
         .OrderBy(customer=>customer.LastName)
         .SelectMany((customer, index) => customer.Invoices.OrderBy(i=>i.InvoiceId).Select(invoice=>new {index, invoice.Commission}));
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .OrderBy(customer=>customer.LastName)
         .SelectMany((customer, index) => customer.Invoices.OrderBy(i=>i.InvoiceId).Select(invoice=>new {index, invoice.Commission}));
       Assert.That(result, Is.Not.Empty);
@@ -66,8 +65,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(
           (customer, index) => customer.Invoices.OrderBy(i => i.InvoiceId).Select(invoice => new {index, invoice.Commission}),
           (customer, takenInvoices) => new {customer, takenInvoices});
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .OrderBy(customer => customer.LastName)
         .SelectMany(
           (customer, index) => customer.Invoices.OrderBy(i => i.InvoiceId).Select(invoice => new {index, invoice.Commission}),

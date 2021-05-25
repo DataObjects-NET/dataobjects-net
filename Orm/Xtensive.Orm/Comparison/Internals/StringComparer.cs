@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
 // Created:    2007.11.28
 
@@ -16,7 +16,7 @@ namespace Xtensive.Comparison
   internal sealed class StringComparer: AdvancedComparerBase<string>,
     ISystemComparer<string>
   {
-    private static readonly int emptyHash = string.Empty.GetHashCode();
+    private static readonly int EmptyHash = string.Empty.GetHashCode();
     [NonSerialized]
     private Func<string, string, CompareOptions, int> stringCompare;
     [NonSerialized]
@@ -29,68 +29,69 @@ namespace Xtensive.Comparison
 
     public override int Compare(string x, string y)
     {
-      if (ReferenceEquals(x, y))
-        return 0;
-
-      return stringCompare(x, y, CompareOptions.None) * DefaultDirectionMultiplier;
+      return ReferenceEquals(x, y)
+        ? 0
+        : stringCompare(x, y, CompareOptions.None) * DefaultDirectionMultiplier;
     }
 
     public override bool Equals(string x, string y)
     {
-      if (ReferenceEquals(x, y))
+      if (ReferenceEquals(x, y)) {
         return true;
-      if (ReferenceEquals(x, null))
+      }
+      if (ReferenceEquals(x, null) || ReferenceEquals(y, null)) {
         return false;
-      if (ReferenceEquals(y, null))
+      }
+      if (x.Length != y.Length) {
         return false;
-      if (x.Length != y.Length)
-        return false;
-      if (x.GetHashCode() != y.GetHashCode())
-        return false;
-      return stringIsSuffix(x, y, CompareOptions.None);
+      }
+      return x.GetHashCode() != y.GetHashCode()
+        ? false
+        : stringIsSuffix(x, y, CompareOptions.None);
     }
 
     public override int GetHashCode(string obj)
-    {
-      if (ReferenceEquals(obj, null))
-        return emptyHash;
-      return obj.GetHashCode();
-    }
+      => ReferenceEquals(obj, null) ? EmptyHash : obj.GetHashCode();
 
     public override string GetNearestValue(string value, Direction direction)
     {
-      if (direction==Direction.None)
+      if (direction == Direction.None) {
         throw Exceptions.InvalidArgument(direction, "direction");
-     
-      if (direction == Direction.Positive) { 
+      }
+
+      if (direction == Direction.Positive) {
         // Next value
-        if (value == null)
+        if (value == null) {
           return string.Empty;
-        else
-          if (value==string.Empty || value[value.Length - 1] != Char.MaxValue)
-            return value + Char.MinValue;
-          else // Ends with Char.MaxValue
-            if (value.Length == 1)
-              return value;
-            else
-              return value.Substring(0, value.Length - 2) + (char)(value[value.Length - 2] + 1);
+        }
+        else {
+          if (value == string.Empty || value[value.Length - 1] != char.MaxValue) {
+            return value + char.MinValue;
+          }
+          else { // Ends with Char.MaxValue
+            return value.Length == 1
+              ? value
+              : value.Substring(0, value.Length - 2) + (char) (value[value.Length - 2] + 1);
+          }
+        }
       }
       else {
         // Prev value
-        if (String.IsNullOrEmpty(value))
+        if (string.IsNullOrEmpty(value)) {
           return null;
-        else
-          if (value[value.Length - 1] != Char.MinValue)
-            return value.Substring(0, value.Length - 1) + (char)(value[value.Length - 1] - 1) + Char.MaxValue;      
-          else
-            return value.Substring(0, value.Length - 1);
+        }
+        else {
+          return value[value.Length - 1] != char.MinValue
+            ? value.Substring(0, value.Length - 1) + (char) (value[value.Length - 1] - 1) + char.MaxValue
+            : value.Substring(0, value.Length - 1);
+        }
       }
     }
 
     private void Initialize()
     {
       ValueRangeInfo = new ValueRangeInfo<string>(true, null, false, null, false, null);
-      CultureInfo culture = ComparisonRules.Value.Culture;
+      var culture = ComparisonRules.Value.Culture;
       if (culture != null) {
         stringCompare  = culture.CompareInfo.Compare;
         stringIsSuffix = culture.CompareInfo.IsSuffix;
@@ -102,17 +103,20 @@ namespace Xtensive.Comparison
     }
 
     private static int CompareOrdinal(string first, string second, CompareOptions options)
-    {
-      return string.CompareOrdinal(first, second);
-    }
+      => string.CompareOrdinal(first, second);
 
-    
+
     // Constructors
 
     public StringComparer(IComparerProvider provider, ComparisonRules comparisonRules) 
       : base(provider, comparisonRules)
     {
       Initialize();
+    }
+
+    public StringComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
 
     public override void OnDeserialization(object sender)

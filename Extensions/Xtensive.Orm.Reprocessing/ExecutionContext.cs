@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Transactions;
 
 namespace Xtensive.Orm.Reprocessing
@@ -13,6 +13,11 @@ namespace Xtensive.Orm.Reprocessing
     /// Gets the domain of this task.
     /// </summary>
     public Domain Domain { get; private set; }
+
+    /// <summary>
+    /// Gets the session passed from outside to be used.
+    /// </summary>
+    public Session ExternalSession { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="System.Transactions.IsolationLevel"/> of this task.
@@ -37,9 +42,31 @@ namespace Xtensive.Orm.Reprocessing
     /// <param name="transactionOpenMode">The transaction open mode.</param>
     /// <param name="function">The task.</param>
     public ExecutionContext(
-      Domain domain, IsolationLevel isolationLevel, TransactionOpenMode transactionOpenMode, Func<Session, T> function)
+      Domain domain,
+      IsolationLevel isolationLevel,
+      TransactionOpenMode transactionOpenMode,
+      Func<Session, T> function)
+      : this(domain, null, isolationLevel, transactionOpenMode, function)
+    {
+    }
+
+    /// <summary>
+    /// Initializes a new instance of the <see cref="ExecutionContext{T}"/> class.
+    /// </summary>
+    /// <param name="domain">The domain.</param>
+    /// <param name="session">The external session to be used by exection.</param>
+    /// <param name="isolationLevel">The isolation level.</param>
+    /// <param name="transactionOpenMode">The transaction open mode.</param>
+    /// <param name="function">The task.</param>
+    public ExecutionContext(
+      Domain domain,
+      Session session,
+      IsolationLevel isolationLevel,
+      TransactionOpenMode transactionOpenMode,
+      Func<Session, T> function)
     {
       Domain = domain;
+      ExternalSession = session;
       IsolationLevel = isolationLevel;
       TransactionOpenMode = transactionOpenMode;
       Function = function;

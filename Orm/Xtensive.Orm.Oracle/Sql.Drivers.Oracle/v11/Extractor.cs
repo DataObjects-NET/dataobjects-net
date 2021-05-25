@@ -13,6 +13,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v11
   {
     // Constructors
 
+    protected override string ToUpperInvariantIfNeeded(string schemaName) => schemaName;
+
     public Extractor(SqlDriver driver)
       : base(driver)
     {

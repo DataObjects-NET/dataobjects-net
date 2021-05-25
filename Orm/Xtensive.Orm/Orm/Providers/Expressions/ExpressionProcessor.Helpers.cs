@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -179,6 +179,19 @@ namespace Xtensive.Orm.Providers
       return null;
     }
 
+    private (SqlExpression right, SqlExpression left) BuildByteArraySyntaxComparison(SqlExpression left, SqlExpression right)
+    {
+      var newLeft = (SqlExpression) SqlDml.Literal(0);
+      var newRight = OracleBlobCompare(left, right);
+
+      return (newLeft, newRight);
+    }
+
+    private static SqlExpression OracleBlobCompare(SqlExpression left, SqlExpression right)
+    {
+      return SqlDml.FunctionCall("dbms_lob.compare", left, right);
+    }
+
     private SqlExpression CompileMember(MemberInfo member, SqlExpression instance, params SqlExpression[] arguments)
     {
       var memberCompiler = memberCompilerProvider.GetCompiler(member);
@@ -186,33 +199,30 @@ namespace Xtensive.Orm.Providers
         throw new NotSupportedException(string.Format(Strings.ExMemberXIsNotSupported, member.GetFullName(true)));
       return memberCompiler.Invoke(instance, arguments);
     }
-    
+
     private static bool IsCharToIntConvert(Expression e)
     {
       return
-        e.NodeType==ExpressionType.Convert &&
-        e.Type==WellKnownTypes.Int32 &&
-        ((UnaryExpression) e).Operand.Type==WellKnownTypes.Char;
+        e.NodeType == ExpressionType.Convert &&
+        e.Type == WellKnownTypes.Int32 &&
+        ((UnaryExpression) e).Operand.Type == WellKnownTypes.Char;
     }
 
-    private static bool IsIntConstant(Expression expression)
-    {
-      return expression.NodeType==ExpressionType.Constant && expression.Type==WellKnownTypes.Int32;
-    }
+    private static bool IsIntConstant(Expression expression) =>
+      expression.NodeType == ExpressionType.Constant && expression.Type == WellKnownTypes.Int32;
 
-    private static bool IsBooleanExpression(Expression expression)
-    {
-      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.Bool;
-    }
+    private static bool IsBooleanExpression(Expression expression) =>
+      IsExpressionOf(expression, WellKnownTypes.Bool);
 
-    private static bool IsDateTimeExpression(Expression expression)
-    {
-      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.DateTime;
-    }
+    private static bool IsDateTimeExpression(Expression expression) =>
+      IsExpressionOf(expression, WellKnownTypes.DateTime);
 
-    private static bool IsDateTimeOffsetExpression(Expression expression)
+    private static bool IsDateTimeOffsetExpression(Expression expression) =>
+      IsExpressionOf(expression, WellKnownTypes.DateTimeOffset);
+
+    private static bool IsExpressionOf(Expression expression, Type type)
     {
-      return StripObjectCasts(expression).Type.StripNullable()==WellKnownTypes.DateTimeOffset;
+      return StripObjectCasts(expression).Type.StripNullable() == type;
     }
 
     private static bool IsComparisonExpression(Expression expression)
@@ -228,8 +238,9 @@ namespace Xtensive.Orm.Providers
 
     private static Expression StripObjectCasts(Expression expression)
     {
-      while (expression.Type==WellKnownTypes.Object && expression.NodeType==ExpressionType.Convert)
+      while (expression.Type == WellKnownTypes.Object && expression.NodeType == ExpressionType.Convert) {
         expression = GetOperand(expression);
+      }
       return expression;
     }
 
@@ -260,29 +271,28 @@ namespace Xtensive.Orm.Providers
     private static QueryParameterIdentity GetParameterIdentity(TypeMapping mapping,
       Expression<Func<ParameterContext, object>> accessor, QueryParameterBindingType bindingType)
     {
-      Expression operand;
       var expression = accessor.Body;
     
       // Strip cast to object
-      if (expression.NodeType==ExpressionType.Convert) {
+      if (expression.NodeType == ExpressionType.Convert) {
         expression = ((UnaryExpression) expression).Operand;
       }
 
       // Check for closure member access
-      if (expression.NodeType!=ExpressionType.MemberAccess) {
+      if (expression.NodeType != ExpressionType.MemberAccess) {
         return null;
       }
 
       var memberAccess = (MemberExpression) expression;
-      operand = memberAccess.Expression;
-      if (operand==null || !operand.Type.IsClosure()) {
+      var operand = memberAccess.Expression;
+      if (operand == null || !operand.Type.IsClosure()) {
         return null;
       }
 
       var fieldName = memberAccess.Member.Name;
 
       // Check for raw closure
-      if (operand.NodeType==ExpressionType.Constant) {
+      if (operand.NodeType == ExpressionType.Constant) {
         var closureObject = ((ConstantExpression) operand).Value;
         return new QueryParameterIdentity(mapping, closureObject, fieldName, bindingType);
       }

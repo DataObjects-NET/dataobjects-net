@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
       configuration.Types.Register(typeof(TestEntity0).Assembly, typeof(TestEntity0).Namespace);
       return configuration;
     }
@@ -70,16 +70,19 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     protected override IEnumerable<NodeConfiguration> GetAdditionalNodeConfigurations(DomainUpgradeMode upgradeMode)
     {
       var schemas = new[] {
-        "Model1", "Model2", "Model3", "Model4", "Model5", "Model6",
-        "Model7", "Model8", "Model9", "Model10", "Model11", "Model12",
+        WellKnownSchemas.Schema1, WellKnownSchemas.Schema2, WellKnownSchemas.Schema3,
+        WellKnownSchemas.Schema4, WellKnownSchemas.Schema5, WellKnownSchemas.Schema6,
+        WellKnownSchemas.Schema7, WellKnownSchemas.Schema8, WellKnownSchemas.Schema9,
+        WellKnownSchemas.Schema10, WellKnownSchemas.Schema11, WellKnownSchemas.Schema12,
       };
 
       var index = 0;
       foreach (var schema in schemas) {
         index++;
-        var node = new NodeConfiguration("Node" + index);
-        node.UpgradeMode = upgradeMode;
-        node.SchemaMapping.Add("dbo", schema);
+        var node = new NodeConfiguration("Node" + index) {
+          UpgradeMode = upgradeMode
+        };
+        node.SchemaMapping.Add(WellKnownSchemas.SqlServerDefaultSchema, schema);
         yield return node;
       }
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -116,6 +116,14 @@ namespace Xtensive.Orm
         return Configuration.Supports(SessionOptions.NonTransactionalEntityStates) &&
           !Configuration.Supports(SessionOptions.AutoSaveChanges);
       }
+    }
+
+    /// <summary>
+    /// Indicates whether instance is disposed.
+    /// </summary>
+    public bool IsDisposed
+    {
+      get => isDisposed;
     }
 
     /// <summary>

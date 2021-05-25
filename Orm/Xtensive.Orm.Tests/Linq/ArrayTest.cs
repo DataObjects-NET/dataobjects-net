@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.04.30
 
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void NewByteArrayTest()
     {
       var result = Session.Query.All<Customer>().Select(x => new byte[] {1, 2});
-      var expected = Session.Query.All<Customer>().ToList().Select(x => new byte[] {1, 2});
+      var expected = Customers.Select(x => new byte[] {1, 2});
       var comparer = AdvancedComparer<byte[]>.Default.EqualityComparerImplementation;
       Assert.AreEqual(0, expected.Except(result, comparer).Count());
       QueryDumper.Dump(result);
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Tests.Linq
           customer.CompanyName,
           customer.LastName
         });
-      var expected = Session.Query.All<Customer>()
+      var expected = Customers
         .ToList()
         .Select(customer => new[] {
           customer.CompanyName,
@@ -71,8 +71,7 @@ namespace Xtensive.Orm.Tests.Linq
           Value = new byte[] {1, 2, 3},
           p.Name
         });
-      var expected = Session.Query.All<Track>()
-        .ToList()
+      var expected = Tracks
         .Select(p => new {
           Value = new byte[] {1, 2, 3},
           p.Name
@@ -107,7 +106,7 @@ namespace Xtensive.Orm.Tests.Linq
         Assert.AreEqual(method, i.Method);
       var expected =
         from r in
-          from p in Session.Query.All<Track>().ToList()
+          from p in Tracks
           select new {
             Value = new byte[] {1, 2, 3},
             Method = method,
@@ -137,8 +136,7 @@ namespace Xtensive.Orm.Tests.Linq
           customer.LastName
         })
         .Select(a => a[0]);
-      var expected = Session.Query.All<Customer>()
-        .ToList()
+      var expected = Customers
         .Select(customer => new[] {
           customer.CompanyName,
           customer.LastName
@@ -156,8 +154,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(x => new byte[] {1, 2})
         .Select(a => a[0])
         .Sum(b => b);
-      var expected = Session.Query.All<Customer>()
-        .ToList()
+      var expected = Customers
         .Select(x => new byte[] {1, 2})
         .Select(a => a[0])
         .Sum(b => b);
@@ -172,8 +169,7 @@ namespace Xtensive.Orm.Tests.Linq
       var bytes = new byte[] {1, 2, 3, 4, 5, 6, 7, 8, 9};
       var result = Session.Query.All<Employee>()
         .Select(e => bytes[e.EmployeeId]);
-      var expected = Session.Query.All<Employee>()
-        .ToList()
+      var expected = Employees
         .Select(e => bytes[e.EmployeeId]);
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);

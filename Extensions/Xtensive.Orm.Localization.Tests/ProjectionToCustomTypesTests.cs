@@ -10,9 +10,9 @@ using Xtensive.Orm.Localization.Tests.Model;
 namespace Xtensive.Orm.Localization.Tests
 {
   [TestFixture]
-  public class ProjectionToCustomTypesTests : AutoBuildTest
+  public class ProjectionToCustomTypesTests : LocalizationBaseTest
   {
-    protected override void PopulateDatabase()
+    protected override void PopulateData()
     {
       using (var session = Domain.OpenSession()) 
       using (var ts = session.OpenTransaction()) {

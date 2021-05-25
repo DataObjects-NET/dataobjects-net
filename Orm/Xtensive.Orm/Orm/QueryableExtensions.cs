@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -241,29 +241,6 @@ namespace Xtensive.Orm
       var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
       return outer.Provider.CreateQuery<TResult>(expression);
-    }
-
-    /// <summary>
-    /// Removes the specified entities using <see cref="Session.Remove{T}"/> method of <see cref="Session"/>. 
-    /// </summary>
-    /// <typeparam name="T">Entity type.</typeparam>
-    /// <param name="entities">The entities.</param>
-    ///  <exception cref="ReferentialIntegrityException">
-    /// Entity is associated with another entity with <see cref="OnRemoveAction.Deny"/> on-remove action.
-    /// </exception>
-    [Obsolete("Use Session.Remove() instead.")]
-    public static void Remove<T>([InstantHandle] this IEnumerable<T> entities)
-      where T : IEntity
-    {
-      var session = Session.Current;
-      if (session != null)
-        session.Remove(entities);
-      else {
-        var items = entities.Where(e => e != null).ToList();
-        if (items.Count == 0)
-          return;
-        items[0].Session.Remove(items);
-      }
     }
 
     /// <summary>

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.01.23
 
@@ -17,44 +17,32 @@ namespace Xtensive.Comparison
     where T: struct, IComparable<T>, IEquatable<T>
   {
     protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
-    {
-      return new ValueTypeComparer<T>(Provider, ComparisonRules.Combine(rules));
-    }
+      => new ValueTypeComparer<T>(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(T x, T y)
-    {
-      return x.CompareTo(y) 
-        * DefaultDirectionMultiplier;
-    }
+      => x.CompareTo(y) * DefaultDirectionMultiplier;
 
-    public override bool Equals(T x, T y)
-    {
-      return x.Equals(y);
-    }
+    public override bool Equals(T x, T y) => x.Equals(y);
 
-    public override int GetHashCode(T obj)
-    {
-      return obj.GetHashCode();
-    }
+    public override int GetHashCode(T obj) => obj.GetHashCode();
 
     private void Initialize()
     {
-      Type valueTypeComparerType = typeof (ValueTypeComparer<T>);
-      Type myType = GetType();
-      Type tType = typeof (T);
-      
-      MethodInfo mCompare = myType.GetMethod("Compare", 
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-        null, new Type[] {tType, tType}, null);
-      UsesDefaultCompare = mCompare.DeclaringType==valueTypeComparerType;
-      MethodInfo mEquals = myType.GetMethod("Equals",
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-        null, new Type[] {tType, tType}, null);
-      UsesDefaultEquals = mEquals.DeclaringType==valueTypeComparerType;
-      MethodInfo mGetHashCode = myType.GetMethod("GetHashCode", 
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic,
-        null, new Type[] {tType}, null);
-      UsesDefaultGetHashCode = mGetHashCode.DeclaringType==valueTypeComparerType;
+      var valueTypeComparerType = typeof(ValueTypeComparer<T>);
+      var myType = GetType();
+      var tType = typeof (T);
+
+      var searchFlags = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
+
+      var mCompare = myType.GetMethod("Compare", searchFlags,
+        null, new Type[] { tType, tType }, null);
+      UsesDefaultCompare = mCompare.DeclaringType == valueTypeComparerType;
+      var mEquals = myType.GetMethod("Equals", searchFlags,
+        null, new Type[] { tType, tType }, null);
+      UsesDefaultEquals = mEquals.DeclaringType == valueTypeComparerType;
+      var mGetHashCode = myType.GetMethod("GetHashCode", searchFlags,
+        null, new Type[] { tType }, null);
+      UsesDefaultGetHashCode = mGetHashCode.DeclaringType == valueTypeComparerType;
     }
 
 
@@ -64,6 +52,11 @@ namespace Xtensive.Comparison
       : base(provider, comparisonRules)
     {
       Initialize();
+    }
+
+    public ValueTypeComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
+    {
     }
 
     public override void OnDeserialization(object sender)

@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -48,13 +48,6 @@ namespace Xtensive.Orm
         operations.Add(operation);
         TryAppendUniqueOperation(operation);
       }
-    }
-
-    /// <inheritdoc/>
-    [Obsolete("Use Replay(Session) instead.")]
-    public KeyMapping Replay()
-    {
-      return Replay(Session.Demand());
     }
 
     /// <inheritdoc/>

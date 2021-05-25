@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -53,7 +53,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       BuildDomain("1", DomainUpgradeMode.Recreate);
       FillData();
     }
-    
+
+    [TearDown]
+    public void TearDown()
+    {
+      domain.DisposeSafely();
+    }
+
     [Test]
     public void UpgradeModeTest()
     {
@@ -93,90 +99,189 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void UpgradeGeneratorsTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       Require.AnyFeatureSupported(ProviderFeatures.Sequences | ProviderFeatures.ArbitraryIdentityIncrement);
 
       var generatorCacheSize = 3;
       BuildDomain("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          for (int i = 0; i < generatorCacheSize; i++)
-            new Person {
-              Address = new Address { City = "City", Country = "Country" }
-            };
-          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
-          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
-          t.Complete();
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (var i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
         }
+
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
+        t.Complete();
       }
+
       BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          for (int i = 0; i < generatorCacheSize; i++)
-            new Person {
-              Address = new Address { City = "City", Country = "Country" }
-            };
-          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
-          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
-          t.Complete();
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (var i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
         }
+
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
+        t.Complete();
       }
 
       generatorCacheSize = 2;
       BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          new Person { Address = new Address { City = "City", Country = "Country" } };
-          new Person { Address = new Address { City = "City", Country = "Country" } };
-          new Person { Address = new Address { City = "City", Country = "Country" } };
-          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 13);
-          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 12);
-          t.Complete();
-        }
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 13);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 12);
+        t.Complete();
       }
     }
 
     [Test]
     public async Task UpgradeGeneratorsAsyncTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird);
       Require.AnyFeatureSupported(ProviderFeatures.Sequences | ProviderFeatures.ArbitraryIdentityIncrement);
 
       var generatorCacheSize = 3;
       await BuildDomainAsync("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          for (int i = 0; i < generatorCacheSize; i++)
-            new Person {
-              Address = new Address { City = "City", Country = "Country" }
-            };
-          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
-          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
-          t.Complete();
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (var i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
         }
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
+        t.Complete();
       }
+
       await BuildDomainAsync("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          for (int i = 0; i < generatorCacheSize; i++)
-            new Person {
-              Address = new Address { City = "City", Country = "Country" }
-            };
-          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
-          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
-          t.Complete();
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (int i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
         }
+
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
+        t.Complete();
       }
 
       generatorCacheSize = 2;
       await BuildDomainAsync("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          new Person { Address = new Address { City = "City", Country = "Country" } };
-          new Person { Address = new Address { City = "City", Country = "Country" } };
-          new Person { Address = new Address { City = "City", Country = "Country" } };
-          Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 13);
-          Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 12);
-          t.Complete();
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 13);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 12);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public void UpgradeGeneratorsFirebirdTest()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+
+      var generatorCacheSize = 3;
+      BuildDomain("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof(Address), typeof(Person));
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (var i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
         }
+
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
+        t.Complete();
+      }
+
+      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (var i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
+        }
+
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
+        t.Complete();
+      }
+
+      generatorCacheSize = 2;// ignored because Firebird sequences has no increment support
+      BuildDomain("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 10);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 9);
+        t.Complete();
+      }
+    }
+
+    [Test]
+    public async Task UpgradeGeneratorsFirebirdAsyncTest()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+
+      var generatorCacheSize = 3;
+      await BuildDomainAsync("1", DomainUpgradeMode.Recreate, generatorCacheSize, typeof(Address), typeof(Person));
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (var i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
+        }
+
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 4);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 3);
+        t.Complete();
+      }
+
+      await BuildDomainAsync("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        for (var i = 0; i < generatorCacheSize; i++) {
+          _ = new Person {
+            Address = new Address { City = "City", Country = "Country" }
+          };
+        }
+
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 8);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 6);
+        t.Complete();
+      }
+
+      generatorCacheSize = 2;// ignored because Firebird sequences has no increment support
+      await BuildDomainAsync("1", DomainUpgradeMode.Perform, generatorCacheSize, typeof(Address), typeof(Person));
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        _ = new Person { Address = new Address { City = "City", Country = "Country" } };
+        Assert.LessOrEqual(session.Query.All<Person>().Max(p => p.Id), 10);
+        Assert.GreaterOrEqual(session.Query.All<Person>().Max(p => p.Id), 9);
+        t.Complete();
       }
     }
 
@@ -187,25 +292,23 @@ namespace Xtensive.Orm.Tests.Upgrade
       int maxTypeId;
 
       BuildDomain("1", DomainUpgradeMode.Recreate, null, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          personTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
-          maxTypeId = session.Query.All<Metadata.Type>().Max(type => type.Id);
-        }
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        personTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
+        maxTypeId = session.Query.All<Metadata.Type>().Max(type => type.Id);
       }
 
       BuildDomain("1", DomainUpgradeMode.PerformSafely, null, typeof(Address), typeof(Person), typeof(BusinessContact));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var businessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
-          var newPersonTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var businessContactTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
+        var newPersonTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
 
-          Assert.AreEqual(personTypeId, newPersonTypeId);
-          Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
-        }
+        Assert.AreEqual(personTypeId, newPersonTypeId);
+        Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
       }
     }
 
@@ -216,25 +319,23 @@ namespace Xtensive.Orm.Tests.Upgrade
       int maxTypeId;
 
       await BuildDomainAsync("1", DomainUpgradeMode.Recreate, null, typeof(Address), typeof(Person));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          personTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
-          maxTypeId = session.Query.All<Metadata.Type>().Max(type => type.Id);
-        }
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        personTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
+        maxTypeId = session.Query.All<Metadata.Type>().Max(type => type.Id);
       }
 
       await BuildDomainAsync("1", DomainUpgradeMode.PerformSafely, null, typeof(Address), typeof(Person), typeof(BusinessContact));
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var businessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
-          var newPersonTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var businessContactTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
+        var newPersonTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
 
-          Assert.AreEqual(personTypeId, newPersonTypeId);
-          Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
-        }
+        Assert.AreEqual(personTypeId, newPersonTypeId);
+        Assert.AreEqual(maxTypeId + 1, businessContactTypeId);
       }
     }
 
@@ -246,26 +347,24 @@ namespace Xtensive.Orm.Tests.Upgrade
       int personTypeId;
       int businessContactTypeId;
 
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          personTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
-          businessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
-        }
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        personTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
+        businessContactTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
       }
 
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var newBusinessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.BusinessContact").Id;
-          var newPersonTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.Person").Id;
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var newBusinessContactTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.BusinessContact").Id;
+        var newPersonTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.Person").Id;
 
-          Assert.AreEqual(personTypeId, newBusinessContactTypeId);
-          Assert.AreEqual(businessContactTypeId, newPersonTypeId);
-        }
+        Assert.AreEqual(personTypeId, newBusinessContactTypeId);
+        Assert.AreEqual(businessContactTypeId, newPersonTypeId);
       }
     }
 
@@ -277,26 +376,24 @@ namespace Xtensive.Orm.Tests.Upgrade
       int personTypeId;
       int businessContactTypeId;
 
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          personTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
-          businessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
-        }
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        personTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.Person").Id;
+        businessContactTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version1.BusinessContact").Id;
       }
 
       await BuildDomainAsync("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var newBusinessContactTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.BusinessContact").Id;
-          var newPersonTypeId = session.Query.All<Metadata.Type>()
-            .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.Person").Id;
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var newBusinessContactTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.BusinessContact").Id;
+        var newPersonTypeId = session.Query.All<Metadata.Type>()
+          .First(type => type.Name == "Xtensive.Orm.Tests.Upgrade.Model.Version2.Person").Id;
 
-          Assert.AreEqual(personTypeId, newBusinessContactTypeId);
-          Assert.AreEqual(businessContactTypeId, newPersonTypeId);
-        }
+        Assert.AreEqual(personTypeId, newBusinessContactTypeId);
+        Assert.AreEqual(businessContactTypeId, newPersonTypeId);
       }
     }
 
@@ -306,81 +403,81 @@ namespace Xtensive.Orm.Tests.Upgrade
       Require.ProviderIsNot(StorageProvider.Firebird);
 
       BuildDomain("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          Assert.AreEqual(2, session.Query.All<Model.Version2.Person>().Count());
-          Assert.AreEqual("Island Trading", session.Query.All<Model.Version2.Person>()
-            .First(person => person.ContactName == "Helen Bennett").CompanyName);
-          Assert.AreEqual(5, session.Query.All<Model.Version2.BusinessContact>().Count());
-          Assert.AreEqual("Suyama", session.Query.All<Model.Version2.BusinessContact>()
-            .First(contact => contact.FirstName == "Michael").LastName);
-          Assert.AreEqual("Fuller", session.Query.All<Model.Version2.Employee>()
-            .First(employee => employee.FirstName == "Nancy").ReportsTo.LastName);
-          Assert.AreEqual(123, session.Query.All<Model.Version2.Person>()
-            .First(person => person.ContactName == "Helen Bennett").PassportNumber);
-          Assert.AreEqual(1, session.Query.All<Model.Version2.Order>()
-            .First(order => order.ProductName == "Maxilaku").Number);
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
+        Assert.AreEqual(2, session.Query.All<Model.Version2.Person>().Count());
+        Assert.AreEqual("Island Trading", session.Query.All<Model.Version2.Person>()
+          .First(person => person.ContactName == "Helen Bennett").CompanyName);
+        Assert.AreEqual(5, session.Query.All<Model.Version2.BusinessContact>().Count());
+        Assert.AreEqual("Suyama", session.Query.All<Model.Version2.BusinessContact>()
+          .First(contact => contact.FirstName == "Michael").LastName);
+        Assert.AreEqual("Fuller", session.Query.All<Model.Version2.Employee>()
+          .First(employee => employee.FirstName == "Nancy").ReportsTo.LastName);
+        Assert.AreEqual(123, session.Query.All<Model.Version2.Person>()
+          .First(person => person.ContactName == "Helen Bennett").PassportNumber);
+        Assert.AreEqual(1, session.Query.All<Model.Version2.Order>()
+          .First(order => order.ProductName == "Maxilaku").Number);
 
-          _ = session.Query.All<Product>().Single(product => product.Title == "DataObjects.NET");
-          _ = session.Query.All<Product>().Single(product => product.Title == "HelpServer");
-          Assert.AreEqual(2, session.Query.All<Product>().Count());
-          var webApps = session.Query.All<ProductGroup>().Single(group => group.Name == "Web applications");
-          var frameworks = session.Query.All<ProductGroup>().Single(group => group.Name == "Frameworks");
-          Assert.AreEqual(1, webApps.Products.Count);
-          Assert.AreEqual(1, frameworks.Products.Count);
+        _ = session.Query.All<Product>().Single(product => product.Title == "DataObjects.NET");
+        _ = session.Query.All<Product>().Single(product => product.Title == "HelpServer");
+        Assert.AreEqual(2, session.Query.All<Product>().Count());
+        var webApps = session.Query.All<ProductGroup>().Single(group => group.Name == "Web applications");
+        var frameworks = session.Query.All<ProductGroup>().Single(group => group.Name == "Frameworks");
+        Assert.AreEqual(1, webApps.Products.Count);
+        Assert.AreEqual(1, frameworks.Products.Count);
 
-          var allBoys = session.Query.All<Boy>().ToArray();
-          var allGirls = session.Query.All<Girl>().ToArray();
-          Assert.AreEqual(2, allBoys.Length);
-          Assert.AreEqual(2, allGirls.Length);
-          var alex = allBoys.Single(boy => boy.Name == "Alex");
-          foreach (var girl in allGirls)
-            Assert.IsTrue(alex.MeetWith.Contains(girl));
-
-          var e1 = session.Query.All<Entity1>().Single();
-          var e2 = session.Query.All<Entity2>().Single();
-          var e3 = session.Query.All<Entity3>().Single();
-          var e4 = session.Query.All<Entity4>().Single();
-          var se1 = session.Query.All<StructureContainer1>().Single();
-          var se2 = session.Query.All<StructureContainer2>().Single();
-          var se3 = session.Query.All<StructureContainer3>().Single();
-          var se4 = session.Query.All<StructureContainer4>().Single();
-
-          Assert.AreEqual(1, e1.Code);
-          Assert.AreEqual(2, e2.Code);
-          Assert.AreEqual(3, e3.Code);
-          Assert.AreEqual(4, e4.Code);
-
-          Assert.AreEqual(e1, e2.E1);
-          Assert.AreEqual(e2, e3.E2);
-          Assert.AreEqual(e3, e4.E3);
-
-          Assert.AreEqual(se1.S1.MyE1, e1);
-
-          Assert.AreEqual(se2.S2.MyE2, e2);
-          Assert.AreEqual(se2.S2.S1.MyE1, e1);
-
-          Assert.AreEqual(se3.S3.MyE3, e3);
-          Assert.AreEqual(se3.S3.S2.MyE2, e2);
-          Assert.AreEqual(se3.S3.S2.S1.MyE1, e1);
-
-          Assert.AreEqual(se4.S4.MyE4, e4);
-          Assert.AreEqual(se4.S4.S3.MyE3, e3);
-          Assert.AreEqual(se4.S4.S3.S2.MyE2, e2);
-          Assert.AreEqual(se4.S4.S3.S2.S1.MyE1, e1);
-
-          var so1 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 0);
-          var so2 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 1);
-          var re1 = session.Query.All<ReferencedEntity>().Single(e => e.A == 1 && e.B == 2);
-          var re2 = session.Query.All<ReferencedEntity>().Single(e => e.A == 2 && e.B == 3);
-          if (!IncludeTypeIdModifier.IsEnabled) {
-            Assert.AreEqual(so1.Reference, re1);
-            Assert.AreEqual(so2.Reference, re2);
-          }
-
-          Assert.AreEqual(2, session.Query.All<NewSync<M2.BusinessContact>>().Count());
-          Assert.AreEqual("Alex", session.Query.All<NewSync<M2.Boy>>().First().NewRoot.Name);
+        var allBoys = session.Query.All<Boy>().ToArray();
+        var allGirls = session.Query.All<Girl>().ToArray();
+        Assert.AreEqual(2, allBoys.Length);
+        Assert.AreEqual(2, allGirls.Length);
+        var alex = allBoys.Single(boy => boy.Name == "Alex");
+        foreach (var girl in allGirls) {
+          Assert.IsTrue(alex.MeetWith.Contains(girl));
         }
+
+        var e1 = session.Query.All<Entity1>().Single();
+        var e2 = session.Query.All<Entity2>().Single();
+        var e3 = session.Query.All<Entity3>().Single();
+        var e4 = session.Query.All<Entity4>().Single();
+        var se1 = session.Query.All<StructureContainer1>().Single();
+        var se2 = session.Query.All<StructureContainer2>().Single();
+        var se3 = session.Query.All<StructureContainer3>().Single();
+        var se4 = session.Query.All<StructureContainer4>().Single();
+
+        Assert.AreEqual(1, e1.Code);
+        Assert.AreEqual(2, e2.Code);
+        Assert.AreEqual(3, e3.Code);
+        Assert.AreEqual(4, e4.Code);
+
+        Assert.AreEqual(e1, e2.E1);
+        Assert.AreEqual(e2, e3.E2);
+        Assert.AreEqual(e3, e4.E3);
+
+        Assert.AreEqual(se1.S1.MyE1, e1);
+
+        Assert.AreEqual(se2.S2.MyE2, e2);
+        Assert.AreEqual(se2.S2.S1.MyE1, e1);
+
+        Assert.AreEqual(se3.S3.MyE3, e3);
+        Assert.AreEqual(se3.S3.S2.MyE2, e2);
+        Assert.AreEqual(se3.S3.S2.S1.MyE1, e1);
+
+        Assert.AreEqual(se4.S4.MyE4, e4);
+        Assert.AreEqual(se4.S4.S3.MyE3, e3);
+        Assert.AreEqual(se4.S4.S3.S2.MyE2, e2);
+        Assert.AreEqual(se4.S4.S3.S2.S1.MyE1, e1);
+
+        var so1 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 0);
+        var so2 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 1);
+        var re1 = session.Query.All<ReferencedEntity>().Single(e => e.A == 1 && e.B == 2);
+        var re2 = session.Query.All<ReferencedEntity>().Single(e => e.A == 2 && e.B == 3);
+        if (!IncludeTypeIdModifier.IsEnabled) {
+          Assert.AreEqual(so1.Reference, re1);
+          Assert.AreEqual(so2.Reference, re2);
+        }
+
+        Assert.AreEqual(2, session.Query.All<NewSync<M2.BusinessContact>>().Count());
+        Assert.AreEqual("Alex", session.Query.All<NewSync<M2.Boy>>().First().NewRoot.Name);
       }
     }
 
@@ -390,81 +487,81 @@ namespace Xtensive.Orm.Tests.Upgrade
       Require.ProviderIsNot(StorageProvider.Firebird);
 
       await BuildDomainAsync("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          Assert.AreEqual(2, session.Query.All<Model.Version2.Person>().Count());
-          Assert.AreEqual("Island Trading", session.Query.All<Model.Version2.Person>()
-            .First(person => person.ContactName == "Helen Bennett").CompanyName);
-          Assert.AreEqual(5, session.Query.All<Model.Version2.BusinessContact>().Count());
-          Assert.AreEqual("Suyama", session.Query.All<Model.Version2.BusinessContact>()
-            .First(contact => contact.FirstName == "Michael").LastName);
-          Assert.AreEqual("Fuller", session.Query.All<Model.Version2.Employee>()
-            .First(employee => employee.FirstName == "Nancy").ReportsTo.LastName);
-          Assert.AreEqual(123, session.Query.All<Model.Version2.Person>()
-            .First(person => person.ContactName == "Helen Bennett").PassportNumber);
-          Assert.AreEqual(1, session.Query.All<Model.Version2.Order>()
-            .First(order => order.ProductName == "Maxilaku").Number);
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
+        Assert.AreEqual(2, session.Query.All<Model.Version2.Person>().Count());
+        Assert.AreEqual("Island Trading", session.Query.All<Model.Version2.Person>()
+          .First(person => person.ContactName == "Helen Bennett").CompanyName);
+        Assert.AreEqual(5, session.Query.All<Model.Version2.BusinessContact>().Count());
+        Assert.AreEqual("Suyama", session.Query.All<Model.Version2.BusinessContact>()
+          .First(contact => contact.FirstName == "Michael").LastName);
+        Assert.AreEqual("Fuller", session.Query.All<Model.Version2.Employee>()
+          .First(employee => employee.FirstName == "Nancy").ReportsTo.LastName);
+        Assert.AreEqual(123, session.Query.All<Model.Version2.Person>()
+          .First(person => person.ContactName == "Helen Bennett").PassportNumber);
+        Assert.AreEqual(1, session.Query.All<Model.Version2.Order>()
+          .First(order => order.ProductName == "Maxilaku").Number);
 
-          _ = session.Query.All<Product>().Single(product => product.Title == "DataObjects.NET");
-          _ = session.Query.All<Product>().Single(product => product.Title == "HelpServer");
-          Assert.AreEqual(2, session.Query.All<Product>().Count());
-          var webApps = session.Query.All<ProductGroup>().Single(group => group.Name == "Web applications");
-          var frameworks = session.Query.All<ProductGroup>().Single(group => group.Name == "Frameworks");
-          Assert.AreEqual(1, webApps.Products.Count);
-          Assert.AreEqual(1, frameworks.Products.Count);
+        _ = session.Query.All<Product>().Single(product => product.Title == "DataObjects.NET");
+        _ = session.Query.All<Product>().Single(product => product.Title == "HelpServer");
+        Assert.AreEqual(2, session.Query.All<Product>().Count());
+        var webApps = session.Query.All<ProductGroup>().Single(group => group.Name == "Web applications");
+        var frameworks = session.Query.All<ProductGroup>().Single(group => group.Name == "Frameworks");
+        Assert.AreEqual(1, webApps.Products.Count);
+        Assert.AreEqual(1, frameworks.Products.Count);
 
-          var allBoys = session.Query.All<Boy>().ToArray();
-          var allGirls = session.Query.All<Girl>().ToArray();
-          Assert.AreEqual(2, allBoys.Length);
-          Assert.AreEqual(2, allGirls.Length);
-          var alex = allBoys.Single(boy => boy.Name == "Alex");
-          foreach (var girl in allGirls)
-            Assert.IsTrue(alex.MeetWith.Contains(girl));
-
-          var e1 = session.Query.All<Entity1>().Single();
-          var e2 = session.Query.All<Entity2>().Single();
-          var e3 = session.Query.All<Entity3>().Single();
-          var e4 = session.Query.All<Entity4>().Single();
-          var se1 = session.Query.All<StructureContainer1>().Single();
-          var se2 = session.Query.All<StructureContainer2>().Single();
-          var se3 = session.Query.All<StructureContainer3>().Single();
-          var se4 = session.Query.All<StructureContainer4>().Single();
-
-          Assert.AreEqual(1, e1.Code);
-          Assert.AreEqual(2, e2.Code);
-          Assert.AreEqual(3, e3.Code);
-          Assert.AreEqual(4, e4.Code);
-
-          Assert.AreEqual(e1, e2.E1);
-          Assert.AreEqual(e2, e3.E2);
-          Assert.AreEqual(e3, e4.E3);
-
-          Assert.AreEqual(se1.S1.MyE1, e1);
-
-          Assert.AreEqual(se2.S2.MyE2, e2);
-          Assert.AreEqual(se2.S2.S1.MyE1, e1);
-
-          Assert.AreEqual(se3.S3.MyE3, e3);
-          Assert.AreEqual(se3.S3.S2.MyE2, e2);
-          Assert.AreEqual(se3.S3.S2.S1.MyE1, e1);
-
-          Assert.AreEqual(se4.S4.MyE4, e4);
-          Assert.AreEqual(se4.S4.S3.MyE3, e3);
-          Assert.AreEqual(se4.S4.S3.S2.MyE2, e2);
-          Assert.AreEqual(se4.S4.S3.S2.S1.MyE1, e1);
-
-          var so1 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 0);
-          var so2 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 1);
-          var re1 = session.Query.All<ReferencedEntity>().Single(e => e.A == 1 && e.B == 2);
-          var re2 = session.Query.All<ReferencedEntity>().Single(e => e.A == 2 && e.B == 3);
-          if (!IncludeTypeIdModifier.IsEnabled) {
-            Assert.AreEqual(so1.Reference, re1);
-            Assert.AreEqual(so2.Reference, re2);
-          }
-
-          Assert.AreEqual(2, session.Query.All<NewSync<M2.BusinessContact>>().Count());
-          Assert.AreEqual("Alex", session.Query.All<NewSync<M2.Boy>>().First().NewRoot.Name);
+        var allBoys = session.Query.All<Boy>().ToArray();
+        var allGirls = session.Query.All<Girl>().ToArray();
+        Assert.AreEqual(2, allBoys.Length);
+        Assert.AreEqual(2, allGirls.Length);
+        var alex = allBoys.Single(boy => boy.Name == "Alex");
+        foreach (var girl in allGirls) {
+          Assert.IsTrue(alex.MeetWith.Contains(girl));
         }
+
+        var e1 = session.Query.All<Entity1>().Single();
+        var e2 = session.Query.All<Entity2>().Single();
+        var e3 = session.Query.All<Entity3>().Single();
+        var e4 = session.Query.All<Entity4>().Single();
+        var se1 = session.Query.All<StructureContainer1>().Single();
+        var se2 = session.Query.All<StructureContainer2>().Single();
+        var se3 = session.Query.All<StructureContainer3>().Single();
+        var se4 = session.Query.All<StructureContainer4>().Single();
+
+        Assert.AreEqual(1, e1.Code);
+        Assert.AreEqual(2, e2.Code);
+        Assert.AreEqual(3, e3.Code);
+        Assert.AreEqual(4, e4.Code);
+
+        Assert.AreEqual(e1, e2.E1);
+        Assert.AreEqual(e2, e3.E2);
+        Assert.AreEqual(e3, e4.E3);
+
+        Assert.AreEqual(se1.S1.MyE1, e1);
+
+        Assert.AreEqual(se2.S2.MyE2, e2);
+        Assert.AreEqual(se2.S2.S1.MyE1, e1);
+
+        Assert.AreEqual(se3.S3.MyE3, e3);
+        Assert.AreEqual(se3.S3.S2.MyE2, e2);
+        Assert.AreEqual(se3.S3.S2.S1.MyE1, e1);
+
+        Assert.AreEqual(se4.S4.MyE4, e4);
+        Assert.AreEqual(se4.S4.S3.MyE3, e3);
+        Assert.AreEqual(se4.S4.S3.S2.MyE2, e2);
+        Assert.AreEqual(se4.S4.S3.S2.S1.MyE1, e1);
+
+        var so1 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 0);
+        var so2 = session.Query.All<MyStructureOwner>().Single(e => e.Id == 1);
+        var re1 = session.Query.All<ReferencedEntity>().Single(e => e.A == 1 && e.B == 2);
+        var re2 = session.Query.All<ReferencedEntity>().Single(e => e.A == 2 && e.B == 3);
+        if (!IncludeTypeIdModifier.IsEnabled) {
+          Assert.AreEqual(so1.Reference, re1);
+          Assert.AreEqual(so2.Reference, re2);
+        }
+
+        Assert.AreEqual(2, session.Query.All<NewSync<M2.BusinessContact>>().Count());
+        Assert.AreEqual("Alex", session.Query.All<NewSync<M2.Boy>>().First().NewRoot.Name);
       }
     }
 
@@ -478,7 +575,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.Model.Version" + version);
-      configuration.Types.Register(typeof (Upgrader));
+      configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
       }
@@ -508,10 +605,14 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      foreach (var type in types)
+      foreach (var type in types) {
         configuration.Types.Register(type);
-      if (keyCacheSize.HasValue)
+      }
+
+      if (keyCacheSize.HasValue) {
         configuration.KeyGeneratorCacheSize = keyCacheSize.Value;
+      }
+
       configuration.Types.Register(typeof (Upgrader));
       using (Upgrader.Enable(version)) {
         domain = Domain.Build(configuration);
@@ -526,10 +627,14 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
-      foreach (var type in types)
+      foreach (var type in types) {
         configuration.Types.Register(type);
-      if (keyCacheSize.HasValue)
+      }
+
+      if (keyCacheSize.HasValue) {
         configuration.KeyGeneratorCacheSize = keyCacheSize.Value;
+      }
+
       configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
         domain = await Domain.BuildAsync(configuration);
@@ -594,7 +699,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         };
 
         // Orders
-        new Order {
+        _ = new Order {
           OrderNumber = "1",
           Customer = helen,
           Employee = michael,
@@ -602,7 +707,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           OrderDate = new DateTime(1996, 7, 4),
           ProductName = "Maxilaku"
         };
-        new Order {
+        _ = new Order {
           OrderNumber = "2",
           Customer = helen,
           Employee = nancy,
@@ -610,7 +715,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           OrderDate = new DateTime(1996, 7, 4),
           ProductName = "Filo Mix"
         };
-        new Order {
+        _ = new Order {
           OrderNumber = "3",
           Customer = philip,
           Employee = michael,
@@ -618,7 +723,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           OrderDate = new DateTime(1996, 7, 4),
           ProductName = "Tourtiere"
         };
-        new Order {
+        _ = new Order {
           OrderNumber = "4",
           Customer = philip,
           Employee = nancy,
@@ -628,12 +733,12 @@ namespace Xtensive.Orm.Tests.Upgrade
         };
 
         // Products & catgories
-        new Category {
+        _ = new Category {
           Name = "Web applications",
           Products = { new Model.Version1.Product { Name = "HelpServer", IsActive = true } }
         };
 
-        new Category {
+        _ = new Category {
           Name = "Frameworks",
           Products = { new Model.Version1.Product { Name = "DataObjects.NET", IsActive = true } }
         };
@@ -643,9 +748,9 @@ namespace Xtensive.Orm.Tests.Upgrade
         var dmitry = new Model.Version1.Boy("Dmitry");
         var elena = new Model.Version1.Girl("Elena");
         var tanya = new Model.Version1.Girl("Tanya");
-        alex.FriendlyGirls.Add(elena);
-        alex.FriendlyGirls.Add(tanya);
-        elena.FriendlyBoys.Add(dmitry);
+        _ = alex.FriendlyGirls.Add(elena);
+        _ = alex.FriendlyGirls.Add(tanya);
+        _ = elena.FriendlyBoys.Add(dmitry);
 
         // EntityX
         var e1 = new Model.Version1.Entity1(1);
@@ -660,15 +765,15 @@ namespace Xtensive.Orm.Tests.Upgrade
         var se4 = new Model.Version1.StructureContainer4 { S4 = new Structure4 { E4 = e4, S3 = se3.S3 } };
 
         // MyStructureOwner, ReferencedEntity
-        new Model.Version1.MyStructureOwner(0) { Structure = new MyStructure { A = 1, B = 2 } };
-        new Model.Version1.MyStructureOwner(1) { Structure = new MyStructure { A = 2, B = 3 } };
-        new Model.Version1.ReferencedEntity(1, 2);
-        new Model.Version1.ReferencedEntity(2, 3);
+        _ = new Model.Version1.MyStructureOwner(0) { Structure = new MyStructure { A = 1, B = 2 } };
+        _ = new Model.Version1.MyStructureOwner(1) { Structure = new MyStructure { A = 2, B = 3 } };
+        _ = new Model.Version1.ReferencedEntity(1, 2);
+        _ = new Model.Version1.ReferencedEntity(2, 3);
 
         // Generic types
-        new Sync<M1.Person> { Root = helen };
-        new Sync<M1.Person> { Root = director };
-        new Sync<M1.Boy> { Root = alex };
+        _ = new Sync<M1.Person> { Root = helen };
+        _ = new Sync<M1.Person> { Root = director };
+        _ = new Sync<M1.Boy> { Root = alex };
 
         // Commiting changes
         transactionScope.Complete();

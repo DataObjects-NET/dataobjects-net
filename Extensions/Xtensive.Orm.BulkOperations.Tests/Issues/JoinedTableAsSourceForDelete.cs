@@ -1,15 +1,10 @@
-using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using TestCommon.Model;
 using Xtensive.Orm.BulkOperations.Tests.Issues.WrongAliassesIssue;
-using Xtensive.Sql;
 
 namespace Xtensive.Orm.BulkOperations.Tests.Issues
 {
-  public class JoinedTableAsSourceForOperationsCauseWrongAliases : AutoBuildTest
+  public class JoinedTableAsSourceForOperationsCauseWrongAliases : BulkOperationBaseTest
   {
     [Test]
     public void CustomerCase()
