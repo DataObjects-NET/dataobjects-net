@@ -375,7 +375,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         ftIndex = model2SchemaTable.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.FullTextCatalog, Is.Not.Null);
-        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{database}_{Schema1}"));
+        Assert.That(ftIndex.FullTextCatalog, Is.EqualTo($"{database}_{Schema2}"));
       }
     }
 
@@ -596,7 +596,7 @@ namespace Xtensive.Orm.Tests.Upgrade
         domain.Extensions.Clear();
         _ = domain.StorageNodeManager.AddNode(nodeConfiguration2);
         var node2StorageModel = domain.Extensions.Get<StorageModel>();
-        table = node2StorageModel.Tables[$"{Schema1}:TestEntity"];
+        table = node2StorageModel.Tables[$"{Schema2}:TestEntity"];
         Assert.That(table, Is.Not.Null);
         ftIndex = table.FullTextIndexes[0];
         Assert.That(ftIndex, Is.Not.Null);

@@ -318,7 +318,10 @@ namespace Xtensive.Orm.Tests.Upgrade
         : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) ; });
       Assert.That(ex.ComparisonResult, Is.Not.Null);
       var allActions = ex.ComparisonResult.UpgradeActions.Flatten().ToList();
-      Assert.That(allActions.Count(), Is.EqualTo(17));
+      var expectedActionsCount = StorageProviderInfo.Instance.CheckProviderIsNot(StorageProvider.SqlServer)
+        ? 15
+        : 17;
+      Assert.That(allActions.Count(), Is.EqualTo(expectedActionsCount));
       Assert.That(ex.ComparisonResult.HasUnsafeActions, Is.True);
       Assert.That(ex.ComparisonResult.UnsafeActions.Count, Is.EqualTo(1));
       Assert.That(ex.ComparisonResult.UnsafeActions.OfType<DataAction>().Count(), Is.EqualTo(1));
