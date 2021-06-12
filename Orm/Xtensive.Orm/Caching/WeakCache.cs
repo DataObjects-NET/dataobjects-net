@@ -43,21 +43,24 @@ namespace Xtensive.Caching
     #region Properites: KeyExtractor, ChainedCache, TrackResurrection, EfficiencyFactor, Count, Size
 
     /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor {
+    public Converter<TItem, TKey> KeyExtractor
+    {
       [DebuggerStepThrough]
-      get { return keyExtractor; }
+      get => keyExtractor;
     }
 
     /// <summary>
     /// Gets a value indicating whether this cache tracks resurrection.
     /// </summary>
-    public bool TrackResurrection {
+    public bool TrackResurrection
+    {
       [DebuggerStepThrough]
-      get { return trackResurrection; }
+      get => trackResurrection;
     }
 
     /// <inheritdoc/>
-    public int Count {
+    public int Count
+    {
       [DebuggerStepThrough]
       get => items?.Count ?? 0;
     }
@@ -65,25 +68,16 @@ namespace Xtensive.Caching
     #endregion
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
-      get {
-        TItem item;
-        if (TryGetItem(key, markAsHit, out item))
-          return item;
-        else
-          return null;
-      }
-    }
+    public TItem this[TKey key, bool markAsHit] => TryGetItem(key, markAsHit, out var item) ? item : null;
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       RegisterOperation(1);
-      var cached = default(GCHandle);
-      if (items?.TryGetValue(key, out cached) == true) {
-        item = (TItem) cached.Target;
-        if (item!=null) {
+      if (items != null && items.TryGetValue(key, out var cached)) {
+        item = ExtractTarget(cached);
+        if (item != null) {
           return true;
         }
 
@@ -96,25 +90,15 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool Contains(TItem item)
-    {
-      return ContainsKey(KeyExtractor(item));
-    }
+    public bool Contains(TItem item) => ContainsKey(KeyExtractor(item));
 
     /// <inheritdoc/>
-    public bool ContainsKey(TKey key)
-    {
-      TItem item;
-      return TryGetItem(key, false, out item);
-    }
+    public bool ContainsKey(TKey key) => TryGetItem(key, false, out var _);
 
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public void Add(TItem item)
-    {
-      Add(item, true);
-    }
+    public void Add(TItem item) => Add(item, true);
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -123,15 +107,17 @@ namespace Xtensive.Caching
       ArgumentValidator.EnsureArgumentNotNull(item, nameof(item));
       RegisterOperation(2);
       var key = KeyExtractor(item);
-      if (items==null) {
-        items = new Dictionary<TKey, GCHandle>();
+      if (items == null) {
+        items = new Dictionary<TKey, GCHandle>(NoGcCount);
       }
-      if (items.TryGetValue(key, out var cached)) {
-        if (!replaceIfExists) {
-          var cachedItem = (TItem) cached.Target;
-          if (cachedItem!=null) {
-            return cachedItem;
-          }
+      else if (replaceIfExists) {
+        if (items.Remove(key, out var cached)) {
+          cached.Free();
+        }
+      }
+      else if (items.TryGetValue(key, out var cached)) {
+        if (ExtractTarget(cached) is TItem cachedItem) {
+          return cachedItem;
         }
         items.Remove(key);
         cached.Free();
@@ -151,9 +137,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     public virtual void RemoveKey(TKey key)
     {
-      var cached = default(GCHandle);
-      if (items?.TryGetValue(key, out cached) == true) {
-        items.Remove(key);
+      if (items != null && items.Remove(key, out var cached) == true) {
         cached.Free();
       }
     }
@@ -173,7 +157,7 @@ namespace Xtensive.Caching
           try {
             pair.Value.Free();
           }
-          catch {}
+          catch { }
         }
       }
       finally {
@@ -190,7 +174,7 @@ namespace Xtensive.Caching
     public virtual void CollectGarbage()
     {
       var count = items?.Count ?? 0;
-      if (count<=NoGcCount) {
+      if (count <= NoGcCount) {
         return;
       }
 
@@ -198,12 +182,11 @@ namespace Xtensive.Caching
       int removedCount = 0;
       try {
         // Filtering
-        var newItems = new Dictionary<TKey, GCHandle>();
-        foreach (var pair in items) {
-          var cached = pair.Value;
+        var newItems = new Dictionary<TKey, GCHandle>(NoGcCount);
+        foreach (var (key, cached) in items) {
           var item = cached.Target;
-          if (item!=null)
-            newItems.Add(pair.Key, cached);
+          if (item != null)
+            newItems.Add(key, cached);
           else
             cached.Free();
         }
@@ -220,7 +203,7 @@ namespace Xtensive.Caching
         // Logging
         if (CoreLog.IsLogged(LogLevel.Debug)) {
           CoreLog.Debug("WeakCache.CollectGarbage: removed: {0} from {1}", removedCount, count);
-          if (error!=null)
+          if (error != null)
             CoreLog.Debug(error, "Caught at WeakCache.CollectGarbage");
         }
       }
@@ -232,17 +215,13 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
     public virtual IEnumerator<TItem> GetEnumerator()
     {
       foreach (var pair in items ?? Enumerable.Empty<KeyValuePair<TKey, GCHandle>>()) {
-        var item = ExtractTarget(pair.Value);
-        if (item!=null)
+        if (ExtractTarget(pair.Value) is TItem item)
           yield return item;
       }
     }
@@ -288,14 +267,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     protected virtual void Dispose(bool disposing)
     {
-      if (items!=null) {
-        try {
-          Clear();
-        }
-        finally {
-          items = null;
-        }
-      }
+      Clear();
     }
 
     /// <summary>
