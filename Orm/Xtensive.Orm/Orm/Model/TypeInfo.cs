@@ -767,7 +767,7 @@ namespace Xtensive.Orm.Model
 
       // fixing reference fields that are marked as not nullable
       foreach (var field in Fields.Where(f => f.IsEntity && !f.IsPrimaryKey && f.IsNullable==false)) {
-        ref var segment = ref field.MappingInfo;
+        var segment = field.MappingInfo;
         for (int j = segment.Offset; j < segment.EndOffset; j++) {
           nullabilityMap[j] = true;
         }

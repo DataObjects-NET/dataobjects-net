@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
 
       var persistentType = structureField.ReflectedType.Model.Types[structureField.ValueType];
-      ref var fieldMappingInfo = ref structureField.MappingInfo;
+      var fieldMappingInfo = structureField.MappingInfo;
       var mapping = new Segment<int>(offset + fieldMappingInfo.Offset, fieldMappingInfo.Length);
       var result = new StructureFieldExpression(persistentType, structureField, mapping, null, false);
       var processedFields = new List<PersistentFieldExpression>(persistentType.Fields.Count);

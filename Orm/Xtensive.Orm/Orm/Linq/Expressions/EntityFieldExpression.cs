@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Linq.Expressions
       var entityType = entityField.ValueType;
       var persistentType = entityField.ReflectedType.Model.Types[entityType];
 
-      ref var mappingInfo = ref entityField.MappingInfo;
+      var mappingInfo = entityField.MappingInfo;
       var mapping = new Segment<int>(mappingInfo.Offset + offset, mappingInfo.Length);
       var keyFields = persistentType.Key.Fields;
       var keyExpression = KeyExpression.Create(persistentType, offset + mappingInfo.Offset);

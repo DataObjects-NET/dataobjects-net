@@ -296,7 +296,7 @@ namespace Xtensive.Orm
           SystemBeforeTupleChange();
         }
 
-        ref var fieldMappingInfo = ref field.MappingInfo;
+        var fieldMappingInfo = field.MappingInfo;
         if (value == null) {
           for (var i = 0; i < fieldMappingInfo.Length; i++) {
             Tuple.SetValue(fieldMappingInfo.Offset + i, null);
@@ -803,7 +803,7 @@ namespace Xtensive.Orm
         field = TypeInfo.FieldMap[field];
       if (field.ReflectedType!=TypeInfo)
         throw new ArgumentException(Strings.ExFieldBelongsToADifferentType, "field");
-      ref var mappingInfo = ref field.MappingInfo;
+      var mappingInfo = field.MappingInfo;
       if (mappingInfo.Length==0)
         return 0; // EntitySet or another proxy
 

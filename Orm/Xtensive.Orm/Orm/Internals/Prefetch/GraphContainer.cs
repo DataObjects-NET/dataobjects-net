@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         return false;
       var tuple = state.Tuple;
       var fieldStateMap = tuple.GetFieldStateMap(TupleFieldState.Available);
-      ref var fieldMappingInfo = ref field.MappingInfo;
+      var fieldMappingInfo = field.MappingInfo;
       for (var i = 0; i < fieldMappingInfo.Length; i++)
         if (!fieldStateMap[fieldMappingInfo.Offset + i])
           return false;

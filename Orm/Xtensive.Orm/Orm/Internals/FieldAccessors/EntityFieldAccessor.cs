@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Internals.FieldAccessors
         throw new InvalidOperationException(string.Format(
           Strings.ExEntityXIsBoundToAnotherSession, entity.Key)); 
 
-      ref var mappingInfo = ref field.MappingInfo;
+      var mappingInfo = field.MappingInfo;
       int fieldIndex = mappingInfo.Offset;
       if (entity==null) {
         int nextFieldIndex = fieldIndex + mappingInfo.Length;
