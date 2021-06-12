@@ -42,16 +42,16 @@
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <ArtifactsDir Condition="'$(ArtifactsDir)' == ''">$(SolutionDir)_Build\</ArtifactsDir>
-    <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath('$(ArtifactsDir)obj\$(Configuration)\$(MSBuildProjectName)'))\</BaseIntermediateOutputPath>
-    <BaseOutputPath >$([System.IO.Path]::GetFullPath('$(ArtifactsDir)bin\$(Configuration)'))\</BaseOutputPath>
-    <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))">$([System.IO.Path]::GetFullPath('$(ArtifactsDir)tests'))\</BaseOutputPath>
-    <OutputPath>$(BaseOutputPath)</OutputPath>
+    <BaseIntermediateOutputPath>$(ArtifactsDir)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <BaseOutputPath>$(ArtifactsDir)bin\$(Configuration)\</BaseOutputPath>
+    <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))">$(ArtifactsDir)tests\</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)lib\</OutputPath>
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
-
   <!-- Populate standard properties. -->
   <PropertyGroup>
     <Product>$(DoProductName)</Product>
@@ -65,14 +65,12 @@
     <PackageIcon>do-nuget.png</PackageIcon>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
-    <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages\</PackageOutputPath>
-    <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
+    <PackageOutputPath>$(BaseOutputPath)packages\</PackageOutputPath>
+    <RepositoryUrl>https://github.com/servicetitan/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <GeneratePackageOnBuild Condition="$(DoGeneratePackage) == 'true' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>
