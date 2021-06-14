@@ -20,7 +20,6 @@ using Xtensive.Core;
 
 using Xtensive.Sorting;
 
-
 namespace Xtensive.Reflection
 {
   /// <summary>
@@ -44,6 +43,24 @@ namespace Xtensive.Reflection
 
     private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
       new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
+
+    private class TypesEqualityComparer : IEqualityComparer<(Type, Type[])>
+    {
+      public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
+         x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
+
+      public int GetHashCode((Type, Type[]) obj)
+      {
+        var hash = obj.Item1.GetHashCode();
+        for (int i = obj.Item2.Length; i-- > 0;) {
+          hash = HashCode.Combine(hash, obj.Item2[i]);
+        }
+        return hash;
+      }
+    }
+
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
+      new ConcurrentDictionary<(Type, Type[]), ConstructorInfo>(new TypesEqualityComparer());
 
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
@@ -482,7 +499,7 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="assembly">Assembly where the type is located.</param>
     /// <param name="typeName">Name of the type to instantiate.</param>
-    /// <param name="genericArguments">Generic arguments for the type to instantiate 
+    /// <param name="genericArguments">Generic arguments for the type to instantiate
     /// (<see langword="null"/> means type isn't a generic type definition).</param>
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
@@ -501,7 +518,7 @@ namespace Xtensive.Reflection
     /// or an error has occurred.
     /// </summary>
     /// <param name="type">Generic type definition to instantiate.</param>
-    /// <param name="genericArguments">Generic arguments for the type to instantiate 
+    /// <param name="genericArguments">Generic arguments for the type to instantiate
     /// (<see langword="null"/> means <paramref name="type"/> isn't a generic type definition).</param>
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
@@ -592,38 +609,40 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Gets the public constructor of type <paramref name="type"/> 
-    /// accepting specified <paramref name="arguments"/>.
+    /// Gets the public constructor of type <paramref name="type"/>
+    /// accepting specified <paramref name="argumentTypes"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
-    /// <param name="arguments">The arguments.</param>
+    /// <param name="argumentTypes">The argument types.</param>
     /// <returns>
     /// Appropriate constructor, if a single match is found;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public static ConstructorInfo GetConstructor(this Type type, object[] arguments)
-    {
+    public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
+      constructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+
+    private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
+      (var type, var argumentTypes) = t;
       var constructors =
         from ctor in type.GetConstructors()
         let parameters = ctor.GetParameters()
-        where parameters.Length == arguments.Length
-        let zipped = parameters.Zip(arguments, (parameter, argument) => (parameter, argument))
+        where parameters.Length == argumentTypes.Length
+        let zipped = parameters.Zip(argumentTypes, (parameter, argumentType) => (parameter, argumentType))
         where (
           from pair in zipped
           let parameter = pair.parameter
           let parameterType = parameter.ParameterType
-          let argument = pair.argument
-          let argumentType = argument == null ? WellKnownTypes.Object : argument.GetType()
+          let argumentType = pair.argumentType
           select
             !parameter.IsOut && (
-              parameterType.IsAssignableFrom(argumentType) ||
-              (!parameterType.IsValueType && argument == null) ||
-              (parameterType.IsNullable() && argument == null)
+              parameterType.IsAssignableFrom(argumentType ?? WellKnownTypes.Object) ||
+              (!parameterType.IsValueType && argumentType == null) ||
+              (parameterType.IsNullable() && argumentType == null)
             )
         ).All(passed => passed)
         select ctor;
       return constructors.SingleOrDefault();
-    }
+    };
 
     /// <summary>
     /// Orders the specified <paramref name="types"/> by their inheritance
@@ -880,7 +899,7 @@ namespace Xtensive.Reflection
     public static bool IsFinal<T>() => IsFinal(typeof(T));
 
     /// <summary>
-    /// Gets the delegate "Invoke" method (describing the delegate) for 
+    /// Gets the delegate "Invoke" method (describing the delegate) for
     /// the specified <paramref name="delegateType"/>.
     /// </summary>
     /// <param name="delegateType">Type of the delegate to get the "Invoke" method of.</param>
@@ -998,7 +1017,7 @@ namespace Xtensive.Reflection
     /// <returns>
     /// If <paramref name="type"/> is a reference type or a <see cref="Nullable{T}"/> instance
     /// returns <paramref name="type"/>.
-    /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>. 
+    /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>.
     /// </returns>
     public static Type ToNullable(this Type type)
     {

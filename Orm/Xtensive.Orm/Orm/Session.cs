@@ -70,6 +70,12 @@ namespace Xtensive.Orm
     private const string IdentifierFormat = "#{0}";
     private const string FullNameFormat = "{0}, #{1}";
 
+    private static readonly Type
+      typeofSession = typeof(Session),
+      typeofSessionConfiguration = typeof(SessionConfiguration),
+      typeofSessionHandler = typeof(SessionHandler),
+      typeofServiceContainer = typeof(ServiceContainer);
+
     private static Func<Session> resolver;
     private static long lastUsedIdentifier;
 
@@ -291,9 +297,9 @@ namespace Xtensive.Orm
     private IServiceContainer CreateSystemServices()
     {
       var registrations = new List<ServiceRegistration>{
-        new ServiceRegistration(typeof (Session), this),
-        new ServiceRegistration(typeof (SessionConfiguration), Configuration),
-        new ServiceRegistration(typeof (SessionHandler), Handler),
+        new ServiceRegistration(typeofSession, this),
+        new ServiceRegistration(typeofSessionConfiguration, Configuration),
+        new ServiceRegistration(typeofSessionHandler, Handler),
       };
       Handler.AddSystemServices(registrations);
       return new ServiceContainer(registrations, Domain.Services);
@@ -301,8 +307,8 @@ namespace Xtensive.Orm
 
     private IServiceContainer CreateServices()
     {
-      var userContainerType = Configuration.ServiceContainerType ?? typeof(ServiceContainer);
-      var registrations = Domain.Configuration.Types.SessionServices.SelectMany(ServiceRegistration.CreateAll);
+      var userContainerType = Configuration.ServiceContainerType ?? typeofServiceContainer;
+      var registrations = Domain.Configuration.Types.ServiceRegistrations;
       var systemContainer = CreateSystemServices();
       var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
       return new ServiceContainer(registrations, userContainer);

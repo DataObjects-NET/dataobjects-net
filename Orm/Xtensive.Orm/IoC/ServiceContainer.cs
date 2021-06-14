@@ -19,14 +19,18 @@ using ConfigurationSection = Xtensive.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.IoC
 {
+  using Key = ValueTuple<Type, string>;
+
   /// <summary>
   /// Default IoC (inversion of control) container implementation.
   /// </summary>
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
-    private readonly Dictionary<object, List<ServiceRegistration>> types =
-      new Dictionary<object, List<ServiceRegistration>>();
+    private static Type typeofIServiceContainer =   typeof(IServiceContainer);
+
+    private readonly Dictionary<Key, List<ServiceRegistration>> types =
+      new Dictionary<Key, List<ServiceRegistration>>();
     private readonly Dictionary<ServiceRegistration, object> instances =
       new Dictionary<ServiceRegistration, object>();
     private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
@@ -42,14 +46,13 @@ namespace Xtensive.IoC
     {
       // Not very optimal, but...
       lock (_lock) {
-        List<ServiceRegistration> list;
-        if (!types.TryGetValue(GetKey(serviceType, name), out list))
+        if (!types.TryGetValue(GetKey(serviceType, name), out var list))
           return null;
-        if (list.Count == 0)
-          return null;
-        if (list.Count > 1)
-          throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments);
-        return GetOrCreateInstances(list).Single();
+        return list.Count switch {
+          0 => null,
+          1 => GetOrCreateInstances(list).Single(),
+          _ => throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments)
+        };
       }
     }
 
@@ -58,10 +61,9 @@ namespace Xtensive.IoC
     {
       // Not very optimal, but...
       lock (_lock) {
-        List<ServiceRegistration> list;
-        if (!types.TryGetValue(GetKey(serviceType, null), out list))
-          return EnumerableUtils<object>.Empty;
-        return GetOrCreateInstances(list);
+        return types.TryGetValue(GetKey(serviceType, null), out var list)
+          ? GetOrCreateInstances(list)
+          : Array.Empty<object>();
       }
     }
 
@@ -111,13 +113,8 @@ namespace Xtensive.IoC
 
     #region Private \ internal methods
 
-    private static object GetKey(Type serviceType, string name)
-    {
-      if (name.IsNullOrEmpty())
-        return serviceType;
-      else
-        return new ObjectPair(serviceType, name);
-    }
+    private static Key GetKey(Type serviceType, string name) =>
+      new Key(serviceType, string.IsNullOrEmpty(name) ? null : name);
 
     private IEnumerable<object> GetOrCreateInstances(IEnumerable<ServiceRegistration> services)
     {
@@ -141,11 +138,9 @@ namespace Xtensive.IoC
 
     private void Register(ServiceRegistration serviceRegistration)
     {
-      List<ServiceRegistration> list;
       var key = GetKey(serviceRegistration.Type, serviceRegistration.Name);
-      if (!types.TryGetValue(key, out list)) {
-        list = new List<ServiceRegistration>();
-        types[key] = list;
+      if (!types.TryGetValue(key, out var list)) {
+        types[key] = list = new List<ServiceRegistration>();
       }
       list.Add(serviceRegistration);
     }
@@ -201,24 +196,22 @@ namespace Xtensive.IoC
     public static IServiceContainer Create(Type containerType, object configuration, IServiceContainer parent)
     {
       ArgumentValidator.EnsureArgumentNotNull(containerType, "containerType");
-      if (!typeof(IServiceContainer).IsAssignableFrom(containerType))
+      if (!typeofIServiceContainer.IsAssignableFrom(containerType))
         throw new ArgumentException(string.Format(
-          Strings.ExContainerTypeMustImplementX, typeof(IServiceContainer).GetShortName()), "containerType");
+          Strings.ExContainerTypeMustImplementX, typeofIServiceContainer.GetShortName()), "containerType");
 
-      var possibleArgs =
-        Enumerable.Empty<object[]>()
-          .Append(new[] { configuration, parent })
-          .Append(new[] { configuration })
-          .Append(new[] { parent });
-      foreach (var args in possibleArgs) {
-        var ctor = containerType.GetConstructor(args);
-        if (ctor != null)
-          return (IServiceContainer) ctor.Invoke(args);
-      }
-
-      throw new ArgumentException(
-        Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType");
+      Type configurationType = configuration?.GetType(),
+        parentType = parent?.GetType();
+      return (IServiceContainer)(
+        FindConstructor(containerType, configurationType, parentType)?.Invoke(new[] { configuration, parent })
+        ?? FindConstructor(containerType, configurationType)?.Invoke(new[] { configuration })
+        ?? FindConstructor(containerType, parentType)?.Invoke(new[] { parent })
+        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType")
+      );
     }
+
+    private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
+      containerType.GetSingleConstructor(argumentTypes);
 
     #endregion
 
@@ -284,10 +277,8 @@ namespace Xtensive.IoC
       if (name.IsNullOrEmpty())
         name = string.Empty;
 
-      ContainerElement configuration = section == null ? null : section.Containers[name];
-
-      if (configuration == null)
-        configuration = new ContainerElement();
+      ContainerElement configuration = section?.Containers[name]
+        ?? new ContainerElement();
 
       var registrations = new List<ServiceRegistration>();
       var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
