@@ -38,10 +38,7 @@ namespace Xtensive.IoC
       return containers.GetValue(assembly, _assembly => {
         var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
         typeRegistry.Register(_assembly);
-        return new ServiceContainer(
-          from type in typeRegistry
-          from serviceRegistration in ServiceRegistration.CreateAll(type, true)
-          select serviceRegistration);
+        return new ServiceContainer(typeRegistry.SelectMany(type => ServiceRegistration.CreateAll(type, true)));
       });
     }
   }
