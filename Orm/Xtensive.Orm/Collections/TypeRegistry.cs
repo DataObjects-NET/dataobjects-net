@@ -11,7 +11,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Linq;
 using Xtensive.Core;
-
+using Xtensive.IoC;
 
 namespace Xtensive.Collections
 {
@@ -33,6 +33,7 @@ namespace Xtensive.Collections
     private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;
     private readonly Set<Assembly> assemblies = new Set<Assembly>();
+    protected ServiceRegistration[] serviceRegistrations;
 
     /// <summary>
     /// Gets assemblies containing registered types.
@@ -63,6 +64,7 @@ namespace Xtensive.Collections
       else {
         if (typeSet.Contains(type))
           return;
+        serviceRegistrations = null;
         types.Add(type);
         typeSet.Add(type);
         assemblies.Add(type.Assembly);

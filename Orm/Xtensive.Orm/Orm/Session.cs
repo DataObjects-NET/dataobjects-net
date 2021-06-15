@@ -311,7 +311,7 @@ namespace Xtensive.Orm
     private IServiceContainer CreateServices()
     {
       var userContainerType = Configuration.ServiceContainerType ?? typeofServiceContainer;
-      var registrations = Domain.Configuration.Types.SessionServices.SelectMany(ServiceRegistration.CreateAll);
+      var registrations = Domain.Configuration.Types.ServiceRegistrations;
       var systemContainer = CreateSystemServices();
       var userContainer = ServiceContainer.Create(userContainerType, systemContainer);
       return new ServiceContainer(registrations, userContainer);
