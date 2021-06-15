@@ -44,7 +44,7 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
       new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
 
-    private class TypesCompares : IEqualityComparer<(Type, Type[])>
+    private class TypesEqualityComparer : IEqualityComparer<(Type, Type[])>
     {
       public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
         x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
@@ -54,7 +54,7 @@ namespace Xtensive.Reflection
     }
 
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
-      new ConcurrentDictionary<(Type, Type[]), ConstructorInfo>(new TypesCompares());
+      new ConcurrentDictionary<(Type, Type[]), ConstructorInfo>(new TypesEqualityComparer());
 
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
