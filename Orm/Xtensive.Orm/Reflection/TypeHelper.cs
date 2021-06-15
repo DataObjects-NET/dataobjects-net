@@ -47,8 +47,7 @@ namespace Xtensive.Reflection
     private class TypesCompares : IEqualityComparer<(Type, Type[])>
     {
       public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
-        x.Item1 == y.Item1
-        && x.Item2.Length == y.Item2.Length && x.Item2.Zip(y.Item2).All(t => t.First == t.Second);
+        x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
 
       public int GetHashCode((Type, Type[]) obj) =>
         HashCode.Combine(
