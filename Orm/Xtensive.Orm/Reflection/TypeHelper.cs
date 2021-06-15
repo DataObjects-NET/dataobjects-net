@@ -44,7 +44,7 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
       new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
 
-    class TypesCompares : IEqualityComparer<(Type, Type[])>
+    private class TypesCompares : IEqualityComparer<(Type, Type[])>
     {
       public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
         x.Item1 == y.Item1
