@@ -49,6 +49,7 @@ namespace Xtensive.Reflection
       public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
         x.Item1 == y.Item1
         && x.Item2.Length == y.Item2.Length && x.Item2.Zip(y.Item2).All(t => t.First == t.Second);
+
       public int GetHashCode((Type, Type[]) obj) =>
         HashCode.Combine(
           obj.Item1,
