@@ -202,14 +202,16 @@ namespace Xtensive.IoC
 
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
-      return TryConstruct(containerType, new[] { configurationType, parentType }, new[] { configuration, parent })
-        ?? TryConstruct(containerType, new[] { configurationType }, new[] { configuration })
-        ?? TryConstruct(containerType, new[] { parentType }, new[] { parent })
-        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType");
+      return (IServiceContainer)(
+        FindConstructor(containerType, configurationType, parentType)?.Invoke(new[] { configuration, parent })
+        ?? FindConstructor(containerType, configurationType)?.Invoke(new[] { configuration })
+        ?? FindConstructor(containerType, parentType)?.Invoke(new[] { parent })
+        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType")
+      );
     }
 
-    private static IServiceContainer TryConstruct(Type containerType, Type[] argumentTypes, object[] args) =>
-      (IServiceContainer)containerType.GetSingleConstructor(argumentTypes)?.Invoke(args);
+    private static ConstructorInfo FindConstructor(Type containerType, params Type[] argumentTypes) =>
+      containerType.GetSingleConstructor(argumentTypes);
 
     #endregion
 
