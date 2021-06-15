@@ -200,14 +200,16 @@ namespace Xtensive.IoC
         throw new ArgumentException(string.Format(
           Strings.ExContainerTypeMustImplementX, typeof(IServiceContainer).GetShortName()), "containerType");
 
-      return TryConstruct(containerType, configuration, parent)
-        ?? TryConstruct(containerType, configuration)
-        ?? TryConstruct(containerType, parent)
+      Type configurationType = configuration?.GetType(),
+        parentType = parent?.GetType();
+      return TryConstruct(containerType, new[] { configurationType, parentType }, new[] { configuration, parent })
+        ?? TryConstruct(containerType, new[] { configurationType }, new[] { configuration })
+        ?? TryConstruct(containerType, new[] { parentType }, new[] { parent })
         ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType");
     }
 
-    private static IServiceContainer TryConstruct(Type containerType, params object[] args) =>
-      (IServiceContainer)containerType.GetConstructor(args)?.Invoke(args);
+    private static IServiceContainer TryConstruct(Type containerType, Type[] argumentTypes, object[] args) =>
+      (IServiceContainer)containerType.GetSingleConstructor(argumentTypes)?.Invoke(args);
 
     #endregion
 
