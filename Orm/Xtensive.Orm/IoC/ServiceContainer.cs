@@ -27,6 +27,8 @@ namespace Xtensive.IoC
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
+    private static Type typeofIServiceContainer = typeof(IServiceContainer);
+
     private readonly Dictionary<Key, List<ServiceRegistration>> types =
       new Dictionary<Key, List<ServiceRegistration>>();
     private readonly Dictionary<ServiceRegistration, object> instances =
@@ -194,7 +196,7 @@ namespace Xtensive.IoC
     public static IServiceContainer Create(Type containerType, object configuration, IServiceContainer parent)
     {
       ArgumentValidator.EnsureArgumentNotNull(containerType, "containerType");
-      if (!typeof(IServiceContainer).IsAssignableFrom(containerType))
+      if (!typeofIServiceContainer.IsAssignableFrom(containerType))
         throw new ArgumentException(string.Format(
           Strings.ExContainerTypeMustImplementX, typeof(IServiceContainer).GetShortName()), "containerType");
 
