@@ -7,8 +7,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.Concurrent;
-using System.Reflection;
 using System.Linq;
+using System.Reflection;
 //using Xtensive.Collections;
 
 namespace Xtensive.Reflection
@@ -23,8 +23,15 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<AttributesKey, Attribute[]> attributesByMemberInfoAndSearchOptions
       = new ConcurrentDictionary<AttributesKey, Attribute[]>();
 
-    public static Attribute[] GetAttributes(this MemberInfo member, Type attributeType) =>
-      member.GetCustomAttributes(attributeType, false).Cast<Attribute>().ToArray();
+    public static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
+    {
+      var attrObjects = member.GetCustomAttributes(attributeType, false);
+      var attrs = new Attribute[attrObjects.Length];
+      for (int i = attrObjects.Length; i-- > 0;) {
+        attrs[i] = (Attribute)attrObjects[i];
+      }
+      return attrs;
+    }
 
     /// <summary>
     /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
