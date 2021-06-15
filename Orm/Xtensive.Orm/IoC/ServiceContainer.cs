@@ -198,7 +198,7 @@ namespace Xtensive.IoC
       ArgumentValidator.EnsureArgumentNotNull(containerType, "containerType");
       if (!typeofIServiceContainer.IsAssignableFrom(containerType))
         throw new ArgumentException(string.Format(
-          Strings.ExContainerTypeMustImplementX, typeof(IServiceContainer).GetShortName()), "containerType");
+          Strings.ExContainerTypeMustImplementX, typeofIServiceContainer.GetShortName()), "containerType");
 
       Type configurationType = configuration?.GetType(),
         parentType = parent?.GetType();
