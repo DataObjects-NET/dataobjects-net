@@ -100,6 +100,8 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public void Add(TItem item) => Add(item, true);
 
+    private static Dictionary<TKey, GCHandle> CreateDictionary() => new Dictionary<TKey, GCHandle>();
+
     /// <inheritdoc/>
     [SecuritySafeCritical]
     public virtual TItem Add(TItem item, bool replaceIfExists)
@@ -108,7 +110,7 @@ namespace Xtensive.Caching
       RegisterOperation(2);
       var key = KeyExtractor(item);
       if (items == null) {
-        items = new Dictionary<TKey, GCHandle>(NoGcCount);
+        items = CreateDictionary();
       }
       else if (replaceIfExists) {
         if (items.Remove(key, out var cached)) {
@@ -182,7 +184,7 @@ namespace Xtensive.Caching
       int removedCount = 0;
       try {
         // Filtering
-        var newItems = new Dictionary<TKey, GCHandle>(NoGcCount);
+        var newItems = CreateDictionary();
         foreach (var (key, cached) in items) {
           var item = cached.Target;
           if (item != null)
