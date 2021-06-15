@@ -50,10 +50,7 @@ namespace Xtensive.Reflection
         x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
 
       public int GetHashCode((Type, Type[]) obj) =>
-        HashCode.Combine(
-          obj.Item1,
-          obj.Item2.Aggregate(0, (total, o) => HashCode.Combine(total, o?.GetHashCode() ?? 0))
-        );
+        HashCode.Combine(obj.Item1, obj.Item2.Aggregate(0, HashCode.Combine));
     }
 
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
