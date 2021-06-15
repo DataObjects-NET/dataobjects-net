@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -84,10 +83,14 @@ namespace Xtensive.IoC
       if (type.IsAbstract)
         return Array.Empty<ServiceRegistration>();
 
-      IEnumerable< ServiceAttribute> attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
-      if (defaultOnly)
-        attributes = attributes.Where(a => a.Default);
-      return attributes.Select(sa => new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton)).ToArray();
+      var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
+      var registrations = new List<ServiceRegistration>(attributes.Length);
+      foreach (var sa in attributes) {
+        if (!defaultOnly || sa.Default) {
+          registrations.Add(new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton));
+        }
+      }
+      return registrations.ToArray();
     };
 
 
