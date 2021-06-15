@@ -27,7 +27,7 @@ namespace Xtensive.IoC
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
-    private static Type typeofIServiceContainer = typeof(IServiceContainer);
+    private static Type typeofIServiceContainer =   typeof(IServiceContainer);
 
     private readonly Dictionary<Key, List<ServiceRegistration>> types =
       new Dictionary<Key, List<ServiceRegistration>>();
@@ -200,20 +200,14 @@ namespace Xtensive.IoC
         throw new ArgumentException(string.Format(
           Strings.ExContainerTypeMustImplementX, typeof(IServiceContainer).GetShortName()), "containerType");
 
-      var possibleArgs =
-        Enumerable.Empty<object[]>()
-          .Append(new[] { configuration, parent })
-          .Append(new[] { configuration })
-          .Append(new[] { parent });
-      foreach (var args in possibleArgs) {
-        var ctor = containerType.GetConstructor(args);
-        if (ctor != null)
-          return (IServiceContainer) ctor.Invoke(args);
-      }
-
-      throw new ArgumentException(
-        Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType");
+      return TryConstruct(containerType, configuration, parent)
+        ?? TryConstruct(containerType, configuration)
+        ?? TryConstruct(containerType, parent)
+        ?? throw new ArgumentException(Strings.ExContainerTypeDoesNotProvideASuitableConstructor, "containerType");
     }
+
+    private static IServiceContainer TryConstruct(Type containerType, params object[] args) =>
+      (IServiceContainer)containerType.GetConstructor(args)?.Invoke(args);
 
     #endregion
 
