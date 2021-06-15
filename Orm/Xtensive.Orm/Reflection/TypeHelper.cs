@@ -19,7 +19,6 @@ using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Sorting;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Xtensive.Reflection
 {
