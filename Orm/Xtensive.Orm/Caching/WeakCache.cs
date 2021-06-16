@@ -220,11 +220,13 @@ namespace Xtensive.Caching
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
-    public virtual IEnumerator<TItem> GetEnumerator() =>
-      items == null
-        ? Enumerable.Empty<TItem>().GetEnumerator()
-        : items.Select(pair => ExtractTarget(pair.Value) as TItem)
-          .Where(item => item != null).GetEnumerator();
+    public virtual IEnumerator<TItem> GetEnumerator()
+    {
+      foreach (var pair in items ?? Enumerable.Empty<KeyValuePair<TKey, GCHandle>>()) {
+        if (ExtractTarget(pair.Value) is TItem item)
+          yield return item;
+      }
+    }
 
     [SecuritySafeCritical]
     private static TItem ExtractTarget(GCHandle handle) => (TItem) handle.Target;
