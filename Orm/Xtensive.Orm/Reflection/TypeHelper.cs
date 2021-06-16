@@ -46,11 +46,27 @@ namespace Xtensive.Reflection
 
     private class TypesEqualityComparer : IEqualityComparer<(Type, Type[])>
     {
-      public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
-        x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
+      public bool Equals((Type, Type[]) x, (Type, Type[]) y)
+      {
+        if (x.Item1 != y.Item1 || x.Item2.Length != y.Item2.Length) {
+          return false;
+        }
+        for (int i = x.Item2.Length; i-- > 0;) {
+          if (x.Item2[i] != y.Item2[i]) {
+            return false;
+          }
+        }
+        return true;
+      }
 
-      public int GetHashCode((Type, Type[]) obj) =>
-        HashCode.Combine(obj.Item1, obj.Item2.Aggregate(0, HashCode.Combine));
+      public int GetHashCode((Type, Type[]) obj)
+      {
+        var hash = obj.Item1.GetHashCode();
+        for (int i = obj.Item2.Length; i-- > 0;) {
+          hash = HashCode.Combine(hash, obj.Item2[i]);
+        }
+        return hash;
+      }
     }
 
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
@@ -155,13 +171,13 @@ namespace Xtensive.Reflection
         var rank = currentForType.GetArrayRank();
         associateTypePrefix = rank == 1 ? "Array`1" : $"Array{rank}D`1";
 
-        genericArguments = new[] {elementType};
+        genericArguments = new[] { elementType };
       }
       else if (currentForType == WellKnownTypes.Enum) {
         // Enum type
         var underlyingType = Enum.GetUnderlyingType(originalForType);
         associateTypePrefix = "Enum`2";
-        genericArguments = new[] {originalForType, underlyingType};
+        genericArguments = new[] { originalForType, underlyingType };
       }
       else if (currentForType == WellKnownTypes.Array) {
         // Untyped Array type
@@ -321,7 +337,7 @@ namespace Xtensive.Reflection
 
             // Trying to paste original type as generic parameter
             suffix = CorrectGenericSuffix(associateTypeName, 1);
-            result = Activate(location.First, suffix, new[] {originalForType}, constructorParams) as T;
+            result = Activate(location.First, suffix, new[] { originalForType }, constructorParams) as T;
             if (result != null) {
               foundForType = currentForType;
               return result;
@@ -330,7 +346,7 @@ namespace Xtensive.Reflection
             // Trying a generic one (e.g. EnumerableInterfaceHandler`2<T, ...>)
             Type[] newGenericArguments;
             if (genericArguments == null || genericArguments.Length == 0) {
-              newGenericArguments = new[] {originalForType};
+              newGenericArguments = new[] { originalForType };
               associateTypeName = AddSuffix($"{location.Second}.{associateTypePrefix}`1", associateTypeSuffix);
             }
             else {

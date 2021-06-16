@@ -14,6 +14,7 @@ using System.Reflection;
 namespace Xtensive.Reflection
 {
   using AttributesKey = ValueTuple<MemberInfo, Type, AttributeSearchOptions>;
+  using PerAttributeKey = ValueTuple<MemberInfo, AttributeSearchOptions>;
 
   /// <summary>
   /// <see cref="Attribute"/> related helper \ extension methods.
@@ -23,14 +24,10 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<AttributesKey, Attribute[]> attributesByMemberInfoAndSearchOptions
       = new ConcurrentDictionary<AttributesKey, Attribute[]>();
 
-    private static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
+    private static class AttributeDictionary<TAttribute> where TAttribute : Attribute
     {
-      var attrObjects = member.GetCustomAttributes(attributeType, false);
-      var attrs = new Attribute[attrObjects.Length];
-      for (int i = attrObjects.Length; i-- > 0;) {
-        attrs[i] = (Attribute)attrObjects[i];
-      }
-      return attrs;
+      public static readonly ConcurrentDictionary<PerAttributeKey, TAttribute[]> Dictionary
+        = new ConcurrentDictionary<PerAttributeKey, TAttribute[]>();
     }
 
     /// <summary>
@@ -43,13 +40,26 @@ namespace Xtensive.Reflection
     ///
     public static TAttribute[] GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
         where TAttribute : Attribute =>
-      GetAttributes(member, typeof(TAttribute), options).Cast<TAttribute>().ToArray();
+      AttributeDictionary<TAttribute>.Dictionary.GetOrAdd(
+        new PerAttributeKey(member, options),
+        key => GetAttributes(key.Item1, typeof(TAttribute), key.Item2).Cast<TAttribute>().ToArray()
+      );
 
     private static Attribute[] GetAttributes(MemberInfo member, Type attributeType, AttributeSearchOptions options) =>
       attributesByMemberInfoAndSearchOptions.GetOrAdd(
         new AttributesKey(member, attributeType, options),
         t => ExtractAttributes(t).ToArray()
       );
+
+    private static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
+    {
+      var attrObjects = member.GetCustomAttributes(attributeType, false);
+      var attrs = new Attribute[attrObjects.Length];
+      for (int i = attrObjects.Length; i-- > 0;) {
+        attrs[i] = (Attribute) attrObjects[i];
+      }
+      return attrs;
+    }
 
     private static IEnumerable<Attribute> ExtractAttributes((MemberInfo member, Type attributeType, AttributeSearchOptions options) t) {
       (var member, var attributeType, var options) = t;
