@@ -46,18 +46,8 @@ namespace Xtensive.Reflection
 
     private class TypesEqualityComparer : IEqualityComparer<(Type, Type[])>
     {
-      public bool Equals((Type, Type[]) x, (Type, Type[]) y)
-      {
-        if (x.Item1 != y.Item1 || x.Item2.Length != y.Item2.Length) {
-          return false;
-        }
-        for (int i = x.Item2.Length; i-- > 0;) {
-          if (x.Item2[i] != y.Item2[i]) {
-            return false;
-          }
-        }
-        return true;
-      }
+      public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
+         x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
 
       public int GetHashCode((Type, Type[]) obj)
       {
