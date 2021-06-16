@@ -20,14 +20,14 @@ namespace Xtensive.Reflection
   /// </summary>
   public static class AttributeHelper
   {
-    private static readonly ConcurrentDictionary<AttributesKey, Attribute[]> attributesByMemberInfoAndSearchOptions
-      = new ConcurrentDictionary<AttributesKey, Attribute[]>();
-
     private static class AttributeDictionary<TAttribute> where TAttribute : Attribute
     {
       public static readonly ConcurrentDictionary<PerAttributeKey, TAttribute[]> Dictionary
         = new ConcurrentDictionary<PerAttributeKey, TAttribute[]>();
     }
+
+    private static readonly ConcurrentDictionary<AttributesKey, Attribute[]> attributesByMemberInfoAndSearchOptions
+      = new ConcurrentDictionary<AttributesKey, Attribute[]>();
 
     /// <summary>
     /// A shortcut to <see cref="MemberInfo.GetCustomAttributes(Type,bool)"/> method.
@@ -43,6 +43,31 @@ namespace Xtensive.Reflection
         new PerAttributeKey(member, options),
         key => GetAttributes(key.Item1, typeof(TAttribute), key.Item2).Cast<TAttribute>().ToArray()
       );
+
+    /// <summary>
+    /// A version of <see cref="GetAttributes{TAttribute}(MemberInfo, AttributeSearchOptions)"/>
+    /// returning just one attribute.
+    /// </summary>
+    /// <typeparam name="TAttribute">The type of attribute to get.</typeparam>
+    /// <param name="member">Member to get attribute of.</param>
+    /// <param name="options">Attribute search options.</param>
+    /// <returns>An attribute of specified type;
+    /// <see langword="null"/>, if there is no such attribute;
+    /// throws <see cref="InvalidOperationException"/>, if there is more then one attribute of specified type found.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">Thrown if there is more then one attribute of specified type found.</exception>
+    public static TAttribute GetAttribute<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
+      where TAttribute : Attribute
+    {
+      var attributes = member.GetAttributes<TAttribute>(options);
+      return attributes.Length switch {
+        0 => null,
+        1 => attributes[0],
+        _ => throw new InvalidOperationException(string.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
+          member.GetShortName(true),
+          typeof(TAttribute).GetShortName()))
+      };
+    }
 
     private static Attribute[] GetAttributes(MemberInfo member, Type attributeType, AttributeSearchOptions options) =>
       attributesByMemberInfoAndSearchOptions.GetOrAdd(
@@ -86,31 +111,6 @@ namespace Xtensive.Reflection
       }
 
       return attributes;
-    }
-
-    /// <summary>
-    /// A version of <see cref="GetAttributes{TAttribute}(MemberInfo, AttributeSearchOptions)"/>
-    /// returning just one attribute.
-    /// </summary>
-    /// <typeparam name="TAttribute">The type of attribute to get.</typeparam>
-    /// <param name="member">Member to get attribute of.</param>
-    /// <param name="options">Attribute search options.</param>
-    /// <returns>An attribute of specified type;
-    /// <see langword="null"/>, if there is no such attribute;
-    /// throws <see cref="InvalidOperationException"/>, if there is more then one attribute of specified type found.
-    /// </returns>
-    /// <exception cref="InvalidOperationException">Thrown if there is more then one attribute of specified type found.</exception>
-    public static TAttribute GetAttribute<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
-      where TAttribute : Attribute
-    {
-      var attributes = member.GetAttributes<TAttribute>(options);
-      return attributes.Length switch {
-        0 => null,
-        1 => attributes[0],
-        _ => throw new InvalidOperationException(string.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
-          member.GetShortName(true),
-          typeof(TAttribute).GetShortName()))
-      };
     }
   }
 }
