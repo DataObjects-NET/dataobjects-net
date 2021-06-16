@@ -23,7 +23,7 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<AttributesKey, Attribute[]> attributesByMemberInfoAndSearchOptions
       = new ConcurrentDictionary<AttributesKey, Attribute[]>();
 
-    public static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
+    private static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
     {
       var attrObjects = member.GetCustomAttributes(attributeType, false);
       var attrs = new Attribute[attrObjects.Length];
