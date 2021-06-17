@@ -28,7 +28,8 @@ namespace Xtensive.Orm.Providers.PostgreSql
       var select = SqlDml.Select();
       var realPrimaryIndex = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var index = realPrimaryIndex.ReflectedType.Indexes.PrimaryIndex;
-      var query = BuildProviderQuery(index);
+      var queryAndBindings = BuildProviderQuery(index);
+      var query = queryAndBindings.Query;
       var table = Mapping[realPrimaryIndex.ReflectedType];
       var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference,
         table.Columns.Select(column => column.Name).Append(rankColumnName).ToArray(table.Columns.Count + 1));
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
         intTypeMapping, context => provider.TopN.Invoke(context), QueryParameterBindingType.Regular);
       select.Limit = topNBinding.ParameterReference;
       select.OrderBy.Add(select.Columns[rankColumnName], false);
-      return CreateProvider(select, new[] {binding, topNBinding}, provider);
+      return CreateProvider(select, new[] {binding, topNBinding}.Union(queryAndBindings.Bindings), provider);
 
     }
 

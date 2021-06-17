@@ -7,8 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using Xtensive.Core;
+using Xtensive.Linq;
+using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Rse.Providers;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
@@ -17,6 +22,14 @@ namespace Xtensive.Orm.Providers
 {
   partial class SqlCompiler 
   {
+    protected struct QueryAndBindings
+    {
+      public SqlSelect Query { get; set; }
+
+      public IEnumerable<QueryParameterBinding> Bindings { get; set; }
+
+    }
+
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
       throw new NotSupportedException();
@@ -31,11 +44,11 @@ namespace Xtensive.Orm.Providers
     protected override SqlProvider VisitIndex(IndexProvider provider)
     {
       var index = provider.Index.Resolve(Handlers.Domain.Model);
-      SqlSelect query = BuildProviderQuery(index);
-      return CreateProvider(query, provider);
+      var queryAndBindings = BuildProviderQuery(index);
+      return CreateProvider(queryAndBindings.Query, queryAndBindings.Bindings, provider);
     }
 
-    protected SqlSelect BuildProviderQuery(IndexInfo index)
+    protected QueryAndBindings BuildProviderQuery(IndexInfo index)
     {
       if (index.IsVirtual) {
         if ((index.Attributes & IndexAttributes.Union) > 0)
@@ -53,7 +66,7 @@ namespace Xtensive.Orm.Providers
       return BuildTableQuery(index);
     }
 
-    private SqlSelect BuildTableQuery(IndexInfo index)
+    private QueryAndBindings BuildTableQuery(IndexInfo index)
     {
       var domainHandler = Handlers.DomainHandler;
       var table = Mapping[index.ReflectedType];
@@ -78,27 +91,32 @@ namespace Xtensive.Orm.Providers
         query = SqlDml.Select(tableRef);
         query.Columns.AddRange(index.Columns.Select(c => tableRef[lookup[c.Field]]));
       }
-      return query;
+      return new QueryAndBindings { Query = query, Bindings = Enumerable.Empty<QueryParameterBinding>() };
     }
 
-    private SqlSelect BuildUnionQuery(IndexInfo index)
+    private QueryAndBindings BuildUnionQuery(IndexInfo index)
     {
       ISqlQueryExpression result = null;
+      IEnumerable<QueryParameterBinding> resultBindings = null;
 
       var baseQueries = index.UnderlyingIndexes.Select(BuildProviderQuery).ToList();
       foreach (var select in baseQueries) {
         result = result==null
-          ? (ISqlQueryExpression) select
-          : result.Union(select);
+          ? (ISqlQueryExpression) select.Query
+          : result.Union(select.Query);
+        resultBindings = (resultBindings == null)
+          ? select.Bindings
+          : resultBindings.Union(select.Bindings);
       }
 
       var unionRef = SqlDml.QueryRef(result);
       var query = SqlDml.Select(unionRef);
       query.Columns.AddRange(unionRef.Columns);
-      return query;
+
+      return new QueryAndBindings { Query = query, Bindings = resultBindings };
     }
 
-    private SqlSelect BuildJoinQuery(IndexInfo index)
+    private QueryAndBindings BuildJoinQuery(IndexInfo index)
     {
       SqlTable resultTable = null;
       SqlTable rootTable = null;
@@ -106,12 +124,33 @@ namespace Xtensive.Orm.Providers
       int keyColumnCount = index.KeyColumns.Count;
       var underlyingQueries = index.UnderlyingIndexes.Select(BuildProviderQuery);
 
-      var sourceTables = index.UnderlyingIndexes.Any(i => i.IsVirtual)
-        ? underlyingQueries.Select(SqlDml.QueryRef).Cast<SqlTable>().ToList()
-        : underlyingQueries.Select(q => {
-          var tableRef = (SqlTableRef) q.From;
-          return (SqlTable) SqlDml.TableRef(tableRef.DataTable, tableRef.Name, q.Columns.Select(c => c.Name));
-        }).ToList();
+      //var sourceTables = index.UnderlyingIndexes.Any(i => i.IsVirtual)
+      //  ? underlyingQueries.Select(q =>SqlDml.QueryRef(q.Query)).Cast<SqlTable>().ToList()
+      //  : underlyingQueries.Select(
+      //    q => {
+      //      var tableRef = (SqlTableRef) q.From;
+      //      return (SqlTable) SqlDml.TableRef(tableRef.DataTable, tableRef.Name, q.Columns.Select(c => c.Name));
+      //  }).ToList();
+
+      List<SqlTable> sourceTables = new List<SqlTable>();
+      IEnumerable<QueryParameterBinding> resultBindings = null;
+      if(index.UnderlyingIndexes.Any(i => i.IsVirtual)) {
+        foreach(var item in underlyingQueries) {
+          sourceTables.Add(SqlDml.QueryRef(item.Query));
+          resultBindings = (resultBindings == null)
+            ? item.Bindings
+            : resultBindings.Union(item.Bindings);
+        }
+      }
+      else {
+        foreach (var item in underlyingQueries) {
+          var tableRef = (SqlTableRef) item.Query.From;
+          sourceTables.Add(SqlDml.TableRef(tableRef.DataTable, tableRef.Name, item.Query.Columns.Select(c => c.Name)));
+          resultBindings = (resultBindings == null)
+            ? item.Bindings
+            : resultBindings.Union(item.Bindings);
+        }
+      }
 
       foreach (var table in sourceTables) {
         if (resultTable==null)
@@ -148,13 +187,15 @@ namespace Xtensive.Orm.Providers
       var query = SqlDml.Select(resultTable);
       query.Columns.AddRange(columns);
 
-      return query;
+      return new QueryAndBindings { Query = query, Bindings = resultBindings };
     }
 
-    private SqlSelect BuildFilteredQuery(IndexInfo index)
+    private QueryAndBindings BuildFilteredQuery(IndexInfo index)
     {
       var underlyingIndex = index.UnderlyingIndexes[0];
-      var baseQuery = BuildProviderQuery(underlyingIndex);
+      var baseQueryAndBindings = BuildProviderQuery(underlyingIndex);
+      var baseQuery = baseQueryAndBindings.Query;
+      var bindings = baseQueryAndBindings.Bindings;
 
       SqlExpression filter = null;
       var type = index.ReflectedType;
@@ -194,23 +235,34 @@ namespace Xtensive.Orm.Providers
       var query = SqlDml.Select(baseQuery.From);
       query.Columns.AddRange(baseQuery.Columns);
       query.Where = filter;
-      return query;
+
+      baseQueryAndBindings.Query = query;
+      baseQueryAndBindings.Bindings = bindings.Union(Enumerable.Empty<QueryParameterBinding>());
+      return baseQueryAndBindings;
     }
 
-    private SqlSelect BuildViewQuery(IndexInfo index)
+    private QueryAndBindings BuildViewQuery(IndexInfo index)
     {
       var underlyingIndex = index.UnderlyingIndexes[0];
-      var baseQuery = BuildProviderQuery(underlyingIndex);
+      var baseQueryAndBindings = BuildProviderQuery(underlyingIndex);
+      var baseQuery = baseQueryAndBindings.Query;
+      var baseBindings = baseQueryAndBindings.Bindings;
+
       var query = SqlDml.Select(baseQuery.From);
       query.Where = baseQuery.Where;
       query.Columns.AddRange(index.SelectColumns.Select(i => baseQuery.Columns[i]));
-      return query;
+
+      baseQueryAndBindings.Query = query;
+
+      return baseQueryAndBindings;
     }
 
-    private SqlSelect BuildTypedQuery(IndexInfo index)
+    private QueryAndBindings BuildTypedQuery(IndexInfo index)
     {
       var underlyingIndex = index.UnderlyingIndexes[0];
-      var baseQuery = BuildProviderQuery(underlyingIndex);
+      var baseQueryAndBindings = BuildProviderQuery(underlyingIndex);
+      var baseQuery = baseQueryAndBindings.Query;
+      var baseBindings = baseQueryAndBindings.Bindings;
       var query = SqlDml.Select(baseQuery.From);
       query.Where = baseQuery.Where;
 
@@ -219,8 +271,13 @@ namespace Xtensive.Orm.Providers
         .Select((c, i) => new {c.Field, i})
         .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
       var type = index.ReflectedType;
+
+      var typeMapping = Driver.GetTypeMapping(WellKnownTypes.Int32);
+
+      var binding = new QueryParameterBinding(typeMapping, CreateTypeIdAccessor(TypeIdRegistry[type]).CachingCompile(), QueryParameterBindingType.Regular);
+
       var typeIdColumn = SqlDml.ColumnRef(
-        SqlDml.Column(SqlDml.Literal(TypeIdRegistry[type])),
+        SqlDml.Column(binding.ParameterReference),
         WellKnown.TypeIdFieldName);
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       if (discriminatorMap != null) {
@@ -240,7 +297,10 @@ namespace Xtensive.Orm.Providers
       }
       baseColumns.Insert(typeIdColumnIndex, typeIdColumn);
       query.Columns.AddRange(baseColumns);
-      return query;
+
+      baseQueryAndBindings.Query = query;
+      baseQueryAndBindings.Bindings = new QueryParameterBinding[] { binding }.Union(baseBindings);
+      return baseQueryAndBindings;
     }
 
     private object GetDiscriminatorValue(TypeDiscriminatorMap discriminatorMap, object fieldValue)
@@ -250,6 +310,13 @@ namespace Xtensive.Orm.Providers
       return field.ValueType!=column.ValueType
         ? Convert.ChangeType(fieldValue, column.ValueType)
         : fieldValue;
+    }
+
+    private Expression<Func<ParameterContext, object>> CreateTypeIdAccessor(int value)
+    {
+      var bodyExpression = Expression.Convert(Expression.Constant(value),WellKnownTypes.Object);
+      var lambdaParemeter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+      return (Expression<Func<ParameterContext, object>>) FastExpression.Lambda(bodyExpression, lambdaParemeter);
     }
   }
 }
