@@ -1,24 +1,28 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
 using System;
-using Xtensive.Collections;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Xtensive.Core;
-using System.Linq;
-
 using Xtensive.Reflection;
 
 namespace Xtensive.IoC
 {
+  using ServiceRegistrationKey = ValueTuple<Type, bool>;
+
   /// <summary>
   /// Describes single service mapping entry for <see cref="ServiceContainer"/>.
   /// </summary>
   [Serializable]
   public sealed class ServiceRegistration
   {
+    private static readonly ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]> serviceRegistrationsByType =
+      new ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]>();
+
     /// <summary>
     /// Gets the type of the service.
     /// </summary>
@@ -56,10 +60,8 @@ namespace Xtensive.IoC
     /// <returns>
     /// An array of <see cref="ServiceRegistration"/> objects.
     /// </returns>
-    public static ServiceRegistration[] CreateAll(Type type)
-    {
-      return CreateAll(type, false);
-    }
+    public static ServiceRegistration[] CreateAll(Type type) =>
+      CreateAll(type, false);
 
     /// <summary>
     /// Creates an array of <see cref="ServiceRegistration"/> objects
@@ -67,32 +69,29 @@ namespace Xtensive.IoC
     /// by scanning it <see cref="ServiceAttribute"/>s.
     /// </summary>
     /// <param name="type">The type to provide <see cref="ServiceRegistration"/> objects for.</param>
-    /// <param name="defaultOnly">Return just registrations for which 
+    /// <param name="defaultOnly">Return just registrations for which
     /// <see cref="ServiceAttribute.Default"/>==<see langword="true" />.</param>
     /// <returns>
     /// An array of <see cref="ServiceRegistration"/> objects.
     /// </returns>
-    public static ServiceRegistration[] CreateAll(Type type, bool defaultOnly)
-    {
+    public static ServiceRegistration[] CreateAll(Type type, bool defaultOnly) =>
+      serviceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly), ServiceRegistrationsExtractor);
+
+    private static readonly Func<ServiceRegistrationKey, ServiceRegistration[]> ServiceRegistrationsExtractor = ((Type type, bool defaultOnly) t) => {
+      (var type, var defaultOnly) = t;
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (type.IsAbstract)
-        return ArrayUtils<ServiceRegistration>.EmptyArray;
+        return Array.Empty<ServiceRegistration>();
 
       var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
-      if (attributes==null)
-        return ArrayUtils<ServiceRegistration>.EmptyArray;
-      if (defaultOnly)
-        attributes = attributes.Where(a => a.Default).ToArray();
-      if (attributes.Length==0)
-        return ArrayUtils<ServiceRegistration>.EmptyArray;
-
-      var result = new ServiceRegistration[attributes.Length];
-      for (int i = 0; i < attributes.Length; i++) {
-        var sa = attributes[i];
-        result[i] = new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton);
+      var registrations = new List<ServiceRegistration>(attributes.Length);
+      foreach (var sa in attributes) {
+        if (!defaultOnly || sa.Default) {
+          registrations.Add(new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton));
+        }
       }
-      return result;
-    }
+      return registrations.ToArray();
+    };
 
 
     // Constructors
