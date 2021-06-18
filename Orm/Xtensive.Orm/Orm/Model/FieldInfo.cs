@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Model
     private int? cachedHashCode;
 
     private IList<IPropertyValidator> validators;
-    internal Segment<int> mappingInfo;
+    private Segment<int> mappingInfo;
 
     #region IsXxx properties
 
@@ -461,7 +461,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets <see cref="MappingInfo"/> for current field.
     /// </summary>
-    public Segment<int> MappingInfo => mappingInfo;
+    public ref Segment<int> MappingInfo => ref mappingInfo;
 
     /// <summary>
     /// Gets the underlying system property.
