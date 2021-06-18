@@ -93,6 +93,21 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Registers fields specified by <paramref name="expression"/> for prefetch.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the element of the source sequence.</typeparam>
+    /// <typeparam name="TFieldValue">The type of the field's value to be prefetched.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="expression">The expression specifying a field to be prefetched.</param>
+    /// <returns>An <see cref="IEnumerable{TElement}"/> of source items.</returns>
+    public static PrefetchQuery<TElement> Prefetch<TElement, TFieldValue>(
+      this PrefetchQuery<TElement> source,
+      Expression<Func<TElement, TFieldValue>> expression)
+    {
+      return source.RegisterPath(expression);
+    }
+
+    /// <summary>
     /// Creates <see cref="PrefetchQuery{T}"/> for the specified <paramref name="source"/> and
     /// registers the prefetch of the field specified by <paramref name="expression"/>.
     /// </summary>
