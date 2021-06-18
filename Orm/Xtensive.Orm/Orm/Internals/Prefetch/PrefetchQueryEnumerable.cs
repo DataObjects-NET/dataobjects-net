@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -124,13 +124,6 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       return container;
     }
-
-    //private void Initialize()
-    //{
-    //  unknownTypeQueue = new Queue<Key>();
-    //  prefetchQueue = new Queue<Pair<IEnumerable<Key>, IHasNestedNodes>>();
-    //  fieldDescriptorCache = new Dictionary<Pair<IHasNestedNodes, TypeInfo>, IList<PrefetchFieldDescriptor>>();
-    //}
 
     public PrefetchQueryEnumerable(Session session, IEnumerable<TItem> source,
       SinglyLinkedList<KeyExtractorNode<TItem>> nodes)
