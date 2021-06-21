@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[rankColumnName], SqlType.Double), rankColumnName);
       select.From = fromTableRef;
       if (provider.TopN == null) {
-        return CreateProvider(select, binding, provider);
+        return CreateProvider(select, new[] { binding }.Union(queryAndBindings.Bindings), provider);
       }
 
       var intTypeMapping = Driver.GetTypeMapping(typeof(int));
