@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.24
 
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         // All lambdas will be associated with single parent.
         call = (MethodCallExpression) source;
         ValidateMethodCall(call);
-        source = call.Arguments[0];
+        source = call.Arguments[0].StripCasts();
         var lambda = call.Arguments[1].StripQuotes();
         subprefetches.Add(lambda);
       }
