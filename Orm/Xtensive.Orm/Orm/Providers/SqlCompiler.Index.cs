@@ -20,7 +20,7 @@ using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  public partial class SqlCompiler
   {
     protected struct QueryAndBindings
     {
@@ -246,7 +246,6 @@ namespace Xtensive.Orm.Providers
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQueryAndBindings = BuildProviderQuery(underlyingIndex);
       var baseQuery = baseQueryAndBindings.Query;
-      var baseBindings = baseQueryAndBindings.Bindings;
 
       var query = SqlDml.Select(baseQuery.From);
       query.Where = baseQuery.Where;
@@ -262,7 +261,7 @@ namespace Xtensive.Orm.Providers
       var underlyingIndex = index.UnderlyingIndexes[0];
       var baseQueryAndBindings = BuildProviderQuery(underlyingIndex);
       var baseQuery = baseQueryAndBindings.Query;
-      var baseBindings = baseQueryAndBindings.Bindings;
+      var bindings = baseQueryAndBindings.Bindings;
       var query = SqlDml.Select(baseQuery.From);
       query.Where = baseQuery.Where;
 
@@ -272,13 +271,18 @@ namespace Xtensive.Orm.Providers
         .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
       var type = index.ReflectedType;
 
-      var typeMapping = Driver.GetTypeMapping(WellKnownTypes.Int32);
+      SqlUserColumn typeIdColumn;
+      if (useParameterForTypeId) {
+        var typeMapping = Driver.GetTypeMapping(WellKnownTypes.Int32);
+        var binding = new QueryParameterBinding(typeMapping, CreateTypeIdAccessor(TypeIdRegistry[type]).CachingCompile(), QueryParameterBindingType.Regular);
 
-      var binding = new QueryParameterBinding(typeMapping, CreateTypeIdAccessor(TypeIdRegistry[type]).CachingCompile(), QueryParameterBindingType.Regular);
+        typeIdColumn = SqlDml.Column(binding.ParameterReference);
+        bindings = new QueryParameterBinding[] { binding }.Union(baseQueryAndBindings.Bindings);
+      }
+      else {
+        typeIdColumn = SqlDml.Column(SqlDml.Literal(TypeIdRegistry[type]));
+      }
 
-      var typeIdColumn = SqlDml.ColumnRef(
-        SqlDml.Column(binding.ParameterReference),
-        WellKnown.TypeIdFieldName);
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       if (discriminatorMap != null) {
         var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
@@ -287,19 +291,22 @@ namespace Xtensive.Orm.Providers
         foreach (var pair in discriminatorMap) {
           var discriminatorValue = GetDiscriminatorValue(discriminatorMap, pair.First);
           var typeId = TypeIdRegistry[pair.Second];
-          sqlCase.Add(SqlDml.Literal(discriminatorValue), SqlDml.Literal(typeId));
+          _ = sqlCase.Add(SqlDml.Literal(discriminatorValue), SqlDml.Literal(typeId));
         }
-        if (discriminatorMap.Default != null)
+        if (discriminatorMap.Default != null) {
           sqlCase.Else = SqlDml.Literal(TypeIdRegistry[discriminatorMap.Default]);
-        typeIdColumn = SqlDml.ColumnRef(
-          SqlDml.Column(sqlCase),
-          WellKnown.TypeIdFieldName);
+        }
+
+        typeIdColumn = SqlDml.Column(sqlCase);
+        bindings = baseQueryAndBindings.Bindings;
       }
-      baseColumns.Insert(typeIdColumnIndex, typeIdColumn);
+
+      var typeIdColumnRef = SqlDml.ColumnRef(typeIdColumn, WellKnown.TypeIdFieldName);
+      baseColumns.Insert(typeIdColumnIndex, typeIdColumnRef);
       query.Columns.AddRange(baseColumns);
 
       baseQueryAndBindings.Query = query;
-      baseQueryAndBindings.Bindings = new QueryParameterBinding[] { binding }.Union(baseBindings);
+      baseQueryAndBindings.Bindings = bindings;
       return baseQueryAndBindings;
     }
 

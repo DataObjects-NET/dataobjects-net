@@ -182,13 +182,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       queryInfo.MaxQueryParameterCount = DoNotKnow;
       queryInfo.Features =
         QueryFeatures.NamedParameters |
-          QueryFeatures.ParameterPrefix |
-            QueryFeatures.ScalarSubquery |
-              QueryFeatures.Paging |
-                QueryFeatures.Limit |
-                  QueryFeatures.Offset |
-                    QueryFeatures.UpdateLimit |
-                      QueryFeatures.DeleteLimit;
+        QueryFeatures.ParameterPrefix |
+        QueryFeatures.ParameterAsColumnNotAllowed |
+        QueryFeatures.ScalarSubquery |
+        QueryFeatures.Paging |
+        QueryFeatures.Limit |
+        QueryFeatures.Offset |
+        QueryFeatures.UpdateLimit |
+        QueryFeatures.DeleteLimit;
       return queryInfo;
     }
 

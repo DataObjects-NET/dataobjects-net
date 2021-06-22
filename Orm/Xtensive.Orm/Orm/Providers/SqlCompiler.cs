@@ -26,9 +26,10 @@ namespace Xtensive.Orm.Providers
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
+    private readonly HashSet<Column> rootColumns
     private readonly bool temporaryTablesSupported;
-    private readonly HashSet<Column> rootColumns = new HashSet<Column>();
     private readonly bool forceApplyViaReference;
+    private readonly bool useParameterForTypeId;
 
     private bool anyTemporaryTablesRequired;
 
@@ -564,11 +565,14 @@ namespace Xtensive.Orm.Providers
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
       forceApplyViaReference = handlers.ProviderInfo.ProviderName.Equals(WellKnown.Provider.PostgreSql);
+      useParameterForTypeId = !Driver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.ParameterAsColumnNotAllowed);
 
-      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
+      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)) {
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
+      }
 
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
+      rootColumns = new HashSet<Column>();
     }
   }
 }
