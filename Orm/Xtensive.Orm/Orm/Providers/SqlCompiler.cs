@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Providers
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
-    private readonly HashSet<Column> rootColumns
+    private readonly HashSet<Column> rootColumns;
     private readonly bool temporaryTablesSupported;
     private readonly bool forceApplyViaReference;
     private readonly bool useParameterForTypeId;
