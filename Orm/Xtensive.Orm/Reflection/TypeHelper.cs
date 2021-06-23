@@ -144,13 +144,13 @@ namespace Xtensive.Reflection
         var rank = currentForType.GetArrayRank();
         associateTypePrefix = rank == 1 ? "Array`1" : $"Array{rank}D`1";
 
-        genericArguments = new[] {elementType};
+        genericArguments = new[] { elementType };
       }
       else if (currentForType == WellKnownTypes.Enum) {
         // Enum type
         var underlyingType = Enum.GetUnderlyingType(originalForType);
         associateTypePrefix = "Enum`2";
-        genericArguments = new[] {originalForType, underlyingType};
+        genericArguments = new[] { originalForType, underlyingType };
       }
       else if (currentForType == WellKnownTypes.Array) {
         // Untyped Array type
@@ -310,7 +310,7 @@ namespace Xtensive.Reflection
 
             // Trying to paste original type as generic parameter
             suffix = CorrectGenericSuffix(associateTypeName, 1);
-            result = Activate(location.First, suffix, new[] {originalForType}, constructorParams) as T;
+            result = Activate(location.First, suffix, new[] { originalForType }, constructorParams) as T;
             if (result != null) {
               foundForType = currentForType;
               return result;
@@ -319,7 +319,7 @@ namespace Xtensive.Reflection
             // Trying a generic one (e.g. EnumerableInterfaceHandler`2<T, ...>)
             Type[] newGenericArguments;
             if (genericArguments == null || genericArguments.Length == 0) {
-              newGenericArguments = new[] {originalForType};
+              newGenericArguments = new[] { originalForType };
               associateTypeName = AddSuffix($"{location.Second}.{associateTypePrefix}`1", associateTypeSuffix);
             }
             else {

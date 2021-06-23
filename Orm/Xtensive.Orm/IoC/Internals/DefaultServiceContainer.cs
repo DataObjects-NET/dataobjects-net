@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.01.30
 
@@ -17,7 +17,7 @@ namespace Xtensive.IoC
 {
   internal sealed class DefaultServiceContainer : ServiceContainerBase
   {
-    ThreadSafeDictionary<Assembly, IServiceContainer> containers = 
+    ThreadSafeDictionary<Assembly, IServiceContainer> containers =
       ThreadSafeDictionary<Assembly, IServiceContainer>.Create(new object());
 
     protected override IEnumerable<object> HandleGetAll(Type serviceType)

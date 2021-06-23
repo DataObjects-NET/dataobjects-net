@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
@@ -67,7 +67,7 @@ namespace Xtensive.IoC
     /// by scanning it <see cref="ServiceAttribute"/>s.
     /// </summary>
     /// <param name="type">The type to provide <see cref="ServiceRegistration"/> objects for.</param>
-    /// <param name="defaultOnly">Return just registrations for which 
+    /// <param name="defaultOnly">Return just registrations for which
     /// <see cref="ServiceAttribute.Default"/>==<see langword="true" />.</param>
     /// <returns>
     /// An array of <see cref="ServiceRegistration"/> objects.
@@ -79,11 +79,11 @@ namespace Xtensive.IoC
         return ArrayUtils<ServiceRegistration>.EmptyArray;
 
       var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
-      if (attributes==null)
+      if (attributes == null)
         return ArrayUtils<ServiceRegistration>.EmptyArray;
       if (defaultOnly)
         attributes = attributes.Where(a => a.Default).ToArray();
-      if (attributes.Length==0)
+      if (attributes.Length == 0)
         return ArrayUtils<ServiceRegistration>.EmptyArray;
 
       var result = new ServiceRegistration[attributes.Length];
@@ -103,7 +103,7 @@ namespace Xtensive.IoC
     /// <param name="type">The type of the service.</param>
     /// <param name="mappedInstance">The instance it is mapped to.</param>
     public ServiceRegistration(Type type, object mappedInstance)
-      : this (type, null, mappedInstance)
+      : this(type, null, mappedInstance)
     {
     }
 
@@ -129,7 +129,7 @@ namespace Xtensive.IoC
     /// <param name="mappedType">The type it is mapped to.</param>
     /// <param name="singleton">A value indicating whether this service is singleton.</param>
     public ServiceRegistration(Type type, Type mappedType, bool singleton)
-      : this (type, null, mappedType, singleton)
+      : this(type, null, mappedType, singleton)
     {
     }
 

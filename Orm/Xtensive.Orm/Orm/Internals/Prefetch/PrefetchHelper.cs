@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     public static ReadOnlyList<PrefetchFieldDescriptor> CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
     {
       return new ReadOnlyList<PrefetchFieldDescriptor>(type.Fields
-        .Where(field => field.Parent==null && IsFieldToBeLoadedByDefault(field))
+        .Where(field => field.Parent == null && IsFieldToBeLoadedByDefault(field))
         .Select(field => new PrefetchFieldDescriptor(field, false, false)).ToList());
     }
 

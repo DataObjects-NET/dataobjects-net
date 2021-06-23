@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -15,7 +15,7 @@ using Xtensive.Reflection;
 using Xtensive.IoC.Configuration;
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
 using AppConfiguration = System.Configuration.Configuration;
-using ConfigurationSection=Xtensive.IoC.Configuration.ConfigurationSection;
+using ConfigurationSection = Xtensive.IoC.Configuration.ConfigurationSection;
 
 namespace Xtensive.IoC
 {
@@ -25,11 +25,11 @@ namespace Xtensive.IoC
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
-    private readonly Dictionary<object, List<ServiceRegistration>> types = 
+    private readonly Dictionary<object, List<ServiceRegistration>> types =
       new Dictionary<object, List<ServiceRegistration>>();
-    private readonly Dictionary<ServiceRegistration, object> instances = 
+    private readonly Dictionary<ServiceRegistration, object> instances =
       new Dictionary<ServiceRegistration, object>();
-    private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo,ParameterInfo[]>> constructorCache = 
+    private readonly Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> constructorCache =
       new Dictionary<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>>();
     private readonly HashSet<Type> creating = new HashSet<Type>();
     private readonly object _lock = new object();
@@ -45,7 +45,7 @@ namespace Xtensive.IoC
         List<ServiceRegistration> list;
         if (!types.TryGetValue(GetKey(serviceType, name), out list))
           return null;
-        if (list.Count==0)
+        if (list.Count == 0)
           return null;
         if (list.Count > 1)
           throw new AmbiguousMatchException(Strings.ExMultipleServicesMatchToTheSpecifiedArguments);
@@ -75,25 +75,25 @@ namespace Xtensive.IoC
     {
       if (creating.Contains(serviceInfo.Type))
         throw new ActivationException(Strings.ExRecursiveConstructorParemeterDependencyIsDetected);
-      Pair<ConstructorInfo,ParameterInfo[]> cachedInfo;
+      Pair<ConstructorInfo, ParameterInfo[]> cachedInfo;
       var mappedType = serviceInfo.MappedType;
       if (!constructorCache.TryGetValue(serviceInfo, out cachedInfo)) {
         var @ctor = (
           from c in mappedType.GetConstructors()
-          where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone)!=null
+          where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
           select c
           ).SingleOrDefault();
-        if (@ctor==null)
+        if (@ctor == null)
           @ctor = mappedType.GetConstructor(ArrayUtils<Type>.EmptyArray);
-        var @params = @ctor==null ? null : @ctor.GetParameters();
+        var @params = @ctor == null ? null : @ctor.GetParameters();
         cachedInfo = new Pair<ConstructorInfo, ParameterInfo[]>(@ctor, @params);
         constructorCache[serviceInfo] = cachedInfo;
       }
       var cInfo = cachedInfo.First;
-      if (cInfo==null)
+      if (cInfo == null)
         return null;
       var pInfos = cachedInfo.Second;
-      if (pInfos.Length==0)
+      if (pInfos.Length == 0)
         return Activator.CreateInstance(mappedType);
       var args = new object[pInfos.Length];
       creating.Add(serviceInfo.Type);
@@ -128,7 +128,7 @@ namespace Xtensive.IoC
           continue;
         }
 
-        if (registration.MappedInstance!=null)
+        if (registration.MappedInstance != null)
           result = registration.MappedInstance;
         else
           result = CreateInstance(registration);
@@ -207,12 +207,12 @@ namespace Xtensive.IoC
 
       var possibleArgs =
         Enumerable.Empty<object[]>()
-          .Append(new[] {configuration, parent})
-          .Append(new[] {configuration})
-          .Append(new[] {parent});
+          .Append(new[] { configuration, parent })
+          .Append(new[] { configuration })
+          .Append(new[] { parent });
       foreach (var args in possibleArgs) {
         var ctor = containerType.GetConstructor(args);
-        if (ctor!=null)
+        if (ctor != null)
           return (IServiceContainer) ctor.Invoke(args);
       }
 
@@ -270,7 +270,7 @@ namespace Xtensive.IoC
       return Create(section, name, null);
     }
 
-      /// <summary>
+    /// <summary>
     /// Creates <see cref="IServiceContainer"/> by its configuration.
     /// </summary>
     /// <param name="section">IoC configuration section.</param>
@@ -284,9 +284,9 @@ namespace Xtensive.IoC
       if (name.IsNullOrEmpty())
         name = string.Empty;
 
-      ContainerElement configuration = section==null ? null : section.Containers[name];
+      ContainerElement configuration = section == null ? null : section.Containers[name];
 
-      if (configuration==null)
+      if (configuration == null)
         configuration = new ContainerElement();
 
       var registrations = new List<ServiceRegistration>();
@@ -299,12 +299,12 @@ namespace Xtensive.IoC
       foreach (var serviceRegistrationElement in configuration.Explicit)
         registrations.Add(serviceRegistrationElement.ToNative());
 
-      var currentParent = configuration.Parent.IsNullOrEmpty() 
-        ? parent 
+      var currentParent = configuration.Parent.IsNullOrEmpty()
+        ? parent
         : Create(section, configuration.Parent, parent);
-      
-      var containerType = configuration.Type.IsNullOrEmpty() ? 
-        typeof(ServiceContainer) : 
+
+      var containerType = configuration.Type.IsNullOrEmpty() ?
+        typeof(ServiceContainer) :
         Type.GetType(configuration.Type);
       return Create(containerType, registrations, currentParent);
     }
@@ -337,7 +337,7 @@ namespace Xtensive.IoC
     public ServiceContainer(IEnumerable<ServiceRegistration> configuration, IServiceContainer parent)
       : base(parent)
     {
-      if (configuration==null)
+      if (configuration == null)
         return;
       foreach (var serviceRegistration in configuration)
         Register(serviceRegistration);
@@ -351,7 +351,7 @@ namespace Xtensive.IoC
         foreach (var pair in instances) {
           var service = pair.Value;
           var disposable = service as IDisposable;
-          if (disposable!=null)
+          if (disposable != null)
             toDispose.Add(disposable);
         }
       }

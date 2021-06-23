@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Ustinov
 // Created:    2007.05.28
 
@@ -43,7 +43,8 @@ namespace Xtensive.Caching
     #region Properites: KeyExtractor, ChainedCache, TrackResurrection, EfficiencyFactor, Count, Size
 
     /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor {
+    public Converter<TItem, TKey> KeyExtractor
+    {
       [DebuggerStepThrough]
       get { return keyExtractor; }
     }
@@ -51,13 +52,15 @@ namespace Xtensive.Caching
     /// <summary>
     /// Gets a value indicating whether this cache tracks resurrection.
     /// </summary>
-    public bool TrackResurrection {
+    public bool TrackResurrection
+    {
       [DebuggerStepThrough]
       get { return trackResurrection; }
     }
 
     /// <inheritdoc/>
-    public int Count {
+    public int Count
+    {
       [DebuggerStepThrough]
       get { return items.Count; }
     }
@@ -65,7 +68,8 @@ namespace Xtensive.Caching
     #endregion
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
+    public TItem this[TKey key, bool markAsHit]
+    {
       get {
         TItem item;
         if (TryGetItem(key, markAsHit, out item))
@@ -83,7 +87,7 @@ namespace Xtensive.Caching
       GCHandle cached;
       if (items.TryGetValue(key, out cached)) {
         item = (TItem) cached.Target;
-        if (item!=null)
+        if (item != null)
           return true;
         items.Remove(key);
         cached.Free();
@@ -125,7 +129,7 @@ namespace Xtensive.Caching
       if (items.TryGetValue(key, out cached)) {
         if (!replaceIfExists) {
           var cachedItem = (TItem) cached.Target;
-          if (cachedItem!=null)
+          if (cachedItem != null)
             return cachedItem;
         }
         items.Remove(key);
@@ -169,7 +173,7 @@ namespace Xtensive.Caching
           try {
             pair.Value.Free();
           }
-          catch {}
+          catch { }
       }
       finally {
         items = new Dictionary<TKey, GCHandle>();
@@ -188,7 +192,7 @@ namespace Xtensive.Caching
     public virtual void CollectGarbage()
     {
       int count = items.Count;
-      if (count<=NoGcCount)
+      if (count <= NoGcCount)
         return;
 
       Exception error = null;
@@ -199,7 +203,7 @@ namespace Xtensive.Caching
         foreach (var pair in items) {
           var cached = pair.Value;
           var item = cached.Target;
-          if (item!=null)
+          if (item != null)
             newItems.Add(pair.Key, cached);
           else
             cached.Free();
@@ -217,7 +221,7 @@ namespace Xtensive.Caching
         // Logging
         if (CoreLog.IsLogged(LogLevel.Debug)) {
           CoreLog.Debug("WeakCache.CollectGarbage: removed: {0} from {1}", removedCount, count);
-          if (error!=null)
+          if (error != null)
             CoreLog.Debug(error, "Caught at WeakCache.CollectGarbage");
         }
       }
@@ -239,7 +243,7 @@ namespace Xtensive.Caching
     {
       foreach (var pair in items) {
         var item = ExtractTarget(pair.Value);
-        if (item!=null)
+        if (item != null)
           yield return item;
       }
     }
@@ -290,7 +294,7 @@ namespace Xtensive.Caching
     [SecuritySafeCritical]
     protected virtual void Dispose(bool disposing)
     {
-      if (items!=null) {
+      if (items != null) {
         try {
           Clear();
         }
