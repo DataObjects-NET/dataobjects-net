@@ -192,7 +192,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
           q.All<ALotOfFieldsEntityValid>().Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, ids))));
 
         var inlineQuery = session.Query.All<ALotOfFieldsEntityValid>()
-          .Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, new[] { 1, 2 }));
+          .Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, new[] { 1, 2, 3, 4 }));
 
         using (counter.Attach()) {
           Assert.That(inlineQuery.Any(), Is.True);
@@ -246,7 +246,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
 
         using (counter.Attach()) {
           var inlineQuery = await session.Query.All<ALotOfFieldsEntityValid>()
-          .Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, new[] { 1, 2 })).AsAsync();
+          .Where(e => e.Id.In(IncludeAlgorithm.ComplexCondition, new[] { 1, 2, 3, 4 })).AsAsync();
           Assert.That(inlineQuery.Any(), Is.True);
           Assert.That(counter.Count, Is.EqualTo(6));
         }
