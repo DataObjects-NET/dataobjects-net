@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       using (var session = Domain.OpenSession())
       using (var counter = new CommandCounter(session))
       using (var transaction = session.OpenTransaction()) {
-        var ids = Enumerable.Range(1, (StorageLimit - 3) / 2).ToArray((StorageLimit - 3) / 2);
+        var ids = Enumerable.Range(1, ((StorageLimit - 3) / 2) - 1).ToArray(((StorageLimit - 3) / 2) - 1);
         var results = new List<IEnumerable<ALotOfFieldsEntityValid>>(10);
 
         results.Add(session.Query.CreateDelayedQuery(q =>
@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Tests.Storage.CommandProcessing
       using (var session = await Domain.OpenSessionAsync())
       using (var counter = new CommandCounter(session))
       using (var transaction = session.OpenTransaction()) {
-        var ids = Enumerable.Range(1, (StorageLimit - 3) / 2).ToArray((StorageLimit - 3) / 2);
+        var ids = Enumerable.Range(1, ((StorageLimit - 3) / 2) - 1).ToArray(((StorageLimit - 3) / 2) - 1);
         var results = new List<IEnumerable<ALotOfFieldsEntityValid>>(10);
 
         results.Add(session.Query.CreateDelayedQuery(q =>
