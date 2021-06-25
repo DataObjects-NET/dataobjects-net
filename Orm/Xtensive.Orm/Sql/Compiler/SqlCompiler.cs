@@ -21,7 +21,7 @@ namespace Xtensive.Sql.Compiler
   public class SqlCompiler : SqlDriverBound,
     ISqlVisitor
   {
-    private readonly static Type SqlPlaceholderType = typeof(SqlPlaceholder);
+    private static readonly Type SqlPlaceholderType = typeof(SqlPlaceholder);
 
     protected readonly SqlValueType decimalType;
     protected readonly SqlTranslator translator;
