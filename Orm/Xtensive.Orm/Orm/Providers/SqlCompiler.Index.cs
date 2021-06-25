@@ -237,10 +237,35 @@ namespace Xtensive.Orm.Providers
       }
       else {
         var typeIdColumn = baseQuery.Columns[Handlers.Domain.Handlers.NameBuilder.TypeIdColumnName];
-        var typeIds = filterByTypes.Select(t => TypeIdRegistry[t]).ToArray();
-        filter = filterByTypes.Count == 1
-          ? typeIdColumn == TypeIdRegistry[filterByTypes.First()]
-          : SqlDml.In(typeIdColumn, SqlDml.Array(typeIds));
+
+        if (!useParameterForTypeId) {
+          filter = filterByTypes.Count == 1
+            ? typeIdColumn == TypeIdRegistry[filterByTypes.First()]
+            : SqlDml.In(typeIdColumn,
+                SqlDml.Array(filterByTypes.Select(t => TypeIdRegistry[t]).ToArray(filterByTypes.Count)));
+        }
+        else {
+          var typeMapping = Driver.GetTypeMapping(WellKnownTypes.Int32);
+          if (filterByTypes.Count == 1) {
+            var binding = new QueryParameterBinding(typeMapping,
+              CreateTypeIdAccessor(TypeIdRegistry[type]).CachingCompile(),
+              QueryParameterBindingType.Regular);
+            bindings.Add(binding);
+            filter = typeIdColumn == binding.ParameterReference;
+          }
+          else {
+            var typeIdParameters = filterByTypes
+              .Select(t => {
+                var binding = new QueryParameterBinding(typeMapping,
+                  CreateTypeIdAccessor(TypeIdRegistry[t]).CachingCompile(),
+                  QueryParameterBindingType.Regular);
+                bindings.Add(binding);
+                return binding.ParameterReference;
+              })
+              .ToArray(filterByTypes.Count);
+            filter = SqlDml.In(typeIdColumn, SqlDml.Array(typeIdParameters));
+          }
+        }
       }
       var query = SqlDml.Select(baseQuery.From);
       query.Columns.AddRange(baseQuery.Columns);

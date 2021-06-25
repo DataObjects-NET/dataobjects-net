@@ -21,6 +21,8 @@ namespace Xtensive.Sql.Compiler
   public class SqlCompiler : SqlDriverBound,
     ISqlVisitor
   {
+    private readonly static Type SqlPlaceholderType = typeof(SqlPlaceholder);
+
     protected readonly SqlValueType decimalType;
     protected readonly SqlTranslator translator;
     
@@ -191,17 +193,27 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlArray node)
     {
       var items = node.GetValues();
-      if (items.Length==0) {
+      if (items.Length == 0) {
         context.Output.AppendText(translator.Translate(context, node, ArraySection.EmptyArray));
         return;
       }
       context.Output.AppendText(translator.Translate(context, node, ArraySection.Entry));
-      for (int i = 0; i < items.Length-1; i++) {
-        context.Output.AppendText(translator.Translate(context, items[i]));
-        context.Output.AppendDelimiter(translator.RowItemDelimiter);
+      if (node.ItemType == SqlPlaceholderType) {
+        for (var i = 0; i < items.Length - 1; i++) {
+          Visit((SqlPlaceholder) items[i]);
+          context.Output.AppendDelimiter(translator.RowItemDelimiter);
+        }
+        Visit((SqlPlaceholder) items[items.Length - 1]);
+        context.Output.AppendText(translator.Translate(context, node, ArraySection.Exit));
       }
-      context.Output.AppendText(translator.Translate(context, items[items.Length-1]));
-      context.Output.AppendText(translator.Translate(context, node, ArraySection.Exit));
+      else {
+        for (var i = 0; i < items.Length - 1; i++) {
+          context.Output.AppendText(translator.Translate(context, items[i]));
+          context.Output.AppendDelimiter(translator.RowItemDelimiter);
+        }
+        context.Output.AppendText(translator.Translate(context, items[items.Length - 1]));
+        context.Output.AppendText(translator.Translate(context, node, ArraySection.Exit));
+      }
     }
 
     public virtual void Visit(SqlAssignment node)
