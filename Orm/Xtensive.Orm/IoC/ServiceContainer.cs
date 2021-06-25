@@ -27,7 +27,7 @@ namespace Xtensive.IoC
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
-    private static Type typeofIServiceContainer =   typeof(IServiceContainer);
+    private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
 
     private readonly Dictionary<Key, List<ServiceRegistration>> types =
       new Dictionary<Key, List<ServiceRegistration>>();

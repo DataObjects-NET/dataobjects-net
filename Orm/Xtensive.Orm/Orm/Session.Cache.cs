@@ -21,10 +21,11 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
+    private static readonly Converter<EntityState, Key> keyExtractor = i => i.Key;
+
     // EntitySets with cached items that filled their cache
     // within DisableSaveChanges() scope.
     private HashSet<EntitySetBase> entitySetsWithInvalidState;
-    private static readonly Converter<EntityState, Key> keyExtractor = i => i.Key;
 
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }

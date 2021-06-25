@@ -100,8 +100,6 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public void Add(TItem item) => Add(item, true);
 
-    private static Dictionary<TKey, GCHandle> CreateDictionary() => new Dictionary<TKey, GCHandle>();
-
     /// <inheritdoc/>
     [SecuritySafeCritical]
     public virtual TItem Add(TItem item, bool replaceIfExists)
@@ -234,6 +232,8 @@ namespace Xtensive.Caching
     #endregion
 
     #region Private / internal methods
+
+    private static Dictionary<TKey, GCHandle> CreateDictionary() => new Dictionary<TKey, GCHandle>();
 
     private void RegisterOperation(int weight)
     {

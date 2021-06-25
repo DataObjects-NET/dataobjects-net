@@ -9,11 +9,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Reflection;
+using ServiceRegistrationKey = System.ValueTuple<System.Type, bool>;
 
 namespace Xtensive.IoC
 {
-  using ServiceRegistrationKey = ValueTuple<Type, bool>;
-
   /// <summary>
   /// Describes single service mapping entry for <see cref="ServiceContainer"/>.
   /// </summary>
