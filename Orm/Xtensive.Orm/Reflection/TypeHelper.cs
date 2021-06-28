@@ -20,7 +20,6 @@ using Xtensive.Core;
 
 using Xtensive.Sorting;
 
-
 namespace Xtensive.Reflection
 {
   /// <summary>
@@ -28,7 +27,25 @@ namespace Xtensive.Reflection
   /// </summary>
   public static class TypeHelper
   {
+    private class TypesEqualityComparer : IEqualityComparer<(Type, Type[])>
+    {
+      public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
+         x.Item1 == y.Item1 && x.Item2.SequenceEqual(y.Item2);
+
+      public int GetHashCode((Type, Type[]) obj)
+      {
+        var hash = obj.Item1.GetHashCode();
+        for (int i = obj.Item2.Length; i-- > 0;) {
+          hash = HashCode.Combine(hash, obj.Item2[i]);
+        }
+        return hash;
+      }
+    }
+
     private const string invokeMethodName = "Invoke";
+
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
+      new ConcurrentDictionary<(Type, Type[]), ConstructorInfo>(new TypesEqualityComparer());
 
     private static readonly object emitLock = new object();
     private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
@@ -144,13 +161,13 @@ namespace Xtensive.Reflection
         var rank = currentForType.GetArrayRank();
         associateTypePrefix = rank == 1 ? "Array`1" : $"Array{rank}D`1";
 
-        genericArguments = new[] {elementType};
+        genericArguments = new[] { elementType };
       }
       else if (currentForType == WellKnownTypes.Enum) {
         // Enum type
         var underlyingType = Enum.GetUnderlyingType(originalForType);
         associateTypePrefix = "Enum`2";
-        genericArguments = new[] {originalForType, underlyingType};
+        genericArguments = new[] { originalForType, underlyingType };
       }
       else if (currentForType == WellKnownTypes.Array) {
         // Untyped Array type
@@ -310,7 +327,7 @@ namespace Xtensive.Reflection
 
             // Trying to paste original type as generic parameter
             suffix = CorrectGenericSuffix(associateTypeName, 1);
-            result = Activate(location.First, suffix, new[] {originalForType}, constructorParams) as T;
+            result = Activate(location.First, suffix, new[] { originalForType }, constructorParams) as T;
             if (result != null) {
               foundForType = currentForType;
               return result;
@@ -319,7 +336,7 @@ namespace Xtensive.Reflection
             // Trying a generic one (e.g. EnumerableInterfaceHandler`2<T, ...>)
             Type[] newGenericArguments;
             if (genericArguments == null || genericArguments.Length == 0) {
-              newGenericArguments = new[] {originalForType};
+              newGenericArguments = new[] { originalForType };
               associateTypeName = AddSuffix($"{location.Second}.{associateTypePrefix}`1", associateTypeSuffix);
             }
             else {
@@ -482,7 +499,7 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="assembly">Assembly where the type is located.</param>
     /// <param name="typeName">Name of the type to instantiate.</param>
-    /// <param name="genericArguments">Generic arguments for the type to instantiate 
+    /// <param name="genericArguments">Generic arguments for the type to instantiate
     /// (<see langword="null"/> means type isn't a generic type definition).</param>
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
@@ -501,7 +518,7 @@ namespace Xtensive.Reflection
     /// or an error has occurred.
     /// </summary>
     /// <param name="type">Generic type definition to instantiate.</param>
-    /// <param name="genericArguments">Generic arguments for the type to instantiate 
+    /// <param name="genericArguments">Generic arguments for the type to instantiate
     /// (<see langword="null"/> means <paramref name="type"/> isn't a generic type definition).</param>
     /// <param name="arguments">Arguments to pass to the type constructor.</param>
     /// <returns>An instance of specified type; <see langword="null"/>, if either no such a type,
@@ -592,7 +609,7 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Gets the public constructor of type <paramref name="type"/> 
+    /// Gets the public constructor of type <paramref name="type"/>
     /// accepting specified <paramref name="arguments"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
@@ -601,29 +618,34 @@ namespace Xtensive.Reflection
     /// Appropriate constructor, if a single match is found;
     /// otherwise, <see langword="null"/>.
     /// </returns>
-    public static ConstructorInfo GetConstructor(this Type type, object[] arguments)
-    {
+    public static ConstructorInfo GetConstructor(this Type type, object[] arguments) =>
+      GetSingleConstructor(type, arguments.Select(a => a?.GetType()).ToArray());
+
+    public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
+      constructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+
+    private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
+      (var type, var argumentTypes) = t;
       var constructors =
         from ctor in type.GetConstructors()
         let parameters = ctor.GetParameters()
-        where parameters.Length == arguments.Length
-        let zipped = parameters.Zip(arguments, (parameter, argument) => (parameter, argument))
+        where parameters.Length == argumentTypes.Length
+        let zipped = parameters.Zip(argumentTypes, (parameter, argumentType) => (parameter, argumentType))
         where (
           from pair in zipped
           let parameter = pair.parameter
           let parameterType = parameter.ParameterType
-          let argument = pair.argument
-          let argumentType = argument == null ? WellKnownTypes.Object : argument.GetType()
+          let argumentType = pair.argumentType
           select
             !parameter.IsOut && (
-              parameterType.IsAssignableFrom(argumentType) ||
-              (!parameterType.IsValueType && argument == null) ||
-              (parameterType.IsNullable() && argument == null)
+              parameterType.IsAssignableFrom(argumentType ?? WellKnownTypes.Object) ||
+              (!parameterType.IsValueType && argumentType == null) ||
+              (parameterType.IsNullable() && argumentType == null)
             )
         ).All(passed => passed)
         select ctor;
       return constructors.SingleOrDefault();
-    }
+    };
 
     /// <summary>
     /// Orders the specified <paramref name="types"/> by their inheritance
@@ -880,7 +902,7 @@ namespace Xtensive.Reflection
     public static bool IsFinal<T>() => IsFinal(typeof(T));
 
     /// <summary>
-    /// Gets the delegate "Invoke" method (describing the delegate) for 
+    /// Gets the delegate "Invoke" method (describing the delegate) for
     /// the specified <paramref name="delegateType"/>.
     /// </summary>
     /// <param name="delegateType">Type of the delegate to get the "Invoke" method of.</param>
@@ -998,7 +1020,7 @@ namespace Xtensive.Reflection
     /// <returns>
     /// If <paramref name="type"/> is a reference type or a <see cref="Nullable{T}"/> instance
     /// returns <paramref name="type"/>.
-    /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>. 
+    /// Otherwise returns <see cref="Nullable{T}"/> of <paramref name="type"/>.
     /// </returns>
     public static Type ToNullable(this Type type)
     {

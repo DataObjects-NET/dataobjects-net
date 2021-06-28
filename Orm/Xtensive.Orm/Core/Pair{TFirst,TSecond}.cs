@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Ustinov
 // Created:    2007.06.01
 
@@ -17,7 +17,7 @@ namespace Xtensive.Core
   /// <typeparam name="TSecond">The <see cref="Type"/> of second value.</typeparam>
   [Serializable]
   [DebuggerDisplay("{First}, {Second}")]
-  public readonly struct Pair<TFirst, TSecond> : 
+  public readonly struct Pair<TFirst, TSecond> :
     IComparable<Pair<TFirst, TSecond>>,
     IEquatable<Pair<TFirst, TSecond>>
   {
@@ -44,7 +44,7 @@ namespace Xtensive.Core
     public int CompareTo(Pair<TFirst, TSecond> other)
     {
       int result = AdvancedComparerStruct<TFirst>.System.Compare(First, other.First);
-      if (result!=0)
+      if (result != 0)
         return result;
       return AdvancedComparerStruct<TSecond>.System.Compare(Second, other.Second);
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Core
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj.GetType()!=typeof (Pair<TFirst, TSecond>))
+      if (obj.GetType() != typeof(Pair<TFirst, TSecond>))
         return false;
       return Equals((Pair<TFirst, TSecond>) obj);
     }

@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Collections;
 using System.Linq;
+using Xtensive.IoC;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Upgrade;
 
@@ -41,6 +42,9 @@ namespace Xtensive.Orm.Configuration
     /// Gets all the registered <see cref="Session"/>-level service types.
     /// </summary>
     public IEnumerable<Type> SessionServices => this.Where(IsSessionService);
+
+    public ServiceRegistration[] ServiceRegistrations =>
+      serviceRegistrations ??= SessionServices.SelectMany(ServiceRegistration.CreateAll).ToArray();
 
     /// <summary>
     /// Gets all the registered <see cref="IModule"/> implementations.

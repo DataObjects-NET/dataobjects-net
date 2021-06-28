@@ -18,7 +18,7 @@ namespace Xtensive.Core
   /// <typeparam name="T">The type of both stored values.</typeparam>
   [Serializable]
   [DebuggerDisplay("{First}, {Second}")]
-  public struct Pair<T> : 
+  public readonly struct Pair<T> :
     IEquatable<Pair<T>>,
     IComparable<Pair<T>>
   {
