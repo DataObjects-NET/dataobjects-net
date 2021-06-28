@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.01
 
@@ -34,8 +34,8 @@ namespace Xtensive.Orm.Tests.Linq
             Country = x.Address.Country
           })
           ;
-      var expected = Session.Query.All<Invoice>().AsEnumerable()
-        .GroupJoin(Session.Query.All<Customer>().AsEnumerable(),
+      var expected = Invoices
+        .GroupJoin(Customers,
           i => i.Customer,
           c => c,
           (i, ic) => new {i, ic})
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Tests.Linq
         .GroupBy(i => i.Customer)
         .SelectMany(g => g);
       var list = result.ToList();
-      var expected = Session.Query.All<Invoice>().ToList();
+      var expected = Invoices;
       Assert.That(list, Is.Not.Empty);
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Invoice>()
         .GroupBy(i => i.Customer)
         .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
-      var expected = Session.Query.All<Invoice>().ToList()
+      var expected = Invoices
         .GroupBy(i => i.Customer)
         .SelectMany(g => g, (grouping, invoice)=>new {Count = grouping.Count(), Invoice = invoice});
       var list = result.ToList();
@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Tests.Linq
         .SelectMany(g => g.Select(i => i.Customer));
       var list = result.ToList();
       Assert.That(list, Is.Not.Empty);
-      var expected = Session.Query.All<Invoice>().Select(i => i.Customer).ToList();
+      var expected = Invoices.Select(i => i.Customer);
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
     }
 
@@ -104,10 +104,9 @@ namespace Xtensive.Orm.Tests.Linq
         .GroupBy(i => i.Customer)
         .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2));
       var list = result.ToList();
-      var expected = Session.Query.All<Invoice>().ToList()
+      var expected = Invoices
         .GroupBy(i => i.Customer)
-        .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2))
-        .ToList();
+        .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2));
 
       Assert.That(list, Is.Not.Empty);
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
@@ -122,10 +121,9 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(g => g.Count() > 2)
         .SelectMany(g => g.Select(i => i.Customer));
       var list = result.ToList();
-      var expected = Session.Query.All<Invoice>().ToList()
+      var expected = Invoices
         .GroupBy(i => i.Customer)
-        .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2))
-        .ToList();
+        .SelectMany(g => g.Select(i => i.Customer).Where(c => g.Count() > 2));
 
       Assert.That(list, Is.Not.Empty);
       Assert.IsTrue(list.Except(expected).IsNullOrEmpty());
@@ -134,7 +132,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ParameterTest()
     {
-      var expectedCount = Session.Query.All<Invoice>().Count();
+      var expectedCount = Invoices.Count();
       var result = Session.Query.All<Customer>()
         .SelectMany(i => i.Invoices.Select(t => i));
 
@@ -185,7 +183,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void EntitySetTest()
     {
-      int expected = Session.Query.All<Invoice>().Count();
+      int expected = Invoices.Count();
       IQueryable<Invoice> result = Session.Query.All<Customer>()
         .SelectMany(c => c.Invoices);
 
@@ -197,7 +195,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetWithCastTest()
     {
       var result = Session.Query.All<Customer>().SelectMany(c => (IEnumerable<Invoice>) c.Invoices).ToList();
-      var expected = Session.Query.All<Invoice>().ToList();
+      var expected = Invoices;
 
       Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
@@ -207,7 +205,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectManyWithCastTest()
     {
       var result = Session.Query.All<Customer>().SelectMany(c => (IEnumerable<Invoice>) Session.Query.All<Invoice>().Where(i => i.Customer==c)).ToList();
-      var expected = Session.Query.All<Invoice>().ToList();
+      var expected = Invoices;
 
       Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(result.Except(expected).IsNullOrEmpty());
@@ -334,7 +332,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectManyAfterSelect2Test()
     {
-      int expected = Session.Query.All<Invoice>().Count();
+      int expected = Invoices.Count();
       IQueryable<Invoice> result = Session.Query.All<Customer>()
         .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c)).SelectMany(i => i);
 
@@ -345,7 +343,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleTest()
     {
-      int expected = Session.Query.All<Invoice>().Count();
+      int expected = Invoices.Count();
       IQueryable<Invoice> result = Session.Query.All<Customer>()
         .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c));
 
@@ -356,7 +354,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SimpleWithResultSelectorTest()
     {
-      var expected = Session.Query.All<Invoice>().Count();
+      var expected = Invoices.Count();
       var result = Session.Query.All<Customer>()
         .SelectMany(c => Session.Query.All<Invoice>().Where(i => i.Customer==c), (c, i) => new {c, i});
 
@@ -445,7 +443,7 @@ namespace Xtensive.Orm.Tests.Linq
         orderby i
         select i;
 
-      var expected = from c in Session.Query.All<Customer>().ToList()
+      var expected = from c in Customers
         from i in (c.Invoices.Select(x => c.FirstName + x.BillingAddress.StreetAddress).Where(x => x.StartsWith("M")))
         orderby i
         select i;
@@ -465,7 +463,7 @@ namespace Xtensive.Orm.Tests.Linq
         orderby n
         select n;
 
-      var expected = from c in Session.Query.All<Customer>().ToList()
+      var expected = from c in Customers
         from n in (c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
           .Union(c.Invoices.Select(i => c.FirstName + i.BillingAddress.StreetAddress))
         orderby n
@@ -484,7 +482,7 @@ namespace Xtensive.Orm.Tests.Linq
           .Intersect(c.Invoices.Where(x => x.BillingAddress.StreetAddress.StartsWith("A"))))
         orderby i.InvoiceId
         select i.InvoiceId;
-      var expected = from c in Session.Query.All<Customer>().ToList()
+      var expected = from c in Customers
         from i in (c.Invoices.Where(x => x.BillingAddress.StreetAddress.StartsWith("A")).Intersect(c.Invoices))
         orderby i.InvoiceId
         select i.InvoiceId;

@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -29,7 +29,7 @@ namespace Xtensive.Orm.BulkOperations.ContainsTestModel
 
 namespace Xtensive.Orm.BulkOperations.Tests
 {
-  public class ContainsTest : AutoBuildTest
+  public class ContainsTest : BulkOperationBaseTest
   {
     private long[] tagIds;
 
@@ -45,8 +45,10 @@ namespace Xtensive.Orm.BulkOperations.Tests
       tagIds = Enumerable.Range(0, 100).Select(i => (long) i).ToArray();
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        foreach (var id in tagIds.Concat(Enumerable.Repeat(1000, 1).Select(i => (long) i)))
-          new TagType(session, id) { ProjectedValueAdjustment = -1 };
+        foreach (var id in tagIds.Concat(Enumerable.Repeat(1000, 1).Select(i => (long) i))) {
+          _ = new TagType(session, id) { ProjectedValueAdjustment = -1 };
+        }
+
         transaction.Complete();
       }
     }
@@ -86,7 +88,7 @@ namespace Xtensive.Orm.BulkOperations.Tests
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        Assert.Throws<NotSupportedException>(() => session.Query.All<TagType>()
+        _ = Assert.Throws<NotSupportedException>(() => session.Query.All<TagType>()
           .Where(t => t.Id.In(IncludeAlgorithm.TemporaryTable, tagIds))
           .Set(t => t.ProjectedValueAdjustment, 2)
           .Update());

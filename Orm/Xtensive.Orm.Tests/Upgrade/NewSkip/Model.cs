@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.02.24
 
@@ -9,6 +9,8 @@ using System.Linq.Expressions;
 using System.Security.Cryptography;
 using System.Text;
 using Xtensive.Core;
+using Xtensive.Orm.Building;
+using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
@@ -457,6 +459,24 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip.Model
       public ComplexKeyEntity(int key1, int key2)
         : base(key1, key2)
       {
+      }
+    }
+
+    public class MySQLModelFixModule : IModule
+    {
+      public void OnBuilt(Domain domain)
+      {
+      }
+
+      public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
+      {
+        var provider = context.Configuration.ConnectionInfo.ConnectionString ?? context.Configuration.ConnectionInfo.ConnectionUrl.Protocol;
+        if (provider != WellKnown.Provider.MySql) {
+          return;
+        }
+        var typeDef = model.Types[typeof(X)];
+        var problemField = typeDef.Fields["FLongString"];
+        problemField.DefaultValue = null;
       }
     }
   }

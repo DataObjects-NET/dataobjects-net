@@ -9,12 +9,11 @@ using System.Collections.Generic;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
+using AttributesKey = System.ValueTuple<System.Reflection.MemberInfo, System.Type, Xtensive.Reflection.AttributeSearchOptions>;
+using PerAttributeKey = System.ValueTuple<System.Reflection.MemberInfo, Xtensive.Reflection.AttributeSearchOptions>;
 
 namespace Xtensive.Reflection
 {
-  using AttributesKey = ValueTuple<MemberInfo, Type, AttributeSearchOptions>;
-  using PerAttributeKey = ValueTuple<MemberInfo, AttributeSearchOptions>;
-
   /// <summary>
   /// <see cref="Attribute"/> related helper \ extension methods.
   /// </summary>

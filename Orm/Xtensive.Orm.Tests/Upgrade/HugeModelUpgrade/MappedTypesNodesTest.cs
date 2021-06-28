@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.DefaultDatabase = "DO-Tests";
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultDatabase = WellKnownDatabases.MultiDatabase.MainDb;
+      configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
       configuration.Types.Register(typeof(TestEntity0).Assembly, typeof(TestEntity0).Namespace);
       return configuration;
     }
@@ -69,16 +69,21 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     protected override IEnumerable<NodeConfiguration> GetAdditionalNodeConfigurations(DomainUpgradeMode upgradeMode)
     {
       var databases = new[] {
-        "DO-Tests-1", "DO-Tests-2", "DO-Tests-3", "DO-Tests-4", "DO-Tests-5", "DO-Tests-6",
-        "DO-Tests-7", "DO-Tests-8", "DO-Tests-9", "DO-Tests-10", "DO-Tests-11", "DO-Tests-12",
+        WellKnownDatabases.MultiDatabase.AdditionalDb1, WellKnownDatabases.MultiDatabase.AdditionalDb2,
+        WellKnownDatabases.MultiDatabase.AdditionalDb3, WellKnownDatabases.MultiDatabase.AdditionalDb4,
+        WellKnownDatabases.MultiDatabase.AdditionalDb5, WellKnownDatabases.MultiDatabase.AdditionalDb6,
+        WellKnownDatabases.MultiDatabase.AdditionalDb7, WellKnownDatabases.MultiDatabase.AdditionalDb8,
+        WellKnownDatabases.MultiDatabase.AdditionalDb9, WellKnownDatabases.MultiDatabase.AdditionalDb10,
+        WellKnownDatabases.MultiDatabase.AdditionalDb11, WellKnownDatabases.MultiDatabase.AdditionalDb12,
       };
 
       var index = 0;
       foreach (var database in databases) {
         index++;
-        var node = new NodeConfiguration("Node" + index);
-        node.UpgradeMode = upgradeMode;
-        node.DatabaseMapping.Add("DO-Tests", database);
+        var node = new NodeConfiguration("Node" + index) {
+          UpgradeMode = upgradeMode
+        };
+        node.DatabaseMapping.Add(WellKnownDatabases.MultiDatabase.MainDb, database);
         yield return node;
       }
     }

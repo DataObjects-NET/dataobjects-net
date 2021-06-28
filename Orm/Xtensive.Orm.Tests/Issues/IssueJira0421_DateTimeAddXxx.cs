@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.02.14
 
@@ -31,6 +31,7 @@ namespace Xtensive.Orm.Tests.Issues
   {
     //    private DateTime today = new DateTime(2016, 01, 02, 03, 04, 05, 347); todo This Value failed with sqlite provider because of accuracy millisecond error
     private DateTime today = new DateTime(2016, 01, 02, 03, 04, 05, 348);
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
@@ -69,7 +70,7 @@ namespace Xtensive.Orm.Tests.Issues
       }
     }
 
-    private static void RunTest(Session session, Expression<Func<EntityWithDate,bool>> filter)
+    private static void RunTest(Session session, Expression<Func<EntityWithDate, bool>> filter)
     {
       var count = session.Query.All<EntityWithDate>().Count(filter);
       Assert.That(count, Is.EqualTo(1));
@@ -78,43 +79,52 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void AddYearsTest()
     {
-      RunAllTestsInt(value => e => e.Today.AddYears(value)==today.AddYears(value));
+      RunAllTestsInt(value => e => e.Today.AddYears(value) == today.AddYears(value));
     }
 
     [Test]
     public void AddMonthsTest()
     {
-      RunAllTestsInt(value => e => e.Today.AddMonths(value)==today.AddMonths(value));
+      RunAllTestsInt(value => e => e.Today.AddMonths(value) == today.AddMonths(value));
     }
 
     [Test]
     public void AddDaysTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddDays(value)==today.AddDays(value));
+      RunAllTestsDouble(value => e => e.Today.AddDays(value) == today.AddDays(value));
     }
 
     [Test]
     public void AddHoursTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddHours(value)==today.AddHours(value));
+      RunAllTestsDouble(value => e => e.Today.AddHours(value) == today.AddHours(value));
     }
 
     [Test]
     public void AddMinutesTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddMinutes(value)==today.AddMinutes(value));
+      RunAllTestsDouble(value => e => e.Today.AddMinutes(value) == today.AddMinutes(value));
     }
 
     [Test]
     public void AddSecondsTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddSeconds(value)==today.AddSeconds(value));
+      RunAllTestsDouble(value => e => e.Today.AddSeconds(value) == today.AddSeconds(value));
     }
 
     [Test]
     public void AddMillisecondsTest()
     {
-      RunAllTestsDouble(value => e => e.Today.AddMilliseconds(value)==today.AddMilliseconds(value));
+      CheckNotMySql55();
+      RunAllTestsDouble(value => e => e.Today.AddMilliseconds(value) == today.AddMilliseconds(value));
+    }
+
+    private void CheckNotMySql55()
+    {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.MySql)
+        && StorageProviderInfo.Instance.CheckProviderVersionIsAtMost(StorageProviderVersion.MySql56)) {
+        throw new IgnoreException("Test requires MySQL version greater than 5.5");
+      }
     }
   }
 }

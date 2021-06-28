@@ -40,6 +40,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// </summary>
     public readonly bool FetchLazyFields;
 
+    /// <summary>
+    /// Unique identifier of prefetch operation which created this instance. Used for <see cref="EntitySet{TItem}"/> items prefetching.
+    /// </summary>
+    public readonly Guid? PrefetchOperationId;
+
     /// <inheritdoc/>
     public bool Equals(PrefetchFieldDescriptor other)
     {
@@ -49,11 +54,12 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (ReferenceEquals(null, obj)) {
         return false;
-      if (obj.GetType()!=typeof (PrefetchFieldDescriptor))
-        return false;
-      return Equals((PrefetchFieldDescriptor) obj);
+      }
+      return obj.GetType() != typeof(PrefetchFieldDescriptor)
+        ? false :
+        Equals((PrefetchFieldDescriptor) obj);
     }
 
     /// <inheritdoc/>
@@ -64,8 +70,9 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     internal void NotifySubscriber(Key ownerKey, Key referencedKey)
     {
-      if (keyExtractionSubscriber != null)
+      if (keyExtractionSubscriber != null) {
         keyExtractionSubscriber.Invoke(ownerKey, Field, referencedKey);
+      }
     }
 
 
@@ -76,8 +83,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// </summary>
     /// <param name="field">The field whose value will be fetched.</param>
     public PrefetchFieldDescriptor(FieldInfo field)
-      : this(field, null, true, true, null)
-    {}
+      : this(field, null, true, true, null, null)
+    { }
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -85,9 +92,9 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// <param name="field">The field whose value will be fetched.</param>
     /// <param name="entitySetItemCountLimit">The maximal count of items 
     /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
-    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit) :
-      this(field, entitySetItemCountLimit, false, false, null)
-    {}
+    public PrefetchFieldDescriptor(FieldInfo field, int? entitySetItemCountLimit)
+      : this(field, entitySetItemCountLimit, false, false, null, null)
+    { }
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -98,9 +105,23 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// will be fetched.</param>
     /// <param name="fetchLazyFields">if set to <see langword="true"/> 
     /// children lazy-load fields will be fetched.</param>
-    public PrefetchFieldDescriptor(FieldInfo field, bool fetchFieldsOfReferencedEntity, bool fetchLazyFields) :
-      this(field, null, fetchFieldsOfReferencedEntity, fetchLazyFields, null)
-    {}
+    public PrefetchFieldDescriptor(FieldInfo field, bool fetchFieldsOfReferencedEntity, bool fetchLazyFields)
+      : this(field, null, fetchFieldsOfReferencedEntity, fetchLazyFields, null, null)
+    { }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="field">The field whose value will be fetched.</param>
+    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true" /> 
+    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/> 
+    /// will be fetched.</param>
+    /// <param name="fetchLazyFields">if set to <see langword="true"/> 
+    /// children lazy-load fields will be fetched.</param>
+    /// <param name="prefetchOperationId">The prefetch operation identifier which creates the descriptor</param>
+    public PrefetchFieldDescriptor(FieldInfo field, bool fetchFieldsOfReferencedEntity, bool fetchLazyFields, Guid prefetchOperationId)
+      : this(field, null, fetchFieldsOfReferencedEntity, fetchLazyFields, null, prefetchOperationId)
+    { }
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -117,21 +138,58 @@ namespace Xtensive.Orm.Internals.Prefetch
     /// if a key of a referenced entity has been extracted and
     /// its exact type can't be get or inferred.</param>
     public PrefetchFieldDescriptor(
-      FieldInfo field, 
-      int? entitySetItemCountLimit, 
-      bool fetchFieldsOfReferencedEntity, 
+      FieldInfo field,
+      int? entitySetItemCountLimit,
+      bool fetchFieldsOfReferencedEntity,
       bool fetchLazyFields,
       Action<Key, FieldInfo, Key> keyExtractionSubscriber)
     {
       ArgumentValidator.EnsureArgumentNotNull(field, "field");
-      if (entitySetItemCountLimit != null)
+      if (entitySetItemCountLimit != null) {
         ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
           "entitySetItemCountLimit");
+      }
       Field = field;
       FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
       EntitySetItemCountLimit = entitySetItemCountLimit;
       FetchLazyFields = fetchLazyFields;
       this.keyExtractionSubscriber = keyExtractionSubscriber;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="field">The field whose value will be fetched.</param>
+    /// <param name="entitySetItemCountLimit">The maximal count of items
+    /// which will be loaded during prefetch of an <see cref="EntitySet{TItem}"/>.</param>
+    /// <param name="fetchFieldsOfReferencedEntity">If it is set to <see langword="true"/>
+    /// then fields' values of an <see cref="Entity"/> referenced by <see cref="Field"/>
+    /// will be fetched.</param>
+    /// <param name="fetchLazyFields">if set to <see langword="true"/> 
+    /// children lazy-load fields will be fetched.</param>
+    /// <param name="keyExtractionSubscriber">The delegate which will be invoked
+    /// if a key of a referenced entity has been extracted and
+    /// its exact type can't be get or inferred.</param>
+    /// <param name="prefetchOperationId">Identifies the perfetch operation which creates the descriptor.</param>
+    private PrefetchFieldDescriptor(
+      FieldInfo field,
+      int? entitySetItemCountLimit,
+      bool fetchFieldsOfReferencedEntity,
+      bool fetchLazyFields,
+      Action<Key, FieldInfo, Key> keyExtractionSubscriber,
+      Guid? prefetchOperationId)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(field, "field");
+      if (entitySetItemCountLimit != null) {
+        ArgumentValidator.EnsureArgumentIsGreaterThan(entitySetItemCountLimit.Value, 0,
+          "entitySetItemCountLimit");
+      }
+      Field = field;
+      FetchFieldsOfReferencedEntity = fetchFieldsOfReferencedEntity;
+      EntitySetItemCountLimit = entitySetItemCountLimit;
+      FetchLazyFields = fetchLazyFields;
+      this.keyExtractionSubscriber = keyExtractionSubscriber;
+      PrefetchOperationId = prefetchOperationId;
     }
   }
 }

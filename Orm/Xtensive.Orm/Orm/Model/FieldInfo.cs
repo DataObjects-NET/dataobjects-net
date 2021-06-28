@@ -74,9 +74,8 @@ namespace Xtensive.Orm.Model
     {
       [DebuggerStepThrough]
       get { return fieldId; }
-      set
-      {
-        if (fieldId!=NoFieldId)
+      set {
+        if (fieldId != NoFieldId)
           throw Exceptions.AlreadyInitialized("FieldId");
         fieldId = value;
       }
@@ -88,10 +87,9 @@ namespace Xtensive.Orm.Model
     public bool IsSystem
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.System)!=0; }
+      get { return (Attributes & FieldAttributes.System) != 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.System)
@@ -105,10 +103,9 @@ namespace Xtensive.Orm.Model
     public bool SkipVersion
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.SkipVersion)!=0; }
+      get { return (Attributes & FieldAttributes.SkipVersion) != 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.SkipVersion)
@@ -122,7 +119,7 @@ namespace Xtensive.Orm.Model
     public bool ManualVersion
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.ManualVersion)!=0; }
+      get { return (Attributes & FieldAttributes.ManualVersion) != 0; }
     }
 
     /// <summary>
@@ -131,7 +128,7 @@ namespace Xtensive.Orm.Model
     public bool AutoVersion
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.AutoVersion)!=0; }
+      get { return (Attributes & FieldAttributes.AutoVersion) != 0; }
     }
 
     /// <summary>
@@ -140,7 +137,7 @@ namespace Xtensive.Orm.Model
     public bool IsTypeId
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.TypeId)!=0; }
+      get { return (Attributes & FieldAttributes.TypeId) != 0; }
     }
 
     /// <summary>
@@ -149,7 +146,7 @@ namespace Xtensive.Orm.Model
     public bool IsTypeDiscriminator
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.TypeDiscriminator)!=0; }
+      get { return (Attributes & FieldAttributes.TypeDiscriminator) != 0; }
       set { Attributes = value ? Attributes | FieldAttributes.TypeDiscriminator : Attributes & ~FieldAttributes.TypeDiscriminator; }
     }
 
@@ -161,8 +158,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Declared) > 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Declared) & ~FieldAttributes.Inherited
@@ -177,8 +173,7 @@ namespace Xtensive.Orm.Model
     {
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Enum) > 0; }
-      private set
-      {
+      private set {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Enum)
@@ -194,8 +189,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return (Attributes & FieldAttributes.Inherited) > 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value
           ? (Attributes | FieldAttributes.Inherited) & ~FieldAttributes.Declared
@@ -209,13 +203,12 @@ namespace Xtensive.Orm.Model
     public bool IsPrimaryKey
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.PrimaryKey)!=0; }
+      get { return (Attributes & FieldAttributes.PrimaryKey) != 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.PrimaryKey : Attributes & ~FieldAttributes.PrimaryKey;
-        if (column!=null)
+        if (column != null)
           column.IsPrimaryKey = true;
         else
           foreach (FieldInfo childField in Fields)
@@ -229,7 +222,7 @@ namespace Xtensive.Orm.Model
     public bool IsNested
     {
       [DebuggerStepThrough]
-      get { return Parent!=null; }
+      get { return Parent != null; }
     }
 
     /// <summary>
@@ -238,10 +231,9 @@ namespace Xtensive.Orm.Model
     public bool IsExplicit
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Explicit)!=0; }
+      get { return (Attributes & FieldAttributes.Explicit) != 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.Explicit : Attributes & ~FieldAttributes.Explicit;
       }
@@ -253,10 +245,9 @@ namespace Xtensive.Orm.Model
     public bool IsInterfaceImplementation
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.InterfaceImplementation)!=0; }
+      get { return (Attributes & FieldAttributes.InterfaceImplementation) != 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.InterfaceImplementation : Attributes & ~FieldAttributes.InterfaceImplementation;
       }
@@ -277,7 +268,7 @@ namespace Xtensive.Orm.Model
     public bool IsEntity
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Entity)!=0; }
+      get { return (Attributes & FieldAttributes.Entity) != 0; }
     }
 
     /// <summary>
@@ -286,7 +277,7 @@ namespace Xtensive.Orm.Model
     public bool IsStructure
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Structure)!=0; }
+      get { return (Attributes & FieldAttributes.Structure) != 0; }
     }
 
     /// <summary>
@@ -295,7 +286,7 @@ namespace Xtensive.Orm.Model
     public bool IsEntitySet
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.EntitySet)!=0; }
+      get { return (Attributes & FieldAttributes.EntitySet) != 0; }
     }
 
     /// <summary>
@@ -304,10 +295,9 @@ namespace Xtensive.Orm.Model
     public bool IsNullable
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.Nullable)!=0; }
+      get { return (Attributes & FieldAttributes.Nullable) != 0; }
       [DebuggerStepThrough]
-      private set
-      {
+      private set {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.Nullable : Attributes & ~FieldAttributes.Nullable;
       }
@@ -319,10 +309,9 @@ namespace Xtensive.Orm.Model
     public bool IsLazyLoad
     {
       [DebuggerStepThrough]
-      get { return (Attributes & FieldAttributes.LazyLoad)!=0; }
+      get { return (Attributes & FieldAttributes.LazyLoad) != 0; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         Attributes = value ? Attributes | FieldAttributes.LazyLoad : Attributes & ~FieldAttributes.LazyLoad;
       }
@@ -336,8 +325,7 @@ namespace Xtensive.Orm.Model
     public string OriginalName
     {
       get { return originalName; }
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ValidateName(value);
         originalName = value;
@@ -349,7 +337,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public Type ValueType
     {
-      [DebuggerStepThrough] get => valueType;
+      [DebuggerStepThrough]
+      get => valueType;
       [DebuggerStepThrough]
       set {
         this.EnsureNotLocked();
@@ -368,8 +357,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return itemType; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         itemType = value;
       }
@@ -383,8 +371,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return length; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         length = value;
       }
@@ -398,8 +385,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return scale; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         scale = value;
       }
@@ -413,8 +399,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return precision; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         precision = value;
       }
@@ -429,8 +414,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return defaultValue; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         defaultValue = value;
       }
@@ -446,8 +430,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return defaultSqlExpression; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         defaultSqlExpression = value;
       }
@@ -471,8 +454,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return underlyingProperty; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         underlyingProperty = value;
       }
@@ -494,8 +476,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return parent; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "Parent");
         parent = value;
@@ -519,8 +500,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return reflectedType; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         reflectedType = value;
       }
@@ -534,8 +514,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return declaringType; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         declaringType = value;
       }
@@ -554,8 +533,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return column; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         column = value;
       }
@@ -567,10 +545,10 @@ namespace Xtensive.Orm.Model
     /// <param name="targetType"></param>
     public AssociationInfo GetAssociation(TypeInfo targetType)
     {
-      if (associations.Count==0)
+      if (associations.Count == 0)
         return null;
 
-      if (associations.Count==1)
+      if (associations.Count == 1)
         return associations[0];
 
       var ordered = IsLocked
@@ -594,8 +572,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return adapterIndex; }
       [DebuggerStepThrough]
-      set
-      {
+      set {
         this.EnsureNotLocked();
         adapterIndex = value;
       }
@@ -608,8 +585,7 @@ namespace Xtensive.Orm.Model
     public IList<IPropertyValidator> Validators
     {
       get { return validators; }
-      internal set
-      {
+      internal set {
         this.EnsureNotLocked();
         validators = value;
       }
@@ -635,7 +611,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="tuple">The tuple to extract value from.</param>
     /// <returns><see cref="Tuple"/> instance with the extracted value.</returns>
-    public Tuple ExtractValue (Tuple tuple)
+    public Tuple ExtractValue(Tuple tuple)
     {
       return valueExtractor.Apply(TupleTransformType.TransformedTuple, tuple);
     }
@@ -643,7 +619,8 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets field columns.
     /// </summary>
-    public ColumnInfoCollection Columns {
+    public ColumnInfoCollection Columns
+    {
       get {
         if (columns != null)
           return columns;
@@ -671,8 +648,8 @@ namespace Xtensive.Orm.Model
         result.Add(Column);
       else
         if (!IsPrimitive)
-          foreach (var item in Fields.Where(f => f.Column!=null).Select(f => f.Column))
-            result.Add(item);
+        foreach (var item in Fields.Where(f => f.Column != null).Select(f => f.Column))
+          result.Add(item);
     }
 
     /// <inheritdoc/>
@@ -681,7 +658,7 @@ namespace Xtensive.Orm.Model
       base.UpdateState();
 
       Fields.UpdateState();
-      if (column!=null)
+      if (column != null)
         column.UpdateState();
       columns = new ColumnInfoCollection(this, "Columns");
       GetColumns(columns);
@@ -699,7 +676,7 @@ namespace Xtensive.Orm.Model
         return;
       validators = new ReadOnlyList<IPropertyValidator>(validators.ToList());
       Fields.Lock(true);
-      if (column!=null)
+      if (column != null)
         column.Lock(true);
       if (associations.Count > 1) {
         var sorted = associations.Reorder();
@@ -711,12 +688,12 @@ namespace Xtensive.Orm.Model
 
     private void CreateMappingInfo()
     {
-      if (column!=null) {
+      if (column != null) {
         if (reflectedType.IsStructure)
           mappingInfo = new Segment<int>(reflectedType.Columns.IndexOf(column), 1);
         else {
           var primaryIndex = reflectedType.Indexes.PrimaryIndex;
-          var indexColumn = primaryIndex.Columns.Where(c => c.Name==column.Name).FirstOrDefault();
+          var indexColumn = primaryIndex.Columns.Where(c => c.Name == column.Name).FirstOrDefault();
           if (indexColumn == null)
             throw new InvalidOperationException();
           mappingInfo = new Segment<int>(primaryIndex.Columns.IndexOf(indexColumn), 1);
@@ -753,7 +730,7 @@ namespace Xtensive.Orm.Model
     {
       if (ReferenceEquals(this, obj))
         return true;
-      if (obj.GetType()!=typeof (FieldInfo))
+      if (obj.GetType() != typeof(FieldInfo))
         return false;
       return Equals((FieldInfo) obj);
     }
@@ -776,10 +753,10 @@ namespace Xtensive.Orm.Model
     private int CalculateHashCode()
     {
       unchecked {
-       return 
-         (declaringType.GetHashCode() * 397) ^ 
-         (valueType.GetHashCode() * 631) ^
-         Name.GetHashCode();
+        return
+          (declaringType.GetHashCode() * 397) ^
+          (valueType.GetHashCode() * 631) ^
+          Name.GetHashCode();
       }
     }
 
@@ -798,22 +775,21 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public FieldInfo Clone()
     {
-      var clone= new FieldInfo(declaringType, reflectedType, Attributes)
-        {
-          Name = Name, 
-          OriginalName = OriginalName,
-          MappingName = MappingName, 
-          underlyingProperty = underlyingProperty, 
-          valueType = valueType, 
-          itemType = itemType,
-          length = length, 
-          scale = scale,
-          precision = precision,
-          defaultValue = defaultValue,
-          defaultSqlExpression = defaultSqlExpression,
-          DeclaringField = DeclaringField,
-          Validators = Validators.Select(v => v.CreateNew()).ToList(),
-        };
+      var clone = new FieldInfo(declaringType, reflectedType, Attributes) {
+        Name = Name,
+        OriginalName = OriginalName,
+        MappingName = MappingName,
+        underlyingProperty = underlyingProperty,
+        valueType = valueType,
+        itemType = itemType,
+        length = length,
+        scale = scale,
+        precision = precision,
+        defaultValue = defaultValue,
+        defaultSqlExpression = defaultSqlExpression,
+        DeclaringField = DeclaringField,
+        Validators = Validators.Select(v => v.CreateNew()).ToList(),
+      };
       clone.Associations.AddRange(associations);
       return clone;
     }
@@ -839,8 +815,8 @@ namespace Xtensive.Orm.Model
       Attributes = attributes;
       this.declaringType = declaringType;
       this.reflectedType = reflectedType;
-      Fields = IsEntity || IsStructure 
-        ? new FieldInfoCollection(this, "Fields") 
+      Fields = IsEntity || IsStructure
+        ? new FieldInfoCollection(this, "Fields")
         : FieldInfoCollection.Empty;
       associations = new NodeCollection<AssociationInfo>(this, "Associations");
     }

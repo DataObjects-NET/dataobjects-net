@@ -9,10 +9,11 @@ using System.Linq;
 using NUnit.Framework;
 using TestCommon.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.BulkOperations.Tests.Issues
 {
-  public class IssueJira0565_IgnoringTakeMethodOnTranslation : AutoBuildTest
+  public class IssueJira0565_IgnoringTakeMethodOnTranslation : BulkOperationBaseTest
   {
     [Test]
     public void UpdateOperationWithoutLimitation01()
@@ -24,7 +25,7 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
         var expectedUpdatedCount = baseQuery.Count();
         var updatedCount = baseQuery.Set(el => el.Description, "UpdatedAgain").Update();
         Assert.That(updatedCount, Is.EqualTo(expectedUpdatedCount));
-        var updatedList = baseQuery.Where(el => el.Description=="UpdatedAgain").ToList();
+        var updatedList = baseQuery.Where(el => el.Description == "UpdatedAgain").ToList();
         Assert.That(updatedList.Count, Is.EqualTo(expectedUpdatedCount));
       }
     }
@@ -39,7 +40,7 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
         var expectedUpdatedCount = baseQuery.Count();
         var updatedCount = baseQuery.Set(el => el.Description, "UpdatedAgain").Update();
         Assert.That(updatedCount, Is.EqualTo(expectedUpdatedCount));
-        var updatedList = session.Query.All<Bar>().Where(el => el.Description=="UpdatedAgain").ToList();
+        var updatedList = session.Query.All<Bar>().Where(el => el.Description == "UpdatedAgain").ToList();
         Assert.That(updatedList.Count, Is.EqualTo(expectedUpdatedCount));
       }
     }
@@ -65,7 +66,8 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 51).Union(session.Query.All<Bar>().Where(el => el.Id > 200));
+        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 51)
+          .Union(session.Query.All<Bar>().Where(el => el.Id > 200));
         var expectedDeletedCount = baseQuery.Count();
         var deletedCount = baseQuery.Delete();
         Assert.That(deletedCount, Is.EqualTo(expectedDeletedCount));
@@ -83,7 +85,7 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
         var expectedUpdatedCount = baseQuery.Count();
         var updatedCount = baseQuery.Set(el => el.Description, "UpdatedAgain").Update();
         Assert.That(updatedCount, Is.EqualTo(expectedUpdatedCount));
-        var updatedList = session.Query.All<Bar>().Where(el => el.Description=="UpdatedAgain").ToList();
+        var updatedList = session.Query.All<Bar>().Where(el => el.Description == "UpdatedAgain").ToList();
         Assert.That(updatedList.Count, Is.EqualTo(expectedUpdatedCount));
       }
     }
@@ -95,11 +97,12 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 100).Take(50).Union(session.Query.All<Bar>().Where(el => el.Id > 100).Take(50));
+        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 100).Take(50)
+          .Union(session.Query.All<Bar>().Where(el => el.Id > 100).Take(50));
         var expectedUpdatedCount = baseQuery.Count();
         var updatedCount = baseQuery.Set(el => el.Description, "UpdatedAgain").Update();
         Assert.That(updatedCount, Is.EqualTo(expectedUpdatedCount));
-        var updatedList = session.Query.All<Bar>().Where(el => el.Description=="UpdatedAgain").ToList();
+        var updatedList = session.Query.All<Bar>().Where(el => el.Description == "UpdatedAgain").ToList();
         Assert.That(updatedCount, Is.EqualTo(expectedUpdatedCount));
       }
     }
@@ -111,11 +114,12 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 100).Union(session.Query.All<Bar>().Where(el => el.Id > 100)).Take(100);
+        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 100)
+          .Union(session.Query.All<Bar>().Where(el => el.Id > 100)).Take(100);
         var expectedUpdatedCount = baseQuery.Count();
         var updated = baseQuery.Set(el => el.Description, "UpdatedAgain").Update();
         Assert.That(updated, Is.EqualTo(expectedUpdatedCount));
-        var updatedList = session.Query.All<Bar>().Where(el => el.Description=="UpdatedAgain").ToList();
+        var updatedList = session.Query.All<Bar>().Where(el => el.Description == "UpdatedAgain").ToList();
         Assert.That(updatedList.Count, Is.EqualTo(100));
       }
     }
@@ -127,7 +131,8 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()){
-        Assert.Throws<NotSupportedException>(()=>session.Query.All<Bar>().Take(200).Set(el => el.Description, "UpdatedAgain").Update());
+        _ = Assert.Throws<NotSupportedException>(
+          () =>session.Query.All<Bar>().Take(200).Set(el => el.Description, "UpdatedAgain").Update());
       }
     }
 
@@ -138,8 +143,8 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<NotSupportedException>(
-          ()=>session.Query.All<Bar>().Where(el => el.Id < 100)
+        _ = Assert.Throws<NotSupportedException>(
+          () => session.Query.All<Bar>().Where(el => el.Id < 100)
             .Union(session.Query.All<Bar>().Where(el => el.Id > 100))
             .Take(100)
             .Set(el => el.Description, "UpdatedAgain")
@@ -166,12 +171,15 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
     public void DeleteOperationWithLimitation02()
     {
       SupportsDeleteLimitation();
-      if(StringComparer.InvariantCultureIgnoreCase.Compare(Domain.StorageProviderInfo.ProviderName, WellKnown.Provider.Firebird)==0)
-        IgnoreMe("Ignored due to FireBird ignores Take X in delete statement", null);
+      Require.ProviderIsNot(StorageProvider.Firebird, "FireBird ignores Take X in delete statement");
+
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 100).Take(50).Union(session.Query.All<Bar>().Where(el => el.Id > 100).Take(50));
+        var baseQuery = session.Query.All<Bar>()
+          .Where(el => el.Id < 100)
+          .Take(50)
+          .Union(session.Query.All<Bar>().Where(el => el.Id > 100).Take(50));
         var expectedDeletedCount = baseQuery.Count();
         var updatedCount = baseQuery.Delete();
         Assert.That(updatedCount, Is.EqualTo(expectedDeletedCount));
@@ -185,7 +193,10 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        var baseQuery = session.Query.All<Bar>().Where(el => el.Id < 100).Union(session.Query.All<Bar>().Where(el => el.Id > 100)).Take(100);
+        var baseQuery = session.Query.All<Bar>()
+          .Where(el => el.Id < 100)
+          .Union(session.Query.All<Bar>().Where(el => el.Id > 100))
+          .Take(100);
         var expectedDeletedCount = baseQuery.Count();
         var updated = baseQuery.Delete();
         Assert.That(updated, Is.EqualTo(expectedDeletedCount));
@@ -199,7 +210,7 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<NotSupportedException>(()=>session.Query.All<Bar>().Take(100).Delete());
+        _ = Assert.Throws<NotSupportedException>(()=>session.Query.All<Bar>().Take(100).Delete());
       }
     }
 
@@ -210,7 +221,13 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<NotSupportedException>(() => session.Query.All<Bar>().Where(el => el.Id < 100).Union(session.Query.All<Bar>().Where(el => el.Id > 100)).Take(100).Delete());
+        _ = Assert.Throws<NotSupportedException>(
+          () => session.Query.All<Bar>()
+            .Where(el => el.Id < 100)
+            .Union(session.Query.All<Bar>().Where(el => el.Id > 100))
+            .Take(100)
+            .Delete()
+        );
       }
     }
 
@@ -225,11 +242,11 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
         Assert.AreEqual(200, list.Count);
         var updated = session.Query.All<Bar>().Take(200).Set(el => el.Description, "Updated").Update();
         Assert.AreEqual(200, updated);
-        var updatedList = session.Query.All<Bar>().Where(el => el.Description=="Updated").ToList();
+        var updatedList = session.Query.All<Bar>().Where(el => el.Description == "Updated").ToList();
         Assert.AreEqual(200, updatedList.Count);
         updated = session.Query.All<Bar>().Set(el => el.Description, "UpdatedAgain").Update();
         Assert.AreEqual(250, updated);
-        updatedList = session.Query.All<Bar>().Where(el => el.Description=="UpdatedAgain").ToList();
+        updatedList = session.Query.All<Bar>().Where(el => el.Description == "UpdatedAgain").ToList();
         Assert.AreEqual(250, updatedList.Count);
       }
     }
@@ -240,8 +257,8 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
       using (var session = Domain.OpenSession())
       using (session.Activate())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i< 250; i++) {
-          new Bar(session);
+        for (var i = 0; i< 250; i++) {
+          _ = new Bar(session);
         }
         transaction.Complete();
       }
@@ -256,37 +273,43 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
 
     private void SupportsUpdateLimitation()
     {
-      if (!Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateLimit) &&
-        !Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateFrom))
+      if (!Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateLimit)
+        && !Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateFrom)) {
         IgnoreMe("This provider does not support limitation of affecred rows on update.", null);
+      }
     }
 
     private void DoesNotSupportsUpdateLimitation()
     {
-      if (Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateLimit) ||
-        Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateFrom))
+      if (Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateLimit)
+        || Domain.StorageProviderInfo.Supports(ProviderFeatures.UpdateFrom)) {
         IgnoreMe("This provider supports update limitation", null);
+      }
     }
 
     private void SupportsDeleteLimitation()
     {
-      if (!Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteLimit) &&
-        !Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteFrom))
+      if (!Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteLimit)
+        && !Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteFrom)) {
         IgnoreMe("This provider does not support limitation of affecred rows on delet.", null);
+      }
     }
 
     private void DoesNotSupportsDeleteLimitation()
     {
-      if (Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteLimit) ||
-        Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteFrom))
+      if (Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteLimit)
+        || Domain.StorageProviderInfo.Supports(ProviderFeatures.DeleteFrom)) {
         IgnoreMe("This provider support delete limitation", null);
+      }
     }
 
     private static void IgnoreMe(string format, object argument, string reason = null)
     {
       var message = string.Format(format, argument);
-      if (!string.IsNullOrEmpty(reason))
+      if (!string.IsNullOrEmpty(reason)) {
         message = string.Format("{0}. Reason: {1}", message, reason);
+      }
+
       throw new IgnoreException(message);
     }
   }

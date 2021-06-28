@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2008.02.10
 
 using System;
+using System.Runtime.Serialization;
 
 namespace Xtensive.Comparison
 {
@@ -22,33 +23,28 @@ namespace Xtensive.Comparison
 
     /// <inheritdoc/>
     protected override IAdvancedComparer<T> CreateNew(ComparisonRules rules)
-    {
-      return new SystemComparer<T>(Provider, ComparisonRules.Combine(rules));
-    }
+      => new SystemComparer<T>(Provider, ComparisonRules.Combine(rules));
 
     /// <inheritdoc/>
     public override int Compare(T x, T y)
-    {
-      return SystemComparerStruct<T>.Instance.Compare(x, y) * DefaultDirectionMultiplier;
-    }
+      => SystemComparerStruct<T>.Instance.Compare(x, y) * DefaultDirectionMultiplier;
 
     /// <inheritdoc/>
-    public override bool Equals(T x, T y)
-    {
-      return SystemComparerStruct<T>.Instance.Equals(x, y);
-    }
+    public override bool Equals(T x, T y) => SystemComparerStruct<T>.Instance.Equals(x, y);
 
     /// <inheritdoc/>
-    public override int GetHashCode(T obj)
-    {
-      return SystemComparerStruct<T>.Instance.GetHashCode(obj);
-    }
+    public override int GetHashCode(T obj) => SystemComparerStruct<T>.Instance.GetHashCode(obj);
 
 
     // Constructors
 
     internal SystemComparer(IComparerProvider provider, ComparisonRules comparisonRules)
       : base(provider, comparisonRules)
+    {
+    }
+
+    public SystemComparer(SerializationInfo info, StreamingContext context)
+      : base(info, context)
     {
     }
   }

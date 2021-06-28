@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Reflection;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
@@ -12,7 +12,7 @@ namespace Xtensive.Orm.Tracking.Tests
 
     public static void Merge(ITrackingItem target, ITrackingItem source)
     {
-      MergeWithMethod.Invoke(target, new object[] {source});
+      _ = MergeWithMethod.Invoke(target, new object[] {source});
     }
 
     public static ITrackingItem CreateTrackingItem(Key key, TrackingItemState state)

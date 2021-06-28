@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.12.17
 
@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(t => t.TrackId==id ? null : t)
         .Select(t => t==null ? null : t.MediaType)
         .ToList();
-      var expected = Session.Query.All<Track>().ToList()
+      var expected = Tracks
         .Select(t => t.TrackId==id ? null : t)
         .Select(t => t==null ? null : t.MediaType).ToList();
       Assert.That(result, Is.Not.Empty);
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Tests.Linq
           (t.TrackId==id) && (t!=null) ? t.MediaType /*exception*/ :
           (t.TrackId!=id) && (t==null) ? null : t.MediaType)
         .ToList();
-      var expected = Session.Query.All<Track>().ToList()
+      var expected = Tracks
         .Select(p=>p.TrackId==id ? null : p)
         .Select(p=>p==null ? null : p.MediaType)
         .ToList();
@@ -76,8 +76,8 @@ namespace Xtensive.Orm.Tests.Linq
         join e in Session.Query.All<Employee>() on c.Address.City equals e.Address.City into emps
         select new {invoices = invoices.Count(), emps = emps.Count()};
       var list = result.ToList();
-      var expected =
-        Session.Query.All<Customer>().Select(c => new {
+      var expected = Customers
+        .Select(c => new {
           invoices = (int) c.Invoices.Count,
           emps = Session.Query.All<Employee>().Where(e => c.Address.City==e.Address.City).Count()
         }).ToList();
@@ -104,12 +104,12 @@ namespace Xtensive.Orm.Tests.Linq
           }).OrderBy(t => t.emps).ThenBy(t => t.invoices).ThenBy(t => t.sum);
 
       var list = result.ToList();
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .GroupJoin(Session.Query.All<Invoice>().AsEnumerable(),
+      var expected = Customers
+        .GroupJoin(Invoices,
           customer => customer.CustomerId,
           invoice => invoice.Customer.CustomerId,
           (customer, invoices) => new {customer, invoices})
-        .GroupJoin(Session.Query.All<Employee>().AsEnumerable(),
+        .GroupJoin(Employees,
           customerInvoices => customerInvoices.customer.Address.City,
           employee => employee.Address.City,
           (customerInvoices, employees) => new {
@@ -247,7 +247,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void JoinByCalculatedColumnTest()
     {
       var customers = Session.Query.All<Customer>();
-      var localCustomers = customers.ToList();
+      var localCustomers = Customers.ToList();
       var expected =
         from c1 in localCustomers
         join c2 in localCustomers
@@ -275,8 +275,8 @@ namespace Xtensive.Orm.Tests.Linq
         select groups;
 
       var expected =
-        from mediaType in Session.Query.All<MediaType>().AsEnumerable()
-        join track in Session.Query.All<Track>().AsEnumerable()
+        from mediaType in MediaTypes
+        join track in Tracks
           on mediaType equals track.MediaType
           into groups
         select groups;

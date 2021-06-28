@@ -1,13 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
-using System.Text;
 using NUnit.Framework;
-using TestCommon;
 using Xtensive.Orm.Localization.Tests.Model;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Orm.Localization.Tests.Model.Upgrader;
+using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Localization.Tests.Model.Upgrader
 {
@@ -20,7 +17,7 @@ namespace Xtensive.Orm.Localization.Tests.Model.Upgrader
 
     public override void OnUpgrade()
     {
-      Query.All<Page>().FirstOrDefault(x => x.Title=="Welcome!");
+      _ = Query.All<Page>().FirstOrDefault(x => x.Title == "Welcome!");
     }
   }
 }
@@ -42,8 +39,8 @@ namespace Xtensive.Orm.Localization.Tests
     public void TestFixtureSetup()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof (AutoBuildTest).Assembly, typeof (AutoBuildTest).Namespace);
+      configuration.Types.Register(typeof(ILocalizable<>).Assembly);
+      configuration.Types.Register(typeof(LocalizationBaseTest).Assembly, typeof(LocalizationBaseTest).Namespace);
 
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
@@ -64,14 +61,14 @@ namespace Xtensive.Orm.Localization.Tests
     {
       var configuration = DomainConfigurationFactory.Create();
       configuration.Types.Register(typeof (ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof (AutoBuildTest).Assembly, typeof (AutoBuildTest).Namespace);
+      configuration.Types.Register(typeof (LocalizationBaseTest).Assembly, typeof (LocalizationBaseTest).Namespace);
       configuration.Types.Register(typeof (CustomUpgradeHandler));
       configuration.UpgradeMode = DomainUpgradeMode.PerformSafely;
 
       using (var domain = Domain.Build(configuration))
       using (var session = domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<Page>().FirstOrDefault(x => x.Title==EnglishTitle);
+        _ = session.Query.All<Page>().FirstOrDefault(x => x.Title==EnglishTitle);
       }
     }
   }

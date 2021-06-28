@@ -27,23 +27,6 @@ namespace Xtensive.Reflection
   /// </summary>
   public static class TypeHelper
   {
-    private const string invokeMethodName = "Invoke";
-
-    private static readonly object emitLock = new object();
-    private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
-    private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
-    private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
-    private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
-
-    private static readonly ConcurrentDictionary<Type, Type[]> orderedInterfaces =
-      new ConcurrentDictionary<Type, Type[]>();
-
-    private static readonly ConcurrentDictionary<Type, Type[]> orderedCompatibles =
-      new ConcurrentDictionary<Type, Type[]>();
-
-    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
-      new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
-
     private class TypesEqualityComparer : IEqualityComparer<(Type, Type[])>
     {
       public bool Equals((Type, Type[]) x, (Type, Type[]) y) =>
@@ -59,8 +42,25 @@ namespace Xtensive.Reflection
       }
     }
 
+    private const string invokeMethodName = "Invoke";
+
     private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
       new ConcurrentDictionary<(Type, Type[]), ConstructorInfo>(new TypesEqualityComparer());
+
+    private static readonly object emitLock = new object();
+    private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
+    private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
+    private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
+    private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
+
+    private static readonly ConcurrentDictionary<Type, Type[]> orderedInterfaces =
+      new ConcurrentDictionary<Type, Type[]>();
+
+    private static readonly ConcurrentDictionary<Type, Type[]> orderedCompatibles =
+      new ConcurrentDictionary<Type, Type[]>();
+
+    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
+      new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
 
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
@@ -610,7 +610,7 @@ namespace Xtensive.Reflection
 
     /// <summary>
     /// Gets the public constructor of type <paramref name="type"/>
-    /// accepting specified <paramref name="argumentTypes"/>.
+    /// accepting specified <paramref name="arguments"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
     /// <param name="argumentTypes">The argument types.</param>
@@ -618,6 +618,9 @@ namespace Xtensive.Reflection
     /// Appropriate constructor, if a single match is found;
     /// otherwise, <see langword="null"/>.
     /// </returns>
+    public static ConstructorInfo GetConstructor(this Type type, object[] arguments) =>
+      GetSingleConstructor(type, arguments.Select(a => a?.GetType()).ToArray());
+
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
       constructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
 

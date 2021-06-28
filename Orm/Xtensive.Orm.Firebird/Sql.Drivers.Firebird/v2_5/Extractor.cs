@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -422,7 +422,13 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       column.IsNullable = ReadBool(reader, 10);
       var defaultValue = ReadStringOrNull(reader, 11);
       if (!string.IsNullOrEmpty(defaultValue)) {
-        column.DefaultValue = SqlDml.Native(defaultValue);
+        defaultValue = defaultValue.TrimStart(' ');
+        if (defaultValue.StartsWith("DEFAULT", StringComparison.OrdinalIgnoreCase)) {
+          defaultValue = defaultValue.Substring(7).TrimStart(' ');
+        }
+        if (!string.IsNullOrEmpty(defaultValue)) {
+          column.DefaultValue = SqlDml.Native(defaultValue);
+        }
       }
     }
 

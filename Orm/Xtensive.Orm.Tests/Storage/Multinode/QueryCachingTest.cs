@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -92,6 +92,10 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 {
   public sealed class QueryCachingTest : MultinodeTest
   {
+    private const string DefaultSchema = WellKnownSchemas.Schema1;
+    private const string Schema1 = WellKnownSchemas.Schema2;
+    private const string Schema2 = WellKnownSchemas.Schema3;
+
     private readonly object SimpleQueryKey = new object();
     private readonly object FilterByIdQueryKey = new object();
     private readonly object FilterByManyIdsQueryKey = new object();
@@ -109,7 +113,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(BaseTestEntity).Assembly, typeof(BaseTestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = DefaultSchema;
       return configuration;
     }
 
@@ -117,13 +121,13 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       CustomUpgradeHandler.CurrentNodeId = TestNodeId2;
       var nodeConfiguration = new NodeConfiguration(TestNodeId2);
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model1");
+      nodeConfiguration.SchemaMapping.Add(DefaultSchema, Schema1);
       nodeConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
 
       CustomUpgradeHandler.CurrentNodeId = TestNodeId3;
       nodeConfiguration = new NodeConfiguration(TestNodeId3);
-      nodeConfiguration.SchemaMapping.Add("dbo", "Model2");
+      nodeConfiguration.SchemaMapping.Add(DefaultSchema, Schema2);
       nodeConfiguration.UpgradeMode = DomainUpgradeMode.Recreate;
       _ = Domain.StorageNodeManager.AddNode(nodeConfiguration);
     }
@@ -138,68 +142,70 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
         using (var tx = session.OpenTransaction()) {
           #region Entity creation
 
-          _ = new BaseTestEntity(session) { BaseName = "A", BaseOwnerNodeId = nodeId };
+          var nodeIdName = string.IsNullOrEmpty(nodeId) ? "<default>" : nodeId;
+
+          _ = new BaseTestEntity(session) { BaseName = "A", BaseOwnerNodeId = nodeIdName };
           _ = new MiddleTestEntity(session) {
             BaseName = "AA",
             MiddleName = "AAM",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName
           };
           _ = new LeafTestEntity(session) {
             BaseName = "AAA",
             MiddleName = "AAAM",
             LeafName = "AAAL",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId,
-            LeafOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName,
+            LeafOwnerNodeId = nodeIdName
           };
 
-          _ = new BaseTestEntity(session) { BaseName = "B", BaseOwnerNodeId = nodeId };
+          _ = new BaseTestEntity(session) { BaseName = "B", BaseOwnerNodeId = nodeIdName };
           _ = new MiddleTestEntity(session) {
             BaseName = "BB",
             MiddleName = "BBM",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName
           };
           _ = new LeafTestEntity(session) {
             BaseName = "BBB",
             MiddleName = "BBBM",
             LeafName = "BBBL",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId,
-            LeafOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName,
+            LeafOwnerNodeId = nodeIdName
           };
 
-          _ = new BaseTestEntity(session) { BaseName = "C", BaseOwnerNodeId = nodeId };
+          _ = new BaseTestEntity(session) { BaseName = "C", BaseOwnerNodeId = nodeIdName };
           _ = new MiddleTestEntity(session) {
             BaseName = "CC",
             MiddleName = "CCM",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName
           };
           _ = new LeafTestEntity(session) {
             BaseName = "CCC",
             MiddleName = "CCCM",
             LeafName = "CCCL",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId,
-            LeafOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName,
+            LeafOwnerNodeId = nodeIdName
           };
 
-          _ = new BaseTestEntity(session) { BaseName = "D", BaseOwnerNodeId = nodeId };
+          _ = new BaseTestEntity(session) { BaseName = "D", BaseOwnerNodeId = nodeIdName };
           _ = new MiddleTestEntity(session) {
             BaseName = "DD",
             MiddleName = "DDM",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName
           };
           _ = new LeafTestEntity(session) {
             BaseName = "DDD",
             MiddleName = "DDDM",
             LeafName = "DDDL",
-            BaseOwnerNodeId = nodeId,
-            MiddleOwnerNodeId = nodeId,
-            LeafOwnerNodeId = nodeId
+            BaseOwnerNodeId = nodeIdName,
+            MiddleOwnerNodeId = nodeIdName,
+            LeafOwnerNodeId = nodeIdName
           };
 
           #endregion
@@ -250,10 +256,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var expectedTypeId = GetExpectedTypeId(nodeId);
+        var nodeIdName = string.IsNullOrEmpty(nodeId) ? "<default>" : nodeId;
 
         var allResults = ExecuteSimpleQueryNoCache(session).OrderBy(e => e.TypeId).ToList();
         Assert.That(allResults.Count, Is.EqualTo(3));
-        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
+        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeIdName), Is.True);
         Assert.That(allResults[0].BaseName, Is.EqualTo("C"));
         Assert.That(allResults[0].TypeId, Is.EqualTo(expectedTypeId));
         Assert.That(allResults[1].BaseName, Is.EqualTo("CC"));
@@ -263,18 +270,18 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
         var middles = allResults.OfType<MiddleTestEntity>().ToList();
         Assert.That(middles.Count, Is.EqualTo(2));
-        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
+        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeIdName), Is.True);
         Assert.That(middles[0].MiddleName, Is.EqualTo("CCM"));
         Assert.That(middles[1].MiddleName, Is.EqualTo("CCCM"));
 
         var leafs = middles.OfType<LeafTestEntity>().ToList();
         Assert.That(leafs.Count, Is.EqualTo(1));
-        Assert.That(leafs[0].LeafOwnerNodeId, Is.EqualTo(nodeId));
+        Assert.That(leafs[0].LeafOwnerNodeId, Is.EqualTo(nodeIdName));
         Assert.That(leafs[0].LeafName, Is.EqualTo("CCCL"));
 
         allResults = ExecuteSimpleQueryCaching(session);
         Assert.That(allResults.Count, Is.EqualTo(3));
-        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
+        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeIdName), Is.True);
         Assert.That(allResults[0].BaseName, Is.EqualTo("B"));
         Assert.That(allResults[0].TypeId, Is.EqualTo(expectedTypeId));
         Assert.That(allResults[1].BaseName, Is.EqualTo("BB"));
@@ -284,13 +291,13 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
         middles = allResults.OfType<MiddleTestEntity>().ToList();
         Assert.That(middles.Count, Is.EqualTo(2));
-        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
+        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeIdName), Is.True);
         Assert.That(middles[0].MiddleName, Is.EqualTo("BBM"));
         Assert.That(middles[1].MiddleName, Is.EqualTo("BBBM"));
 
         leafs = middles.OfType<LeafTestEntity>().ToList();
         Assert.That(leafs.Count, Is.EqualTo(1));
-        Assert.That(leafs[0].LeafOwnerNodeId, Is.EqualTo(nodeId));
+        Assert.That(leafs[0].LeafOwnerNodeId, Is.EqualTo(nodeIdName));
         Assert.That(leafs[0].LeafName, Is.EqualTo("BBBL"));
       }
     }
@@ -301,10 +308,11 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var expectedTypeId = GetExpectedTypeId(nodeId);
+        var nodeIdName = string.IsNullOrEmpty(nodeId) ? "<default>" : nodeId;
 
         var resultWithoutCache = ExecuteFilterByTypeIdNoCache(session, expectedTypeId);
         Assert.That(resultWithoutCache.Count, Is.EqualTo(4));
-        Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeId));
+        Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeIdName));
         Assert.That(resultWithoutCache.All(e => e.TypeId == expectedTypeId), Is.True);
         Assert.That(resultWithoutCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
         Assert.That(resultWithoutCache.OfType<MiddleTestEntity>().Any(), Is.False);
@@ -312,7 +320,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
         resultWithoutCache = ExecuteFilterByTypeIdNoCache(session, expectedTypeId + 1);
         Assert.That(resultWithoutCache.Count, Is.EqualTo(4));
-        Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeId));
+        Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeIdName));
         Assert.That(resultWithoutCache.All(e => e.TypeId == expectedTypeId + 1), Is.True);
         Assert.That(resultWithoutCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
         Assert.That(resultWithoutCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
@@ -320,7 +328,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
         resultWithoutCache = ExecuteFilterByTypeIdNoCache(session, expectedTypeId + 2);
         Assert.That(resultWithoutCache.Count, Is.EqualTo(4));
-        Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeId));
+        Assert.That(resultWithoutCache.All(e => e.BaseOwnerNodeId == nodeIdName));
         Assert.That(resultWithoutCache.All(e => e.TypeId == expectedTypeId + 2), Is.True);
         Assert.That(resultWithoutCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
         Assert.That(resultWithoutCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
@@ -328,7 +336,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
         var resultWithCache = ExecuteFilterByTypeIdCaching(session, expectedTypeId);
         Assert.That(resultWithCache.Count, Is.EqualTo(4));
-        Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeId));
+        Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeIdName));
         Assert.That(resultWithCache.All(e => e.TypeId == expectedTypeId), Is.True);
         Assert.That(resultWithCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
         Assert.That(resultWithCache.OfType<MiddleTestEntity>().Any(), Is.False);
@@ -336,7 +344,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
         resultWithCache = ExecuteFilterByTypeIdCaching(session, expectedTypeId + 1);
         Assert.That(resultWithCache.Count, Is.EqualTo(4));
-        Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeId));
+        Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeIdName));
         Assert.That(resultWithCache.All(e => e.TypeId == expectedTypeId + 1), Is.True);
         Assert.That(resultWithCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
         Assert.That(resultWithCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
@@ -344,7 +352,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
 
         resultWithCache = ExecuteFilterByTypeIdCaching(session, expectedTypeId + 2);
         Assert.That(resultWithCache.Count, Is.EqualTo(4));
-        Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeId));
+        Assert.That(resultWithCache.All(e => e.BaseOwnerNodeId == nodeIdName));
         Assert.That(resultWithCache.All(e => e.TypeId == expectedTypeId + 2), Is.True);
         Assert.That(resultWithCache.OfType<BaseTestEntity>().Count(), Is.EqualTo(4));
         Assert.That(resultWithCache.OfType<MiddleTestEntity>().Count(), Is.EqualTo(4));
@@ -365,28 +373,29 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       using (var session = selectedNode.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var expectedTypeId = GetExpectedTypeId(nodeId);
+        var nodeIdName = string.IsNullOrEmpty(nodeId) ? "<default>" : nodeId;
 
         var allResults = ExecuteFilterBySeveralTypeIdsNoCache(session, new[] { expectedTypeId, expectedTypeId + 1 })
           .OrderBy(e => e.TypeId)
           .ToList();
         Assert.That(allResults.Count, Is.EqualTo(8));
-        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
+        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeIdName), Is.True);
         Assert.That(allResults.Count(e => e.TypeId == expectedTypeId), Is.EqualTo(4));
         Assert.That(allResults.Count(e => e.TypeId == expectedTypeId + 1), Is.EqualTo(4));
 
         var middles = allResults.OfType<MiddleTestEntity>().ToList();
         Assert.That(middles.Count, Is.EqualTo(4));
-        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
+        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeIdName), Is.True);
 
         allResults = ExecuteFilterBySeveralTypeIdsCaching(session, new[] { expectedTypeId, expectedTypeId + 1 });
         Assert.That(allResults.Count, Is.EqualTo(8));
-        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeId), Is.True);
+        Assert.That(allResults.All(e => e.BaseOwnerNodeId == nodeIdName), Is.True);
         Assert.That(allResults.Count(e => e.TypeId == expectedTypeId), Is.EqualTo(4));
         Assert.That(allResults.Count(e => e.TypeId == expectedTypeId + 1), Is.EqualTo(4));
 
         middles = allResults.OfType<MiddleTestEntity>().ToList();
         Assert.That(middles.Count, Is.EqualTo(4));
-        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeId), Is.True);
+        Assert.That(middles.All(e => e.MiddleOwnerNodeId == nodeIdName), Is.True);
 
         var unexpectedTypeIds = GetUnexpectedTypeIds(nodeId);
         allResults = ExecuteFilterBySeveralTypeIdsNoCache(session, unexpectedTypeIds);

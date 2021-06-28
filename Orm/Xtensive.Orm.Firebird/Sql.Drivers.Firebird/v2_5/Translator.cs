@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -28,6 +28,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       get { return string.Empty; }
     }
+
+    public override string FloatFormatString => $"{base.FloatFormatString}e0";
+
+    public override string DoubleFormatString => $"{base.DoubleFormatString}e0";
 
     /// <inheritdoc/>
     public override string QuoteIdentifier(params string[] names)

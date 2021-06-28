@@ -138,7 +138,7 @@ namespace Xtensive.Orm.Providers
         }
         sum += count;
       }
-      if (sum + currentParametersCount < MaxQueryParameterCount) {
+      if (sum + currentParametersCount <= MaxQueryParameterCount) {
         return ExecutionBehavior.AsOneCommand;
       }
       return sum < MaxQueryParameterCount

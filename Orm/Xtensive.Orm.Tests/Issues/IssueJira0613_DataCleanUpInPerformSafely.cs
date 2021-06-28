@@ -186,11 +186,11 @@ namespace Xtensive.Orm.Tests.Issues
       }
       else {
         // In this kind of tests we have only primary keys changed.
-        // To be clear, only name is changed.
-        // But MySQL has no named PKs so we have no difference in mysql
+        // To be clear, only name is changed,
+        // but this change is irrelevant for certain providers and comparison result is null
         var exception = Assert.Throws<SchemaSynchronizationException>(() => Domain.Build(validationConfiguration));
-
-        if (validationConfiguration.ConnectionInfo.Provider != WellKnown.Provider.MySql) {
+        var provider = validationConfiguration.ConnectionInfo.Provider;
+        if (provider != WellKnown.Provider.MySql && provider != WellKnown.Provider.Sqlite) {
           Assert.That(exception.ComparisonResult, Is.Not.Null);
         }
         else {

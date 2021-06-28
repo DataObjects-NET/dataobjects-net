@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.04.29
 
@@ -53,19 +53,21 @@ namespace Xtensive.Orm.Tests.Issues
     protected override void CheckRequirements()
     {
       Require.ProviderIs(StorageProvider.Oracle);
-      Require.AllFeaturesSupported(ProviderFeatures.DateTimeOffset);
     }
 
     protected override void PopulateData()
     {
+      var baseDateTime = new DateTime(2020, 08, 18, 19, 20, 21, 22);
+      var baseDateTimeOffset = new DateTimeOffset(baseDateTime, new TimeSpan(5, 0, 0));
+
       dates = new DateTime[5];
       dateTimeOffsets = new DateTimeOffset[5];
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         for (int i = 0; i < 5; i++) {
-          new TestEntity {
-            DateTimeField = dates[i] = DateTime.Now.AddHours(i),
-            DateTimeOffsetField = dateTimeOffsets[i] = DateTimeOffset.Now.ToOffset(TimeSpan.FromHours(i))
+          _ = new TestEntity {
+            DateTimeField = dates[i] = baseDateTime.AddHours(i),
+            DateTimeOffsetField = dateTimeOffsets[i] = baseDateTimeOffset.ToOffset(TimeSpan.FromHours(i))
           };
         }
         transaction.Complete();

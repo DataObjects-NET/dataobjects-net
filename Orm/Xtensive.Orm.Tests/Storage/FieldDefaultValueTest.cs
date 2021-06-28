@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.09.19
 
@@ -149,17 +149,8 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = 1000)]
     public TimeSpan FTimeSpan { get; set; }
 
-    [Field(Length = 1000, DefaultValue = new byte[] {10,10,10,10})]
-    public byte[] FByteArray { get; set; }
-
-    [Field(Length = int.MaxValue, DefaultValue = new byte[] {10,10,10,10})]
-    public byte[] FLongByteArray { get; set; }
-
     [Field(Length = 1000, DefaultValue = "default value")]
     public string FString { get; set; }
-
-    [Field(Length = int.MaxValue, DefaultValue = "default value")]
-    public string FLongString { get; set; }
 
     [Field(DefaultValue = EByte.Max)]
     public EByte FEByte { get; set; }
@@ -265,6 +256,31 @@ namespace Xtensive.Orm.Tests.Storage.FieldDefaultValueModel
     [Field(DefaultValue = CodeRegistry.EnumKeyValue)]
     public EnumKeyEntity EnumKeyEntityRef { get; set; }
   }
+
+  [HierarchyRoot]
+  [Serializable]
+  public class Y : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field(Length = int.MaxValue, DefaultValue = "default value")]
+    public string FLongString { get; set; }
+  }
+
+  [HierarchyRoot]
+  [Serializable]
+  public class Z : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field(Length = 1000, DefaultValue = new byte[] { 10, 10, 10, 10 })]
+    public byte[] FByteArray { get; set; }
+
+    [Field(Length = int.MaxValue, DefaultValue = new byte[] { 10, 10, 10, 10 })]
+    public byte[] FLongByteArray { get; set; }
+  }
 }
 
 namespace Xtensive.Orm.Tests.Storage
@@ -275,28 +291,45 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var config =  base.BuildConfiguration();
-      config.Types.Register(typeof (X).Assembly, typeof (X).Namespace);
+      config.Types.Register(typeof(XRef));
+      config.Types.Register(typeof(EnumKeyEntity));
+      config.Types.Register(typeof(X));
+      if (SupportsDefaultForLongString()) {
+        config.Types.Register(typeof(Y));
+      }
+      if (SupportsDefaultForArrays()) {
+        config.Types.Register(typeof(Z));
+      }
       return config;
     }
 
     [Test]
     public void DefaultValuesTest()
     {
-      using (Domain.OpenSession()) {
-        Key key;
-        using (var t = Session.Current.OpenTransaction()) {
+      using (var session = Domain.OpenSession()) {
+        Key keyX;
+        Key keyY = null;
+        Key keyZ = null;
+        using (var t = session.OpenTransaction()) {
           // To be sure that the reference field (X.Ref) would have meaning
-          new XRef(new Guid(CodeRegistry.GuidKeyValue));
-          new EnumKeyEntity(CodeRegistry.EnumKeyValue);
-          key = new X().Key;
+          _ = new XRef(new Guid(CodeRegistry.GuidKeyValue));
+          _ = new EnumKeyEntity(CodeRegistry.EnumKeyValue);
+          keyX = new X().Key;
+
+          if (SupportsDefaultForLongString()) {
+            keyY = new Y().Key;
+          }
+
+          if(SupportsDefaultForArrays()) {
+            keyZ = new Z().Key;
+          }
           t.Complete();
         }
 
-        using (var t = Session.Current.OpenTransaction()) {
-          X x = Query.SingleOrDefault<X>(key);
+        using (var t = session.OpenTransaction()) {
+          var x = session.Query.SingleOrDefault<X>(keyX);
           Assert.AreEqual(true, x.FBool);
           Assert.AreEqual(byte.MaxValue, x.FByte);
-          Assert.AreEqual(new byte[] {10, 10, 10, 10}, x.FByteArray);
           Assert.AreEqual(DateTime.Parse("2012.12.12"), x.FDateTime);
           Assert.AreEqual(12.12M, x.FDecimal);
           Assert.AreEqual(float.MaxValue, x.FDouble);
@@ -312,8 +345,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.AreEqual(new Guid(CodeRegistry.GuidDefaultValue), x.FGuid);
           Assert.AreEqual(int.MaxValue, x.FInt);
           Assert.AreEqual(long.MaxValue, x.FLong);
-          Assert.AreEqual(new byte[] {10, 10, 10, 10}, x.FLongByteArray);
-          Assert.AreEqual("default value", x.FLongString);
+
           Assert.AreEqual(sbyte.MaxValue, x.FSByte);
           Assert.AreEqual(short.MaxValue, x.FShort);
           Assert.AreEqual("default value", x.FString);
@@ -348,6 +380,16 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.IsNotNull(x.Ref);
           Assert.IsNotNull(x.EnumKeyEntityRef);
 
+          if (SupportsDefaultForLongString()) {
+            var y = session.Query.SingleOrDefault<Y>(keyY);
+            Assert.AreEqual("default value", y.FLongString);
+          }
+          if (SupportsDefaultForArrays()) {
+            var z = session.Query.SingleOrDefault<Z>(keyZ);
+            Assert.AreEqual(new byte[] { 10, 10, 10, 10 }, z.FByteArray);
+            Assert.AreEqual(new byte[] { 10, 10, 10, 10 }, z.FLongByteArray);
+          }
+
           t.Complete();
         }
       }
@@ -358,9 +400,31 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var configuration = BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Validate;
-      configuration.Types.Register(typeof (X));
+      configuration.Types.Register(typeof(X));
+      if (SupportsDefaultForLongString()) {
+        configuration.Types.Register(typeof(Y));
+      }
+      if (SupportsDefaultForArrays()) {
+        configuration.Types.Register(typeof(Z));
+      }
       var domain = Domain.Build(configuration);
       domain.Dispose();
+    }
+
+    private bool SupportsDefaultForArrays()
+    {
+      switch (StorageProviderInfo.Instance.Provider) {
+        case StorageProvider.Firebird:
+        case StorageProvider.MySql:
+          return false;
+        default:
+          return true;
+      }
+    }
+
+    private bool SupportsDefaultForLongString()
+    {
+      return StorageProviderInfo.Instance.Provider != StorageProvider.MySql;
     }
   }
 }

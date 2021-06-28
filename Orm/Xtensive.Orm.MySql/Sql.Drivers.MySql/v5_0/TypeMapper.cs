@@ -1,38 +1,31 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
 using System;
 using System.Data;
 using System.Data.Common;
+using System.Linq;
 using System.Security;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
   internal class TypeMapper : Sql.TypeMapper
   {
+    private static readonly Type[] CastRequiredTypes = new[] { typeof(Guid), typeof(TimeSpan), typeof(byte[]) };
+
     /// <inheritdoc/>
     public override bool IsParameterCastRequired(Type type)
     {
       switch (Type.GetTypeCode(type)) {
-        case TypeCode.Byte:
-        case TypeCode.SByte:
-        case TypeCode.Int16:
-        case TypeCode.UInt16:
         case TypeCode.Single:
         case TypeCode.Double:
         case TypeCode.DateTime:
           return true;
       }
-      if (type==typeof (Guid))
-        return true;
-      if (type==typeof (TimeSpan))
-        return true;
-      if (type==typeof (byte[]))
-        return true;
-      return false;
+      return CastRequiredTypes.Contains(type);
     }
 
     /// <inheritdoc/>

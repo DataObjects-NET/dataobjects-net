@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.06.10
 
@@ -11,32 +11,30 @@ using Xtensive.Orm.Security.Tests.Model;
 
 namespace Xtensive.Orm.Security.Tests
 {
-  public class AuthenticationTests : AutoBuildTest
+  public class AuthenticationTests : SecurityTestBase
   {
     [Test]
     public void MainTest()
     {
-      using (var session = Domain.OpenSession()) {
-        using (var trx = session.OpenTransaction()) {
-          
-          var employee = new Employee(session);
-          employee.Name = "Steve Ballmer";
-          employee.SetPassword("developers, developers, developers, developers");
-          Assert.That(employee.PasswordHash, Is.Not.Null.Or.Empty);
+      using (var session = Domain.OpenSession())
+      using (var trx = session.OpenTransaction()) {
 
-          trx.Complete();
-        }
+        var employee = new Employee(session);
+        employee.Name = "Steve Ballmer";
+        employee.SetPassword("developers, developers, developers, developers");
+        Assert.That(employee.PasswordHash, Is.Not.Null.Or.Empty);
+
+        trx.Complete();
       }
 
-      using (var session = Domain.OpenSession()) {
-        using (var trx = session.OpenTransaction()) {
+      using (var session = Domain.OpenSession())
+      using (var trx = session.OpenTransaction()) {
 
-          Assert.That(session.Authenticate("Steve Ballmer", "Steve Ballmer"), Is.Null);
-          Assert.That(session.Authenticate("developers, developers, developers, developers", "Steve Ballmer"), Is.Null);
-          Assert.That(session.Authenticate("Steve Ballmer", "developers, developers, developers, developers"), Is.Not.Null);
+        Assert.That(session.Authenticate("Steve Ballmer", "Steve Ballmer"), Is.Null);
+        Assert.That(session.Authenticate("developers, developers, developers, developers", "Steve Ballmer"), Is.Null);
+        Assert.That(session.Authenticate("Steve Ballmer", "developers, developers, developers, developers"), Is.Not.Null);
 
-          trx.Complete();
-        }
+        trx.Complete();
       }
     }
   }

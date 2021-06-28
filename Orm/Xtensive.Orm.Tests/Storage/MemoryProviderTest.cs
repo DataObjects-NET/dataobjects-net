@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.02.14
 
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void MainTest()
     {
       var configuration = DomainConfigurationFactory.Create();
-      configuration.Types.Register(typeof (TheEntity).Assembly, typeof (TheEntity).Namespace);
+      configuration.Types.Register(typeof(TheEntity).Assembly, typeof(TheEntity).Namespace);
       configuration.ConnectionInfo = new ConnectionInfo(WellKnown.Provider.Sqlite, "Data Source=:memory:");
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
 
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var session = domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        new TheEntity {Value = "in-memory"};
+        _ = new TheEntity {Value = "in-memory"};
         CheckSingleConnection(session, singleConnection);
         tx.Complete();
       }
@@ -94,7 +94,8 @@ namespace Xtensive.Orm.Tests.Storage
 
       domain.Dispose();
 
-      AssertEx.Throws<ObjectDisposedException>(() => singleConnection.State.ToString());
+      Assert.DoesNotThrow(() => singleConnection.State.ToString());
+      Assert.That(singleConnection.State, Is.EqualTo(ConnectionState.Closed));
     }
 
     [TearDown]

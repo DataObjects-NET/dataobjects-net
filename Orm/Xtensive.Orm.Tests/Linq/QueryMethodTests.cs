@@ -1,11 +1,14 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2010.01.15
 
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Xtensive.Collections;
+using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
@@ -30,9 +33,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Where(c => c==Session.Query.Single(Session.Query.All<Customer>().FirstOrDefault().Key));
-      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
+      _ = Assert.Throws<QueryTranslationException>(() => query.Run());
     }
 
     [Test]
@@ -41,8 +42,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Where(c => c==Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
+      var expected = GetExpectedCustomerAsSequence();
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -53,9 +53,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var query = Session.Query.All<Customer>()
         .Where(c => c == Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().CustomerId));
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Where(c => c == Session.Query.Single<Customer>(Session.Query.All<Customer>().FirstOrDefault().CustomerId));
-      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
+      _ = Assert.Throws<QueryTranslationException>(() => query.Run());
     }
 
     [Test]
@@ -64,8 +62,7 @@ namespace Xtensive.Orm.Tests.Linq
       var key = Session.Query.All<Customer>().First().Key;
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.SingleOrDefault(key));
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Where(c => c==Session.Query.SingleOrDefault(key));
+      var expected = Customers.Where(c => c.Key == key);
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -76,9 +73,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.SingleOrDefault(Session.Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Where(c => c==Session.Query.SingleOrDefault(Session.Query.All<Customer>().FirstOrDefault().Key));
-      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
+      _ = Assert.Throws<QueryTranslationException>(() => query.Run());
     }
 
     [Test]
@@ -87,8 +82,7 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().Key));
+      var expected = GetExpectedCustomerAsSequence();
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -99,9 +93,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var query = Session.Query.All<Customer>()
         .Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().CustomerId));
-      var expected = Session.Query.All<Customer>().AsEnumerable()
-        .Where(c => c==Session.Query.SingleOrDefault<Customer>(Session.Query.All<Customer>().FirstOrDefault().CustomerId));
-      Assert.Throws<QueryTranslationException>(() => Assert.AreEqual(0, expected.Except(query).Count()));
+      _ = Assert.Throws<QueryTranslationException>(() => query.Run());
     }
 
     [Test]
@@ -147,6 +139,14 @@ namespace Xtensive.Orm.Tests.Linq
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    private IEnumerable<Customer> GetExpectedCustomerAsSequence()
+    {
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Firebird)) {
+        return EnumerableUtils.One(Session.Query.All<Customer>().OrderBy(c => c.CustomerId).AsEnumerable().First());
+      }
+      return EnumerableUtils.One(Customers.First());
     }
   }
 }

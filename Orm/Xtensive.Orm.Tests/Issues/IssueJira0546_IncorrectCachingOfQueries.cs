@@ -1,6 +1,6 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+// Copyright (C) 2014-2021 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2014.08.08
 
@@ -117,7 +117,7 @@ namespace Xtensive.Orm.Tests.Issues
       return result;
     }
 
-    public IssueJira0546Task (Session session, int startValue)
+    public IssueJira0546Task(Session session, int startValue)
       : base(startValue)
     {
       this.Session = session;
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Tests.Issues
       var currentId = 1;
       var iterationsCount = 0;
       while (currentId<80) {
-        var task = new IssueJira0546Task (session, currentId);
+        var task = new IssueJira0546Task(session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdDelayedApi();
         Assert.AreEqual(previousId+1, currentId);
@@ -299,7 +299,7 @@ namespace Xtensive.Orm.Tests.Issues
       currentId = 1;
       iterationsCount = 0;
       while (currentId < 80) {
-        var task = new IssueJira0546Task (session, currentId);
+        var task = new IssueJira0546Task(session, currentId);
         var previousId = currentId;
         currentId = task.GetMinimalLocationIdFutureApi();
         Assert.AreEqual(previousId + 1, currentId);

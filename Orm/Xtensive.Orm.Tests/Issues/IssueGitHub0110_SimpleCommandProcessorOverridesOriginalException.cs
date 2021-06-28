@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -133,12 +133,12 @@ namespace Xtensive.Orm.Tests.Issues
       var task1State = new OperationState(Domain);
       var task2State = new OperationState(Domain);
 
-      var task1 = new System.Threading.Tasks.Task(Outer, task1State);
-      var task2 = new System.Threading.Tasks.Task(Outer, task2State);
+      var task1 = new Task(Outer, task1State);
+      var task2 = new Task(Outer, task2State);
       task1.Start();
       task2.Start();
 
-      Thread.Sleep(500);
+      Thread.Sleep(700);
 
       _ = theStarter.Set();
 
@@ -155,7 +155,6 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var operationState = (OperationState) state;
 
-      _ = theStarter.WaitOne();
       try {
         using (var session = operationState.Domain.OpenSession(SessionType.User))
         using (var tx = session.OpenTransaction()) {
@@ -177,6 +176,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var tx = session.OpenTransaction()) {
         var doc = session.Query.All<InventoryBalance>().SingleOrDefault(o => o.Active == true && o.Bin == bin);
         doc.N += 1;
+        _ = theStarter.WaitOne();
         tx.Complete();
       }
     }

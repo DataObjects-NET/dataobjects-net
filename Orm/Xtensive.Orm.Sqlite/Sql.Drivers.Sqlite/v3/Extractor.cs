@@ -366,6 +366,17 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private void ExtractForeignKeys(Schema schema)
     {
+      // PRAGMA foreign_key_list - retuns column list for all foreign key
+      // row structure:
+      // 0 - id (numeric value, identifier, unique across foreign keys but non-unique across results)
+      // 1 - seq (numeric value, describes order within foreign key)
+      // 2 - table (string value, foreign table name)
+      // 3 - from (string value, local column name)
+      // 4 - to (string value, referenced column)
+      // 5 - on_update (string value, action on update)
+      // 6 - on_delete (string value, action on delete)
+      // 7 - match (string value, always NONE)
+
       foreach (var table in schema.Tables) {
         var query = BuildExtractForeignKeysQuery(table.Name);
 
@@ -398,14 +409,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static void ReadForeignKeyColumnData(DbDataReader reader, Table table, ref ForeignKeyReaderState state)
     {
-      var foreignKeyName = string.Format(
-        CultureInfo.InvariantCulture, "FK_{0}_{1}", state.ReferencingTable.Name, ReadStringOrNull(reader, 2));
-
-      var columnIndex = ReadInt(reader, 5);
+      var columnIndex = ReadInt(reader, 1);
       if (columnIndex <= state.LastColumnIndex) {
+        var foreignKeyName = string.Format(
+          CultureInfo.InvariantCulture, "FK_{0}_{1}", state.ReferencingTable.Name, ReadStringOrNull(reader, 2));
+
         state.ForeignKey = state.ReferencingTable.CreateForeignKey(foreignKeyName);
 
-        ReadCascadeAction(state.ForeignKey, reader, 7);
+        ReadCascadeAction(state.ForeignKey, reader, 6);
         var referencedSchema = table.Schema; //Schema same as current
         var referencedTable = referencedSchema.Tables[ReadStringOrNull(reader, 2)];
         state.ReferencedTable = referencedTable;

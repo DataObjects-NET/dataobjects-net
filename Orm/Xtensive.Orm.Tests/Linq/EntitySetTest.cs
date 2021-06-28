@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.02
 
@@ -22,10 +22,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetAnonymousTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {InvoicesFiled = c.Invoices});
-      var expected = Session.Query.All<Customer>()
-        .ToList()
-        .Select(c => new {InvoicesFiled = c.Invoices });
+        .Select(c => new { InvoicesFiled = c.Invoices });
+      var expected = Customers
+        .Select(c => new { InvoicesFiled = c.Invoices });
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
     }
@@ -34,11 +33,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetSelectManyAnonymousTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {InvoicesFiled = c.Invoices })
+        .Select(c => new { InvoicesFiled = c.Invoices })
         .SelectMany(i => i.InvoicesFiled);
-      var expected = Session.Query.All<Customer>()
-        .ToList()
-        .Select(c => new {InvoicesFiled = c.Invoices })
+      var expected = Customers
+        .Select(c => new { InvoicesFiled = c.Invoices })
         .SelectMany(i => i.InvoicesFiled);
       Assert.AreEqual(0, expected.Except(result).Count());
       QueryDumper.Dump(result);
@@ -48,11 +46,12 @@ namespace Xtensive.Orm.Tests.Linq
     public void EntitySetSelectTest()
     {
       var result = Session.Query.All<Customer>().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
-      var expected = Session.Query.All<Customer>().AsEnumerable().OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
+      var expected = Customers.OrderBy(c=>c.CustomerId).Select(c => c.Invoices).ToList();
       Assert.Greater(result.Count, 0);
       Assert.AreEqual(expected.Count, result.Count);
-      for (int i = 0; i < result.Count; i++)
+      for (var i = 0; i < result.Count; i++) {
         Assert.AreSame(expected[i], result[i]);
+      }
     }
 
     [Test]
@@ -61,7 +60,7 @@ namespace Xtensive.Orm.Tests.Linq
       var customer = GetCustomer();
       var expected = customer
         .Invoices
-        .ToList()
+        .AsEnumerable()
         .OrderBy(i => i.InvoiceId)
         .Select(i => i.InvoiceId)
         .ToList();
@@ -84,7 +83,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void CountTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var expected = Session.Query.All<Invoice>().Count();
+      var expected = Invoices.Count();
       var count = Session.Query.All<Customer>()
         .Select(c => c.Invoices.Count)
         .ToList()
@@ -122,9 +121,9 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.AreEqual(customer.Invoices.Count, result.ToList().Count);
     }
 
-    private static Customer GetCustomer()
+    private Customer GetCustomer()
     {
-      return Session.Demand().Query.All<Customer>().Where(c => c.FirstName=="Luis").Single();
+      return Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").Single();
     }
   }
 }

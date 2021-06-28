@@ -1,0 +1,80 @@
+[main] Main assembly is built for .Net Core 3.1 only
+[main] CollectionExtensions renamed to CollectionExtensionsEx to prevent ambiguity
+[main] Removed EnumerableExtensions.ToHashset() as it conflicts with .net core equivalent
+[main] Removed EnumerableExtensions.Zip() as it conflicts with .net core equivalent
+[main] Removed obsolete EnumerableExtensions.AsAsyncTask() extensions
+[main] EnumerableExtensions.AsAsync() extension marked obsolete
+[main] EnumerableExtensions.AddOne() extension marked obsolete
+[main] Removed ParameterContextExtensions class
+[main] Removed SessionEventAccessor.EntitySetChanging event since there is no nofications for it
+[main] Removed obsolete Xtensive.Sql.Model.Extractor.ExtractSchema() method
+[main] Removed ParameterScope class
+[main] Removed Delayed<T>, DelayedQueryResult<T> types. DelayedQuery, DelayedQuery<T> and DelayedScalarQuery<T> introduced instead
+[main] Removed both Orm.Providers.EnumerationScope and Orm.Rse.Providers.EnumerationScope
+[main] Rse.Providers.EnumerationContext is no longer inherits Context<Rse.Providers.EnumerationScope>
+[main] Query.ExecuteFuture()/ExecuteFutureScalar() methods renamed with CreateDelayedQuery() to reflect action they do
+[main] QueryEndpoint.ExecuteDelayed() methods renamed with CreateDelayedQuery() to reflect action they do
+[main] Query.Execute() and QueryEndpoint.Execute() changes behavior and actually execute query and holds DbReader opened
+[main] Method Xtensive.Sql.Model.Extractor.ExtractSchemes() became abstract
+[main] ParameterContext class no longer inherits Context<ParameteScope> and its usage rewoked heavily
+[main] Parameter and Parameter<T> are light-weight and no longer provide value
+[main] Now all CommandFactory.CreateQueryPart() methods require ParameterContext instance
+[main] ContainsTableProvider.SearchCriteria and ContainsTableProvider.TopN have ParameterContext as parameter
+[main] FreeTextProvider.SearchCriteria and FreeTextProvider.TopN properties have ParameterContext as parameter
+[main] IncludeProvider.FilterDataSource property has ParameterContext as parameter
+[main] PagingProvider has ParameterContext as parameter in From, To, Skip and Take properties
+[main] RawProvider.Source and RawProvider.CompiledSource properties have ParameterContext as parameter
+[main] SeekProvider.Key property has ParameterContext as parameter
+[main] SkipProvider.Count property has ParameterContext as parameter
+[main] TakeProvider.Count property has ParameterContext as parameter
+[main] RecordSet class is renamed with RecordSetReader
+[main] ExecutableProvider is no longer implements IEnumerable<Tuple>
+[main] Providers.QueryParameterBinding.ValueAccessor property changes retun value
+[main] Services.QueryParameterBinding.ValueAccessor property changes retun value
+[main] Introduced Domain.BuildAsync() and asynchronous IUpgradeHandler and UpgradeHandler upgrade method-steps
+[main] Introduced StorageNodeManager.AddNodeAsync()
+[main] Introduced asynchronous persist of changes, including manual and autosavings before query and transaction commit
+[main] Added dedicated Prefetch extensions for DelayedQuery<T> and QueryResult<T> types
+[main] Query.Execute() methods return new type QueryResult<T> which is compatible with old return type
+[main] QueryEndpoint.Execute() methods return new type QueryResult<T> which is compatible with old return type
+[main] DelayedQuery created by any of CreateDelayedQuery() methods can be natively executed asynchronowsly or synchronously
+[main] SessionScope is no longer inheritor of Scope<T>. Functionally it stays the same
+[main] Prefetch extensions return new type PrefetchQuery<T> which is compatible with old one return type
+[main] Domain, Session and TransactionScope are IAsyncDisposable implementors now
+[main] Introduced DataReader struct which is both synchronous and asynchronous enumerator
+[main] Both async and regular CommandProcessor.ExecuteTasksWithReader methods changed return type to DataReader
+[main] Both async and regular IProviderExecutor.ExecuteTupleReader methods now return DataReader type
+[main] Both async and sync ExecutableProvider.OnEnumerate methods return DataReader
+[main] Introduced asynchronous equivalents for low-level APIs such as SqlDriverFactory, SqlDriver, Extractor, SqlConnection
+[main] Xtensive.Sql.SqlConnection implements IAsyncDisposable interface now
+[main] Xtensive.Collections.SetBase<TItem> class implements IReadOnlyCollection<> interface now
+[main] Added DisposableExtensions.DisposeSafelyAsync() methods
+[main] DisposableSet class implements IAsyncDisposable interface now
+[main] Queryable<T> class now implements IAsyncEnumerable<T> interface
+[main] Command became an IAsyncDisposable implementor
+[main] ISqlExecutor now have async analogues for methods
+[main] Prefetching of fields as part of asynchronous query executes asyncronously as well
+[main] Introduced asynchronous analogs for transaction operations in SessionHandlers
+[main] QueryCommand now supports asynchronous operations and implements both IDisposable and IAsyncDisposable
+[main] CommandProcessorContext became an IAsyncDisposable implementor
+[main] SessionBound inheritors now check that session hasn't been disposed
+[main] Improved perfomance of query translation
+[main] Improved memory usage while certain upgrade oprations
+[main] No actions for transaction on TransactioScope disposal for zombied transaction
+[sqlserver] MS SQL Server provider is built for .Net Core 3.1 only
+[firebird] Firebird provider is built for .Net Core 3.1 only
+[mysql] MySQL provider is built for .Net Core 3.1 only
+[postgresql] PosgreSQL provider is built for .Net Core 3.1 only
+[postgresql] Implemented provider for PosgreSQL 12
+[oracle] Main assembly is built for .Net Core 3.1 only
+[sqlite] Main assembly is built for .Net Core 3.1 only
+[bulkoperations] Bulk operations extension is built for .Net Core 3.1 only
+[bulkoperations] Asynchronous operations is now supported
+[localization] Localization extension is built for .Net Core 3.1 only
+[localization] Support for inherited from abstract class localization fields #102
+[logging.log4ne] log4net integration extension is built for .Net Core 3.1 only
+[logging.nlog] Nlog integration extension is built for .Net Core 3.1 only
+[reprocessing] Reprocessing extension is built for .Net Core 3.1 only
+[security] Security extension is built for .Net Core 3.1 only
+[tracking] Tracking extension is built for .Net Core 3.1 only
+[web] Web extension is built for .Net Core 3.1 only

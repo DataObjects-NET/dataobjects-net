@@ -1,4 +1,4 @@
-﻿module Test
+module Test
 
 open FsUnit
 open NUnit.Framework
@@ -6,7 +6,6 @@ open Xtensive.Orm
 open Xtensive.Orm.Tests
 open Model
 open Microsoft.FSharp.Linq
-open Microsoft.FSharp.Linq.Query
 
 [<TestFixture>]
 type Fixture() =
@@ -25,11 +24,11 @@ type Fixture() =
     Person (Name = "John") |> ignore
     let persons = session.Query.All<Person> ()
     let query = 
-      query <@ seq {
+      query {
         for p in persons do
           if p.Name = "John" then 
             yield p
-      } @>
+      }
     let list = query |> Seq.toArray
     Assert.AreEqual(1, list.Length)
     let fetched = list.[0]

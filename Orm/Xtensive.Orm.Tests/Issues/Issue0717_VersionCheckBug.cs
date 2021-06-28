@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.06.24
 
@@ -39,6 +39,15 @@ namespace Xtensive.Orm.Tests.Issues
   public class Issue0717_VersionCheckBug : AutoBuildTest
   {
     private const string VersionFieldName = "Version";
+
+    protected override void CheckRequirements()
+    {
+      base.CheckRequirements();
+      // MySQL does not store milliseconds
+      // and we increase Millisecond part of DateTime value on Version increase
+      // so test is irrelevant to this RDBMS
+      Require.ProviderIsNot(StorageProvider.MySql);
+    }
 
     protected override DomainConfiguration BuildConfiguration()
     {

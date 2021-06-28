@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -122,6 +122,12 @@ namespace Xtensive.Collections
     public IEnumerable<TClass> GetClasses()
     {
       return classified.Keys;
+    }
+
+    public int GetItemCount(TClass @class)
+    {
+      var items = classified.GetValueOrDefault(@class);
+      return items != null ? items.Count : 0;
     }
 
     #region IEnumerable<...> members

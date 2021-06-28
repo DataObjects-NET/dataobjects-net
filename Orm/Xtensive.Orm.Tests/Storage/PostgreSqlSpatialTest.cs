@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2014-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alena Mikshina
 // Created:    2014.04.09
 
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (Domain.OpenSession()) {
         using (var t = Session.Current.OpenTransaction()) {
-          new Container {
+          _ = new Container {
             Point = new NpgsqlPoint(),
             LSeg = new NpgsqlLSeg(),
             Box = new NpgsqlBox(),
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Tests.Storage
             Circle = new NpgsqlCircle()
           };
 
-          new Container {
+          _ = new Container {
             Point = point,
             LSeg = lSeg,
             Box = box,
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Storage
           Assert.IsTrue(record.Point.Equals(new NpgsqlPoint()));
           Assert.IsTrue(record.LSeg.Equals(new NpgsqlLSeg()));
           Assert.IsTrue(record.Box.Equals(new NpgsqlBox()));
-          Assert.IsTrue(record.Path.Equals(new NpgsqlPath(new[] {new NpgsqlPoint()}) {Open = true}));
+          Assert.IsTrue(record.Path.Equals(new NpgsqlPath(new[] {new NpgsqlPoint()})));
           Assert.IsTrue(record.Polygon.Equals(new NpgsqlPolygon(new[] {new NpgsqlPoint()})));
           Assert.IsTrue(record.Circle.Equals(new NpgsqlCircle()));
 

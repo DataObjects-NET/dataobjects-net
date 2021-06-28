@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2017-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2017.03.29
 
@@ -20,6 +20,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity1(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -33,6 +38,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity2(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -46,6 +56,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity3(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -59,6 +74,11 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
       [Field]
       public string Text { get; set; }
+
+      public TestEntity4(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -73,10 +93,7 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
 
     public override void OnPrepare()
     {
-      if (UpgradeContext.NodeConfiguration.UpgradeMode==DomainUpgradeMode.Recreate)
-        initialCountOfEntities = 0;
-      else
-        initialCountOfEntities = 1;
+      initialCountOfEntities = UpgradeContext.NodeConfiguration.UpgradeMode == DomainUpgradeMode.Recreate ? 0 : 1;
     }
 
     public override void OnUpgrade()
@@ -112,104 +129,107 @@ namespace Xtensive.Orm.Tests.Upgrade.SchemaSharing.Requests.Model
       Assert.That(session.Query.All<Part3.TestEntity3>().AsEnumerable().Count(), Is.EqualTo(initialCountOfEntities));
       Assert.That(session.Query.All<Part4.TestEntity4>().AsEnumerable().Count(), Is.EqualTo(initialCountOfEntities));
 
-      if (initialCountOfEntities==0)
+      if (initialCountOfEntities == 0)
         return;
-      Assert.That(session.Query.All<Part1.TestEntity1>().AsEnumerable().First().Text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
-      Assert.That(session.Query.All<Part2.TestEntity2>().AsEnumerable().First().Text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
-      Assert.That(session.Query.All<Part3.TestEntity3>().AsEnumerable().First().Text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
-      Assert.That(session.Query.All<Part4.TestEntity4>().AsEnumerable().First().Text, Is.EqualTo(UpgradeContext.NodeConfiguration.NodeId));
+      var storageNodeText = TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId);
+      Assert.That(session.Query.All<Part1.TestEntity1>().AsEnumerable().First().Text, Is.EqualTo(storageNodeText));
+      Assert.That(session.Query.All<Part2.TestEntity2>().AsEnumerable().First().Text, Is.EqualTo(storageNodeText));
+      Assert.That(session.Query.All<Part3.TestEntity3>().AsEnumerable().First().Text, Is.EqualTo(storageNodeText));
+      Assert.That(session.Query.All<Part4.TestEntity4>().AsEnumerable().First().Text, Is.EqualTo(storageNodeText));
     }
 
     private Key[] Insert(Session session)
     {
-      var text = string.Format("{0}_during_upgrade", UpgradeContext.NodeConfiguration.NodeId);
-      var a = new Part1.TestEntity1 {Text = text};
-      var b = new Part2.TestEntity2 {Text = text};
-      var c = new Part3.TestEntity3 {Text = text};
-      var d = new Part4.TestEntity4 {Text = text};
+      var text = string.Format("{0}_during_upgrade", TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId));
+      var a = new Part1.TestEntity1(session) { Text = text };
+      var b = new Part2.TestEntity2(session) { Text = text };
+      var c = new Part3.TestEntity3(session) { Text = text };
+      var d = new Part4.TestEntity4(session) { Text = text };
 
       session.SaveChanges();
 
       Assert.That(session.Query.All<Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      a = session.Query.All<Part1.TestEntity1>().Where(e => e.Text==text).FirstOrDefault();
+      a = session.Query.All<Part1.TestEntity1>().Where(e => e.Text == text).FirstOrDefault();
       Assert.That(a, Is.Not.Null);
 
       Assert.That(session.Query.All<Part2.TestEntity2>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      b = session.Query.All<Part2.TestEntity2>().Where(e => e.Text==text).FirstOrDefault();
+      b = session.Query.All<Part2.TestEntity2>().Where(e => e.Text == text).FirstOrDefault();
       Assert.That(b, Is.Not.Null);
 
       Assert.That(session.Query.All<Part3.TestEntity3>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      c = session.Query.All<Part3.TestEntity3>().Where(e => e.Text==text).FirstOrDefault();
+      c = session.Query.All<Part3.TestEntity3>().Where(e => e.Text == text).FirstOrDefault();
       Assert.That(c, Is.Not.Null);
 
       Assert.That(session.Query.All<Part4.TestEntity4>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      d = session.Query.All<Part4.TestEntity4>().Where(e => e.Text==text).FirstOrDefault();
+      d = session.Query.All<Part4.TestEntity4>().Where(e => e.Text == text).FirstOrDefault();
       Assert.That(d, Is.Not.Null);
 
-      return new Key[] {a.Key, b.Key, c.Key, d.Key};
+      return new Key[] { a.Key, b.Key, c.Key, d.Key };
     }
 
     private void Update(Session session, Key[] createdKeys)
     {
-      var updatedText = string.Format("{0}_during_upgrade_updated", UpgradeContext.NodeConfiguration.NodeId);
+      var updatedText = string.Format("{0}_during_upgrade_updated", TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId));
 
-      var a = session.Query.All<Part1.TestEntity1>().Where(e => e.Key==createdKeys[0]).First();
+      var a = session.Query.All<Part1.TestEntity1>().Where(e => e.Key == createdKeys[0]).First();
       a.Text = updatedText;
-      var b = session.Query.All<Part2.TestEntity2>().Where(e => e.Key==createdKeys[1]).First();
+      var b = session.Query.All<Part2.TestEntity2>().Where(e => e.Key == createdKeys[1]).First();
       b.Text = updatedText;
-      var c = session.Query.All<Part3.TestEntity3>().Where(e => e.Key==createdKeys[2]).First();
+      var c = session.Query.All<Part3.TestEntity3>().Where(e => e.Key == createdKeys[2]).First();
       c.Text = updatedText;
-      var d = session.Query.All<Part4.TestEntity4>().Where(e => e.Key==createdKeys[3]).First();
+      var d = session.Query.All<Part4.TestEntity4>().Where(e => e.Key == createdKeys[3]).First();
       d.Text = updatedText;
 
       session.SaveChanges();
 
       Assert.That(session.Query.All<Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      a = session.Query.All<Part1.TestEntity1>().Where(e => e.Text==updatedText).FirstOrDefault();
+      a = session.Query.All<Part1.TestEntity1>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(a, Is.Not.Null);
 
       Assert.That(session.Query.All<Part2.TestEntity2>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      b = session.Query.All<Part2.TestEntity2>().Where(e => e.Text==updatedText).FirstOrDefault();
+      b = session.Query.All<Part2.TestEntity2>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(b, Is.Not.Null);
 
       Assert.That(session.Query.All<Part3.TestEntity3>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      c = session.Query.All<Part3.TestEntity3>().Where(e => e.Text==updatedText).FirstOrDefault();
+      c = session.Query.All<Part3.TestEntity3>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(c, Is.Not.Null);
 
       Assert.That(session.Query.All<Part4.TestEntity4>().Count(), Is.EqualTo(initialCountOfEntities + 1));
-      d = session.Query.All<Part4.TestEntity4>().Where(e => e.Text==updatedText).FirstOrDefault();
+      d = session.Query.All<Part4.TestEntity4>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(d, Is.Not.Null);
     }
 
     private void Delete(Session session, Key[] createdKeys)
     {
-      var a = session.Query.All<Part1.TestEntity1>().Where(e => e.Key==createdKeys[0]).First();
+      var a = session.Query.All<Part1.TestEntity1>().Where(e => e.Key == createdKeys[0]).First();
       a.Remove();
-      var b = session.Query.All<Part2.TestEntity2>().Where(e => e.Key==createdKeys[1]).First();
+      var b = session.Query.All<Part2.TestEntity2>().Where(e => e.Key == createdKeys[1]).First();
       b.Remove();
-      var c = session.Query.All<Part3.TestEntity3>().Where(e => e.Key==createdKeys[2]).First();
+      var c = session.Query.All<Part3.TestEntity3>().Where(e => e.Key == createdKeys[2]).First();
       c.Remove();
-      var d = session.Query.All<Part4.TestEntity4>().Where(e => e.Key==createdKeys[3]).First();
+      var d = session.Query.All<Part4.TestEntity4>().Where(e => e.Key == createdKeys[3]).First();
       d.Remove();
 
       session.SaveChanges();
 
-      var updatedText = string.Format("{0}_during_upgrade_updated", UpgradeContext.NodeConfiguration.NodeId);
+      var updatedText = string.Format("{0}_during_upgrade_updated", TryGetStorageNodeText(UpgradeContext.NodeConfiguration.NodeId));
       Assert.That(session.Query.All<Part1.TestEntity1>().Count(), Is.EqualTo(initialCountOfEntities));
-      a = session.Query.All<Part1.TestEntity1>().Where(e => e.Text==updatedText).FirstOrDefault();
+      a = session.Query.All<Part1.TestEntity1>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(a, Is.Null);
 
       Assert.That(session.Query.All<Part2.TestEntity2>().Count(), Is.EqualTo(initialCountOfEntities));
-      b = session.Query.All<Part2.TestEntity2>().Where(e => e.Text==updatedText).FirstOrDefault();
+      b = session.Query.All<Part2.TestEntity2>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(b, Is.Null);
 
       Assert.That(session.Query.All<Part3.TestEntity3>().Count(), Is.EqualTo(initialCountOfEntities));
-      c = session.Query.All<Part3.TestEntity3>().Where(e => e.Text==updatedText).FirstOrDefault();
+      c = session.Query.All<Part3.TestEntity3>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(c, Is.Null);
 
       Assert.That(session.Query.All<Part4.TestEntity4>().Count(), Is.EqualTo(initialCountOfEntities));
-      d = session.Query.All<Part4.TestEntity4>().Where(e => e.Text==updatedText).FirstOrDefault();
+      d = session.Query.All<Part4.TestEntity4>().Where(e => e.Text == updatedText).FirstOrDefault();
       Assert.That(d, Is.Null);
     }
+
+    private string TryGetStorageNodeText(string nodeId) => string.IsNullOrEmpty(nodeId) ? "<default>" : nodeId;
   }
 }

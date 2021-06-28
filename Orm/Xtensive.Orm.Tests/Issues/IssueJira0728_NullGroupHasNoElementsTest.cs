@@ -39,10 +39,15 @@ namespace Xtensive.Orm.Tests.Issues
           new Battery { Amps = 2, Cell = 5, Volts = 3.7 }
         };
 
+        var baseDateTime = DateTime.UtcNow;
+        baseDateTime = new DateTime(
+          baseDateTime.Year, baseDateTime.Month, baseDateTime.Day,
+          baseDateTime.Hour, baseDateTime.Minute, baseDateTime.Second, 128);
+
         for (var i = 0; i < 10; i++) {
           _ = new Product {
             Name = "Name:" + i % 3,
-            CreationDate = DateTime.UtcNow.AddDays(-(i % 3)),
+            CreationDate = baseDateTime.AddDays(-(i % 3)),
             Description = i % 3 != 0 ? "Lap:" + i % 3 : null,
             Comment = i % 3 != 0 ? "Comment:" + i % 3 : null,
             Price = new Money { CurrencyCode = 100 + i % 3, Value = (decimal) 12.3 },

@@ -356,35 +356,13 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private static SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.Cast(
-        SqlDml.DateTimePlusInterval(
-          DateTimeOffsetToUtcDateTime(dateTimeOffset),
-          SqlDml.DateTimeMinusDateTime(
-            DateTimeOffsetToUtcDateTime(
-              SqlDml.Native("SYSTIMESTAMP")),
-            SqlDml.Native("SYSTIMESTAMP"))),
-        SqlType.DateTime);
+      return SqlDml.Cast(DateTimeOffsetToLocalTime(dateTimeOffset), SqlType.DateTime);
     }
 
 
     private static SqlExpression DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.FunctionCall("FROM_TZ",
-        SqlDml.Cast(
-          dateTimeOffset
-            -
-            (SysExtractUtc(SqlDml.Native("CURRENT_TIMESTAMP"))
-              - SysExtractUtc(
-                SqlDml.FunctionCall("FROM_TZ",
-                  SqlDml.Cast(SqlDml.Native("CURRENT_TIMESTAMP"), SqlType.DateTime),
-                  DateTimeOffsetExtractPart(dateTimeOffset, "TZR")))),
-          SqlType.DateTime)
-        , SqlDml.Native("sessiontimezone"));
-    }
-
-    private static SqlExpression SysExtractUtc(SqlExpression dateTimeOffset)
-    {
-      return SqlDml.FunctionCall("SYS_EXTRACT_UTC", dateTimeOffset);
+      return SqlDml.RawConcat(dateTimeOffset, SqlDml.Native(" AT LOCAL"));
     }
 
     private static SqlExpression DateTimeToDateTimeOffset(SqlExpression dateTime)
@@ -394,9 +372,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private static SqlExpression DateTimeOffsetToUtcTime(SqlExpression dateTimeOffset)
     {
-      return SqlDml.FunctionCall("FROM_TZ",
-        DateTimeOffsetToUtcDateTime(dateTimeOffset),
-        AnsiString("+00:00"));
+      return SqlDml.RawConcat(dateTimeOffset, SqlDml.Native(" at time zone 'UTC'"));
     }
 
     private static SqlExpression AnsiString(string value)

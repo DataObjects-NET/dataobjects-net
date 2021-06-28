@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Track>().GroupBy(t =>t).OrderBy(g => g.Key.TrackId);
       var resultList = result.ToList();
-      var expectedList = Session.Query.All<Track>().ToList().GroupBy(t => t).OrderBy(g => g.Key.TrackId).ToList();
+      var expectedList = Tracks.GroupBy(t => t).OrderBy(g => g.Key.TrackId).ToList();
       Assert.That(resultList, Is.Not.Empty);
       Assert.AreEqual(resultList.Count, expectedList.Count());
       for (var i = 0; i < resultList.Count; i++) {
@@ -531,7 +531,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupBySelectKeyWithSelectCalculableColumnTest()
     {
-      IQueryable<string> result = Session.Query.All<Track>().GroupBy(t => t.Name).Select(g => g.Key + "String");
+      //avoid great amout of data for grouping, some storages are painfully slow with such operation
+      var result = Session.Query.All<Employee>().GroupBy(t => t.LastName).Select(g => g.Key + "String");
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
@@ -539,7 +540,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void GroupBySelectKeyWithCalculableColumnTest()
     {
-      var result = Session.Query.All<Track>().GroupBy(t => t.Name + "String");
+      //avoid great amout of data for grouping, some storages are painfully slow with such operation
+      var result = Session.Query.All<Employee>().GroupBy(t => t.LastName + "String");
       var list = result.ToList();
       Assert.That(result, Is.Not.Empty);
       DumpGrouping(result);

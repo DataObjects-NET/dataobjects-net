@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -68,7 +68,7 @@ namespace Xtensive.Orm
     IAsyncDisposable
   {
     private const string IdentifierFormat = "#{0}";
-    private const string FullNameFormat   = "{0}, #{1}";
+    private const string FullNameFormat = "{0}, #{1}";
 
     private static readonly Type
       typeofSession = typeof(Session),
@@ -116,12 +116,20 @@ namespace Xtensive.Orm
     /// Gets a value indicating whether session is disconnected:
     /// session supports non-transactional entity states and does not support autosaving of changes.
     /// </summary>
-    public bool IsDisconnected {
-      get
-      {
+    public bool IsDisconnected
+    {
+      get {
         return Configuration.Supports(SessionOptions.NonTransactionalEntityStates) &&
           !Configuration.Supports(SessionOptions.AutoSaveChanges);
       }
+    }
+
+    /// <summary>
+    /// Indicates whether instance is disposed.
+    /// </summary>
+    public bool IsDisposed
+    {
+      get => isDisposed;
     }
 
     /// <summary>
@@ -142,8 +150,7 @@ namespace Xtensive.Orm
     public int? CommandTimeout
     {
       get { return commandTimeout; }
-      set
-      {
+      set {
         if (Handler != null)
           Handler.SetCommandTimeout(value);
         commandTimeout = value;
@@ -156,13 +163,11 @@ namespace Xtensive.Orm
     /// </summary>
     public ConnectionInfo ConnectionInfo
     {
-      get
-      {
+      get {
         var directSqlService = Services.Demand<IDirectSqlService>();
         return directSqlService.ConnectionInfo;
       }
-      set
-      {
+      set {
         var directSqlService = Services.Demand<IDirectSqlService>();
         directSqlService.ConnectionInfo = value;
       }
@@ -181,9 +186,8 @@ namespace Xtensive.Orm
     /// </summary>
     public StorageNode StorageNode
     {
-      get
-      {
-        if (storageNode==null)
+      get {
+        if (storageNode == null)
           SetStorageNode(Handlers.StorageNodeRegistry.Get(WellKnown.DefaultNodeId));
         return storageNode;
       }
@@ -198,7 +202,8 @@ namespace Xtensive.Orm
     /// assigned resolver can not be changed.
     /// </remarks>
     /// <exception cref="NotSupportedException">Resolver is already assigned.</exception>
-    public static Func<Session> Resolver {
+    public static Func<Session> Resolver
+    {
       [DebuggerStepThrough]
       get {
         return resolver;
@@ -319,7 +324,7 @@ namespace Xtensive.Orm
 
     internal void SetStorageNode(StorageNode node)
     {
-      if (storageNode!=null)
+      if (storageNode != null)
         throw new InvalidOperationException(Strings.ExStorageNodeIsAlreadySelected);
       Handler.SetStorageNode(node);
       storageNode = node;
@@ -348,11 +353,12 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the current active <see cref="Session"/> instance.
     /// </summary>
-    public static Session Current {
+    public static Session Current
+    {
       [DebuggerStepThrough]
       get {
         return
-          SessionScope.CurrentSession ?? (resolver==null ? null : resolver.Invoke());
+          SessionScope.CurrentSession ?? (resolver == null ? null : resolver.Invoke());
       }
     }
 
@@ -366,20 +372,20 @@ namespace Xtensive.Orm
     public static Session Demand()
     {
       var currentSession = Current;
-      if (currentSession==null)
+      if (currentSession == null)
         throw new InvalidOperationException(Strings.ExActiveSessionIsRequiredForThisOperation);
       return currentSession;
     }
 
     /// <inheritdoc/>
-    public bool IsActive { get { return Current==this; } }
+    public bool IsActive { get { return Current == this; } }
 
     /// <inheritdoc/>
     public SessionScope Activate()
     {
       var currentSession = SessionScope.CurrentSession; // Not Session.Current -
       // to avoid possible comparison with Session provided by Session.Resolver.
-      return currentSession==this ? null : new SessionScope(this);
+      return currentSession == this ? null : new SessionScope(this);
     }
 
 
@@ -399,11 +405,11 @@ namespace Xtensive.Orm
         return Activate();
       var currentSession = SessionScope.CurrentSession; // Not Session.Current -
       // to avoid possible comparison with Session provided by Session.Resolver.
-      if (currentSession==null)
+      if (currentSession == null)
         return new SessionScope(this);
-      if (currentSession==this)
+      if (currentSession == this)
         return null;
-      if (currentSession.Transaction==null || (allowSwitching && currentSession.allowSwitching))
+      if (currentSession.Transaction == null || (allowSwitching && currentSession.allowSwitching))
         return new SessionScope(this);
       throw new InvalidOperationException(
         string.Format(Strings.ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked, this, currentSession));
@@ -417,7 +423,7 @@ namespace Xtensive.Orm
     /// <returns>A disposable object reverting the action.</returns>
     public static SessionScope Deactivate()
     {
-      return SessionScope.CurrentSession==null
+      return SessionScope.CurrentSession == null
         ? null
         : new SessionScope(null);
     }
@@ -433,9 +439,10 @@ namespace Xtensive.Orm
     #region IHasExtensions members
 
     /// <inheritdoc/>
-    public IExtensionCollection Extensions {
+    public IExtensionCollection Extensions
+    {
       get {
-        if (extensions==null)
+        if (extensions == null)
           extensions = new ExtensionCollection();
         return extensions;
       }
@@ -521,12 +528,12 @@ namespace Xtensive.Orm
       var transactionIsExternal = false;
 
       var upgradeContext = UpgradeContext.GetCurrent(Domain.UpgradeContextCookie);
-      if (upgradeContext!=null) {
+      if (upgradeContext != null) {
         connection = upgradeContext.Services.Connection;
         connectionIsExternal = true;
         transactionIsExternal = true;
       }
-      else if (Domain.SingleConnection!=null) {
+      else if (Domain.SingleConnection != null) {
         connection = Domain.SingleConnection;
         connectionIsExternal = true;
       }

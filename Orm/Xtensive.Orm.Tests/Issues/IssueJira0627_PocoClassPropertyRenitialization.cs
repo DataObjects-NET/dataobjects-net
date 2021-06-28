@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2015-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2015.12.31
 
@@ -21,12 +21,55 @@ namespace Xtensive.Orm.Tests.Issues
   {
     private int businessUnitCount;
 
+    protected override DomainConfiguration BuildConfiguration()
+    {
+      var configuration = base.BuildConfiguration();
+      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
+      configuration.Types.Register(typeof(BusinessUnit).Assembly, typeof(BusinessUnit).Namespace);
+      return configuration;
+    }
+
+    protected override void PopulateData()
+    {
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new BusinessUnit { Active = true, QuickbooksClass = "jdfhgkjhfdgjkhjhjh     " };
+        _ = new BusinessUnit { Active = true, QuickbooksClass = "    jdfhgkgjkhjhjh     " };
+        _ = new BusinessUnit { Active = true, QuickbooksClass = " jdfhgkjhjdhfgfdgjkhjhjh" };
+        _ = new BusinessUnit { Active = true, QuickbooksClass = "dfhgkaaaaajkhjhjh " };
+        _ = new BusinessUnit { Active = true, QuickbooksClass = " jdfhgkjhfdgaaaaajh" };
+
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+        _ = new TestEntity { Name = Guid.NewGuid().ToString() };
+
+        _ = new TestEntity { Name = "klegjkrlksl hdfhgh jhthkjhjth " };
+        _ = new TestEntity { Name = " ohgoih oierigh oihreho hoiherigh oherg" };
+        _ = new TestEntity { Name = "jshfhjhgjkherjghewogerogp reopertgo   " };
+        _ = new TestEntity { Name = "hjwroiheorihi oerhoigho hohergoh " };
+        _ = new TestEntity { Name = "wieoru ioritgierh oiheroihg hoidfhgdf" };
+        _ = new TestEntity { Name = "joijie oersidfgo dhhri " };
+        _ = new TestEntity { Name = "fdg lhwoih jngoj bhoihiwht e" };
+        _ = new TestEntity { Name = "rh ihh4i3hi ohierth094t pjpigd" };
+        _ = new TestEntity { Name = "i049 hi0 4th 0fgi08 h03gh " };
+        businessUnitCount = 5;
+
+        transaction.Complete();
+      }
+    }
+
     [Test]
     public void MainTest()
     {
       using (var session = Domain.OpenSession())
       using (var trasnaction = session.OpenTransaction()) {
-        List<QboClassModel> localClasses = new List<QboClassModel>();
+        var localClasses = new List<QboClassModel>();
         var buClassesLocal = (
           from businessUnit in session.Query.All<BusinessUnit>()
           where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
@@ -66,8 +109,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var buClasses = (from businessUnit in session.Query.All<BusinessUnit>()
-          where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
-          select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass)).ToList();
+                         where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+                         select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass)).ToList();
 
         foreach (var qboClassModel in buClasses) {
           Assert.That(qboClassModel.Name.StartsWith(" ") || qboClassModel.Name.EndsWith(" "), Is.False);
@@ -86,8 +129,8 @@ namespace Xtensive.Orm.Tests.Issues
             from businessUnit in session.Query.All<BusinessUnit>()
             where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
             select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass))
-          where dto.Name.StartsWith(" ")
-          select dto.Name).ToList();
+                         where dto.Name.StartsWith(" ")
+                         select dto.Name).ToList();
       }
     }
 
@@ -100,9 +143,9 @@ namespace Xtensive.Orm.Tests.Issues
           (
             from businessUnit in session.Query.All<BusinessUnit>()
             where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
-            select new Poco1() {Key = businessUnit.QuickbooksClass, Value = businessUnit.QuickbooksClass})
-          where dto.Key.StartsWith(" ")
-          select dto.Value).ToList();
+            select new Poco1() { Key = businessUnit.QuickbooksClass, Value = businessUnit.QuickbooksClass })
+                          where dto.Key.StartsWith(" ")
+                          select dto.Value).ToList();
       }
     }
 
@@ -113,11 +156,12 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var buClasses = (from businessUnit in session.Query.All<BusinessUnit>()
-          where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
-          select new {businessUnit.Id, Name = businessUnit.QuickbooksClass}).ToList();
+                         where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+                         select new { businessUnit.Id, Name = businessUnit.QuickbooksClass }).ToList();
 
-        foreach (var qboClassModel in buClasses)
+        foreach (var qboClassModel in buClasses) {
           Assert.That(qboClassModel.Name.StartsWith(" ") || qboClassModel.Name.EndsWith(" "), Is.True);
+        }
       }
     }
 
@@ -128,8 +172,8 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var buClasses = (from businessUnit in session.Query.All<BusinessUnit>()
-          where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
-          select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass) {SomeOtherField = businessUnit.QuickbooksClass}).ToList();
+                         where businessUnit.Active && !string.IsNullOrEmpty(businessUnit.QuickbooksClass)
+                         select new QboClassModel(businessUnit.Id, businessUnit.QuickbooksClass) { SomeOtherField = businessUnit.QuickbooksClass }).ToList();
         foreach (var qboClassModel in buClasses) {
           Assert.That(qboClassModel.Name.StartsWith(" ") || qboClassModel.Name.EndsWith(" "), Is.False);
           Assert.That(qboClassModel.SomeOtherField.StartsWith(" ") || qboClassModel.SomeOtherField.EndsWith(" "), Is.True);
@@ -150,8 +194,9 @@ namespace Xtensive.Orm.Tests.Issues
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
-        foreach (var poco in query)
-          Assert.That(expected.Any(el=>el.Key==poco.Key && el.Value==poco.Value), Is.True);
+        foreach (var poco in query) {
+          Assert.That(expected.Any(el => el.Key == poco.Key && el.Value == poco.Value), Is.True);
+        }
       }
     }
 
@@ -178,7 +223,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
           .Select(el => new Poco0(el.QuickbooksClass, el.QuickbooksClass))
-          .Select(el=>new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
           .Select(el => new Poco0(el.QuickbooksClass, el.QuickbooksClass))
@@ -186,8 +231,9 @@ namespace Xtensive.Orm.Tests.Issues
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
-        foreach (var poco in query)
-          Assert.That(expected.Any(el => el.Key==poco.Key && el.Value==poco.Value), Is.True);
+        foreach (var poco in query) {
+          Assert.That(expected.Any(el => el.Key == poco.Key && el.Value == poco.Value), Is.True);
+        }
       }
     }
 
@@ -223,8 +269,9 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(expected.Count));
-        foreach (var poco in query)
-          Assert.That(expected.Any(el => el.Key==poco.Key && el.Value==poco.Value), Is.True);
+        foreach (var poco in query) {
+          Assert.That(expected.Any(el => el.Key == poco.Key && el.Value == poco.Value), Is.True);
+        }
       }
     }
 
@@ -257,8 +304,9 @@ namespace Xtensive.Orm.Tests.Issues
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
-        foreach (var poco in query)
-          Assert.That(expected.Any(el => el.Key==poco.Key && el.Value==poco.Value), Is.True);
+        foreach (var poco in query) {
+          Assert.That(expected.Any(el => el.Key == poco.Key && el.Value == poco.Value), Is.True);
+        }
       }
     }
 
@@ -285,15 +333,16 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new Poco1 {Key = el.QuickbooksClass, Value = el.QuickbooksClass}).ToList();
+          .Select(el => new Poco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
           .Select(el => new Poco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
-        foreach (var poco in query)
-          Assert.That(expected.Any(el => el.Key==poco.Key && el.Value==poco.Value), Is.True);
+        foreach (var poco in query) {
+          Assert.That(expected.Any(el => el.Key == poco.Key && el.Value == poco.Value), Is.True);
+        }
       }
     }
 
@@ -311,10 +360,10 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
         foreach (var poco in query) {
-          var expectedPoco = expected.FirstOrDefault(el => el.Key==poco.Key);
+          var expectedPoco = expected.FirstOrDefault(el => el.Key == poco.Key);
           Assert.That(expectedPoco, Is.Not.Null);
-          Assert.That(expectedPoco.Value, Is.EqualTo(default (string)));
-          Assert.That(poco.Value, Is.EqualTo(default (string)));
+          Assert.That(expectedPoco.Value, Is.EqualTo(default(string)));
+          Assert.That(poco.Value, Is.EqualTo(default(string)));
         }
       }
     }
@@ -325,17 +374,18 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new Poco1 {Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new Poco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new Poco1 {Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new Poco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
-        foreach (var poco in query)
-          Assert.That(expected.Any(el => el.Key==poco.Key && el.Value==poco.Value), Is.True);
+        foreach (var poco in query) {
+          Assert.That(expected.Any(el => el.Key == poco.Key && el.Value == poco.Value), Is.True);
+        }
       }
     }
 
@@ -345,12 +395,12 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new Poco1 {Key = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new Poco1 { Key = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new Poco1 {Key = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new Poco1 { Key = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
@@ -378,8 +428,9 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco0 in query)
-          Assert.That(expected.Any(el=>el.Key==genericPoco0.Key && el.Value==genericPoco0.Value));
+        foreach (var genericPoco0 in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco0.Key && el.Value == genericPoco0.Value));
+        }
       }
     }
 
@@ -397,8 +448,9 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco0 in query)
-          Assert.That(expected.Any(el => el.Key==genericPoco0.Key && el.Value==genericPoco0.Value));
+        foreach (var genericPoco0 in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco0.Key && el.Value == genericPoco0.Value));
+        }
       }
     }
 
@@ -470,8 +522,9 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco0 in query)
-          Assert.That(expected.Any(el => el.Key==genericPoco0.Key && el.Value==genericPoco0.Value));
+        foreach (var genericPoco0 in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco0.Key && el.Value == genericPoco0.Value));
+        }
       }
     }
 
@@ -491,8 +544,9 @@ namespace Xtensive.Orm.Tests.Issues
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco in query)
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
+        foreach (var genericPoco in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
+        }
       }
     }
 
@@ -535,7 +589,7 @@ namespace Xtensive.Orm.Tests.Issues
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
           .Select(el => new GenericPoco0<long, long>())
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
@@ -558,16 +612,17 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass, Value = el.QuickbooksClass}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass, Value = el.QuickbooksClass}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(5));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco in query)
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
+        foreach (var genericPoco in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
+        }
       }
     }
 
@@ -577,17 +632,17 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
 
         foreach (var genericPoco in query) {
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
-          Assert.That(genericPoco.Value==default(string));
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
+          Assert.That(genericPoco.Value == default(string));
         }
       }
     }
@@ -598,18 +653,19 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco in query)
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
+        foreach (var genericPoco in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
+        }
       }
     }
 
@@ -619,19 +675,19 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<string, string> {Key = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<string, string> { Key = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
 
         foreach (var genericPoco in query) {
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
-          Assert.That(genericPoco.Value==default(string));
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
+          Assert.That(genericPoco.Value == default(string));
         }
       }
     }
@@ -642,16 +698,17 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id, Value = el.Id}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id, Value = el.Id }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id, Value = el.Id}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id, Value = el.Id }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco in query)
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
+        foreach (var genericPoco in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
+        }
       }
     }
 
@@ -661,10 +718,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
@@ -682,18 +739,19 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id, Value = el.Id})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id, Value = el.Id })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id, Value = el.Id})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id, Value = el.Id })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var genericPoco in query)
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
+        foreach (var genericPoco in query) {
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
+        }
       }
     }
 
@@ -703,18 +761,18 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new GenericPoco1<long, long> {Key = el.Id})
-          .Select(el => new {Key = el.Key, Value = el.Value}).ToList();
+          .Select(el => new GenericPoco1<long, long> { Key = el.Id })
+          .Select(el => new { Key = el.Key, Value = el.Value }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
 
         foreach (var genericPoco in query) {
-          Assert.That(expected.Any(el => el.Key==genericPoco.Key && el.Value==genericPoco.Value));
+          Assert.That(expected.Any(el => el.Key == genericPoco.Key && el.Value == genericPoco.Value));
           Assert.That(genericPoco.Value == default(long));
         }
       }
@@ -811,11 +869,11 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
           .Select(el => new DescendantPoco0(el.QuickbooksClass))
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
           .Select(el => new DescendantPoco0(el.QuickbooksClass))
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
@@ -841,11 +899,11 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
           .Select(el => new DescendantPoco0(el.QuickbooksClass, el.QuickbooksClass))
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
           .Select(el => new DescendantPoco0(el.QuickbooksClass, el.QuickbooksClass))
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(expected.Count, Is.EqualTo(businessUnitCount));
@@ -871,7 +929,7 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
           .Select(el => new DescendantPoco0(el.QuickbooksClass, el.QuickbooksClass, el.QuickbooksClass))
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
           .Select(el => new DescendantPoco0(el.QuickbooksClass, el.QuickbooksClass, el.QuickbooksClass))
@@ -900,10 +958,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new DescendantPoco1 {AdditionalInfo = el.QuickbooksClass}).ToList();
+          .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new DescendantPoco1 {AdditionalInfo = el.QuickbooksClass}).ToList();
+          .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
@@ -928,15 +986,15 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new DescendantPoco1 {Key = el.QuickbooksClass, Value = el.QuickbooksClass}).ToList();
+          .Select(el => new DescendantPoco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new DescendantPoco1 {Key = el.QuickbooksClass, Value = el.QuickbooksClass}).ToList();
+          .Select(el => new DescendantPoco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
 
-        foreach (var descendantPoco in expected){
+        foreach (var descendantPoco in expected) {
           Assert.That(string.IsNullOrEmpty(descendantPoco.AdditionalInfo), Is.True);
           Assert.That(string.IsNullOrEmpty(descendantPoco.Key), Is.False);
           Assert.That(string.IsNullOrEmpty(descendantPoco.Value), Is.False);
@@ -956,10 +1014,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new DescendantPoco1 {AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass}).ToList();
+          .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new DescendantPoco1 {AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass}).ToList();
+          .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
@@ -985,11 +1043,11 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
           .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass })
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new DescendantPoco1 {AdditionalInfo = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
@@ -1014,12 +1072,12 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new DescendantPoco1 {Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new DescendantPoco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new DescendantPoco1 {Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new DescendantPoco1 { Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
@@ -1044,12 +1102,12 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var query = session.Query.All<BusinessUnit>()
-          .Select(el => new DescendantPoco1 {AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
         var expected = session.Query.All<BusinessUnit>()
           .AsEnumerable()
-          .Select(el => new DescendantPoco1 {AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass})
-          .Select(el => new {Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo}).ToList();
+          .Select(el => new DescendantPoco1 { AdditionalInfo = el.QuickbooksClass, Key = el.QuickbooksClass, Value = el.QuickbooksClass })
+          .Select(el => new { Key = el.Key, Value = el.Value, AdditionalInfo = el.AdditionalInfo }).ToList();
 
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
         Assert.That(query.Count, Is.EqualTo(businessUnitCount));
@@ -1073,8 +1131,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
           .All(el => el.Name.IsNullOrEmpty());
       }
     }
@@ -1084,7 +1142,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .All(el => el.Name.IsNullOrEmpty());
       }
@@ -1095,7 +1153,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .All(el => el.Name.IsNullOrEmpty());
       }
@@ -1106,8 +1164,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<QueryTranslationException>(() => session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+        _ = Assert.Throws<QueryTranslationException>(() => session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
           .All(el => el.Name.IsNullOrEmpty()));
       }
     }
@@ -1117,7 +1175,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .All(el => el.Name.IsNullOrEmpty());
       }
@@ -1129,8 +1187,9 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name}).Any(el => el.Name.IsNullOrEmpty());
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
+          .Any(el => el.Name.IsNullOrEmpty());
       }
     }
 
@@ -1139,7 +1198,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Any(el => el.Name.IsNullOrEmpty());
       }
@@ -1150,8 +1209,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Any(el => el.BaseName.IsNullOrEmpty());
       }
     }
@@ -1161,8 +1220,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
           .Any(el => el.BaseName.IsNullOrEmpty());
       }
     }
@@ -1172,7 +1231,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .Any(el => el.Name.IsNullOrEmpty());
       }
@@ -1183,8 +1242,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
           .Average(el => el.Name.Length);
       }
     }
@@ -1194,8 +1253,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Average(el => el.Name.Length);
       }
     }
@@ -1205,8 +1264,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Average(el => el.BaseName.Length);
       }
     }
@@ -1216,8 +1275,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
           .Average(el => el.BaseName.Length);
       }
     }
@@ -1227,7 +1286,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<TargetInvocationException>(() => session.Query.All<TestEntity>()
+        _ = Assert.Throws<TargetInvocationException>(() => session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .Average(el => el.Name.Length));
       }
@@ -1239,9 +1298,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
-          .Concat(session.Query.All<TestEntity>().Select(e => new Poco {Name = e.Name}))
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name })
+          .Concat(session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name }))
+          .Run();
       }
     }
 
@@ -1251,9 +1310,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .Concat(session.Query.All<TestEntity>().Select(e => new Poco {Name = e.Name, BaseName = e.Name}))
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Concat(session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }))
+          .Run();
       }
     }
 
@@ -1265,7 +1324,7 @@ namespace Xtensive.Orm.Tests.Issues
         session.Query.All<TestEntity>()
           .Select(e => new Poco { BaseName = e.Name })
           .Concat(session.Query.All<TestEntity>().Select(e => new Poco { BaseName = e.Name }))
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1277,7 +1336,7 @@ namespace Xtensive.Orm.Tests.Issues
         session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .Concat(session.Query.All<TestEntity>().Select(e => new Poco()))
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1286,8 +1345,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
           .Count(el => el.Name.IsNullOrEmpty());
       }
     }
@@ -1297,7 +1356,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Count(el => el.Name.IsNullOrEmpty());
       }
@@ -1308,7 +1367,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Count(el => el.BaseName.IsNullOrEmpty());
       }
@@ -1319,7 +1378,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco { BaseName = e.Name })
           .Count(el => el.BaseName.IsNullOrEmpty());
       }
@@ -1329,9 +1388,8 @@ namespace Xtensive.Orm.Tests.Issues
     public void CountByFieldOfPoco05Test()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
-        session.Query.All<TestEntity>()
+      using (var transaction = session.OpenTransaction()) {
+        _ = session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .Count(el => el.Name.IsNullOrEmpty());
       }
@@ -1341,12 +1399,11 @@ namespace Xtensive.Orm.Tests.Issues
     public void DistinctOfPocos01Test()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
+      using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name })
           .Distinct()
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1357,10 +1414,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+          .Select(e => new Poco { Name = e.Name })
           .Except(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name}))
-          .ToArray();
+            .Select(e => new Poco { Name = e.Name }))
+          .Run();
       }
     }
 
@@ -1371,10 +1428,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Except(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}))
-          .ToArray();
+            .Select(e => new Poco { Name = e.Name, BaseName = e.Name }))
+          .Run();
       }
     }
 
@@ -1385,10 +1442,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+          .Select(e => new Poco { BaseName = e.Name })
           .Except(session.Query.All<TestEntity>()
-            .Select(e => new Poco {BaseName = e.Name}))
-          .ToArray();
+            .Select(e => new Poco { BaseName = e.Name }))
+          .Run();
       }
     }
 
@@ -1402,7 +1459,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new Poco())
           .Except(session.Query.All<TestEntity>()
             .Select(e => new Poco()))
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1412,9 +1469,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+          .Select(e => new Poco { Name = e.Name })
           .GroupBy(e => e.Name)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1424,9 +1481,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .GroupBy(e => e.Name)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1436,9 +1493,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .GroupBy(e => e.BaseName)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1447,10 +1504,10 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<QueryTranslationException>(()=>session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+        _ = Assert.Throws<QueryTranslationException>(() => session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
           .GroupBy(e => e.Name)
-          .ToArray());
+          .Run());
       }
     }
 
@@ -1462,7 +1519,7 @@ namespace Xtensive.Orm.Tests.Issues
         session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .GroupBy(e => e.Name)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1472,10 +1529,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
-          .GroupJoin(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name}), (poco) => poco.Name, poco => poco.Name, (poco, pocos) => new {Key = poco.Name, Values = pocos})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name })
+          .GroupJoin(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name }),
+            (poco) => poco.Name,
+            poco => poco.Name,
+            (poco, pocos) => new { Key = poco.Name, Values = pocos })
+          .Run();
       }
     }
 
@@ -1485,10 +1545,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .GroupJoin(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.Name, poco => poco.Name, (poco, pocos) => new {Key = poco.Name, Values = pocos})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .GroupJoin(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            (poco) => poco.Name,
+            poco => poco.Name,
+            (poco, pocos) => new { Key = poco.Name, Values = pocos })
+          .Run();
       }
     }
 
@@ -1498,10 +1561,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .GroupJoin(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.Name, poco => poco.BaseName, (poco, pocos) => new {Key = poco.Name, Values = pocos})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .GroupJoin(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            (poco) => poco.Name,
+            poco => poco.BaseName,
+            (poco, pocos) => new { Key = poco.Name, Values = pocos })
+          .Run();
       }
     }
 
@@ -1511,10 +1577,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .GroupJoin(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.BaseName, poco => poco.Name, (poco, pocos) => new {Key = poco.BaseName, Values = pocos})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .GroupJoin(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            (poco) => poco.BaseName,
+            poco => poco.Name,
+            (poco, pocos) => new { Key = poco.BaseName, Values = pocos })
+          .Run();
       }
     }
 
@@ -1524,10 +1593,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .GroupJoin(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), (poco) => poco.BaseName, poco => poco.BaseName, (poco, pocos) => new {Key = poco.BaseName, Values = pocos})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .GroupJoin(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            (poco) => poco.BaseName,
+            poco => poco.BaseName,
+            (poco, pocos) => new { Key = poco.BaseName, Values = pocos })
+          .Run();
       }
     }
 
@@ -1537,10 +1609,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
-          .GroupJoin(session.Query.All<TestEntity>()
-            .Select(e => new Poco {BaseName = e.Name}), (poco) => poco.BaseName, poco => poco.BaseName, (poco, pocos) => new {Key = poco.BaseName, Values = pocos})
-          .ToArray();
+          .Select(e => new Poco { BaseName = e.Name })
+          .GroupJoin(
+            session.Query.All<TestEntity>().Select(e => new Poco { BaseName = e.Name }),
+            (poco) => poco.BaseName,
+            poco => poco.BaseName,
+            (poco, pocos) => new { Key = poco.BaseName, Values = pocos })
+          .Run();
       }
     }
 
@@ -1554,7 +1629,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new Poco { Name = e.Name })
           .Except(session.Query.All<TestEntity>()
             .Select(e => new Poco { Name = e.Name }))
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1568,7 +1643,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Intersect(session.Query.All<TestEntity>()
             .Select(e => new Poco { Name = e.Name, BaseName = e.Name }))
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1582,7 +1657,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new Poco { BaseName = e.Name })
           .Intersect(session.Query.All<TestEntity>()
             .Select(e => new Poco { BaseName = e.Name }))
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1596,21 +1671,24 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new Poco())
           .Intersect(session.Query.All<TestEntity>()
             .Select(e => new Poco()))
-          .ToArray();
+          .Run();
       }
     }
 
-    
+
     [Test]
     public void JoinOfPocos01Test()
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
-          .Join(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name}), poco => poco.Name, poco => poco.Name, (poco, poco1) => new {poco, poco1})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name })
+          .Join(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name }),
+            poco => poco.Name,
+            poco => poco.Name,
+            (poco, poco1) => new { poco, poco1 })
+          .Run();
       }
     }
 
@@ -1620,10 +1698,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .Join(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), poco => poco.Name, poco => poco.Name, (poco, poco1) => new {poco, poco1})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Join(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            poco => poco.Name,
+            poco => poco.Name,
+            (poco, poco1) => new { poco, poco1 })
+          .Run();
       }
     }
 
@@ -1633,10 +1714,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .Join(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), poco => poco.BaseName, poco => poco.Name, (poco, poco1) => new {poco, poco1})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Join(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            poco => poco.BaseName,
+            poco => poco.Name,
+            (poco, poco1) => new { poco, poco1 })
+          .Run();
       }
     }
 
@@ -1647,9 +1731,12 @@ namespace Xtensive.Orm.Tests.Issues
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
           .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
-          .Join(session.Query.All<TestEntity>()
-            .Select(e => new Poco { Name = e.Name, BaseName = e.Name }), poco => poco.Name, poco => poco.BaseName, (poco, poco1) => new { poco, poco1 })
-          .ToArray();
+          .Join(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            poco => poco.Name,
+            poco => poco.BaseName,
+            (poco, poco1) => new { poco, poco1 })
+          .Run();
       }
     }
 
@@ -1659,10 +1746,13 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
-          .Join(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}), poco => poco.BaseName, poco => poco.BaseName, (poco, poco1) => new {poco, poco1})
-          .ToArray();
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Join(
+            session.Query.All<TestEntity>().Select(e => new Poco { Name = e.Name, BaseName = e.Name }),
+            poco => poco.BaseName,
+            poco => poco.BaseName,
+            (poco, poco1) => new { poco, poco1 })
+          .Run();
       }
     }
 
@@ -1672,10 +1762,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+          .Select(e => new Poco { BaseName = e.Name })
           .Join(session.Query.All<TestEntity>()
-            .Select(e => new Poco {BaseName = e.Name}), poco => poco.BaseName, poco => poco.BaseName, (poco, poco1) => new {poco, poco1})
-          .ToArray();
+            .Select(e => new Poco { BaseName = e.Name }), poco => poco.BaseName, poco => poco.BaseName, (poco, poco1) => new { poco, poco1 })
+          .Run();
       }
     }
 
@@ -1684,8 +1774,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
           .Max(el => el.Name.Length);
       }
     }
@@ -1695,8 +1785,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Max(el => el.Name.Length + el.BaseName.Length);
       }
     }
@@ -1706,8 +1796,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
           .Max(el => el.BaseName.Length);
       }
     }
@@ -1717,7 +1807,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<TargetInvocationException>(() => session.Query.All<TestEntity>()
+        _ = Assert.Throws<TargetInvocationException>(() => session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .Max(el => el.Name.Length));
       }
@@ -1728,8 +1818,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name })
           .Min(el => el.Name.Length);
       }
     }
@@ -1739,8 +1829,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Min(el => el.Name.Length + el.BaseName.Length);
       }
     }
@@ -1750,8 +1840,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name })
           .Min(el => el.BaseName.Length);
       }
     }
@@ -1761,7 +1851,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<TargetInvocationException>(() => session.Query.All<TestEntity>()
+        _ = Assert.Throws<TargetInvocationException>(() => session.Query.All<TestEntity>()
           .Select(e => new Poco())
           .Min(el => el.Name.Length));
       }
@@ -1773,9 +1863,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+          .Select(e => new Poco { Name = e.Name })
           .OrderBy(e => e.Name)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1785,9 +1875,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .OrderBy(e => e.Name)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1797,9 +1887,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .OrderBy(e => e.BaseName)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1808,32 +1898,41 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<QueryTranslationException>(() =>
+        _ = Assert.Throws<QueryTranslationException>(() =>
           session.Query.All<TestEntity>()
-            .Select(e => new Poco {BaseName = e.Name})
+            .Select(e => new Poco { BaseName = e.Name })
             .OrderBy(e => e.Name)
-            .ToArray());
+            .Run());
       }
     }
 
     [Test]
     public void OrderByFieldOfPoco05Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql);
+      RequireProviderDeniesOrderByNull();
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        if (ProviderAllowsOrderByNull())
-          Assert.DoesNotThrow(() =>
-            session.Query.All<TestEntity>()
-              .Select(e => new Poco())
-              .OrderBy(e => e.Name)
-              .ToArray());
-        else
-          Assert.Throws<StorageException>(() =>
-            session.Query.All<TestEntity>()
-              .Select(e => new Poco())
-              .OrderBy(e => e.Name)
-              .ToArray());
+        _ = Assert.Throws<StorageException>(() =>
+          session.Query.All<TestEntity>()
+            .Select(e => new Poco())
+            .OrderBy(e => e.Name)
+            .Run());
+      }
+    }
+
+    [Test]
+    public void OrderByFieldOfPoco06Test()
+    {
+      RequireProviderAllowsOrderByNull();
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        Assert.DoesNotThrow(() =>
+          session.Query.All<TestEntity>()
+            .Select(e => new Poco())
+            .OrderBy(e => e.Name)
+            .Run());
       }
     }
 
@@ -1843,9 +1942,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+          .Select(e => new Poco { Name = e.Name })
           .OrderByDescending(e => e.Name)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1855,9 +1954,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .OrderByDescending(e => e.Name)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1867,9 +1966,9 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .OrderByDescending(e => e.BaseName)
-          .ToArray();
+          .Run();
       }
     }
 
@@ -1878,25 +1977,41 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<QueryTranslationException>(() =>
+        _ = Assert.Throws<QueryTranslationException>(() =>
           session.Query.All<TestEntity>()
-            .Select(e => new Poco {BaseName = e.Name})
+            .Select(e => new Poco { BaseName = e.Name })
             .OrderByDescending(e => e.Name)
-            .ToArray());
+            .Run());
       }
     }
 
     [Test]
     public void OrderByDescendingByFieldOfPoco05Test()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird | StorageProvider.MySql | StorageProvider.PostgreSql);
+      RequireProviderDeniesOrderByNull();
+
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<StorageException>(() =>
+        _ = Assert.Throws<StorageException>(() =>
           session.Query.All<TestEntity>()
             .Select(e => new Poco())
             .OrderByDescending(e => e.Name)
-            .ToArray());
+            .Run());
+      }
+    }
+
+    [Test]
+    public void OrderByDescendingByFieldOfPoco06Test()
+    {
+      RequireProviderAllowsOrderByNull();
+
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        Assert.DoesNotThrow(() =>
+          session.Query.All<TestEntity>()
+            .Select(e => new Poco())
+            .OrderByDescending(e => e.Name)
+            .Run());
       }
     }
 
@@ -1905,8 +2020,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name}).Sum(el => el.Name.Length);
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name }).Sum(el => el.Name.Length);
       }
     }
 
@@ -1915,8 +2030,9 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name}).Sum(el => el.Name.Length + el.BaseName.Length);
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
+          .Sum(el => el.Name.Length + el.BaseName.Length);
       }
     }
 
@@ -1925,8 +2041,8 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name}).Sum(el => el.BaseName.Length);
+        _ = session.Query.All<TestEntity>()
+          .Select(e => new Poco { BaseName = e.Name }).Sum(el => el.BaseName.Length);
       }
     }
 
@@ -1935,7 +2051,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        Assert.Throws<TargetInvocationException>(() =>
+        _ = Assert.Throws<TargetInvocationException>(() =>
           session.Query.All<TestEntity>()
             .Select(e => new Poco()).Sum(el => el.Name.Length));
       }
@@ -1947,10 +2063,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name})
+          .Select(e => new Poco { Name = e.Name })
           .Union(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name}))
-          .ToArray();
+            .Select(e => new Poco { Name = e.Name }))
+          .Run();
       }
     }
 
@@ -1960,10 +2076,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {Name = e.Name, BaseName = e.Name})
+          .Select(e => new Poco { Name = e.Name, BaseName = e.Name })
           .Union(session.Query.All<TestEntity>()
-            .Select(e => new Poco {Name = e.Name, BaseName = e.Name}))
-          .ToArray();
+            .Select(e => new Poco { Name = e.Name, BaseName = e.Name }))
+          .Run();
       }
     }
 
@@ -1973,10 +2089,10 @@ namespace Xtensive.Orm.Tests.Issues
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         session.Query.All<TestEntity>()
-          .Select(e => new Poco {BaseName = e.Name})
+          .Select(e => new Poco { BaseName = e.Name })
           .Union(session.Query.All<TestEntity>()
-            .Select(e => new Poco {BaseName = e.Name}))
-          .ToArray();
+            .Select(e => new Poco { BaseName = e.Name }))
+          .Run();
       }
     }
 
@@ -1989,56 +2105,20 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(e => new Poco())
           .Union(session.Query.All<TestEntity>()
             .Select(e => new Poco()))
-          .ToArray();
+          .Run();
       }
     }
 
-    private bool ProviderAllowsOrderByNull()
+    private void RequireProviderDeniesOrderByNull()
     {
-      var providers = new[] {WellKnown.Provider.PostgreSql};
-      return providers.Contains(ProviderInfo.ProviderName);
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.PostgreSql |
+        StorageProvider.MySql | StorageProvider.Firebird | StorageProvider.Oracle);
     }
 
-    protected override void PopulateData()
+    private void RequireProviderAllowsOrderByNull()
     {
-      using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction()) {
-        new BusinessUnit {Active = true, QuickbooksClass = "jdfhgkjhfdgjkhjhjh     "};
-        new BusinessUnit {Active = true, QuickbooksClass = "    jdfhgkgjkhjhjh     "};
-        new BusinessUnit {Active = true, QuickbooksClass = " jdfhgkjhjdhfgfdgjkhjhjh"};
-        new BusinessUnit {Active = true, QuickbooksClass = "dfhgkaaaaajkhjhjh "};
-        new BusinessUnit {Active = true, QuickbooksClass = " jdfhgkjhfdgaaaaajh"};
-
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-        new TestEntity {Name = Guid.NewGuid().ToString()};
-
-        new TestEntity {Name = "klegjkrlksl hdfhgh jhthkjhjth "};
-        new TestEntity {Name = " ohgoih oierigh oihreho hoiherigh oherg"};
-        new TestEntity {Name = "jshfhjhgjkherjghewogerogp reopertgo   "};
-        new TestEntity {Name = "hjwroiheorihi oerhoigho hohergoh "};
-        new TestEntity {Name = "wieoru ioritgierh oiheroihg hoidfhgdf"};
-        new TestEntity {Name = "joijie oersidfgo dhhri "};
-        new TestEntity {Name = "fdg lhwoih jngoj bhoihiwht e"};
-        new TestEntity {Name = "rh ihh4i3hi ohierth094t pjpigd"};
-        new TestEntity {Name = "i049 hi0 4th 0fgi08 h03gh "};
-        businessUnitCount = 5;
-        transaction.Complete();
-      }
-    }
-
-    protected override DomainConfiguration BuildConfiguration()
-    {
-      var configuration = base.BuildConfiguration();
-      configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (BusinessUnit).Assembly, typeof(BusinessUnit).Namespace);
-      return configuration;
+      Require.ProviderIs(StorageProvider.Sqlite | StorageProvider.PostgreSql |
+        StorageProvider.MySql | StorageProvider.Firebird | StorageProvider.Oracle);
     }
   }
 }
