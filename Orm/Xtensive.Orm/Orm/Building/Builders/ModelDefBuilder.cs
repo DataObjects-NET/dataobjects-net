@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -151,12 +151,12 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         // FieldAttribute presence is required
-        var fieldAttributes = GetFieldAttributes<FieldAttribute>(propertyInfo);
-        if (fieldAttributes.Length == 0) {
+        var reversedFieldAttributes = GetReversedFieldAttributes<FieldAttribute>(propertyInfo);
+        if (reversedFieldAttributes.Count == 0) {
           continue;
         }
 
-        var field = DefineField(propertyInfo, fieldAttributes);
+        var field = DefineField(propertyInfo, reversedFieldAttributes);
 
         // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
@@ -284,9 +284,9 @@ namespace Xtensive.Orm.Building.Builders
     }
 
     public FieldDef DefineField(PropertyInfo propertyInfo) =>
-      DefineField(propertyInfo, GetFieldAttributes<FieldAttribute>(propertyInfo));
+      DefineField(propertyInfo, GetReversedFieldAttributes<FieldAttribute>(propertyInfo));
 
-    public FieldDef DefineField(PropertyInfo propertyInfo, FieldAttribute[] fieldAttributes)
+    public FieldDef DefineField(PropertyInfo propertyInfo, IReadOnlyList<FieldAttribute> reversedFieldAttributes)
     {
       // Persistent indexers are not supported
       var indexParameters = propertyInfo.GetIndexParameters();
@@ -297,21 +297,21 @@ namespace Xtensive.Orm.Building.Builders
       var fieldDef = new FieldDef(propertyInfo, context.Validator);
       fieldDef.Name = context.NameBuilder.BuildFieldName(fieldDef);
 
-      if (fieldAttributes.Length > 0) {
-        foreach (var attribute in fieldAttributes) {
-          attributeProcessor.Process(fieldDef, attribute);
+      if (reversedFieldAttributes.Count > 0) {
+        for (int i = reversedFieldAttributes.Count; i-- > 0;) {
+          attributeProcessor.Process(fieldDef, reversedFieldAttributes[i]);
         }
 
         // Association
-        var associationAttributes = GetFieldAttributes<AssociationAttribute>(propertyInfo);
-        foreach (var attribute in associationAttributes) {
-          attributeProcessor.Process(fieldDef, attribute);
+        var reversedAssociationAttributes = GetReversedFieldAttributes<AssociationAttribute>(propertyInfo);
+        for (int i = reversedAssociationAttributes.Count; i-- > 0;) {
+          attributeProcessor.Process(fieldDef, reversedAssociationAttributes[i]);
         }
 
         // Mapping name
-        var mappingAttributes = GetFieldAttributes<FieldMappingAttribute>(propertyInfo);
-        foreach (var attribute in mappingAttributes) {
-          attributeProcessor.Process(fieldDef, attribute);
+        var reversedMappingAttributes = GetReversedFieldAttributes<FieldMappingAttribute>(propertyInfo);
+        for (int i = reversedMappingAttributes.Count; i-- > 0;) {
+          attributeProcessor.Process(fieldDef, reversedMappingAttributes[i]);
         }
 
         // Type discriminator
@@ -370,16 +370,11 @@ namespace Xtensive.Orm.Building.Builders
       return hierarchy == null && !typeDef.IsStructure;
     }
 
-    private static T[] GetFieldAttributes<T>(PropertyInfo property)
-      where T : Attribute
-    {
-      var attributes = property.GetAttributes<T>(AttributeSearchOptions.InheritAll);
-      // Attributes will contain attributes from all inheritance chain
-      // with the most specific type first.
-      // Reverse them for correct processing (i.e. descendants override settings from base).
-      Array.Reverse(attributes);
-      return attributes;
-    }
+    // Attributes will contain attributes from all inheritance chain
+    // with the most specific type first.
+    // Should be enumerated in reversed order for correct processing (i.e. descendants override settings from base).
+    private static IReadOnlyList<T> GetReversedFieldAttributes<T>(PropertyInfo property) where T : Attribute =>
+      property.GetAttributes<T>(AttributeSearchOptions.InheritAll);
 
     private bool IsTypeAvailable(Type type) =>
       context.BuilderConfiguration.ModelFilter.IsTypeAvailable(type)

@@ -36,7 +36,7 @@ namespace Xtensive.Reflection
     /// <param name="options">Attribute search options.</param>
     /// <returns>An array of attributes of specified type.</returns>
     ///
-    public static TAttribute[] GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
+    public static IReadOnlyList<TAttribute> GetAttributes<TAttribute>(this MemberInfo member, AttributeSearchOptions options = AttributeSearchOptions.InheritNone)
         where TAttribute : Attribute =>
       AttributeDictionary<TAttribute>.Dictionary.GetOrAdd(
         new PerAttributeKey(member, options),
@@ -59,7 +59,7 @@ namespace Xtensive.Reflection
       where TAttribute : Attribute
     {
       var attributes = member.GetAttributes<TAttribute>(options);
-      return attributes.Length switch {
+      return attributes.Count switch {
         0 => null,
         1 => attributes[0],
         _ => throw new InvalidOperationException(string.Format(Strings.ExMultipleAttributesOfTypeXAreNotAllowedHere,
@@ -68,7 +68,7 @@ namespace Xtensive.Reflection
       };
     }
 
-    private static Attribute[] GetAttributes(MemberInfo member, Type attributeType, AttributeSearchOptions options) =>
+    private static IReadOnlyList<Attribute> GetAttributes(MemberInfo member, Type attributeType, AttributeSearchOptions options) =>
       attributesByMemberInfoAndSearchOptions.GetOrAdd(
         new AttributesKey(member, attributeType, options),
         t => ExtractAttributes(t).ToArray()
