@@ -294,12 +294,12 @@ namespace Xtensive.Linq
       name = name.Replace('+', '.');
 
       if (name.IndexOf("__DisplayClass", StringComparison.Ordinal) > 0 &&
-        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
+        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Count > 0) {
         return "@";
       }
 
       if (name.IndexOf("__AnonymousType", StringComparison.Ordinal) > 0 &&
-        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
+        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Count > 0) {
         return string.Format("@<{0}>",
           (from pi in type.GetProperties() select pi.Name).ToCommaDelimitedString());
       }
@@ -340,7 +340,7 @@ namespace Xtensive.Linq
     {
       var type = c.Type;
       if (type.Name.IndexOf("__DisplayClass", StringComparison.Ordinal) > 0 &&
-        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
+        type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Count > 0) {
         // A constant of display class type
         Write("@");
       }
@@ -556,7 +556,7 @@ namespace Xtensive.Linq
       }
       else {
         // Static method
-        if (mc.Method.GetAttributes<ExtensionAttribute>(AttributeSearchOptions.InheritNone).Length > 0) {
+        if (mc.Method.GetAttributes<ExtensionAttribute>(AttributeSearchOptions.InheritNone).Count > 0) {
           // A special case: extension method
           Visit(mc.Arguments[0]);
           arguments = new System.Collections.ObjectModel.ReadOnlyCollection<Expression>(mc.Arguments.Skip(1).ToList());

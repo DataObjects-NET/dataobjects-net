@@ -84,7 +84,7 @@ namespace Xtensive.IoC
         return Array.Empty<ServiceRegistration>();
 
       var attributes = type.GetAttributes<ServiceAttribute>(AttributeSearchOptions.InheritNone);
-      var registrations = new List<ServiceRegistration>(attributes.Length);
+      var registrations = new List<ServiceRegistration>(attributes.Count);
       foreach (var sa in attributes) {
         if (!defaultOnly || sa.Default) {
           registrations.Add(new ServiceRegistration(sa.Type, sa.Name.IsNullOrEmpty() ? null : sa.Name, type, sa.Singleton));
