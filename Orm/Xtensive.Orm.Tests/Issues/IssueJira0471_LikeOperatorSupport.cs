@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.08.12
 
@@ -79,9 +79,9 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void AllInOneTest()
+    public void AllInOneForSqlServerTest()
     {
-      Require.ProviderIsNot(StorageProvider.Firebird);// specified escape character can't be used in firebird
+      Require.ProviderIs(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var firstQuery = from a in session.Query.All<Customer>()
@@ -92,14 +92,14 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    public void AllInOneForFirebirdTest()
+    public void AllInOneTest()
     {
-      Require.ProviderIs(StorageProvider.Firebird);
+      Require.ProviderIsNot(StorageProvider.SqlServer);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var firstQuery = from a in session.Query.All<Customer>()
-                         where a.LastName.Like("K$%[m%f_", '$')
-                         select a;
+          where a.LastName.Like("K$%[m%f_", '$')
+          select a;
         Assert.That(firstQuery.First().LastName, Is.EqualTo("K%[maroff"));
       }
     }
@@ -114,15 +114,14 @@ namespace Xtensive.Orm.Tests.Issues
     protected override void PopulateData()
     {
       using (var session = Domain.OpenSession())
-      using (var transaction = session.OpenTransaction())
-      {
-        new Customer { FirstName = "Alexey", LastName = "Kulakov" };
-        new Customer { FirstName = "Ulexey", LastName = "Kerzhakov" };
-        new Customer { FirstName = "Klexey", LastName = "Komarov" };
-        new Customer { FirstName = "Klexey", LastName = "K%[maroff" };
-        new Customer { FirstName = "Martha", LastName = "$mith" };
-        new Customer { FirstName = "E%ric", LastName = "Cartman" };
-        new Customer { FirstName = "Kyle", LastName = "Broflovski" };
+      using (var transaction = session.OpenTransaction()) {
+        _ = new Customer { FirstName = "Alexey", LastName = "Kulakov" };
+        _ = new Customer { FirstName = "Ulexey", LastName = "Kerzhakov" };
+        _ = new Customer { FirstName = "Klexey", LastName = "Komarov" };
+        _ = new Customer { FirstName = "Klexey", LastName = "K%[maroff" };
+        _ = new Customer { FirstName = "Martha", LastName = "$mith" };
+        _ = new Customer { FirstName = "E%ric", LastName = "Cartman" };
+        _ = new Customer { FirstName = "Kyle", LastName = "Broflovski" };
         transaction.Complete();
       }
     }

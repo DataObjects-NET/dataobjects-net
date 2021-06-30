@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -33,23 +33,22 @@ namespace Xtensive.Orm.Tests.Upgrade
     public void SetUp()
     {
       BuildDomain(Mode.Recreate);
-      using (domain.OpenSession()) {
-        using (var t = Session.Current.OpenTransaction()) {
-          var x = new X {
-            FInt = 1,
-            FInt2 = 12345,
-            FLong = (long) int.MaxValue + 12345, 
-            FLong2 = 12345,
-            FBool = true,
-            FString1 = "a",
-            FString5 = "12345",
-            FNotNullableString = "str",
-            FNullableDecimal = 123,
-            FGuid = new Guid("E484EE28-3801-445B-9DF0-FBCBE5AA4883"), 
-            FDecimal = new decimal(1.2),
-          };
-          t.Complete();
-        }
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var x = new X {
+          FInt = 1,
+          FInt2 = 12345,
+          FLong = (long) int.MaxValue + 12345,
+          FLong2 = 12345,
+          FBool = true,
+          FString1 = "a",
+          FString5 = "12345",
+          FNotNullableString = "str",
+          FNullableDecimal = 123,
+          FGuid = new Guid("E484EE28-3801-445B-9DF0-FBCBE5AA4883"),
+          FDecimal = new decimal(1.2),
+        };
+        t.Complete();
       }
     }
 
@@ -68,28 +67,20 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public void Int32ToStringTest()
-    {
+    public void Int32ToStringTest() =>
       ChangeFieldTypeTest("FInt", typeof(string), "1", Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public async Task Int32ToStringAsyncTest()
-    {
+    public async Task Int32ToStringAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FInt", typeof(string), "1", Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public void Int32ToStringSafelyTest()
-    {
-      ChangeFieldTypeTest("FInt", typeof(string), "1", Mode.PerformSafely, null, null, null);      
-    }
+    public void Int32ToStringSafelyTest() =>
+      ChangeFieldTypeTest("FInt", typeof(string), "1", Mode.PerformSafely, null, null, null);
 
     [Test]
-    public async Task Int32ToStringSafelyAsyncTest()
-    {
+    public async Task Int32ToStringSafelyAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FInt", typeof(string), "1", Mode.PerformSafely, null, null, null);
-    }
 
     [Test]
     public void Int32ToShortStringTest()
@@ -130,16 +121,12 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public void StringToInt32Test()
-    {
+    public void StringToInt32Test() =>
       ChangeFieldTypeTest("FString1", typeof(int), 0, Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public async Task StringToInt32AsyncTest()
-    {
+    public async Task StringToInt32AsyncTest() =>
       await ChangeFieldTypeAsyncTest("FString1", typeof(int), 0, Mode.Perform, null, null, null);
-    }
 
     [Test]
     public void StringToInt32SafelyTest()
@@ -210,28 +197,20 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public void StringToLongStringTest()
-    {
+    public void StringToLongStringTest() =>
       ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.Perform, 3, null, null);
-    }
 
     [Test]
-    public async Task StringToLongStringAsyncTest()
-    {
+    public async Task StringToLongStringAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.Perform, 3, null, null);
-    }
 
     [Test]
-    public async Task StringToLongStringSafelyTest()
-    {
-      await ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.PerformSafely, 3, null, null);
-    }
+    public void StringToLongStringSafelyTest() =>
+      ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.PerformSafely, 3, null, null);
 
     [Test]
-    public async Task StringToLongStringSafelyAsyncTest()
-    {
+    public async Task StringToLongStringSafelyAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.PerformSafely, 3, null, null);
-    }
 
     [Test]
     public void BoolToStringTest()
@@ -272,45 +251,33 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public void Int32ToInt64Test()
-    {
+    public void Int32ToInt64Test() =>
       ChangeFieldTypeTest("FInt2", typeof(long), 12345L, Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public async Task Int32ToInt64AsyncTest()
-    {
+    public async Task Int32ToInt64AsyncTest() =>
       await ChangeFieldTypeAsyncTest("FInt2", typeof(long), 12345L, Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public void Int32ToInt64SafelyTest()
-    {
+    public void Int32ToInt64SafelyTest() =>
       ChangeFieldTypeTest("FInt2", typeof(long), 12345L, Mode.PerformSafely, null, null, null);
-    }
 
     [Test]
-    public async Task Int32ToInt64SafelyAsyncTest()
-    {
+    public async Task Int32ToInt64SafelyAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FInt2", typeof(long), 12345L, Mode.PerformSafely, null, null, null);
-    }
 
     [Test]
-    public void Int64ToInt32Test()
-    {
+    public void Int64ToInt32Test() =>
       ChangeFieldTypeTest("FLong", typeof(int), 0, Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public async Task Int64ToInt32AsyncTest()
-    {
+    public async Task Int64ToInt32AsyncTest() =>
       await ChangeFieldTypeAsyncTest("FLong", typeof(int), 0, Mode.Perform, null, null, null);
-    }
 
     [Test]
     public void Int64ToInt32SafelyTest()
     {
-      _ = Assert.Throws<SchemaSynchronizationException>(() =>
+      _ = Assert.Throws<SchemaSynchronizationException>(() => 
        ChangeFieldTypeTest("FLong", typeof(int), 12345, Mode.PerformSafely, null, null, null));
     }
 
@@ -322,28 +289,19 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public void DecimalToLongDecimalTest()
-    {
+    public void DecimalToLongDecimalTest() =>
       ChangeFieldTypeTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.Perform, null, 3, 2);
-    }
 
     [Test]
-    public async Task DecimalToLongDecimalAsyncTest()
-    {
+    public async Task DecimalToLongDecimalAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.Perform, null, 3, 2);
-    }
 
     [Test]
-    public void DecimalToLongDecimalSafelyTest()
-    {
+    public void DecimalToLongDecimalSafelyTest() =>
       ChangeFieldTypeTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.PerformSafely, null, 3, 2);
-    }
 
-    [Test]
-    public async Task DecimalToLongDecimalSafelyAsyncTest()
-    {
+    public async Task DecimalToLongDecimalSafelyAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FDecimal", typeof(decimal), new decimal(1.2), Mode.PerformSafely, null, 3, 2);
-    }
 
     [Test]
     public void DecimalToShortDecimalTest()
@@ -384,40 +342,28 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public void DecimalToNullableDecimalSafelyTest()
-    {
+    public void DecimalToNullableDecimalSafelyTest() =>
       ChangeFieldTypeTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.PerformSafely, null, 2, 1);
-    }
 
     [Test]
-    public async Task DecimalToNullableDecimalSafelyAsyncTest()
-    {
+    public async Task DecimalToNullableDecimalSafelyAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.PerformSafely, null, 2, 1);
-    }
 
     [Test]
-    public void DecimalToNullableDecimalTest()
-    {
+    public void DecimalToNullableDecimalTest() =>
       ChangeFieldTypeTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
-    }
 
     [Test]
-    public async Task DecimalToNullableDecimalAsyncTest()
-    {
+    public async Task DecimalToNullableDecimalAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FDecimal", typeof(decimal?), new decimal(1.2), Mode.Perform, null, 2, 1);
-    }
 
     [Test]
-    public void NullableDecimalToDecimalTest()
-    {
+    public void NullableDecimalToDecimalTest() =>
       ChangeFieldTypeTest("FNullableDecimal", typeof(decimal), new decimal(123), Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public async Task NullableDecimalToDecimalAsyncTest()
-    {
+    public async Task NullableDecimalToDecimalAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FNullableDecimal", typeof(decimal), new decimal(123), Mode.Perform, null, null, null);
-    }
 
     [Test]
     public void NullableDecimalToDecimalSafelyTest()
@@ -434,44 +380,39 @@ namespace Xtensive.Orm.Tests.Upgrade
     }
 
     [Test]
-    public void StringToNullableStringSafelyTest()
-    {
+    public void StringToNullableStringSafelyTest() =>
       ChangeFieldTypeTest("FNotNullableString", typeof(string), "str", Mode.PerformSafely, null, null, null);
-    }
 
     [Test]
-    public async Task StringToNullableStringSafelyAsyncTest()
-    {
+    public async Task StringToNullableStringSafelyAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FNotNullableString", typeof(string), "str", Mode.PerformSafely, null, null, null);
-    }
 
     [Test]
-    public void StringToNullableStringTest()
-    {
+    public void StringToNullableStringTest() =>
       ChangeFieldTypeTest("FNotNullableString", typeof(string), "str", Mode.Perform, null, null, null);
-    }
 
     [Test]
-    public async Task StringToNullableStringAsyncTest()
-    {
+    public async Task StringToNullableStringAsyncTest() =>
       await ChangeFieldTypeAsyncTest("FNotNullableString", typeof(string), "str", Mode.Perform, null, null, null);
-    }
 
     [Test]
     public void NullableStringToStringTest()
     {
-      ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.Perform, 1, null, null, false);
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
+      ChangeFieldTypeTest("FString1", typeof (string), "a", Mode.Perform, 1, null, null, false);
     }
 
     [Test]
     public async Task NullableStringToStringAsyncTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
       await ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.Perform, 1, null, null, false);
     }
 
     [Test]
     public void NullableStringToStringSafelyTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
       _ = Assert.Throws<SchemaSynchronizationException>(() =>
         ChangeFieldTypeTest("FString1", typeof(string), "a", Mode.PerformSafely, 1, null, null, false));
     }
@@ -479,6 +420,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void NullableStringToStringSafelyAsyncTest()
     {
+      Require.AllFeaturesNotSupported(ProviderFeatures.TreatEmptyStringAsNull);
       Assert.ThrowsAsync<SchemaSynchronizationException>(async () => await
         ChangeFieldTypeAsyncTest("FString1", typeof(string), "a", Mode.PerformSafely, 1, null, null, false));
     }
@@ -486,7 +428,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void AddNonNullableColumnTest()
     {
-      AddFieldTest(typeof(Guid));
+      AddFieldTest(typeof(Guid), Guid.Empty);
       AddFieldTest(typeof(bool));
       AddFieldTest(typeof(int));
       AddFieldTest(typeof(long));
@@ -498,7 +440,7 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public async Task AddNonNullableColumnAsyncTest()
     {
-      await AddFieldAsyncTest(typeof(Guid));
+      await AddFieldAsyncTest(typeof(Guid), Guid.Empty);
       await AddFieldAsyncTest(typeof(bool));
       await AddFieldAsyncTest(typeof(int));
       await AddFieldAsyncTest(typeof(long));
@@ -511,19 +453,21 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private void BuildDomain(DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
+      if (domain != null) {
+        domain.Dispose();
+      }
       var configuration = BuildDomainConfiguration(upgradeMode);
-      ConfigureStorageTraits(configuration);
+      ConfigureStorageTraits();
       domain = Domain.Build(configuration);
     }
 
     private async Task BuildDomainAsync(DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
+      if (domain != null) {
+        domain.Dispose();
+      }
       var configuration = BuildDomainConfiguration(upgradeMode);
-      ConfigureStorageTraits(configuration);
+      ConfigureStorageTraits();
       domain = await Domain.BuildAsync(configuration);
     }
 
@@ -537,27 +481,21 @@ namespace Xtensive.Orm.Tests.Upgrade
       return configuration;
     }
 
-    private void ConfigureStorageTraits(DomainConfiguration configuration)
+    private void ConfigureStorageTraits()
     {
-      var provider = configuration.ConnectionInfo.Provider;
+      var providerInfo = StorageProviderInfo.Instance;
 
-      canConvertBoolToString = provider
-        .In(WellKnown.Provider.Firebird, WellKnown.Provider.Sqlite);
+      canConvertBoolToString = providerInfo
+        .CheckProviderIs(StorageProvider.Firebird | StorageProvider.Sqlite | StorageProvider.Oracle);
 
-      ignoreColumnPrecision = provider
-        .In(WellKnown.Provider.Sqlite);
+      ignoreColumnPrecision = providerInfo
+        .CheckProviderIs(StorageProvider.Sqlite);
     }
 
-    private void ChangeFieldTypeTest(string fieldName,
-      Type newColumnType,
-      object expectedValue,
-      DomainUpgradeMode mode,
-      int? newLength,
-      int? newPresicion,
-      int? newScale)
-    {
+    private void ChangeFieldTypeTest(
+      string fieldName, Type newColumnType, object expectedValue,
+      DomainUpgradeMode mode, int? newLength, int? newPresicion, int? newScale) =>
       ChangeFieldTypeTest(fieldName, newColumnType, expectedValue, mode, newLength, newPresicion, newScale, null);
-    }
 
     private Task ChangeFieldTypeAsyncTest(string fieldName,
       Type newColumnType,
@@ -583,11 +521,10 @@ namespace Xtensive.Orm.Tests.Upgrade
         BuildDomain(mode);
       }
 
-      using (var session = domain.OpenSession()) {
-        using (var t = session.OpenTransaction()) {
-          var x = session.Query.All<X>().First();
-          Assert.AreEqual(expectedValue, x[fieldName]);
-        }
+      using (var session = domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var x = session.Query.All<X>().First();
+        Assert.AreEqual(expectedValue, x[fieldName]);
       }
     }
 
@@ -612,11 +549,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       }
     }
 
-    private void AddFieldTest(Type newColumnType)
+    private void AddFieldTest(Type newColumnType, object defaultValue = null)
     {
       SetUp();
-      if (domain != null)
+      if (domain != null) {
         domain.DisposeSafely();
+      }
+
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
       configuration.Types.Register(typeof(X));
@@ -624,15 +563,17 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(typeof(FieldTypeChanger));
       configuration.Types.Register(typeof(AddColumnBuilder));
       AddColumnBuilder.NewColumnType = newColumnType;
+      AddColumnBuilder.DefaultValue = defaultValue;
       AddColumnBuilder.IsEnabled = true;
       domain = Domain.Build(configuration);
     }
 
-    private async Task AddFieldAsyncTest(Type newColumnType)
+    private async Task AddFieldAsyncTest(Type newColumnType, object defaultValue = null)
     {
       SetUp();
-      if (domain != null)
+      if (domain != null) {
         domain.DisposeSafely();
+      }
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = DomainUpgradeMode.Perform;
       configuration.Types.Register(typeof(X));
@@ -640,6 +581,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       configuration.Types.Register(typeof(FieldTypeChanger));
       configuration.Types.Register(typeof(AddColumnBuilder));
       AddColumnBuilder.NewColumnType = newColumnType;
+      AddColumnBuilder.DefaultValue = defaultValue;
       AddColumnBuilder.IsEnabled = true;
       domain = await Domain.BuildAsync(configuration);
     }
@@ -701,8 +643,10 @@ namespace Xtensive.Orm.Tests.Upgrade
     /// <exception cref="InvalidOperationException">Handler is already enabled.</exception>
     public static IDisposable Enable(Type newType, string fieldName, int? length, int? precision, int? scale, bool? isNullable)
     {
-      if (isEnabled)
+      if (isEnabled) {
         throw new InvalidOperationException();
+      }
+
       isEnabled = true;
       ColumnType = newType;
       ColumnName = fieldName;
@@ -724,8 +668,9 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     public void OnDefinitionsBuilt(BuildingContext context, DomainModelDef model)
     {
-      if (!isEnabled || !model.Types.Contains("X"))
+      if (!isEnabled || !model.Types.Contains("X")) {
         return;
+      }
 
       var xType = model.Types["X"];
       var oldFieled = xType.Fields[ColumnName];
@@ -734,9 +679,10 @@ namespace Xtensive.Orm.Tests.Upgrade
       newField.Scale = ColumnScale;
       newField.Precision = ColumnPrecision;
       newField.Name = oldFieled.Name;
-      if (ColumnNullable != null)
+      if (ColumnNullable != null) {
         newField.IsNullable = ColumnNullable.Value;
-      xType.Fields.Remove(oldFieled);
+      }
+      _ = xType.Fields.Remove(oldFieled);
       xType.Fields.Add(newField);
     }
     
@@ -747,6 +693,8 @@ namespace Xtensive.Orm.Tests.Upgrade
     public static bool IsEnabled;
 
     public static Type NewColumnType { get; set; }
+
+    public static object DefaultValue { get; set; }
 
     public void OnBuilt(Domain domain)
     {
@@ -760,9 +708,13 @@ namespace Xtensive.Orm.Tests.Upgrade
       if (!model.Types.Contains("X")) {
         return;
       }
+
       var xType = model.Types["X"];
       var newField = new FieldDef(NewColumnType, context.Validator);
       newField.Name = "NewColumn";
+      if (DefaultValue != null) {
+        newField.DefaultValue = DefaultValue;
+      }
       xType.Fields.Add(newField);
     }
   }
@@ -779,6 +731,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       if (isEnabled) {
         throw new InvalidOperationException();
       }
+
       isEnabled = true;
       columnHint = hint;
       return new Disposable(_ => {

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.12.13
 
@@ -98,9 +98,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice["Commission"]==freight)
         .ToList();
-      var expected = Session.Query
-        .All<Invoice>()
-        .AsEnumerable()
+      var expected = Invoices
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice.Commission==(decimal?) freight)
         .ToList();
@@ -120,9 +118,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Where(customer => customer["Address"]==address)
         .ToList();
 #pragma warning disable 252,253
-      var expected = Session.Query
-        .All<Customer>()
-        .AsEnumerable()
+      var expected = Customers
         .OrderBy(customer => customer.CustomerId)
         .Where(customer => customer.Address==address)
         .ToList();
@@ -142,9 +138,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice["Customer"]==customer)
         .ToList();
-      var expected = Session.Query
-        .All<Invoice>()
-        .AsEnumerable()
+      var expected = Invoices
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice.Customer==customer)
         .ToList();
@@ -163,8 +157,7 @@ namespace Xtensive.Orm.Tests.Linq
             .First(invoice2 => invoice2.Customer!=null)
             .Customer)
         .ToList();
-      var expected = Session.Query.All<Invoice>()
-        .AsEnumerable()
+      var expected = Invoices
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice.Customer==
           Session.Query.All<Invoice>()
@@ -187,8 +180,7 @@ namespace Xtensive.Orm.Tests.Linq
             .First(invoice2 => invoice2["Customer"]!=null)
             .Customer)
         .ToList();
-      var expected = Session.Query.All<Invoice>()
-        .AsEnumerable()
+      var expected = Invoices
         .OrderBy(invoice => invoice.InvoiceId)
         .Where(invoice => invoice.Customer==
           Session.Query.All<Invoice>()
@@ -285,7 +277,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void Anonymous3Test()
     {
-      var expectedResultCount = Session.Query.All<Customer>().Count();
+      var expectedResultCount = Customers.Count();
       var result = Session.Query.All<Customer>().Where(c => new {c.FirstName, c.LastName}==new {c.FirstName, c.LastName}).ToList();
       Assert.That(result.Count, Is.EqualTo(expectedResultCount));
     }
@@ -315,7 +307,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void CalculatedTest()
     {
-      var expected = Session.Query.All<Invoice>().ToList().Where(i => i.Total * i.Commission >= 10).ToList();
+      var expected = Invoices.Where(i => i.Total * i.Commission >= 10).ToList();
       var actual = Session.Query.All<Invoice>().ToList().Where(i => i.Total * i.Commission >= 10).ToList();
       Assert.That(expected.Count, Is.GreaterThan(0));
       Assert.AreEqual(expected.Count, actual.Count);
@@ -1317,7 +1309,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
         orderby new {customer, invoice}
         select new {customer, invoice};
       var list = actual.ToList();
-      var expected = from customer in Session.Query.All<Customer>().ToList()
+      var expected = from customer in Customers
         join invoice in Session.Query.All<Invoice>().ToList() on customer equals invoice.Customer
         where invoice.Commission > 30
         orderby customer.CustomerId , invoice.InvoiceId
@@ -1330,8 +1322,7 @@ Require.ProviderIsNot(StorageProvider.Sqlite, "sqlite does not support Sqrt()");
     {
       var actual = Session.Query.All<Customer>()
         .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m));
-      var expected = Session.Query.All<Customer>()
-        .AsEnumerable() // AG: Just to remeber about it.
+      var expected = Customers
         .Where(customer => customer.Invoices.Any(i => i.Commission > 0.30m));
       Assert.IsTrue(expected.SequenceEqual(actual));
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -45,6 +45,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool emptyStringIsNull;
     private readonly bool dateTimeEmulation;
     private readonly bool dateTimeOffsetEmulation;
+    private readonly bool specialByteArrayComparison;
     private readonly ProviderInfo providerInfo;
 
     private bool executed;
@@ -164,19 +165,20 @@ namespace Xtensive.Orm.Providers
     protected override SqlExpression VisitBinary(BinaryExpression expression)
     {
       // handle x.CompareTo(y) > 0 and similar comparisons
-      SqlExpression result = TryTranslateCompareExpression(expression);
-      if (!result.IsNullReference())
+      var result = TryTranslateCompareExpression(expression);
+      if (!result.IsNullReference()) {
         return result;
+      }
 
       SqlExpression left;
       SqlExpression right;
 
-      bool isEqualityCheck =
-        expression.NodeType==ExpressionType.Equal
-        || expression.NodeType==ExpressionType.NotEqual;
+      var isEqualityCheck =
+        expression.NodeType == ExpressionType.Equal
+        || expression.NodeType == ExpressionType.NotEqual;
 
-      bool isBooleanFixRequired = fixBooleanExpressions
-        && (isEqualityCheck || expression.NodeType==ExpressionType.Coalesce)
+      var isBooleanFixRequired = fixBooleanExpressions
+        && (isEqualityCheck || expression.NodeType == ExpressionType.Coalesce)
         && (IsBooleanExpression(expression.Left) || IsBooleanExpression(expression.Right));
 
       if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
@@ -194,7 +196,7 @@ namespace Xtensive.Orm.Providers
         left = ConvertIntConstantToSingleCharString(expression.Left);
         right = Visit(GetOperand(expression.Right), isEqualityCheck);
       }
-      else  {
+      else {
         // regular case
         left = Visit(expression.Left, isEqualityCheck);
         right = Visit(expression.Right, isEqualityCheck);
@@ -203,10 +205,12 @@ namespace Xtensive.Orm.Providers
         // boolean expressions should be compared as integers.
         // additional check is required because some type information might be lost.
         // we assume they already have correct format in that case.
-        if (IsBooleanExpression(expression.Left))
+        if (IsBooleanExpression(expression.Left)) {
           left = booleanExpressionConverter.BooleanToInt(left);
-        if (IsBooleanExpression(expression.Right))
+        }
+        if (IsBooleanExpression(expression.Right)) {
           right = booleanExpressionConverter.BooleanToInt(right);
+        }
       }
 
       //handle SQLite DateTime comparsion
@@ -221,78 +225,91 @@ namespace Xtensive.Orm.Providers
 
       //handle SQLite DateTimeOffset comparsion
       if (dateTimeOffsetEmulation
-          && left.NodeType!=SqlNodeType.Null
-          && right.NodeType!=SqlNodeType.Null
+          && left.NodeType != SqlNodeType.Null
+          && right.NodeType != SqlNodeType.Null
           && IsComparisonExpression(expression)
           && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
         left = SqlDml.Cast(left, SqlType.DateTimeOffset);
         right = SqlDml.Cast(right, SqlType.DateTimeOffset);
       }
 
+      //handle Oracle special syntax of BLOB comparison
+      if (specialByteArrayComparison
+        && (IsExpressionOf(expression.Left, WellKnownTypes.ByteArray) || IsExpressionOf(expression.Left, WellKnownTypes.ByteArray))) {
+        var comparison = BuildByteArraySyntaxComparison(left, right);
+        left = comparison.left;
+        right = comparison.right;
+      }
+
       // handle special cases
       result = TryTranslateBinaryExpressionSpecialCases(expression, left, right);
-      if (!result.IsNullReference())
+      if (!result.IsNullReference()) {
         return result;
+      }
 
       // handle overloaded operators
-      if (expression.Method!=null)
+      if (expression.Method != null) {
         return CompileMember(expression.Method, null, left, right);
+      }
 
       //handle wrapped enums
-      SqlContainer container = left as SqlContainer;
-      if (container!=null)
+      var container = left as SqlContainer;
+      if (container != null) {
         left = TryUnwrapEnum(container);
+      }
       container = right as SqlContainer;
-      if (container!=null)
+      if (container != null) {
         right = TryUnwrapEnum(container);
+      }
 
       switch (expression.NodeType) {
-      case ExpressionType.Add:
-      case ExpressionType.AddChecked:
-        return SqlDml.Add(left, right);
-      case ExpressionType.And:
-        return IsBooleanExpression(expression.Left)
-          ? SqlDml.And(left, right)
-          : SqlDml.BitAnd(left, right);
-      case ExpressionType.AndAlso:
-        return SqlDml.And(left, right);
-      case ExpressionType.Coalesce:
-        SqlExpression coalesce = SqlDml.Coalesce(left, right);
-        if (isBooleanFixRequired)
-          coalesce = booleanExpressionConverter.IntToBoolean(coalesce);
-        return coalesce;
-      case ExpressionType.Divide:
-        return SqlDml.Divide(left, right);
-      case ExpressionType.Equal:
-        return SqlDml.Equals(left, right);
-      case ExpressionType.ExclusiveOr:
-        return SqlDml.BitXor(left, right);
-      case ExpressionType.GreaterThan:
-        return SqlDml.GreaterThan(left, right);
-      case ExpressionType.GreaterThanOrEqual:
-        return SqlDml.GreaterThanOrEquals(left, right);
-      case ExpressionType.LessThan:
-        return SqlDml.LessThan(left, right);
-      case ExpressionType.LessThanOrEqual:
-        return SqlDml.LessThanOrEquals(left, right);
-      case ExpressionType.Modulo:
-        return SqlDml.Modulo(left, right);
-      case ExpressionType.Multiply:
-      case ExpressionType.MultiplyChecked:
-        return SqlDml.Multiply(left, right);
-      case ExpressionType.NotEqual:
-        return SqlDml.NotEquals(left, right);
-      case ExpressionType.Or:
-        return IsBooleanExpression(expression.Left)
-          ? SqlDml.Or(left, right)
-          : SqlDml.BitOr(left, right);
-      case ExpressionType.OrElse:
-        return SqlDml.Or(left, right);
-      case ExpressionType.Subtract:
-      case ExpressionType.SubtractChecked:
-        return SqlDml.Subtract(left, right);
-      default:
-        throw new ArgumentOutOfRangeException("expression");
+        case ExpressionType.Add:
+        case ExpressionType.AddChecked:
+          return SqlDml.Add(left, right);
+        case ExpressionType.And:
+          return IsBooleanExpression(expression.Left)
+            ? SqlDml.And(left, right)
+            : SqlDml.BitAnd(left, right);
+        case ExpressionType.AndAlso:
+          return SqlDml.And(left, right);
+        case ExpressionType.Coalesce:
+          var coalesce = (SqlExpression) SqlDml.Coalesce(left, right);
+          if (isBooleanFixRequired) {
+            coalesce = booleanExpressionConverter.IntToBoolean(coalesce);
+          }
+          return coalesce;
+        case ExpressionType.Divide:
+          return SqlDml.Divide(left, right);
+        case ExpressionType.Equal:
+          return SqlDml.Equals(left, right);
+        case ExpressionType.ExclusiveOr:
+          return SqlDml.BitXor(left, right);
+        case ExpressionType.GreaterThan:
+          return SqlDml.GreaterThan(left, right);
+        case ExpressionType.GreaterThanOrEqual:
+          return SqlDml.GreaterThanOrEquals(left, right);
+        case ExpressionType.LessThan:
+          return SqlDml.LessThan(left, right);
+        case ExpressionType.LessThanOrEqual:
+          return SqlDml.LessThanOrEquals(left, right);
+        case ExpressionType.Modulo:
+          return SqlDml.Modulo(left, right);
+        case ExpressionType.Multiply:
+        case ExpressionType.MultiplyChecked:
+          return SqlDml.Multiply(left, right);
+        case ExpressionType.NotEqual:
+          return SqlDml.NotEquals(left, right);
+        case ExpressionType.Or:
+          return IsBooleanExpression(expression.Left)
+            ? SqlDml.Or(left, right)
+            : SqlDml.BitOr(left, right);
+        case ExpressionType.OrElse:
+          return SqlDml.Or(left, right);
+        case ExpressionType.Subtract:
+        case ExpressionType.SubtractChecked:
+          return SqlDml.Subtract(left, right);
+        default:
+          throw new ArgumentOutOfRangeException("expression");
       }
     }
 
@@ -466,6 +483,7 @@ namespace Xtensive.Orm.Providers
       dateTimeEmulation = providerInfo.Supports(ProviderFeatures.DateTimeEmulation);
       dateTimeOffsetEmulation = providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation);
       memberCompilerProvider = handlers.DomainHandler.GetMemberCompilerProvider<SqlExpression>();
+      specialByteArrayComparison = providerInfo.ProviderName.Equals(WellKnown.Provider.Oracle);
 
       bindings = new HashSet<QueryParameterBinding>();
       activeParameters = new List<ParameterExpression>();

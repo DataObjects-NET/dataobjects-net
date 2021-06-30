@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Gamzov
@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
+using System.Security;
 using System.Text;
 using System.Threading;
 using Xtensive.Collections;
@@ -25,18 +26,20 @@ namespace Xtensive.Core
   /// </summary>
   [Serializable]
   public abstract class AssociateProvider :
-    IDeserializationCallback
+    IDeserializationCallback,
+    ISerializable
   {
     private static readonly AsyncLocal<SetSlim<TypePair>> inProgressAsync = new AsyncLocal<SetSlim<TypePair>>();
 
     private static SetSlim<TypePair> InProgress
     {
       get {
-        if (inProgressAsync.Value==null)
+        if (inProgressAsync.Value == null) {
           inProgressAsync.Value = new SetSlim<TypePair>();
+        }
         return inProgressAsync.Value;
       }
-      set { inProgressAsync.Value = value; }
+      set => inProgressAsync.Value = value;
     }
 
     [NonSerialized]
@@ -55,19 +58,20 @@ namespace Xtensive.Core
     protected object[] ConstructorParams
     {
       [DebuggerStepThrough]
-      get { return constructorParams; }
+      get => constructorParams;
       [DebuggerStepThrough]
-      set { constructorParams = value; }
+      set => constructorParams = value;
     }
 
     /// <summary>
     /// Gets or sets associate type suffixes.
     /// </summary>
-    protected string[] TypeSuffixes { 
+    protected string[] TypeSuffixes
+    {
       [DebuggerStepThrough]
-      get { return typeSuffixes; }
+      get => typeSuffixes;
       [DebuggerStepThrough]
-      set { typeSuffixes = value; }
+      set => typeSuffixes = value;
     }
 
     /// <summary>
@@ -91,10 +95,12 @@ namespace Xtensive.Core
     {
       lock (_lock) {
         var newHighPriorityLocations = new List<Pair<Assembly, string>>(highPriorityLocations);
-        if (overriding)
+        if (overriding) {
           newHighPriorityLocations.Insert(0, new Pair<Assembly, string>(assembly, nameSpace));
-        else
+        }
+        else {
           newHighPriorityLocations.Add(new Pair<Assembly, string>(assembly, nameSpace));
+        }
         Thread.MemoryBarrier();
         highPriorityLocations = newHighPriorityLocations;
       }
@@ -103,10 +109,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Gets a list of high priority locations.
     /// </summary>
-    protected List<Pair<Assembly, string>> HighPriorityLocations
-    {
-      get { return highPriorityLocations; }
-    }
+    protected List<Pair<Assembly, string>> HighPriorityLocations => highPriorityLocations;
 
     /// <summary>
     /// Gets associate instance for specified parameter and result types.
@@ -120,11 +123,9 @@ namespace Xtensive.Core
     protected TResult GetAssociate<TKey, TAssociate, TResult>()
       where TAssociate : class
     {
-      var key = new TypePair(typeof (TKey), typeof (TResult));
-      return (TResult) cache.GetValue(key, _key => {
-        Type foundFor;
-        return ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out foundFor));
-      });
+      var key = new TypePair(typeof(TKey), typeof(TResult));
+      return (TResult) cache.GetValue(key,
+        _key => ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out var foundFor)));
     }
 
     /// <summary>
@@ -141,36 +142,38 @@ namespace Xtensive.Core
     protected TResult GetAssociate<TKey1, TKey2, TAssociate, TResult>()
       where TAssociate : class
     {
-      var key = new TypePair(typeof (TKey1), typeof (TResult));
+      var key = new TypePair(typeof(TKey1), typeof(TResult));
       return (TResult) cache.GetValue(key, _key => {
-        Type foundFor;
-        TAssociate associate1 = CreateAssociate<TKey1, TAssociate>(out foundFor);
-        TAssociate associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
+        var associate1 = CreateAssociate<TKey1, TAssociate>(out var foundFor);
+        var associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
         // Preferring non-null ;)
-        TAssociate associate;
-        if (associate1==null)
+        TAssociate associate = null;
+        if (associate1 == null) {
           associate = associate2;
-        else if (associate2==null)
+        }
+        else if (associate2 == null) {
           associate = associate1;
-        else
+        }
+        else {
           // Both are non-null; preferring one of two
           associate = PreferAssociate<TKey1, TKey2, TAssociate>(associate1, associate2);
-        if (associate==null) {
+        }
+        if (associate == null) {
           // Try to get complex associate (create it manually)
           associate = CreateCustomAssociate<TKey1, TKey2, TAssociate>();
-          if (associate==null) {
+          if (associate == null) {
             var stringBuilder = new StringBuilder();
-            for (int i = 0; i < TypeSuffixes.Length; i++) {
-              if (i!=0) {
-                stringBuilder.Append(", ");
+            for (var i = 0; i < TypeSuffixes.Length; i++) {
+              if (i != 0) {
+                _ = stringBuilder.Append(", ");
               }
-              stringBuilder.Append(TypeSuffixes[i]);
+              _ = stringBuilder.Append(TypeSuffixes[i]);
             }
             throw new InvalidOperationException(string.Format(
               Strings.ExCantFindAssociate2, stringBuilder,
-              typeof (TAssociate).GetShortName(),
-              typeof (TKey1).GetShortName(),
-              typeof (TKey2).GetShortName()));
+              typeof(TAssociate).GetShortName(),
+              typeof(TKey1).GetShortName(),
+              typeof(TKey2).GetShortName()));
           }
         }
         return ConvertAssociate<TKey1, TKey2, TAssociate, TResult>(associate);
@@ -189,12 +192,9 @@ namespace Xtensive.Core
     protected virtual TAssociate PreferAssociate<TKey1, TKey2, TAssociate>(TAssociate associate1,
       TAssociate associate2)
     {
-      int locationPosition1 = GetAssociateLocationPosition(associate1);
-      int locationPosition2 = GetAssociateLocationPosition(associate2);
-      if (locationPosition1 <= locationPosition2)
-        return associate1;
-      else
-        return associate2;
+      var locationPosition1 = GetAssociateLocationPosition(associate1);
+      var locationPosition2 = GetAssociateLocationPosition(associate2);
+      return locationPosition1 <= locationPosition2 ? associate1 : associate2;
     }
 
     /// <summary>
@@ -211,9 +211,11 @@ namespace Xtensive.Core
         associate.GetType().Assembly,
         associate.GetType().Namespace);
       var hpl = HighPriorityLocations;
-      for (int i = 0; i < hpl.Count; i++)
-        if (AdvancedComparerStruct<Pair<Assembly, string>>.Default.Equals(hpl[i], entry))
+      for (var i = 0; i < hpl.Count; i++) {
+        if (AdvancedComparerStruct<Pair<Assembly, string>>.Default.Equals(hpl[i], entry)) {
           return i;
+        }
+      }
       return int.MaxValue;
     }
 
@@ -229,19 +231,22 @@ namespace Xtensive.Core
     protected virtual TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
       where TAssociate : class
     {
-      if (InProgress==null)
+      if (InProgress == null) {
         InProgress = new SetSlim<TypePair>();
-      var progressionMark = new TypePair(typeof (TKey), typeof (TAssociate));
-      if (InProgress.Contains(progressionMark))
+      }
+
+      var progressionMark = new TypePair(typeof(TKey), typeof(TAssociate));
+      if (InProgress.Contains(progressionMark)) {
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
-      InProgress.Add(progressionMark);
+      }
+      _ = InProgress.Add(progressionMark);
       try {
         var associate = TypeHelper.CreateAssociate<TAssociate>(
-          typeof (TKey), out foundFor, TypeSuffixes, constructorParams, highPriorityLocations);
+          typeof(TKey), out foundFor, TypeSuffixes, constructorParams, highPriorityLocations);
         return associate;
       }
       finally {
-        InProgress.Remove(progressionMark);
+        _ = InProgress.Remove(progressionMark);
       }
     }
 
@@ -255,9 +260,7 @@ namespace Xtensive.Core
     /// <returns>Associate instance or <see langword="null"/>.</returns>
     protected virtual TAssociate CreateCustomAssociate<TKey1, TKey2, TAssociate>()
       where TAssociate : class
-    {
-      return null;
-    }
+      => null;
 
     /// <summary>
     /// Converts <paramref name="associate"/> to <typeparamref name="TResult"/> object.
@@ -268,9 +271,7 @@ namespace Xtensive.Core
     /// <param name="associate">Associate to convert to result.</param>
     /// <returns>Conversion result.</returns>
     protected virtual TResult ConvertAssociate<TKey, TAssociate, TResult>(TAssociate associate)
-    {
-      return (TResult) (object) associate;
-    }
+      => (TResult) (object) associate;
 
     /// <summary>
     /// Converts <paramref name="associate"/> to <typeparamref name="TResult"/> object.
@@ -282,9 +283,7 @@ namespace Xtensive.Core
     /// <param name="associate">Associate to convert to result.</param>
     /// <returns>Conversion result.</returns>
     protected virtual TResult ConvertAssociate<TKey1, TKey2, TAssociate, TResult>(TAssociate associate)
-    {
-      return (TResult) (object) associate;
-    }
+      => (TResult) (object) associate;
 
 
     // Constructors
@@ -294,9 +293,26 @@ namespace Xtensive.Core
     /// </summary>
     protected AssociateProvider()
     {
-      constructorParams = new object[] {this};
+      constructorParams = new object[] { this };
       _lock = new object();
       cache = ThreadSafeDictionary<TypePair, object>.Create(_lock);
+    }
+
+    protected AssociateProvider(SerializationInfo info, StreamingContext context)
+    {
+      if (info == null) {
+        throw new ArgumentNullException(nameof(info));
+      }
+
+      var constructorParamsExceptThis = (object[]) info.GetValue(nameof(constructorParams), typeof(object[]));
+      constructorParams = new object[constructorParamsExceptThis.Length + 1];
+      constructorParams[0] = this;
+      Array.Copy(constructorParamsExceptThis, 0, constructorParams, 1, constructorParamsExceptThis.Length);
+
+      typeSuffixes = (string[]) info.GetValue(nameof(typeSuffixes), typeof(string[]));
+
+      var highPriorityLocationsSerializable = (List<Pair<string, string>>) info.GetValue(nameof(highPriorityLocations), typeof(List<Pair<string, string>>));
+      highPriorityLocations = highPriorityLocationsSerializable.SelectToList(ls => new Pair<Assembly, string>(Assembly.Load(ls.First), ls.Second));
     }
 
     /// <summary>
@@ -307,6 +323,26 @@ namespace Xtensive.Core
     {
       _lock = new object();
       cache = ThreadSafeDictionary<TypePair, object>.Create(_lock);
+    }
+
+    /// <inheritdoc/>
+    [SecurityCritical]
+    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      object[] constructorParamsExceptThis = null;
+      // need to exclude this form parameters to prevent loop
+      if (constructorParams.Length == 1) {
+        constructorParamsExceptThis = Array.Empty<object>();
+      }
+      else {
+        constructorParamsExceptThis = new object[constructorParams.Length - 1];
+        Array.Copy(constructorParams, 1, constructorParamsExceptThis, 0, constructorParamsExceptThis.Length);
+      }
+      info.AddValue(nameof(constructorParams), constructorParamsExceptThis, constructorParams.GetType());
+      info.AddValue(nameof(typeSuffixes), typeSuffixes, typeSuffixes.GetType());
+
+      var highPriorityLocationsSerializable = highPriorityLocations.SelectToList(l => new Pair<string, string>(l.First.FullName, l.Second));
+      info.AddValue(nameof(highPriorityLocations), highPriorityLocationsSerializable, highPriorityLocationsSerializable.GetType());
     }
   }
 }

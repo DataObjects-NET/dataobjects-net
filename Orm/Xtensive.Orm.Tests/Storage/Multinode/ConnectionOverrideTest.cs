@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -27,6 +27,9 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       }
     }
 
+    private const string dbo = WellKnownSchemas.SqlServerDefaultSchema;
+    private const string Schema1 = WellKnownSchemas.Schema1;
+
     [OneTimeSetUp]
     public void OneTimeSetUp() => Require.ProviderIs(StorageProvider.SqlServer);
 
@@ -35,22 +38,22 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.Types.Register(typeof(TestEntity));
-      domainConfig.DefaultSchema = "dbo";
+      domainConfig.DefaultSchema = dbo;
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
       var nodeConfig = new NodeConfiguration("Additional");
       nodeConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       nodeConfig.ConnectionInfo = null;
-      nodeConfig.SchemaMapping.Add("dbo", "Model1");
+      nodeConfig.SchemaMapping.Add(dbo, Schema1);
 
       void commandValidator(object sender, DbCommandEventArgs args)
       {
         var session = ((SessionEventAccessor) sender).Session;
         if (session.StorageNodeId == WellKnown.DefaultNodeId) {
-          Assert.That(args.Command.CommandText.Contains("[dbo].[ConnectionOverrideTest.TestEntity]"), Is.True);
+          Assert.That(args.Command.CommandText.Contains($"[{dbo}].[ConnectionOverrideTest.TestEntity]"), Is.True);
         }
         else {
-          Assert.That(args.Command.CommandText.Contains("[Model1].[ConnectionOverrideTest.TestEntity]"), Is.True);
+          Assert.That(args.Command.CommandText.Contains($"[{Schema1}].[ConnectionOverrideTest.TestEntity]"), Is.True);
         }
       }
 
@@ -85,7 +88,7 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.Types.Register(typeof(TestEntity));
-      domainConfig.DefaultSchema = "dbo";
+      domainConfig.DefaultSchema = dbo;
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
       var domainConnectionUrlString = domainConfig.ConnectionInfo.ConnectionUrl.ToString();
@@ -94,16 +97,16 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
       var nodeConfig = new NodeConfiguration("Additional");
       nodeConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       nodeConfig.ConnectionInfo = new ConnectionInfo(UrlInfo.Parse(domainConnectionUrlString.Substring(0, parametersPosition)));
-      nodeConfig.SchemaMapping.Add("dbo", "Model1");
+      nodeConfig.SchemaMapping.Add(dbo, Schema1);
 
       void commandValidator(object sender, DbCommandEventArgs args)
       {
         var session = ((SessionEventAccessor) sender).Session;
         if (session.StorageNodeId == WellKnown.DefaultNodeId) {
-          Assert.That(args.Command.CommandText.Contains("[dbo].[ConnectionOverrideTest.TestEntity]"), Is.True);
+          Assert.That(args.Command.CommandText.Contains($"[{dbo}].[ConnectionOverrideTest.TestEntity]"), Is.True);
         }
         else {
-          Assert.That(args.Command.CommandText.Contains("[Model1].[ConnectionOverrideTest.TestEntity]"), Is.True);
+          Assert.That(args.Command.CommandText.Contains($"[{Schema1}].[ConnectionOverrideTest.TestEntity]"), Is.True);
         }
       }
 

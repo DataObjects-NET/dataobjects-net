@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -107,10 +107,8 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(invoice => Session.Query.All<InvoiceLine>()
           .Where(p=>p.Invoice==invoice)
           .Count());
-      var expectedResult = Session.Query.All<Invoice>()
-        .ToList()
-        .Select(invoice => Session.Query.All<InvoiceLine>()
-          .ToList()
+      var expectedResult = Invoices
+        .Select(invoice => InvoiceLines
           .Where(p=>p.Invoice==invoice)
           .Count());
       Assert.AreEqual(0, expectedResult.Except(result).Count());
@@ -145,8 +143,8 @@ namespace Xtensive.Orm.Tests.Linq
         orderby Session.Query.All<Invoice>().Where(o => o.Customer==c).Count() , c.CustomerId
         select c;
       var expected =
-        from c in Session.Query.All<Customer>().ToList()
-        orderby Session.Query.All<Invoice>().ToList().Where(o => o.Customer==c).Count() , c.CustomerId
+        from c in Customers
+        orderby Invoices.Where(o => o.Customer==c).Count() , c.CustomerId
         select c;
       var resultList = result.ToList();
       var expectedList = expected.ToList();
@@ -178,8 +176,7 @@ namespace Xtensive.Orm.Tests.Linq
         .GroupBy(c => c.Track.Name,
           (trackName, invoiceLines) => invoiceLines.Where(k => k.Invoice.Customer.FirstName.Substring(0, 1)==trackName.Substring(0, 1)))
         .SelectMany(k => k);
-      var expected = Session.Query.All<InvoiceLine>()
-        .ToList()
+      var expected = InvoiceLines
         .GroupBy(c => c.Track.Name,
           (trackName, invoiceLines) => invoiceLines.Where(k => k.Invoice.Customer.FirstName.Substring(0, 1)==trackName.Substring(0, 1)))
         .SelectMany(k => k);

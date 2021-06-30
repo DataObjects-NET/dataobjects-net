@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
@@ -9,6 +9,7 @@ using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests;
 using Xtensive.Orm.Linq;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.ObjectModel;
 using Xtensive.Orm.Tests.ObjectModel.ChinookDO;
 
@@ -51,7 +52,7 @@ namespace Xtensive.Orm.Tests.Linq
             .Select(order => order.BillingAddress.City)
             .SingleOrDefault()
             .Length > 0);
-      Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(customers));
+      _ = Assert.Throws<QueryTranslationException>(() => QueryDumper.Dump(customers));
     }
 
     [Test]
@@ -64,14 +65,14 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void FirstPredicateTest()
     {
-      var customer = Session.Query.All<Customer>().First(c => c.FirstName=="Luis");
+      var customer = Session.Query.All<Customer>().First(c => c.FirstName == "Frank");
       Assert.IsNotNull(customer);
     }
 
     [Test]
     public void WhereFirstTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").First();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").First();
       Assert.IsNotNull(customer);
     }
 
@@ -85,14 +86,23 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void FirstOrDefaultPredicateTest()
     {
-      Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName=="Luis");
+      var customer = Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName == "Frank");
+      Assert.IsNotNull(customer);
+      customer = Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName == "Aaron");
+      Assert.IsNotNull(customer);
+      customer = Session.Query.All<Customer>().FirstOrDefault(c => c.FirstName == "ThereIsNoSuchFirstName");
+      Assert.IsNull(customer);
     }
 
     [Test]
     public void WhereFirstOrDefaultTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").FirstOrDefault();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").FirstOrDefault();
       Assert.IsNotNull(customer);
+      customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").FirstOrDefault();
+      Assert.IsNotNull(customer);
+      customer = Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").FirstOrDefault();
+      Assert.IsNull(customer);
     }
 
     [Test]
@@ -104,15 +114,19 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SinglePredicateTest()
     {
-      var customer = Session.Query.All<Customer>().Single(c => c.FirstName=="Luis");
+      var customer = Session.Query.All<Customer>().Single(c => c.FirstName == "Aaron");
       Assert.IsNotNull(customer);
+      _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").Single());
+      _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").Single());
     }
 
     [Test]
     public void WhereSingleTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").Single();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").Single();
       Assert.IsNotNull(customer);
+      _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").Single());
+      _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").Single());
     }
 
     [Test]
@@ -124,15 +138,21 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SingleOrDefaultPredicateTest()
     {
-      var customer = Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName=="Luis");
+      var customer = Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName == "Aaron");
       Assert.IsNotNull(customer);
+      _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName == "Frank"));
+      customer = Session.Query.All<Customer>().SingleOrDefault(c => c.FirstName == "ThereIsNoSuchFirstName");
+      Assert.IsNull(customer);
     }
 
     [Test]
     public void WhereSingleOrDefaultTest()
     {
-      var customer = Session.Query.All<Customer>().Where(c => c.FirstName=="Luis").SingleOrDefault();
+      var customer = Session.Query.All<Customer>().Where(c => c.FirstName == "Aaron").SingleOrDefault();
       Assert.IsNotNull(customer);
+      _ = Assert.Throws<InvalidOperationException>(() => Session.Query.All<Customer>().Where(c => c.FirstName == "Frank").SingleOrDefault());
+      customer = Session.Query.All<Customer>().Where(c => c.FirstName == "ThereIsNoSuchFirstName").SingleOrDefault();
+      Assert.IsNull(customer);
     }
 
     [Test]
@@ -145,7 +165,7 @@ namespace Xtensive.Orm.Tests.Linq
         select new {
           Invoice = i,
           MaxOrder = invoiceLines
-            .Where(il => il.Invoice==i)
+            .Where(il => il.Invoice == i)
             .OrderByDescending(il => il.UnitPrice * il.Quantity)
             .First()
             .Invoice
@@ -195,6 +215,16 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void SubquerySingleSQLiteTest()
+    {
+      Require.ProviderIs(StorageProvider.Sqlite, "SQLite allows to have more that one row in result of subquery that represents column.");
+      var customersCount = Session.Query.All<Customer>().Count(c => c.Invoices.Count > 0);
+      var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Single());
+      var list = result.ToList();
+      Assert.AreEqual(customersCount, list.Count);
+    }
+
+    [Test]
     public void SubquerySingleExpectedException1Test()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
@@ -205,17 +235,18 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SubquerySingleExpectedException2Test()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      bool exceptionThrown = false;
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Sqlite);
+      var exceptionThrown = false;
       var result = Session.Query.All<Customer>().Where(c => c.Invoices.Count > 0).Select(c => c.Invoices.Single());
       try {
-        result.ToList();
+        _ = result.ToList();
       }
       catch {
         exceptionThrown = true;
       }
-      if (!exceptionThrown)
+      if (!exceptionThrown) {
         Assert.Fail("Exception was not thrown.");
+      }
     }
 
     [Test]
@@ -281,7 +312,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Playlist>()
         .Where(p => p.Tracks.Any())
         .Select(p => p.Tracks.First())
-        .Select(t => new {Track = t, t.Name, t.Album});
+        .Select(t => new { Track = t, t.Name, t.Album });
       var list = result.ToList();
       Assert.AreEqual(playlistCount, list.Count);
     }

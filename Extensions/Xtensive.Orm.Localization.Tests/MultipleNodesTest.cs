@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -21,11 +21,11 @@ namespace Xtensive.Orm.Localization.Tests
     private const string Node3Id = "Node3";
     private const string Node4Id = "Node4";
 
-    private const string DefaultNodeSchema = "dbo";
-    private const string FirstNodeSchema = "Model1";
-    private const string SecondNodeSchema = "Model2";
-    private const string ThridNodeSchema = "Model3";
-    private const string ForthNodeSchema = "Model4";
+    private const string DefaultNodeSchema = WellKnownSchemas.Schema1;
+    private const string FirstNodeSchema = WellKnownSchemas.Schema2;
+    private const string SecondNodeSchema = WellKnownSchemas.Schema3;
+    private const string ThridNodeSchema = WellKnownSchemas.Schema4;
+    private const string ForthNodeSchema = WellKnownSchemas.Schema5;
 
     private static readonly CultureInfo EnglishCulture = new CultureInfo("en-US");
     private static readonly string EnglishTitle = "Welcome!";
@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Localization.Tests
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(ILocalizable<>).Assembly);
-      configuration.Types.Register(typeof(AutoBuildTest).Assembly, typeof(AutoBuildTest).Namespace);
+      configuration.Types.Register(typeof(LocalizationBaseTest).Assembly, typeof(LocalizationBaseTest).Namespace);
       configuration.DefaultSchema = DefaultNodeSchema;
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2003-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Ustinov
@@ -99,8 +99,6 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     public void Add(TItem item) => Add(item, true);
-
-    private static Dictionary<TKey, GCHandle> CreateDictionary() => new Dictionary<TKey, GCHandle>();
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -234,6 +232,8 @@ namespace Xtensive.Caching
     #endregion
 
     #region Private / internal methods
+
+    private static Dictionary<TKey, GCHandle> CreateDictionary() => new Dictionary<TKey, GCHandle>();
 
     private void RegisterOperation(int weight)
     {

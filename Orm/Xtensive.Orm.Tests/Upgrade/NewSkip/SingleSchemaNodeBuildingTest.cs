@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -21,9 +21,9 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
   /// </summary>
   public abstract class SingleSchemaNodeTest : SkipBuildingTestBase
   {
-    private const string DomainSchema = "Model1";
-    private const string Node1Schema = "Model2";
-    private const string Node2Schema = "Model3";
+    private const string DomainSchema = WellKnownSchemas.Schema1;
+    private const string Node1Schema = WellKnownSchemas.Schema2;
+    private const string Node2Schema = WellKnownSchemas.Schema3;
 
     private const string Node1Name = "Node1";
     private const string Node2Name = "Node2";
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     {
       var configuration = base.BuildConfiguration();
       configuration.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
-      configuration.DefaultSchema = "Model1";
+      configuration.DefaultSchema = DomainSchema;
       configuration.ForeignKeyMode = GetForeignKeyMode();
       return configuration;
     }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2007.08.03
 
@@ -38,7 +38,7 @@ namespace Xtensive.Collections
     /// <summary>
     /// Gets assemblies containing registered types.
     /// </summary>
-    public Set<Assembly> Assemblies{ get { return assemblies; } }
+    public Set<Assembly> Assemblies { get { return assemblies; } }
 
     /// <summary>
     /// Determines whether the specified <see cref="Type"/> is contained in this instance.
@@ -76,7 +76,7 @@ namespace Xtensive.Collections
     /// Search is restricted by assembly only.
     /// </summary>
     /// <param name="assembly">Assembly to search for types.</param>
-    /// <exception cref="InvalidOperationException">When <see cref="Assembly.GetTypes()"/> 
+    /// <exception cref="InvalidOperationException">When <see cref="Assembly.GetTypes()"/>
     /// method call has thrown an exception or if no suitable types were found.</exception>
     /// <exception cref="ArgumentNullException">When <paramref name="assembly"/> is null.</exception>
     public void Register(Assembly assembly)
@@ -92,9 +92,9 @@ namespace Xtensive.Collections
     /// </summary>
     /// <param name="assembly">Assembly to search for types.</param>
     /// <param name="namespace">Namespace to search for types.</param>
-    /// <exception cref="InvalidOperationException">When <see cref="Assembly.GetTypes()"/> 
+    /// <exception cref="InvalidOperationException">When <see cref="Assembly.GetTypes()"/>
     /// method call has thrown an exception or if no suitable types were found.</exception>
-    /// <exception cref="ArgumentNullException">When <paramref name="assembly"/> is null 
+    /// <exception cref="ArgumentNullException">When <paramref name="assembly"/> is null
     /// or <paramref name="namespace"/> is empty string.</exception>
     public void Register(Assembly assembly, string @namespace)
     {
@@ -134,7 +134,7 @@ namespace Xtensive.Collections
           actions.Clear();
           foreach (var action in oldActions)
             processor.Process(this, action);
-          if (actions.Count==0)
+          if (actions.Count == 0)
             break;
         }
       }
@@ -184,7 +184,8 @@ namespace Xtensive.Collections
     /// <summary>
     /// Gets the number of types registered in this instance.
     /// </summary>
-    public int Count {
+    public int Count
+    {
       get {
         ProcessPendingActions();
         return types.Count;

@@ -21,10 +21,11 @@ namespace Xtensive.Orm
 {
   public partial class Session
   {
+    private static readonly Converter<EntityState, Key> keyExtractor = i => i.Key;
+
     // EntitySets with cached items that filled their cache
     // within DisableSaveChanges() scope.
     private HashSet<EntitySetBase> entitySetsWithInvalidState;
-    private static readonly Converter<EntityState, Key> keyExtractor = i => i.Key;
 
     internal ICache<Key, EntityState> EntityStateCache { get; private set; }
     internal EntityChangeRegistry EntityChangeRegistry { get; private set; }
@@ -45,7 +46,7 @@ namespace Xtensive.Orm
       foreach (var state in EntityStateCache) {
         var entity = state.TryGetEntity();
         // Invalidate any entity sets
-        if (entity!=null && state.IsActual) // Don't bother invalidating non-actual entities
+        if (entity != null && state.IsActual) // Don't bother invalidating non-actual entities
           foreach (var field in entity.TypeInfo.Fields.Where(f => f.IsEntitySet)) {
             var entitySet = (EntitySetBase) entity.GetFieldAccessor(field).GetUntypedValue(entity);
             ((IInvalidatable) entitySet.State).Invalidate();
@@ -66,7 +67,7 @@ namespace Xtensive.Orm
 
     private async ValueTask RemapEntityKeys(KeyMapping keyMapping, bool isAsync, CancellationToken token = default)
     {
-      if (keyMapping.Map.Count==0)
+      if (keyMapping.Map.Count == 0)
         return;
       using (Activate()) {
         if (!LazyKeyGenerationIsEnabled) {
@@ -80,7 +81,7 @@ namespace Xtensive.Orm
         foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.New)) {
           var key = entityState.Key;
           var remappedKey = keyMapping.TryRemapKey(key);
-          if (remappedKey!=key)
+          if (remappedKey != key)
             entityState.RemapKey(remappedKey);
           EntityStateCache.Add(entityState);
         }
@@ -105,7 +106,7 @@ namespace Xtensive.Orm
     {
       var state = CreateEntityState(key, false);
       var entity = state.TryGetEntity();
-      if (entity==null)
+      if (entity == null)
         return Activator.CreateEntity(this, type, state);
       else {
         InitializeEntity(entity, false);
@@ -117,8 +118,8 @@ namespace Xtensive.Orm
     {
       // Checking for deleted entity with the same key
       var result = EntityStateCache[key, false];
-      if (result!=null) {
-        if (result.PersistenceState==PersistenceState.Removed) {
+      if (result != null) {
+        if (result.PersistenceState == PersistenceState.Removed) {
           return;
         }
         result.Entity.RemoveLaterInternal(reason);
@@ -154,7 +155,7 @@ namespace Xtensive.Orm
       var result = EntityStateCache[key, false];
       EnforceChangeRegistrySizeLimit(); // Must be done before new entity registration
 
-      // If type is unknown, we consider tuple is null, 
+      // If type is unknown, we consider tuple is null,
       // so its Entity is considered as non-existing
       Tuple tuple = null;
       if (key.HasExactType) {
@@ -163,14 +164,14 @@ namespace Xtensive.Orm
         tuple = typeInfo.CreateEntityTuple(key.Value, StorageNode.TypeIdRegistry[typeInfo]);
       }
 
-      if (result==null) {
+      if (result == null) {
         result = new EntityState(this, key, tuple) {
           PersistenceState = PersistenceState.New
         };
         EntityStateCache.Add(result);
       }
       else {
-        if (result.Entity!=null && !result.Entity.IsRemoved && failIfStateIsAlreadyBound)
+        if (result.Entity != null && !result.Entity.IsRemoved && failIfStateIsAlreadyBound)
           throw new UniqueConstraintViolationException(string.Format(Strings.ExEntityWithKeyXAlreadyExists, key));
         result.Key = key;
         result.Tuple = tuple;
@@ -192,9 +193,9 @@ namespace Xtensive.Orm
     internal bool LookupStateInCache(Key key, FieldInfo fieldInfo, out EntitySetState entitySetState)
     {
       var entityState = EntityStateCache[key, false];
-      if (entityState!=null) {
+      if (entityState != null) {
         var entity = entityState.Entity;
-        if (entity!=null) {
+        if (entity != null) {
           var entitySet = (EntitySetBase) entity.GetFieldValue(fieldInfo);
           if (entitySet.CheckStateIsLoaded()) {
             entitySetState = entitySet.State;
@@ -212,8 +213,8 @@ namespace Xtensive.Orm
     internal EntityState UpdateStateInCache(Key key, Tuple tuple, bool isStale)
     {
       var result = EntityStateCache[key, true];
-      if (result==null) {
-        if (!key.HasExactType && tuple!=null)
+      if (result == null) {
+        if (!key.HasExactType && tuple != null)
           throw Exceptions.InternalError(
             Strings.ExCannotAssociateNonEmptyEntityStateWithKeyOfUnknownType,
             OrmLog.Instance);
@@ -244,10 +245,10 @@ namespace Xtensive.Orm
       bool isFullyLoaded)
     {
       var entityState = EntityStateCache[key, true];
-      if (entityState==null)
+      if (entityState == null)
         return null;
       var entity = entityState.Entity;
-      if (entity==null)
+      if (entity == null)
         return null;
       var entitySet = (EntitySetBase) entity.GetFieldValue(fieldInfo);
       return entitySet.UpdateState(entityKeys, isFullyLoaded);

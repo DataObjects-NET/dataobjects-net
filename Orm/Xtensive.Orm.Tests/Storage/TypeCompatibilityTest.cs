@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.09.19
 
@@ -238,6 +238,16 @@ namespace Xtensive.Orm.Tests.Storage.DbTypeSupportModel
 
     [Field(Precision = 18, Scale = 0)]
     public decimal d18_0 { get; set; }
+  }
+
+  [HierarchyRoot]
+  public class DoubleContainer : Entity
+  {
+    [Field, Key]
+    public int Id { get; private set; }
+
+    [Field]
+    public double FDouble { get; set; }
   }
 }
 

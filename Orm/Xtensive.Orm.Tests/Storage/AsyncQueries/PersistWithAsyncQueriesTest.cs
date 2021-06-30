@@ -1,14 +1,16 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.07.12
 
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.AsyncQueries.PersistWithAsyncQueriesTestModel;
 
 namespace Xtensive.Orm.Tests.Storage.AsyncQueries.PersistWithAsyncQueriesTestModel
@@ -59,7 +61,7 @@ namespace Xtensive.Orm.Tests.Storage
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (TestEntity).Assembly, typeof (TestEntity).Namespace);
+      configuration.Types.Register(typeof(TestEntity).Assembly, typeof(TestEntity).Namespace);
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
       return configuration;
     }
@@ -68,35 +70,38 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
-        for (int i = 0; i < TestEntityCount; i++)
-          new TestEntity(session) {Value = i};
+        for (var i = 0; i < TestEntityCount; i++) {
+          _ = new TestEntity(session) { Value = i };
+        }
+
         transaction.Complete();
       }
     }
 
     [Test]
-    public async Task AsyncButFullySequential()
+    public async Task AsyncButFullySequentialTest()
     {
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
         var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        var count = 0;
+        foreach (var testEntity in readyToRockQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount));
 
         count = 0;
-        foreach (var testEntity in anotherAsyncQuery)
+        foreach (var testEntity in anotherAsyncQuery) {
           count++;
-
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount));
       }
     }
 
     [Test]
-    public async Task QueryFirstWaitLater()
+    public async Task QueryFirstWaitLaterTest()
     {
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
@@ -104,9 +109,10 @@ namespace Xtensive.Orm.Tests.Storage
 
         // some local non-DO work probably;
 
-        int count = 0;
-        foreach (var testEntity in await readyToRockQuery)
+        var count = 0;
+        foreach (var testEntity in await readyToRockQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount));
       }
     }
@@ -114,20 +120,22 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task QueryButIterateInDifferentOrder()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()){
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
         var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in anotherAsyncQuery)
+        var count = 0;
+        foreach (var testEntity in anotherAsyncQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount));
 
         count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery) {
           count++;
-
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount));
       }
     }
@@ -135,29 +143,65 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task ProperPersistSequenceTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        var count = 0;
+        foreach (var testEntity in readyToRockQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
 
         count = 0;
-        foreach (var testEntity in anotherAsyncQuery)
+        foreach (var testEntity in anotherAsyncQuery) {
           count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+      }
+    }
 
+    [Test]
+    public async Task ProperPersistSequenceFirebirdTest()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+
+        var count = 0;
+        foreach (var testEntity in readyToRockQuery) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+
+        var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+
+        count = 0;
+        foreach (var testEntity in anotherAsyncQuery) {
+          count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 6));
       }
     }
@@ -165,25 +209,27 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeFirstAsyncQueryAwaitTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having two readers opened is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
         var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        var count = 0;
+        foreach (var testEntity in readyToRockQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
 
         count = 0;
-        foreach (var testEntity in anotherAsyncQuery)
+        foreach (var testEntity in anotherAsyncQuery) {
           count++;
-
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
       }
     }
@@ -191,25 +237,56 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeSecondAsyncQueryAwaitTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands, so having opened reader for query and making changes saved is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        var count = 0;
+        foreach (var testEntity in readyToRockQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount));
 
         count = 0;
-        foreach (var testEntity in anotherAsyncQuery)
+        foreach (var testEntity in anotherAsyncQuery) {
           count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+      }
+    }
 
+    [Test]
+    public async Task PersistBeforeSecondAsyncQueryAwaitFirebirdTest()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+
+        var count = 0;
+        foreach (var testEntity in readyToRockQuery) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount));
+
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+
+        var anotherAsyncQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+
+        count = 0;
+        foreach (var testEntity in anotherAsyncQuery) {
+          count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
       }
     }
@@ -217,53 +294,91 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeBothAsyncQueriesAndDelayedWaitTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands, so having opened reader for query and making changes saved is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        new TestEntity(session) {Value = 101};
-        new TestEntity(session) {Value = 102};
-        new TestEntity(session) {Value = 103};
+        _ = new TestEntity(session) { Value = 101 };
+        _ = new TestEntity(session) { Value = 102 };
+        _ = new TestEntity(session) { Value = 103 };
 
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        new TestEntity(session) { Value = 104 };
-        new TestEntity(session) { Value = 105 };
-        new TestEntity(session) { Value = 106 };
+        _ = new TestEntity(session) { Value = 104 };
+        _ = new TestEntity(session) { Value = 105 };
+        _ = new TestEntity(session) { Value = 106 };
 
         var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in await anotherAsyncQuery)
+        var count = 0;
+        foreach (var testEntity in await anotherAsyncQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 6));
 
         count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery) {
           count++;
-
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
       }
     }
 
     [Test]
-    public async Task PersistBeforeFirstAsyncQueryAndDelayedAwaitTest()
+    public async Task PersistBeforeBothAsyncQueriesAndDelayedWaitFirebirdTest()
     {
+      Require.ProviderIs(StorageProvider.Firebird);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new TestEntity(session) { Value = 101 };
+        _ = new TestEntity(session) { Value = 102 };
+        _ = new TestEntity(session) { Value = 103 };
+
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+
+        _ = new TestEntity(session) { Value = 104 };
+        _ = new TestEntity(session) { Value = 105 };
+        _ = new TestEntity(session) { Value = 106 };
+
+        var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
+
+        var count = 0;
+        foreach (var testEntity in await anotherAsyncQuery) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+
+        count = 0;
+        foreach (var testEntity in readyToRockQuery) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+      }
+    }
+
+    [Test]
+    public async Task PersistBeforeFirstAsyncQueryAndDalayedAwaitTest()
+    {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands, so having two readers opened is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var readyToRockQuery =  await session.Query.All<TestEntity>().ExecuteAsync();
         var anotherAsyncQuery =  session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in await anotherAsyncQuery)
+        var count = 0;
+        foreach (var testEntity in await anotherAsyncQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
 
         count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery) {
           count++;
+        }
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
       }
@@ -272,128 +387,192 @@ namespace Xtensive.Orm.Tests.Storage
     [Test]
     public async Task PersistBeforeSecondAsyncQueryAndDelayedAwaitTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var anotherAsyncQuery =  session.Query.All<TestEntity>().ExecuteAsync();
 
-        int count = 0;
-        foreach (var testEntity in await anotherAsyncQuery)
+        var count = 0;
+        foreach (var testEntity in await anotherAsyncQuery) {
           count++;
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
 
         count = 0;
-        foreach (var testEntity in readyToRockQuery)
+        foreach (var testEntity in readyToRockQuery) {
           count++;
-
+        }
         Assert.That(count, Is.EqualTo(TestEntityCount));
+      }
+    }
+
+    [Test]
+    public async Task PersistBeforeSecondAsyncQueryAndDelayedAwaitFirebirdTest()
+    {
+      Require.ProviderIs(StorageProvider.Firebird);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
+
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+
+        var anotherAsyncQuery = session.Query.All<TestEntity>().ExecuteAsync();
+
+        var count = 0;
+        foreach (var testEntity in await anotherAsyncQuery) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+
+        count = 0;
+        foreach (var testEntity in readyToRockQuery) {
+          count++;
+        }
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
       }
     }
 
     #region Manual persist
 
     [Test]
-    public async Task ProperManualSavingChanges()
+    public async Task ProperManualSavingChangesTest()
     {
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var count = 0;
-        foreach (var entity in await session.Query.All<TestEntity>().ExecuteAsync())
+        foreach (var entity in await session.Query.All<TestEntity>().ExecuteAsync()) {
           count++;
+        }
 
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         await session.SaveChangesAsync();
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
-        count = 0;
-        session.Query.All<TestEntity>().ForEach((e) => count++);
+        count = session.Query.All<TestEntity>().AsEnumerable().Count();
         Assert.That(count, Is.EqualTo(TestEntityCount + 6));
       }
     }
 
     [Test]
-    public async Task AwaitingQueryBeforeManualSavingChanges()
+    public async Task AwaitingQueryBeforeManualSavingChangesTest()
     {
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
 
-        int count = 0;
-        foreach (var entity in readyToRockQuery)
+        var count = 0;
+        foreach (var entity in readyToRockQuery) {
           count++;
+        }
 
         await session.SaveChangesAsync();
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
-        count = 0;
-        session.Query.All<TestEntity>().ForEach((e) => count++);
+        count = session.Query.All<TestEntity>().AsEnumerable().Count();
         Assert.That(count, Is.EqualTo(TestEntityCount + 6));
       }
     }
 
     [Test]
-    public async Task ManualSavingDuringAsyncQueryExecution()
+    public async Task ManualSavingDuringAsyncQueryExecutionTest()
     {
+      Require.ProviderIsNot(StorageProvider.Firebird, "Open reader reads lines that were inserted between getting reader and enumeratin it");
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
         await session.SaveChangesAsync();
 
-        int count = 0;
-        foreach (var entity in readyToRockQuery)
+        var count = 0;
+        foreach (var entity in readyToRockQuery) {
           count++;
+        }
 
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
-        count = 0;
-        session.Query.All<TestEntity>().ForEach((e)=> count++);
+        count = session.Query.All<TestEntity>().AsEnumerable().Count();
         Assert.That(count, Is.EqualTo(TestEntityCount + 6));
       }
     }
 
     [Test]
-    public async Task ManualSavingDuringEnumeration()
+    public async Task ManualSavingDuringAsyncQueryExecutionFirebirdTest()
     {
+      Require.ProviderIs(StorageProvider.Firebird);
+      using (var session = Domain.OpenSession())
+      using (var transaction = session.OpenTransaction()) {
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+
+        var readyToRockQuery = session.Query.All<TestEntity>().ExecuteAsync();
+
+        var count = 0;
+        foreach (var entity in await readyToRockQuery) {
+          count++;
+        }
+
+        Assert.That(count, Is.EqualTo(TestEntityCount + 3));
+
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+
+        session.SaveChanges();
+
+        count = session.Query.All<TestEntity>().AsEnumerable().Count();
+        Assert.That(count, Is.EqualTo(TestEntityCount + 6));
+      }
+    }
+
+    [Test]
+    public async Task ManualSavingDuringEnumerationTest()
+    {
+      Require.ProviderIsNot(StorageProvider.PostgreSql, "No parallel executing for commands. so having opened reader for query and making changes saved is impossible");
       await using var session = await Domain.OpenSessionAsync();
       using (var transaction = session.OpenTransaction()) {
         var readyToRockQuery = await session.Query.All<TestEntity>().ExecuteAsync();
 
-        new TestEntity(session);
-        new TestEntity(session);
-        new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
+        _ = new TestEntity(session);
 
-        bool shouldPersist = true;
+        var shouldPersist = true;
 
-        int count = 0;
+        var count = 0;
         foreach (var entity in readyToRockQuery) {
           if (count > 10 && shouldPersist) {
             await session.SaveChangesAsync();
@@ -403,8 +582,7 @@ namespace Xtensive.Orm.Tests.Storage
         }
 
         Assert.That(count, Is.EqualTo(TestEntityCount));
-        count = 0;
-        session.Query.All<TestEntity>().ForEach((e) => count++);
+        count = session.Query.All<TestEntity>().AsEnumerable().Count();
         Assert.That(count, Is.EqualTo(TestEntityCount + 3));
       }
     }

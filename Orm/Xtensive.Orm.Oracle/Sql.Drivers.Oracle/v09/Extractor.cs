@@ -135,6 +135,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       return context.Catalog;
     }
 
+    protected virtual string ToUpperInvariantIfNeeded(string schemaName)
+    {
+      return schemaName.ToUpperInvariant();
+    }
+
     private ExtractionContext CreateContext(string catalogName, string[] schemaNames)
     {
       var catalog = new Catalog(catalogName);

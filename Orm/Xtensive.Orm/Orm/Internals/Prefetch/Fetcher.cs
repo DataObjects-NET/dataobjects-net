@@ -75,24 +75,20 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static void UpdateCacheFromAllEntitySetTasks(IEnumerable<GraphContainer> containers)
     {
-      foreach (var container in containers) {
+      foreach (var container in containers.Where(c => c.EntitySetTasks != null)) {
         var entitySetPrefetchTasks = container.EntitySetTasks;
-        if (entitySetPrefetchTasks != null) {
-          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
-            entitySetPrefetchTask.UpdateCache();
-          }
+        foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
+          entitySetPrefetchTask.UpdateCache();
         }
       }
     }
 
     private static void RegisterAllEntitySetTasks(IEnumerable<GraphContainer> containers)
     {
-      foreach (var container in containers) {
+      foreach (var container in containers.Where(c => c.EntitySetTasks != null)) {
         var entitySetPrefetchTasks = container.EntitySetTasks;
-        if (entitySetPrefetchTasks != null) {
-          foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
-            entitySetPrefetchTask.RegisterQueryTask();
-          }
+        foreach (var entitySetPrefetchTask in entitySetPrefetchTasks) {
+          entitySetPrefetchTask.RegisterQueryTask();
         }
       }
     }
@@ -103,7 +99,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       if (newTask != null) {
         var existingTask = tasks[newTask];
         if (existingTask == null) {
-          tasks.Add(newTask);
+          _ = tasks.Add(newTask);
           existingTask = newTask;
         }
 

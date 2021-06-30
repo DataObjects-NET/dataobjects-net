@@ -303,10 +303,12 @@ namespace Xtensive.Orm.Tests.Storage
 
         if (directReader) {
           _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
-          _ = Assert.Throws<StorageException>(() => outerTx.Dispose());
+          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
+          Assert.DoesNotThrow(() => outerTx.Dispose());
         }
         else {
           Assert.DoesNotThrow(() => innerTx.Dispose());
+          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
           Assert.DoesNotThrow(() => outerTx.Dispose());
         }
       }
@@ -328,10 +330,12 @@ namespace Xtensive.Orm.Tests.Storage
 
         if (directReader) {
           _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
-          _ = Assert.Throws<StorageException>(() => outerTx.Dispose());
+          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
+          Assert.DoesNotThrow(() => outerTx.Dispose());
         }
         else {
           Assert.DoesNotThrow(() => innerTx.Dispose());
+          _ = Assert.Throws<InvalidOperationException>(() => result.ToList());
           Assert.DoesNotThrow(() => outerTx.Dispose());
         }
       }

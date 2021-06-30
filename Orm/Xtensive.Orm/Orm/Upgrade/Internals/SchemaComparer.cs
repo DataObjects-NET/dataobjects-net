@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Upgrade
       GetUnsafeColumnTypeChanges(actions, hints, unsafeActions);
       GetUnsafeColumnRemovals(actions, hints, unsafeActions);
       GetUnsafeTableRemovals(actions, hints, unsafeActions);
-      GetCrossHierarchicalMovements(actions, hints, unsafeActions);
+      GetUnsafeDataActions(actions, hints, unsafeActions);
 
       return unsafeActions;
     }
@@ -225,12 +225,31 @@ namespace Xtensive.Orm.Upgrade
         .ForEach(output.Add);
     }
 
-    private static void GetCrossHierarchicalMovements(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    private static void GetUnsafeDataActions(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
+    {
+      GetCrossHierarchicalMovements(actions, output);
+      GetTableRecreateDataLossActions(actions, output);
+    }
+
+    private static void GetCrossHierarchicalMovements(IEnumerable<NodeAction> actions, ICollection<NodeAction> output)
     {
       (from action in actions.OfType<DataAction>()
         let deleteDataHint = action.DataHint as DeleteDataHint
         where deleteDataHint!=null && deleteDataHint.PostCopy
         select action).ForEach(output.Add);
+    }
+
+    private static void GetTableRecreateDataLossActions(IEnumerable<NodeAction> actions, ICollection<NodeAction> output)
+    {
+      actions.OfType<DataAction>()
+        .Select(da => new {
+          DataAction = da,
+          Difference = da.Difference as NodeDifference,
+          DeleteDataHint = da.DataHint as DeleteDataHint
+        })
+        .Where(a => a.DeleteDataHint != null && a.Difference != null && a.Difference.MovementInfo.HasFlag(MovementInfo.Removed | MovementInfo.Created))
+        .Select(a => a.DataAction)
+        .ForEach(output.Add);
     }
 
     private static bool IsTypeChangeAction(PropertyChangeAction action)

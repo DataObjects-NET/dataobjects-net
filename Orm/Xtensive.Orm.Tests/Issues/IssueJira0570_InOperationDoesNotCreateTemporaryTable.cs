@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -374,7 +374,7 @@ namespace Xtensive.Orm.Tests.Issues
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu=>bu.Id).ToList();
 
         var bounds = new Tuple<DateTime, DateTime, string>[26];
-        for (int i = 0; i < bounds.Length; i++) {
+        for (var i = 0; i < bounds.Length; i++) {
           bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
         }
         var list = session.Query.All<Job>()
@@ -393,7 +393,7 @@ namespace Xtensive.Orm.Tests.Issues
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
 
         var bounds = new Tuple<DateTime, DateTime, string>[26];
-        for (int i = 0; i < bounds.Length; i++) {
+        for (var i = 0; i < bounds.Length; i++) {
           bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
         }
         var list = session.Query.All<Job>()
@@ -412,7 +412,7 @@ namespace Xtensive.Orm.Tests.Issues
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
 
         var bounds = new Tuple<DateTime, DateTime, string>[26];
-        for (int i = 0; i < bounds.Length; i++) {
+        for (var i = 0; i < bounds.Length; i++) {
           bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
         }
         var list = session.Query.All<Job>()
@@ -424,12 +424,13 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void StoreWithoutIncludeTest()
     {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
       using (var session = Domain.OpenSession())
       using (var transaction = session.OpenTransaction()) {
         var businessUnitIds = session.Query.All<BusinessUnit>().Select(bu => bu.Id).ToList();
 
         var bounds = new Tuple<DateTime, DateTime, string>[26];
-        for (int i = 0; i < bounds.Length; i++) {
+        for (var i = 0; i < bounds.Length; i++) {
           bounds[i] = new Tuple<DateTime, DateTime, string>(DateTime.UtcNow, DateTime.UtcNow, "");
         }
         var list = session.Query.All<Job>()
@@ -505,15 +506,16 @@ namespace Xtensive.Orm.Tests.Issues
     private void PopulateCustomers()
     {
       customerIds = new int[160];
-      for (int i = 0; i < 160; i++)
+      for (var i = 0; i < 160; i++) {
         customerIds[i] = new Customer().Id;
+      }
     }
 
     private void PopulateInvoices()
     {
       foreach (var customer in Query.All<Customer>()) {
         foreach (var status in Enum.GetValues(typeof(InvoiceStatus))) {
-          new Invoice {
+          _ = new Invoice {
             Active = true,
             Customer = customer,
             InvoicedOn = DateTime.Now,
@@ -527,7 +529,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var generator = new Random();
       foreach (var invoice in Query.All<Invoice>().Where(el => el.Status.In(queryableInvoiceStatuses))) {
-        new Payment {
+        _ = new Payment {
           Active = true,
           Amount = new decimal(generator.Next(10000000, 200000000) / 100000),
           Invoice = invoice,
@@ -538,26 +540,18 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void PopulateBusinessUnits()
     {
-      new BusinessUnit() {
-        Active = true,
-        QuickbooksClass = ""
-      };
-
-      new BusinessUnit() {
-        Active = true,
-        QuickbooksClass = ""
-      };
-
-      new BusinessUnit() {
-        Active = true,
-        QuickbooksClass = ""
-      };
+      for(var i = 0; i < 3; i++) {
+        _ = new BusinessUnit() {
+          Active = true,
+          QuickbooksClass = ""
+        };
+      }
     }
 
     private void PopulateJobs()
     {
       foreach (var bu in Query.All<BusinessUnit>()) {
-        new Job() {
+        _ = new Job() {
           BusinessUnit = bu
         };
       }
@@ -585,7 +579,7 @@ namespace Xtensive.Orm.Tests.Issues
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.Types.Register(typeof (Payment).Assembly, typeof (Payment).Namespace);
+      configuration.Types.Register(typeof(Payment).Assembly, typeof(Payment).Namespace);
       return configuration;
     }
   }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.16
 
@@ -41,14 +41,16 @@ namespace Xtensive.Orm.Tests.Linq
         select new {
           Customer = c,
           Invoices = c.Invoices
-            .Select(i => new {Invoice = i, InvoiceLines = i.InvoiceLines})
+            .Select(i => new { Invoice = i, InvoiceLines = i.InvoiceLines })
         };
 
       Assert.That(result, Is.Not.Empty);
-      foreach (var a in result)
-        foreach (var b in a.Invoices)
+      foreach (var a in result) {
+        foreach (var b in a.Invoices) {
           foreach (var il in b.InvoiceLines) {
           }
+        }
+      }
     }
 
     [Test]
@@ -66,7 +68,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectOtherParameterTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe);
-      var result = Session.Query.All<Customer>().Take(5).Select(c => Session.Query.All<Invoice>().Select(i => c.Invoices.Count()));
+      var result = Session.Query.All<Customer>()
+        .Take(5)
+        .Select(c => Session.Query.All<Invoice>().Select(i => c.Invoices.Count()));
       Assert.That(result.ToList(), Is.Not.Empty);
     }
 
@@ -96,7 +100,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ComplexSubqueryTest()
     {
-      Require.ProviderIsNot(StorageProvider.SqlServerCe);
+      Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.MySql);
       var result = Session.Query.All<Customer>()
         .Take(2)
         .Select(c => Session.Query.All<Invoice>()
@@ -113,7 +117,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectNestedWithCorrelationTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c))
+        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c))
         .Select(qi => qi);
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(numberOfInvoices, Count(result));
@@ -124,7 +128,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
       var result = Session.Query.All<Customer>()
-        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c).Count());
+        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c).Count());
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
@@ -134,7 +138,7 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Customer>()
         .Take(10)
-        .Select(c => new {Invoices = Session.Query.All<Invoice>().Take(10)});
+        .Select(c => new { Invoices = Session.Query.All<Invoice>().Take(10) });
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
     }
@@ -143,7 +147,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryAsQuerySourceTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c));
+        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c));
       Assert.That(result, Is.Not.Empty);
       foreach (var invoices in result) {
         var subQueryCount = invoices.Count();
@@ -155,8 +159,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var result = Session.Query.All<Invoice>()
         .Select(i => new {
-          Customers = Session.Query.All<Customer>().Where(c => c==i.Customer),
-          Employees = Session.Query.All<Employee>().Where(e => e==i.DesignatedEmployee)
+          Customers = Session.Query.All<Customer>().Where(c => c == i.Customer),
+          Employees = Session.Query.All<Employee>().Where(e => e == i.DesignatedEmployee)
         })
         .Select(os => os);
       var list = result.ToList();
@@ -198,7 +202,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectNestedWithCorrelationSelectManyTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c))
+        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c))
         .SelectMany(i => i);
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(numberOfInvoices, Count(result));
@@ -208,7 +212,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectNestedWithCorrelationSelectMany2Test()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer==c))
+        .Select(c => Session.Query.All<Invoice>().Where(i => i.Customer == c))
         .SelectMany(i => i.Select(x => x));
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(numberOfInvoices, Count(result));
@@ -218,7 +222,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectAnonymousSelectMany1Test()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {Customer = c, Invoices = Session.Query.All<Invoice>().Where(i => i.Customer==c)})
+        .Select(c => new {
+          Customer = c,
+          Invoices = Session.Query.All<Invoice>().Where(i => i.Customer == c)
+        })
         .SelectMany(i => i.Invoices);
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(numberOfInvoices, result.ToList().Count);
@@ -228,7 +235,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectAnonymousSelectMany2Test()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {Invoices = Session.Query.All<Invoice>().Take(10)})
+        .Select(c => new { Invoices = Session.Query.All<Invoice>().Take(10) })
         .SelectMany(i => i.Invoices);
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
@@ -238,7 +245,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectAnonymousSubqueryTest()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {Customer = c, Invoices = Session.Query.All<Invoice>()})
+        .Select(c => new {
+          Customer = c,
+          Invoices = Session.Query.All<Invoice>()
+        })
         .Select(i => i.Customer.Invoices);
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
@@ -247,8 +257,11 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SelectAnonymousSelectMany3Test()
     {
-      IQueryable<Customer> result = Session.Query.All<Customer>()
-        .Select(c => new {Customer = c, Invoices = Session.Query.All<Invoice>().Where(i => i.Customer==c)})
+      var result = Session.Query.All<Customer>()
+        .Select(c => new {
+          Customer = c,
+          Invoices = Session.Query.All<Invoice>().Where(i => i.Customer == c)
+        })
         .SelectMany(a => a.Invoices.Select(i => a.Customer));
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
@@ -258,8 +271,11 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectAnonymousSelectMany4Test()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {Customer = c, Invoices = Session.Query.All<Invoice>().Where(i => i.Customer==c)})
-        .SelectMany(a => a.Invoices.Select(i => new {a.Customer, Invoice = i}));
+        .Select(c => new {
+          Customer = c,
+          Invoices = Session.Query.All<Invoice>().Where(i => i.Customer == c)
+        })
+        .SelectMany(a => a.Invoices.Select(i => new { a.Customer, Invoice = i }));
       Assert.That(result, Is.Not.Empty);
       Assert.AreEqual(numberOfInvoices, result.ToList().Count);
     }
@@ -268,7 +284,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void SelectAnonymousSelectMany5Test()
     {
       var result = Session.Query.All<Customer>()
-        .Select(c => new {Customer = c, Invoices = Session.Query.All<Invoice>().Where(i => i.Customer==c)})
+        .Select(c => new {
+          Customer = c,
+          Invoices = Session.Query.All<Invoice>().Where(i => i.Customer == c)
+        })
         .SelectMany(a => a.Invoices.Select(i => a.Customer.FirstName));
       Assert.That(result, Is.Not.Empty);
       QueryDumper.Dump(result);
@@ -280,7 +299,7 @@ namespace Xtensive.Orm.Tests.Linq
       var result = Session.Query.All<Track>()
         .Select(t => Session.Query.All<MediaType>());
       Assert.That(result, Is.Not.Empty);
-      foreach (IQueryable<MediaType> queryable in result) {
+      foreach (var queryable in result) {
         QueryDumper.Dump(queryable);
       }
     }
@@ -289,9 +308,9 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryWhereTest()
     {
       var result = Session.Query.All<Track>()
-        .Select(t => Session.Query.All<MediaType>().Where(m => m==t.MediaType));
+        .Select(t => Session.Query.All<MediaType>().Where(m => m == t.MediaType));
       Assert.That(result, Is.Not.Empty);
-      foreach (IQueryable<MediaType> queryable in result) {
+      foreach (var queryable in result) {
         QueryDumper.Dump(queryable);
       }
     }
@@ -311,10 +330,10 @@ namespace Xtensive.Orm.Tests.Linq
     public void SubqueryWithSelectTest()
     {
       var result = Session.Query.All<Track>()
-        .Select(t => Session.Query.All<MediaType>().Where(m => m==t.MediaType))
+        .Select(t => Session.Query.All<MediaType>().Where(m => m == t.MediaType))
         .Select(m => m);
       Assert.That(result, Is.Not.Empty);
-      foreach (IQueryable<MediaType> queryable in result) {
+      foreach (var queryable in result) {
         QueryDumper.Dump(queryable);
       }
     }
@@ -344,12 +363,16 @@ namespace Xtensive.Orm.Tests.Linq
       var count = 0;
       bool? nested = null;
       foreach (var item in result) {
-        if (nested==null)
+        if (nested == null) {
           nested = item is IEnumerable;
-        if (nested.Value)
+        }
+
+        if (nested.Value) {
           count += Count((IEnumerable) item);
-        else
+        }
+        else {
           count++;
+        }
       }
       return count;
     }

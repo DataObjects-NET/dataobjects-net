@@ -1,12 +1,13 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.06.25
 
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Issues.IssueJira0446_TypeAsOnSubqueryOperandModel;
 
 namespace Xtensive.Orm.Tests.Issues
@@ -46,9 +47,11 @@ namespace Xtensive.Orm.Tests.Issues
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Owner).Assembly, typeof (Owner).Namespace);
+      configuration.Types.Register(typeof(Owner).Assembly, typeof(Owner).Namespace);
       return configuration;
     }
+
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(ProviderFeatures.ScalarSubqueries);
 
     [Test]
     public void MainTest()

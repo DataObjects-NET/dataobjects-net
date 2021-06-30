@@ -21,7 +21,7 @@
         Inputs="@(IntermediateAssembly -> '%(FullPath)')"
         Outputs="@(IntermediateAssembly -> '%(FullPath).weaver-stamp')"
         DependsOnTargets="ResolveAssemblyReferences;_CopyFilesMarkedCopyLocal;$(XtensiveOrmBuildDependsOn)"
-        Condition="'$(XtensiveOrmSkipProcessing)'!='true'">
+        Condition="'$(XtensiveOrmSkipProcessing)'!='true' AND '$(DesignTimeBuild)' != 'true'">
   <Error Condition="!Exists('$(XtensiveOrmWeaver)')"
          Text="Weaver is not found at '$(XtensiveOrmWeaver)'" />
   <Message Importance="low" Text="Using weaver at '$(XtensiveOrmWeaver)'" />

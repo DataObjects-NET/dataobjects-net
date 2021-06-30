@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.04
 
@@ -101,7 +101,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void CountWithPredicateTest()
     {
       var count = Session.Query.All<Invoice>().Count(o => o.InvoiceId > 10);
-      var expected = Session.Query.All<Invoice>().ToList().Count(o => o.InvoiceId > 10);
+      var expected = Invoices.Count(o => o.InvoiceId > 10);
       Assert.AreEqual(expected, count);
       Assert.Greater(count, 0);
     }
@@ -282,7 +282,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SumCountTest()
     {
       Require.ProviderIsNot(StorageProvider.SqlServerCe | StorageProvider.Oracle);
-      var expected = Session.Query.All<Invoice>().ToList().Count();
+      var expected = Invoices.Count();
       var count = Session.Query.All<Customer>()
         .Sum(c => Session.Query.All<Invoice>().Count(o => o.Customer==c));
       Assert.AreEqual(expected, count);

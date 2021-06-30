@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2010 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.02.14
 
@@ -130,7 +130,7 @@ namespace Xtensive.Orm.Providers
     private static SqlExpression Min(SqlExpression left, SqlExpression right)
     {
       var result = SqlDml.Case();
-      result.Add(left < right, left);
+      _ = result.Add(left < right, left);
       result.Else = right;
       return result;
     }
@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Providers
     private static SqlExpression Max(SqlExpression left, SqlExpression right)
     {
       var result = SqlDml.Case();
-      result.Add(left > right, left);
+      _ = result.Add(left > right, left);
       result.Else = right;
       return result;
     }
@@ -373,7 +373,7 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression MathCeilingDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlDml.Ceiling(d);
+      return TryCastToDecimalPS(SqlDml.Ceiling(d), 28, 0);
     }
 
     [Compiler(typeof(Math), "Cos", TargetKind.Static | TargetKind.Method)]
@@ -408,7 +408,7 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression MathFloorDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlDml.Floor(d);
+      return TryCastToDecimalPS(SqlDml.Floor(d), 28, 0);
     }
 
     [Compiler(typeof(Math), "Log", TargetKind.Static | TargetKind.Method)]
@@ -560,28 +560,59 @@ namespace Xtensive.Orm.Providers
     public static SqlExpression MathTruncateDecimal(
       [Type(typeof(decimal))] SqlExpression d)
     {
-      return SqlDml.Truncate(d);
+      return TryCastToDecimalPS(SqlDml.Truncate(d), 28, 0);
     }
 
     #region Round helpers
 
     private static SqlExpression GenericRound(SqlExpression value, SqlExpression digits, bool isDecimal, SqlExpression mode)
     {
-      if (mode.NodeType!=SqlNodeType.Container)
+      if (mode.NodeType != SqlNodeType.Container) {
         throw new NotSupportedException();
+      }
+
       var container = (SqlContainer) mode;
-      if (!(container.Value is MidpointRounding))
+      if (!(container.Value is MidpointRounding midpointRounding)) {
         throw new NotSupportedException();
-      return SqlDml.Round(value, digits,
-        isDecimal ? TypeCode.Decimal : TypeCode.Double,
-        (MidpointRounding) container.Value);
+      }
+      if (!isDecimal) {
+        return SqlDml.Round(value, digits, TypeCode.Double, midpointRounding);
+      }
+      if (digits == null) {
+        return TryCastToDecimalPS(SqlDml.Round(value, digits, TypeCode.Decimal, midpointRounding), 28, 0);
+      }
+      if (!(digits is SqlLiteral<int> scale)) {
+        throw new NotSupportedException();
+      }
+      return TryCastToDecimalPS(SqlDml.Round(value, digits, TypeCode.Decimal, midpointRounding), 28, Convert.ToInt16(scale.Value));
     }
 
     private static SqlExpression BankersRound(SqlExpression value, SqlExpression digits, bool isDecimal)
     {
-      return SqlDml.Round(value, digits, isDecimal ? TypeCode.Decimal : TypeCode.Double, MidpointRounding.ToEven);
+      if (!isDecimal) {
+        return SqlDml.Round(value, digits, TypeCode.Double, MidpointRounding.ToEven);
+      }
+      if (digits == null) {
+        return TryCastToDecimalPS(SqlDml.Round(value, digits, TypeCode.Decimal, MidpointRounding.ToEven), 28, 0);
+      }
+      if (!(digits is SqlLiteral<int> scale)) {
+        throw new NotSupportedException();
+      }
+      return TryCastToDecimalPS(SqlDml.Round(value, digits, TypeCode.Decimal, MidpointRounding.ToEven), 28, Convert.ToInt16(scale.Value));
     }
 
     #endregion
+
+    private static SqlExpression TryCastToDecimalPS(SqlExpression value, short precision, short scale)
+    {
+      var context = ExpressionTranslationContext.Current;
+      var provider = context.ProviderInfo.ProviderName;
+      if (provider.Equals(WellKnown.Provider.PostgreSql, StringComparison.Ordinal)
+        || provider.Equals(WellKnown.Provider.Oracle, StringComparison.Ordinal)) {
+        // to fit result into .Net decimal since Npgsql client libarary does not provide a way to make in on reading
+        return SqlDml.Cast(value, SqlType.Decimal, precision, scale);
+      }
+      return value;
+    }
   }
 }

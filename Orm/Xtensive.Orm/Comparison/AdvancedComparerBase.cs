@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.01.23
 
@@ -8,10 +8,10 @@ using System;
 using System.Collections;
 using System.Diagnostics;
 using System.Runtime.Serialization;
+using System.Security;
 using Xtensive.Arithmetic;
 using Xtensive.Collections;
 using Xtensive.Core;
-
 
 
 namespace Xtensive.Comparison
@@ -21,13 +21,15 @@ namespace Xtensive.Comparison
   /// </summary>
   /// <typeparam name="T">The type to compare.</typeparam>
   [Serializable]
-  public abstract class AdvancedComparerBase<T>: IAdvancedComparer<T>, 
+  public abstract class AdvancedComparerBase<T>: IAdvancedComparer<T>,
+    ISerializable,
     IDeserializationCallback
   {
     private static Arithmetic<T> cachedArithmetic;
     [NonSerialized]
     private ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>> cachedComparers = 
       ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create(new object());
+
     private IComparerProvider provider;
     private ValueRangeInfo<T> valueRangeInfo;
 
@@ -43,28 +45,27 @@ namespace Xtensive.Comparison
     protected readonly int DefaultDirectionMultiplier;
 
     /// <inheritdoc/>
-    public IComparerProvider Provider 
+    public IComparerProvider Provider
     {
       [DebuggerStepThrough]
-      get { return provider; }
+      get => provider;
     }
 
     /// <inheritdoc/>
-    ComparisonRules IAdvancedComparerBase.ComparisonRules 
+    ComparisonRules IAdvancedComparerBase.ComparisonRules
     {
       [DebuggerStepThrough]
-      get { return ComparisonRules; }
+      get => ComparisonRules;
     }
 
     /// <inheritdoc/>
     public ValueRangeInfo<T> ValueRangeInfo
     {
-      get { return valueRangeInfo; }
+      get => valueRangeInfo;
       protected set {
-        if (ComparisonRules.Value.Direction!=Direction.Negative)
-          valueRangeInfo = value;
-        else
-          valueRangeInfo = value.Invert();
+        valueRangeInfo = ComparisonRules.Value.Direction != Direction.Negative
+          ? value
+          : value.Invert();
       }
     }
 
@@ -77,15 +78,9 @@ namespace Xtensive.Comparison
     }
 
     /// <inheritdoc/>
-    public virtual Func<T, TSecond, int> GetAsymmetric<TSecond>()
-    {
-      throw new NotSupportedException();
-    }
+    public virtual Func<T, TSecond, int> GetAsymmetric<TSecond>() => throw new NotSupportedException();
 
-    int IComparer.Compare(object x, object y)
-    {
-      return Compare((T) x, (T) y);
-    }
+    int IComparer.Compare(object x, object y) => Compare((T) x, (T) y);
 
     /// <inheritdoc/>
     public abstract int Compare(T x, T y);
@@ -99,24 +94,21 @@ namespace Xtensive.Comparison
     /// <inheritdoc/>
     public virtual T GetNearestValue(T value, Direction direction)
     {
-      if (!valueRangeInfo.HasDeltaValue)
+      if (!valueRangeInfo.HasDeltaValue) {
         throw new NotSupportedException();
-      Arithmetic<T> arithmetic = GetArithmetic();
-      if (arithmetic==null)
+      }
+      var arithmetic = GetArithmetic();
+      if (arithmetic == null) {
         throw new NotSupportedException();
+      }
 
-      if (direction==ComparisonRules.Value.Direction) {
-        if (valueRangeInfo.HasMaxValue && Equals(value, valueRangeInfo.MaxValue))
-          return value;
-        else
-          return arithmetic.Add(value, valueRangeInfo.DeltaValue);
-      }
-      else {
-        if (valueRangeInfo.HasMinValue && Equals(value, valueRangeInfo.MinValue))
-          return value;
-        else
-          return arithmetic.Subtract(value, valueRangeInfo.DeltaValue);
-      }
+      return direction == ComparisonRules.Value.Direction
+        ? valueRangeInfo.HasMaxValue && Equals(value, valueRangeInfo.MaxValue)
+          ? value
+          : arithmetic.Add(value, valueRangeInfo.DeltaValue)
+        : valueRangeInfo.HasMinValue && Equals(value, valueRangeInfo.MinValue)
+          ? value
+          : arithmetic.Subtract(value, valueRangeInfo.DeltaValue);
     }
 
     /// <summary>
@@ -125,8 +117,9 @@ namespace Xtensive.Comparison
     /// <returns>Default arithmetic.</returns>
     protected static Arithmetic<T> GetArithmetic()
     {
-      if (cachedArithmetic==null)
+      if (cachedArithmetic == null) {
         cachedArithmetic = Arithmetic<T>.Default;
+      }
       return cachedArithmetic;
     }
 
@@ -136,10 +129,9 @@ namespace Xtensive.Comparison
     /// <typeparam name="TTarget">The type to provide the comparer for (by wrapping this comparer).</typeparam>
     public AdvancedComparer<TTarget> Cast<TTarget>()
     {
-      if (typeof(TTarget)==typeof(T))
-        return new AdvancedComparer<TTarget>(this as IAdvancedComparer<TTarget>);
-      else
-        return new AdvancedComparer<TTarget>(new CastingComparer<T, TTarget>(new AdvancedComparer<T>(this)));
+      return typeof(TTarget) == typeof(T)
+        ? new AdvancedComparer<TTarget>(this as IAdvancedComparer<TTarget>)
+        : new AdvancedComparer<TTarget>(new CastingComparer<T, TTarget>(new AdvancedComparer<T>(this)));
     }
 
     /// <summary>
@@ -166,7 +158,15 @@ namespace Xtensive.Comparison
         false, default(T));
       this.provider = provider;
       ComparisonRules = comparisonRules;
-      DefaultDirectionMultiplier = comparisonRules.Value.Direction==Direction.Negative ? -1 : 1;
+      DefaultDirectionMultiplier = comparisonRules.Value.Direction == Direction.Negative ? -1 : 1;
+    }
+
+    public AdvancedComparerBase(SerializationInfo info, StreamingContext context)
+    {
+      provider = (IComparerProvider) info.GetValue(nameof(provider), typeof(IComparerProvider));
+      valueRangeInfo = (ValueRangeInfo<T>) info.GetValue(nameof(valueRangeInfo), typeof(ValueRangeInfo<T>));
+      ComparisonRules = (ComparisonRules) info.GetValue(nameof(ComparisonRules), typeof(ComparisonRules));
+      DefaultDirectionMultiplier = info.GetInt32(nameof(DefaultDirectionMultiplier));
     }
 
     /// <summary>
@@ -175,13 +175,25 @@ namespace Xtensive.Comparison
     /// <param name="sender"></param>
     public virtual void OnDeserialization(object sender)
     {
-      if (provider==null) 
+      if (provider == null) {
         provider = ComparerProvider.Default;
-      else if (provider.GetType()==typeof(ComparerProvider))
+      }
+      else if (provider.GetType() == typeof(ComparerProvider)) {
         provider = ComparerProvider.Default;
-      else if (provider is SystemComparerProvider)
+      }
+      else if (provider is SystemComparerProvider) {
         provider = ComparerProvider.System;
+      }
       cachedComparers = ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create(new object());
+    }
+
+    [SecurityCritical]
+    public virtual void GetObjectData(SerializationInfo info, StreamingContext context)
+    {
+      info.AddValue(nameof(provider), provider, provider.GetType());
+      info.AddValue(nameof(valueRangeInfo), valueRangeInfo, valueRangeInfo.GetType());
+      info.AddValue(nameof(ComparisonRules), ComparisonRules, ComparisonRules.GetType());
+      info.AddValue(nameof(DefaultDirectionMultiplier), DefaultDirectionMultiplier);
     }
   }
 }

@@ -16,18 +16,17 @@ using Xtensive.IoC.Configuration;
 using AttributeSearchOptions = Xtensive.Reflection.AttributeSearchOptions;
 using AppConfiguration = System.Configuration.Configuration;
 using ConfigurationSection = Xtensive.IoC.Configuration.ConfigurationSection;
+using Key = System.ValueTuple<System.Type, string>;
 
 namespace Xtensive.IoC
 {
-  using Key = ValueTuple<Type, string>;
-
   /// <summary>
   /// Default IoC (inversion of control) container implementation.
   /// </summary>
   [Serializable]
   public class ServiceContainer : ServiceContainerBase
   {
-    private static Type typeofIServiceContainer =   typeof(IServiceContainer);
+    private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
 
     private readonly Dictionary<Key, List<ServiceRegistration>> types =
       new Dictionary<Key, List<ServiceRegistration>>();

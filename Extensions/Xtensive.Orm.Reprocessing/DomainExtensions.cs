@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Transactions;
 using Xtensive.Orm.Reprocessing.Configuration;
 
@@ -131,6 +131,18 @@ namespace Xtensive.Orm.Reprocessing
       return new ExecuteConfiguration(domain).WithTransactionOpenMode(transactionOpenMode);
     }
 
+    /// <summary>
+    /// Starts <see cref="IExecuteConfiguration"/> flow
+    /// and provides <see cref="Session"/> to use.
+    /// </summary>
+    /// <param name="domain">The domain.</param>
+    /// <param name="session">The external session to use.</param>
+    /// <returns>Created <see cref="IExecuteConfiguration"/>.</returns>
+    public static IExecuteConfiguration WithSession(this Domain domain, Session session)
+    {
+      return new ExecuteConfiguration(domain).WithSession(session);
+    }
+
     #region Non-public methods
 
     internal static void ExecuteInternal(
@@ -140,13 +152,33 @@ namespace Xtensive.Orm.Reprocessing
       IExecuteActionStrategy strategy,
       Action<Session> action)
     {
-      ExecuteInternal<object>(
+      _ = ExecuteInternal<object>(
         domain,
         isolationLevel,
         transactionOpenMode,
         strategy,
-        a => {
-          action(a);
+        sessionInstance => {
+          action(sessionInstance);
+          return null;
+        });
+    }
+
+    internal static void ExecuteInternal(
+      this Domain domain,
+      Session session,
+      IsolationLevel isolationLevel,
+      TransactionOpenMode? transactionOpenMode,
+      IExecuteActionStrategy strategy,
+      Action<Session> action)
+    {
+      _ = ExecuteInternal<object>(
+        domain,
+        session,
+        isolationLevel,
+        transactionOpenMode,
+        strategy,
+        sessionInstance => {
+          action(sessionInstance);
           return null;
         });
     }
@@ -158,12 +190,35 @@ namespace Xtensive.Orm.Reprocessing
       IExecuteActionStrategy strategy,
       Func<Session, T> func)
     {
-      ReprocessingConfiguration config = domain.GetReprocessingConfiguration();
-      if (strategy==null)
+      var config = domain.GetReprocessingConfiguration();
+      if (strategy == null) {
         strategy = ExecuteActionStrategy.GetSingleton(config.DefaultExecuteStrategy);
-      if (transactionOpenMode==null)
+      }
+      if (transactionOpenMode == null) {
         transactionOpenMode = config.DefaultTransactionOpenMode;
+      }
       return strategy.Execute(new ExecutionContext<T>(domain, isolationLevel, transactionOpenMode.Value, func));
+    }
+
+    internal static T ExecuteInternal<T>(
+      this Domain domain,
+      Session session,
+      IsolationLevel isolationLevel,
+      TransactionOpenMode? transactionOpenMode,
+      IExecuteActionStrategy strategy,
+      Func<Session, T> func)
+    {
+      var config = domain.GetReprocessingConfiguration();
+      if (strategy == null) {
+        strategy = ExecuteActionStrategy.GetSingleton(config.DefaultExecuteStrategy);
+      }
+      if (transactionOpenMode == null) {
+        transactionOpenMode = config.DefaultTransactionOpenMode;
+      }
+      if (session.IsDisposed) {
+        throw new ObjectDisposedException(nameof(session));
+      }
+      return strategy.Execute(new ExecutionContext<T>(domain, session, isolationLevel, transactionOpenMode.Value, func));
     }
 
     #endregion

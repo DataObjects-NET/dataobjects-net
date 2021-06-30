@@ -1,6 +1,6 @@
 // Copyright (C) 2003-2021 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.10.12
 
@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Reflection;
+using ServiceRegistrationKey = System.ValueTuple<System.Type, bool>;
 
 namespace Xtensive.IoC
 {
@@ -102,7 +103,7 @@ namespace Xtensive.IoC
     /// <param name="type">The type of the service.</param>
     /// <param name="mappedInstance">The instance it is mapped to.</param>
     public ServiceRegistration(Type type, object mappedInstance)
-      : this (type, null, mappedInstance)
+      : this(type, null, mappedInstance)
     {
     }
 
@@ -128,7 +129,7 @@ namespace Xtensive.IoC
     /// <param name="mappedType">The type it is mapped to.</param>
     /// <param name="singleton">A value indicating whether this service is singleton.</param>
     public ServiceRegistration(Type type, Type mappedType, bool singleton)
-      : this (type, null, mappedType, singleton)
+      : this(type, null, mappedType, singleton)
     {
     }
 

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using FieldInfo=Xtensive.Orm.Model.FieldInfo;
+using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -134,10 +134,10 @@ namespace Xtensive.Orm.Linq.Expressions
     // Constructors
 
     protected FieldExpression(
-      ExtendedExpressionType expressionType, 
-      FieldInfo field, 
+      ExtendedExpressionType expressionType,
+      FieldInfo field,
       in Segment<int> mapping,
-      ParameterExpression parameterExpression, 
+      ParameterExpression parameterExpression,
       bool defaultIfEmpty)
       : base(expressionType, field.Name, field.ValueType, mapping, field.UnderlyingProperty, parameterExpression, defaultIfEmpty)
     {

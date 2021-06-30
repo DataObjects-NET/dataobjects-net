@@ -1,3 +1,7 @@
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Linq;
 using NUnit.Framework;
@@ -15,6 +19,9 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
   /// </summary>
   public abstract class MultischemaDomainTest : SkipBuildingTestBase
   {
+    private const string Schema1 = WellKnownSchemas.Schema1;
+    private const string Schema2 = WellKnownSchemas.Schema2;
+
     private readonly string[] countries = new[] { "Russian Federation", "The United States of America", "Germany", "The United Kingdom" };
     private readonly string[] positions = new[] { "Position1", "Position2", "Position3", "Position4" };
     private readonly string[] emails = new[] { "aaaa@bbbb.ru", "bbbb@cccc.ru", "cccc@dddd.ru" };
@@ -34,15 +41,11 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     [Test]
     public void CatalogComparisonTest()
     {
-      
     }
 
     protected abstract ForeignKeyMode GetForeignKeyMode();
 
-    protected override void CheckRequirements()
-    {
-      Require.AllFeaturesSupported(ProviderFeatures.Multischema);
-    }
+    protected override void CheckRequirements() => Require.AllFeaturesSupported(ProviderFeatures.Multischema);
 
     protected override void PopulateData(Domain domain)
     {
@@ -57,39 +60,41 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (User).Assembly, typeof (User).Namespace);
-      configuration.Types.Register(typeof (Laptop).Assembly, typeof (Laptop).Namespace);
-      configuration.DefaultSchema = "Model1";
+      configuration.Types.Register(typeof(User).Assembly, typeof(User).Namespace);
+      configuration.Types.Register(typeof(Laptop).Assembly, typeof(Laptop).Namespace);
+      configuration.DefaultSchema = Schema1;
       configuration.ForeignKeyMode = GetForeignKeyMode();
-      configuration.MappingRules.Map(typeof (User).Assembly, typeof (User).Namespace).ToSchema("Model1");
-      configuration.MappingRules.Map(typeof (Laptop).Assembly, typeof (Laptop).Namespace).ToSchema("Model2");
+      configuration.MappingRules.Map(typeof(User).Assembly, typeof(User).Namespace).ToSchema(Schema1);
+      configuration.MappingRules.Map(typeof(Laptop).Assembly, typeof(Laptop).Namespace).ToSchema(Schema2);
       return configuration;
     }
 
     private void PopulateDataForModel1()
     {
-      foreach (var position in positions)
-        new Position {Value = position};
+      foreach (var position in positions) {
+        _ = new Position { Value = position };
+      }
 
-      foreach (var country in countries)
-        new Country {Value = country};
+      foreach (var country in countries) {
+        _ = new Country { Value = country };
+      }
 
-      new SimpleFilterWithProperty {TestField = "hello world!"};
-      new SimpleFilterWithProperty {TestField = "hello world!!"};
+      _ = new SimpleFilterWithProperty { TestField = "hello world!" };
+      _ = new SimpleFilterWithProperty { TestField = "hello world!!" };
 
       var md5hash = new MD5Hash();
       var buildInProvider = new BuildInProviderInfo(md5hash);
-      var googleProvider = new GoogleOAuthProvider(md5hash) {Url = "google.com"};
-      var aolProvider = new AolOpenIdProviderInfo(md5hash) {Url = "aol.com"};
-      var providers = new ProviderInfo[] {buildInProvider, googleProvider, aolProvider};
+      var googleProvider = new GoogleOAuthProvider(md5hash) { Url = "google.com" };
+      var aolProvider = new AolOpenIdProviderInfo(md5hash) { Url = "aol.com" };
+      var providers = new ProviderInfo[] { buildInProvider, googleProvider, aolProvider };
 
       for (var index = 0; index < names.Length; index++) {
-        var user = new User {Email = emails[index]};
-        user.Person = new Person {FirstName = names[index].Split(' ')[0], LastName = names[index].Split(' ')[1]};
-        user.AuthorizationInfos.Add(new AuthorizationInfo {Provider = providers[index]});
+        var user = new User { Email = emails[index] };
+        user.Person = new Person { FirstName = names[index].Split(' ')[0], LastName = names[index].Split(' ')[1] };
+        _ = user.AuthorizationInfos.Add(new AuthorizationInfo { Provider = providers[index] });
       }
 
-      new XType {
+      _ = new XType {
         FBool = true,
         FByte = 1,
         FSByte = 1,
@@ -145,21 +150,21 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
     private void PopulateDataForModel2()
     {
-      var amd = new Manufacturer {Name = "AMD"};
-      var acer = new Manufacturer {Name = "Acer"};
-      var intel = new Manufacturer {Name = "Intel"};
-      var samsung = new Manufacturer {Name = "Samsung"};
-      var seagate = new Manufacturer {Name = "Seagate"};
-      var toshiba = new Manufacturer {Name = "Toshiba"};
+      var amd = new Manufacturer { Name = "AMD" };
+      var acer = new Manufacturer { Name = "Acer" };
+      var intel = new Manufacturer { Name = "Intel" };
+      var samsung = new Manufacturer { Name = "Samsung" };
+      var seagate = new Manufacturer { Name = "Seagate" };
+      var toshiba = new Manufacturer { Name = "Toshiba" };
 
-      var firstLaptop = new Laptop {
+      _ = new Laptop {
         Manufacturer = samsung,
         SerialNumber = Guid.NewGuid().ToString(),
         DisplayInfo = new DisplayInfo {
           Dpi = 300,
           Format = Formats.Wide,
-          Manufacturer = new Manufacturer {Name = "FirstDisplayProducer"},
-          Resolution = new Resolution {Wide = 1920, Hight = 1080},
+          Manufacturer = new Manufacturer { Name = "FirstDisplayProducer" },
+          Resolution = new Resolution { Wide = 1920, Hight = 1080 },
         },
         CpuInfo = new CPUInfo {
           ArchitectureName = "SuperDuperFastArchitecture",
@@ -181,7 +186,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         GraphicsCardInfo = new GraphicsCardInfo {
           ChipProducer = ChipProducers.Amd,
           Name = "R9 370",
-          Vendor = new Manufacturer {Name = "Gigabyte"},
+          Vendor = new Manufacturer { Name = "Gigabyte" },
         },
         IOPortsInfo = new IOPortsInfo {
           HasEthernetPort = true,
@@ -198,14 +203,14 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         }
       };
 
-      var secondLaptop = new Laptop {
+      _ = new Laptop {
         Manufacturer = acer,
         SerialNumber = Guid.NewGuid().ToString(),
         DisplayInfo = new DisplayInfo {
           Dpi = 300,
           Format = Formats.Wide,
-          Manufacturer = new Manufacturer {Name = "SecondDisplayProducer"},
-          Resolution = new Resolution {Wide = 1920, Hight = 1080},
+          Manufacturer = new Manufacturer { Name = "SecondDisplayProducer" },
+          Resolution = new Resolution { Wide = 1920, Hight = 1080 },
         },
         CpuInfo = new CPUInfo {
           ArchitectureName = "BadassArchitecture",
@@ -227,7 +232,7 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
         GraphicsCardInfo = new GraphicsCardInfo {
           ChipProducer = ChipProducers.Amd,
           Name = "GTX 710",
-          Vendor = new Manufacturer {Name = "MSI"},
+          Vendor = new Manufacturer { Name = "MSI" },
         },
         IOPortsInfo = new IOPortsInfo {
           HasEthernetPort = true,
@@ -362,23 +367,24 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       Assert.That(x.FNEULong, Is.EqualTo(EULong.Min));
       Assert.That(x.Ref, Is.Not.Null);
 
-      for (int i = 0; i < 200; i++)
-        new Country {Value = string.Format("Country{0}", i)};
+      for (var i = 0; i < 200; i++) {
+        _ = new Country {Value = string.Format("Country{0}", i)};
+      }
     }
 
     private void TestSecondModel(Session session)
     {
       var manufacturersCount = session.Query.All<Manufacturer>().Count();
       Assert.That(manufacturersCount, Is.EqualTo(10));
-      var amd = session.Query.All<Manufacturer>().First(el => el.Name=="AMD");
-      var acer = session.Query.All<Manufacturer>().First(el => el.Name=="Acer");
-      var intel = session.Query.All<Manufacturer>().First(el => el.Name=="Intel");
-      var samsung = session.Query.All<Manufacturer>().First(el => el.Name=="Samsung");
-      var seagate = session.Query.All<Manufacturer>().First(el => el.Name=="Seagate");
-      var msi = session.Query.All<Manufacturer>().First(el => el.Name=="MSI");
-      var gigabyte = session.Query.All<Manufacturer>().First(el => el.Name=="Gigabyte");
-      var firstdisplayproducer = session.Query.All<Manufacturer>().First(el => el.Name=="FirstDisplayProducer");
-      var seconddisplayproducer = session.Query.All<Manufacturer>().First(el => el.Name=="SecondDisplayProducer");
+      var amd = session.Query.All<Manufacturer>().First(el => el.Name == "AMD");
+      var acer = session.Query.All<Manufacturer>().First(el => el.Name == "Acer");
+      var intel = session.Query.All<Manufacturer>().First(el => el.Name == "Intel");
+      var samsung = session.Query.All<Manufacturer>().First(el => el.Name == "Samsung");
+      var seagate = session.Query.All<Manufacturer>().First(el => el.Name == "Seagate");
+      var msi = session.Query.All<Manufacturer>().First(el => el.Name == "MSI");
+      var gigabyte = session.Query.All<Manufacturer>().First(el => el.Name == "Gigabyte");
+      var firstdisplayproducer = session.Query.All<Manufacturer>().First(el => el.Name == "FirstDisplayProducer");
+      var seconddisplayproducer = session.Query.All<Manufacturer>().First(el => el.Name == "SecondDisplayProducer");
 
       var laptopCount = session.Query.All<Laptop>().Count();
       Assert.That(laptopCount, Is.EqualTo(2));
@@ -400,8 +406,9 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
       var ioPostsInfosCount = session.Query.All<IOPortsInfo>().Count();
       Assert.That(ioPostsInfosCount, Is.EqualTo(2));
 
-      for (int i = 0; i < 200; i++)
-        new Manufacturer {Name = string.Format("Manufacturer{0}", i)};
+      for (var i = 0; i < 200; i++) {
+        _ = new Manufacturer { Name = string.Format("Manufacturer{0}", i) };
+      }
     }
   }
 

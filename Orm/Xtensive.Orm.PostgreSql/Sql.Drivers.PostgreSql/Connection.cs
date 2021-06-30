@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -44,6 +44,68 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       EnsureIsNotDisposed();
       EnsureTransactionIsNotActive();
       activeTransaction = underlyingConnection.BeginTransaction(SqlHelper.ReduceIsolationLevel(isolationLevel));
+    }
+
+    public override void Commit()
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+
+      try {
+        if (!IsTransactionCompleted()) {
+          ActiveTransaction.Commit();
+        }
+      }
+      finally {
+        ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
+    }
+
+    public override async Task CommitAsync(CancellationToken token = default)
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+      try {
+        if (!IsTransactionCompleted()) {
+          await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
+        }
+      }
+      finally {
+        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        ClearActiveTransaction();
+      }
+    }
+
+    public override void Rollback()
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+
+      try {
+        if (!IsTransactionCompleted()) {
+          ActiveTransaction.Rollback();
+        }
+      }
+      finally {
+        ActiveTransaction.Dispose();
+        ClearActiveTransaction();
+      }
+    }
+
+    public override async Task RollbackAsync(CancellationToken token = default)
+    {
+      EnsureIsNotDisposed();
+      EnsureTransactionIsActive();
+      try {
+        if (!IsTransactionCompleted()) {
+          await ActiveTransaction.RollbackAsync(token).ConfigureAwait(false);
+        }
+      }
+      finally {
+        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
+        ClearActiveTransaction();
+      }
     }
 
     /// <inheritdoc/>
@@ -119,6 +181,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       await using (command.ConfigureAwait(false)) {
         await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
       }
+    }
+
+    private bool IsTransactionCompleted()
+    {
+      return activeTransaction != null && activeTransaction.IsCompleted;
     }
 
     // Constructors

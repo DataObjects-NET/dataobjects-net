@@ -41,11 +41,14 @@
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
+    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <ArtifactsDir Condition="'$(ArtifactsDir)' == ''">$(SolutionDir)_Build\</ArtifactsDir>
     <BaseIntermediateOutputPath>$(ArtifactsDir)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
     <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
     <BaseOutputPath>$(ArtifactsDir)bin\$(Configuration)\</BaseOutputPath>
-    <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))">$(ArtifactsDir)tests\</BaseOutputPath>
+    <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))
+      OR $(MSBuildProjectName) == 'TestCommon'
+      OR $(MSBuildProjectName) == 'Xtensive.Orm.Manual'">$(ArtifactsDir)tests\$(Configuration)\</BaseOutputPath>
     <OutputPath>$(BaseOutputPath)lib\</OutputPath>
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
@@ -69,7 +72,6 @@
     <RepositoryUrl>https://github.com/servicetitan/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <GeneratePackageOnBuild Condition="$(DoGeneratePackage) == 'true' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>

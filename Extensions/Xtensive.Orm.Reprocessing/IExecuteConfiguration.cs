@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Transactions;
 
 namespace Xtensive.Orm.Reprocessing
@@ -28,6 +28,13 @@ namespace Xtensive.Orm.Reprocessing
     /// <param name="transactionOpenMode">Transction open mode to use.</param>
     /// <returns>This instance.</returns>
     IExecuteConfiguration WithTransactionOpenMode(TransactionOpenMode transactionOpenMode);
+
+    /// <summary>
+    /// Specifies external <see cref="Session"/> to use for this configuration.
+    /// </summary>
+    /// <param name="session">Session to use.</param>
+    /// <returns>This instance.</returns>
+    IExecuteConfiguration WithSession(Session session);
 
     /// <summary>
     /// Executes specified reprocessable <paramref name="action"/>.

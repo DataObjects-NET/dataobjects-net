@@ -1,4 +1,4 @@
-// Copyright (C) 2018-2020 Xtensive LLC.
+// Copyright (C) 2018-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -29,21 +29,10 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeContextTestModel
   {
     private readonly Dictionary<MethodBase, ProviderInfo> stagesAccess = new Dictionary<MethodBase, ProviderInfo>();
 
-    public ProviderInfo this[MethodInfo method]
-    {
-      get
-      {
-        ProviderInfo result;
-        if (stagesAccess.TryGetValue(method, out result))
-          return result;
-        return null;
-      }
-    }
+    public ProviderInfo this[MethodInfo method] =>
+      stagesAccess.TryGetValue(method, out var result) ? result : null;
 
-    public void Add(MethodBase method, ProviderInfo givenProvider)
-    {
-      stagesAccess.Add(method, givenProvider);
-    }
+    public void Add(MethodBase method, ProviderInfo givenProvider) => stagesAccess.Add(method, givenProvider);
   }
 
   public class CustomUpgrader : UpgradeHandler
@@ -213,26 +202,33 @@ namespace Xtensive.Orm.Tests.Upgrade
     {
       Domain domain;
 
-      using (domain = BuildDomain(DomainUpgradeMode.Recreate))
+      using (domain = BuildDomain(DomainUpgradeMode.Recreate)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.Perform))
+      using (domain = BuildDomain(DomainUpgradeMode.Perform)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.PerformSafely))
+      using (domain = BuildDomain(DomainUpgradeMode.PerformSafely)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.Validate))
+      using (domain = BuildDomain(DomainUpgradeMode.Validate)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.Skip))
+      using (domain = BuildDomain(DomainUpgradeMode.Skip)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.LegacyValidate))
+      using (domain = BuildDomain(DomainUpgradeMode.LegacyValidate)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
 
-      using (domain = BuildDomain(DomainUpgradeMode.LegacySkip))
+      using (domain = BuildDomain(DomainUpgradeMode.LegacySkip)) {
         ValidateAccess(domain.Extensions.Get<AccessGatherer>());
+      }
     }
 
     [Test]
@@ -386,8 +382,11 @@ namespace Xtensive.Orm.Tests.Upgrade
 
     private Domain BuildMultischemaDomain(DomainUpgradeMode upgradeMode)
     {
-      var configuration = BuildConfiguration(upgradeMode);
-      configuration.DefaultSchema = "dbo";
+      var configuration = DomainConfigurationFactory.Create();
+      configuration.UpgradeMode = upgradeMode;
+      configuration.Types.Register(typeof(TestEntity));
+      configuration.Types.Register(typeof(CustomUpgrader));
+      configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
 
       return Domain.Build(configuration);
     }

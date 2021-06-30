@@ -1,10 +1,11 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Xtensive.Orm.Linq.Materialization;
 
 namespace Xtensive.Orm
@@ -19,6 +20,8 @@ namespace Xtensive.Orm
     {
       private readonly IEnumerable<TItem> items;
 
+      public Session Session => null;
+
       public IEnumerator<TItem> AsEnumerator() => items.GetEnumerator();
 
       public IAsyncEnumerator<TItem> AsAsyncEnumerator() => throw new System.NotSupportedException();
@@ -29,8 +32,11 @@ namespace Xtensive.Orm
       }
     }
 
-    private readonly IMaterializingReader<TItem> reader;
     private readonly StateLifetimeToken lifetimeToken;
+    private readonly IMaterializingReader<TItem> reader;
+
+    [CanBeNull]
+    internal Session Session => reader.Session;
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -70,7 +76,7 @@ namespace Xtensive.Orm
     internal QueryResult(IEnumerable<TItem> items)
     {
       reader = new EnumerableReader(items);
-      this.lifetimeToken = default;
+      lifetimeToken = default;
     }
   }
 }

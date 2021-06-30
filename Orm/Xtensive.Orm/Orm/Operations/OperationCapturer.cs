@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.10.22
 
@@ -100,20 +100,6 @@ namespace Xtensive.Orm.Operations
     #endregion
 
     // Factory methods
-
-    /// <summary>
-    /// Attaches the operation capturer to the current session.
-    /// </summary>
-    /// <param name="operations">The operation logger to append captured operations to.</param>
-    /// <returns>
-    /// A newly created <see cref="OperationCapturer"/> attached
-    /// to the current session.
-    /// </returns>
-    [Obsolete("Use Attach(Session, IOperationLogger) instead")]
-    public static OperationCapturer Attach(IOperationLogger operations)
-    {
-      return Attach(Session.Demand(), operations);
-    }
 
     /// <summary>
     /// Attaches the operation capturer to the specified session.

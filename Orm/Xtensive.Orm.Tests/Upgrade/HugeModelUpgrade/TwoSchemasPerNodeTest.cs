@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     {
       var configuration = base.BuildConfiguration();
       configuration.UpgradeMode = DomainUpgradeMode.Recreate;
-      configuration.DefaultSchema = "dbo";
+      configuration.DefaultSchema = WellKnownSchemas.SqlServerDefaultSchema;
 
       var partOneType = typeof(TwoPartsModel.PartOne.TestEntityOne0);
       var partTwoType = typeof(TwoPartsModel.PartTwo.TestEntityTwo0);
@@ -36,10 +36,10 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
 
       configuration.MappingRules
         .Map(partOneType.Assembly, partOneType.Namespace)
-        .ToSchema("dbo");
+        .ToSchema(WellKnownSchemas.SqlServerDefaultSchema);
       configuration.MappingRules
         .Map(partTwoType.Assembly, partTwoType.Namespace)
-        .ToSchema("Model1");
+        .ToSchema(WellKnownSchemas.Schema1);
       return configuration;
     }
 
@@ -81,18 +81,18 @@ namespace Xtensive.Orm.Tests.Upgrade.HugeModelUpgrade
     protected override IEnumerable<NodeConfiguration> GetAdditionalNodeConfigurations(DomainUpgradeMode upgradeMode)
     {
       var schemas = new[] {
-        "Model2", "Model3",
-        "Model4", "Model5",
-        "Model6", "Model7",
-        "Model8", "Model9",
-        "Model10", "Model11",
+        WellKnownSchemas.Schema2, WellKnownSchemas.Schema3,
+        WellKnownSchemas.Schema4, WellKnownSchemas.Schema5,
+        WellKnownSchemas.Schema6, WellKnownSchemas.Schema7,
+        WellKnownSchemas.Schema8, WellKnownSchemas.Schema9,
+        WellKnownSchemas.Schema10, WellKnownSchemas.Schema11,
       };
 
       for (int index = 0, nodeIndex = 1; index < 10; index += 2, nodeIndex++) {
         var node = new NodeConfiguration("Node" + nodeIndex);
         node.UpgradeMode = upgradeMode;
-        node.SchemaMapping.Add("dbo", schemas[index]);
-        node.SchemaMapping.Add("Model1", schemas[index + 1]);
+        node.SchemaMapping.Add(WellKnownSchemas.SqlServerDefaultSchema, schemas[index]);
+        node.SchemaMapping.Add(WellKnownSchemas.Schema1, schemas[index + 1]);
         yield return node;
       }
     }

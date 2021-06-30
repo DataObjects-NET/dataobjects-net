@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2017 Xtensive LLC.
+// Copyright (C) 2017 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -22,6 +22,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string SchemaName { get; set; }
+
+      public TestEntity1(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -41,6 +46,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string SchemaName { get; set; }
+
+      public TestEntity2(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -60,6 +70,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string SchemaName { get; set; }
+
+      public TestEntity3(Session session)
+        : base(session)
+      {
+      }
     }
   }
 
@@ -79,6 +94,11 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string SchemaName { get; set; }
+
+      public TestEntity4(Session session)
+        : base(session)
+      {
+      }
     }
   }
 

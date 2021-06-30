@@ -1,16 +1,17 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.09.24
 
 using System;
 using System.Collections.Generic;
-using NUnit.Framework;
-using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 using System.Linq;
+using NUnit.Framework;
+using Xtensive.Core;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Tests.ObjectModel.Interfaces.Alphabet;
 
 namespace Xtensive.Orm.Tests.Linq.Interfaces
 {
@@ -32,21 +33,23 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
       using (var session = Domain.OpenSession()) {
         using (var t = session.OpenTransaction()) {
           // ClassTable
-          for (int i = 0; i < EachCount; i++)
-            new A() {Name = "Name: A" + i};
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
+            _ = new A() {Name = "Name: A" + i};
+          }
+
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new B() { Name = "Name: B" + i, Tag = "Tag: B" + i};
             named.Name = "Name: B'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var tagged = (ITagged)new C() { Name = "Name: C" + i };
             tagged.Tag = "Tag: C'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new D() { Name = "Name: D" + i, Tag= "Tag: D" + i, First = "First: D" + i, Second = "Second: D" + i };
             named.Name = "Name: D'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new E() { Name = "Name: E" + i, Tag = "Tag: E" + i, First = "First: E" + i, Second = "Second: E" + i };
             var composite = (IComposite) named;
             named.Name = "Name: E'" + i;
@@ -54,21 +57,23 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
           }
 
           // ConcreteTable
-          for (int i = 0; i < EachCount; i++)
-            new F() {Name = "Name: F" + i};
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
+            _ = new F() {Name = "Name: F" + i};
+          }
+
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new G() { Name = "Name: G" + i, Tag = "Tag: G" + i};
             named.Name = "Name: G'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var tagged = (ITagged)new H() { Name = "Name: H" + i };
             tagged.Tag = "Tag: H'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new I() { Name = "Name: I" + i, Tag= "Tag: I" + i, First = "First: I" + i, Second = "Second: I" + i };
             named.Name = "Name: I'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new J() { Name = "Name: J" + i, Tag = "Tag: J" + i, First = "First: J" + i, Second = "Second: J" + i };
             var composite = (IComposite) named;
             named.Name = "Name: J'" + i;
@@ -76,21 +81,23 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
           }
 
           // SingleTable
-          for (int i = 0; i < EachCount; i++)
-            new K() {Name = "Name: K" + i};
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
+            _ = new K() {Name = "Name: K" + i};
+          }
+
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new L() { Name = "Name: L" + i, Tag = "Tag: L" + i};
             named.Name = "Name: L'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var tagged = (ITagged)new M() { Name = "Name: M" + i };
             tagged.Tag = "Tag: M'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new N() { Name = "Name: N" + i, Tag= "Tag: N" + i, First = "First: N" + i, Second = "Second: N" + i };
             named.Name = "Name: N'" + i;
           }
-          for (int i = 0; i < EachCount; i++) {
+          for (var i = 0; i < EachCount; i++) {
             var named = (INamed)new O() { Name = "Name: O" + i, Tag = "Tag: O" + i, First = "First: O" + i, Second = "Second: O" + i };
             var composite = (IComposite) named;
             named.Name = "Name: O'" + i;
@@ -220,12 +227,29 @@ namespace Xtensive.Orm.Tests.Linq.Interfaces
 
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
+        var key = Key.Create<INamed>(Domain, 41L);
         var namedQuery = session.Query.All<INamed>()
-          .Select(i => i.Name)
-          .OrderBy(i=>i)
-          .ToList();
-        Assert.AreEqual(170, namedQuery.Count);
-        Assert.IsTrue(namedQuery.SequenceEqual(names));
+          .Select(i => new { i.Key, i.Name})
+          .OrderBy(i => i.Name)
+          .ToList(170);
+        Assert.AreEqual(170, namedQuery.Count); // some records are represented twice
+
+        var groupByKey = namedQuery.GroupBy(i => i.Key, (a, b)=> new { Key = a, Items = b.ToList(2) }).ToList(150);
+        Assert.AreEqual(totalCount, groupByKey.Count);
+
+        var abc = names.Zip(groupByKey,
+          (name, group) => new {
+            name1 = name,
+            name2 = group.Items.Count == 1
+              ? group.Items[0].Name
+              : (group.Items[0].Name == name)
+                ? group.Items[0].Name
+                : group.Items[1].Name });
+
+        foreach(var anon in abc) {
+          Assert.AreEqual(anon.name1, anon.name2);
+        }
+
         t.Complete();
       }
     }
