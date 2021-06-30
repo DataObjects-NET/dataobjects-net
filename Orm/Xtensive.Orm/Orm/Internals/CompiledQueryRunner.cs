@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -156,6 +156,9 @@ namespace Xtensive.Orm.Internals
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
         if (expression.NodeType == ExpressionType.Constant) {
+          if ((expression as ConstantExpression).Value == null) {
+            return null;
+          }
           if (expression.Type.IsClosure()) {
             if (expression.Type == closureType) {
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
