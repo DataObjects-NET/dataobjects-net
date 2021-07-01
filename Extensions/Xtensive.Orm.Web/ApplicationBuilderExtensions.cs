@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -18,6 +18,7 @@ namespace Xtensive.Orm.Web
     /// </summary>
     /// <param name="builder"><see cref="IApplicationBuilder"/> instance.</param>
     /// <returns><paramref name="builder"/> with <see cref="SessionManager"/>.</returns>
+    [Obsolete]
     public static IApplicationBuilder UseSessionManager(this IApplicationBuilder builder)
     {
       return builder.UseMiddleware<SessionManager>();
@@ -29,6 +30,7 @@ namespace Xtensive.Orm.Web
     /// <param name="builder"><see cref="IApplicationBuilder"/> instance.</param>
     /// <param name="sessionProvider">User-defined session provider which will be used instead of built-in provider.</param>
     /// <returns><paramref name="builder"/> with <see cref="SessionManager"/>.</returns>
+    [Obsolete]
     public static IApplicationBuilder UseSessionManager(this IApplicationBuilder builder, Func<Pair<Session, System.IDisposable>> sessionProvider)
     {
       SessionManager.SessionProvider = sessionProvider;
