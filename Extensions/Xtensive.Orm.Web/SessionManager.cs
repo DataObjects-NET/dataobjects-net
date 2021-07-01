@@ -227,26 +227,4 @@ namespace Xtensive.Orm.Web
       current = this;
     }
   }
-
-
-  public class CustomActionFilter : IActionFilter
-  {
-    
-
-    public void OnActionExecuted(ActionExecutedContext context)
-    {
-      
-    }
-
-    public void OnActionExecuting(ActionExecutingContext context)
-    {
-      var sessionParameter = context.ActionDescriptor.Parameters.FirstOrDefault(p => p.ParameterType == typeof(Session));
-      context.ActionArguments[sessionParameter.Name] = OpenSession();
-    }
-
-    private Session OpenSession()
-    {
-      return null
-    }
-  }
 }

@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Web.Filters
 
       //this search can probably be improved by caching action names with needed parameters
       foreach (var p in actionParameters) {
-        if (p.ParameterType == SessionAccessorType) {
+        if (p.ParameterType == WellKnownTypes.SessionAccessorType) {
           // trying to get registered accessor as service
           var accessor = GetSessionAccesorFromServices(context.HttpContext);
           if (accessor != null) {
@@ -198,13 +198,13 @@ namespace Xtensive.Orm.Web.Filters
 
     private static Domain GetDomainFromServices(HttpContext context)
     {
-      var domain = (Domain) context.RequestServices.GetService(DomainType);
+      var domain = (Domain) context.RequestServices.GetService(WellKnownTypes.DomainType);
       return domain == null
         ? throw new InvalidOperationException("Domain is not found among registered services.")
         : domain;
     }
 
     private static SessionAccessor GetSessionAccesorFromServices(HttpContext context) =>
-      (SessionAccessor) context.RequestServices.GetService(SessionAccessorType);
+      (SessionAccessor) context.RequestServices.GetService(WellKnownTypes.SessionAccessorType);
   }
 }
