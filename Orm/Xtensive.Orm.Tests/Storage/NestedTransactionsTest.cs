@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.26
 
@@ -160,25 +160,30 @@ namespace Xtensive.Orm.Tests.Storage
     public void RollbackNestedTransactionWithActiveEnumeratorAndThenCompleteOutermostTest()
     {
       var session = Session.Demand();
-      using (var outerTx = session.OpenTransaction()) {
-        _ = new Hexagon();
-        _ = new Hexagon();
-        _ = new Hexagon();
+      var outerTx = session.OpenTransaction();
+      _ = new Hexagon();
+      _ = new Hexagon();
+      _ = new Hexagon();
 
-        IEnumerator<int> enumerator = null;
-        var innerTx = session.OpenTransaction(TransactionOpenMode.New);
+      IEnumerator<int> enumerator = null;
+      var innerTx = session.OpenTransaction(TransactionOpenMode.New);
 
-        enumerator = session.Query.All<Hexagon>()
-          .Select(item => item.Id).AsEnumerable().GetEnumerator();
-        _ = enumerator.MoveNext();
+      enumerator = session.Query.All<Hexagon>()
+        .Select(item => item.Id).AsEnumerable().GetEnumerator();
+      _ = enumerator.MoveNext();
 
-        if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)) {
-          _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
-        }
-        else {
-          Assert.DoesNotThrow(() => innerTx.Dispose());
-        }
-        outerTx.Complete();
+      if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)) {
+        _ = Assert.Throws<StorageException>(() => innerTx.Dispose());
+      }
+      else {
+        Assert.DoesNotThrow(() => innerTx.Dispose());
+      }
+      outerTx.Complete();
+      if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)) {
+        _ = Assert.Throws<StorageException>(() => outerTx.Dispose());
+      }
+      else {
+        Assert.DoesNotThrow(() => outerTx.Dispose());
       }
     }
 

@@ -98,40 +98,6 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     /// <inheritdoc/>
-    public override void Commit()
-    {
-      EnsureIsNotDisposed();
-      EnsureTransactionIsActive();
-
-      try {
-        if (!IsTransactionZombied()) {
-          ActiveTransaction.Commit();
-        }
-      }
-      finally {
-        ActiveTransaction.Dispose();
-        ClearActiveTransaction();
-      }
-    }
-
-    /// <inheritdoc/>
-    public override async Task CommitAsync(CancellationToken token = default)
-    {
-      EnsureIsNotDisposed();
-      EnsureTransactionIsActive();
-
-      try {
-        if (!IsTransactionZombied()) {
-          await ActiveTransaction.CommitAsync(token).ConfigureAwait(false);
-        }
-      }
-      finally {
-        await ActiveTransaction.DisposeAsync().ConfigureAwait(false);
-        ClearActiveTransaction();
-      }
-    }
-
-    /// <inheritdoc/>
     public override void Rollback()
     {
       EnsureIsNotDisposed();
