@@ -613,7 +613,7 @@ namespace Xtensive.Reflection
     /// accepting specified <paramref name="arguments"/>.
     /// </summary>
     /// <param name="type">The type to get the constructor for.</param>
-    /// <param name="argumentTypes">The argument types.</param>
+    /// <param name="arguments">The arguments.</param>
     /// <returns>
     /// Appropriate constructor, if a single match is found;
     /// otherwise, <see langword="null"/>.
