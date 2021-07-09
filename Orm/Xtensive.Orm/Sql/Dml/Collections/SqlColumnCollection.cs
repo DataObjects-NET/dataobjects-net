@@ -24,6 +24,11 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public int Count => columnList.Count;
 
+    public int Capacity {
+      get => columnList.Capacity;
+      set => columnList.Capacity = value;
+    }
+
     /// <inheritdoc cref="ICollection{T}.IsReadOnly"/>>
     bool ICollection<SqlColumn>.IsReadOnly => false;
 
