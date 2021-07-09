@@ -18,6 +18,10 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Tuples;
+using System.Collections.Concurrent;
+using Xtensive.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace Xtensive.Orm.Providers
 {
@@ -26,12 +30,16 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed partial class StorageDriver
   {
+    private static readonly MethodInfo FactoryCreatorMethod = typeof(StorageDriver).GetMethod(nameof(NewFactory), BindingFlags.Static | BindingFlags.NonPublic);
+
     private readonly DomainConfiguration configuration;
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingRegistry allMappings;
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
+
+    private readonly ConcurrentDictionary<Type, Func<IConnectionHandler>> handlerFactoriesCache;
 
     public ProviderInfo ProviderInfo { get; private set; }
 
@@ -97,7 +105,7 @@ namespace Xtensive.Orm.Providers
     public StorageDriver CreateNew(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain));
+      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), handlerFactoriesCache);
     }
 
     private static DomainModel GetNullModel()
@@ -151,6 +159,42 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    private IReadOnlyCollection<IConnectionHandler> CreateHandlersForConnection(IEnumerable<Type> connectionHandlerTypes)
+    {
+      if (handlerFactoriesCache == null)
+        return Array.Empty<IConnectionHandler>();
+      var instances = new List<IConnectionHandler>(handlerFactoriesCache.Count);
+      foreach (var type in connectionHandlerTypes) {
+        if (handlerFactoriesCache.TryGetValue(type, out var factory))
+          instances.Add(factory());
+      }
+      return instances.ToArray();
+    }
+
+    // used on driver creation so it is very first time handlers are created.
+    // great place to create and cache factories for faster initialization on session opening later
+    private static IReadOnlyCollection<IConnectionHandler> CreateConnectionHandlers(IEnumerable<Type> connectionHandlerTypes,
+      out ConcurrentDictionary<Type, Func<IConnectionHandler>> factories)
+    {
+      var instances = new List<IConnectionHandler>();
+      factories = new ConcurrentDictionary<Type, Func<IConnectionHandler>>();
+      foreach (var item in connectionHandlerTypes) {
+        var handlerFactory = (Func<IConnectionHandler>) FactoryCreatorMethod.MakeGenericMethod(item).Invoke(null, null);
+        instances.Add(handlerFactory());
+        factories[item] = handlerFactory;
+      }
+      if (factories.Count == 0)
+        factories = null;
+      return instances.ToArray();
+    }
+
+    private static Func<IConnectionHandler> NewFactory<T>() where T : IConnectionHandler
+    {
+      return FastExpression.Lambda<Func<IConnectionHandler>>(
+        Expression.Convert(Expression.New(typeof(T)), typeof(IConnectionHandler)))
+        .Compile();
+    }
+
     // Constructors
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
@@ -158,7 +202,8 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
-      var driverConfiguration = new SqlDriverConfiguration {
+      var handlers = CreateConnectionHandlers(configuration.Types.ConnectionHandlers, out var factories);
+      var driverConfiguration = new SqlDriverConfiguration(handlers) {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
         EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
@@ -167,7 +212,7 @@ namespace Xtensive.Orm.Providers
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
-      return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
+      return new StorageDriver(driver, providerInfo, configuration, GetNullModel, factories);
     }
 
     public static async Task<StorageDriver> CreateAsync(
@@ -176,7 +221,8 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
-      var driverConfiguration = new SqlDriverConfiguration {
+      var handlers = CreateConnectionHandlers(configuration.Types.ConnectionHandlers, out var factories);
+      var driverConfiguration = new SqlDriverConfiguration(handlers) {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
         EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
@@ -186,11 +232,14 @@ namespace Xtensive.Orm.Providers
         .ConfigureAwait(false);
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
-      return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
+      return new StorageDriver(driver, providerInfo, configuration, GetNullModel, factories);
     }
 
-    private StorageDriver(
-      SqlDriver driver, ProviderInfo providerInfo, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    private StorageDriver(SqlDriver driver,
+      ProviderInfo providerInfo,
+      DomainConfiguration configuration,
+      Func<DomainModel> modelProvider,
+      ConcurrentDictionary<Type,Func<IConnectionHandler>> factoryCache)
     {
       underlyingDriver = driver;
       ProviderInfo = providerInfo;
@@ -201,6 +250,7 @@ namespace Xtensive.Orm.Providers
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = SqlLog.IsLogged(LogLevel.Info); // Just to cache this value
       ServerInfo = underlyingDriver.ServerInfo;
+      handlerFactoriesCache = factoryCache;
     }
   }
 }

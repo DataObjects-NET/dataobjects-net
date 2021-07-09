@@ -14,7 +14,7 @@ using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class StorageDriver
+  public partial class StorageDriver
   {
     private sealed class InitializationSqlExtension
     {
@@ -50,6 +50,10 @@ namespace Xtensive.Orm.Providers
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
+      if (handlerFactoriesCache != null) {
+        connection.Extensions.Set(
+          new ConnectionHandlersExtension(CreateHandlersForConnection(configuration.Types.ConnectionHandlers)));
+      }
 
       var sessionConfiguration = GetConfiguration(session);
       connection.CommandTimeout = sessionConfiguration.DefaultCommandTimeout;
@@ -76,7 +80,7 @@ namespace Xtensive.Orm.Providers
       var script = extension?.Script;
       try {
         if (!string.IsNullOrEmpty(script)) {
-          connection.OpenAndInitialize(extension.Script);
+          connection.OpenAndInitialize(script);
         }
         else {
           connection.Open();
@@ -100,8 +104,9 @@ namespace Xtensive.Orm.Providers
       var extension = connection.Extensions.Get<InitializationSqlExtension>();
 
       try {
-        if (!string.IsNullOrEmpty(extension?.Script)) {
-          await connection.OpenAndInitializeAsync(extension.Script, cancellationToken).ConfigureAwait(false);
+        var script = extension?.Script;
+        if (!string.IsNullOrEmpty(script)) {
+          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwait(false);
         }
         else {
           await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
