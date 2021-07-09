@@ -65,18 +65,22 @@ namespace Xtensive.Orm.Providers
         atRootPolicy = true;
       }
 
-      SqlSelect query;
+      var indexColumns = index.Columns;
+      var tableRef = SqlDml.TableRef(table);
+      var query = SqlDml.Select(tableRef);
+      var queryColumns = query.Columns;
+      queryColumns.Capacity = queryColumns.Count + indexColumns.Count;
       if (!atRootPolicy) {
-        var tableRef = SqlDml.TableRef(table);
-        query = SqlDml.Select(tableRef);
-        query.Columns.AddRange(index.Columns.Select(c => tableRef[c.Name]));
+        foreach (var c in indexColumns) {
+          queryColumns.Add(tableRef[c.Name]);
+        }
       }
       else {
         var root = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
         var lookup = root.Columns.ToDictionary(c => c.Field, c => c.Name);
-        var tableRef = SqlDml.TableRef(table);
-        query = SqlDml.Select(tableRef);
-        query.Columns.AddRange(index.Columns.Select(c => tableRef[lookup[c.Field]]));
+        foreach (var c in indexColumns) {
+          queryColumns.Add(tableRef[lookup[c.Field]]);
+        }
       }
       return query;
     }

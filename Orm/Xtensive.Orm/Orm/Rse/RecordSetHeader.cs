@@ -126,24 +126,32 @@ namespace Xtensive.Orm.Rse
     public RecordSetHeader Join(RecordSetHeader joined)
     {
       var columnCount = Columns.Count;
-      var newColumns = new List<Column>(Columns);
-      newColumns.AddRange(
-        from c in joined.Columns 
-        select c.Clone(columnCount + c.Index));
+      var newColumns = new List<Column>(columnCount + joined.Columns.Count);
+      newColumns.AddRange(Columns);
+      foreach (var c in joined.Columns) {
+        newColumns.Add(c.Clone(columnCount + c.Index));
+      }
 
       var newFieldTypes = new Type[newColumns.Count];
       for (var i = 0; i < newColumns.Count; i++)
         newFieldTypes[i] = newColumns[i].Type;
       var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
-      var groups = new List<ColumnGroup>(ColumnGroups);
-      groups.AddRange(
-        joined.ColumnGroups
-          .Select(g => new ColumnGroup(
-            g.TypeInfoRef,
-            g.Keys.Select(i => columnCount + i),
-            g.Columns.Select(i => columnCount + i))));
-      
+      var columnGroupCount = ColumnGroups.Count;
+      var groups = new List<ColumnGroup>(columnGroupCount + joined.ColumnGroups.Count);
+      groups.AddRange(ColumnGroups);
+      foreach (var g in joined.ColumnGroups) {
+        var keys = new List<int>(g.Keys.Count);
+        foreach (var i in g.Keys) {
+          keys.Add(columnCount + i);
+        }
+        var columns = new List<int>(g.Columns.Count);
+        foreach (var i in g.Columns) {
+          columns.Add(columnCount + i);
+        }
+        groups.Add(new ColumnGroup(g.TypeInfoRef, keys, columns));
+      }
+
       return new RecordSetHeader(
         newTupleDescriptor, 
         newColumns, 

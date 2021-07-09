@@ -37,12 +37,6 @@ namespace Xtensive.Orm.Rse
       }
     }
 
-    private void BuildNameIndex()
-    {
-      for (var index = 0; index < Count; index++) 
-        nameIndex.Add(this[index].Name, index);
-    }
-
     /// <summary>
     /// Joins this collection with specified the column collection.
     /// </summary>
@@ -71,10 +65,8 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="collection">Collection of items to add.</param>
     public ColumnCollection(IEnumerable<Column> collection)
-      : base(collection.ToList())
+      : this(collection.ToList())
     {
-      nameIndex = new Dictionary<string, int>(Count);
-      BuildNameIndex();
     }
 
     /// <summary>
@@ -85,7 +77,8 @@ namespace Xtensive.Orm.Rse
       : base(collection)
     {
       nameIndex = new Dictionary<string, int>(Count);
-      BuildNameIndex();
+      for (var index = 0; index < Count; index++)
+        nameIndex.Add(this[index].Name, index);
     }
   }
 }

@@ -28,12 +28,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the indexes of key columns.
     /// </summary>
-    public ReadOnlyList<int> Keys { get; private set; }
+    public IReadOnlyList<int> Keys { get; private set; }
 
     /// <summary>
     /// Gets the indexes of all columns.
     /// </summary>
-    public ReadOnlyList<int> Columns { get; private set; }
+    public IReadOnlyList<int> Columns { get; private set; }
 
 
     // Constructors
@@ -55,11 +55,11 @@ namespace Xtensive.Orm.Model
     /// <param name="type">The type.</param>
     /// <param name="keys">The keys.</param>
     /// <param name="columns">The columns.</param>
-    public ColumnGroup(TypeInfoRef type, IList<int> keys, IList<int> columns)
+    public ColumnGroup(TypeInfoRef type, IReadOnlyList<int> keys, IReadOnlyList<int> columns)
     {
       TypeInfoRef = type;
-      Keys = new ReadOnlyList<int>(keys);
-      Columns = new ReadOnlyList<int>(columns);
+      Keys = keys;
+      Columns = columns;
     }
   }
 }
