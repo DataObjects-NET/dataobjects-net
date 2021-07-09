@@ -46,6 +46,11 @@ namespace Xtensive.Sql
     public SqlTranslator Translator { get; private set; }
 
     /// <summary>
+    /// Gets <see cref="IConnectionHandler"/>s collection.
+    /// </summary>
+    public IReadOnlyCollection<IConnectionHandler> ConnectionHandlers { get; private set; }
+
+    /// <summary>
     /// Gets connection string for the specified <see cref="ConnectionInfo"/>.
     /// </summary>
     /// <param name="connectionInfo"><see cref="ConnectionInfo"/> to convert.</param>
@@ -297,6 +302,8 @@ namespace Xtensive.Sql
     {
       var result = DoCreateConnection();
       result.ConnectionInfo = originConnectionInfo;
+      if (ConnectionHandlers.Count != 0)
+        result.Extensions.Set(new ConnectionHandlersExtension(ConnectionHandlers));
       return result;
     }
 
@@ -309,6 +316,8 @@ namespace Xtensive.Sql
     {
       var result = DoCreateConnection();
       result.ConnectionInfo = connectionInfo;
+      if (ConnectionHandlers.Count != 0)
+        result.Extensions.Set(new ConnectionHandlersExtension(ConnectionHandlers));
       return result;
     }
 
@@ -373,10 +382,14 @@ namespace Xtensive.Sql
 
     #region Private / internal methods
 
-    internal void Initialize(SqlDriverFactory creator, ConnectionInfo creatorConnectionInfo)
+    internal void Initialize(SqlDriverFactory creator, ConnectionInfo creatorConnectionInfo) =>
+      Initialize(creator, creatorConnectionInfo, Array.Empty<IConnectionHandler>());
+
+    internal void Initialize(SqlDriverFactory creator, ConnectionInfo creatorConnectionInfo, IReadOnlyCollection<IConnectionHandler> connectionHandlers)
     {
       origin = creator;
       originConnectionInfo = creatorConnectionInfo;
+      ConnectionHandlers = connectionHandlers;
 
       var serverInfoProvider = CreateServerInfoProvider();
       ServerInfo = ServerInfo.Build(serverInfoProvider);

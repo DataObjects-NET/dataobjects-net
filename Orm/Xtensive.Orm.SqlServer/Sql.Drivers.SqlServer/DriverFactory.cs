@@ -230,15 +230,27 @@ namespace Xtensive.Sql.Drivers.SqlServer
     {
       var connection = new SqlServerConnection(connectionString);
       if (!configuration.EnsureConnectionIsAlive) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        var handlers = configuration.ConnectionHandlers;
+        SqlHelper.NotifyConnectionOpening(handlers, connection);
+
+        try {
+          connection.Open();
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+            SqlHelper.NotifyConnectionInitializing(handlers, connection, configuration.ConnectionInitializationSql);
+          SqlHelper.ExecuteInitializationSql(connection, configuration);
+          SqlHelper.NotifyConnectionOpened(handlers, connection);
+        }
+        catch(Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+          throw;
+        }
         return connection;
       }
 
       var testQuery = string.IsNullOrEmpty(configuration.ConnectionInitializationSql)
         ? CheckConnectionQuery
         : configuration.ConnectionInitializationSql;
-      return EnsureConnectionIsAlive(connection, testQuery);
+      return EnsureConnectionIsAlive(connection, configuration.ConnectionHandlers, testQuery);
     }
 
     private static async Task<SqlServerConnection> CreateAndOpenConnectionAsync(
@@ -257,17 +269,25 @@ namespace Xtensive.Sql.Drivers.SqlServer
       return await EnsureConnectionIsAliveAsync(connection, testQuery, token).ConfigureAwait(false);
     }
 
-    private static SqlServerConnection EnsureConnectionIsAlive(SqlServerConnection connection, string query)
+    private static SqlServerConnection EnsureConnectionIsAlive(SqlServerConnection connection, IReadOnlyCollection<IConnectionHandler> handlers, string query)
     {
       try {
+        SqlHelper.NotifyConnectionOpening(handlers, connection);
         connection.Open();
+        SqlHelper.NotifyConnectionInitializing(handlers, connection, query);
+
         using var command = connection.CreateCommand();
         command.CommandText = query;
-        command.ExecuteNonQuery();
+        _ = command.ExecuteNonQuery();
 
+        SqlHelper.NotifyConnectionOpened(handlers, connection);
         return connection;
       }
       catch (Exception exception) {
+        var retryToConnect = InternalHelpers.ShouldRetryOn(exception);
+        if(!retryToConnect)
+          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, exception);
+
         var connectionString = connection.ConnectionString;
         try {
           connection.Close();
@@ -278,7 +298,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
 
         if (InternalHelpers.ShouldRetryOn(exception)) {
-          var (isReconnected, newConnection) = TryReconnect(connectionString, query);
+          var (isReconnected, newConnection) = TryReconnect(connectionString, query, handlers);
           if (isReconnected) {
             return newConnection;
           }
@@ -322,18 +342,23 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     private static (bool isReconnected, SqlServerConnection connection) TryReconnect(
-      string connectionString, string query)
+      string connectionString, string query, IReadOnlyCollection<IConnectionHandler> handlers)
     {
+      var connection = new SqlServerConnection(connectionString);
       try {
-        var connection = new SqlServerConnection(connectionString);
+        SqlHelper.NotifyConnectionOpening(handlers, connection, true);
         connection.Open();
+        SqlHelper.NotifyConnectionInitializing(handlers, connection, query, true);
         using (var command = connection.CreateCommand()) {
           command.CommandText = query;
-          command.ExecuteNonQuery();
+          _ = command.ExecuteNonQuery();
         }
+        SqlHelper.NotifyConnectionOpened(handlers, connection, true);
         return (true, connection);
       }
-      catch {
+      catch(Exception exception) {
+        SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, exception, true);
+        connection.Dispose();
         return (false, null);
       }
     }
