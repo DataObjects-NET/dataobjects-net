@@ -178,10 +178,15 @@ namespace Xtensive.Orm.Providers
     {
       var instances = new List<IConnectionHandler>();
       factories = new ConcurrentDictionary<Type, Func<IConnectionHandler>>();
-      foreach (var item in connectionHandlerTypes) {
-        var handlerFactory = (Func<IConnectionHandler>) FactoryCreatorMethod.MakeGenericMethod(item).Invoke(null, null);
+      foreach (var type in connectionHandlerTypes) {
+        var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
+        if (ctor == null) {
+          throw new NotSupportedException(string.Format(Strings.ExConnectionHandlerXHasNoParameterlessConstructor, type));
+        }
+
+        var handlerFactory = (Func<IConnectionHandler>) FactoryCreatorMethod.MakeGenericMethod(type).Invoke(null, null);
         instances.Add(handlerFactory());
-        factories[item] = handlerFactory;
+        factories[type] = handlerFactory;
       }
       if (factories.Count == 0)
         factories = null;
