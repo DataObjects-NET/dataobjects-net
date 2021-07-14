@@ -450,6 +450,27 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <returns>Query result.</returns>
+    public QueryResult<TElement> Execute<TElement, TParameterContainer>(object key, Func<QueryEndpoint, IQueryable<TElement>> query, TParameterContainer parameterContainer)
+      where TParameterContainer : class
+    {
+      var parameterContext = new ParameterContext();
+      var userParameter = CreateUserParameter<TParameterContainer>();
+      parameterContext.SetValue(userParameter, parameterContainer);
+      return new CompiledQueryRunner(this, key, parameterContainer, parameterContext, userParameter).ExecuteCompiled(query);
+    }
+
+    /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
     /// and executes them if it's already cached;
@@ -477,6 +498,27 @@ namespace Xtensive.Orm
     public QueryResult<TElement> Execute<TElement>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query)
     {
       return new CompiledQueryRunner(this, key, query.Target).ExecuteCompiled(query);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <returns>Query result.</returns>
+    public QueryResult<TElement> Execute<TElement, TParameterContainer>(object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query, TParameterContainer parameterContainer)
+      where TParameterContainer : class
+    {
+      var parameterContext = new ParameterContext();
+      var userParameter = CreateUserParameter<TParameterContainer>();
+      parameterContext.SetValue(userParameter, parameterContainer);
+      return new CompiledQueryRunner(this, key, parameterContainer, parameterContext, userParameter).ExecuteCompiled(query);
     }
 
     /// <summary>
@@ -516,12 +558,33 @@ namespace Xtensive.Orm
     /// and caches the result.
     /// </summary>
     /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <returns>Query result.</returns>
+    public TResult Execute<TResult, TParameterContainer>(object key, Func<QueryEndpoint, TResult> query, TParameterContainer parameterContainer)
+      where TParameterContainer : class
+    {
+      var parameterContext = new ParameterContext();
+      var userParameter = CreateUserParameter<TParameterContainer>();
+      parameterContext.SetValue(userParameter, parameterContainer);
+      return new CompiledQueryRunner(this, key, parameterContainer, parameterContext, userParameter).ExecuteCompiled(query);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and executes them if it's already cached;
+    /// otherwise executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
     /// <param name="key">An object identifying this query in cache.</param>
     /// <param name="query">A delegate performing the query to cache.</param>
     /// <param name="parameterContext"><see cref="ParameterContext"/> instance holding explicitly set
     /// values of query parameters.</param>
     /// <returns>Query result.</returns>
-    public TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query, ParameterContext parameterContext)
+    internal TResult Execute<TResult>(object key, Func<QueryEndpoint,TResult> query, ParameterContext parameterContext)
     {
       return new CompiledQueryRunner(this, key, query.Target, parameterContext).ExecuteCompiled(query);
     }
@@ -593,6 +656,58 @@ namespace Xtensive.Orm
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
 
     /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<QueryResult<TElement>> ExecuteAsync<TElement, TParameterContainer>(
+      object key, Func<QueryEndpoint, IQueryable<TElement>> query, TParameterContainer parameterContainer)
+      where TParameterContainer : class
+    {
+      return ExecuteAsync(key, query, parameterContainer, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<QueryResult<TElement>> ExecuteAsync<TElement, TParameterContainer>(
+      object key,
+      Func<QueryEndpoint, IQueryable<TElement>> query,
+      TParameterContainer parameterContainer,
+      CancellationToken token)
+      where TParameterContainer : class
+    {
+      var parameterContext = new ParameterContext();
+      var userParameter = CreateUserParameter<TParameterContainer>();
+      parameterContext.SetValue(userParameter, parameterContainer);
+      return new CompiledQueryRunner(this, key, parameterContainer, parameterContext, userParameter).ExecuteCompiledAsync(query, token);
+    }
+
+
+    /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
     /// and asynchronously executes them if it's already cached;
@@ -659,6 +774,55 @@ namespace Xtensive.Orm
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
 
     /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<QueryResult<TElement>> ExecuteAsync<TElement, TParameterContainer>(
+      object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query, TParameterContainer parameterContainer)
+      where TParameterContainer : class
+    {
+      return ExecuteAsync(key, query, parameterContainer, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="TElement">The type of the resulting sequence element.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<QueryResult<TElement>> ExecuteAsync<TElement, TParameterContainer>(
+      object key, Func<QueryEndpoint, IOrderedQueryable<TElement>> query, TParameterContainer parameterContainer,
+      CancellationToken token)
+      where TParameterContainer : class
+    {
+      var parameterContext = new ParameterContext();
+      var userParameter = CreateUserParameter<TParameterContainer>();
+      parameterContext.SetValue(userParameter, parameterContainer);
+      return new CompiledQueryRunner(this, key, parameterContainer, parameterContext, userParameter).ExecuteCompiledAsync(query, token);
+    }
+
+    /// <summary>
     /// Finds compiled query in cache by provided <paramref name="query"/> delegate
     /// (in fact, by its <see cref="MethodInfo"/> instance)
     /// and asynchronously executes them if it's already cached;
@@ -723,6 +887,55 @@ namespace Xtensive.Orm
     /// <returns>Task performing operation.</returns>
     public Task<TResult> ExecuteAsync<TResult>(object key, Func<QueryEndpoint, TResult> query, CancellationToken token) =>
       new CompiledQueryRunner(this, key, query.Target).ExecuteCompiledAsync(query, token);
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<TResult> ExecuteAsync<TResult, TParameterContainer>(
+      object key, Func<QueryEndpoint, TResult> query, TParameterContainer parameterContainer)
+      where TParameterContainer : class
+    {
+      return ExecuteAsync(key, query, parameterContainer, CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Finds compiled query in cache by provided <paramref name="key"/>
+    /// and asynchronously executes them if it's already cached;
+    /// otherwise asynchronously executes the <paramref name="query"/> delegate
+    /// and caches the result.
+    /// </summary>
+    /// <remarks>Multiple active operations in the same session instance are not supported. Use
+    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
+    /// another method in this session.</remarks>
+    /// <typeparam name="TResult">The type of the result.</typeparam>
+    /// <typeparam name="TParameterContainer">Type of parameter container.</typeparam>
+    /// <param name="key">An object identifying this query in cache.</param>
+    /// <param name="query">A delegate performing the query to cache.</param>
+    /// <param name="parameterContainer">An oblect that contains all parameters for caching.</param>
+    /// <param name="token">Token to cancel operation.</param>
+    /// <returns>Task performing operation.</returns>
+    public Task<TResult> ExecuteAsync<TResult, TParameterContainer>(
+      object key, Func<QueryEndpoint, TResult> query, TParameterContainer parameterContainer,
+      CancellationToken token)
+      where TParameterContainer : class
+    {
+      var parameterContext = new ParameterContext();
+      var userParameter = CreateUserParameter<TParameterContainer>();
+      parameterContext.SetValue(userParameter, parameterContainer);
+      return new CompiledQueryRunner(this, key, parameterContainer, parameterContext, userParameter).ExecuteCompiledAsync(query, token);
+    }
 
     #endregion
 
@@ -939,6 +1152,13 @@ namespace Xtensive.Orm
       return RootBuilder!=null
         ? RootBuilder.BuildRootExpression(elementType)
         : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
+    }
+
+    private Parameter CreateUserParameter<TParameterContainer>()
+    {
+      var parameterType = WellKnownOrmTypes.ParameterOfT.MakeGenericType(typeof(TParameterContainer));
+      var userParameter = (Parameter) System.Activator.CreateInstance(parameterType, "uClosure");
+      return userParameter;
     }
 
     #endregion

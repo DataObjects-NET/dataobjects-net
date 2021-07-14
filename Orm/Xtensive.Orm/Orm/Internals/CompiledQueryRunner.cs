@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -47,7 +48,7 @@ namespace Xtensive.Orm.Internals
         return parameterizedQuery.ExecuteScalar<TResult>(session, CreateParameterContext(parameterizedQuery));
       }
 
-      GetScalarQuery(query, true, out var result);
+      _ = GetScalarQuery(query, true, out var result);
       return result;
     }
 
@@ -155,16 +156,30 @@ namespace Xtensive.Orm.Internals
       }
 
       var closureType = queryTarget.GetType();
-      var parameterType = WellKnownOrmTypes.ParameterOfT.MakeGenericType(closureType);
-      var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
-      queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
-      queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
+      Type parameterType;
+      Type parameterValueType;
+      PropertyInfo valueMemberInfo;
+      if (queryParameter == null) {
+        parameterType = WellKnownOrmTypes.ParameterOfT.MakeGenericType(closureType);
+        parameterValueType = closureType;
+        queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
+        valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
+        queryParameterReplacer = new ExtendedExpressionReplacer(RegularReplacer);
+      }
+      else {
+        parameterType = queryParameter.GetType();
+        parameterValueType = queryParameter.GetType().GetGenericArguments()[0];
+        valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), parameterValueType);
+        queryParameterReplacer = new ExtendedExpressionReplacer(UserParameterReplacer);
+      }
+
+      Expression RegularReplacer(Expression expression)
+      {
         if (expression.NodeType != ExpressionType.Constant) {
           return null;
         }
-
         if (expression.Type.IsClosure()) {
-          if (expression.Type==closureType) {
+          if (expression.Type == closureType) {
             return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
 
@@ -172,19 +187,25 @@ namespace Xtensive.Orm.Internals
             Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
         }
 
-        if (closureType.DeclaringType==null) {
-          if (expression.Type==closureType) {
+        if (closureType.DeclaringType == null) {
+          if (expression.Type == closureType) {
+            // declaring type = null means that type is not nested
+            // and type = closure type means that it is declared instance property/field
+            // and query is executed from method of this instance
             return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
         }
         else {
-          if (expression.Type==closureType) {
+          // closure type is nested type
+          if (expression.Type == closureType) {
+            //nested class members
             return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
 
-          if (expression.Type==closureType.DeclaringType) {
+          if (expression.Type == closureType.DeclaringType) {
+            //access to instance field or property from funcs that runs execute within, see IssueJira0546 test for that case
             var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
-            if (memberInfo!=null) {
+            if (memberInfo != null) {
               return Expression.MakeMemberAccess(
                 Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
                 memberInfo);
@@ -193,7 +214,54 @@ namespace Xtensive.Orm.Internals
 
         }
         return null;
-      });
+      }
+
+      Expression UserParameterReplacer(Expression expression)
+      {
+        if (expression.NodeType == ExpressionType.MemberAccess) {
+          if (expression.Type == parameterValueType) {
+            var memberExpression = expression as MemberExpression;
+            if (memberExpression.Expression == null) {
+              return null;
+            }
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          }
+        }
+
+        if (expression.NodeType != ExpressionType.Constant) {
+          return null;
+        }
+        if (expression.Type.IsClosure()) {
+          if (expression.Type == closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          }
+
+          throw new NotSupportedException(string.Format(
+            Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+        }
+
+        if (closureType.DeclaringType == null) {
+          if (expression.Type == closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          }
+        }
+        else {
+          if (expression.Type == closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+          }
+
+          if (expression.Type == closureType.DeclaringType) {
+            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+            if (memberInfo != null) {
+              return Expression.MakeMemberAccess(
+                Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
+                memberInfo);
+            }
+          }
+
+        }
+        return null;
+      }
     }
 
     private ParameterizedQuery GetCachedQuery()
@@ -235,6 +303,34 @@ namespace Xtensive.Orm.Internals
       this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
+    }
+
+    private struct ParametersWrapper
+    {
+      public object RootTarget { get; private set; }
+
+      public object UserClosure1 { get; set; }
+      public object UserClosure2 { get; set; }
+
+      public object UserClosure3 { get; set; }
+
+      public System.Collections.Generic.IDictionary<Type, object> TypeToInstanseMap { get; private set; }
+
+      public ParametersWrapper(object rootTarger)
+      {
+        RootTarget = rootTarger;
+        UserClosure1 = null;
+        UserClosure2 = null;
+        UserClosure3 = null;
+
+        TypeToInstanseMap = new System.Collections.Generic.Dictionary<Type, object>();
+      }
+    }
+
+    public CompiledQueryRunner(QueryEndpoint endpoint, object queryKey, object queryTarget, ParameterContext outerContext, Parameter userParameter)
+      : this(endpoint, queryKey, queryTarget, outerContext)
+    {
+      queryParameter = userParameter;
     }
   }
 }
