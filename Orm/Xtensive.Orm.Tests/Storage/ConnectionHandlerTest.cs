@@ -12,10 +12,11 @@ using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
 using Xtensive.Orm.Tests.Storage.ConnectionHandlersModel;
+using System.Threading.Tasks;
 
 namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
 {
-  public class MyConnectionHandler : IConnectionHandler
+  public class MyConnectionHandler : ConnectionHandler
   {
     private Guid instanceMarker;
 
@@ -26,13 +27,13 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
     public int ConnectionOpenedCounter;
     public int ConnectionOpeningFailedCounter;
 
-    public void ConnectionOpening(ConnectionEventData eventData)
+    public override void ConnectionOpening(ConnectionEventData eventData)
     {
       instanceMarker = UniqueInstanceIdentifier;
       ConnectionOpeningCounter++;
     }
 
-    public void ConnectionInitialization(ConnectionInitEventData eventData)
+    public override void ConnectionInitialization(ConnectionInitEventData eventData)
     {
       ConnectionInitializationCounter++;
       if (instanceMarker != UniqueInstanceIdentifier) {
@@ -40,7 +41,7 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
       }
     }
 
-    public void ConnectionOpened(ConnectionEventData eventData)
+    public override void ConnectionOpened(ConnectionEventData eventData)
     {
       ConnectionOpenedCounter++;
       if (instanceMarker != UniqueInstanceIdentifier) {
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
       }
     }
 
-    public void ConnectionOpeningFailed(ConnectionErrorEventData eventData)
+    public override void ConnectionOpeningFailed(ConnectionErrorEventData eventData)
     {
       ConnectionOpeningFailedCounter++;
       if (instanceMarker != UniqueInstanceIdentifier) {
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
     }
   }
 
-  public class NoDefaultConstructorHandler : IConnectionHandler
+  public class NoDefaultConstructorHandler : ConnectionHandler
   {
 #pragma warning disable IDE0060 // Remove unused parameter
     public NoDefaultConstructorHandler(int dummyParameter)
@@ -71,7 +72,7 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
     }
   }
 
-  public class NonPublicDefaultConstructorHandler : IConnectionHandler
+  public class NonPublicDefaultConstructorHandler : ConnectionHandler
   {
     private NonPublicDefaultConstructorHandler()
     {
@@ -80,31 +81,31 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
 
   #region Performance Test handlers
 
-  public class PerfHandler1 : IConnectionHandler { }
-  public class PerfHandler2 : IConnectionHandler { }
-  public class PerfHandler3 : IConnectionHandler { }
-  public class PerfHandler4 : IConnectionHandler { }
-  public class PerfHandler5 : IConnectionHandler { }
-  public class PerfHandler6 : IConnectionHandler { }
-  public class PerfHandler7 : IConnectionHandler { }
-  public class PerfHandler8 : IConnectionHandler { }
-  public class PerfHandler9 : IConnectionHandler { }
-  public class PerfHandler10 : IConnectionHandler { }
-  public class PerfHandler11 : IConnectionHandler { }
-  public class PerfHandler12 : IConnectionHandler { }
-  public class PerfHandler13 : IConnectionHandler { }
-  public class PerfHandler14 : IConnectionHandler { }
-  public class PerfHandler15 : IConnectionHandler { }
-  public class PerfHandler16 : IConnectionHandler { }
-  public class PerfHandler17 : IConnectionHandler { }
-  public class PerfHandler18 : IConnectionHandler { }
-  public class PerfHandler19 : IConnectionHandler { }
-  public class PerfHandler20 : IConnectionHandler { }
-  public class PerfHandler21 : IConnectionHandler { }
-  public class PerfHandler22 : IConnectionHandler { }
-  public class PerfHandler23 : IConnectionHandler { }
-  public class PerfHandler24 : IConnectionHandler { }
-  public class PerfHandler25 : IConnectionHandler { }
+  public class PerfHandler1 : ConnectionHandler { }
+  public class PerfHandler2 : ConnectionHandler { }
+  public class PerfHandler3 : ConnectionHandler { }
+  public class PerfHandler4 : ConnectionHandler { }
+  public class PerfHandler5 : ConnectionHandler { }
+  public class PerfHandler6 : ConnectionHandler { }
+  public class PerfHandler7 : ConnectionHandler { }
+  public class PerfHandler8 : ConnectionHandler { }
+  public class PerfHandler9 : ConnectionHandler { }
+  public class PerfHandler10 : ConnectionHandler { }
+  public class PerfHandler11 : ConnectionHandler { }
+  public class PerfHandler12 : ConnectionHandler { }
+  public class PerfHandler13 : ConnectionHandler { }
+  public class PerfHandler14 : ConnectionHandler { }
+  public class PerfHandler15 : ConnectionHandler { }
+  public class PerfHandler16 : ConnectionHandler { }
+  public class PerfHandler17 : ConnectionHandler { }
+  public class PerfHandler18 : ConnectionHandler { }
+  public class PerfHandler19 : ConnectionHandler { }
+  public class PerfHandler20 : ConnectionHandler { }
+  public class PerfHandler21 : ConnectionHandler { }
+  public class PerfHandler22 : ConnectionHandler { }
+  public class PerfHandler23 : ConnectionHandler { }
+  public class PerfHandler24 : ConnectionHandler { }
+  public class PerfHandler25 : ConnectionHandler { }
 
   #endregion
 
@@ -157,6 +158,19 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public void NoDefaultConstructorAsyncTest()
+    {
+      var domainConfig = DomainConfigurationFactory.Create();
+      domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
+      domainConfig.Types.Register(typeof(DummyEntity));
+      domainConfig.Types.Register(typeof(NoDefaultConstructorHandler));
+
+      Domain domain = null;
+      _ = Assert.ThrowsAsync<NotSupportedException>(async () => domain = await Domain.BuildAsync(domainConfig));
+      domain.DisposeSafely();
+    }
+
+    [Test]
     public void NonPublicDefaultConstructorTest()
     {
       var domainConfig = DomainConfigurationFactory.Create();
@@ -168,6 +182,17 @@ namespace Xtensive.Orm.Tests.Storage
     }
 
     [Test]
+    public async Task NonPublicDefaultConstructorAsyncTest()
+    {
+      var domainConfig = DomainConfigurationFactory.Create();
+      domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
+      domainConfig.Types.Register(typeof(DummyEntity));
+      domainConfig.Types.Register(typeof(NonPublicDefaultConstructorHandler));
+
+      await using var domain = await Domain.BuildAsync(domainConfig);
+    }
+
+    [Test]
     public void SessionConnectionHandlersTest()
     {
       var domainConfig = DomainConfigurationFactory.Create();
@@ -175,7 +200,7 @@ namespace Xtensive.Orm.Tests.Storage
       domainConfig.Types.Register(typeof(DummyEntity));
       domainConfig.Types.Register(typeof(MyConnectionHandler));
 
-      Guid? first = null; 
+      Guid? first = null;
       using (var domain = Domain.Build(domainConfig))
       using (var session = domain.OpenSession()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
@@ -189,6 +214,39 @@ namespace Xtensive.Orm.Tests.Storage
       Guid? second = null;
       using (var domain = Domain.Build(domainConfig))
       using (var session = domain.OpenSession()) {
+        var nativeHandler = (SqlSessionHandler) session.Handler;
+        var extension = nativeHandler.Connection.Extensions.Get<ConnectionHandlersExtension>();
+        var handlerInstance = (MyConnectionHandler) extension.Handlers.First();
+        Assert.That(handlerInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
+        Assert.That(handlerInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        second = handlerInstance.UniqueInstanceIdentifier;
+      }
+
+      Assert.That(first != null && second != null && first != second, Is.True);
+    }
+
+    [Test]
+    public async Task SessionConnectionHandlersAsyncTest()
+    {
+      var domainConfig = DomainConfigurationFactory.Create();
+      domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
+      domainConfig.Types.Register(typeof(DummyEntity));
+      domainConfig.Types.Register(typeof(MyConnectionHandler));
+
+      Guid? first = null;
+      await using (var domain = await Domain.BuildAsync(domainConfig))
+      await using (var session = await domain.OpenSessionAsync()) {
+        var nativeHandler = (SqlSessionHandler) session.Handler;
+        var extension = nativeHandler.Connection.Extensions.Get<ConnectionHandlersExtension>();
+        var handlerInstance = (MyConnectionHandler) extension.Handlers.First();
+        Assert.That(handlerInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
+        Assert.That(handlerInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        first = handlerInstance.UniqueInstanceIdentifier;
+      }
+
+      Guid? second = null;
+      await using (var domain = await Domain.BuildAsync(domainConfig))
+      await using (var session = await domain.OpenSessionAsync()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
         var extension = nativeHandler.Connection.Extensions.Get<ConnectionHandlersExtension>();
         var handlerInstance = (MyConnectionHandler) extension.Handlers.First();
@@ -215,6 +273,35 @@ namespace Xtensive.Orm.Tests.Storage
 
       using (var domain = Domain.Build(domainConfig))
       using (var session = domain.OpenSession()) {
+        var nativeHandler = (SqlSessionHandler) session.Handler;
+        var extensions = nativeHandler.Connection.Extensions;
+        if (includeHandlersCount > 0) {
+          Assert.That(extensions.Count, Is.EqualTo(1));
+          var extension = extensions.Get<ConnectionHandlersExtension>();
+          Assert.That(extension, Is.Not.Null);
+          Assert.That(extension.Handlers.Count, Is.EqualTo(includeHandlersCount));
+        }
+        else {
+          Assert.That(extensions.Count, Is.EqualTo(0));
+        }
+      }
+    }
+
+    [Test]
+    [TestCase(0)]
+    [TestCase(1)]
+    [TestCase(2)]
+    public async Task ConnectionExtensionExistanceAsyncTest(int includeHandlersCount)
+    {
+      var domainConfig = DomainConfigurationFactory.Create();
+      domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
+
+      foreach (var handler in GetHandlers(includeHandlersCount)) {
+        domainConfig.Types.Register(handler);
+      }
+
+      await using (var domain = await Domain.BuildAsync(domainConfig))
+      await using (var session = await domain.OpenSessionAsync()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
         var extensions = nativeHandler.Connection.Extensions;
         if (includeHandlersCount > 0) {

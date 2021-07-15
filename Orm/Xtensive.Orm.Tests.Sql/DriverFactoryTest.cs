@@ -9,34 +9,67 @@ using Xtensive.Orm;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Sql;
 using Xtensive.Orm.Tests.Sql.DriverFactoryTestTypes;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Xtensive.Orm.Tests.Sql.DriverFactoryTestTypes
 {
-  public class TestConnectionHandler : IConnectionHandler
+  public class TestConnectionHandler : ConnectionHandler
   {
     public int OpeningCounter = 0;
-    public int OpenedCounter = 0;
-    public int OpeningInitCounter = 0;
-    public int OpeningFailedCounter = 0;
+    public int OpeningAsyncCounter = 0;
 
-    public void ConnectionOpening(ConnectionEventData eventData)
+    public int OpeningInitCounter = 0;
+    public int OpeningInitAsyncCounter = 0;
+
+    public int OpenedCounter = 0;
+    public int OpenedAsyncCounter = 0;
+
+    public int OpeningFailedCounter = 0;
+    public int OpeningFailedAsyncCounter = 0;
+
+    public override void ConnectionOpening(ConnectionEventData eventData)
     {
       OpeningCounter++;
     }
 
-    public void ConnectionOpened(ConnectionEventData eventData)
+    public override Task ConnectionOpeningAsync(ConnectionEventData eventData, CancellationToken cancellationToken)
     {
-      OpenedCounter++;
+      OpeningAsyncCounter++;
+      return base.ConnectionOpeningAsync(eventData, cancellationToken);
     }
 
-    public void ConnectionInitialization(ConnectionInitEventData eventData)
+    public override void ConnectionInitialization(ConnectionInitEventData eventData)
     {
       OpeningInitCounter++;
     }
 
-    public void ConnectionOpeningFailed(ConnectionErrorEventData eventData)
+    public override Task ConnectionInitializationAsync(ConnectionInitEventData eventData, CancellationToken cancellationToken)
+    {
+      OpeningInitAsyncCounter++;
+      return base.ConnectionInitializationAsync(eventData, cancellationToken);
+    }
+
+    public override void ConnectionOpened(ConnectionEventData eventData)
+    {
+      OpenedCounter++;
+    }
+
+    public override Task ConnectionOpenedAsync(ConnectionEventData eventData, CancellationToken cancellationToken)
+    {
+      OpenedAsyncCounter++;
+      return base.ConnectionOpenedAsync(eventData, cancellationToken);
+    }
+
+    public override void ConnectionOpeningFailed(ConnectionErrorEventData eventData)
     {
       OpeningFailedCounter++;
+    }
+
+    public override Task ConnectionOpeningFailedAsync(ConnectionErrorEventData eventData, CancellationToken cancellationToken)
+    {
+      OpeningFailedAsyncCounter++;
+      return base.ConnectionOpeningFailedAsync(eventData, cancellationToken);
     }
   }
 
@@ -142,36 +175,62 @@ namespace Xtensive.Orm.Tests.Sql
       var factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
 
       Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
 
       var configuration = new SqlDriverConfiguration(handlersArray);
       _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
       Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
 
       configuration = new SqlDriverConfiguration(handlersArray) { EnsureConnectionIsAlive = true };
       _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
       Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(2));
-      if (provider == WellKnown.Provider.SqlServer)
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(0));
+
+      if (provider == WellKnown.Provider.SqlServer) {
         Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(1));
-      else
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      }
+      else {
         Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      }
+
       Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(2));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
 
       configuration = new SqlDriverConfiguration(handlersArray) { ConnectionInitializationSql = InitQueryPerProvider(provider) };
       _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
       Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(3));
-      if (provider == WellKnown.Provider.SqlServer)
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(0));
+
+      if (provider == WellKnown.Provider.SqlServer) {
         Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(2));
-      else
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      }
+      else {
         Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(1));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      }
+
       Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(3));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
 
       configuration = new SqlDriverConfiguration(handlersArray) { ConnectionInitializationSql = "dummy string to trigger error" };
       try {
@@ -181,12 +240,112 @@ namespace Xtensive.Orm.Tests.Sql
         //skip it
       }
       Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(4));
-      if (provider == WellKnown.Provider.SqlServer)
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(0));
+
+      if (provider == WellKnown.Provider.SqlServer) {
         Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(3));
-      else
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      }
+      else {
         Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(2));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      }
+
       Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(3));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(0));
       Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
+    }
+
+    [Test]
+    public async Task ConnectionHandlerAsyncTest()
+    {
+      var handlerInstance = new TestConnectionHandler();
+      var handlersArray = new[] { handlerInstance };
+      var descriptor = ProviderDescriptor.Get(provider);
+      var factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
+
+      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
+      
+      var configuration = new SqlDriverConfiguration(handlersArray);
+      _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
+
+      configuration = new SqlDriverConfiguration(handlersArray) { EnsureConnectionIsAlive = true };
+      _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(2));
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(2));
+
+      if (provider == WellKnown.Provider.SqlServer) {
+        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(1));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(1));
+      }
+      else {
+        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(0));
+      }
+
+      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(2));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(2));
+      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
+
+      configuration = new SqlDriverConfiguration(handlersArray) { ConnectionInitializationSql = InitQueryPerProvider(provider) };
+      _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(3));
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(3));
+      if (provider == WellKnown.Provider.SqlServer) {
+        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(2));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(2));
+      }
+      else {
+        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(1));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(1));
+      }
+
+      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(3));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(3));
+      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(0));
+
+      configuration = new SqlDriverConfiguration(handlersArray) { ConnectionInitializationSql = "dummy string to trigger error" };
+      try {
+        _ = await factory.GetDriverAsync(new ConnectionInfo(Url), configuration, CancellationToken.None);
+      }
+      catch {
+        //skip it
+      }
+
+      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(4));
+      Assert.That(handlerInstance.OpeningAsyncCounter, Is.EqualTo(4));
+
+      if (provider == WellKnown.Provider.SqlServer) {
+        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(3));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(3));
+      }
+      else {
+        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(2));
+        Assert.That(handlerInstance.OpeningInitAsyncCounter, Is.EqualTo(2));
+      }
+
+      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(3));
+      Assert.That(handlerInstance.OpenedAsyncCounter, Is.EqualTo(3));
+      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(1));
+      Assert.That(handlerInstance.OpeningFailedAsyncCounter, Is.EqualTo(1));
     }
 
     private static void TestProvider(string providerName, string connectionString, string connectionUrl)
