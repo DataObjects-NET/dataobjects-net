@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.12.27
 
@@ -43,7 +43,7 @@ namespace Xtensive.Sql
     public SqlDriverConfiguration Clone()
     {
       // no deep cloning
-      var interceptors = (ConnectionHandlers.Count == 0)
+      var handlers = (ConnectionHandlers.Count == 0)
         ? Array.Empty<IConnectionHandler>()
         : ConnectionHandlers.ToArray(ConnectionHandlers.Count);
 
@@ -51,7 +51,7 @@ namespace Xtensive.Sql
         ForcedServerVersion = ForcedServerVersion,
         ConnectionInitializationSql = ConnectionInitializationSql,
         EnsureConnectionIsAlive = EnsureConnectionIsAlive,
-        ConnectionHandlers = interceptors
+        ConnectionHandlers = handlers
       };
     }
 
@@ -63,9 +63,9 @@ namespace Xtensive.Sql
       ConnectionHandlers = Array.Empty<IConnectionHandler>();
     }
 
-    public SqlDriverConfiguration(IReadOnlyCollection<IConnectionHandler> connectionInterceptors)
+    public SqlDriverConfiguration(IReadOnlyCollection<IConnectionHandler> connectionHandlers)
     {
-      ConnectionHandlers = connectionInterceptors;
+      ConnectionHandlers = connectionHandlers;
     }
   }
 }
