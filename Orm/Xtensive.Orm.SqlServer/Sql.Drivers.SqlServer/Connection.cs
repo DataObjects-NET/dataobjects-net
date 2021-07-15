@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -39,7 +39,13 @@ namespace Xtensive.Sql.Drivers.SqlServer
         base.Open();
       }
       else {
-        OpenWithCheckFast(DefaultCheckConnectionQuery);
+        var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+        if (connectionHandlers == null) {
+          OpenWithCheckFast(DefaultCheckConnectionQuery);
+        }
+        else {
+          OpenWithCheckAndNotifications(DefaultCheckConnectionQuery, connectionHandlers);
+        }
       }
     }
 
@@ -51,7 +57,13 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return base.OpenAsync(cancellationToken);
       }
 
-      return OpenWithCheckAsync(DefaultCheckConnectionQuery, cancellationToken);
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+      if (connectionHandlers == null) {
+        return OpenWithCheckFastAsync(DefaultCheckConnectionQuery, cancellationToken);
+      }
+      else {
+        return OpenWithCheckAndNotificationsAsync(DefaultCheckConnectionQuery, connectionHandlers, cancellationToken);
+      }
     }
 
     /// <inheritdoc/>
@@ -66,10 +78,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
         ? DefaultCheckConnectionQuery
         : initializationScript;
       var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
-      if (connectionHandlers == null)
+      if (connectionHandlers == null) {
         OpenWithCheckFast(script);
-      else
-        OpenWithChecksAndNotifications(script, connectionHandlers);
+      }
+      else {
+        OpenWithCheckAndNotifications(script, connectionHandlers);
+      }
     }
 
     /// <inheritdoc/>
@@ -82,7 +96,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var script = string.IsNullOrEmpty(initializationScript.Trim())
         ? DefaultCheckConnectionQuery
         : initializationScript;
-      return OpenWithCheckAsync(script, token);
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+      return connectionHandlers == null
+        ? OpenWithCheckFastAsync(script, token)
+        : OpenWithCheckAndNotificationsAsync(script, connectionHandlers, token);
     }
 
     /// <inheritdoc/>
@@ -203,7 +220,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var connectionChecked = false;
       var restoreTriggered = false;
       while (!connectionChecked) {
-        base.Open();
+        underlyingConnection.Open();
         try {
           using (var command = underlyingConnection.CreateCommand()) {
             command.CommandText = checkQueryString;
@@ -234,7 +251,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-    private void OpenWithChecksAndNotifications(string checkQueryString, ConnectionHandlersExtension connectionHandlers)
+    private void OpenWithCheckAndNotifications(string checkQueryString, ConnectionHandlersExtension connectionHandlers)
     {
       var connectionChecked = false;
       var restoreTriggered = false;
@@ -242,7 +259,6 @@ namespace Xtensive.Sql.Drivers.SqlServer
       while (!connectionChecked) {
         SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection, (!connectionChecked && !restoreTriggered));
         underlyingConnection.Open();
-        //base.Open();
         try {
           SqlHelper.NotifyConnectionInitializing(handlers, UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered));
           using (var command = underlyingConnection.CreateCommand()) {
@@ -276,15 +292,14 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-
-    private async Task OpenWithCheckAsync(string checkQueryString, CancellationToken cancellationToken)
+    private async Task OpenWithCheckFastAsync(string checkQueryString, CancellationToken cancellationToken)
     {
       var connectionChecked = false;
       var restoreTriggered = false;
 
       while (!connectionChecked) {
         cancellationToken.ThrowIfCancellationRequested();
-        await base.OpenAsync(cancellationToken).ConfigureAwait(false);
+        await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
         try {
           var command = underlyingConnection.CreateCommand();
           await using (command.ConfigureAwait(false)) {
@@ -294,6 +309,61 @@ namespace Xtensive.Sql.Drivers.SqlServer
           connectionChecked = true;
         }
         catch (Exception exception) {
+          if (InternalHelpers.ShouldRetryOn(exception)) {
+            if (restoreTriggered) {
+              throw;
+            }
+            var newConnection = new SqlServerConnection(underlyingConnection.ConnectionString);
+            try {
+              underlyingConnection.Close();
+              underlyingConnection.Dispose();
+            }
+            catch { }
+
+            underlyingConnection = newConnection;
+            restoreTriggered = true;
+            continue;
+          }
+
+          throw;
+        }
+      }
+    }
+
+    private async Task OpenWithCheckAndNotificationsAsync(string checkQueryString,
+      ConnectionHandlersExtension connectionHandlers, CancellationToken cancellationToken)
+    {
+      var connectionChecked = false;
+      var restoreTriggered = false;
+      var handlers = connectionHandlers.Handlers;
+
+      while (!connectionChecked) {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        await SqlHelper.NotifyConnectionOpeningAsync(handlers,
+            UnderlyingConnection, (!connectionChecked && !restoreTriggered), cancellationToken)
+          .ConfigureAwait(false);
+
+        await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+        try {
+          await SqlHelper.NotifyConnectionInitializingAsync(handlers,
+              UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered), cancellationToken)
+            .ConfigureAwait(false);
+
+          var command = underlyingConnection.CreateCommand();
+          await using (command.ConfigureAwait(false)) {
+            command.CommandText = checkQueryString;
+            _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+          }
+          connectionChecked = true;
+          await SqlHelper.NotifyConnectionOpenedAsync(handlers, UnderlyingConnection, (!connectionChecked && !restoreTriggered), cancellationToken)
+            .ConfigureAwait(false);
+        }
+        catch (Exception exception) {
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers,
+              UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered), cancellationToken)
+            .ConfigureAwait(false);
+
           if (InternalHelpers.ShouldRetryOn(exception)) {
             if (restoreTriggered) {
               throw;

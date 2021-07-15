@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -152,16 +152,21 @@ namespace Xtensive.Sql.Drivers.Firebird
         }
       }
       else {
-        SqlHelper.NotifyConnectionOpening(handlers, connection);
+        await SqlHelper.NotifyConnectionOpeningAsync(handlers, connection, false, cancellationToken).ConfigureAwait(false);
         try {
-          await connection.OpenAsync();
-          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
-            SqlHelper.NotifyConnectionInitializing(handlers, connection, configuration.ConnectionInitializationSql);
-          await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken);
-          SqlHelper.NotifyConnectionOpened(handlers, connection);
+          await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
+            await SqlHelper.NotifyConnectionInitializingAsync(handlers,
+                connection, configuration.ConnectionInitializationSql, false, cancellationToken)
+              .ConfigureAwait(false);
+          }
+
+          await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(handlers, connection, false, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, connection, ex, false, cancellationToken).ConfigureAwait(false);
           throw;
         }
       }
