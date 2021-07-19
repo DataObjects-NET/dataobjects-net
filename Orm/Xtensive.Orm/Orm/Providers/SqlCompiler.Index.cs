@@ -1,6 +1,6 @@
-// Copyright (C) 2009-2010 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -15,7 +15,7 @@ using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class SqlCompiler 
+  partial class SqlCompiler
   {
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
@@ -65,18 +65,22 @@ namespace Xtensive.Orm.Providers
         atRootPolicy = true;
       }
 
-      SqlSelect query;
+      var indexColumns = index.Columns;
+      var tableRef = SqlDml.TableRef(table);
+      var query = SqlDml.Select(tableRef);
+      var queryColumns = query.Columns;
+      queryColumns.Capacity = queryColumns.Count + indexColumns.Count;
       if (!atRootPolicy) {
-        var tableRef = SqlDml.TableRef(table);
-        query = SqlDml.Select(tableRef);
-        query.Columns.AddRange(index.Columns.Select(c => tableRef[c.Name]));
+        foreach (var c in indexColumns) {
+          queryColumns.Add(tableRef[c.Name]);
+        }
       }
       else {
         var root = index.ReflectedType.GetRoot().AffectedIndexes.First(i => i.IsPrimary);
         var lookup = root.Columns.ToDictionary(c => c.Field, c => c.Name);
-        var tableRef = SqlDml.TableRef(table);
-        query = SqlDml.Select(tableRef);
-        query.Columns.AddRange(index.Columns.Select(c => tableRef[lookup[c.Field]]));
+        foreach (var c in indexColumns) {
+          queryColumns.Add(tableRef[lookup[c.Field]]);
+        }
       }
       return query;
     }
