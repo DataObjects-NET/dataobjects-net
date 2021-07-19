@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -166,7 +166,22 @@ namespace Xtensive.Sql
     public virtual void Open()
     {
       EnsureIsNotDisposed();
-      UnderlyingConnection.Open();
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+      if (connectionHandlers == null) {
+        UnderlyingConnection.Open();
+      }
+      else {
+        var handlers = connectionHandlers.Handlers;
+        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection);
+        try {
+          UnderlyingConnection.Open();
+          SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection);
+        }
+        catch (Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(handlers, UnderlyingConnection, ex);
+          throw;
+        }
+      }
     }
 
     /// <summary>
@@ -176,14 +191,37 @@ namespace Xtensive.Sql
     public virtual void OpenAndInitialize(string initializationScript)
     {
       EnsureIsNotDisposed();
-      UnderlyingConnection.Open();
-      if (string.IsNullOrEmpty(initializationScript)) {
-        return;
-      }
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+      if (connectionHandlers == null) {
+        UnderlyingConnection.Open();
+        if (string.IsNullOrEmpty(initializationScript)) {
+          return;
+        }
 
-      using var command = UnderlyingConnection.CreateCommand();
-      command.CommandText = initializationScript;
-      command.ExecuteNonQuery();
+        using var command = UnderlyingConnection.CreateCommand();
+        command.CommandText = initializationScript;
+        _ = command.ExecuteNonQuery();
+      }
+      else {
+        var handlers = connectionHandlers.Handlers;
+        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection);
+        try {
+          UnderlyingConnection.Open();
+          if (string.IsNullOrEmpty(initializationScript)) {
+            SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection);
+            return;
+          }
+
+          SqlHelper.NotifyConnectionInitializing(handlers, UnderlyingConnection, initializationScript);
+          using var command = UnderlyingConnection.CreateCommand();
+          command.CommandText = initializationScript;
+          _ = command.ExecuteNonQuery();
+        }
+        catch (Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(handlers, UnderlyingConnection, ex);
+          throw;
+        }
+      }
     }
 
     /// <summary>
@@ -193,11 +231,27 @@ namespace Xtensive.Sql
     /// to ensure that all asynchronous operations have completed.</remarks>
     /// <param name="cancellationToken">Token to control cancellation.</param>
     /// <returns>Awaitable task.</returns>
-    public virtual Task OpenAsync(CancellationToken cancellationToken)
+    public virtual async Task OpenAsync(CancellationToken cancellationToken)
     {
       cancellationToken.ThrowIfCancellationRequested();
       EnsureIsNotDisposed();
-      return UnderlyingConnection.OpenAsync(cancellationToken);
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+
+      if (connectionHandlers == null) {
+        await UnderlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+      }
+      else {
+        var handlers = connectionHandlers.Handlers;
+        await SqlHelper.NotifyConnectionOpeningAsync(handlers, UnderlyingConnection, false, cancellationToken);
+        try {
+          await UnderlyingConnection.OpenAsync(cancellationToken);
+          await SqlHelper.NotifyConnectionOpenedAsync(handlers, UnderlyingConnection, false, cancellationToken);
+        }
+        catch (Exception ex) {
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, UnderlyingConnection, ex, false, cancellationToken);
+          throw;
+        }
+      }
     }
 
     /// <summary>
@@ -212,21 +266,52 @@ namespace Xtensive.Sql
     {
       token.ThrowIfCancellationRequested();
       EnsureIsNotDisposed();
-      await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
-      if (string.IsNullOrEmpty(initializationScript)) {
-        return;
-      }
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+      if (connectionHandlers == null) {
+        await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(initializationScript)) {
+          return;
+        }
 
-      try {
-        var command = UnderlyingConnection.CreateCommand();
-        await using (command.ConfigureAwait(false)) {
-          command.CommandText = initializationScript;
-          await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+        try {
+          var command = UnderlyingConnection.CreateCommand();
+          await using (command.ConfigureAwait(false)) {
+            command.CommandText = initializationScript;
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+          }
+        }
+        catch (OperationCanceledException) {
+          await UnderlyingConnection.CloseAsync().ConfigureAwait(false);
+          throw;
         }
       }
-      catch (OperationCanceledException) {
-        await UnderlyingConnection.CloseAsync().ConfigureAwait(false);
-        throw;
+      else {
+        var handlers = connectionHandlers.Handlers;
+        await SqlHelper.NotifyConnectionOpeningAsync(handlers, UnderlyingConnection, false, token);
+        await UnderlyingConnection.OpenAsync(token).ConfigureAwait(false);
+        if (string.IsNullOrEmpty(initializationScript)) {
+          await SqlHelper.NotifyConnectionOpenedAsync(handlers, UnderlyingConnection, false, token);
+          return;
+        }
+
+        try {
+          await SqlHelper.NotifyConnectionInitializingAsync(handlers, UnderlyingConnection, initializationScript, false, token);
+          var command = UnderlyingConnection.CreateCommand();
+          await using (command.ConfigureAwait(false)) {
+            command.CommandText = initializationScript;
+            _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+          }
+          await SqlHelper.NotifyConnectionOpenedAsync(handlers, UnderlyingConnection, false, token);
+        }
+        catch (OperationCanceledException ex) {
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, UnderlyingConnection, ex, false, token);
+          await UnderlyingConnection.CloseAsync().ConfigureAwait(false);
+          throw;
+        }
+        catch (Exception ex) {
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, UnderlyingConnection, ex, false, token);
+          throw;
+        }
       }
     }
 

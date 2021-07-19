@@ -1,8 +1,13 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.12.27
+
+using System;
+using System.Collections.Generic;
+using Xtensive.Core;
+using Xtensive.Orm;
 
 namespace Xtensive.Sql
 {
@@ -27,15 +32,26 @@ namespace Xtensive.Sql
     public bool EnsureConnectionIsAlive { get; set; }
 
     /// <summary>
+    /// Gets connection handlers that should be notified about connection events.
+    /// </summary>
+    public IReadOnlyCollection<IConnectionHandler> ConnectionHandlers { get; private set; }
+
+    /// <summary>
     /// Clones this instance.
     /// </summary>
     /// <returns>Clone of this instance.</returns>
     public SqlDriverConfiguration Clone()
     {
+      // no deep cloning
+      var handlers = (ConnectionHandlers.Count == 0)
+        ? Array.Empty<IConnectionHandler>()
+        : ConnectionHandlers.ToArray(ConnectionHandlers.Count);
+
       return new SqlDriverConfiguration {
         ForcedServerVersion = ForcedServerVersion,
         ConnectionInitializationSql = ConnectionInitializationSql,
-        EnsureConnectionIsAlive = EnsureConnectionIsAlive
+        EnsureConnectionIsAlive = EnsureConnectionIsAlive,
+        ConnectionHandlers = handlers
       };
     }
 
@@ -44,6 +60,12 @@ namespace Xtensive.Sql
     /// </summary>
     public SqlDriverConfiguration()
     {
+      ConnectionHandlers = Array.Empty<IConnectionHandler>();
+    }
+
+    public SqlDriverConfiguration(IReadOnlyCollection<IConnectionHandler> connectionHandlers)
+    {
+      ConnectionHandlers = connectionHandlers;
     }
   }
 }
