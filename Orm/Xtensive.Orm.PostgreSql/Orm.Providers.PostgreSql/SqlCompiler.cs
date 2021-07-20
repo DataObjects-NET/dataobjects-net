@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -22,15 +22,16 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       var rankColumnName = provider.Header.Columns[provider.Header.Columns.Count - 1].Name;
       var stringTypeMapping = Driver.GetTypeMapping(WellKnownTypes.StringType);
-      var binding = new QueryParameterBinding(stringTypeMapping,
+      var searchCriteriaBinding = new QueryParameterBinding(stringTypeMapping,
         provider.SearchCriteria.Invoke, QueryParameterBindingType.Regular);
 
       var select = SqlDml.Select();
       var realPrimaryIndex = provider.PrimaryIndex.Resolve(Handlers.Domain.Model);
       var index = realPrimaryIndex.ReflectedType.Indexes.PrimaryIndex;
-      var query = BuildProviderQuery(index);
+      var queryAndBindings = BuildProviderQuery(index);
+      var query = queryAndBindings.Query;
       var table = Mapping[realPrimaryIndex.ReflectedType];
-      var fromTable = SqlDml.FreeTextTable(table, binding.ParameterReference,
+      var fromTable = SqlDml.FreeTextTable(table, searchCriteriaBinding.ParameterReference,
         table.Columns.Select(column => column.Name).Append(rankColumnName).ToArray(table.Columns.Count + 1));
       var fromTableRef = SqlDml.QueryRef(fromTable);
       foreach (var column in query.Columns) {
@@ -40,7 +41,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       select.Columns.Add(SqlDml.Cast(fromTableRef.Columns[rankColumnName], SqlType.Double), rankColumnName);
       select.From = fromTableRef;
       if (provider.TopN == null) {
-        return CreateProvider(select, binding, provider);
+        return CreateProvider(select, queryAndBindings.Bindings.Append(searchCriteriaBinding), provider);
       }
 
       var intTypeMapping = Driver.GetTypeMapping(typeof(int));
@@ -48,8 +49,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
         intTypeMapping, context => provider.TopN.Invoke(context), QueryParameterBindingType.Regular);
       select.Limit = topNBinding.ParameterReference;
       select.OrderBy.Add(select.Columns[rankColumnName], false);
-      return CreateProvider(select, new[] {binding, topNBinding}, provider);
-
+      return CreateProvider(select, queryAndBindings.Bindings.Append(topNBinding).Append(searchCriteriaBinding), provider);
     }
 
     protected override SqlExpression ProcessAggregate(SqlProvider source, List<SqlExpression> sourceColumns, AggregateColumn aggregateColumn)

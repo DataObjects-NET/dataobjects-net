@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 
@@ -146,6 +146,11 @@ namespace Xtensive.Sql.Info
     /// Indicates that RDBMS supports limiting operator (LIMIT or TOP or ROWS) in DELETE statement.
     /// </summary>
     DeleteLimit = 1 << 25,
+
+    /// <summary>
+    /// Indicates that RDBMS does not support SQL parameter in selected columns of SELECT statement.
+    /// </summary>
+    ParameterAsColumnNotAllowed = 1 << 26,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
