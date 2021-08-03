@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
       var handlers = CreateConnectionHandlers(configuration.Types.ConnectionHandlers, out var factories);
-      var driverConfiguration = new SqlDriverConfiguration {
+      var driverConfiguration = new SqlDriverConfiguration(handlers) {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
         EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,

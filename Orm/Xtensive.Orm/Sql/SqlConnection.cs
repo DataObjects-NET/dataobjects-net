@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -166,7 +166,22 @@ namespace Xtensive.Sql
     public virtual void Open()
     {
       EnsureIsNotDisposed();
-      UnderlyingConnection.Open();
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+      if (connectionHandlers == null) {
+        UnderlyingConnection.Open();
+      }
+      else {
+        var handlers = connectionHandlers.Handlers;
+        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection);
+        try {
+          UnderlyingConnection.Open();
+          SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection);
+        }
+        catch (Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(handlers, UnderlyingConnection, ex);
+          throw;
+        }
+      }
     }
 
     /// <summary>
@@ -176,13 +191,36 @@ namespace Xtensive.Sql
     public virtual void OpenAndInitialize(string initializationScript)
     {
       UnderlyingConnection.Open();
-      if (string.IsNullOrEmpty(initializationScript)) {
-        return;
-      }
+      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
+      if (connectionHandlers == null) {
+        UnderlyingConnection.Open();
+        if (string.IsNullOrEmpty(initializationScript)) {
+          return;
+        }
 
-      using (var command = UnderlyingConnection.CreateCommand()) {
+        using var command = UnderlyingConnection.CreateCommand();
         command.CommandText = initializationScript;
         _ = command.ExecuteNonQuery();
+      }
+      else {
+        var handlers = connectionHandlers.Handlers;
+        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection);
+        try {
+          UnderlyingConnection.Open();
+          if (string.IsNullOrEmpty(initializationScript)) {
+            SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection);
+            return;
+          }
+
+          SqlHelper.NotifyConnectionInitializing(handlers, UnderlyingConnection, initializationScript);
+          using var command = UnderlyingConnection.CreateCommand();
+          command.CommandText = initializationScript;
+          _ = command.ExecuteNonQuery();
+        }
+        catch (Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(handlers, UnderlyingConnection, ex);
+          throw;
+        }
       }
     }
 

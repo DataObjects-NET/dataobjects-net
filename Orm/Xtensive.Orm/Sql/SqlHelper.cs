@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -433,5 +433,75 @@ namespace Xtensive.Sql
     {
       return NotSupported(feature.ToString());
     }
+
+    #region Notifications
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionHandlers"/> that
+    /// <paramref name="connection"/> is about to be opened.
+    /// </summary>
+    /// <param name="connectionHandlers">The handlers that should be notified.</param>
+    /// <param name="connection">The connection that is opening.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionOpening(
+      IEnumerable<IConnectionHandler> connectionHandlers, DbConnection connection, bool reconnect = false)
+    {
+      foreach (var handler in connectionHandlers) {
+        handler.ConnectionOpening(new ConnectionEventData(connection, reconnect));
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionHandlers"/> that
+    /// opened connection is about to be initialized with <paramref name="initializationScript"/>.
+    /// </summary>
+    /// <param name="connectionHandlers">The handlers that should be notified.</param>
+    /// <param name="connection">Opened but not initialized connection</param>
+    /// <param name="initializationScript">The script that will run to initialize connection</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionInitializing(
+      IEnumerable<IConnectionHandler> connectionHandlers, DbConnection connection, string initializationScript, bool reconnect = false)
+    {
+      foreach (var handler in connectionHandlers) {
+        handler.ConnectionInitialization(new ConnectionInitEventData(initializationScript, connection, reconnect));
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionHandlers"/> about
+    /// successful connection opening.
+    /// </summary>
+    /// <param name="connectionHandlers">The handlers that should be notified.</param>
+    /// <param name="connection">The connection that is completely opened and initialized.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionOpened(
+      IEnumerable<IConnectionHandler> connectionHandlers, DbConnection connection, bool reconnect = false)
+    {
+      foreach (var handler in connectionHandlers) {
+        handler.ConnectionOpened(new ConnectionEventData(connection, reconnect));
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionHandlers"/> about
+    /// connection opening failure.
+    /// </summary>
+    /// <param name="connectionHandlers">The handlers that should be notified.</param>
+    /// <param name="connection">Connection that failed to be opened or properly initialized.</param>
+    /// <param name="exception">The exception which appeared.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionOpeningFailed(
+      IEnumerable<IConnectionHandler> connectionHandlers, DbConnection connection, Exception exception, bool reconnect = false)
+    {
+      foreach (var handler in connectionHandlers) {
+        handler.ConnectionOpeningFailed(new ConnectionErrorEventData(exception, connection, reconnect));
+      }
+    }
+
+    #endregion
   }
 }
