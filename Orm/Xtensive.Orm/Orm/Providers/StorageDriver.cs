@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -7,7 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -24,12 +27,17 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed partial class StorageDriver
   {
+    private static readonly MethodInfo FactoryCreatorMethod = typeof(StorageDriver)
+      .GetMethod(nameof(CreateNewHandler), BindingFlags.Static | BindingFlags.NonPublic);
+
     private readonly DomainConfiguration configuration;
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingRegistry allMappings;
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
+
+    private readonly IReadOnlyDictionary<Type, Func<IConnectionHandler>> handlerFactoriesCache;
 
     public ProviderInfo ProviderInfo { get; private set; }
 
@@ -86,7 +94,7 @@ namespace Xtensive.Orm.Providers
     public StorageDriver CreateNew(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain));
+      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), handlerFactoriesCache);
     }
 
     private static DomainModel GetNullModel()
@@ -140,6 +148,61 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    private IReadOnlyCollection<IConnectionHandler> CreateConnectionHandlersFast(IEnumerable<Type> connectionHandlerTypes)
+    {
+      if (handlerFactoriesCache == null)
+        return Array.Empty<IConnectionHandler>();
+      var instances = new List<IConnectionHandler>(handlerFactoriesCache.Count);
+      foreach (var type in connectionHandlerTypes) {
+        if (handlerFactoriesCache.TryGetValue(type, out var factory)) {
+          instances.Add(factory());
+        }
+      }
+      return instances.ToArray();
+    }
+
+    private static IReadOnlyCollection<IConnectionHandler> CreateConnectionHandlers(IEnumerable<Type> connectionHandlerTypes,
+      out IReadOnlyDictionary<Type, Func<IConnectionHandler>> factories)
+    {
+      factories = null;
+
+      List<IConnectionHandler> instances;
+      Dictionary<Type, Func<IConnectionHandler>> factoriesLocal;
+
+      if (connectionHandlerTypes is IReadOnlyCollection<Type> asCollection) {
+        if (asCollection.Count == 0)
+          return Array.Empty<IConnectionHandler>();
+        instances = new List<IConnectionHandler>(asCollection.Count);
+        factoriesLocal = new Dictionary<Type, Func<IConnectionHandler>>(asCollection.Count);
+      }
+      else {
+        if (connectionHandlerTypes.Any())
+          return Array.Empty<IConnectionHandler>();
+        instances = new List<IConnectionHandler>();
+        factoriesLocal = new Dictionary<Type, Func<IConnectionHandler>>();
+      }
+
+      foreach (var type in connectionHandlerTypes) {
+        var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
+        if (ctor == null) {
+          throw new NotSupportedException(string.Format(Strings.ExConnectionHandlerXHasNoParameterlessConstructor, type));
+        }
+
+        var handlerFactory = (Func<IConnectionHandler>) FactoryCreatorMethod.MakeGenericMethod(type).Invoke(null, null);
+        instances.Add(handlerFactory());
+        factoriesLocal[type] = handlerFactory;
+      }
+      factories = factoriesLocal;
+      return instances.ToArray();
+    }
+
+    private static Func<IConnectionHandler> CreateNewHandler<T>() where T : IConnectionHandler
+    {
+      return FastExpression.Lambda<Func<IConnectionHandler>>(
+        Expression.Convert(Expression.New(typeof(T)), typeof(IConnectionHandler)))
+        .Compile();
+    }
+
     // Constructors
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
@@ -147,6 +210,7 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
+      var handlers = CreateConnectionHandlers(configuration.Types.ConnectionHandlers, out var factories);
       var driverConfiguration = new SqlDriverConfiguration {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
@@ -156,11 +220,14 @@ namespace Xtensive.Orm.Providers
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
-      return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
+      return new StorageDriver(driver, providerInfo, configuration, GetNullModel, factories);
     }
 
-    private StorageDriver(
-      SqlDriver driver, ProviderInfo providerInfo, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    private StorageDriver(SqlDriver driver,
+      ProviderInfo providerInfo,
+      DomainConfiguration configuration,
+      Func<DomainModel> modelProvider,
+      IReadOnlyDictionary<Type, Func<IConnectionHandler>> factoryCache)
     {
       underlyingDriver = driver;
       ProviderInfo = providerInfo;
@@ -171,6 +238,7 @@ namespace Xtensive.Orm.Providers
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = SqlLog.IsLogged(LogLevel.Info); // Just to cache this value
       ServerInfo = underlyingDriver.ServerInfo;
+      handlerFactoriesCache = factoryCache;
     }
   }
 }

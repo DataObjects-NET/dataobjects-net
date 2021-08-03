@@ -26,7 +26,10 @@ namespace Xtensive.Orm.Configuration
     private readonly static Type iModuleType = typeof (IModule);
     private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
     private readonly static Type keyGeneratorType = typeof (KeyGenerator);
-    private static readonly Type ifulltextCatalogNameBuilder = typeof (IFullTextCatalogNameBuilder);
+    private readonly static Type ifulltextCatalogNameBuilder = typeof(IFullTextCatalogNameBuilder);
+    private readonly static Type iConnectionHandlerType = typeof(IConnectionHandler);
+
+    private Type[] connectionHandlers;
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -98,6 +101,27 @@ namespace Xtensive.Orm.Configuration
     public IEnumerable<Type> FullTextCatalogResolvers
     {
       get { return this.Where(IsFullTextCatalogNameBuilder); }
+    }
+
+    /// <summary>
+    /// Gets all the registered <see cref="IConnectionHandler"/> implementations.
+    /// </summary>
+    public IEnumerable<Type> ConnectionHandlers
+    {
+      get {
+        // a lot of access to this property. better to have items cached;
+        if (IsLocked) {
+          if (connectionHandlers == null) {
+            var container = new List<Type>(10);// not so many handlers expected
+            foreach (var type in this.Where(IsConnectionHandler))
+              container.Add(type);
+            connectionHandlers = container.Count == 0 ? Array.Empty<Type>() : container.ToArray();
+          }
+          return connectionHandlers;
+        }
+        // if instacne is not locked then there is a chance of new handlers appeared
+        return this.Where(IsConnectionHandler);
+      }
     }
 
     #region IsXxx method group
@@ -236,6 +260,21 @@ namespace Xtensive.Orm.Configuration
       if (ifulltextCatalogNameBuilder.IsAssignableFrom(type) && ifulltextCatalogNameBuilder!=type)
         return true;
       return false;
+    }
+
+    /// <summary>
+    /// Determines whether the <paramref name="type"/> is
+    /// a connection handler.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>Check result.</returns>
+    public static bool IsConnectionHandler(Type type)
+    {
+      if (type.IsAbstract) {
+        return false;
+      }
+
+      return iConnectionHandlerType.IsAssignableFrom(type) && iConnectionHandlerType != type;
     }
 
     #endregion

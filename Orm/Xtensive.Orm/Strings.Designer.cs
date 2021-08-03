@@ -1525,6 +1525,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Connection handler &apos;{0}&apos; has no parameterless constructor..
+        /// </summary>
+        internal static string ExConnectionHandlerXHasNoParameterlessConstructor {
+            get {
+                return ResourceManager.GetString("ExConnectionHandlerXHasNoParameterlessConstructor", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to ConnectionInfo is missing. If you are using configuration file you should specify either &apos;connectionUrl&apos; element or &apos;connectionString&apos; and &apos;provider&apos; elements.
         /// </summary>
         internal static string ExConnectionInfoIsMissing {
