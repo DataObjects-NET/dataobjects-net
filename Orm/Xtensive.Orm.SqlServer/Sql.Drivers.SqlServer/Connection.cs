@@ -44,7 +44,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           OpenWithCheckFast(DefaultCheckConnectionQuery);
         }
         else {
-          OpenWithCheckAndNotifications(DefaultCheckConnectionQuery, connectionHandlers);
+          OpenWithCheckAndNotification(DefaultCheckConnectionQuery, connectionHandlers);
         }
       }
     }
@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return OpenWithCheckFastAsync(DefaultCheckConnectionQuery, cancellationToken);
       }
       else {
-        return OpenWithCheckAndNotificationsAsync(DefaultCheckConnectionQuery, connectionHandlers, cancellationToken);
+        return OpenWithCheckAndNotificationAsync(DefaultCheckConnectionQuery, connectionHandlers, cancellationToken);
       }
     }
 
@@ -82,7 +82,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         OpenWithCheckFast(script);
       }
       else {
-        OpenWithCheckAndNotifications(script, connectionHandlers);
+        OpenWithCheckAndNotification(script, connectionHandlers);
       }
     }
 
@@ -99,7 +99,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
       return connectionHandlers == null
         ? OpenWithCheckFastAsync(script, token)
-        : OpenWithCheckAndNotificationsAsync(script, connectionHandlers, token);
+        : OpenWithCheckAndNotificationAsync(script, connectionHandlers, token);
     }
 
     /// <inheritdoc/>
@@ -251,7 +251,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-    private void OpenWithCheckAndNotifications(string checkQueryString, ConnectionHandlersExtension connectionHandlers)
+    private void OpenWithCheckAndNotification(string checkQueryString, ConnectionHandlersExtension connectionHandlers)
     {
       var connectionChecked = false;
       var restoreTriggered = false;
@@ -330,7 +330,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-    private async Task OpenWithCheckAndNotificationsAsync(string checkQueryString,
+    private async Task OpenWithCheckAndNotificationAsync(string checkQueryString,
       ConnectionHandlersExtension connectionHandlers, CancellationToken cancellationToken)
     {
       var connectionChecked = false;

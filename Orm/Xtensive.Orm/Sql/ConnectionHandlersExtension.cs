@@ -8,7 +8,7 @@ using Xtensive.Orm;
 namespace Xtensive.Sql
 {
   /// <summary>
-  /// Wrapper to pass handlers to connection.
+  /// Wrapper to pass <see cref="IConnectionHandler"/>s to connection.
   /// </summary>
   public sealed class ConnectionHandlersExtension
   {

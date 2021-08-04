@@ -71,7 +71,7 @@ namespace Xtensive.Sql.Drivers.MySql
     {
       using (var connection = new MySqlConnection(connectionString)) {
         if (configuration.ConnectionHandlers.Count > 0)
-          OpenConnectionWithNotifications(connection, configuration, false).GetAwaiter().GetResult();
+          OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
         else
           OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
         var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
@@ -91,7 +91,7 @@ namespace Xtensive.Sql.Drivers.MySql
       var connection = new MySqlConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
         if (configuration.ConnectionHandlers.Count > 0)
-          await OpenConnectionWithNotifications(connection, configuration, true, token).ConfigureAwait(false);
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
         else
           await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
@@ -151,7 +151,7 @@ namespace Xtensive.Sql.Drivers.MySql
       }
     }
 
-    private async ValueTask OpenConnectionWithNotifications(MySqlConnection connection,
+    private async ValueTask OpenConnectionWithNotification(MySqlConnection connection,
       SqlDriverConfiguration configuration,
       bool isAsync,
       CancellationToken cancellationToken = default)

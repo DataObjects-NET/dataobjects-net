@@ -44,7 +44,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     {
       using var connection = new SQLiteConnection(connectionString);
       if (configuration.ConnectionHandlers.Count > 0)
-        OpenConnectionWithNotifications(connection, configuration, false).GetAwaiter().GetResult();
+        OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
       else
         OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
       var defaultSchema = GetDefaultSchema(connection);
@@ -59,7 +59,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
       var connection = new SQLiteConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
         if (configuration.ConnectionHandlers.Count > 0)
-          await OpenConnectionWithNotifications(connection, configuration, true, token).ConfigureAwait(false);
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
         else
           await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var defaultSchema = await GetDefaultSchemaAsync(connection, token: token).ConfigureAwait(false);
@@ -123,7 +123,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
       }
     }
 
-    private async ValueTask OpenConnectionWithNotifications(SQLiteConnection connection,
+    private async ValueTask OpenConnectionWithNotification(SQLiteConnection connection,
       SqlDriverConfiguration configuration,
       bool isAsync,
       CancellationToken cancellationToken = default)

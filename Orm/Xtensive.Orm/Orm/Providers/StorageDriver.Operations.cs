@@ -50,9 +50,10 @@ namespace Xtensive.Orm.Providers
       catch (Exception exception) {
         throw ExceptionBuilder.BuildException(exception);
       }
+
       if (handlerFactoriesCache != null) {
-        connection.Extensions.Set(
-          new ConnectionHandlersExtension(CreateHandlersForConnection(configuration.Types.ConnectionHandlers)));
+        connection.AssignConnectionHandlers(
+          CreateConnectionHandlersFast(configuration.Types.ConnectionHandlers));
       }
 
       var sessionConfiguration = GetConfiguration(session);
@@ -75,9 +76,8 @@ namespace Xtensive.Orm.Providers
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
       }
 
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
 
-      var script = extension?.Script;
       try {
         if (!string.IsNullOrEmpty(script)) {
           connection.OpenAndInitialize(script);
@@ -101,10 +101,9 @@ namespace Xtensive.Orm.Providers
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
       }
 
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
 
       try {
-        var script = extension?.Script;
         if (!string.IsNullOrEmpty(script)) {
           await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwait(false);
         }

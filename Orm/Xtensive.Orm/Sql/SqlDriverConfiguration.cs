@@ -47,11 +47,10 @@ namespace Xtensive.Sql
         ? Array.Empty<IConnectionHandler>()
         : ConnectionHandlers.ToArray(ConnectionHandlers.Count);
 
-      return new SqlDriverConfiguration {
+      return new SqlDriverConfiguration(handlers) {
         ForcedServerVersion = ForcedServerVersion,
         ConnectionInitializationSql = ConnectionInitializationSql,
-        EnsureConnectionIsAlive = EnsureConnectionIsAlive,
-        ConnectionHandlers = handlers
+        EnsureConnectionIsAlive = EnsureConnectionIsAlive
       };
     }
 
@@ -63,6 +62,9 @@ namespace Xtensive.Sql
       ConnectionHandlers = Array.Empty<IConnectionHandler>();
     }
 
+    /// <summary>
+    /// Creates new instance of this type.
+    /// </summary>
     public SqlDriverConfiguration(IReadOnlyCollection<IConnectionHandler> connectionHandlers)
     {
       ConnectionHandlers = connectionHandlers;

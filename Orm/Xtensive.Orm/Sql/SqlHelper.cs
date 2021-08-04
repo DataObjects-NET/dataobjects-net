@@ -402,6 +402,21 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Executes <paramref name="initializationSql"/> (if any).
+    /// </summary>
+    /// <param name="connection">Connection to initialize.</param>
+    /// <param name="initializationSql">Sql expression.</param>
+    public static void ExecuteInitializationSql(DbConnection connection, string initializationSql)
+    {
+      if (string.IsNullOrEmpty(initializationSql)) {
+        return;
+      }
+      using var command = connection.CreateCommand();
+      command.CommandText = initializationSql;
+      _ = command.ExecuteNonQuery();
+    }
+
+    /// <summary>
     /// Executes <see cref="SqlDriverConfiguration.ConnectionInitializationSql"/> (if any).
     /// </summary>
     /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
@@ -420,6 +435,28 @@ namespace Xtensive.Sql
       await using (command.ConfigureAwait(false)) {
         command.CommandText = configuration.ConnectionInitializationSql;
         await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Executes <paramref name="initializationSql"/> (if any).
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="connection">Connection to initialize.</param>
+    /// <param name="initializationSql">Sql expression.</param>
+    /// <param name="token">The token to cancel async operation if needed.</param>
+    public static async Task ExecuteInitializationSqlAsync(
+      DbConnection connection, string initializationSql, CancellationToken token)
+    {
+      if (string.IsNullOrEmpty(initializationSql)) {
+        return;
+      }
+
+      var command = connection.CreateCommand();
+      await using (command.ConfigureAwait(false)) {
+        command.CommandText = initializationSql;
+        _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
       }
     }
 

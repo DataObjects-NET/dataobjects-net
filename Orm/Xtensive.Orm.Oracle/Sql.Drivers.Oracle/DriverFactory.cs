@@ -72,7 +72,7 @@ namespace Xtensive.Sql.Drivers.Oracle
     {
       using var connection = new OracleConnection(connectionString);
       if (configuration.ConnectionHandlers.Count > 0)
-        OpenConnectionWithNotifications(connection, configuration, false).GetAwaiter().GetResult();
+        OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
       else
         OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
       var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
@@ -89,7 +89,7 @@ namespace Xtensive.Sql.Drivers.Oracle
       var connection = new OracleConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
         if (configuration.ConnectionHandlers.Count > 0)
-          await OpenConnectionWithNotifications(connection, configuration, true, token).ConfigureAwait(false);
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
         else
           await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
@@ -144,7 +144,7 @@ namespace Xtensive.Sql.Drivers.Oracle
       }
     }
 
-    private async ValueTask OpenConnectionWithNotifications(OracleConnection connection,
+    private async ValueTask OpenConnectionWithNotification(OracleConnection connection,
       SqlDriverConfiguration configuration,
       bool isAsync,
       CancellationToken cancellationToken = default)

@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     {
       using var connection = new NpgsqlConnection(connectionString);
       if (configuration.ConnectionHandlers.Count > 0)
-        OpenConnectionWithNotifications(connection, configuration, false).GetAwaiter().GetResult();
+        OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
       else
         OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
       var version = GetVersion(configuration, connection);
@@ -77,7 +77,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       var connection = new NpgsqlConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
         if (configuration.ConnectionHandlers.Count > 0)
-          await OpenConnectionWithNotifications(connection, configuration, true, token).ConfigureAwait(false);
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
         else
           await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var version = GetVersion(configuration, connection);
@@ -150,7 +150,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       }
     }
 
-    private async ValueTask OpenConnectionWithNotifications(NpgsqlConnection connection,
+    private async ValueTask OpenConnectionWithNotification(NpgsqlConnection connection,
       SqlDriverConfiguration configuration,
       bool isAsync,
       CancellationToken cancellationToken = default)
