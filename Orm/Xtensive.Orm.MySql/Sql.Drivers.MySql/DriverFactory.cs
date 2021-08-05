@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
@@ -66,8 +66,10 @@ namespace Xtensive.Sql.Drivers.MySql
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new MySqlConnection(connectionString)) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        if (configuration.ConnectionHandlers.Count > 0)
+          OpenConnectionWithNotification(connection, configuration);
+        else
+          OpenConnectionFast(connection, configuration);
         var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? connection.ServerVersion
           : configuration.ForcedServerVersion;
@@ -76,32 +78,60 @@ namespace Xtensive.Sql.Drivers.MySql
         var builder = new MySqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.Server, builder.Port, builder.Database);
         var defaultSchema = GetDefaultSchema(connection);
-        var coreServerInfo = new CoreServerInfo {
-          ServerVersion = version,
-          ConnectionString = connectionString,
-          MultipleActiveResultSets = false,
-          DatabaseName = defaultSchema.Database,
-          DefaultSchemaName = defaultSchema.Schema,
-        };
-
-        if (version.Major < 5)
-          throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
-        if (version.Major==5 && version.Minor==0)
-          return new v5_0.Driver(coreServerInfo);
-        if (version.Major==5 && version.Minor==1)
-          return new v5_1.Driver(coreServerInfo);
-        if (version.Major==5 && version.Minor==5)
-          return new v5_5.Driver(coreServerInfo);
-        if (version.Major==5 && version.Minor==6)
-          return new v5_6.Driver(coreServerInfo);
-        return new v5_6.Driver(coreServerInfo);
+        return CreateDriverInstance(connectionString, version, defaultSchema);
       }
+    }
+
+    private static SqlDriver CreateDriverInstance(string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+    {
+      var coreServerInfo = new CoreServerInfo {
+        ServerVersion = version,
+        ConnectionString = connectionString,
+        MultipleActiveResultSets = false,
+        DatabaseName = defaultSchema.Database,
+        DefaultSchemaName = defaultSchema.Schema,
+      };
+
+      if (version.Major < 5) {
+        throw new NotSupportedException(Strings.ExMySqlBelow50IsNotSupported);
+      }
+
+      return version.Major switch {
+        5 when version.Minor == 0 => new v5_0.Driver(coreServerInfo),
+        5 when version.Minor == 1 => new v5_1.Driver(coreServerInfo),
+        5 when version.Minor == 5 => new v5_5.Driver(coreServerInfo),
+        5 when version.Minor == 6 => new v5_6.Driver(coreServerInfo),
+        _ => new v5_6.Driver(coreServerInfo)
+      };
     }
 
     /// <inheritdoc/>
     protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
     {
       return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+    }
+
+    private void OpenConnectionFast(MySqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+    }
+
+    private void OpenConnectionWithNotification(MySqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      var handlers = configuration.ConnectionHandlers;
+      SqlHelper.NotifyConnectionOpening(handlers, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          SqlHelper.NotifyConnectionInitializing(handlers, connection, configuration.ConnectionInitializationSql);
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        SqlHelper.NotifyConnectionOpened(handlers, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+        throw;
+      }
     }
   }
 }

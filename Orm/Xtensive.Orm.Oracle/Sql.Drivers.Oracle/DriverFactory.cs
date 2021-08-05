@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.16
 
@@ -66,34 +66,66 @@ namespace Xtensive.Sql.Drivers.Oracle
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new OracleConnection(connectionString)) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        if (configuration.ConnectionHandlers.Count > 0)
+          OpenConnectionWithNotification(connection, configuration);
+        else
+          OpenConnectionFast(connection, configuration);
         var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? ParseVersion(connection.ServerVersion)
           : new Version(configuration.ForcedServerVersion);
         var dataSource = new OracleConnectionStringBuilder(connectionString).DataSource;
         var defaultSchema = GetDefaultSchema(connection);
-        var coreServerInfo = new CoreServerInfo {
-          ServerVersion = version,
-          ConnectionString = connectionString,
-          MultipleActiveResultSets = true,
-          DatabaseName = defaultSchema.Database,
-          DefaultSchemaName = defaultSchema.Schema,
-        };
-        if (version.Major < 9 || version.Major==9 && version.Minor < 2)
-          throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
-        if (version.Major==9)
-          return new v09.Driver(coreServerInfo);
-        if (version.Major==10)
-          return new v10.Driver(coreServerInfo);
-        return new v11.Driver(coreServerInfo);
+        return CreateDriverInstance(connectionString, version, defaultSchema);
       }
+    }
+
+    private static SqlDriver CreateDriverInstance(string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+    {
+      var coreServerInfo = new CoreServerInfo {
+        ServerVersion = version,
+        ConnectionString = connectionString,
+        MultipleActiveResultSets = true,
+        DatabaseName = defaultSchema.Database,
+        DefaultSchemaName = defaultSchema.Schema,
+      };
+      if (version.Major < 9 || (version.Major == 9 && version.Minor < 2)) {
+        throw new NotSupportedException(Strings.ExOracleBelow9i2IsNotSupported);
+      }
+
+      return version.Major switch {
+        9 => new v09.Driver(coreServerInfo),
+        10 => new v10.Driver(coreServerInfo),
+        _ => new v11.Driver(coreServerInfo)
+      };
     }
 
     /// <inheritdoc/>
     protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
     {
       return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+    }
+
+    private void OpenConnectionFast(OracleConnection connection, SqlDriverConfiguration configuration)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+    }
+
+    private void OpenConnectionWithNotification(OracleConnection connection, SqlDriverConfiguration configuration)
+    {
+      var handlers = configuration.ConnectionHandlers;
+      SqlHelper.NotifyConnectionOpening(handlers, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          SqlHelper.NotifyConnectionInitializing(handlers, connection, configuration.ConnectionInitializationSql);
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        SqlHelper.NotifyConnectionOpened(handlers, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+        throw;
+      }
     }
   }
 }
