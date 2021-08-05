@@ -37,6 +37,8 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     private const string VersionQuery = "SELECT @@VERSION";
 
+    private const string ForcedAzureVersion = "12.0.0.0";
+
     private static ErrorMessageParser CreateMessageParser(SqlServerConnection connection)
     {
       bool isEnglish;
@@ -151,7 +153,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var parser = isAzure ? new ErrorMessageParser() : CreateMessageParser(connection);
 
       var versionString = isForcedVersion
-        ? isForcedAzure ? "10.0.0.0" : forcedServerVersion
+        ? isForcedAzure ? ForcedAzureVersion : forcedServerVersion
         : connection.ServerVersion ?? string.Empty;
       var version = new Version(versionString);
       var defaultSchema = GetDefaultSchema(connection);
