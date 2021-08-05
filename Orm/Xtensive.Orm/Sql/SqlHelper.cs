@@ -372,6 +372,21 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Executes <paramref name="initializationSql"/> (if any).
+    /// </summary>
+    /// <param name="connection">Connection to initialize.</param>
+    /// <param name="initializationSql">Sql expression.</param>
+    public static void ExecuteInitializationSql(DbConnection connection, string initializationSql)
+    {
+      if (string.IsNullOrEmpty(initializationSql)) {
+        return;
+      }
+      using var command = connection.CreateCommand();
+      command.CommandText = initializationSql;
+      _ = command.ExecuteNonQuery();
+    }
+
+    /// <summary>
     /// Reduces the isolation level to the most commonly supported ones.
     /// </summary>
     /// <param name="level">The level.</param>
