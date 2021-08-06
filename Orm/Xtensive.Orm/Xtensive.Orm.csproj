@@ -87,4 +87,13 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <Target Name="IncludeWeaverFiles">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\**">
+        <Pack>true</Pack>
+        <PackagePath>tools\weaver\</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
 </Project>
