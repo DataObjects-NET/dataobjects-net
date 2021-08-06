@@ -29,13 +29,17 @@
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
     <ArtifactsDir Condition="'$(ArtifactsDir)'==''">$(SolutionDir)_Build\</ArtifactsDir>
-    <BaseIntermediateOutputPath>$([System.IO.Path]::GetFullPath('$(ArtifactsDir)obj\$(Configuration)\$(MSBuildProjectName)'))\</BaseIntermediateOutputPath>
-    <BaseOutputPath >$([System.IO.Path]::GetFullPath('$(ArtifactsDir)bin\$(Configuration)'))\</BaseOutputPath>
-    <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))">$([System.IO.Path]::GetFullPath('$(ArtifactsDir)tests'))\</BaseOutputPath>
-    <OutputPath>$(BaseOutputPath)</OutputPath>
+    <BaseIntermediateOutputPath>$(ArtifactsDir)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <BaseOutputPath>$(ArtifactsDir)bin\$(Configuration)\</BaseOutputPath>
+    <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))
+      OR $(MSBuildProjectName) == 'TestCommon'
+      OR $(MSBuildProjectName) == 'Xtensive.Orm.Manual'">$(ArtifactsDir)tests\$(Configuration)\</BaseOutputPath>
+    <OutputPath>$(BaseOutputPath)lib\</OutputPath>
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
+    <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
 
   <PropertyGroup>
@@ -69,7 +73,7 @@
     <PackageIcon>do-nuget.png</PackageIcon>
     <PackageLicense>MIT</PackageLicense>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
-    <PackageOutputPath>$(MSBuildThisFileDirectory)_Build\$(Configuration)\packages</PackageOutputPath>
+    <PackageOutputPath>$(BaseOutputPath)packages\</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
   </PropertyGroup>
