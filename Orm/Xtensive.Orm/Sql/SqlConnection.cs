@@ -190,7 +190,6 @@ namespace Xtensive.Sql
     /// <param name="initializationScript">Initialization script.</param>
     public virtual void OpenAndInitialize(string initializationScript)
     {
-      UnderlyingConnection.Open();
       var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
       if (connectionHandlers == null) {
         UnderlyingConnection.Open();
