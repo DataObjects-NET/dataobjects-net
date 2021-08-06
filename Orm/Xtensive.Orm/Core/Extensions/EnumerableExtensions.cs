@@ -342,6 +342,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <typeparam name="TKey">The type of the key elements.</typeparam>
+    /// <typeparam name="TValue">The type of values in result dictionary</typeparam>
     /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
     /// <param name="keySelector">A function to extract a key from each element.</param>
     /// <param name="elementSelector">A funtion to extract a value from each element.</param>
@@ -362,6 +363,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <typeparam name="TKey">The type of the key elements.</typeparam>
+    /// <typeparam name="TValue">The type of values in result dictionary</typeparam>
     /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
     /// <param name="keySelector">A function to extract a key from each element.</param>
     /// <param name="elementSelector">A funtion to extract a value from each element.</param>
@@ -372,7 +374,7 @@ namespace Xtensive.Core
       this IEnumerable<TSource> source,
       Func<TSource, TKey> keySelector,
       Func<TSource, TValue> elementSelector,
-      IEqualityComparer<TKey> equalityComparer,
+      IEqualityComparer<TKey> comparer,
       int capacity)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
@@ -380,8 +382,8 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(elementSelector, nameof(elementSelector));
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, nameof(capacity));
 
-      var dictionary = equalityComparer != null
-        ? new Dictionary<TKey, TValue>(capacity, equalityComparer)
+      var dictionary = comparer != null
+        ? new Dictionary<TKey, TValue>(capacity, comparer)
         : new Dictionary<TKey, TValue>(capacity);
       foreach (var item in source) {
         dictionary.Add(keySelector(item), elementSelector(item));
