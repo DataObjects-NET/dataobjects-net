@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -165,11 +165,11 @@ namespace Xtensive.Orm.Linq.Expressions
       var entityType = entityField.ValueType;
       var persistentType = entityField.ReflectedType.Model.Types[entityType];
 
-      ref var mappingInfo = ref entityField.mappingInfo;
+      var mappingInfo = entityField.MappingInfo;
       var mapping = new Segment<int>(mappingInfo.Offset + offset, mappingInfo.Length);
       var keyFields = persistentType.Key.Fields;
       var keyExpression = KeyExpression.Create(persistentType, offset + mappingInfo.Offset);
-      var fields = new List<PersistentFieldExpression>(keyFields.Count + 1) {keyExpression};
+      var fields = new List<PersistentFieldExpression>(keyFields.Count + 1) { keyExpression };
       foreach (var field in keyFields) {
         // Do not convert to LINQ. We want to avoid a closure creation here.
         fields.Add(BuildNestedFieldExpression(field, offset + mappingInfo.Offset));
