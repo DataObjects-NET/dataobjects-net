@@ -1,9 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
-    <DocumentationFile>$(SolutionDir)_Build\$(Configuration)\lib\$(TargetFramework)\Xtensive.Orm.xml</DocumentationFile>
-    <OutputPath>$(SolutionDir)_Build\$(Configuration)\lib\</OutputPath>
-
+    <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
@@ -13,7 +11,7 @@
     <AssemblyTitle>$(Title)</AssemblyTitle>
     <PackageDescription>$(DoProductName) is the object-relational mapper (ORM) and business logic layer (BLL) framework</PackageDescription>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\Orm.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
@@ -21,6 +19,7 @@
     <DefineConstants>TRACE;DEBUG;NETSTANDARD</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeWeaverFiles</TargetsForTfmSpecificContentInPackage>
     <DefineConstants>TRACE;NETSTANDARD</DefineConstants>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>portable</DebugType>
@@ -29,10 +28,14 @@
     <ProjectReference Include="$(SolutionDir)Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj" ReferenceOutputAssembly="false" SkipGetTargetFrameworkProperties="true" />
   </ItemGroup>
   <ItemGroup Label="Nuget content">
-    <Content Include="$(SolutionDir)MSBuild\DataObjects.Net.targets" Visible="false" Pack="true" PackagePath="." />
-    <Content Include="NuGetContent\**" Visible="false" Pack="true" PackagePath="." />
-    <Content Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\" />
-    <TfmSpecificPackageFile Include="$(SolutionDir)_Build\$(Configuration)\tools\weaver\**" Visible="false" Pack="true" PackagePath="tools\weaver\" />
+    <Content Include="$(SolutionDir)MSBuild\DataObjects.Net.targets">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="$(ProjectDir)NuGetContent\**">
+      <PackagePath>.</PackagePath>
+      <Visible>false</Visible>
+    </Content>
   </ItemGroup>
   <ItemGroup Label="Packages" Condition=" '$(TargetFramework)' == 'netstandard2.0'">
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
@@ -89,4 +92,13 @@
       <DependentUpon>Strings.resx</DependentUpon>
     </Compile>
   </ItemGroup>
+
+  <Target Name="IncludeWeaverFiles">
+    <ItemGroup>
+      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\**">
+        <Pack>true</Pack>
+        <PackagePath>tools\weaver\</PackagePath>
+      </TfmSpecificPackageFile>
+    </ItemGroup>
+  </Target>
 </Project>
