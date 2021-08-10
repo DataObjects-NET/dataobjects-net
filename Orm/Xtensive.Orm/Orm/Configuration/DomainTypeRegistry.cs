@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Configuration
           }
           return connectionHandlers;
         }
-        // if instacne is not locked then there is a chance of new handlers appeared
+        // if instance is not locked then there is a chance of new handlers appeared
         return this.Where(IsConnectionHandler);
       }
     }
