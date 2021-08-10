@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private void GenerateRecreateHints(ICollection<StoredTypeInfo> removedTypes)
+    private void GenerateRecreateHints(IList<StoredTypeInfo> removedTypes)
     {
       var capacity = currentModel.Types.Length - typeMapping.Count;
       var newTypes = new Dictionary<string, StoredTypeInfo>(capacity, StringComparer.Ordinal);
@@ -226,13 +226,13 @@ namespace Xtensive.Orm.Upgrade
         .Where(t => !reverseTypeMapping.ContainsKey(t))
         .ForEach(t => newTypes.Add($"{t.MappingDatabase}.{t.MappingSchema}.{t.MappingName}", t));
 
-      foreach (var rType in removedTypes) {
+      for (var i = removedTypes.Count - 1; i >= 0; i--) {
+        var rType = removedTypes[i];
         var rTypeIdentifier = $"{rType.MappingDatabase}.{rType.MappingSchema}.{rType.MappingName}";
-        if (!suspiciousTypes.Contains(rType)
-          || !newTypes.TryGetValue(rTypeIdentifier, out var conflictedNewType)) {
-          continue;
+        if (suspiciousTypes.Contains(rType) && newTypes.ContainsKey(rTypeIdentifier)) {
+          schemaHints.Add(new DeleteDataHint(GetTablePath(rType), Array.Empty<IdentityPair>(), true));
+          _ = removedTypes.Remove(rType);
         }
-        schemaHints.Add(new RecreateTableHint(GetTablePath(rType)));
       }
     }
 
