@@ -51,11 +51,12 @@ namespace Xtensive.Orm.Upgrade
       GenerateCopyColumnHints(copyFieldHints);
 
       var removedTypes = GetRemovedTypes();
-      GenerateRecreateHints(removedTypes);
-      GenerateRecordCleanupHints(removedTypes, false);
+      var conflictsByTable = GetRecreatedTypes(removedTypes);
+      //GenerateRecreateHints(removedTypes);
+      GenerateRecordCleanupHints(removedTypes, conflictsByTable, false);
 
       var movedTypes = GetMovedTypes();
-      GenerateRecordCleanupHints(movedTypes, true);
+      GenerateRecordCleanupHints(movedTypes, conflictsByTable, true);
 
       // Adding useful info
       CalculateAffectedTablesAndColumns(hints);
@@ -218,64 +219,73 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private void GenerateRecreateHints(IList<StoredTypeInfo> removedTypes)
-    {
-      var capacity = currentModel.Types.Length - typeMapping.Count;
-      var newTypes = new Dictionary<string, StoredTypeInfo>(capacity, StringComparer.Ordinal);
-      currentNonConnectorTypes
-        .Where(t => !reverseTypeMapping.ContainsKey(t))
-        .ForEach(t => newTypes.Add($"{t.MappingDatabase}.{t.MappingSchema}.{t.MappingName}", t));
-
-      for (var i = removedTypes.Count - 1; i >= 0; i--) {
-        var rType = removedTypes[i];
-        var rTypeIdentifier = $"{rType.MappingDatabase}.{rType.MappingSchema}.{rType.MappingName}";
-        if (suspiciousTypes.Contains(rType) && newTypes.ContainsKey(rTypeIdentifier)) {
-          schemaHints.Add(new DeleteDataHint(GetTablePath(rType), Array.Empty<IdentityPair>(), true));
-          _ = removedTypes.Remove(rType);
-        }
-      }
-    }
-
-    private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes, bool isMovedToAnotherHierarchy)
+    private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes,
+      Dictionary<StoredTypeInfo, StoredTypeInfo> conflictsByTable, bool isMovedToAnotherHierarchy)
     {
       if (!isMovedToAnotherHierarchy) {
         removedTypes.ForEach(GenerateCleanupByForeignKeyHints);
       }
-      removedTypes.ForEach(type => GenerateCleanupByPrimaryKeyHints(type, isMovedToAnotherHierarchy));
+      removedTypes.ForEach(type => GenerateCleanupByPrimaryKeyHints(type, isMovedToAnotherHierarchy, conflictsByTable.ContainsKey(type.Hierarchy.Root)));
     }
 
-    private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType, bool isMovedToAnotherHierarchy)
+    private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType, bool isMovedToAnotherHierarchy, bool conflictsWithNewType)
     {
       var hierarchy = removedType.Hierarchy;
       switch (hierarchy.InheritanceSchema) {
-        case InheritanceSchema.ClassTable:
-          IEnumerable<StoredTypeInfo> typesToProcess;
-          typesToProcess = !isMovedToAnotherHierarchy
-            ? EnumerableUtils.One(removedType).Concat(removedType.AllAncestors)
-            : removedType.AllAncestors;
-          foreach (var type in typesToProcess) {
-            var identities1 = new[] { new IdentityPair(
-              GetColumnPath(type, GetTypeIdMappingName(type)),
-              removedType.TypeId.ToString(),
-              true) };
-            schemaHints.Add(
-              new DeleteDataHint(GetTablePath(type), identities1, isMovedToAnotherHierarchy));
+        case InheritanceSchema.ClassTable: {
+          if (!conflictsWithNewType) {
+            var typesToProcess = !isMovedToAnotherHierarchy
+              ? EnumerableUtils.One(removedType).Concat(removedType.AllAncestors)
+              : (IEnumerable<StoredTypeInfo>) removedType.AllAncestors;
+            foreach (var type in typesToProcess) {
+              var identities1 = new[] { new IdentityPair(
+                GetColumnPath(type, GetTypeIdMappingName(type)),
+                removedType.TypeId.ToString(),
+                true)
+              };
+              schemaHints.Add(
+                new DeleteDataHint(GetTablePath(type), identities1, isMovedToAnotherHierarchy, conflictsWithNewType));
+            }
+          }
+          else if (isMovedToAnotherHierarchy) {
+            foreach (var type in hierarchy.Types) {
+              schemaHints.Add(
+                new DeleteDataHint(GetTablePath(type), Array.Empty<IdentityPair>(), isMovedToAnotherHierarchy, conflictsWithNewType));
+            }
           }
           break;
+        }
         case InheritanceSchema.SingleTable:
-          var rootType = hierarchy.Root;
-          var identities2 = new[] { new IdentityPair(
+          if (!conflictsWithNewType) {
+            var rootType = hierarchy.Root;
+            var identities2 = new[] { new IdentityPair(
               GetColumnPath(rootType, GetTypeIdMappingName(rootType)),
               removedType.TypeId.ToString(),
               true) };
-          schemaHints.Add(
-            new DeleteDataHint(GetTablePath(rootType), identities2, isMovedToAnotherHierarchy));
+            schemaHints.Add(
+              new DeleteDataHint(GetTablePath(rootType), identities2, isMovedToAnotherHierarchy, conflictsWithNewType));
+          }
+          else if (!isMovedToAnotherHierarchy) {
+            var rootType = hierarchy.Root;
+            schemaHints.Add(
+              new DeleteDataHint(GetTablePath(rootType), Array.Empty<IdentityPair>(), isMovedToAnotherHierarchy, conflictsWithNewType));
+          }
           break;
-        case InheritanceSchema.ConcreteTable:
-          // ConcreteTable schema doesn't include TypeId
-          schemaHints.Add(
-            new DeleteDataHint(GetTablePath(removedType), Array.Empty<IdentityPair>(), isMovedToAnotherHierarchy));
+        case InheritanceSchema.ConcreteTable: {
+          //ConcreteTable schema doesn't include TypeId
+          if (!conflictsWithNewType) {
+            schemaHints.Add(
+                new DeleteDataHint(GetTablePath(removedType), Array.Empty<IdentityPair>(), isMovedToAnotherHierarchy));
+          }
+          else if (!isMovedToAnotherHierarchy) {
+            var typesToProcess = hierarchy.Types;
+            foreach (var type in typesToProcess) {
+              schemaHints.Add(
+                new DeleteDataHint(GetTablePath(type), Array.Empty<IdentityPair>(), isMovedToAnotherHierarchy, conflictsWithNewType));
+            }
+          }
           break;
+        }
         default:
           throw Exceptions.InternalError(string.Format(Strings.ExInheritanceSchemaIsInvalid, hierarchy.InheritanceSchema), UpgradeLog.Instance);
       }
@@ -596,6 +606,30 @@ namespace Xtensive.Orm.Upgrade
         }
       }
       return affectedColumns;
+    }
+
+    private Dictionary<StoredTypeInfo, StoredTypeInfo> GetRecreatedTypes(IReadOnlyList<StoredTypeInfo> removedTypes)
+    {
+      // Return types that were removed but there is a new type
+      // which uses the same table in database (and|or) schema
+      // that means further comparison will not find schema changes (table removes or renames),
+      // but data in the table has different meaning so old data should be cleaned.
+
+      var capacity = currentModel.Types.Length - typeMapping.Count;
+      var currentTables = new Dictionary<string, StoredTypeInfo>(capacity, StringComparer.Ordinal);
+      foreach (var t in currentNonConnectorTypes.Where(t => !reverseTypeMapping.ContainsKey(t))) {
+        currentTables.Add($"{t.MappingDatabase}.{t.MappingSchema}.{t.MappingName}", t);
+      }
+
+      var conflictsByTable = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
+
+      foreach (var rType in removedTypes) {
+        var rTypeIdentifier = $"{rType.MappingDatabase}.{rType.MappingSchema}.{rType.MappingName}";
+        if (suspiciousTypes.Contains(rType) && currentTables.TryGetValue(rTypeIdentifier, out var nType)) {
+          conflictsByTable.Add(rType, nType);
+        }
+      }
+      return conflictsByTable;
     }
 
     private List<StoredTypeInfo> GetRemovedTypes()

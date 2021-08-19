@@ -235,7 +235,7 @@ namespace Xtensive.Orm.Upgrade
     {
       (from action in actions.OfType<DataAction>()
         let deleteDataHint = action.DataHint as DeleteDataHint
-        where deleteDataHint!=null && deleteDataHint.PostCopy
+        where deleteDataHint!=null && (deleteDataHint.PostCopy || deleteDataHint.TableChangedOwner)
         select action).ForEach(output.Add);
     }
 

@@ -25,15 +25,23 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     public bool PostCopy { get; private set; }
 
+    /// <summary>
+    /// Gets value indicating whether cause of data deletion was moving table to another hierarchy.
+    /// This flag is used to ideitify and prevent unsafe data clean-up even if database structure
+    /// remain identical but logically table serves completely different entity.
+    /// </summary>
+    public bool TableChangedOwner { get; private set; }
+
     /// <inheritdoc/>
     public override string ToString()
     {
       return string.Format(
-        "Delete from '{0}' where ({1}){2}",
+        "Delete from '{0}' where ({1}){2}{3}",
         SourceTablePath,
         string.Join(" and ",
           Identities.Select(pair => pair.ToString()).ToArray()),
-          PostCopy ? " (after data copying)" : string.Empty);
+        PostCopy ? " (after data copying)" : string.Empty,
+        TableChangedOwner ? " due to table owner changed" : string.Empty);
     }
 
 
@@ -57,6 +65,20 @@ namespace Xtensive.Modelling.Comparison.Hints
       : base(sourceTablePath, identities)
     {
       PostCopy = postCopy;
+    }
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    /// <param name="sourceTablePath">Source table path.</param>
+    /// <param name="identities">Identities for data operation.</param>
+    /// <param name="postCopy"><see cref="PostCopy"/> property value.</param>
+    /// <param name="tableChangedOwner"><see cref="TableChangedOwner"/> property value.</param>
+    public DeleteDataHint(string sourceTablePath, IList<IdentityPair> identities, bool postCopy, bool tableChangedOwner)
+      : base(sourceTablePath, identities)
+    {
+      PostCopy = postCopy;
+      TableChangedOwner = tableChangedOwner;
     }
   }
 }
