@@ -201,7 +201,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         QueryFeatures.MultischemaQueries |
         QueryFeatures.MultidatabaseQueries |
         QueryFeatures.ScalarSubquery |
-        QueryFeatures.PagingRequiresOrderBy;
+        QueryFeatures.PagingRequiresOrderBy |
+        QueryFeatures.ParameterAsColumn;
       return queryInfo;
     }
 

@@ -183,7 +183,6 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       queryInfo.Features =
         QueryFeatures.NamedParameters |
         QueryFeatures.ParameterPrefix |
-        QueryFeatures.ParameterAsColumnNotAllowed |
         QueryFeatures.ScalarSubquery |
         QueryFeatures.Paging |
         QueryFeatures.Limit |

@@ -148,9 +148,9 @@ namespace Xtensive.Sql.Info
     DeleteLimit = 1 << 25,
 
     /// <summary>
-    /// Indicates that RDBMS does not support SQL parameter in selected columns of SELECT statement.
+    /// Indicates that RDBMS supports SQL parameter in selected columns of SELECT statement.
     /// </summary>
-    ParameterAsColumnNotAllowed = 1 << 26,
+    ParameterAsColumn = 1 << 26,
 
     /// <summary>
     /// Indicates that RDBMS supports paging operators (<see cref="Limit"/> and <see cref="Offset"/>).
