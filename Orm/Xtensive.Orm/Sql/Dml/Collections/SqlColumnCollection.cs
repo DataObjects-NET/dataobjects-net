@@ -24,6 +24,9 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public int Count => columnList.Count;
 
+    /// <summary>
+    /// Gets or sets capacity of the collection.
+    /// </summary>
     public int Capacity {
       get => columnList.Capacity;
       set => columnList.Capacity = value;
