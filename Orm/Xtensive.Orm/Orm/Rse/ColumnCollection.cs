@@ -77,8 +77,9 @@ namespace Xtensive.Orm.Rse
       : base(collection)
     {
       nameIndex = new Dictionary<string, int>(Count);
-      for (var index = 0; index < Count; index++)
+      for (var index = 0; index < Count; index++) {
         nameIndex.Add(this[index].Name, index);
+      }
     }
   }
 }
