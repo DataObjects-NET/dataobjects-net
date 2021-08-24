@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2007.09.24
 
@@ -37,12 +37,6 @@ namespace Xtensive.Orm.Rse
       }
     }
 
-    private void BuildNameIndex()
-    {
-      for (var index = 0; index < Count; index++) 
-        nameIndex.Add(this[index].Name, index);
-    }
-
     /// <summary>
     /// Joins this collection with specified the column collection.
     /// </summary>
@@ -59,7 +53,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="alias">The alias to add.</param>
     /// <returns>Aliased collection of columns.</returns>
     public ColumnCollection Alias(string alias)
-    {      
+    {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
       return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)));
     }
@@ -71,10 +65,8 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     /// <param name="collection">Collection of items to add.</param>
     public ColumnCollection(IEnumerable<Column> collection)
-      : base(collection.ToList())
+      : this(collection.ToList())
     {
-      nameIndex = new Dictionary<string, int>(Count);
-      BuildNameIndex();
     }
 
     /// <summary>
@@ -85,7 +77,9 @@ namespace Xtensive.Orm.Rse
       : base(collection)
     {
       nameIndex = new Dictionary<string, int>(Count);
-      BuildNameIndex();
+      for (var index = 0; index < Count; index++) {
+        nameIndex.Add(this[index].Name, index);
+      }
     }
   }
 }
