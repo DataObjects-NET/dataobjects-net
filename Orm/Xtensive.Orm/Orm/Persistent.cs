@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -85,12 +85,12 @@ namespace Xtensive.Orm
       var pair = fieldName.RevertibleSplitFirstAndTail(';', '.');
       var field = TypeInfo.Fields[pair.First];
       // TODO: Improve (use DelegateHelper)
-      if (field.UnderlyingProperty!=null) {
+      if (field.UnderlyingProperty != null) {
         var mi = field.UnderlyingProperty.GetGetMethod(true);
         if (mi == null && field.UnderlyingProperty.ReflectedType != field.UnderlyingProperty.DeclaringType) {
-          var p = field.UnderlyingProperty;  
+          var p = field.UnderlyingProperty;
           var dt = p.DeclaringType;
-          mi = dt.GetProperty(p.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).GetGetMethod(true);
+          mi = dt.GetProperty(p.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetGetMethod(true);
         }
         value = mi.Invoke(this, null);
       }
@@ -123,14 +123,14 @@ namespace Xtensive.Orm
         if (field.UnderlyingProperty != null) {
           var mi = field.UnderlyingProperty.GetSetMethod(true);
           if (mi == null && field.UnderlyingProperty.ReflectedType != field.UnderlyingProperty.DeclaringType) {
-            var p = field.UnderlyingProperty;  
+            var p = field.UnderlyingProperty;
             var dt = p.DeclaringType;
-            mi = dt.GetProperty(p.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic).GetSetMethod(true);
+            mi = dt.GetProperty(p.Name, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic).GetSetMethod(true);
           }
-          mi.Invoke(this, new object[]{value});
+          mi.Invoke(this, new object[] { value });
         }
         else
-          SetFieldValue(pair.First, (object)value); // Untyped, since T might be wrong
+          SetFieldValue(pair.First, (object) value); // Untyped, since T might be wrong
       }
       else {
         var persistent = GetProperty<Persistent>(pair.First);
@@ -144,7 +144,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Gets the field value.
-    /// Field value type must be specified precisely. 
+    /// Field value type must be specified precisely.
     /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
@@ -167,7 +167,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Gets the field value.
-    /// Field value type must be specified precisely. 
+    /// Field value type must be specified precisely.
     /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
@@ -187,7 +187,7 @@ namespace Xtensive.Orm
         SystemGetValueCompleted(field, result, null);
         return result;
       }
-      catch(Exception e) {
+      catch (Exception e) {
         SystemGetValueCompleted(field, result, e);
         throw;
       }
@@ -212,21 +212,21 @@ namespace Xtensive.Orm
         SystemGetValueCompleted(field, result, null);
         return result;
       }
-      catch(Exception e) {
+      catch (Exception e) {
         SystemGetValueCompleted(field, result, e);
         throw;
       }
     }
 
     /// <summary>
-    /// Gets the key of the entity, that is referenced by specified field 
+    /// Gets the key of the entity, that is referenced by specified field
     /// of the target persistent object.
     /// </summary>
     /// <remarks>
-    /// Result is the same as <c>GetValue&lt;Entity&gt;(field).Key</c>, 
+    /// Result is the same as <c>GetValue&lt;Entity&gt;(field).Key</c>,
     /// but referenced entity will not be materialized.
     /// </remarks>
-    /// <param name="field">The reference field. Field value type must be 
+    /// <param name="field">The reference field. Field value type must be
     /// <see cref="Entity"/> descendant.</param>
     /// <returns>Referenced entity key.</returns>
     /// <exception cref="InvalidOperationException">Field is not a reference field.</exception>
@@ -265,7 +265,7 @@ namespace Xtensive.Orm
         SystemGetValueCompleted(field, key, null);
         return key;
       }
-      catch(Exception e) {
+      catch (Exception e) {
         SystemGetValueCompleted(field, key, e);
         throw;
       }
@@ -292,15 +292,19 @@ namespace Xtensive.Orm
             string.Format(Strings.ExFieldIsNotAnEntityField, field.Name, field.ReflectedType.Name));
         }
 
-        if (!isPersisting) { SystemBeforeTupleChange(); }
+        if (!isPersisting) {
+          SystemBeforeTupleChange();
+        }
 
-        var types = Session.Domain.Model.Types;
+        var fieldMappingInfo = field.MappingInfo;
         if (value == null) {
-          for (var i = 0; i < field.MappingInfo.Length; i++) {
-            Tuple.SetValue(field.MappingInfo.Offset + i, null);
+          for (var i = 0; i < fieldMappingInfo.Length; i++) {
+            Tuple.SetValue(fieldMappingInfo.Offset + i, null);
           }
 
-          if (!isPersisting) { SystemTupleChange(); }
+          if (!isPersisting) {
+            SystemTupleChange();
+          }
           return;
         }
         if (!field.ValueType.IsAssignableFrom(value.TypeInfo.UnderlyingType)) {
@@ -311,9 +315,9 @@ namespace Xtensive.Orm
           return;
         }
 
-        value.Value.CopyTo(Tuple, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+        value.Value.CopyTo(Tuple, 0, fieldMappingInfo.Offset, fieldMappingInfo.Length);
         if (field.IsPrimaryKey) {
-          value.Value.CopyTo(((Entity) this).Key.Value, 0, field.MappingInfo.Offset, field.MappingInfo.Length);
+          value.Value.CopyTo(((Entity)this).Key.Value, 0, fieldMappingInfo.Offset, fieldMappingInfo.Length);
         }
 
         if (!isPersisting) {
@@ -331,7 +335,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Sets the field value.
-    /// Field value type must be specified precisely. 
+    /// Field value type must be specified precisely.
     /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
@@ -354,7 +358,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Sets the field value.
-    /// Field value type must be specified precisely. 
+    /// Field value type must be specified precisely.
     /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <typeparam name="T">Field value type.</typeparam>
@@ -369,7 +373,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Sets the field value.
-    /// Field value type must be specified precisely. 
+    /// Field value type must be specified precisely.
     /// E.g. usage of <see cref="Object"/> instead of <see cref="IEntity"/> might lead to unpredictable effects.
     /// </summary>
     /// <param name="field">The field.</param>
@@ -398,11 +402,11 @@ namespace Xtensive.Orm
         var scope = operations.BeginRegistration(Operations.OperationType.System);
         try {
           var entity = this as Entity;
-          if (entity!=null) {
+          if (entity != null) {
             if (operations.CanRegisterOperation)
               operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, field, value));
             var entityValue = value as IEntity;
-            if (entityValue!=null) {
+            if (entityValue != null) {
               var valueKey = entityValue.Key;
               Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
             }
@@ -411,24 +415,24 @@ namespace Xtensive.Orm
             var persistent = this;
             var currentField = field;
             var structure = persistent as Structure;
-            while (structure!=null && structure.Owner!=null) {
+            while (structure != null && structure.Owner != null) {
               var pair = new Pair<FieldInfo>(structure.Field, currentField);
               currentField = structure.Owner.TypeInfo.StructureFieldMapping[pair];
               persistent = structure.Owner;
               structure = persistent as Structure;
             }
             entity = persistent as Entity;
-            if (entity!=null) {
+            if (entity != null) {
               if (operations.CanRegisterOperation)
                 operations.RegisterOperation(new EntityFieldSetOperation(entity.Key, currentField, value));
               var entityValue = value as IEntity;
-              if (entityValue!=null) {
+              if (entityValue != null) {
                 var valueKey = entityValue.Key;
                 Session.ReferenceFieldsChangesRegistry.Register(entity.Key, valueKey, field);
               }
             }
           }
-          
+
           if (fieldAccessor.AreSameValues(oldValue, value)) {
             operations.NotifyOperationStarting(false);
             scope.Complete();
@@ -441,13 +445,13 @@ namespace Xtensive.Orm
             entity = value as Entity ?? oldValue as Entity;
             if (entity != null)
               association = field.GetAssociation(entity.TypeInfo);
-            if (association!=null && association.IsPaired) {
+            if (association != null && association.IsPaired) {
               Key currentKey = GetReferenceKey(field);
               Key newKey = null;
               var newReference = (Entity) (object) value;
-              if (newReference!=null)
+              if (newReference != null)
                 newKey = newReference.Key;
-              if (currentKey!=newKey) {
+              if (currentKey != newKey) {
                 Session.PairSyncManager.ProcessRecursively(syncContext, removalContext,
                   OperationType.Set, association, (Entity) this, newReference, () => {
                     SystemBeforeTupleChange();
@@ -457,7 +461,7 @@ namespace Xtensive.Orm
               }
             }
             else {
-              // The method of Equals(object, object) wrapped with in a block 'try catch', 
+              // The method of Equals(object, object) wrapped with in a block 'try catch',
               // because that for data types NpgsqlPath and NpgsqlPolygon which are defined without an initial value it works incorrectly.
               bool canBeEqual;
               try {
@@ -474,7 +478,7 @@ namespace Xtensive.Orm
               }
             }
 
-            if (removalContext!=null) {
+            if (removalContext != null) {
               // Postponing finalizers (events)
               removalContext.EnqueueFinalizer(() => {
                 try {
@@ -501,7 +505,7 @@ namespace Xtensive.Orm
           scope.Complete();
         }
         finally {
-          if (removalContext==null)
+          if (removalContext == null)
             scope.DisposeSafely();
         }
       }
@@ -605,7 +609,7 @@ namespace Xtensive.Orm
     /// public override void OnValidate()
     /// {
     ///   base.OnValidate();
-    ///   if (Age &lt;= 0) 
+    ///   if (Age &lt;= 0)
     ///     throw new InvalidOperationException("Age should be positive.");
     /// }
     /// </code>
@@ -699,7 +703,7 @@ namespace Xtensive.Orm
     {
       var subscription = GetSubscription(EntityEventBroker.PropertyChangedEventKey);
       if (subscription.Second != null) {
-        ((PropertyChangedEventHandler)subscription.Second)
+        ((PropertyChangedEventHandler) subscription.Second)
           .Invoke(this, new PropertyChangedEventArgs(propertyName));
       }
     }
@@ -718,24 +722,22 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     string IDataErrorInfo.this[string columnName]
     {
-      get
-      {
+      get {
         if (!CanBeValidated)
           return string.Empty;
         var result = GetValidationResult(columnName);
-        return result!=null ? result.ErrorMessage : string.Empty;
+        return result != null ? result.ErrorMessage : string.Empty;
       }
     }
 
     /// <inheritdoc/>
     string IDataErrorInfo.Error
     {
-      get
-      {
+      get {
         if (!CanBeValidated)
           return string.Empty;
         var result = GetValidationResult();
-        return result!=null ? result.ErrorMessage : string.Empty;
+        return result != null ? result.ErrorMessage : string.Empty;
       }
     }
 
@@ -754,7 +756,7 @@ namespace Xtensive.Orm
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
       // Building adapter container if necessary
-      if (fieldAdapters==null) {
+      if (fieldAdapters == null) {
         int maxAdapterIndex = TypeInfo.Fields.Select(f => f.AdapterIndex).Max();
         fieldAdapters = new IFieldValueAdapter[maxAdapterIndex + 1];
       }
@@ -797,18 +799,18 @@ namespace Xtensive.Orm
     {
       if (field.ReflectedType.IsInterface)
         field = TypeInfo.FieldMap[field];
-      if (field.ReflectedType!=TypeInfo)
+      if (field.ReflectedType != TypeInfo)
         throw new ArgumentException(Strings.ExFieldBelongsToADifferentType, "field");
       var mappingInfo = field.MappingInfo;
-      if (mappingInfo.Length==0)
+      if (mappingInfo.Length == 0)
         return 0; // EntitySet or another proxy
 
       PersistentFieldState state = 0;
       var tuple = Tuple;
-      if (tuple!=null && tuple.AreAllColumnsAvalilable(mappingInfo))
+      if (tuple != null && tuple.AreAllColumnsAvalilable(mappingInfo))
         state = PersistentFieldState.Loaded;
       var diffTuple = tuple as DifferentialTuple;
-      if (diffTuple!=null && diffTuple.Difference.IsAtLeastOneColumAvailable(mappingInfo))
+      if (diffTuple != null && diffTuple.Difference.IsAtLeastOneColumAvailable(mappingInfo))
         state = PersistentFieldState.Modified;
       return state;
     }
