@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2007.09.13
 
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse
     public DirectionCollection<int> Order { get; private set; }
 
     /// <summary>
-    /// Gets the tuple descriptor describing 
+    /// Gets the tuple descriptor describing
     /// a set of <see cref="Order"/> columns.
     /// </summary>
     public TupleDescriptor OrderTupleDescriptor {
@@ -111,10 +111,10 @@ namespace Xtensive.Orm.Rse
       var newTupleDescriptor = TupleDescriptor.Create(newFieldTypes);
 
       return new RecordSetHeader(
-        newTupleDescriptor, 
-        newColumns, 
-        ColumnGroups, 
-        OrderTupleDescriptor, 
+        newTupleDescriptor,
+        newColumns,
+        ColumnGroups,
+        OrderTupleDescriptor,
         Order);
     }
 
@@ -153,10 +153,10 @@ namespace Xtensive.Orm.Rse
       }
 
       return new RecordSetHeader(
-        newTupleDescriptor, 
-        newColumns, 
+        newTupleDescriptor,
+        newColumns,
         groups,
-        OrderTupleDescriptor, 
+        OrderTupleDescriptor,
         Order);
     }
 
@@ -179,7 +179,7 @@ namespace Xtensive.Orm.Rse
       var resultOrder = new DirectionCollection<int>(
         Order
           .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))
-          .TakeWhile(o => o.Key >= 0));      
+          .TakeWhile(o => o.Key >= 0));
 
       var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone(newIndex));
 
@@ -187,17 +187,17 @@ namespace Xtensive.Orm.Rse
         .Where(g => g.Keys.All(k => columnsMap[k]>=0))
         .Select(g => new ColumnGroup(
             g.TypeInfoRef,
-            g.Keys.Select(k => columnsMap[k]), 
+            g.Keys.Select(k => columnsMap[k]),
             g.Columns
               .Select(c => columnsMap[c])
               .Where(c => c >= 0)));
 
       return new RecordSetHeader(
-        resultTupleDescriptor, 
-        resultColumns, 
-        resultGroups, 
-        null, 
-        resultOrder);      
+        resultTupleDescriptor,
+        resultColumns,
+        resultGroups,
+        null,
+        resultOrder);
     }
 
     /// <summary>
@@ -250,24 +250,24 @@ namespace Xtensive.Orm.Rse
         .Select(columnInfo => columnInfo.Key.ValueType)
         .ToArray(indexInfoKeyColumns.Count);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
-      
+
       var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(c,i,c.ValueType));
       var resultGroups = new[]{indexInfo.Group};
 
       return new RecordSetHeader(
-        resultTupleDescriptor, 
-        resultColumns, 
-        resultGroups, 
-        keyDescriptor, 
+        resultTupleDescriptor,
+        resultColumns,
+        resultGroups,
+        keyDescriptor,
         order);
     }
 
     /// <inheritdoc/>
     public override string ToString()
     {
-      return Columns.Select(c => c.ToString()).ToCommaDelimitedString();      
+      return Columns.Select(c => c.ToString()).ToCommaDelimitedString();
     }
-   
+
 
     // Constructors
 
@@ -275,9 +275,9 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
-    /// <param name="columns">Result columns.</param>    
+    /// <param name="columns">Result columns.</param>
     public RecordSetHeader(
-      TupleDescriptor tupleDescriptor, 
+      TupleDescriptor tupleDescriptor,
       IEnumerable<Column> columns)
       : this(tupleDescriptor, columns, null, null, null)
     {
@@ -287,11 +287,11 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
-    /// <param name="columns">Result columns.</param>    
+    /// <param name="columns">Result columns.</param>
     /// <param name="columnGroups">Column groups.</param>
     public RecordSetHeader(
-      TupleDescriptor tupleDescriptor, 
-      IEnumerable<Column> columns, 
+      TupleDescriptor tupleDescriptor,
+      IEnumerable<Column> columns,
       IEnumerable<ColumnGroup> columnGroups)
       : this(tupleDescriptor, columns, columnGroups, null, null)
     {
@@ -301,14 +301,14 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
-    /// <param name="columns">Result columns.</param>    
+    /// <param name="columns">Result columns.</param>
     /// <param name="orderKeyDescriptor">Descriptor of ordered columns.</param>
     /// <param name="order">Result sort order.</param>
     public RecordSetHeader(
-      TupleDescriptor tupleDescriptor, 
-      IEnumerable<Column> columns, 
+      TupleDescriptor tupleDescriptor,
+      IEnumerable<Column> columns,
       TupleDescriptor orderKeyDescriptor,
-      DirectionCollection<int> order)      
+      DirectionCollection<int> order)
       : this(tupleDescriptor, columns, null, orderKeyDescriptor, order)
     {
     }
@@ -317,25 +317,25 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="tupleDescriptor">Descriptor of the result item.</param>
-    /// <param name="columns">Result columns.</param>    
+    /// <param name="columns">Result columns.</param>
     /// <param name="columnGroups">Column groups.</param>
     /// <param name="orderKeyDescriptor">Descriptor of ordered columns.</param>
     /// <param name="order">Result sort order.</param>
     /// <exception cref="ArgumentOutOfRangeException"><c>columns.Count</c> is out of range.</exception>
     public RecordSetHeader(
-      TupleDescriptor tupleDescriptor, 
-      IEnumerable<Column> columns, 
+      TupleDescriptor tupleDescriptor,
+      IEnumerable<Column> columns,
       IEnumerable<ColumnGroup> columnGroups,
       TupleDescriptor orderKeyDescriptor,
-      DirectionCollection<int> order)      
+      DirectionCollection<int> order)
     {
       ArgumentValidator.EnsureArgumentNotNull(tupleDescriptor, "tupleDescriptor");
       ArgumentValidator.EnsureArgumentNotNull(columns, "columns");
 
       TupleDescriptor = tupleDescriptor;
       // Unsafe perf. optimization: if you pass a list, it should be immutable!
-      Columns = columns is List<Column> columnList 
-        ? new ColumnCollection(columnList) 
+      Columns = columns is List<Column> columnList
+        ? new ColumnCollection(columnList)
         : new ColumnCollection(columns);
       if (tupleDescriptor.Count!=Columns.Count)
         throw new ArgumentOutOfRangeException("columns.Count");
@@ -344,7 +344,7 @@ namespace Xtensive.Orm.Rse
         ? ColumnGroupCollection.Empty
         // Unsafe perf. optimization: if you pass a list, it should be immutable!
         : (columnGroups is List<ColumnGroup> columnGroupList
-          ? new ColumnGroupCollection(columnGroupList) 
+          ? new ColumnGroupCollection(columnGroupList)
           : new ColumnGroupCollection(columnGroups));
 
       orderTupleDescriptor = orderKeyDescriptor ?? TupleDescriptor.Empty;

@@ -29,7 +29,7 @@ namespace Xtensive.Core
     private const int defaultFirstFastCount = 0;
 
     /// <summary>
-    /// Indicates whether enumerable is empty or not 
+    /// Indicates whether enumerable is empty or not
     /// by attempting to cast it to <see cref="ICollection{T}"/> and <see cref="IQueryable{T}"/>.
     /// May return false negative response.
     /// </summary>
@@ -110,7 +110,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Applies the specified <paramref name="action"/> to all the items 
+    /// Applies the specified <paramref name="action"/> to all the items
     /// from the <paramref name="items"/> sequence.
     /// </summary>
     /// <typeparam name="T">Type of the sequence item.</typeparam>
@@ -127,7 +127,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="T">The type of sequence item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
-    /// <returns>A new <see cref="ChainedBuffer{T}"/> instance containing 
+    /// <returns>A new <see cref="ChainedBuffer{T}"/> instance containing
     /// all the items from the <paramref name="source"/> sequence.</returns>
     public static ChainedBuffer<T> ToChainedBuffer<T>(this IEnumerable<T> source)
     {
@@ -136,7 +136,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Converts the elements of <paramref name="source"/> sequence 
+    /// Converts the elements of <paramref name="source"/> sequence
     /// using specified <paramref name="converter"/>.
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
@@ -170,7 +170,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TItem">The type of item.</typeparam>
     /// <param name="source">The sequence to convert.</param>
-    /// <returns>Comma-delimited string containing string representation 
+    /// <returns>Comma-delimited string containing string representation
     /// of all the items from <paramref name="source"/>.</returns>
     public static string ToCommaDelimitedString<TItem>(this IEnumerable<TItem> source)
     {
@@ -216,7 +216,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="source">The sequence to convert.</param>
     /// <param name="separator">The delimiter.</param>
-    /// <returns>Delimited string containing string representation 
+    /// <returns>Delimited string containing string representation
     /// of all the items from <paramref name="source"/>.</returns>
     public static string ToDelimitedString(this IEnumerable source, string separator)
     {
@@ -342,7 +342,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <typeparam name="TKey">The type of the key elements.</typeparam>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of values in result dictionary</typeparam>
     /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
     /// <param name="keySelector">A function to extract a key from each element.</param>
     /// <param name="elementSelector">A funtion to extract a value from each element.</param>
@@ -363,7 +363,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TSource">The type of the elements of source.</typeparam>
     /// <typeparam name="TKey">The type of the key elements.</typeparam>
-    /// <typeparam name="TValue">The type of the value.</typeparam>
+    /// <typeparam name="TValue">The type of values in result dictionary</typeparam>
     /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
     /// <param name="keySelector">A function to extract a key from each element.</param>
     /// <param name="elementSelector">A funtion to extract a value from each element.</param>
@@ -374,7 +374,7 @@ namespace Xtensive.Core
       this IEnumerable<TSource> source,
       Func<TSource, TKey> keySelector,
       Func<TSource, TValue> elementSelector,
-      IEqualityComparer<TKey> equalityComparer,
+      IEqualityComparer<TKey> comparer,
       int capacity)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
@@ -382,8 +382,8 @@ namespace Xtensive.Core
       ArgumentValidator.EnsureArgumentNotNull(elementSelector, nameof(elementSelector));
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(capacity, 0, nameof(capacity));
 
-      var dictionary = equalityComparer != null
-        ? new Dictionary<TKey, TValue>(capacity, equalityComparer)
+      var dictionary = comparer != null
+        ? new Dictionary<TKey, TValue>(capacity, comparer)
         : new Dictionary<TKey, TValue>(capacity);
       foreach (var item in source) {
         dictionary.Add(keySelector(item), elementSelector(item));
@@ -422,7 +422,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="firstFastCount">The count of the source sequence's items 
+    /// <param name="firstFastCount">The count of the source sequence's items
     /// which will be returned without batching.</param>
     /// <param name="initialBatchSize">The initial size of a batch.</param>
     /// <param name="maximalBatchSize">The maximal sized of a batch.</param>
@@ -475,7 +475,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="firstFastCount">The count of the source sequence's items 
+    /// <param name="firstFastCount">The count of the source sequence's items
     /// which will be returned without batching.</param>
     /// <returns>The source sequence split into batches.</returns>
     public static IEnumerable<IEnumerable<T>> Batch<T>(this IEnumerable<T> source, int firstFastCount)
@@ -488,11 +488,11 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="T">The type of enumerated items.</typeparam>
     /// <param name="source">The source sequence.</param>
-    /// <param name="beforeAction">The delegate that will be invoked before 
-    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit 
+    /// <param name="beforeAction">The delegate that will be invoked before
+    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit
     /// the invocation.</param>
-    /// <param name="afterAction">The delegate that will be invoked after 
-    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit 
+    /// <param name="afterAction">The delegate that will be invoked after
+    /// the enumeration of each batch. Set this parameter to <see langword="null" /> to omit
     /// the invocation.</param>
     /// <returns>The source sequence.</returns>
     public static IEnumerable<IEnumerable<T>> ApplyBeforeAndAfter<T>(this IEnumerable<IEnumerable<T>> source,
@@ -522,13 +522,13 @@ namespace Xtensive.Core
     /// </summary>
     /// <typeparam name="TItem">The type of the item.</typeparam>
     /// <param name="root">The root of the hierarchy.</param>
-    /// <param name="childrenExtractor">The children extractor. It's always executed 
+    /// <param name="childrenExtractor">The children extractor. It's always executed
     /// before a root item will be returned.</param>
-    /// <param name="exitAction">This action is always executed after a root item 
+    /// <param name="exitAction">This action is always executed after a root item
     /// was returned.</param>
-    /// <param name="rootFirst">If set to <see langword="true"/> then a root item 
+    /// <param name="rootFirst">If set to <see langword="true"/> then a root item
     /// will be returned before its children.</param>
-    /// <returns>The <see cref="IEnumerable{T}"/> containing all items in the 
+    /// <returns>The <see cref="IEnumerable{T}"/> containing all items in the
     /// specified hierarchy.</returns>
     public static IEnumerable<TItem> Flatten<TItem>(this IEnumerable<TItem> root,
       Func<TItem, IEnumerable<TItem>> childrenExtractor, Action<TItem> exitAction, bool rootFirst)
