@@ -13,6 +13,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Compiler : SqlCompiler
   {
+    private readonly static Type SqlPlaceholderType = typeof(SqlPlaceholder);
+
     private static readonly SqlNative OneYearInterval = SqlDml.Native("interval '1 year'");
     private static readonly SqlNative OneMonthInterval = SqlDml.Native("interval '1 month'");
     private static readonly SqlNative OneDayInterval = SqlDml.Native("interval '1 day'");
@@ -32,8 +34,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       var right = node.Right as SqlArray;
       if (!right.IsNullReference() && (node.NodeType==SqlNodeType.In || node.NodeType==SqlNodeType.NotIn)) {
-        var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
-        base.Visit(node.NodeType==SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
+        if (right.ItemType == SqlPlaceholderType) {
+          using (context.EnterScope(node)) {
+            context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
+            node.Left.AcceptVisitor(this);
+            context.Output.AppendText(translator.Translate(node.NodeType));
+            context.Output.AppendText("(");
+            var items = right.GetValues();
+            for (var i = 0; i < items.Length - 1; i++) {
+              Visit((SqlPlaceholder) items[i]);
+              context.Output.AppendDelimiter(translator.RowItemDelimiter);
+            }
+            Visit((SqlPlaceholder) items[items.Length - 1]);
+            context.Output.AppendText(")");
+            context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
+          }
+        }
+        else {
+          var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
+          base.Visit(node.NodeType == SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
+        }
       }
       else {
         switch (node.NodeType) {
