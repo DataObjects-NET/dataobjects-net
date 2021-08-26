@@ -234,7 +234,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var initScript = configuration.ConnectionInitializationSql;
 
       if (!configuration.EnsureConnectionIsAlive) {
-        if (configuration.ConnectionHandlers.Count == 0)
+        if (configuration.DbConnectionAccessors.Count == 0)
           OpenConnectionFast(connection, initScript, false).GetAwaiter().GetResult();
         else
           OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
@@ -244,10 +244,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var testQuery = string.IsNullOrEmpty(initScript)
         ? CheckConnectionQuery
         : initScript;
-      if (configuration.ConnectionHandlers.Count == 0)
+      if (configuration.DbConnectionAccessors.Count == 0)
         return EnsureConnectionIsAliveFast(connection, testQuery, false).GetAwaiter().GetResult();
       else
-        return EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.ConnectionHandlers, false)
+        return EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.DbConnectionAccessors, false)
           .GetAwaiter().GetResult();
     }
 
@@ -258,7 +258,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var initScript = configuration.ConnectionInitializationSql;
 
       if (!configuration.EnsureConnectionIsAlive) {
-        if (configuration.ConnectionHandlers.Count == 0)
+        if (configuration.DbConnectionAccessors.Count == 0)
           await OpenConnectionFast(connection, initScript, true, token).ConfigureAwait(false);
         else
           await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
@@ -268,10 +268,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var testQuery = string.IsNullOrEmpty(initScript)
         ? CheckConnectionQuery
         : initScript;
-      if (configuration.ConnectionHandlers.Count == 0)
+      if (configuration.DbConnectionAccessors.Count == 0)
         return await EnsureConnectionIsAliveFast(connection, testQuery, true, token).ConfigureAwait(false);
       else
-        return await EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.ConnectionHandlers, true, token)
+        return await EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.DbConnectionAccessors, true, token)
           .ConfigureAwait(false);
     }
 
@@ -291,36 +291,36 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static async ValueTask OpenConnectionWithNotification(SqlServerConnection connection,
       SqlDriverConfiguration configuration, bool isAsync, CancellationToken token = default)
     {
-      var handlers = configuration.ConnectionHandlers;
+      var accessors = configuration.DbConnectionAccessors;
       var initSql = configuration.ConnectionInitializationSql;
 
       if (!isAsync) {
-        SqlHelper.NotifyConnectionOpening(handlers, connection);
+        SqlHelper.NotifyConnectionOpening(accessors, connection);
         try {
           connection.Open();
           if (!string.IsNullOrEmpty(initSql)) {
-            SqlHelper.NotifyConnectionInitializing(handlers, connection, initSql);
+            SqlHelper.NotifyConnectionInitializing(accessors, connection, initSql);
             SqlHelper.ExecuteInitializationSql(connection, initSql);
           }
-          SqlHelper.NotifyConnectionOpened(handlers, connection);
+          SqlHelper.NotifyConnectionOpened(accessors, connection);
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
           throw;
         }
       }
       else {
-        await SqlHelper.NotifyConnectionOpeningAsync(handlers, connection, false, token);
+        await SqlHelper.NotifyConnectionOpeningAsync(accessors, connection, false, token);
         try {
           await connection.OpenAsync(token);
           if (!string.IsNullOrEmpty(initSql)) {
-            await SqlHelper.NotifyConnectionInitializingAsync(handlers, connection, initSql, false, token);
+            await SqlHelper.NotifyConnectionInitializingAsync(accessors, connection, initSql, false, token);
             await SqlHelper.ExecuteInitializationSqlAsync(connection, initSql, token);
           }
-          await SqlHelper.NotifyConnectionOpenedAsync(handlers, connection, false, token);
+          await SqlHelper.NotifyConnectionOpenedAsync(accessors, connection, false, token);
         }
         catch (Exception ex) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, connection, ex, false, token);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, connection, ex, false, token);
           throw;
         }
       }
@@ -392,27 +392,27 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     private static async ValueTask<SqlServerConnection> EnsureConnectionIsAliveWithNotification(SqlServerConnection connection,
-      string query, IReadOnlyCollection<IConnectionHandler> handlers, bool isAsync, CancellationToken token = default)
+      string query, IReadOnlyCollection<IDbConnectionAccessor> connectionAccessos, bool isAsync, CancellationToken token = default)
     {
       if (!isAsync) {
-        SqlHelper.NotifyConnectionOpening(handlers, connection);
+        SqlHelper.NotifyConnectionOpening(connectionAccessos, connection);
         try {
           connection.Open();
 
-          SqlHelper.NotifyConnectionInitializing(handlers, connection, query);
+          SqlHelper.NotifyConnectionInitializing(connectionAccessos, connection, query);
 
           using (var command = connection.CreateCommand()) {
             command.CommandText = query;
             _ = command.ExecuteNonQuery();
           }
 
-          SqlHelper.NotifyConnectionOpened(handlers, connection);
+          SqlHelper.NotifyConnectionOpened(connectionAccessos, connection);
           return connection;
         }
         catch (Exception exception) {
           var retryToConnect = InternalHelpers.ShouldRetryOn(exception);
           if (!retryToConnect)
-            SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, exception);
+            SqlHelper.NotifyConnectionOpeningFailed(connectionAccessos, connection, exception);
           try {
             connection.Close();
             connection.Dispose();
@@ -422,7 +422,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
           }
 
           if (retryToConnect) {
-            var (isReconnected, newConnection) = TryReconnectWithNotification(connection.ConnectionString, query, handlers, isAsync)
+            var (isReconnected, newConnection) = TryReconnectWithNotification(connection.ConnectionString, query, connectionAccessos, isAsync)
               .GetAwaiter().GetResult();
             if (isReconnected) {
               return newConnection;
@@ -432,12 +432,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
       }
       else {
-        await SqlHelper.NotifyConnectionOpeningAsync(handlers, connection, false, token).ConfigureAwait(false);
+        await SqlHelper.NotifyConnectionOpeningAsync(connectionAccessos, connection, false, token).ConfigureAwait(false);
 
         try {
           await connection.OpenAsync(token).ConfigureAwait(false);
 
-          await SqlHelper.NotifyConnectionInitializingAsync(handlers, connection, query, false, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionInitializingAsync(connectionAccessos, connection, query, false, token).ConfigureAwait(false);
 
           var command = connection.CreateCommand();
           await using (command.ConfigureAwait(false)) {
@@ -445,13 +445,13 @@ namespace Xtensive.Sql.Drivers.SqlServer
             _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
           }
 
-          await SqlHelper.NotifyConnectionOpenedAsync(handlers, connection, false, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(connectionAccessos, connection, false, token).ConfigureAwait(false);
           return connection;
         }
         catch (Exception exception) {
           var retryToConnect = InternalHelpers.ShouldRetryOn(exception);
           if (!retryToConnect) {
-            await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, connection, exception, false, token).ConfigureAwait(false);
+            await SqlHelper.NotifyConnectionOpeningFailedAsync(connectionAccessos, connection, exception, false, token).ConfigureAwait(false);
           }
 
           var connectionString = connection.ConnectionString;
@@ -465,7 +465,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
           if (retryToConnect) {
             var (isReconnected, newConnection) =
-              await TryReconnectWithNotification(connectionString, query, handlers, isAsync, token).ConfigureAwait(false);
+              await TryReconnectWithNotification(connectionString, query, connectionAccessos, isAsync, token).ConfigureAwait(false);
             if (isReconnected) {
               return newConnection;
             }
@@ -515,38 +515,38 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     private static async Task<(bool isReconnected, SqlServerConnection connection)> TryReconnectWithNotification(
-      string connectionString, string query, IReadOnlyCollection<IConnectionHandler> handlers,
+      string connectionString, string query, IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors,
       bool isAsync, CancellationToken token = default)
     {
       var connection = new SqlServerConnection(connectionString);
       if (!isAsync) {
-        SqlHelper.NotifyConnectionOpening(handlers, connection, true);
+        SqlHelper.NotifyConnectionOpening(connectionAccessors, connection, true);
 
         try {
           connection.Open();
-          SqlHelper.NotifyConnectionInitializing(handlers, connection, query, true);
+          SqlHelper.NotifyConnectionInitializing(connectionAccessors, connection, query, true);
 
           using (var command = connection.CreateCommand()) {
             command.CommandText = query;
             _ = command.ExecuteNonQuery();
           }
 
-          SqlHelper.NotifyConnectionOpened(handlers, connection, true);
+          SqlHelper.NotifyConnectionOpened(connectionAccessors, connection, true);
           return (true, connection);
         }
         catch (Exception exception) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, exception, true);
+          SqlHelper.NotifyConnectionOpeningFailed(connectionAccessors, connection, exception, true);
           connection.Dispose();
           return (false, null);
         }
       }
       else {
-        await SqlHelper.NotifyConnectionOpeningAsync(handlers, connection, true, token).ConfigureAwait(false);
+        await SqlHelper.NotifyConnectionOpeningAsync(connectionAccessors, connection, true, token).ConfigureAwait(false);
 
         try {
           await connection.OpenAsync(token).ConfigureAwait(false);
 
-          await SqlHelper.NotifyConnectionInitializingAsync(handlers, connection, query, true, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionInitializingAsync(connectionAccessors, connection, query, true, token).ConfigureAwait(false);
 
           var command = connection.CreateCommand();
           await using (command.ConfigureAwait(false)) {
@@ -554,11 +554,11 @@ namespace Xtensive.Sql.Drivers.SqlServer
             _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
           }
 
-          await SqlHelper.NotifyConnectionOpenedAsync(handlers, connection, true, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(connectionAccessors, connection, true, token).ConfigureAwait(false);
           return (true, connection);
         }
         catch (Exception exception) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, connection, exception, true, token).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(connectionAccessors, connection, exception, true, token).ConfigureAwait(false);
           await connection.DisposeAsync();
           return (false, null);
         }

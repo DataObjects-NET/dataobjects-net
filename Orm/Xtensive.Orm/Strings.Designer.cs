@@ -1525,11 +1525,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Connection handler &apos;{0}&apos; has no parameterless constructor..
+        ///   Looks up a localized string similar to Connection accessor &apos;{0}&apos; has no parameterless constructor..
         /// </summary>
-        internal static string ExConnectionHandlerXHasNoParameterlessConstructor {
+        internal static string ExConnectionAccessorXHasNoParameterlessConstructor {
             get {
-                return ResourceManager.GetString("ExConnectionHandlerXHasNoParameterlessConstructor", resourceCulture);
+                return ResourceManager.GetString("ExConnectionAccessorXHasNoParameterlessConstructor", resourceCulture);
             }
         }
         

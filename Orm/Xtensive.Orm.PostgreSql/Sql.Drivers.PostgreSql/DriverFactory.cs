@@ -61,7 +61,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using var connection = new NpgsqlConnection(connectionString);
-      if (configuration.ConnectionHandlers.Count > 0)
+      if (configuration.DbConnectionAccessors.Count > 0)
         OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
       else
         OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
@@ -76,7 +76,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     {
       var connection = new NpgsqlConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
-        if (configuration.ConnectionHandlers.Count > 0)
+        if (configuration.DbConnectionAccessors.Count > 0)
           await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
         else
           await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
@@ -155,39 +155,39 @@ namespace Xtensive.Sql.Drivers.PostgreSql
       bool isAsync,
       CancellationToken cancellationToken = default)
     {
-      var handlers = configuration.ConnectionHandlers;
+      var accessors = configuration.DbConnectionAccessors;
       if (!isAsync) {
-        SqlHelper.NotifyConnectionOpening(handlers, connection);
+        SqlHelper.NotifyConnectionOpening(accessors, connection);
         try {
           connection.Open();
           if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
-            SqlHelper.NotifyConnectionInitializing(handlers, connection, configuration.ConnectionInitializationSql);
+            SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
           }
 
           SqlHelper.ExecuteInitializationSql(connection, configuration);
-          SqlHelper.NotifyConnectionOpened(handlers, connection);
+          SqlHelper.NotifyConnectionOpened(accessors, connection);
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
           throw;
         }
       }
       else {
-        await SqlHelper.NotifyConnectionOpeningAsync(handlers, connection, false, cancellationToken).ConfigureAwait(false);
+        await SqlHelper.NotifyConnectionOpeningAsync(accessors, connection, false, cancellationToken).ConfigureAwait(false);
         try {
           await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
           if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
-            await SqlHelper.NotifyConnectionInitializingAsync(handlers,
+            await SqlHelper.NotifyConnectionInitializingAsync(accessors,
                 connection, configuration.ConnectionInitializationSql, false, cancellationToken)
               .ConfigureAwait(false);
           }
 
           await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
-          await SqlHelper.NotifyConnectionOpenedAsync(handlers, connection, false, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(accessors, connection, false, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, connection, ex, false, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(accessors, connection, ex, false, cancellationToken).ConfigureAwait(false);
           throw;
         }
       }

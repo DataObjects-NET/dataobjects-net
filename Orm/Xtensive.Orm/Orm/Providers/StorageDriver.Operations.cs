@@ -51,9 +51,9 @@ namespace Xtensive.Orm.Providers
         throw ExceptionBuilder.BuildException(exception);
       }
 
-      if (handlerFactoriesCache != null) {
-        connection.AssignConnectionHandlers(
-          CreateConnectionHandlersFast(configuration.Types.ConnectionHandlers));
+      if (connectionAccessorFactories != null) {
+        connection.AssignConnectionAccessors(
+          CreateConnectionAccessorsFast(configuration.Types.DbConnectionAccessors));
       }
 
       var sessionConfiguration = GetConfiguration(session);

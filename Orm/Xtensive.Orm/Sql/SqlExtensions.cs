@@ -52,14 +52,14 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Adds handlers to connection so they will take effect on connection operations.
+    /// Assigns connection accessors to <paramref name="connection"/> so they will have access.
     /// </summary>
-    /// <param name="connection">The connection to assign handlers.</param>
-    /// <param name="connectionHandlers">The handlers.</param>
-    public static void AssignConnectionHandlers(this SqlConnection connection,
-      IReadOnlyCollection<IConnectionHandler> connectionHandlers)
+    /// <param name="connection">The connection to assign accessors.</param>
+    /// <param name="connectionAccessors">The accessors.</param>
+    public static void AssignConnectionAccessors(this SqlConnection connection,
+      IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors)
     {
-      connection.Extensions.Set(new ConnectionHandlersExtension(connectionHandlers));
+      connection.Extensions.Set(new DbConnectionAccessorExtension(connectionAccessors));
     }
   }
 }

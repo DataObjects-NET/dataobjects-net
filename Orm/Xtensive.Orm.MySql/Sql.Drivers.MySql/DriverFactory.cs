@@ -70,7 +70,7 @@ namespace Xtensive.Sql.Drivers.MySql
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new MySqlConnection(connectionString)) {
-        if (configuration.ConnectionHandlers.Count > 0)
+        if (configuration.DbConnectionAccessors.Count > 0)
           OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
         else
           OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
@@ -90,7 +90,7 @@ namespace Xtensive.Sql.Drivers.MySql
     {
       var connection = new MySqlConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
-        if (configuration.ConnectionHandlers.Count > 0)
+        if (configuration.DbConnectionAccessors.Count > 0)
           await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
         else
           await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
@@ -156,37 +156,37 @@ namespace Xtensive.Sql.Drivers.MySql
       bool isAsync,
       CancellationToken cancellationToken = default)
     {
-      var handlers = configuration.ConnectionHandlers;
+      var acessors = configuration.DbConnectionAccessors;
       if (!isAsync) {
-        SqlHelper.NotifyConnectionOpening(handlers, connection);
+        SqlHelper.NotifyConnectionOpening(acessors, connection);
         try {
           connection.Open();
           if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
-            SqlHelper.NotifyConnectionInitializing(handlers, connection, configuration.ConnectionInitializationSql);
+            SqlHelper.NotifyConnectionInitializing(acessors, connection, configuration.ConnectionInitializationSql);
           SqlHelper.ExecuteInitializationSql(connection, configuration);
-          SqlHelper.NotifyConnectionOpened(handlers, connection);
+          SqlHelper.NotifyConnectionOpened(acessors, connection);
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+          SqlHelper.NotifyConnectionOpeningFailed(acessors, connection, ex);
           throw;
         }
       }
       else {
-        await SqlHelper.NotifyConnectionOpeningAsync(handlers, connection, false, cancellationToken).ConfigureAwait(false);
+        await SqlHelper.NotifyConnectionOpeningAsync(acessors, connection, false, cancellationToken).ConfigureAwait(false);
         try {
           await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
 
           if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
-            await SqlHelper.NotifyConnectionInitializingAsync(handlers,
+            await SqlHelper.NotifyConnectionInitializingAsync(acessors,
                 connection, configuration.ConnectionInitializationSql, false, cancellationToken)
               .ConfigureAwait(false);
           }
 
           await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
-          await SqlHelper.NotifyConnectionOpenedAsync(handlers, connection, false, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(acessors, connection, false, cancellationToken).ConfigureAwait(false);
         }
         catch (Exception ex) {
-          await SqlHelper.NotifyConnectionOpeningFailedAsync(handlers, connection, ex, false, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(acessors, connection, ex, false, cancellationToken).ConfigureAwait(false);
           throw;
         }
       }

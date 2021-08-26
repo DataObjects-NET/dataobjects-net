@@ -11,12 +11,12 @@ using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Sql;
-using Xtensive.Orm.Tests.Storage.ConnectionHandlersModel;
+using Xtensive.Orm.Tests.Storage.ConnectionAccessorsModel;
 using System.Threading.Tasks;
 
-namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
+namespace Xtensive.Orm.Tests.Storage.ConnectionAccessorsModel
 {
-  public class MyConnectionHandler : ConnectionHandler
+  public class MyConnectionAccessor : DbConnectionAccessor
   {
     private Guid instanceMarker;
 
@@ -57,55 +57,55 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
       }
     }
 
-    public MyConnectionHandler()
+    public MyConnectionAccessor()
     {
       UniqueInstanceIdentifier = Guid.NewGuid();
     }
   }
 
-  public class NoDefaultConstructorHandler : ConnectionHandler
+  public class NoDefaultConstructorAccessor : DbConnectionAccessor
   {
 #pragma warning disable IDE0060 // Remove unused parameter
-    public NoDefaultConstructorHandler(int dummyParameter)
+    public NoDefaultConstructorAccessor(int dummyParameter)
 #pragma warning restore IDE0060 // Remove unused parameter
     {
     }
   }
 
-  public class NonPublicDefaultConstructorHandler : ConnectionHandler
+  public class NonPublicDefaultConstructorAccessor : DbConnectionAccessor
   {
-    private NonPublicDefaultConstructorHandler()
+    private NonPublicDefaultConstructorAccessor()
     {
     }
   }
 
-  #region Performance Test handlers
+  #region Performance Test accessors
 
-  public class PerfHandler1 : ConnectionHandler { }
-  public class PerfHandler2 : ConnectionHandler { }
-  public class PerfHandler3 : ConnectionHandler { }
-  public class PerfHandler4 : ConnectionHandler { }
-  public class PerfHandler5 : ConnectionHandler { }
-  public class PerfHandler6 : ConnectionHandler { }
-  public class PerfHandler7 : ConnectionHandler { }
-  public class PerfHandler8 : ConnectionHandler { }
-  public class PerfHandler9 : ConnectionHandler { }
-  public class PerfHandler10 : ConnectionHandler { }
-  public class PerfHandler11 : ConnectionHandler { }
-  public class PerfHandler12 : ConnectionHandler { }
-  public class PerfHandler13 : ConnectionHandler { }
-  public class PerfHandler14 : ConnectionHandler { }
-  public class PerfHandler15 : ConnectionHandler { }
-  public class PerfHandler16 : ConnectionHandler { }
-  public class PerfHandler17 : ConnectionHandler { }
-  public class PerfHandler18 : ConnectionHandler { }
-  public class PerfHandler19 : ConnectionHandler { }
-  public class PerfHandler20 : ConnectionHandler { }
-  public class PerfHandler21 : ConnectionHandler { }
-  public class PerfHandler22 : ConnectionHandler { }
-  public class PerfHandler23 : ConnectionHandler { }
-  public class PerfHandler24 : ConnectionHandler { }
-  public class PerfHandler25 : ConnectionHandler { }
+  public class PerfAccessor1 : DbConnectionAccessor { }
+  public class PerfAccessor2 : DbConnectionAccessor { }
+  public class PerfAccessor3 : DbConnectionAccessor { }
+  public class PerfAccessor4 : DbConnectionAccessor { }
+  public class PerfAccessor5 : DbConnectionAccessor { }
+  public class PerfAccessor6 : DbConnectionAccessor { }
+  public class PerfAccessor7 : DbConnectionAccessor { }
+  public class PerfAccessor8 : DbConnectionAccessor { }
+  public class PerfAccessor9 : DbConnectionAccessor { }
+  public class PerfAccessor10 : DbConnectionAccessor { }
+  public class PerfAccessor11 : DbConnectionAccessor { }
+  public class PerfAccessor12 : DbConnectionAccessor { }
+  public class PerfAccessor13 : DbConnectionAccessor { }
+  public class PerfAccessor14 : DbConnectionAccessor { }
+  public class PerfAccessor15 : DbConnectionAccessor { }
+  public class PerfAccessor16 : DbConnectionAccessor { }
+  public class PerfAccessor17 : DbConnectionAccessor { }
+  public class PerfAccessor18 : DbConnectionAccessor { }
+  public class PerfAccessor19 : DbConnectionAccessor { }
+  public class PerfAccessor20 : DbConnectionAccessor { }
+  public class PerfAccessor21 : DbConnectionAccessor { }
+  public class PerfAccessor22 : DbConnectionAccessor { }
+  public class PerfAccessor23 : DbConnectionAccessor { }
+  public class PerfAccessor24 : DbConnectionAccessor { }
+  public class PerfAccessor25 : DbConnectionAccessor { }
 
   #endregion
 
@@ -132,16 +132,17 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionHandlersModel
 
 namespace Xtensive.Orm.Tests.Storage
 {
-  public class ConnectionHandlerTest
+  [TestFixture]
+  public class ConnectionAccessorTest
   {
     [Test]
     public void DomainRegistryTest()
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.Types.Register(typeof(DummyEntity));
-      domainConfig.Types.Register(typeof(MyConnectionHandler));
+      domainConfig.Types.Register(typeof(MyConnectionAccessor));
 
-      Assert.That(domainConfig.Types.ConnectionHandlers.Count(), Is.EqualTo(1));
+      Assert.That(domainConfig.Types.DbConnectionAccessors.Count(), Is.EqualTo(1));
     }
 
     [Test]
@@ -150,7 +151,7 @@ namespace Xtensive.Orm.Tests.Storage
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       domainConfig.Types.Register(typeof(DummyEntity));
-      domainConfig.Types.Register(typeof(NoDefaultConstructorHandler));
+      domainConfig.Types.Register(typeof(NoDefaultConstructorAccessor));
 
       Domain domain = null;
       _ = Assert.Throws<NotSupportedException>(() => domain = Domain.Build(domainConfig));
@@ -163,7 +164,7 @@ namespace Xtensive.Orm.Tests.Storage
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       domainConfig.Types.Register(typeof(DummyEntity));
-      domainConfig.Types.Register(typeof(NoDefaultConstructorHandler));
+      domainConfig.Types.Register(typeof(NoDefaultConstructorAccessor));
 
       Domain domain = null;
       _ = Assert.ThrowsAsync<NotSupportedException>(async () => domain = await Domain.BuildAsync(domainConfig));
@@ -176,7 +177,7 @@ namespace Xtensive.Orm.Tests.Storage
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       domainConfig.Types.Register(typeof(DummyEntity));
-      domainConfig.Types.Register(typeof(NonPublicDefaultConstructorHandler));
+      domainConfig.Types.Register(typeof(NonPublicDefaultConstructorAccessor));
 
       using var domain = Domain.Build(domainConfig);
     }
@@ -187,72 +188,72 @@ namespace Xtensive.Orm.Tests.Storage
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       domainConfig.Types.Register(typeof(DummyEntity));
-      domainConfig.Types.Register(typeof(NonPublicDefaultConstructorHandler));
+      domainConfig.Types.Register(typeof(NonPublicDefaultConstructorAccessor));
 
       await using var domain = await Domain.BuildAsync(domainConfig);
     }
 
     [Test]
-    public void SessionConnectionHandlersTest()
+    public void SessionConnectionAccessorsTest()
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       domainConfig.Types.Register(typeof(DummyEntity));
-      domainConfig.Types.Register(typeof(MyConnectionHandler));
+      domainConfig.Types.Register(typeof(MyConnectionAccessor));
 
       Guid? first = null;
       using (var domain = Domain.Build(domainConfig))
       using (var session = domain.OpenSession()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
-        var extension = nativeHandler.Connection.Extensions.Get<ConnectionHandlersExtension>();
-        var handlerInstance = (MyConnectionHandler)extension.Handlers.First();
-        Assert.That(handlerInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
-        Assert.That(handlerInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
-        first = handlerInstance.UniqueInstanceIdentifier;
+        var extension = nativeHandler.Connection.Extensions.Get<DbConnectionAccessorExtension>();
+        var accessorInstance = (MyConnectionAccessor)extension.Accessors.First();
+        Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        first = accessorInstance.UniqueInstanceIdentifier;
       }
 
       Guid? second = null;
       using (var domain = Domain.Build(domainConfig))
       using (var session = domain.OpenSession()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
-        var extension = nativeHandler.Connection.Extensions.Get<ConnectionHandlersExtension>();
-        var handlerInstance = (MyConnectionHandler) extension.Handlers.First();
-        Assert.That(handlerInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
-        Assert.That(handlerInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
-        second = handlerInstance.UniqueInstanceIdentifier;
+        var extension = nativeHandler.Connection.Extensions.Get<DbConnectionAccessorExtension>();
+        var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
+        Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        second = accessorInstance.UniqueInstanceIdentifier;
       }
 
       Assert.That(first != null && second != null && first != second, Is.True);
     }
 
     [Test]
-    public async Task SessionConnectionHandlersAsyncTest()
+    public async Task SessionConnectionAccessorsAsyncTest()
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
       domainConfig.Types.Register(typeof(DummyEntity));
-      domainConfig.Types.Register(typeof(MyConnectionHandler));
+      domainConfig.Types.Register(typeof(MyConnectionAccessor));
 
       Guid? first = null;
       await using (var domain = await Domain.BuildAsync(domainConfig))
       await using (var session = await domain.OpenSessionAsync()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
-        var extension = nativeHandler.Connection.Extensions.Get<ConnectionHandlersExtension>();
-        var handlerInstance = (MyConnectionHandler) extension.Handlers.First();
-        Assert.That(handlerInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
-        Assert.That(handlerInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
-        first = handlerInstance.UniqueInstanceIdentifier;
+        var extension = nativeHandler.Connection.Extensions.Get<DbConnectionAccessorExtension>();
+        var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
+        Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        first = accessorInstance.UniqueInstanceIdentifier;
       }
 
       Guid? second = null;
       await using (var domain = await Domain.BuildAsync(domainConfig))
       await using (var session = await domain.OpenSessionAsync()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
-        var extension = nativeHandler.Connection.Extensions.Get<ConnectionHandlersExtension>();
-        var handlerInstance = (MyConnectionHandler) extension.Handlers.First();
-        Assert.That(handlerInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
-        Assert.That(handlerInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
-        second = handlerInstance.UniqueInstanceIdentifier;
+        var extension = nativeHandler.Connection.Extensions.Get<DbConnectionAccessorExtension>();
+        var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
+        Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
+        Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
+        second = accessorInstance.UniqueInstanceIdentifier;
       }
 
       Assert.That(first != null && second != null && first != second, Is.True);
@@ -267,8 +268,8 @@ namespace Xtensive.Orm.Tests.Storage
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      foreach (var handler in GetHandlers(includeHandlersCount)) {
-        domainConfig.Types.Register(handler);
+      foreach (var accessor in GetAccessors(includeHandlersCount)) {
+        domainConfig.Types.Register(accessor);
       }
 
       using (var domain = Domain.Build(domainConfig))
@@ -277,9 +278,9 @@ namespace Xtensive.Orm.Tests.Storage
         var extensions = nativeHandler.Connection.Extensions;
         if (includeHandlersCount > 0) {
           Assert.That(extensions.Count, Is.EqualTo(1));
-          var extension = extensions.Get<ConnectionHandlersExtension>();
+          var extension = extensions.Get<DbConnectionAccessorExtension>();
           Assert.That(extension, Is.Not.Null);
-          Assert.That(extension.Handlers.Count, Is.EqualTo(includeHandlersCount));
+          Assert.That(extension.Accessors.Count, Is.EqualTo(includeHandlersCount));
         }
         else {
           Assert.That(extensions.Count, Is.EqualTo(0));
@@ -291,24 +292,24 @@ namespace Xtensive.Orm.Tests.Storage
     [TestCase(0)]
     [TestCase(1)]
     [TestCase(2)]
-    public async Task ConnectionExtensionExistanceAsyncTest(int includeHandlersCount)
+    public async Task ConnectionExtensionExistanceAsyncTest(int amoundOtAccessors)
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      foreach (var handler in GetHandlers(includeHandlersCount)) {
-        domainConfig.Types.Register(handler);
+      foreach (var accessor in GetAccessors(amoundOtAccessors)) {
+        domainConfig.Types.Register(accessor);
       }
 
       await using (var domain = await Domain.BuildAsync(domainConfig))
       await using (var session = await domain.OpenSessionAsync()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
         var extensions = nativeHandler.Connection.Extensions;
-        if (includeHandlersCount > 0) {
+        if (amoundOtAccessors > 0) {
           Assert.That(extensions.Count, Is.EqualTo(1));
-          var extension = extensions.Get<ConnectionHandlersExtension>();
+          var extension = extensions.Get<DbConnectionAccessorExtension>();
           Assert.That(extension, Is.Not.Null);
-          Assert.That(extension.Handlers.Count, Is.EqualTo(includeHandlersCount));
+          Assert.That(extension.Accessors.Count, Is.EqualTo(amoundOtAccessors));
         }
         else {
           Assert.That(extensions.Count, Is.EqualTo(0));
@@ -323,13 +324,13 @@ namespace Xtensive.Orm.Tests.Storage
     [TestCase(15)]
     [TestCase(20)]
     [TestCase(25)]
-    public void SessionOpeningPerformanceTest(int includeHandlersCount)
+    public void SessionOpeningPerformanceTest(int amountOfAccessors)
     {
       var domainConfig = DomainConfigurationFactory.Create();
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
 
-      foreach (var handler in GetHandlers(includeHandlersCount)) {
-        domainConfig.Types.Register(handler);
+      foreach (var accessor in GetAccessors(amountOfAccessors)) {
+        domainConfig.Types.Register(accessor);
       }
 
       var watch = new Stopwatch();
@@ -343,20 +344,20 @@ namespace Xtensive.Orm.Tests.Storage
       Console.WriteLine(watch.ElapsedTicks / 1000000);
     }
 
-    private IEnumerable<Type> GetHandlers(int neededCount)
+    private IEnumerable<Type> GetAccessors(int neededCount)
     {
       if (neededCount > 25) {
         throw new Exception();
       }
 
       var all = new Type[] {
-        typeof(PerfHandler1), typeof(PerfHandler2), typeof(PerfHandler3), typeof(PerfHandler4),
-        typeof(PerfHandler5), typeof(PerfHandler6), typeof(PerfHandler7), typeof(PerfHandler8),
-        typeof(PerfHandler9), typeof(PerfHandler10), typeof(PerfHandler11), typeof(PerfHandler12),
-        typeof(PerfHandler13), typeof(PerfHandler14), typeof(PerfHandler15), typeof(PerfHandler16),
-        typeof(PerfHandler17), typeof(PerfHandler18), typeof(PerfHandler19), typeof(PerfHandler20),
-        typeof(PerfHandler21), typeof(PerfHandler22), typeof(PerfHandler23), typeof(PerfHandler24),
-        typeof(PerfHandler25)
+        typeof(PerfAccessor1), typeof(PerfAccessor2), typeof(PerfAccessor3), typeof(PerfAccessor4),
+        typeof(PerfAccessor5), typeof(PerfAccessor6), typeof(PerfAccessor7), typeof(PerfAccessor8),
+        typeof(PerfAccessor9), typeof(PerfAccessor10), typeof(PerfAccessor11), typeof(PerfAccessor12),
+        typeof(PerfAccessor13), typeof(PerfAccessor14), typeof(PerfAccessor15), typeof(PerfAccessor16),
+        typeof(PerfAccessor17), typeof(PerfAccessor18), typeof(PerfAccessor19), typeof(PerfAccessor20),
+        typeof(PerfAccessor21), typeof(PerfAccessor22), typeof(PerfAccessor23), typeof(PerfAccessor24),
+        typeof(PerfAccessor25)
       };
       for (var i = 0; i < neededCount; i++) {
         yield return all[i];
