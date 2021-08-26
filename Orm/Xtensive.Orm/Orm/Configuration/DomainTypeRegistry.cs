@@ -27,9 +27,9 @@ namespace Xtensive.Orm.Configuration
     private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
     private readonly static Type keyGeneratorType = typeof (KeyGenerator);
     private readonly static Type ifulltextCatalogNameBuilder = typeof(IFullTextCatalogNameBuilder);
-    private readonly static Type iConnectionHandlerType = typeof(IConnectionHandler);
+    private readonly static Type iDbConnectionAccessorType = typeof(IDbConnectionAccessor);
 
-    private Type[] connectionHandlers;
+    private Type[] connectionAccessors;
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -104,23 +104,23 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    /// Gets all the registered <see cref="IConnectionHandler"/> implementations.
+    /// Gets all the registered <see cref="IDbConnectionAccessor"/> implementations.
     /// </summary>
-    public IEnumerable<Type> ConnectionHandlers
+    public IEnumerable<Type> DbConnectionAccessors
     {
       get {
         // a lot of access to this property. better to have items cached;
         if (IsLocked) {
-          if (connectionHandlers == null) {
-            var container = new List<Type>(10);// not so many handlers expected
-            foreach (var type in this.Where(IsConnectionHandler))
+          if (connectionAccessors == null) {
+            var container = new List<Type>(10);// not so many accessors expected
+            foreach (var type in this.Where(IsDbConnectionAccessor))
               container.Add(type);
-            connectionHandlers = container.Count == 0 ? Array.Empty<Type>() : container.ToArray();
+            connectionAccessors = container.Count == 0 ? Array.Empty<Type>() : container.ToArray();
           }
-          return connectionHandlers;
+          return connectionAccessors;
         }
-        // if instance is not locked then there is a chance of new handlers appeared
-        return this.Where(IsConnectionHandler);
+        // if instance is not locked then there is a chance of new accessors appeared
+        return this.Where(IsDbConnectionAccessor);
       }
     }
 
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Configuration
         IsKeyGenerator(type) ||
         IsCompilerContainer(type) ||
         IsFullTextCatalogNameBuilder(type) ||
-        IsConnectionHandler(type);
+        IsDbConnectionAccessor(type);
     }
 
     /// <summary>
@@ -265,17 +265,17 @@ namespace Xtensive.Orm.Configuration
 
     /// <summary>
     /// Determines whether the <paramref name="type"/> is
-    /// a connection handler.
+    /// a database connection accessor.
     /// </summary>
     /// <param name="type">The type to check.</param>
     /// <returns>Check result.</returns>
-    public static bool IsConnectionHandler(Type type)
+    public static bool IsDbConnectionAccessor(Type type)
     {
       if (type.IsAbstract) {
         return false;
       }
 
-      return iConnectionHandlerType.IsAssignableFrom(type) && iConnectionHandlerType != type;
+      return iDbConnectionAccessorType.IsAssignableFrom(type) && iDbConnectionAccessorType != type;
     }
 
     #endregion

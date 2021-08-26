@@ -10,7 +10,7 @@ namespace Xtensive.Orm
   /// <summary>
   /// Offers event-like methods to access native database connection on different stages.
   /// </summary>
-  public interface IConnectionHandler
+  public interface IDbConnectionAccessor
   {
     /// <summary>
     /// Executes before connection opening.

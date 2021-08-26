@@ -32,9 +32,9 @@ namespace Xtensive.Sql
     public bool EnsureConnectionIsAlive { get; set; }
 
     /// <summary>
-    /// Gets connection handlers that should be notified about connection events.
+    /// Gets connection accessors that should be notified about connection events.
     /// </summary>
-    public IReadOnlyCollection<IConnectionHandler> ConnectionHandlers { get; private set; }
+    public IReadOnlyCollection<IDbConnectionAccessor> DbConnectionAccessors { get; private set; }
 
     /// <summary>
     /// Clones this instance.
@@ -43,11 +43,11 @@ namespace Xtensive.Sql
     public SqlDriverConfiguration Clone()
     {
       // no deep cloning
-      var handlers = (ConnectionHandlers.Count == 0)
-        ? Array.Empty<IConnectionHandler>()
-        : ConnectionHandlers.ToArray(ConnectionHandlers.Count);
+      var accessors = (DbConnectionAccessors.Count == 0)
+        ? Array.Empty<IDbConnectionAccessor>()
+        : DbConnectionAccessors.ToArray(DbConnectionAccessors.Count);
 
-      return new SqlDriverConfiguration(handlers) {
+      return new SqlDriverConfiguration(accessors) {
         ForcedServerVersion = ForcedServerVersion,
         ConnectionInitializationSql = ConnectionInitializationSql,
         EnsureConnectionIsAlive = EnsureConnectionIsAlive
@@ -59,15 +59,15 @@ namespace Xtensive.Sql
     /// </summary>
     public SqlDriverConfiguration()
     {
-      ConnectionHandlers = Array.Empty<IConnectionHandler>();
+      DbConnectionAccessors = Array.Empty<IDbConnectionAccessor>();
     }
 
     /// <summary>
     /// Creates new instance of this type.
     /// </summary>
-    public SqlDriverConfiguration(IReadOnlyCollection<IConnectionHandler> connectionHandlers)
+    public SqlDriverConfiguration(IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors)
     {
-      ConnectionHandlers = connectionHandlers;
+      DbConnectionAccessors = connectionAccessors;
     }
   }
 }

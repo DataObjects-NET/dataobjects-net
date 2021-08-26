@@ -8,7 +8,7 @@ using Xtensive.Core;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Contains general data for <see cref="IConnectionHandler"/> methods.
+  /// Contains general data for <see cref="IDbConnectionAccessor"/> methods.
   /// </summary>
   public class ConnectionEventData
   {

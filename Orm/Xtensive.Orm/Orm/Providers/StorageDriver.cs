@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Providers
   public sealed partial class StorageDriver
   {
     private static readonly MethodInfo FactoryCreatorMethod = typeof(StorageDriver)
-      .GetMethod(nameof(CreateNewHandler), BindingFlags.Static | BindingFlags.NonPublic);
+      .GetMethod(nameof(CreateNewAccessor), BindingFlags.Static | BindingFlags.NonPublic);
 
     private readonly DomainConfiguration configuration;
     private readonly SqlDriver underlyingDriver;
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Providers
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
 
-    private readonly IReadOnlyDictionary<Type, Func<IConnectionHandler>> handlerFactoriesCache;
+    private readonly IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> connectionAccessorFactories;
 
     public ProviderInfo ProviderInfo { get; private set; }
 
@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Providers
     public StorageDriver CreateNew(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), handlerFactoriesCache);
+      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), connectionAccessorFactories);
     }
 
     private static DomainModel GetNullModel()
@@ -148,58 +148,58 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private IReadOnlyCollection<IConnectionHandler> CreateConnectionHandlersFast(IEnumerable<Type> connectionHandlerTypes)
+    private IReadOnlyCollection<IDbConnectionAccessor> CreateConnectionAccessorsFast(IEnumerable<Type> connectionAccessorTypes)
     {
-      if (handlerFactoriesCache == null)
-        return Array.Empty<IConnectionHandler>();
-      var instances = new List<IConnectionHandler>(handlerFactoriesCache.Count);
-      foreach (var type in connectionHandlerTypes) {
-        if (handlerFactoriesCache.TryGetValue(type, out var factory)) {
+      if (connectionAccessorFactories == null)
+        return Array.Empty<IDbConnectionAccessor>();
+      var instances = new List<IDbConnectionAccessor>(connectionAccessorFactories.Count);
+      foreach (var type in connectionAccessorTypes) {
+        if (connectionAccessorFactories.TryGetValue(type, out var factory)) {
           instances.Add(factory());
         }
       }
       return instances.ToArray();
     }
 
-    private static IReadOnlyCollection<IConnectionHandler> CreateConnectionHandlers(IEnumerable<Type> connectionHandlerTypes,
-      out IReadOnlyDictionary<Type, Func<IConnectionHandler>> factories)
+    private static IReadOnlyCollection<IDbConnectionAccessor> CreateConnectionAccessors(IEnumerable<Type> connectionAccessorTypes,
+      out IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> factories)
     {
       factories = null;
 
-      List<IConnectionHandler> instances;
-      Dictionary<Type, Func<IConnectionHandler>> factoriesLocal;
+      List<IDbConnectionAccessor> instances;
+      Dictionary<Type, Func<IDbConnectionAccessor>> factoriesLocal;
 
-      if (connectionHandlerTypes is IReadOnlyCollection<Type> asCollection) {
+      if (connectionAccessorTypes is IReadOnlyCollection<Type> asCollection) {
         if (asCollection.Count == 0)
-          return Array.Empty<IConnectionHandler>();
-        instances = new List<IConnectionHandler>(asCollection.Count);
-        factoriesLocal = new Dictionary<Type, Func<IConnectionHandler>>(asCollection.Count);
+          return Array.Empty<IDbConnectionAccessor>();
+        instances = new List<IDbConnectionAccessor>(asCollection.Count);
+        factoriesLocal = new Dictionary<Type, Func<IDbConnectionAccessor>>(asCollection.Count);
       }
       else {
-        if (connectionHandlerTypes.Any())
-          return Array.Empty<IConnectionHandler>();
-        instances = new List<IConnectionHandler>();
-        factoriesLocal = new Dictionary<Type, Func<IConnectionHandler>>();
+        if (connectionAccessorTypes.Any())
+          return Array.Empty<IDbConnectionAccessor>();
+        instances = new List<IDbConnectionAccessor>();
+        factoriesLocal = new Dictionary<Type, Func<IDbConnectionAccessor>>();
       }
 
-      foreach (var type in connectionHandlerTypes) {
+      foreach (var type in connectionAccessorTypes) {
         var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
         if (ctor == null) {
-          throw new NotSupportedException(string.Format(Strings.ExConnectionHandlerXHasNoParameterlessConstructor, type));
+          throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
-        var handlerFactory = (Func<IConnectionHandler>) FactoryCreatorMethod.MakeGenericMethod(type).Invoke(null, null);
-        instances.Add(handlerFactory());
-        factoriesLocal[type] = handlerFactory;
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.MakeGenericMethod(type).Invoke(null, null);
+        instances.Add(accessorFactory());
+        factoriesLocal[type] = accessorFactory;
       }
       factories = factoriesLocal;
       return instances.ToArray();
     }
 
-    private static Func<IConnectionHandler> CreateNewHandler<T>() where T : IConnectionHandler
+    private static Func<IDbConnectionAccessor> CreateNewAccessor<T>() where T : IDbConnectionAccessor
     {
-      return FastExpression.Lambda<Func<IConnectionHandler>>(
-        Expression.Convert(Expression.New(typeof(T)), typeof(IConnectionHandler)))
+      return FastExpression.Lambda<Func<IDbConnectionAccessor>>(
+        Expression.Convert(Expression.New(typeof(T)), typeof(IDbConnectionAccessor)))
         .Compile();
     }
 
@@ -210,8 +210,8 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, "driverFactory");
       ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
 
-      var handlers = CreateConnectionHandlers(configuration.Types.ConnectionHandlers, out var factories);
-      var driverConfiguration = new SqlDriverConfiguration(handlers) {
+      var accessors = CreateConnectionAccessors(configuration.Types.DbConnectionAccessors, out var factories);
+      var driverConfiguration = new SqlDriverConfiguration(accessors) {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
         EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
@@ -227,7 +227,7 @@ namespace Xtensive.Orm.Providers
       ProviderInfo providerInfo,
       DomainConfiguration configuration,
       Func<DomainModel> modelProvider,
-      IReadOnlyDictionary<Type, Func<IConnectionHandler>> factoryCache)
+      IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> factoryCache)
     {
       underlyingDriver = driver;
       ProviderInfo = providerInfo;
@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Providers
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = SqlLog.IsLogged(LogLevel.Info); // Just to cache this value
       ServerInfo = underlyingDriver.ServerInfo;
-      handlerFactoriesCache = factoryCache;
+      connectionAccessorFactories = factoryCache;
     }
   }
 }

@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Drivers.Sqlite
     private SqlDriver DoCreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new SQLiteConnection(connectionString)) {
-        if (configuration.ConnectionHandlers.Count > 0)
+        if (configuration.DbConnectionAccessors.Count > 0)
           OpenConnectionWithNotification(connection, configuration);
         else
           OpenConnectionFast(connection, configuration);
@@ -96,17 +96,17 @@ namespace Xtensive.Sql.Drivers.Sqlite
 
     private void OpenConnectionWithNotification(SQLiteConnection connection, SqlDriverConfiguration configuration)
     {
-      var handlers = configuration.ConnectionHandlers;
-      SqlHelper.NotifyConnectionOpening(handlers, connection);
+      var accessors = configuration.DbConnectionAccessors;
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
       try {
         connection.Open();
         if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
-          SqlHelper.NotifyConnectionInitializing(handlers, connection, configuration.ConnectionInitializationSql);
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
         SqlHelper.ExecuteInitializationSql(connection, configuration);
-        SqlHelper.NotifyConnectionOpened(handlers, connection);
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
       }
       catch (Exception ex) {
-        SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
         throw;
       }
     }

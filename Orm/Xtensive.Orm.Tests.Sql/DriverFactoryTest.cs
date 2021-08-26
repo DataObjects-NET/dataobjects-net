@@ -12,29 +12,29 @@ using Xtensive.Orm.Tests.Sql.DriverFactoryTestTypes;
 
 namespace Xtensive.Orm.Tests.Sql.DriverFactoryTestTypes
 {
-  public class TestConnectionHandler : IConnectionHandler
+  public class TestConnectionAccessor : DbConnectionAccessor
   {
     public int OpeningCounter = 0;
     public int OpenedCounter = 0;
     public int OpeningInitCounter = 0;
     public int OpeningFailedCounter = 0;
 
-    public void ConnectionOpening(ConnectionEventData eventData)
+    public override void ConnectionOpening(ConnectionEventData eventData)
     {
       OpeningCounter++;
     }
 
-    public void ConnectionOpened(ConnectionEventData eventData)
+    public override void ConnectionOpened(ConnectionEventData eventData)
     {
       OpenedCounter++;
     }
 
-    public void ConnectionInitialization(ConnectionInitEventData eventData)
+    public override void ConnectionInitialization(ConnectionInitEventData eventData)
     {
       OpeningInitCounter++;
     }
 
-    public void ConnectionOpeningFailed(ConnectionErrorEventData eventData)
+    public override void ConnectionOpeningFailed(ConnectionErrorEventData eventData)
     {
       OpeningFailedCounter++;
     }
@@ -134,59 +134,59 @@ namespace Xtensive.Orm.Tests.Sql
     }
 
     [Test]
-    public void ConnectionHandlerTest()
+    public void ConnectionAccessorTest()
     {
-      var handlerInstance = new TestConnectionHandler();
-      var handlersArray = new[] { handlerInstance };
+      var accessorInstance = new TestConnectionAccessor();
+      var accessorsArray = new[] { accessorInstance };
       var descriptor = ProviderDescriptor.Get(provider);
       var factory = (SqlDriverFactory) Activator.CreateInstance(descriptor.DriverFactory);
 
-      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(0));
-      Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
-      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(0));
-      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(0));
+      Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(0));
+      Assert.That(accessorInstance.OpenedCounter, Is.EqualTo(0));
+      Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(0));
 
-      var configuration = new SqlDriverConfiguration(handlersArray);
+      var configuration = new SqlDriverConfiguration(accessorsArray);
       _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
-      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(1));
-      Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
-      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(1));
-      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+      Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(1));
+      Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(0));
+      Assert.That(accessorInstance.OpenedCounter, Is.EqualTo(1));
+      Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(0));
 
-      configuration = new SqlDriverConfiguration(handlersArray) { EnsureConnectionIsAlive = true };
+      configuration = new SqlDriverConfiguration(accessorsArray) { EnsureConnectionIsAlive = true };
       _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
-      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(2));
+      Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(2));
       if (provider == WellKnown.Provider.SqlServer)
-        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(1));
+        Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(1));
       else
-        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(0));
-      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(2));
-      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+        Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(0));
+      Assert.That(accessorInstance.OpenedCounter, Is.EqualTo(2));
+      Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(0));
 
-      configuration = new SqlDriverConfiguration(handlersArray) { ConnectionInitializationSql = InitQueryPerProvider(provider) };
+      configuration = new SqlDriverConfiguration(accessorsArray) { ConnectionInitializationSql = InitQueryPerProvider(provider) };
       _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
-      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(3));
+      Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(3));
       if (provider == WellKnown.Provider.SqlServer)
-        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(2));
+        Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(2));
       else
-        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(1));
-      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(3));
-      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(0));
+        Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(1));
+      Assert.That(accessorInstance.OpenedCounter, Is.EqualTo(3));
+      Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(0));
 
-      configuration = new SqlDriverConfiguration(handlersArray) { ConnectionInitializationSql = "dummy string to trigger error" };
+      configuration = new SqlDriverConfiguration(accessorsArray) { ConnectionInitializationSql = "dummy string to trigger error" };
       try {
         _ = factory.GetDriver(new ConnectionInfo(Url), configuration);
       }
       catch {
         //skip it
       }
-      Assert.That(handlerInstance.OpeningCounter, Is.EqualTo(4));
+      Assert.That(accessorInstance.OpeningCounter, Is.EqualTo(4));
       if (provider == WellKnown.Provider.SqlServer)
-        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(3));
+        Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(3));
       else
-        Assert.That(handlerInstance.OpeningInitCounter, Is.EqualTo(2));
-      Assert.That(handlerInstance.OpenedCounter, Is.EqualTo(3));
-      Assert.That(handlerInstance.OpeningFailedCounter, Is.EqualTo(1));
+        Assert.That(accessorInstance.OpeningInitCounter, Is.EqualTo(2));
+      Assert.That(accessorInstance.OpenedCounter, Is.EqualTo(3));
+      Assert.That(accessorInstance.OpeningFailedCounter, Is.EqualTo(1));
     }
 
     private static void TestProvider(string providerName, string connectionString, string connectionUrl)

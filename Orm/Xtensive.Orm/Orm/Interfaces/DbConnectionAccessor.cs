@@ -8,9 +8,9 @@ using System.Threading.Tasks;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Base type for connection handlers to be inherited from.
+  /// Base type for native database connection accessors to be inherited from.
   /// </summary>
-  public abstract class ConnectionHandler : IConnectionHandler
+  public abstract class DbConnectionAccessor : IDbConnectionAccessor
   {
     /// <inheritdoc/>
     public virtual void ConnectionOpening(ConnectionEventData eventData)

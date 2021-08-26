@@ -156,7 +156,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var initScript = configuration.ConnectionInitializationSql;
 
       if (!configuration.EnsureConnectionIsAlive) {
-        if (configuration.ConnectionHandlers.Count == 0)
+        if (configuration.DbConnectionAccessors.Count == 0)
           OpenConnectionFast(connection, initScript);
         else
           OpenConnectionWithNotification(connection, configuration);
@@ -166,10 +166,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var testQuery = string.IsNullOrEmpty(initScript)
         ? CheckConnectionQuery
         : initScript;
-      if (configuration.ConnectionHandlers.Count == 0)
+      if (configuration.DbConnectionAccessors.Count == 0)
         return EnsureConnectionIsAliveFast(connection, testQuery);
       else
-        return EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.ConnectionHandlers);
+        return EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.DbConnectionAccessors);
     }
 
     private static void OpenConnectionFast(SqlServerConnection connection, string sqlScript)
@@ -181,20 +181,20 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static void OpenConnectionWithNotification(SqlServerConnection connection,
       SqlDriverConfiguration configuration)
     {
-      var handlers = configuration.ConnectionHandlers;
+      var accessors = configuration.DbConnectionAccessors;
       var initSql = configuration.ConnectionInitializationSql;
 
-      SqlHelper.NotifyConnectionOpening(handlers, connection);
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
       try {
         connection.Open();
         if (!string.IsNullOrEmpty(initSql)) {
-          SqlHelper.NotifyConnectionInitializing(handlers, connection, initSql);
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, initSql);
           SqlHelper.ExecuteInitializationSql(connection, initSql);
         }
-        SqlHelper.NotifyConnectionOpened(handlers, connection);
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
       }
       catch (Exception ex) {
-        SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, ex);
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
         throw;
       }
     }
@@ -231,26 +231,26 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     private static SqlServerConnection EnsureConnectionIsAliveWithNotification(SqlServerConnection connection,
-      string query, IReadOnlyCollection<IConnectionHandler> handlers)
+      string query, IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors)
     {
-      SqlHelper.NotifyConnectionOpening(handlers, connection);
+      SqlHelper.NotifyConnectionOpening(connectionAccessors, connection);
       try {
         connection.Open();
 
-        SqlHelper.NotifyConnectionInitializing(handlers, connection, query);
+        SqlHelper.NotifyConnectionInitializing(connectionAccessors, connection, query);
 
         using (var command = connection.CreateCommand()) {
           command.CommandText = query;
           _ = command.ExecuteNonQuery();
         }
 
-        SqlHelper.NotifyConnectionOpened(handlers, connection);
+        SqlHelper.NotifyConnectionOpened(connectionAccessors, connection);
         return connection;
       }
       catch (Exception exception) {
         var retryToConnect = InternalHelpers.ShouldRetryOn(exception);
         if (!retryToConnect)
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, exception);
+          SqlHelper.NotifyConnectionOpeningFailed(connectionAccessors, connection, exception);
         try {
           connection.Close();
           connection.Dispose();
@@ -260,7 +260,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
         }
 
         if (retryToConnect) {
-          var (isReconnected, newConnection) = TryReconnectWithNotification(connection.ConnectionString, query, handlers);
+          var (isReconnected, newConnection) = TryReconnectWithNotification(connection.ConnectionString, query, connectionAccessors);
           if (isReconnected) {
             return newConnection;
           }
@@ -291,25 +291,25 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     private static (bool isReconnected, SqlServerConnection connection) TryReconnectWithNotification(
-      string connectionString, string query, IReadOnlyCollection<IConnectionHandler> handlers)
+      string connectionString, string query, IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors)
     {
       var connection = new SqlServerConnection(connectionString);
 
-      SqlHelper.NotifyConnectionOpening(handlers, connection, true);
+      SqlHelper.NotifyConnectionOpening(connectionAccessors, connection, true);
       try {
         connection.Open();
-        SqlHelper.NotifyConnectionInitializing(handlers, connection, query, true);
+        SqlHelper.NotifyConnectionInitializing(connectionAccessors, connection, query, true);
 
         using (var command = connection.CreateCommand()) {
           command.CommandText = query;
           _ = command.ExecuteNonQuery();
         }
 
-        SqlHelper.NotifyConnectionOpened(handlers, connection, true);
+        SqlHelper.NotifyConnectionOpened(connectionAccessors, connection, true);
         return (true, connection);
       }
       catch (Exception exception) {
-        SqlHelper.NotifyConnectionOpeningFailed(handlers, connection, exception, true);
+        SqlHelper.NotifyConnectionOpeningFailed(connectionAccessors, connection, exception, true);
         connection.Dispose();
         return (false, null);
       }

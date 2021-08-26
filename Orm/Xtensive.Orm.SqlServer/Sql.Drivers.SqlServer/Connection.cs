@@ -42,12 +42,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
         base.Open();
       }
       else {
-        var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
-        if (connectionHandlers == null) {
+        var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
+        if (connectionAccessorEx == null) {
           OpenWithCheckFast(DefaultCheckConnectionQuery);
         }
         else {
-          OpenWithCheckAndNotification(DefaultCheckConnectionQuery, connectionHandlers);
+          OpenWithCheckAndNotification(DefaultCheckConnectionQuery, connectionAccessorEx);
         }
       }
     }
@@ -60,12 +60,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
         return base.OpenAsync(cancellationToken);
       }
 
-      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
-      if (connectionHandlers == null) {
+      var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
+      if (connectionAccessorEx == null) {
         return OpenWithCheckFastAsync(DefaultCheckConnectionQuery, cancellationToken);
       }
       else {
-        return OpenWithCheckAndNotificationAsync(DefaultCheckConnectionQuery, connectionHandlers, cancellationToken);
+        return OpenWithCheckAndNotificationAsync(DefaultCheckConnectionQuery, connectionAccessorEx, cancellationToken);
       }
     }
 
@@ -80,12 +80,12 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var script = string.IsNullOrEmpty(initializationScript.Trim())
         ? DefaultCheckConnectionQuery
         : initializationScript;
-      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
-      if (connectionHandlers == null) {
+      var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
+      if (connectionAccessorEx == null) {
         OpenWithCheckFast(script);
       }
       else {
-        OpenWithCheckAndNotification(script, connectionHandlers);
+        OpenWithCheckAndNotification(script, connectionAccessorEx);
       }
     }
 
@@ -98,10 +98,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
       var script = string.IsNullOrEmpty(initializationScript.Trim())
         ? DefaultCheckConnectionQuery
         : initializationScript;
-      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
-      return connectionHandlers == null
+      var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
+      return connectionAccessorEx == null
         ? OpenWithCheckFastAsync(script, cancellationToken)
-        : OpenWithCheckAndNotificationAsync(script, connectionHandlers, cancellationToken);
+        : OpenWithCheckAndNotificationAsync(script, connectionAccessorEx, cancellationToken);
     }
 
     /// <inheritdoc/>
@@ -190,25 +190,25 @@ namespace Xtensive.Sql.Drivers.SqlServer
       }
     }
 
-    private void OpenWithCheckAndNotification(string checkQueryString, ConnectionHandlersExtension connectionHandlers)
+    private void OpenWithCheckAndNotification(string checkQueryString, DbConnectionAccessorExtension connectionAccessorEx)
     {
       var connectionChecked = false;
       var restoreTriggered = false;
-      var handlers = connectionHandlers.Handlers;
+      var accessors = connectionAccessorEx.Accessors;
       while (!connectionChecked) {
-        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection, (!connectionChecked && !restoreTriggered));
+        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered));
         underlyingConnection.Open();
         try {
-          SqlHelper.NotifyConnectionInitializing(handlers, UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered));
+          SqlHelper.NotifyConnectionInitializing(accessors, UnderlyingConnection, checkQueryString, (!connectionChecked && !restoreTriggered));
           using (var command = underlyingConnection.CreateCommand()) {
             command.CommandText = checkQueryString;
             _ = command.ExecuteNonQuery();
           }
           connectionChecked = true;
-          SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection, (!connectionChecked && !restoreTriggered));
+          SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection, (!connectionChecked && !restoreTriggered));
         }
         catch (Exception exception) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered));
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered));
           if (InternalHelpers.ShouldRetryOn(exception)) {
             if (restoreTriggered) {
               throw;
@@ -269,20 +269,20 @@ namespace Xtensive.Sql.Drivers.SqlServer
     }
 
     private async Task OpenWithCheckAndNotificationAsync(string checkQueryString,
-      ConnectionHandlersExtension connectionHandlers, CancellationToken cancellationToken)
+      DbConnectionAccessorExtension connectionAccessorEx, CancellationToken cancellationToken)
     {
       var connectionChecked = false;
       var restoreTriggered = false;
-      var handlers = connectionHandlers.Handlers;
+      var accessors = connectionAccessorEx.Accessors;
 
       while (!connectionChecked) {
         cancellationToken.ThrowIfCancellationRequested();
 
-        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection, !connectionChecked && !restoreTriggered);
+        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection, !connectionChecked && !restoreTriggered);
 
         await underlyingConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
         try {
-          SqlHelper.NotifyConnectionInitializing(handlers,
+          SqlHelper.NotifyConnectionInitializing(accessors,
             UnderlyingConnection, checkQueryString, !connectionChecked && !restoreTriggered);
 
           using (var command = underlyingConnection.CreateCommand()) {
@@ -290,10 +290,10 @@ namespace Xtensive.Sql.Drivers.SqlServer
             _ = await command.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
           }
           connectionChecked = true;
-          SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection, !connectionChecked && !restoreTriggered);
+          SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection, !connectionChecked && !restoreTriggered);
         }
         catch (Exception exception) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers,
+          SqlHelper.NotifyConnectionOpeningFailed(accessors,
             UnderlyingConnection, exception, (!connectionChecked && !restoreTriggered));
 
           if (InternalHelpers.ShouldRetryOn(exception)) {

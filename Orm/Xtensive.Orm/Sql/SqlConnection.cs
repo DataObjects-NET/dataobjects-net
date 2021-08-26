@@ -166,19 +166,19 @@ namespace Xtensive.Sql
     public virtual void Open()
     {
       EnsureIsNotDisposed();
-      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
-      if (connectionHandlers == null) {
+      var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
+      if (connectionAccessorEx == null) {
         UnderlyingConnection.Open();
       }
       else {
-        var handlers = connectionHandlers.Handlers;
-        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection);
+        var accessors = connectionAccessorEx.Accessors;
+        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection);
         try {
           UnderlyingConnection.Open();
-          SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection);
+          SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection);
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, UnderlyingConnection, ex);
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, ex);
           throw;
         }
       }
@@ -190,8 +190,8 @@ namespace Xtensive.Sql
     /// <param name="initializationScript">Initialization script.</param>
     public virtual void OpenAndInitialize(string initializationScript)
     {
-      var connectionHandlers = Extensions.Get<ConnectionHandlersExtension>();
-      if (connectionHandlers == null) {
+      var connectionAccessorEx = Extensions.Get<DbConnectionAccessorExtension>();
+      if (connectionAccessorEx == null) {
         UnderlyingConnection.Open();
         if (string.IsNullOrEmpty(initializationScript)) {
           return;
@@ -202,22 +202,22 @@ namespace Xtensive.Sql
         _ = command.ExecuteNonQuery();
       }
       else {
-        var handlers = connectionHandlers.Handlers;
-        SqlHelper.NotifyConnectionOpening(handlers, UnderlyingConnection);
+        var accessors = connectionAccessorEx.Accessors;
+        SqlHelper.NotifyConnectionOpening(accessors, UnderlyingConnection);
         try {
           UnderlyingConnection.Open();
           if (string.IsNullOrEmpty(initializationScript)) {
-            SqlHelper.NotifyConnectionOpened(handlers, UnderlyingConnection);
+            SqlHelper.NotifyConnectionOpened(accessors, UnderlyingConnection);
             return;
           }
 
-          SqlHelper.NotifyConnectionInitializing(handlers, UnderlyingConnection, initializationScript);
+          SqlHelper.NotifyConnectionInitializing(accessors, UnderlyingConnection, initializationScript);
           using var command = UnderlyingConnection.CreateCommand();
           command.CommandText = initializationScript;
           _ = command.ExecuteNonQuery();
         }
         catch (Exception ex) {
-          SqlHelper.NotifyConnectionOpeningFailed(handlers, UnderlyingConnection, ex);
+          SqlHelper.NotifyConnectionOpeningFailed(accessors, UnderlyingConnection, ex);
           throw;
         }
       }
