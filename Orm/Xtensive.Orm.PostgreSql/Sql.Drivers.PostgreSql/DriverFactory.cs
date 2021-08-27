@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -60,45 +60,76 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new NpgsqlConnection(connectionString)) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        if (configuration.DbConnectionAccessors.Count > 0)
+          OpenConnectionWithNotification(connection, configuration);
+        else
+          OpenConnectionFast(connection, configuration);
         var version = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? connection.PostgreSqlVersion
           : new Version(configuration.ForcedServerVersion);
         var builder = new NpgsqlConnectionStringBuilder(connectionString);
         var dataSource = string.Format(DataSourceFormat, builder.Host, builder.Port, builder.Database);
         var defaultSchema = GetDefaultSchema(connection);
-        var coreServerInfo = new CoreServerInfo {
-          ServerVersion = version,
-          ConnectionString = connectionString,
-          MultipleActiveResultSets = false,
-          DatabaseName = defaultSchema.Database,
-          DefaultSchemaName = defaultSchema.Schema,
-        };
-
-        if (version.Major < 8 || version.Major==8 && version.Minor < 3) {
-          throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
-        }
-
-        // We support 8.3, 8.4 and any 9.0+
-
-        if (version.Major == 8) {
-          return version.Minor == 3
-            ? new v8_3.Driver(coreServerInfo)
-            : new v8_4.Driver(coreServerInfo);
-        }
-
-        if (version.Major == 9) {
-          return version.Minor == 0
-            ? new v9_0.Driver(coreServerInfo)
-            : new v9_1.Driver(coreServerInfo);
-        }
-        return new v10_0.Driver(coreServerInfo);
+        return CreateDriverInstance(connectionString, version, defaultSchema);
       }
+    }
+
+    private static SqlDriver CreateDriverInstance(
+      string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+    {
+      var coreServerInfo = new CoreServerInfo {
+        ServerVersion = version,
+        ConnectionString = connectionString,
+        MultipleActiveResultSets = false,
+        DatabaseName = defaultSchema.Database,
+        DefaultSchemaName = defaultSchema.Schema,
+      };
+
+      if (version.Major < 8 || (version.Major == 8 && version.Minor < 3)) {
+        throw new NotSupportedException(Strings.ExPostgreSqlBelow83IsNotSupported);
+      }
+
+      // We support 8.3, 8.4 and any 9.0+
+
+      if (version.Major == 8) {
+        return version.Minor == 3
+          ? new v8_3.Driver(coreServerInfo)
+          : new v8_4.Driver(coreServerInfo);
+      }
+
+      if (version.Major == 9) {
+        return version.Minor == 0
+          ? new v9_0.Driver(coreServerInfo)
+          : new v9_1.Driver(coreServerInfo);
+      }
+      return new v10_0.Driver(coreServerInfo);
     }
 
     /// <inheritdoc/>
     protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction) =>
       SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+
+    private void OpenConnectionFast(NpgsqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+    }
+
+    private void OpenConnectionWithNotification(NpgsqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      var accessors = configuration.DbConnectionAccessors;
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
+        throw;
+      }
+    }
   }
 }

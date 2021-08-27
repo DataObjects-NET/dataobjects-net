@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
 // Created:    2011.01.08
 
@@ -34,24 +34,36 @@ namespace Xtensive.Sql.Drivers.Firebird
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new FbConnection(connectionString)) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
-        var dataSource = new FbConnectionStringBuilder(connectionString).DataSource;
+        if (configuration.DbConnectionAccessors.Count > 0)
+          OpenConnectionWithNotification(connection, configuration);
+        else
+          OpenConnectionFast(connection, configuration);
         var defaultSchema = GetDefaultSchema(connection);
-        var coreServerInfo = new CoreServerInfo {
-          ServerVersion = GetVersionFromServerVersionString(connection.ServerVersion),
-          ConnectionString = connectionString,
-          MultipleActiveResultSets = true,
-          DatabaseName = defaultSchema.Database,
-          DefaultSchemaName = defaultSchema.Schema,
-        };
-        
-        if (Int32.Parse(coreServerInfo.ServerVersion.Major.ToString() + coreServerInfo.ServerVersion.Minor.ToString()) < 25)
-          throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported);
-        if (coreServerInfo.ServerVersion.Major==2 && coreServerInfo.ServerVersion.Minor==5)
-          return new v2_5.Driver(coreServerInfo);
-        return null;
+        return CreateDriverInstance(
+          connectionString, GetVersionFromServerVersionString(connection.ServerVersion), defaultSchema);
       }
+    }
+
+    private static SqlDriver CreateDriverInstance(
+      string connectionString, Version version, DefaultSchemaInfo defaultSchema)
+    {
+      var coreServerInfo = new CoreServerInfo {
+        ServerVersion = version,
+        ConnectionString = connectionString,
+        MultipleActiveResultSets = true,
+        DatabaseName = defaultSchema.Database,
+        DefaultSchemaName = defaultSchema.Schema,
+      };
+
+      if (coreServerInfo.ServerVersion < new Version(2, 5)) {
+        throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported);
+      }
+
+      if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 5) {
+        return new v2_5.Driver(coreServerInfo);
+      }
+
+      return null;
     }
 
     /// <inheritdoc/>
@@ -92,6 +104,29 @@ namespace Xtensive.Sql.Drivers.Firebird
     protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
     {
       return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
+    }
+
+    private void OpenConnectionFast(FbConnection connection, SqlDriverConfiguration configuration)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+    }
+
+    private void OpenConnectionWithNotification(FbConnection connection, SqlDriverConfiguration configuration)
+    {
+      var accessors = configuration.DbConnectionAccessors;
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
+        throw;
+      }
     }
 
     private Version GetVersionFromServerVersionString(string serverVersionString)
