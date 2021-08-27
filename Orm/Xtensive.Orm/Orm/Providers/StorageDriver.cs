@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -7,9 +7,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Reflection;
 using Xtensive.Core;
+using Xtensive.Linq;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
@@ -26,12 +29,17 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public sealed partial class StorageDriver
   {
+    private static readonly MethodInfo FactoryCreatorMethod = typeof(StorageDriver)
+      .GetMethod(nameof(CreateNewAccessor), BindingFlags.Static | BindingFlags.NonPublic);
+
     private readonly DomainConfiguration configuration;
     private readonly SqlDriver underlyingDriver;
     private readonly SqlTranslator translator;
     private readonly TypeMappingRegistry allMappings;
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
+
+    private readonly IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> connectionAccessorFactories;
 
     public ProviderInfo ProviderInfo { get; private set; }
 
@@ -97,7 +105,7 @@ namespace Xtensive.Orm.Providers
     public StorageDriver CreateNew(Domain domain)
     {
       ArgumentValidator.EnsureArgumentNotNull(domain, "domain");
-      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain));
+      return new StorageDriver(underlyingDriver, ProviderInfo, domain.Configuration, GetModelProvider(domain), connectionAccessorFactories);
     }
 
     private static DomainModel GetNullModel()
@@ -151,6 +159,61 @@ namespace Xtensive.Orm.Providers
       }
     }
 
+    private IReadOnlyCollection<IDbConnectionAccessor> CreateConnectionAccessorsFast(IEnumerable<Type> connectionAccessorTypes)
+    {
+      if (connectionAccessorFactories == null)
+        return Array.Empty<IDbConnectionAccessor>();
+      var instances = new List<IDbConnectionAccessor>(connectionAccessorFactories.Count);
+      foreach (var type in connectionAccessorTypes) {
+        if (connectionAccessorFactories.TryGetValue(type, out var factory)) {
+          instances.Add(factory());
+        }
+      }
+      return instances.ToArray();
+    }
+
+    private static IReadOnlyCollection<IDbConnectionAccessor> CreateConnectionAccessors(IEnumerable<Type> connectionAccessorTypes,
+      out IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> factories)
+    {
+      factories = null;
+
+      List<IDbConnectionAccessor> instances;
+      Dictionary<Type, Func<IDbConnectionAccessor>> factoriesLocal;
+
+      if(connectionAccessorTypes is IReadOnlyCollection<Type> asCollection) {
+        if (asCollection.Count == 0)
+          return Array.Empty<IDbConnectionAccessor>();
+        instances = new List<IDbConnectionAccessor>(asCollection.Count);
+        factoriesLocal = new Dictionary<Type, Func<IDbConnectionAccessor>>(asCollection.Count);
+      }
+      else {
+        if (connectionAccessorTypes.Any())
+          return Array.Empty<IDbConnectionAccessor>();
+        instances = new List<IDbConnectionAccessor>();
+        factoriesLocal = new Dictionary<Type, Func<IDbConnectionAccessor>>();
+      }
+
+      foreach (var type in connectionAccessorTypes) {
+        var ctor = type.GetConstructor(BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null);
+        if (ctor == null) {
+          throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
+        }
+
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.MakeGenericMethod(type).Invoke(null, null);
+        instances.Add(accessorFactory());
+        factoriesLocal[type] = accessorFactory;
+      }
+      factories = factoriesLocal; 
+      return instances.ToArray();
+    }
+
+    private static Func<IDbConnectionAccessor> CreateNewAccessor<T>() where T : IDbConnectionAccessor
+    {
+      return FastExpression.Lambda<Func<IDbConnectionAccessor>>(
+        Expression.Convert(Expression.New(typeof(T)), typeof(IDbConnectionAccessor)))
+        .Compile();
+    }
+
     // Constructors
 
     public static StorageDriver Create(SqlDriverFactory driverFactory, DomainConfiguration configuration)
@@ -158,7 +221,8 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
-      var driverConfiguration = new SqlDriverConfiguration {
+      var accessors = CreateConnectionAccessors(configuration.Types.DbConnectionAccessors, out var factories);
+      var driverConfiguration = new SqlDriverConfiguration(accessors) {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
         EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
@@ -167,7 +231,7 @@ namespace Xtensive.Orm.Providers
       var driver = driverFactory.GetDriver(configuration.ConnectionInfo, driverConfiguration);
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
-      return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
+      return new StorageDriver(driver, providerInfo, configuration, GetNullModel, factories);
     }
 
     public static async Task<StorageDriver> CreateAsync(
@@ -176,7 +240,8 @@ namespace Xtensive.Orm.Providers
       ArgumentValidator.EnsureArgumentNotNull(driverFactory, nameof(driverFactory));
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
-      var driverConfiguration = new SqlDriverConfiguration {
+      var accessors = CreateConnectionAccessors(configuration.Types.DbConnectionAccessors, out var factories);
+      var driverConfiguration = new SqlDriverConfiguration(accessors) {
         ForcedServerVersion = configuration.ForcedServerVersion,
         ConnectionInitializationSql = configuration.ConnectionInitializationSql,
         EnsureConnectionIsAlive = configuration.EnsureConnectionIsAlive,
@@ -186,11 +251,14 @@ namespace Xtensive.Orm.Providers
         .ConfigureAwait(false);
       var providerInfo = ProviderInfoBuilder.Build(configuration.ConnectionInfo.Provider, driver);
 
-      return new StorageDriver(driver, providerInfo, configuration, GetNullModel);
+      return new StorageDriver(driver, providerInfo, configuration, GetNullModel, factories);
     }
 
-    private StorageDriver(
-      SqlDriver driver, ProviderInfo providerInfo, DomainConfiguration configuration, Func<DomainModel> modelProvider)
+    private StorageDriver(SqlDriver driver,
+      ProviderInfo providerInfo,
+      DomainConfiguration configuration,
+      Func<DomainModel> modelProvider,
+      IReadOnlyDictionary<Type,Func<IDbConnectionAccessor>> factoryCache)
     {
       underlyingDriver = driver;
       ProviderInfo = providerInfo;
@@ -201,6 +269,7 @@ namespace Xtensive.Orm.Providers
       hasSavepoints = underlyingDriver.ServerInfo.ServerFeatures.Supports(ServerFeatures.Savepoints);
       isLoggingEnabled = SqlLog.IsLogged(LogLevel.Info); // Just to cache this value
       ServerInfo = underlyingDriver.ServerInfo;
+      connectionAccessorFactories = factoryCache;
     }
   }
 }

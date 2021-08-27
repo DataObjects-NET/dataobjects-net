@@ -3470,4 +3470,7 @@ Error: {1}</value>
   <data name="ExCantModifyActiveOrDisposedScope" xml:space="preserve">
     <value>Can't modify Active or Disposed scope.</value>
   </data>
+  <data name="ExConnectionAccessorXHasNoParameterlessConstructor" xml:space="preserve">
+    <value>Connection accessor '{0}' has no parameterless constructor.</value>
+  </data>
 </root>
