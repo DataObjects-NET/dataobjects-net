@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var keyIndexes = materializationInfo.KeyIndexes;
       if (!KeyFactory.IsValidKeyTuple(tuple, keyIndexes))
         return null;
-      if (keyIndexes.Length <= WellKnown.MaxGenericKeyLength)
+      if (keyIndexes.Count <= WellKnown.MaxGenericKeyLength)
         key = KeyFactory.Materialize(Session.Domain, Session.StorageNodeId, materializationInfo.Type, tuple, accuracy, canCache, keyIndexes);
       else {
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);

@@ -1,10 +1,11 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.10.09
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -35,7 +36,7 @@ namespace Xtensive.Orm.Internals
     }
 
     public static Key Materialize(Domain domain, string nodeId,
-      TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, int[] keyIndexes)
+      TypeInfo type, Tuple value, TypeReferenceAccuracy accuracy, bool canCache, IReadOnlyList<int> keyIndexes)
     {
       var hierarchy = type.Hierarchy;
       var keyInfo = type.Key;
@@ -131,18 +132,18 @@ namespace Xtensive.Orm.Internals
       return true;
     }
 
-    public static bool IsValidKeyTuple(Tuple tuple, int[] keyIndexes)
+    public static bool IsValidKeyTuple(Tuple tuple, IReadOnlyList<int> keyIndexes)
     {
       if (keyIndexes==null)
         return IsValidKeyTuple(tuple);
-      var limit = keyIndexes.Length;
+      var limit = keyIndexes.Count;
       for (int i = 0; i < limit; i++)
         if (tuple.GetFieldState(keyIndexes[i]).IsNull())
           return false;
       return true;
     }
 
-    private static Key CreateGenericKey(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple tuple, int[] keyIndexes)
+    private static Key CreateGenericKey(Domain domain, string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, Tuple tuple, IReadOnlyList<int> keyIndexes)
     {
       var keyTypeInfo = domain.GenericKeyFactories.GetOrAdd(type, BuildGenericKeyFactory);
       if (keyIndexes==null)
@@ -158,7 +159,7 @@ namespace Xtensive.Orm.Internals
       keyType = keyType.MakeGenericType(descriptor.ToArray(descriptor.Count));
       var defaultConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(
         null, keyType, "Create", ArrayUtils<Type>.EmptyArray);
-      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key>>(
+      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<int>, Key>>(
         null, keyType, "Create", ArrayUtils<Type>.EmptyArray);
       return new GenericKeyFactory(keyType, defaultConstructor, keyIndexBasedConstructor);
     }

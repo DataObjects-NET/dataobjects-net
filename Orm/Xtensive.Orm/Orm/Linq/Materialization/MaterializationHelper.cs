@@ -33,13 +33,12 @@ namespace Xtensive.Orm.Linq.Materialization
     public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
     {
       var map = new int[targetLength];
-      for (var i = 0; i < map.Length; i++) {
-        map[i] = MapTransform.NoMapping;
-      }
+      Array.Fill(map, MapTransform.NoMapping);
 
       for (var i = 0; i < remappedColumns.Length; i++) {
-        var targetIndex = remappedColumns[i].First;
-        var sourceIndex = remappedColumns[i].Second;
+        var remappedColumn = remappedColumns[i];
+        var targetIndex = remappedColumn.First;
+        var sourceIndex = remappedColumn.Second;
         map[targetIndex] = sourceIndex;
       }
 
