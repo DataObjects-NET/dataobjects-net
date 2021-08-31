@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.07.13
 
 using System;
+using System.Collections.Generic;
 using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -16,9 +17,9 @@ namespace Xtensive.Orm.Internals
   [Serializable]
   internal sealed class Key<T1, T2> : Key
   {
-    private static readonly Predicate<T1, T1> equalityComparer1 = 
+    private static readonly Predicate<T1, T1> EqualityComparer1 =
       ComparerProvider.Default.GetComparer<T1>().Equals;
-    private static readonly Predicate<T2, T2> equalityComparer2 = 
+    private static readonly Predicate<T2, T2> EqualityComparer2 =
       ComparerProvider.Default.GetComparer<T2>().Equals;
 
     private readonly T1 value1;
@@ -38,8 +39,8 @@ namespace Xtensive.Orm.Internals
       if (otherKey == null)
         return false;
       return
-        equalityComparer2.Invoke(value2, otherKey.value2) && 
-        equalityComparer1.Invoke(value1, otherKey.value1);
+        EqualityComparer2.Invoke(value2, otherKey.value2) &&
+        EqualityComparer1.Invoke(value1, otherKey.value1);
     }
 
     protected override int CalculateHashCode()
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Internals
     }
 
     [UsedImplicitly]
-    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, int[] keyIndexes)
+    public static Key Create(string nodeId, TypeInfo type, Tuple tuple, TypeReferenceAccuracy accuracy, IReadOnlyList<int> keyIndexes)
     {
       return new Key<T1, T2>(nodeId, type, accuracy,
         tuple.GetValueOrDefault<T1>(keyIndexes[0]),
@@ -63,7 +64,7 @@ namespace Xtensive.Orm.Internals
         tuple.GetValueOrDefault<T2>(1));
     }
 
-    
+
     // Constructors
 
     private Key(string nodeId, TypeInfo type, TypeReferenceAccuracy accuracy, T1 value1, T2 value2)
