@@ -5,6 +5,7 @@
 // Created:    2009.11.13
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -17,6 +18,7 @@ using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
+using TypeMapping = Xtensive.Sql.TypeMapping;
 
 namespace Xtensive.Orm.Providers
 {
@@ -38,6 +40,13 @@ namespace Xtensive.Orm.Providers
         Bindings = bindings;
       }
     }
+
+    private static readonly ConcurrentDictionary<int, Func<ParameterContext, object>> typeIdParameterAccessorByTypeId =
+      new ConcurrentDictionary<int, Func<ParameterContext, object>>();
+
+    private static readonly Func<int, Func<ParameterContext, object>> AccessorFactory = typeId => _ => typeId;
+
+    private TypeMapping int32typeMapping;
 
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
@@ -249,20 +258,15 @@ namespace Xtensive.Orm.Providers
                 SqlDml.Array(filterByTypes.Select(t => TypeIdRegistry[t]).ToArray(filterByTypes.Count)));
         }
         else {
-          var typeMapping = Driver.GetTypeMapping(WellKnownTypes.Int32);
           if (filterByTypes.Count == 1) {
-            var binding = new QueryParameterBinding(typeMapping,
-              CreateTypeIdAccessor(TypeIdRegistry[type]).CachingCompile(),
-              QueryParameterBindingType.Regular);
+            var binding = CreateQueryParameterBinding(type);
             bindings.Add(binding);
             filter = typeIdColumn == binding.ParameterReference;
           }
           else {
             var typeIdParameters = filterByTypes
               .Select(t => {
-                var binding = new QueryParameterBinding(typeMapping,
-                  CreateTypeIdAccessor(TypeIdRegistry[t]).CachingCompile(),
-                  QueryParameterBindingType.Regular);
+                var binding = CreateQueryParameterBinding(t);
                 bindings.Add(binding);
                 return binding.ParameterReference;
               })
@@ -308,8 +312,7 @@ namespace Xtensive.Orm.Providers
 
       SqlUserColumn typeIdColumn;
       if (useParameterForTypeId) {
-        var typeMapping = Driver.GetTypeMapping(WellKnownTypes.Int32);
-        var binding = new QueryParameterBinding(typeMapping, CreateTypeIdAccessor(TypeIdRegistry[type]).CachingCompile(), QueryParameterBindingType.Regular);
+        var binding = CreateQueryParameterBinding(type);
 
         typeIdColumn = SqlDml.Column(binding.ParameterReference);
         bindings.Add(binding);
@@ -352,11 +355,11 @@ namespace Xtensive.Orm.Providers
         : fieldValue;
     }
 
-    private Expression<Func<ParameterContext, object>> CreateTypeIdAccessor(int value)
-    {
-      var bodyExpression = Expression.Convert(Expression.Constant(value),WellKnownTypes.Object);
-      var lambdaParemeter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
-      return (Expression<Func<ParameterContext, object>>) FastExpression.Lambda(bodyExpression, lambdaParemeter);
-    }
+    private QueryParameterBinding CreateQueryParameterBinding(TypeInfo type) =>
+      new QueryParameterBinding(
+        int32typeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32),
+        typeIdParameterAccessorByTypeId.GetOrAdd(TypeIdRegistry[type], AccessorFactory),
+        QueryParameterBindingType.Regular
+      );
   }
 }
