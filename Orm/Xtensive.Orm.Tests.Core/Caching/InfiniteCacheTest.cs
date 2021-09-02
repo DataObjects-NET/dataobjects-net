@@ -54,13 +54,13 @@ namespace Xtensive.Orm.Tests.Core.Caching
   [TestFixture]
   public class InfiniteCacheTest
   {
-    private InfiniteCache<string, TestItem> globalCache;
+    private ICache<string, TestItem> globalCache;
     private Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
 
     [Test]
     public void ConstructorsTest()
     {
-      var cache = new InfiniteCache<string, TestItem>(value => value.Key);
+      ICache<string, TestItem> cache = new InfiniteCache<string, TestItem>(value => value.Key);
 
       Assert.IsNotNull(cache.KeyExtractor);
 
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddRemoveTest()
     {
-      var cache = new InfiniteCache<string, TestItem>(value => value.Key);
+      ICache<string, TestItem> cache = new InfiniteCache<string, TestItem>(value => value.Key);
 
       TestItem item = new TestItem("1");
       cache.Add(item);
@@ -116,28 +116,28 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddDenyTest()
     {
-      var cache = new InfiniteCache<string, TestItem>(value => value.Key);
+      ICache<string, TestItem> cache = new InfiniteCache<string, TestItem>(value => value.Key);
       Assert.Throws<ArgumentNullException>(() => cache.Add(null));
     }
 
     [Test]
     public void RemoveDenyTest()
     {
-      var cache = new InfiniteCache<string, TestItem>(value => value.Key);
+      ICache<string, TestItem> cache = new InfiniteCache<string, TestItem>(value => value.Key);
       Assert.Throws<ArgumentNullException>(() => cache.Remove((TestItem)null));
     }
 
     [Test]
     public void RemoveDenyTest1()
     {
-      var cache = new InfiniteCache<string, TestItem>(value => value.Key);
+      ICache<string, TestItem> cache = new InfiniteCache<string, TestItem>(value => value.Key);
       Assert.Throws<ArgumentNullException>(() => cache.Remove((TestItem)null));
     }
 
     [Test]
     public void IEnumerableTest()
     {
-      var cache = new InfiniteCache<string, TestItem>(value => value.Key);
+      ICache<string, TestItem> cache = new InfiniteCache<string, TestItem>(value => value.Key);
 
       for (int i = 0; i < 100; i++)
         cache.Add(new TestItem("item " + i));

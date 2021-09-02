@@ -46,12 +46,6 @@ namespace Xtensive.Caching
       }
     }
 
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
     #endregion
 
     #region IInvalidatable

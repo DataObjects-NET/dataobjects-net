@@ -9,7 +9,6 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using BitFaster.Caching.Lru;
 using JetBrains.Annotations;
 using Xtensive.Caching;
 using Xtensive.Collections;
@@ -122,7 +121,7 @@ namespace Xtensive.Orm
 
     internal ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
     
-    internal FastConcurrentLru<object, ParameterizedQuery> QueryCache { get; private set; }
+    internal ICache<object, Pair<object, ParameterizedQuery>> QueryCache { get; private set; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
@@ -423,7 +422,7 @@ namespace Xtensive.Orm
       KeyGenerators = new KeyGeneratorRegistry();
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      QueryCache = new FastConcurrentLru<object, ParameterizedQuery>(Configuration.QueryCacheSize);
+      QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;

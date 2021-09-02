@@ -197,10 +197,10 @@ namespace Xtensive.Orm.Internals
     }
 
     private ParameterizedQuery GetCachedQuery() =>
-      domain.QueryCache.TryGet(queryKey, out var query) ? query : null;
+      domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Second : null;
 
     private void PutCachedQuery(ParameterizedQuery parameterizedQuery) =>
-      domain.QueryCache.AddOrUpdate(queryKey, parameterizedQuery);
+      domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)
     {

@@ -40,17 +40,6 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
-      get {
-        TItem item;
-        if (items.TryGetValue(key, out item))
-          return item;
-        else
-          return null;
-      }
-    }
-
-    /// <inheritdoc/>
     public bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       return items.TryGetValue(key, out item);
@@ -69,12 +58,6 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void Add(TItem item)
-    {
-      Add(item, true);
-    }
-
-    /// <inheritdoc/>
     public TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
@@ -86,13 +69,6 @@ namespace Xtensive.Caching
 
       items[key] = item;
       return item;
-    }
-
-    /// <inheritdoc/>
-    public void Remove(TItem item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      RemoveKey(KeyExtractor(item));
     }
 
     /// <inheritdoc/>
@@ -114,12 +90,6 @@ namespace Xtensive.Caching
       items.Clear();
     }
 
-    /// <inheritdoc/>
-    public void Invalidate()
-    {
-      Clear();
-    }
-
     #region IEnumerable methods
 
     /// <inheritdoc/>
@@ -128,11 +98,6 @@ namespace Xtensive.Caching
       foreach (var pair in items) {
         yield return pair.Value;
       }
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
     }
 
     #endregion
