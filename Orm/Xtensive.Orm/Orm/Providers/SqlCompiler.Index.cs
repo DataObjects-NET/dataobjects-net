@@ -41,12 +41,12 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private static readonly ConcurrentDictionary<int, Func<ParameterContext, object>> typeIdParameterAccessorByTypeId =
+    private static readonly ConcurrentDictionary<int, Func<ParameterContext, object>> typeIdParameterAccessorCache =
       new ConcurrentDictionary<int, Func<ParameterContext, object>>();
 
     private static readonly Func<int, Func<ParameterContext, object>> AccessorFactory = typeId => _ => typeId;
 
-    private TypeMapping int32typeMapping;
+    private TypeMapping int32TypeMapping;
 
     protected override SqlProvider VisitFreeText(FreeTextProvider provider)
     {
@@ -357,8 +357,8 @@ namespace Xtensive.Orm.Providers
 
     private QueryParameterBinding CreateQueryParameterBinding(TypeInfo type) =>
       new QueryParameterBinding(
-        int32typeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32),
-        typeIdParameterAccessorByTypeId.GetOrAdd(TypeIdRegistry[type], AccessorFactory),
+        int32TypeMapping ??= Driver.GetTypeMapping(WellKnownTypes.Int32),
+        typeIdParameterAccessorCache.GetOrAdd(TypeIdRegistry[type], AccessorFactory),
         QueryParameterBindingType.Regular
       );
   }
