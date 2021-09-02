@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using BitFaster.Caching.Lru;
 using JetBrains.Annotations;
 using Xtensive.Caching;
 using Xtensive.Collections;
@@ -121,7 +122,7 @@ namespace Xtensive.Orm
 
     internal ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
     
-    internal ICache<object, Pair<object, TranslatedQuery>> QueryCache { get; private set; }
+    internal FastConcurrentLru<object, ParameterizedQuery> QueryCache { get; private set; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 
@@ -422,7 +423,7 @@ namespace Xtensive.Orm
       KeyGenerators = new KeyGeneratorRegistry();
       PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
-      QueryCache = new LruCache<object, Pair<object, TranslatedQuery>>(Configuration.QueryCacheSize, k => k.First);
+      QueryCache = new FastConcurrentLru<object, ParameterizedQuery>(Configuration.QueryCacheSize);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
       Extensions = new ExtensionCollection();
       UpgradeContextCookie = upgradeContextCookie;

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -196,25 +196,11 @@ namespace Xtensive.Orm.Internals
       });
     }
 
-    private ParameterizedQuery GetCachedQuery()
-    {
-      var cache = domain.QueryCache;
-      lock (cache) {
-        return cache.TryGetItem(queryKey, true, out var item)
-          ? (ParameterizedQuery) item.Second
-          : null;
-      }
-    }
+    private ParameterizedQuery GetCachedQuery() =>
+      domain.QueryCache.TryGet(queryKey, out var query) ? query : null;
 
-    private void PutCachedQuery(ParameterizedQuery parameterizedQuery)
-    {
-      var cache = domain.QueryCache;
-      lock (cache) {
-        if (!cache.TryGetItem(queryKey, false, out _)) {
-          cache.Add(new Pair<object, TranslatedQuery>(queryKey, parameterizedQuery));
-        }
-      }
-    }
+    private void PutCachedQuery(ParameterizedQuery parameterizedQuery) =>
+      domain.QueryCache.AddOrUpdate(queryKey, parameterizedQuery);
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)
     {
