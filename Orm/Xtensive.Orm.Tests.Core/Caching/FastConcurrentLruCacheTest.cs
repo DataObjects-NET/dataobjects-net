@@ -39,20 +39,19 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void ConstructorsTest()
     {
-      var cache = new LruCache<string, TestClass, TestClass>(
+      var cache = new FastConcurrentLruCache<string, TestClass>(
         1000,
         value => value.Text);
 
-      var cache1 = new LruCache<string, TestClass, TestClass>(
+      var cache1 = new FastConcurrentLruCache<string, TestClass>(
         1000,
-        (value) => value.Text,
-        new Biconverter<TestClass, TestClass>(value => value, value => value));
+        (value) => value.Text
+        );
 
 
       TestClass item = new TestClass("1");
       cache.Add(item);
       cache1.Add(item);
-      Assert.AreEqual(1, cache.Size);
       Assert.AreEqual(1, cache1.Count);
 
       for (int i=0;i<100000;i++) {
@@ -66,7 +65,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     {
       Assert.Throws<ArgumentOutOfRangeException>(() => {
         var cache =
-          new LruCache<string, TestClass, TestClass>(
+          new FastConcurrentLruCache<string, TestClass>(
             -1,
             value => value.Text
           );
@@ -76,7 +75,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddRemoveTest()
     {
-      var cache = new LruCache<string, TestClass, TestClass>(
+      var cache = new FastConcurrentLruCache<string, TestClass>(
         100,
         value => value.Text);
 
@@ -99,7 +98,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddDenyTest1()
     {
-      var cache = new LruCache<string, TestClass, TestClass>(
+      var cache = new FastConcurrentLruCache<string, TestClass>(
         100,
         value => value.Text);
       Assert.Throws<ArgumentNullException>(() => cache.Add(null));
@@ -109,7 +108,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     public void AddDenyTest3()
     {
       var cache =
-        new LruCache<string, BadTestClass, BadTestClass>(
+        new FastConcurrentLruCache<string, BadTestClass>(
           100,
           value => value.Identifier);
       Assert.Throws<ArgumentNullException>(() => cache.Add(new BadTestClass()));
@@ -119,7 +118,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     public void RemoveDenyTest1()
     {
       var cache =
-        new LruCache<string, TestClass, TestClass>(
+        new FastConcurrentLruCache<string, TestClass>(
           100,
           value => value.Text);
       Assert.Throws<ArgumentNullException>(() => cache.Remove(null));
@@ -129,7 +128,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     public void RemoveDenyTest2()
     {
       var cache =
-        new LruCache<string, TestClass, TestClass>(
+        new FastConcurrentLruCache<string, TestClass>(
           100,
           value => value.Text);
       Assert.Throws<ArgumentNullException>(() => cache.RemoveKey(null));
@@ -139,33 +138,11 @@ namespace Xtensive.Orm.Tests.Core.Caching
     public void RemoveDenyTest3()
     {
       var cache =
-        new LruCache<string, BadTestClass, BadTestClass>(
+        new FastConcurrentLruCache<string, BadTestClass>(
           100,
           value => value.Identifier);
       BadTestClass test1 = new BadTestClass();
       Assert.Throws<ArgumentNullException>(() => cache.Remove(test1));
-    }
-
-    [Test]
-    public void IEnumerableTest()
-    {
-      var cache =
-        new LruCache<string, TestClass, TestClass>(
-          10000,
-          value => value.Text);
-      for (int i = 0; i < 100; i++)
-      {
-        cache.Add(new TestClass("item " + i));
-      }
-      Assert.AreEqual(100, cache.Count);
-
-      int itemsCount = 0;
-      foreach (TestClass testClass in cache)
-      {
-        Assert.IsTrue(testClass.Text.StartsWith("item"));
-        itemsCount++;
-      }
-      Assert.AreEqual(100, itemsCount);
     }
 
     private static bool canFinish = true;

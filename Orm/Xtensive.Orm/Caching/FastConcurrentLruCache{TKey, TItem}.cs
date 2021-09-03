@@ -47,6 +47,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
       if (replaceIfExists) {
         imp.AddOrUpdate(key, item);
