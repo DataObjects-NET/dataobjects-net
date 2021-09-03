@@ -23,7 +23,7 @@ namespace Xtensive.Caching
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
   [SecuritySafeCritical]
   public class WeakestCache<TKey, TItem> :
-    ICache<TKey, TItem>,
+    CacheBase<TKey, TItem>,
     IHasGarbage,
     IDisposable
     where TKey  : class
@@ -38,7 +38,6 @@ namespace Xtensive.Caching
     private const int GcOperationCost = 2;
     private readonly bool trackKeyResurrection;
     private readonly bool trackItemResurrection;
-    private readonly Converter<TItem, TKey> keyExtractor;
     private Dictionary<object, WeakEntry> items;
     private int time;
 
@@ -176,12 +175,6 @@ namespace Xtensive.Caching
 
     #region Properites: KeyExtractor, TrackKeyResurrection, TrackItemResurrection, EfficiencyFactor, Count, Size
 
-    /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor {
-      [DebuggerStepThrough]
-      get { return keyExtractor; }
-    }
-
     /// <summary>
     /// Gets a value indicating whether this cache tracks key resurrection.
     /// </summary>
@@ -199,7 +192,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public int Count {
+    public override int Count {
       [DebuggerStepThrough]
       get { return items.Count; }
     }
@@ -207,28 +200,15 @@ namespace Xtensive.Caching
     #endregion
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
-      get {
-        return GetItemByKeyInternal(key, markAsHit);
-      }
-    }
-
-    /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       item = GetItemByKeyInternal(key, markAsHit);
       return item!=null;
     }
 
     /// <inheritdoc/>
-    public bool Contains(TItem item)
-    {
-      return ContainsKey(KeyExtractor(item));
-    }
-
-    /// <inheritdoc/>
-    public bool ContainsKey(TKey key)
+    public override bool ContainsKey(TKey key)
     {
       return GetItemByKeyInternal(key, false)!=null;
     }
@@ -236,14 +216,8 @@ namespace Xtensive.Caching
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public void Add(TItem item)
-    {
-      Add(item, true);
-    }
-
-    /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual TItem Add(TItem item, bool replaceIfExists)
+    public override TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
@@ -267,15 +241,8 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void Remove(TItem item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      RemoveKey(KeyExtractor(item));
-    }
-
-    /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual void RemoveKey(TKey key)
+    public override void RemoveKey(TKey key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
       WeakEntry entry;
@@ -286,14 +253,14 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key, bool removeCompletely)
+    public override void RemoveKey(TKey key, bool removeCompletely)
     {
       RemoveKey(key);
     }
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual void Clear()
+    public override void Clear()
     {
       try {
         foreach (var pair in items)
@@ -306,12 +273,6 @@ namespace Xtensive.Caching
         items = new Dictionary<object, WeakEntry>(new WeakEntryEqualityComparer());;
         time = 0;
       }
-    }
-
-    /// <inheritdoc/>
-    public void Invalidate()
-    {
-      Clear();
     }
 
     /// <inheritdoc/>
@@ -357,15 +318,8 @@ namespace Xtensive.Caching
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual IEnumerator<TItem> GetEnumerator()
+    public override IEnumerator<TItem> GetEnumerator()
     {
       foreach (var pair in items) {
         var item = pair.Value.Value.Value;
@@ -414,13 +368,13 @@ namespace Xtensive.Caching
     /// </summary>
     /// <param name="trackKeyResurrection">The <see cref="TrackKeyResurrection"/> property value.</param>
     /// <param name="trackItemResurrection">The <see cref="TrackItemResurrection"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public WeakestCache(bool trackKeyResurrection, bool trackItemResurrection, Converter<TItem, TKey> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.trackKeyResurrection = trackKeyResurrection;
       this.trackItemResurrection = trackItemResurrection;
-      this.keyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor;
       items = new Dictionary<object, WeakEntry>(1024, new WeakEntryEqualityComparer());
     }
 

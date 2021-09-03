@@ -10,65 +10,13 @@ using Xtensive.Orm.Tests;
 
 namespace Xtensive.Orm.Tests.Core.Caching
 {
-  internal class TestClass : 
-    IIdentified<string>,
-    IHasSize
-  {
-    public string Text { get; set; }
-
-    object IIdentified.Identifier
-    {
-      get { return Identifier; }
-    }
-
-    public string Identifier
-    {
-      get { return Text; }
-    }
-
-    public long Size
-    {
-      get { return Text.Length; }
-    }
-
-    public TestClass(string text)
-    {
-      Text = text;
-    }
-  }
-
-  [Serializable]
-  internal class TestClassAdvancedConverter :
-    AdvancedConverterBase,
-    IAdvancedConverter<TestClass, string>
-  {
-    public TestClassAdvancedConverter(IAdvancedConverterProvider provider)
-      : base(provider)
-    {
-    }
-
-    #region IAdvancedConverter<TestClass,string> Members
-
-    public string Convert(TestClass value)
-    {
-      return value.Text;
-    }
-
-    public bool IsRough
-    {
-      get { return false; }
-    }
-
-    #endregion
-  }
-
   [TestFixture]
-  public class LruCacheTest
+  public class FastConcurrentLruCacheTest
   {
-    private LruCache<string, TestClass, TestClass> globalCache;
+    private FastConcurrentLruCache<string, TestClass> globalCache;
     private Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
-    
-    class BadTestClass: 
+
+    class BadTestClass:
       IIdentified<String>,
       IHasSize
     {
@@ -106,7 +54,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
       cache1.Add(item);
       Assert.AreEqual(1, cache.Size);
       Assert.AreEqual(1, cache1.Count);
-      
+
       for (int i=0;i<100000;i++) {
         TestClass test = new TestClass(""+i);
         cache1.Add(test);
@@ -197,7 +145,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
       BadTestClass test1 = new BadTestClass();
       Assert.Throws<ArgumentNullException>(() => cache.Remove(test1));
     }
-    
+
     [Test]
     public void IEnumerableTest()
     {
@@ -226,7 +174,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     public void SynchronizationTest()
     {
       globalCache =
-        new LruCache<string, TestClass, TestClass>(
+        new FastConcurrentLruCache<string, TestClass>(
           1000,
           value => value.Text);
 
@@ -311,7 +259,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
       {
         ThreadPool.SetMinThreads(workingThreadsCountAcccessor(), ioThreadsCountAcccessor());
       }
-      
+
       private int Aa()
       {
         return previousWorkingThreadsCount;
@@ -322,7 +270,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
         return previousIOThreadsCount;
       }
 
-      
 
       public ThreadPoolThreadsIncreaser(int workingThreadsCount, int ioThreadsCount)
         : base((disposing)=>Decrease(disposing, A, B))

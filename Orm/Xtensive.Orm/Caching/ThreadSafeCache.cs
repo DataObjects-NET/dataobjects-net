@@ -19,7 +19,7 @@ namespace Xtensive.Caching
   /// </summary>
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
-  public sealed class ThreadSafeCache<TKey, TItem> : ICache<TKey, TItem>
+  public sealed class ThreadSafeCache<TKey, TItem> : CacheBase<TKey, TItem>
   {
     private readonly ICache<TKey, TItem> chainedCache;
     private readonly object syncRoot;
@@ -37,7 +37,7 @@ namespace Xtensive.Caching
     #region IEnumerable
 
     /// <inheritdoc/>
-    public IEnumerator<TItem> GetEnumerator()
+    public override IEnumerator<TItem> GetEnumerator()
     {
       lock (syncRoot) {
         var enumerator = chainedCache.GetEnumerator();
@@ -63,13 +63,13 @@ namespace Xtensive.Caching
     #region ICache<TKey, TItem>
 
     /// <inheritdoc/>
-    public int Count { get { return chainedCache.Count; } }
+    public override int Count { get { return chainedCache.Count; } }
 
     /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor { get { return chainedCache.KeyExtractor; } }
+    public override Converter<TItem, TKey> KeyExtractor { get { return chainedCache.KeyExtractor; } }
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
+    public override TItem this[TKey key, bool markAsHit] {
       get {
         lock (syncRoot) {
           return chainedCache[key, markAsHit];
@@ -78,7 +78,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool TryGetItem(TKey key, bool markAsHit, out TItem item)
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       lock (syncRoot) {
         return chainedCache.TryGetItem(key, markAsHit, out item);
@@ -94,7 +94,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool ContainsKey(TKey key)
+    public override bool ContainsKey(TKey key)
     {
       lock (syncRoot) {
         return chainedCache.ContainsKey(key);
@@ -102,7 +102,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void Add(TItem item)
+    public override void Add(TItem item)
     {
       lock (syncRoot) {
         chainedCache.Add(item);
@@ -110,7 +110,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public TItem Add(TItem item, bool replaceIfExists)
+    public override TItem Add(TItem item, bool replaceIfExists)
     {
       lock (syncRoot) {
         return chainedCache.Add(item, replaceIfExists);
@@ -118,7 +118,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void Remove(TItem item)
+    public override void Remove(TItem item)
     {
       lock (syncRoot) {
         chainedCache.Remove(item);
@@ -126,7 +126,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key)
+    public override void RemoveKey(TKey key)
     {
       lock (syncRoot) {
         chainedCache.RemoveKey(key);
@@ -134,13 +134,13 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key, bool removeCompletely)
+    public override void RemoveKey(TKey key, bool removeCompletely)
     {
       RemoveKey(key);
     }
 
     /// <inheritdoc/>
-    public void Clear()
+    public override void Clear()
     {
       lock (syncRoot) {
         chainedCache.Clear();
