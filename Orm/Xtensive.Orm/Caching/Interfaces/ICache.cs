@@ -5,7 +5,10 @@
 // Created:    2007.05.25
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
+using Xtensive.Core;
 
 namespace Xtensive.Caching
 {
@@ -34,7 +37,7 @@ namespace Xtensive.Caching
     /// should be marked as hit.</param>
     /// <returns>Item, if found; 
     /// otherwise, <see langword="default(TItem)"/>.</returns>
-    TItem this[TKey key, bool markAsHit] { get; }
+    TItem this[TKey key, bool markAsHit] => TryGetItem(key, markAsHit, out var item) ? item : default;
 
     /// <summary>
     /// Tries to get cached item by its <paramref name="key"/>.
@@ -57,7 +60,7 @@ namespace Xtensive.Caching
     /// <see langword="True"/> if cache contains the specified item; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    bool Contains(TItem item);
+    bool Contains(TItem item) => ContainsKey(KeyExtractor(item));
 
     /// <summary>
     /// Determines whether cache contains the item with specified key.
@@ -73,7 +76,7 @@ namespace Xtensive.Caching
     /// Adds a new item to the cache. If item with this key is already in cache - replaces is with new item.
     /// </summary>
     /// <param name="item">The item to add.</param>
-    void Add(TItem item);
+    void Add(TItem item) => Add(item, true);
 
     /// <summary>
     /// Adds a new item to the cache.
@@ -87,8 +90,13 @@ namespace Xtensive.Caching
     /// Removes the specified <paramref name="item"/> from the cache.
     /// </summary>
     /// <param name="item">The item to remove.</param>
-    void Remove(TItem item);
-  
+    void Remove(TItem item)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
+      RemoveKey(KeyExtractor(item));
+    }
+
+
     /// <summary>
     /// Removes the item with specified <paramref name="key"/> from the cache.
     /// </summary>
@@ -106,5 +114,11 @@ namespace Xtensive.Caching
     ///  Clears the cache.
     /// </summary>
     void Clear();
+
+    void IInvalidatable.Invalidate() => Clear();
+
+    /// <inheritdoc/>
+    [DebuggerStepThrough]
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
   }
 }

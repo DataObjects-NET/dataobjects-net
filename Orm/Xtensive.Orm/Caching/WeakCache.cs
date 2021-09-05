@@ -68,9 +68,6 @@ namespace Xtensive.Caching
     #endregion
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] => TryGetItem(key, markAsHit, out var item) ? item : null;
-
-    /// <inheritdoc/>
     [SecuritySafeCritical]
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
@@ -90,15 +87,9 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool Contains(TItem item) => ContainsKey(KeyExtractor(item));
-
-    /// <inheritdoc/>
     public bool ContainsKey(TKey key) => TryGetItem(key, false, out var _);
 
     #region Modification methods: Add, Remove, Clear
-
-    /// <inheritdoc/>
-    public void Add(TItem item) => Add(item, true);
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -124,13 +115,6 @@ namespace Xtensive.Caching
       }
       items[key] = GCHandle.Alloc(item, trackResurrection ? GCHandleType.WeakTrackResurrection : GCHandleType.Weak);
       return item;
-    }
-
-    /// <inheritdoc/>
-    public void Remove(TItem item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, nameof(item));
-      RemoveKey(KeyExtractor(item));
     }
 
     /// <inheritdoc/>
@@ -165,9 +149,6 @@ namespace Xtensive.Caching
         time = 0;
       }
     }
-
-    /// <inheritdoc/>
-    public void Invalidate() => Clear();
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
@@ -212,10 +193,6 @@ namespace Xtensive.Caching
     #endregion
 
     #region IEnumerable<...> methods
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <inheritdoc/>
     public virtual IEnumerator<TItem> GetEnumerator()

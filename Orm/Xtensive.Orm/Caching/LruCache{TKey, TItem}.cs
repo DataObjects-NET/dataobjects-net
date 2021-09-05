@@ -79,17 +79,6 @@ namespace Xtensive.Caching
     #endregion
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
-      get {
-        TItem item;
-        if (TryGetItem(key, markAsHit, out item))
-          return item;
-        else
-          return default(TItem);
-      }
-    }
-
-    /// <inheritdoc/>
     public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       KeyValuePair<TKey, TItem> cached;
@@ -110,12 +99,6 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool Contains(TItem item)
-    {
-      return ContainsKey(KeyExtractor(item));
-    }
-
-    /// <inheritdoc/>
     public virtual bool ContainsKey(TKey key)
     {
       if (deque.Contains(key))
@@ -126,12 +109,6 @@ namespace Xtensive.Caching
     }
 
     #region Modification methods: TryAdd, Add, Remove, Clear
-
-    /// <inheritdoc/>
-    public void Add(TItem item)
-    {
-      Add(item, true);
-    }
 
     /// <inheritdoc/>
     public virtual TItem Add(TItem item, bool replaceIfExists)
@@ -158,13 +135,6 @@ namespace Xtensive.Caching
       }
       ItemAdded(key);
       return item;
-    }
-
-    /// <inheritdoc/>
-    public void Remove(TItem item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      RemoveKey(KeyExtractor(item));
     }
 
     /// <inheritdoc/>
@@ -205,22 +175,9 @@ namespace Xtensive.Caching
       Cleared();
     }
 
-    /// <inheritdoc/>
-    public void Invalidate()
-    {
-      Clear();
-    }
-
     #endregion
 
     #region IEnumerable<...> methods
-
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
 
     /// <inheritdoc/>
     public virtual IEnumerator<TItem> GetEnumerator()

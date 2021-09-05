@@ -41,6 +41,7 @@
   </ItemGroup>
   <ItemGroup Label="Packages">
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
+    <PackageReference Include="BitFaster.Caching" Version="1.0.3" />
   </ItemGroup>
   <ItemGroup Label="T4GeneratorsUpdaters">
     <None Update="Arithmetic\Internal\PrimitiveArithmetics.tt">

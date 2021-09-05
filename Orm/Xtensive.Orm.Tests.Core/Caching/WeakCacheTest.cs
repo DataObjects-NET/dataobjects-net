@@ -13,13 +13,13 @@ namespace Xtensive.Orm.Tests.Core.Caching
   [TestFixture]
   public class WeakCacheTest
   {
-    private WeakCache<string, TestClass> globalCache;
+    private ICache<string, TestClass> globalCache;
     private Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
 
     [Test]
     public void ConstructorsTest()
     {
-      var cache = new WeakCache<string, TestClass>(
+      ICache<string, TestClass> cache = new WeakCache<string, TestClass>(
         false, value => value.Text);
 
       Assert.IsNotNull(cache.KeyExtractor);
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddRemoveTest()
     {
-      var cache = new WeakCache<string, TestClass>(false, value => value.Text);
+      ICache<string, TestClass> cache = new WeakCache<string, TestClass>(false, value => value.Text);
 
       TestClass item = new TestClass("1");
       cache.Add(item);
@@ -64,28 +64,28 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddDenyTest()
     {
-      var cache = new WeakCache<string, TestClass>(false, value => value.Text);
+      ICache<string, TestClass> cache = new WeakCache<string, TestClass>(false, value => value.Text);
       Assert.Throws<ArgumentNullException>(() => cache.Add(null));
     }
 
     [Test]
     public void RemoveDenyTest()
     {
-      var cache = new WeakCache<string, TestClass>(false, value => value.Text);
+      ICache<string, TestClass> cache = new WeakCache<string, TestClass>(false, value => value.Text);
       Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass) null));
     }
 
     [Test]
     public void RemoveDenyTest1()
     {
-      var cache = new WeakCache<string, TestClass>(false, value => value.Text);
+      ICache<string, TestClass> cache = new WeakCache<string, TestClass>(false, value => value.Text);
       Assert.Throws<ArgumentNullException>(() => cache.Remove((TestClass)null));
     }
 
     [Test]
     public void IEnumerableTest()
     {
-      var cache = new WeakCache<string, TestClass>(false, value => value.Text);
+      ICache<string, TestClass> cache = new WeakCache<string, TestClass>(false, value => value.Text);
 
       for (int i = 0; i < 100; i++)
         cache.Add(new TestClass("item " + i));

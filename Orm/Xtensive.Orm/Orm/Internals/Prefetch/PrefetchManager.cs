@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private const int ColumnIndexesCacheSize = 256;
 
     private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
-    private readonly LruCache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
+    private readonly ICache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
     private readonly Fetcher fetcher;
     private readonly Session session;
 
