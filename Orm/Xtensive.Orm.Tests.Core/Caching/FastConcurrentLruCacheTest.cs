@@ -7,6 +7,7 @@ using Xtensive.Conversion;
 using Xtensive.Core;
 using Xtensive.Orm.Tests;
 
+#pragma warning disable IDE0058
 
 namespace Xtensive.Orm.Tests.Core.Caching
 {
@@ -14,10 +15,10 @@ namespace Xtensive.Orm.Tests.Core.Caching
   public class FastConcurrentLruCacheTest
   {
     private FastConcurrentLruCache<string, TestClass> globalCache;
-    private Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
+    private readonly Random random = RandomManager.CreateRandom((int) DateTime.Now.Ticks);
 
-    class BadTestClass:
-      IIdentified<String>,
+    private class BadTestClass :
+      IIdentified<string>,
       IHasSize
     {
       object IIdentified.Identifier
@@ -54,8 +55,8 @@ namespace Xtensive.Orm.Tests.Core.Caching
       cache1.Add(item);
       Assert.AreEqual(1, cache1.Count);
 
-      for (int i=0;i<100000;i++) {
-        TestClass test = new TestClass(""+i);
+      for (int i = 0; i < 100000; i++) {
+        TestClass test = new TestClass("" + i);
         cache1.Add(test);
       }
     }
@@ -145,7 +146,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
       Assert.Throws<ArgumentNullException>(() => cache.Remove(test1));
     }
 
-    private static bool canFinish = true;
+    private static readonly bool canFinish = true;
 
     [Test]
     public void SynchronizationTest()
@@ -160,7 +161,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
         var removeThreads = new Task[10];
         var cancellationTokenSource = new CancellationTokenSource();
 
-        for (int i = 0; i < 10; i++)         {
+        for (int i = 0; i < 10; i++) {
           addThreads[i] = new Task(() => AddItem(cancellationTokenSource.Token), cancellationTokenSource.Token);
           removeThreads[i] = new Task(() => RemoveItem(cancellationTokenSource.Token), cancellationTokenSource.Token);
         }
@@ -207,7 +208,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
           test = testClass;
           break;
         }
-        if (test!=null)
+        if (test != null)
           globalCache.Remove(test);
       }
       cancellationToken.ThrowIfCancellationRequested();
@@ -232,7 +233,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
         ThreadPool.SetMinThreads(workingThreadsCount, ioThreadsCount);
       }
 
-      private static void Decrease(bool disposing, Func<int> workingThreadsCountAcccessor, Func<int> ioThreadsCountAcccessor)
+      private static void Decrease(Func<int> workingThreadsCountAcccessor, Func<int> ioThreadsCountAcccessor)
       {
         ThreadPool.SetMinThreads(workingThreadsCountAcccessor(), ioThreadsCountAcccessor());
       }
@@ -249,7 +250,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
 
       public ThreadPoolThreadsIncreaser(int workingThreadsCount, int ioThreadsCount)
-        : base((disposing)=>Decrease(disposing, A, B))
+        : base((disposing) => Decrease(A, B))
       {
         Increase(workingThreadsCount, ioThreadsCount);
         A = Aa;
