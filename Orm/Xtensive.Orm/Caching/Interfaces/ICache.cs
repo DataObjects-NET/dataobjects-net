@@ -33,9 +33,9 @@ namespace Xtensive.Caching
     /// Gets cached item by its <paramref name="key"/>.
     /// </summary>
     /// <param name="key">The key of the item to get.</param>
-    /// <param name="markAsHit">Indicates whether the item with specified key 
+    /// <param name="markAsHit">Indicates whether the item with specified key
     /// should be marked as hit.</param>
-    /// <returns>Item, if found; 
+    /// <returns>Item, if found;
     /// otherwise, <see langword="default(TItem)"/>.</returns>
     TItem this[TKey key, bool markAsHit] => TryGetItem(key, markAsHit, out var item) ? item : default;
 
@@ -57,7 +57,7 @@ namespace Xtensive.Caching
     /// </summary>
     /// <param name="item">The item to check.</param>
     /// <returns>
-    /// <see langword="True"/> if cache contains the specified item; 
+    /// <see langword="True"/> if cache contains the specified item;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     bool Contains(TItem item) => ContainsKey(KeyExtractor(item));
@@ -67,16 +67,10 @@ namespace Xtensive.Caching
     /// </summary>
     /// <param name="key">The key to check.</param>
     /// <returns>
-    /// <see langword="True"/> if cache contains the item with specified key; 
+    /// <see langword="True"/> if cache contains the item with specified key;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     bool ContainsKey(TKey key);
-
-    /// <summary>
-    /// Adds a new item to the cache. If item with this key is already in cache - replaces is with new item.
-    /// </summary>
-    /// <param name="item">The item to add.</param>
-    void Add(TItem item) => Add(item, true);
 
     /// <summary>
     /// Adds a new item to the cache.
@@ -85,6 +79,12 @@ namespace Xtensive.Caching
     /// <param name="replaceIfExists">Indicates whether existing item must be replaced or not.</param>
     /// <returns>An existing, or a newly added item.</returns>
     TItem Add(TItem item, bool replaceIfExists);
+
+    /// <summary>
+    /// Adds a new item to the cache. If item with this key is already in cache - replaces is with new item.
+    /// </summary>
+    /// <param name="item">The item to add.</param>
+    void Add(TItem item) => Add(item, true);
 
     /// <summary>
     /// Removes the specified <paramref name="item"/> from the cache.
@@ -109,7 +109,7 @@ namespace Xtensive.Caching
     /// <param name="key">The key of the item to remove.</param>
     /// <param name="removeCompletely">Indicates whether the item with specified key should be removed from inner caches if they exist</param>
     void RemoveKey(TKey key, bool removeCompletely);
-  
+
     /// <summary>
     ///  Clears the cache.
     /// </summary>

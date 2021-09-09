@@ -1,8 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alex Ustinov
-// Created:    2007.05.28
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections;
@@ -24,26 +22,30 @@ namespace Xtensive.Caching
   /// <typeparam name="TKey">The key of the item.</typeparam>
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
   public class FastConcurrentLruCache<TKey, TItem> :
-    ICache<TKey, TItem>
+    CacheBase<TKey, TItem>
   {
     private FastConcurrentLru<TKey, TItem> imp;
 
-    public Converter<TItem, TKey> KeyExtractor { get; private set; }
+    /// <inheritdoc/>
+    public override int Count => imp.Count;
 
-    public int Count => imp.Count;
-
+    /// <inheritdoc/>
     public long MaxSize { get; private set; }
 
-    //TODO: Change to imp.Clear() after updating BitFaster.Caching package to 1.0.4
-    public void Clear() =>
+    /// <inheritdoc/>
+    public override void Clear() =>        //TODO: Change to imp.Clear() after updating BitFaster.Caching package to 1.0.4
       imp = new FastConcurrentLru<TKey, TItem>((int)MaxSize);
 
-    public bool TryGetItem(TKey key, bool markAsHit, out TItem item) => imp.TryGet(key, out item);
+    /// <inheritdoc/>
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item) => imp.TryGet(key, out item);
 
-    public bool ContainsKey(TKey key) => imp.TryGet(key, out var _);
+    /// <inheritdoc/>
+    public override bool ContainsKey(TKey key) => imp.TryGet(key, out var _);
 
-    public TItem Add(TItem item, bool replaceIfExists)
+    /// <inheritdoc/>
+    public override TItem Add(TItem item, bool replaceIfExists)
     {
+      ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
       if (replaceIfExists) {
         imp.AddOrUpdate(key, item);
@@ -54,11 +56,14 @@ namespace Xtensive.Caching
       }
     }
 
-    public void RemoveKey(TKey key) => imp.TryRemove(key);
+    /// <inheritdoc/>
+    public override void RemoveKey(TKey key) => imp.TryRemove(key);
 
-    public void RemoveKey(TKey key, bool removeCompletely) => imp.TryRemove(key);
+    /// <inheritdoc/>
+    public override void RemoveKey(TKey key, bool removeCompletely) => imp.TryRemove(key);
 
-    public IEnumerator<TItem> GetEnumerator() => throw new NotImplementedException();
+    /// <inheritdoc/>
+    public override IEnumerator<TItem> GetEnumerator() => throw new NotImplementedException();
 
     public FastConcurrentLruCache(int maxSize, Converter<TItem, TKey> keyExtractor)
     {

@@ -24,7 +24,7 @@ namespace Xtensive.Caching
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
   [SecuritySafeCritical]
   public class WeakCache<TKey, TItem> :
-    ICache<TKey, TItem>,
+    CacheBase<TKey, TItem>,
     IHasGarbage,
     IDisposable
     where TItem : class
@@ -36,18 +36,10 @@ namespace Xtensive.Caching
     protected const int NoGcCount = 1024;
 
     private readonly bool trackResurrection;
-    private readonly Converter<TItem, TKey> keyExtractor;
     private Dictionary<TKey, GCHandle> items;
     private int time;
 
     #region Properites: KeyExtractor, ChainedCache, TrackResurrection, EfficiencyFactor, Count, Size
-
-    /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor
-    {
-      [DebuggerStepThrough]
-      get => keyExtractor;
-    }
 
     /// <summary>
     /// Gets a value indicating whether this cache tracks resurrection.
@@ -59,7 +51,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public int Count
+    public override int Count
     {
       [DebuggerStepThrough]
       get => items?.Count ?? 0;
@@ -69,7 +61,7 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       RegisterOperation(1);
       if (items != null && items.TryGetValue(key, out var cached)) {
@@ -87,13 +79,13 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool ContainsKey(TKey key) => TryGetItem(key, false, out var _);
+    public override bool ContainsKey(TKey key) => TryGetItem(key, false, out var _);
 
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual TItem Add(TItem item, bool replaceIfExists)
+    public override TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, nameof(item));
       RegisterOperation(2);
@@ -119,7 +111,7 @@ namespace Xtensive.Caching
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual void RemoveKey(TKey key)
+    public override void RemoveKey(TKey key)
     {
       if (items != null && items.Remove(key, out var cached) == true) {
         cached.Free();
@@ -127,11 +119,11 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key, bool removeCompletely) => RemoveKey(key);
+    public override void RemoveKey(TKey key, bool removeCompletely) => RemoveKey(key);
 
     /// <inheritdoc/>
     [SecuritySafeCritical]
-    public virtual void Clear()
+    public override void Clear()
     {
       if (items == null) {
         return;
@@ -195,7 +187,7 @@ namespace Xtensive.Caching
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
-    public virtual IEnumerator<TItem> GetEnumerator()
+    public override IEnumerator<TItem> GetEnumerator()
     {
       foreach (var pair in items ?? Enumerable.Empty<KeyValuePair<TKey, GCHandle>>()) {
         if (ExtractTarget(pair.Value) is TItem item)
@@ -230,12 +222,12 @@ namespace Xtensive.Caching
     /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="trackResurrection">The <see cref="TrackResurrection"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public WeakCache(bool trackResurrection, Converter<TItem, TKey> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.trackResurrection = trackResurrection;
-      this.keyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor;
     }
 
     // Dispose pattern

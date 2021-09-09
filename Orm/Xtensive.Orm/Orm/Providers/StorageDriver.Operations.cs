@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -14,7 +14,7 @@ using Xtensive.Sql;
 
 namespace Xtensive.Orm.Providers
 {
-  partial class StorageDriver
+  public partial class StorageDriver
   {
     private sealed class InitializationSqlExtension
     {
@@ -51,6 +51,11 @@ namespace Xtensive.Orm.Providers
         throw ExceptionBuilder.BuildException(exception);
       }
 
+      if (connectionAccessorFactories != null) {
+        connection.AssignConnectionAccessors(
+          CreateConnectionAccessorsFast(configuration.Types.DbConnectionAccessors));
+      }
+
       var sessionConfiguration = GetConfiguration(session);
       connection.CommandTimeout = sessionConfiguration.DefaultCommandTimeout;
       var connectionInfo = GetConnectionInfo(session) ?? sessionConfiguration.ConnectionInfo;
@@ -71,12 +76,11 @@ namespace Xtensive.Orm.Providers
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
       }
 
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
 
-      var script = extension?.Script;
       try {
         if (!string.IsNullOrEmpty(script)) {
-          connection.OpenAndInitialize(extension.Script);
+          connection.OpenAndInitialize(script);
         }
         else {
           connection.Open();
@@ -97,11 +101,11 @@ namespace Xtensive.Orm.Providers
         SqlLog.Info(Strings.LogSessionXOpeningConnectionY, session.ToStringSafely(), connection.ConnectionInfo);
       }
 
-      var extension = connection.Extensions.Get<InitializationSqlExtension>();
+      var script = connection.Extensions.Get<InitializationSqlExtension>()?.Script;
 
       try {
-        if (!string.IsNullOrEmpty(extension?.Script)) {
-          await connection.OpenAndInitializeAsync(extension.Script, cancellationToken).ConfigureAwait(false);
+        if (!string.IsNullOrEmpty(script)) {
+          await connection.OpenAndInitializeAsync(script, cancellationToken).ConfigureAwait(false);
         }
         else {
           await connection.OpenAsync(cancellationToken).ConfigureAwait(false);

@@ -21,26 +21,19 @@ namespace Xtensive.Caching
   /// <typeparam name="TKey">The type of the key.</typeparam>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   public sealed class InfiniteCache<TKey, TItem>:
-    ICache<TKey, TItem>
-    where TItem : class 
+    CacheBase<TKey, TItem>
+    where TItem : class
   {
     private readonly Dictionary<TKey, TItem> items;
-    private readonly Converter<TItem, TKey> keyExtractor;
 
     /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor
-    {
-      get { return keyExtractor; }
-    }
-
-    /// <inheritdoc/>
-    public int Count
+    public override int Count
     {
       get { return items.Count; }
     }
 
     /// <inheritdoc/>
-    public bool TryGetItem(TKey key, bool markAsHit, out TItem item)
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       return items.TryGetValue(key, out item);
     }
@@ -52,17 +45,17 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public bool ContainsKey(TKey key)
+    public override bool ContainsKey(TKey key)
     {
       return items.ContainsKey(key);
     }
 
     /// <inheritdoc/>
-    public TItem Add(TItem item, bool replaceIfExists)
+    public override TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
-      
+
       TItem cachedItem;
       if (!replaceIfExists && items.TryGetValue(key, out cachedItem))
         return cachedItem;
@@ -72,20 +65,20 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key)
+    public override void RemoveKey(TKey key)
     {
       if (items.ContainsKey(key))
         items.Remove(key);
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key, bool removeCompletely)
+    public override void RemoveKey(TKey key, bool removeCompletely)
     {
       RemoveKey(key);
     }
 
     /// <inheritdoc/>
-    public void Clear()
+    public override void Clear()
     {
       items.Clear();
     }
@@ -93,7 +86,7 @@ namespace Xtensive.Caching
     #region IEnumerable methods
 
     /// <inheritdoc/>
-    public IEnumerator<TItem> GetEnumerator()
+    public override IEnumerator<TItem> GetEnumerator()
     {
       foreach (var pair in items) {
         yield return pair.Value;
@@ -108,7 +101,7 @@ namespace Xtensive.Caching
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public InfiniteCache(Converter<TItem, TKey> keyExtractor)
       : this(0, keyExtractor)
     {
@@ -118,14 +111,14 @@ namespace Xtensive.Caching
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="capacity">The capacity of cache.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <exception cref="ArgumentOutOfRangeException"><c>capacity</c> is out of range.</exception>
     public InfiniteCache(int capacity, Converter<TItem, TKey> keyExtractor)
     {
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       if (capacity < 0)
         throw new ArgumentOutOfRangeException("capacity", capacity, Strings.ExArgumentValueMustBeGreaterThanOrEqualToZero);
-      this.keyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor;
       items = new Dictionary<TKey, TItem>(capacity);
     }
   }

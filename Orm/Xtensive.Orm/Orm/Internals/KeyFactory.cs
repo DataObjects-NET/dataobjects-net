@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;

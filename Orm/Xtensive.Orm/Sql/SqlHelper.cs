@@ -5,6 +5,7 @@
 // Created:    2009.07.17
 
 using System;
+using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
 using System.Runtime.CompilerServices;
@@ -401,6 +402,21 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
+    /// Executes <paramref name="initializationSql"/> (if any).
+    /// </summary>
+    /// <param name="connection">Connection to initialize.</param>
+    /// <param name="initializationSql">Sql expression.</param>
+    public static void ExecuteInitializationSql(DbConnection connection, string initializationSql)
+    {
+      if (string.IsNullOrEmpty(initializationSql)) {
+        return;
+      }
+      using var command = connection.CreateCommand();
+      command.CommandText = initializationSql;
+      _ = command.ExecuteNonQuery();
+    }
+
+    /// <summary>
     /// Executes <see cref="SqlDriverConfiguration.ConnectionInitializationSql"/> (if any).
     /// </summary>
     /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
@@ -419,6 +435,28 @@ namespace Xtensive.Sql
       await using (command.ConfigureAwait(false)) {
         command.CommandText = configuration.ConnectionInitializationSql;
         await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Executes <paramref name="initializationSql"/> (if any).
+    /// </summary>
+    /// <remarks> Multiple active operations are not supported. Use <see langword="await"/>
+    /// to ensure that all asynchronous operations have completed.</remarks>
+    /// <param name="connection">Connection to initialize.</param>
+    /// <param name="initializationSql">Sql expression.</param>
+    /// <param name="token">The token to cancel async operation if needed.</param>
+    public static async Task ExecuteInitializationSqlAsync(
+      DbConnection connection, string initializationSql, CancellationToken token)
+    {
+      if (string.IsNullOrEmpty(initializationSql)) {
+        return;
+      }
+
+      var command = connection.CreateCommand();
+      await using (command.ConfigureAwait(false)) {
+        command.CommandText = initializationSql;
+        _ = await command.ExecuteNonQueryAsync(token).ConfigureAwait(false);
       }
     }
 
@@ -484,5 +522,159 @@ namespace Xtensive.Sql
     {
       return NotSupported(feature.ToString());
     }
+
+    #region Notifications
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> that
+    /// <paramref name="connection"/> is about to be opened.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">The connection that is opening.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionOpening(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false)
+    {
+      foreach (var accessor in connectionAccessors) {
+        accessor.ConnectionOpening(new ConnectionEventData(connection, reconnect));
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> that
+    /// <paramref name="connection"/> is about to be opened.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">The connection that is opening.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>Task performing operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task NotifyConnectionOpeningAsync(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false, CancellationToken token = default)
+    {
+      foreach (var accessor in connectionAccessors) {
+        await accessor.ConnectionOpeningAsync(
+          new ConnectionEventData(connection, reconnect), token)
+          .ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> that
+    /// opened connection is about to be initialized with <paramref name="initializationScript"/>.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">Opened but not initialized connection</param>
+    /// <param name="initializationScript">The script that will run to initialize connection</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionInitializing(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, string initializationScript, bool reconnect = false)
+    {
+      foreach (var accessor in connectionAccessors) {
+        accessor.ConnectionInitialization(new ConnectionInitEventData(initializationScript, connection, reconnect));
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> that
+    /// opened connection is about to be initialized with <paramref name="initializationScript"/>.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">Opened but not initialized connection</param>
+    /// <param name="initializationScript">The script that will run to initialize connection</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>Task performing operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task NotifyConnectionInitializingAsync(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, string initializationScript,
+      bool reconnect = false, CancellationToken token = default)
+    {
+      foreach (var accessor in connectionAccessors) {
+        await accessor.ConnectionInitializationAsync(
+          new ConnectionInitEventData(initializationScript, connection, reconnect), token)
+          .ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> about
+    /// successful connection opening.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">The connection that is completely opened and initialized.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionOpened(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false)
+    {
+      foreach (var accessor in connectionAccessors) {
+        accessor.ConnectionOpened(new ConnectionEventData(connection, reconnect));
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> about
+    /// successful connection opening.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">The connection that is completely opened and initialized.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>Task performing operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task NotifyConnectionOpenedAsync(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, bool reconnect = false, CancellationToken token = default)
+    {
+      foreach (var accessor in connectionAccessors) {
+        await accessor.ConnectionOpenedAsync(
+          new ConnectionEventData(connection, reconnect), token)
+          .ConfigureAwait(false);
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> about
+    /// connection opening failure.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">Connection that failed to be opened or properly initialized.</param>
+    /// <param name="exception">The exception which appeared.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static void NotifyConnectionOpeningFailed(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, Exception exception, bool reconnect = false)
+    {
+      foreach (var accessor in connectionAccessors) {
+        accessor.ConnectionOpeningFailed(new ConnectionErrorEventData(exception, connection, reconnect));
+      }
+    }
+
+    /// <summary>
+    /// Notifies all the <paramref name="connectionAccessors"/> about
+    /// connection opening failure.
+    /// </summary>
+    /// <param name="connectionAccessors">The accessors that should be notified.</param>
+    /// <param name="connection">Connection that failed to be opened or properly initialized.</param>
+    /// <param name="exception">The exception which appeared.</param>
+    /// <param name="reconnect"><see langword="true"/> if event happened on attemp to restore connection, otherwise <see langword="false"/>.</param>
+    /// <param name="token">Cancellation token.</param>
+    /// <returns>Task performing operation.</returns>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public static async Task NotifyConnectionOpeningFailedAsync(
+      IEnumerable<IDbConnectionAccessor> connectionAccessors, DbConnection connection, Exception exception,
+      bool reconnect = false, CancellationToken token = default)
+    {
+      foreach (var accessor in connectionAccessors) {
+        await accessor.ConnectionOpeningFailedAsync(
+          new ConnectionErrorEventData(exception, connection, reconnect), token)
+          .ConfigureAwait(false);
+      }
+    }
+
+    #endregion
   }
 }

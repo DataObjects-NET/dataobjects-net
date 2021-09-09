@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -70,8 +70,10 @@ namespace Xtensive.Sql.Drivers.MySql
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       using (var connection = new MySqlConnection(connectionString)) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        if (configuration.DbConnectionAccessors.Count > 0)
+          OpenConnectionWithNotification(connection, configuration, false).GetAwaiter().GetResult();
+        else
+          OpenConnectionFast(connection, configuration, false).GetAwaiter().GetResult();
         var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? connection.ServerVersion
           : configuration.ForcedServerVersion;
@@ -88,8 +90,10 @@ namespace Xtensive.Sql.Drivers.MySql
     {
       var connection = new MySqlConnection(connectionString);
       await using (connection.ConfigureAwait(false)) {
-        await connection.OpenAsync(token).ConfigureAwait(false);
-        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, token).ConfigureAwait(false);
+        if (configuration.DbConnectionAccessors.Count > 0)
+          await OpenConnectionWithNotification(connection, configuration, true, token).ConfigureAwait(false);
+        else
+          await OpenConnectionFast(connection, configuration, true, token).ConfigureAwait(false);
         var versionString = string.IsNullOrEmpty(configuration.ForcedServerVersion)
           ? connection.ServerVersion
           : configuration.ForcedServerVersion;
@@ -131,5 +135,61 @@ namespace Xtensive.Sql.Drivers.MySql
     protected override Task<DefaultSchemaInfo> ReadDefaultSchemaAsync(
       DbConnection connection, DbTransaction transaction, CancellationToken token) =>
       SqlHelper.ReadDatabaseAndSchemaAsync(DatabaseAndSchemaQuery, connection, transaction, token);
+
+    private async ValueTask OpenConnectionFast(MySqlConnection connection,
+      SqlDriverConfiguration configuration,
+      bool isAsync,
+      CancellationToken cancellationToken = default)
+    {
+      if (!isAsync) {
+        connection.Open();
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+      }
+      else {
+        await connection.OpenAsync().ConfigureAwait(false);
+        await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
+      }
+    }
+
+    private async ValueTask OpenConnectionWithNotification(MySqlConnection connection,
+      SqlDriverConfiguration configuration,
+      bool isAsync,
+      CancellationToken cancellationToken = default)
+    {
+      var acessors = configuration.DbConnectionAccessors;
+      if (!isAsync) {
+        SqlHelper.NotifyConnectionOpening(acessors, connection);
+        try {
+          connection.Open();
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+            SqlHelper.NotifyConnectionInitializing(acessors, connection, configuration.ConnectionInitializationSql);
+          SqlHelper.ExecuteInitializationSql(connection, configuration);
+          SqlHelper.NotifyConnectionOpened(acessors, connection);
+        }
+        catch (Exception ex) {
+          SqlHelper.NotifyConnectionOpeningFailed(acessors, connection, ex);
+          throw;
+        }
+      }
+      else {
+        await SqlHelper.NotifyConnectionOpeningAsync(acessors, connection, false, cancellationToken).ConfigureAwait(false);
+        try {
+          await connection.OpenAsync(cancellationToken).ConfigureAwait(false);
+
+          if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql)) {
+            await SqlHelper.NotifyConnectionInitializingAsync(acessors,
+                connection, configuration.ConnectionInitializationSql, false, cancellationToken)
+              .ConfigureAwait(false);
+          }
+
+          await SqlHelper.ExecuteInitializationSqlAsync(connection, configuration, cancellationToken).ConfigureAwait(false);
+          await SqlHelper.NotifyConnectionOpenedAsync(acessors, connection, false, cancellationToken).ConfigureAwait(false);
+        }
+        catch (Exception ex) {
+          await SqlHelper.NotifyConnectionOpeningFailedAsync(acessors, connection, ex, false, cancellationToken).ConfigureAwait(false);
+          throw;
+        }
+      }
+    }
   }
 }
