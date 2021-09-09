@@ -24,24 +24,17 @@ namespace Xtensive.Caching
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
   /// <typeparam name="TCached">The type of cached representation of the item.</typeparam>
   public class LruCache<TKey, TItem, TCached> :
-    ICache<TKey, TItem>,
+    CacheBase<TKey, TItem>,
     IHasSize
     where TCached: IIdentified<TKey>, IHasSize
   {
     private readonly long maxSize;
     private readonly TopDeque<TKey, TCached> deque;
-    private readonly Converter<TItem, TKey> keyExtractor;
     private readonly Biconverter<TItem, TCached> cacheConverter;
     private readonly ICache<TKey, TItem> chainedCache;
     private long size;
 
     #region Properites: KeyExtractor, CacheConverter, ChainedCache, MaxSize, Count, Size
-
-    /// <inheritdoc/>
-    public Converter<TItem, TKey> KeyExtractor {
-      [DebuggerStepThrough]
-      get { return keyExtractor; }
-    }
 
     /// <summary>
     /// Gets the cache converter.
@@ -66,7 +59,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public int Count {
+    public override int Count {
       [DebuggerStepThrough]
       get { return deque.Count; }
     }
@@ -80,18 +73,7 @@ namespace Xtensive.Caching
     #endregion
 
     /// <inheritdoc/>
-    public TItem this[TKey key, bool markAsHit] {
-      get {
-        TItem item;
-        if (TryGetItem(key, markAsHit, out item))
-          return item;
-        else
-          return default(TItem);
-      }
-    }
-
-    /// <inheritdoc/>
-    public virtual bool TryGetItem(TKey key, bool markAsHit, out TItem item)
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item)
     {
       TCached cached;
       if (deque.TryGetValue(key, markAsHit, out cached)) {
@@ -117,7 +99,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public virtual bool ContainsKey(TKey key)
+    public override bool ContainsKey(TKey key)
     {
       if (deque.Contains(key))
         return true;
@@ -129,13 +111,7 @@ namespace Xtensive.Caching
     #region Modification methods: Add, Remove, Clear
 
     /// <inheritdoc/>
-    public void Add(TItem item)
-    {
-      Add(item, true);
-    }
-
-    /// <inheritdoc/>
-    public virtual TItem Add(TItem item, bool replaceIfExists)
+    public override TItem Add(TItem item, bool replaceIfExists)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
@@ -162,20 +138,13 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public void Remove(TItem item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      RemoveKey(KeyExtractor(item));
-    }
-
-    /// <inheritdoc/>
-    public virtual void RemoveKey(TKey key)
+    public override void RemoveKey(TKey key)
     {
       RemoveKey(key, false);
     }
 
     /// <inheritdoc/>
-    public void RemoveKey(TKey key, bool removeCompletely)
+    public override void RemoveKey(TKey key, bool removeCompletely)
     {
       TCached oldCached;
       if (deque.TryGetValue(key, out oldCached)) {
@@ -192,7 +161,7 @@ namespace Xtensive.Caching
     }
 
     /// <inheritdoc/>
-    public virtual void Clear()
+    public override void Clear()
     {
       while (deque.Count > 0) {
         var cached = deque.PopBottom();
@@ -206,25 +175,12 @@ namespace Xtensive.Caching
       Cleared();
     }
 
-    /// <inheritdoc/>
-    public void Invalidate()
-    {
-      Clear();
-    }
-
     #endregion
 
     #region IEnumerable<...> methods
 
     /// <inheritdoc/>
-    [DebuggerStepThrough]
-    IEnumerator IEnumerable.GetEnumerator()
-    {
-      return GetEnumerator();
-    }
-
-    /// <inheritdoc/>
-    public virtual IEnumerator<TItem> GetEnumerator()
+    public override IEnumerator<TItem> GetEnumerator()
     {
       foreach (TCached cachedItem in deque)
         yield return cacheConverter.ConvertBackward(cachedItem);
@@ -247,7 +203,7 @@ namespace Xtensive.Caching
     /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor)
       : this(maxSize, keyExtractor, Biconverter<TItem, TCached>.AsIs)
     {
@@ -257,7 +213,7 @@ namespace Xtensive.Caching
     /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="cacheConverter"><see cref="CacheConverter"/> property value.</param>
     public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, Biconverter<TItem, TCached> cacheConverter)
       : this(maxSize, keyExtractor, cacheConverter, null)
@@ -268,7 +224,7 @@ namespace Xtensive.Caching
     /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
     public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, ICache<TKey, TItem> chainedCache)
       : this(maxSize, keyExtractor,  Biconverter<TItem, TCached>.AsIs, chainedCache)
@@ -279,7 +235,7 @@ namespace Xtensive.Caching
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="maxSize"><see cref="MaxSize"/> property value.</param>
-    /// <param name="keyExtractor"><see cref="KeyExtractor"/> property value.</param>
+    /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="cacheConverter"><see cref="CacheConverter"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
     public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, 
@@ -289,7 +245,7 @@ namespace Xtensive.Caching
         ArgumentValidator.EnsureArgumentIsInRange(maxSize, 1, long.MaxValue, "maxSize");
       ArgumentValidator.EnsureArgumentNotNull(keyExtractor, "keyExtractor");
       this.maxSize = maxSize;
-      this.keyExtractor = keyExtractor;
+      this.KeyExtractor = keyExtractor;
       this.cacheConverter = cacheConverter;
       this.chainedCache = chainedCache;
       // deque = new TopDeque<TKey, TCached>(1 + (int) maxSize);
