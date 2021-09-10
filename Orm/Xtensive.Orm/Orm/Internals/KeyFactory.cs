@@ -5,7 +5,6 @@
 // Created:    2009.10.09
 
 using System;
-using Xtensive.Caching;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
