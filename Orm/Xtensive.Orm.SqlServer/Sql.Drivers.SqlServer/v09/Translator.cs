@@ -291,6 +291,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       switch (section) {
+      case SelectSection.Entry:
+        return base.Translate(context, node, section);
       case SelectSection.Limit:
         return "TOP";
       case SelectSection.Offset:

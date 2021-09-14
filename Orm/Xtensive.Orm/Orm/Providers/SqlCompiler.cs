@@ -218,6 +218,7 @@ namespace Xtensive.Orm.Providers
       if (!rightShouldUseReference)
         query.Where &= right.Request.Statement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
+      query.Comment = right.Request.Statement.Comment ?? left.Request.Statement.Comment;
       return CreateProvider(query, provider, left, right);
     }
 
@@ -270,6 +271,7 @@ namespace Xtensive.Orm.Providers
       if (!rightShouldUseReference)
         query.Where &= right.Request.Statement.Where;
       query.Columns.AddRange(joinedTable.AliasedColumns);
+      query.Comment = right.Request.Statement.Comment ?? left.Request.Statement.Comment;
       return CreateProvider(query, bindings, provider, left, right);
     }
 
@@ -324,6 +326,16 @@ namespace Xtensive.Orm.Providers
       queryColumns.Clear();
       queryColumns.AddRange(newColumns);
 
+      return CreateProvider(query, provider, compiledSource);
+    }
+
+    protected override SqlProvider VisitTag(TagProvider provider)
+    {
+      var compiledSource = Compile(provider.Source);
+
+      var query = ExtractSqlSelect(provider, compiledSource);
+      query.Comment = new SqlComment(provider.Tag);
+      
       return CreateProvider(query, provider, compiledSource);
     }
 

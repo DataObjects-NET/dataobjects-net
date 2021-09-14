@@ -3473,4 +3473,7 @@ Error: {1}</value>
   <data name="ExConnectionAccessorXHasNoParameterlessConstructor" xml:space="preserve">
     <value>Connection accessor '{0}' has no parameterless constructor.</value>
   </data>
+  <data name="ExArgumentContainsInvalidCharacters" xml:space="preserve">
+    <value>Invalid argument: Argument {0} cannot contain '{1}' characters.</value>
+  </data>
 </root>

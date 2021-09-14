@@ -257,6 +257,22 @@ namespace Xtensive.Orm.Linq
       return projectionExpression;
     }
 
+    private Expression VisitTag(MethodCallExpression expression)
+    {
+      var source = expression.Arguments[0];
+      var tag = (string)(((ConstantExpression)expression.Arguments[1]).Value);
+      var visitedSource = (ProjectionExpression) Visit(source);
+      var newDataSource = visitedSource.ItemProjector.DataSource.Tag(tag);
+      var newItemProjector = new ItemProjectorExpression(
+        visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
+      var projectionExpression = new ProjectionExpression(
+        visitedSource.Type,
+        newItemProjector,
+        visitedSource.TupleParameterBindings,
+        visitedSource.ResultAccessMethod);
+      return projectionExpression;
+    }
+
     /// <exception cref="NotSupportedException">OfType supports only 'Entity' conversion.</exception>
     private ProjectionExpression VisitOfType(Expression source, Type targetType, Type sourceType)
     {

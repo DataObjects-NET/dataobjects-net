@@ -208,6 +208,12 @@ namespace Xtensive.Orm.Rse
       return new LockProvider(source, lockMode, lockBehavior);
     }
 
+    public static CompilableProvider Tag(this CompilableProvider source,
+      string tag)
+    {
+      return new TagProvider(source, tag);
+    }
+
     public static CompilableProvider MakeVoid(this CompilableProvider source)
     {
       return new VoidProvider(source.Header);

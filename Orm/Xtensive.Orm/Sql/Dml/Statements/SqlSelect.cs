@@ -27,6 +27,13 @@ namespace Xtensive.Sql.Dml
     private SqlExpression where;
     private SqlExpression limit;
     private SqlExpression offset;
+    private SqlComment comment;
+
+    public SqlComment Comment
+    {
+      get { return comment; }
+      set { comment = value; }
+    }
 
     /// <summary>
     /// Gets the collection of columns to select.
@@ -209,6 +216,7 @@ namespace Xtensive.Sql.Dml
       clone.Limit = Limit;
       clone.Offset = Offset;
       clone.Lock = Lock;
+      clone.Comment = (SqlComment)Comment.Clone(context);
 
       if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)
@@ -239,6 +247,8 @@ namespace Xtensive.Sql.Dml
         result.Hints.Add(hint);
       result.Where = Where;
       result.Lock = Lock;
+      result.Comment = Comment;
+
       return result;
     }
 

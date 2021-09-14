@@ -1167,6 +1167,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        Visit(node.Comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -1635,6 +1636,11 @@ namespace Xtensive.Sql.Compiler
         node.Operand.AcceptVisitor(this);
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.Exit));
       }
+    }
+
+    public virtual void Visit(SqlComment node)
+    {
+      context.Output.AppendText(translator.Translate(node));
     }
 
     private void TranslateDynamicFilterViaInOperator(SqlDynamicFilter node)

@@ -420,6 +420,8 @@ namespace Xtensive.Orm.Linq
             return VisitElementAt(mc.Arguments[0], mc.Arguments[1], context.IsRoot(mc), method.ReturnType, true);
           else if (method.Name == WellKnownMembers.Queryable.ExtensionCount.Name)
             return VisitAggregate(mc.Arguments[0], method, null, context.IsRoot(mc), mc);
+          else if (method.Name == WellKnownMembers.Queryable.ExtensionTag.Name)
+            return VisitTag(mc);
           else
             throw new InvalidOperationException(String.Format(Strings.ExMethodCallExpressionXIsNotSupported, mc.ToString(true)));
         // Visit Collection extensions

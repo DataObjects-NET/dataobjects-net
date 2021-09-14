@@ -1797,6 +1797,21 @@ namespace Xtensive.Sql.Compiler
       return string.Empty;
     }
 
+    public virtual string Translate(SqlComment comment)
+    {
+      if (comment?.Value == null)
+        return string.Empty;
+      
+      if (comment.Value.IndexOfAny(new char[] { '*', '/' }) != -1)
+        throw new ArgumentException(string.Format(Strings.ExArgumentContainsInvalidCharacters, nameof(comment), "*/"));
+      
+      StringBuilder sb = new StringBuilder(32);
+      sb.Append("/*");
+      sb.Append(comment.Value);
+      sb.Append("*/");
+      return sb.ToString();
+    }
+
     /// <summary>
     /// Returns quoted string.
     /// </summary>
