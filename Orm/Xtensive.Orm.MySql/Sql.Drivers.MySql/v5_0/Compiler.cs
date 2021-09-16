@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Malisa Ncube
@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        AppendTranslated(node, SelectSection.Entry);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectHints(node);
@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         VisitSelectOrderBy(node);
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        AppendTranslated(node, SelectSection.Exit);
       }
     }
 
@@ -43,22 +43,24 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
       if (renameColumnAction!=null)
-        context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
+        ((Translator) translator).Translate(context, renameColumnAction);
       else if (node.Action is SqlDropConstraint) {
         using (context.EnterScope(node)) {
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Entry));
+          AppendTranslated(node, AlterTableSection.Entry);
 
           var action = node.Action as SqlDropConstraint;
           var constraint = action.Constraint as TableConstraint;
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropConstraint));
-          if (constraint is ForeignKey)
-            context.Output.AppendText("FOREIGN KEY " + translator.QuoteIdentifier(constraint.DbName));
+          AppendTranslated(node, AlterTableSection.DropConstraint);
+          if (constraint is ForeignKey) {
+            context.Output.Append("FOREIGN KEY ");
+            translator.TranslateIdentifier(context.Output, constraint.DbName);
+          }
           else if (constraint is PrimaryKey)
-            context.Output.AppendText("PRIMARY KEY ");
+            context.Output.Append("PRIMARY KEY ");
           else
-            context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Exit));
+            AppendTranslated(constraint, ConstraintSection.Entry);
+          AppendTranslated(node, AlterTableSection.DropBehavior);
+          AppendTranslated(node, AlterTableSection.Exit);
         }
       }
       else
@@ -122,20 +124,20 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       using (context.EnterScope(node)) {
         bool needOpeningParenthesis = false;
         bool needClosingParenthesis = false;
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
+        AppendTranslated(node, QueryExpressionSection.Entry);
         if (needOpeningParenthesis)
-          context.Output.AppendText("(");
+          context.Output.Append("(");
         node.Left.AcceptVisitor(this);
         if (needClosingParenthesis)
-          context.Output.AppendText(")");
-        context.Output.AppendText(translator.Translate(node.NodeType));
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
+          context.Output.Append(")");
+        AppendTranslated(node.NodeType);
+        AppendTranslated(node, QueryExpressionSection.All);
         if (needOpeningParenthesis)
-          context.Output.AppendText("(");
+          context.Output.Append("(");
         node.Right.AcceptVisitor(this);
         if (needClosingParenthesis)
-          context.Output.AppendText(")");
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
+          context.Output.Append(")");
+        AppendTranslated(node, QueryExpressionSection.Exit);
       }
     }
 
@@ -196,15 +198,15 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void VisitSelectLimitOffset(SqlSelect node)
     {
       if (!node.Limit.IsNullReference()) {
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
+        AppendTranslated(node, SelectSection.Limit);
         node.Limit.AcceptVisitor(this);
       }
       if (!node.Offset.IsNullReference()) {
         if (node.Limit.IsNullReference()) {
-          context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
-          context.Output.AppendText(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
+          AppendTranslated(node, SelectSection.Limit);
+          context.Output.Append(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
         }
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
+        AppendTranslated(node, SelectSection.Offset);
         node.Offset.AcceptVisitor(this);
       }
     }

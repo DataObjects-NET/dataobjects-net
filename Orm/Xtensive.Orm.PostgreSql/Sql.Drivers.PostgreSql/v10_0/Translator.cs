@@ -12,8 +12,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
 {
   internal class Translator : v9_1.Translator
   {
-    public override string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
+    public override void Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
+      var output = context.Output;
       switch (section) {
         case JoinSection.Specification: {
           if (node.Expression == null) {
@@ -24,21 +25,26 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
               case SqlJoinType.FullOuterJoin:
                 throw new NotSupportedException();
               case SqlJoinType.CrossApply:
-                return "CROSS JOIN LATERAL";
+                output.Append("CROSS JOIN LATERAL");
+                return;
               case SqlJoinType.LeftOuterApply:
-                return "LEFT JOIN LATERAL";
+                output.Append("LEFT JOIN LATERAL");
+                return;
             }
           }
-          return Translate(node.JoinType) + " JOIN";
+          output.Append(Translate(node.JoinType)).Append(" JOIN");
+          break;
         }
         case JoinSection.Exit: {
           if (node.JoinType == SqlJoinType.LeftOuterApply) {
-            return "ON TRUE";
+            output.Append("ON TRUE");
           }
-          return string.Empty;
+          break;
         }
+        default:
+          base.Translate(context, node, section);
+          break;
       }
-      return base.Translate(context, node, section);
     }
 
     // Constructors

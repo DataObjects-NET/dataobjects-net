@@ -9,13 +9,13 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// SQL compiler output scope.
   /// </summary>
-  public class SqlCompilerOutputScope : IDisposable
+  public readonly struct SqlCompilerOutputScope : IDisposable
   {
     private readonly SqlCompilerContext context;
 
-    internal ContextType Type { get; private set; }
+    internal ContextType Type { get; }
 
-    internal ContainerNode ParentContainer { get; private set; }
+    internal ContainerNode ParentContainer { get; }
 
     /// <inheritdoc/>
     public void Dispose()

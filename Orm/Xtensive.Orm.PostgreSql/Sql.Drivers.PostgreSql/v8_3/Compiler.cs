@@ -50,57 +50,57 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 
       var queryName = translator.QuoteIdentifier("column" + internalColumnIndex);
 
-      context.Output.AppendText("(SELECT ");
+      context.Output.Append("(SELECT ");
       for (var columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
         if (columnIndex != 0) {
-          context.Output.AppendText(translator.ColumnDelimiter);
+          context.Output.Append(translator.ColumnDelimiter);
         }
-        context.Output.AppendText(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
+        translator.TranslateIdentifier(context.Output, node.Columns[columnIndex].Name);
       }
-      context.Output.AppendText(translator.ColumnDelimiter);
-      context.Output.AppendText("ts_rank_cd(");
-      context.Output.AppendText(vectorName);
-      context.Output.AppendText(translator.ArgumentDelimiter);
-      context.Output.AppendText(queryName);
-      context.Output.AppendText(") AS");
-      context.Output.AppendText(translator.QuoteIdentifier(node.Columns[node.Columns.Count - 1].Name));
-      context.Output.AppendText(" FROM (SELECT ");
+      context.Output.Append(translator.ColumnDelimiter);
+      context.Output.Append("ts_rank_cd(");
+      context.Output.Append(vectorName);
+      context.Output.Append(translator.ArgumentDelimiter);
+      context.Output.Append(queryName);
+      context.Output.Append(") AS");
+      context.Output.Append(translator.QuoteIdentifier(node.Columns[node.Columns.Count - 1].Name));
+      context.Output.Append(" FROM (SELECT ");
       for (var columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
         if (columnIndex != 0) {
-          context.Output.AppendText(translator.ColumnDelimiter);
+          context.Output.Append(translator.ColumnDelimiter);
         }
-        context.Output.AppendText(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
+        context.Output.Append(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
       }
-      context.Output.AppendText(translator.ColumnDelimiter);
-      context.Output.AppendText(string.Format("{0} AS {1}", vector, vectorName));
-      context.Output.AppendText(translator.ColumnDelimiter);
+      context.Output.Append(translator.ColumnDelimiter);
+      context.Output.Append(string.Format("{0} AS {1}", vector, vectorName));
+      context.Output.Append(translator.ColumnDelimiter);
 
       var languages = fullTextIndex
         .Columns
         .SelectMany(column => column.Languages)
         .Select(language => language.Name)
         .Distinct();
-      context.Output.AppendText("(");
+      context.Output.Append("(");
 
       var isFirst = true;
       foreach(var language in languages) {
         if (!isFirst) {
-          context.Output.AppendText(" || ");
+          context.Output.Append(" || ");
         }
         isFirst = false;
 
-        context.Output.AppendText("to_tsquery('");
-        context.Output.AppendText(language);
-        context.Output.AppendText("'::regconfig, ");
-        context.Output.AppendText("replace(trim(regexp_replace(");
+        context.Output.Append("to_tsquery('");
+        context.Output.Append(language);
+        context.Output.Append("'::regconfig, ");
+        context.Output.Append("replace(trim(regexp_replace(");
         node.FreeText.AcceptVisitor(this);
-        context.Output.AppendText(@",'\\W+', ' ', 'g')),' ', '|')");
-        context.Output.AppendText(")");
+        context.Output.Append(@",'\\W+', ' ', 'g')),' ', '|')");
+        context.Output.Append(")");
       }
-      context.Output.AppendText(")");
+      context.Output.Append(")");
 
-      context.Output.AppendText($" AS {queryName}");
-      context.Output.AppendText($" FROM {tableName}) AS {alias} WHERE {vectorName} @@ {queryName})");
+      context.Output.Append($" AS {queryName}");
+      context.Output.Append($" FROM {tableName}) AS {alias} WHERE {vectorName} @@ {queryName})");
     }
 
     // Constructors
