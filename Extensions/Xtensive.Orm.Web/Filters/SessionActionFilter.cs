@@ -11,9 +11,9 @@ using Xtensive.Core;
 namespace Xtensive.Orm.Web.Filters
 {
   /// <summary>
-  /// Filter that 
+  /// DataObjects.Net Session providing action filter.
   /// </summary>
-  public class SessionToActionProviderFilter : IActionFilter, IAsyncActionFilter
+  public class SessionActionFilter : IActionFilter, IAsyncActionFilter
   {
     private SessionAccessor sessionAccessor;
     private IDisposable contextBindResource;
@@ -38,62 +38,65 @@ namespace Xtensive.Orm.Web.Filters
     }
 
     /// <summary>
-    /// Opens session.
+    /// Opens <see cref="Session"/>.
     /// </summary>
-    /// <param name="domain">Domain instance</param>
-    /// <param name="context">Action executing context</param>
+    /// <param name="domain"><see cref="Domain"/> instance.</param>
+    /// <param name="context">Action executing context.</param>
     /// <returns>Instance of <see cref="Session"/>.</returns>
     protected virtual Session OpenSession(Domain domain, ActionExecutingContext context) => domain.OpenSession();
 
     /// <summary>
-    /// Opens session asynchronously.
+    /// Opens <see cref="Session"/> asynchronously.
     /// </summary>
-    /// <param name="domain">Domain instance</param>
-    /// <param name="context">Action executing context</param>
+    /// <param name="domain">A <see cref="Domain"/> instance.</param>
+    /// <param name="context">The <see cref="ActionExecutingContext"/>.</param>
     /// <returns>Instance of <see cref="Session"/>.</returns>
     protected virtual Task<Session> OpenSessionAsync(Domain domain, ActionExecutingContext context) => domain.OpenSessionAsync();
 
     /// <summary>
-    /// Opens transaction scope.
+    /// Opens <see cref="TransactionScope"/>.
     /// </summary>
-    /// <param name="session">Domain instance.</param>
-    /// <param name="context">Action executing context.</param>
+    /// <param name="session">The <see cref="Session"/> to open transaction scope.</param>
+    /// <param name="context">The <see cref="ActionExecutingContext"/>.</param>
     /// <returns>Instance of <see cref="TransactionScope"/>.</returns>
     protected virtual TransactionScope OpenTransaction(Session session, ActionExecutingContext context) =>
       session.OpenTransaction();
 
     /// <summary>
-    /// Opens transaction scope asynchronously.
+    /// Opens <see cref="TransactionScope"/> asynchronously.
     /// </summary>
-    /// <param name="session">Domain instance.</param>
-    /// <param name="context">Action executing context.</param>
+    /// <param name="session">The <see cref="Session"/> to open transaction scope.</param>
+    /// <param name="context">The <see cref="ActionExecutingContext"/>.</param>
     /// <returns>Instance of <see cref="TransactionScope"/>.</returns>
     protected virtual async Task<TransactionScope> OpenTransactionAsync(Session session, ActionExecutingContext context) =>
       await session.OpenTransactionAsync();
 
     /// <summary>
-    /// Executes before <see cref="TransactionScope"/> dispose.
+    /// Executes before <paramref name="transactionScope"/> disposing.
     /// </summary>
     /// <param name="transactionScope">The transaction scope which is about to be disposed.</param>
-    /// <param name="session">The session transaction scope belongs to.</param>
+    /// <param name="session">The <see cref="Session"/> transaction scope belongs to.</param>
     /// <param name="context">The <see cref="ActionExecutedContext"/>.</param>
     protected virtual void OnTransactionScopeDisposing(TransactionScope transactionScope, Session session, ActionExecutedContext context)
     {
+      if (context.Exception == null || CompleteTransactionOnException(context.Exception, context)) {
+        transactionScope.Complete();
+      }
     }
 
     /// <summary>
-    /// Executes after <see cref="TransactionScope"/> is dispose.
+    /// Executes after <see cref="TransactionScope"/> is disposed.
     /// </summary>
-    /// <param name="session">The session the disposed transaction scope belonged to.</param>
+    /// <param name="session">The <see cref="Session"/> the disposed transaction scope belonged to.</param>
     /// <param name="context">The <see cref="ActionExecutedContext"/>.</param>
     protected virtual void OnTransactionScopeDisposed(Session session, ActionExecutedContext context)
     {
     }
 
     /// <summary>
-    /// Executes before <see cref="Session"/> dispose.
+    /// Executes before <paramref name="session"/> disposing.
     /// </summary>
-    /// <param name="session">The session which is about to be disposed.</param>
+    /// <param name="session">The <see cref="Session"/> which is about to be disposed.</param>
     /// <param name="context">The <see cref="ActionExecutedContext"/>.</param>
     protected virtual void OnSessionDisposing(Session session, ActionExecutedContext context)
     {
@@ -107,10 +110,21 @@ namespace Xtensive.Orm.Web.Filters
     {
     }
 
+
+    /// <summary>
+    /// Allows to define what exceptions will not leat to transaction rollback.
+    /// </summary>
+    /// <param name="exception">The exception thrown by action.</param>
+    /// <param name="context">The <see cref="ActionExecutedContext"/>.</param>
+    /// <returns><see langword="true"/> for complete transaction scope, otherwise, <see langword="false"/>.</returns>
+    protected virtual bool CompleteTransactionOnException(Exception exception, ActionExecutedContext context) => false;
+
     //internal void Persist(PersistReason reason) => Persist(reason, false).GetAwaiter().GetResult();
     private async ValueTask ExecuteBeforeAction(ActionExecutingContext context, bool isAsync)
     {
       var actionParameters = context.ActionDescriptor.Parameters;
+
+      skipResourcesRelease = true;
 
       //this search can probably be improved by caching action names with needed parameters
       foreach (var p in actionParameters) {
@@ -118,7 +132,7 @@ namespace Xtensive.Orm.Web.Filters
           // trying to get registered accessor as service
           var accessor = GetSessionAccesorFromServices(context.HttpContext);
           if (accessor != null) {
-            // this is registered as service and probably filled with middlewere
+            // this is registered as service and probably filled with middleware
             skipResourcesRelease = true;
             sessionAccessor = accessor;
             if (accessor.ContextIsBound) {
@@ -199,9 +213,7 @@ namespace Xtensive.Orm.Web.Filters
     private static Domain GetDomainFromServices(HttpContext context)
     {
       var domain = (Domain) context.RequestServices.GetService(WellKnownTypes.DomainType);
-      return domain == null
-        ? throw new InvalidOperationException("Domain is not found among registered services.")
-        : domain;
+      return domain ?? throw new InvalidOperationException("Domain is not found among registered services.");
     }
 
     private static SessionAccessor GetSessionAccesorFromServices(HttpContext context) =>

@@ -7,13 +7,12 @@ using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 using System.Runtime.ExceptionServices;
 
-namespace Xtensive.Orm.Web
+namespace Xtensive.Orm.Web.Middleware
 {
-
   /// <summary>
   /// DataObjects.Net Session providing middleware.
   /// </summary>
-  public class OpenSessionMiddlewere
+  public class OpenSessionMiddleware
   {
     private readonly RequestDelegate next;
 
@@ -50,8 +49,13 @@ namespace Xtensive.Orm.Web
           }
           finally {
             RemoveResourcesFromContext(context);
+            await OnTransactionDisposingAsync(transaction, session, context);
             await transaction.DisposeAsync();
+            await OnTransactionDisposedAsync(session, context);
+
+            await OnSessionDisposingAsync(session, context);
             await session.DisposeAsync();
+            await OnSessionDisposedAsync(context);
           }
         }
       }
@@ -61,21 +65,53 @@ namespace Xtensive.Orm.Web
     }
 
     /// <summary>
-    /// Opens session asynchronously.
+    /// Opens <see cref="Session"/> asynchronously.
     /// </summary>
-    /// <param name="domain">Domain instance</param>
-    /// <param name="context">Action executing context</param>
+    /// <param name="domain">A <see cref="Domain"/> instance.</param>
+    /// <param name="context">The <see cref="HttpContext"/>.</param>
     /// <returns>Instance of <see cref="Session"/>.</returns>
     protected virtual Task<Session> OpenSessionAsync(Domain domain, HttpContext context) => domain.OpenSessionAsync();
 
     /// <summary>
-    /// Opens transaction scope asynchronously.
+    /// Opens <see cref="TransactionScope"/> asynchronously.
     /// </summary>
-    /// <param name="session">Domain instance.</param>
-    /// <param name="context">Action executing context.</param>
+    /// <param name="session">A <see cref="Session"/> instance to open transaction for.</param>
+    /// <param name="context">The <see cref="HttpContext"/>.</param>
     /// <returns>Instance of <see cref="TransactionScope"/>.</returns>
     protected virtual async Task<TransactionScope> OpenTransactionAsync(Session session, HttpContext context) =>
       await session.OpenTransactionAsync();
+
+    /// <summary>
+    /// Executes before <paramref name="transactionScope"/> disposing.
+    /// </summary>
+    /// <param name="transactionScope">The <see cref="TransactionScope"/> to be disposed.</param>
+    /// <param name="session">The <see cref="Session"/> the <paramref name="transactionScope"/> belongs to.</param>
+    /// <param name="context">The <see cref="HttpContext"/>.</param>
+    /// <returns>Task performing this operation.</returns>
+    protected virtual ValueTask OnTransactionDisposingAsync(TransactionScope transactionScope, Session session, HttpContext context) => default;
+
+    /// <summary>
+    /// Executes after <see cref="TransactionScope"/> disposed.
+    /// </summary>
+    /// <param name="session">The <see cref="Session"/> disposed scoped belonged too.</param>
+    /// <param name="context">The <see cref="HttpContext"/>.</param>
+    /// <returns>Task performing this operation.</returns>
+    protected virtual ValueTask OnTransactionDisposedAsync(Session session, HttpContext context) => default;
+
+    /// <summary>
+    /// Executes before <paramref name="session"/> disposing.
+    /// </summary>
+    /// <param name="session">The <see cref="Session"/> to be disposed.</param>
+    /// <param name="context">The <see cref="HttpContext"/>.</param>
+    /// <returns>Task performing this operation.</returns>
+    protected virtual ValueTask OnSessionDisposingAsync(Session session, HttpContext context) => default;
+
+    /// <summary>
+    /// Executes after <see cref="Session"/> disposed.
+    /// </summary>
+    /// <param name="context">The <see cref="HttpContext"/>.</param>
+    /// <returns>Task performing this operation.</returns>
+    protected virtual ValueTask OnSessionDisposedAsync(HttpContext context) => default;
 
     /// <summary>
     /// Determines whether transaction should be completed even though exception appeared.
@@ -108,16 +144,14 @@ namespace Xtensive.Orm.Web
     private static Domain GetDomainFromServices(HttpContext context)
     {
       var domain = (Domain) context.RequestServices.GetService(WellKnownTypes.DomainType);
-      return domain == null
-        ? throw new InvalidOperationException("Domain is not found among registered services.")
-        : domain;
+      return domain ?? throw new InvalidOperationException("Domain is not found among registered services.");
     }
 
     /// <summary>
-    /// Creates an instance of <see cref="OpenSessionMiddlewere"/>
+    /// Creates an instance of <see cref="OpenSessionMiddleware"/>
     /// </summary>
     /// <param name="next"></param>
-    public OpenSessionMiddlewere(RequestDelegate next)
+    public OpenSessionMiddleware(RequestDelegate next)
     {
       this.next = next;
     }
