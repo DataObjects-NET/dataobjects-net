@@ -9,8 +9,8 @@ using Microsoft.AspNetCore.Http;
 namespace Xtensive.Orm.Web
 {
   /// <summary>
-  /// A wrapper that provides access <see cref="Xtensive.Orm.Session">Session</see>
-  /// and <see cref="Xtensive.Orm.TransactionScope">TransactionScope</see>.
+  /// A wrapper that provides access <see cref="Xtensive.Orm.Session"></see>
+  /// and <see cref="Xtensive.Orm.TransactionScope"> that are in <see cref="HttpContext"/>.</see>.
   /// </summary>
   public sealed class SessionAccessor
   {
@@ -20,7 +20,8 @@ namespace Xtensive.Orm.Web
     private HttpContext context;
 
     /// <summary>
-    /// Provides session from bound to <see cref="HttpContext"/>.
+    /// Provides <see cref="Orm.Session"/> from bound to <see cref="HttpContext"/>.
+    /// If no <see cref="Orm.Session"/> instance found, return <see langword="null"/>.
     /// </summary>
     public Session Session =>
       context != null && context.Items.TryGetValue(SessionIdentifier, out var instance)
@@ -28,7 +29,8 @@ namespace Xtensive.Orm.Web
         : null;
 
     /// <summary>
-    /// Provides opened transaction scope bound to <see cref="HttpContext"/>.
+    /// Provides opened <see cref="Orm.TransactionScope"/> bound to <see cref="HttpContext"/>.
+    /// If no <see cref="Orm.Session"/> instance found, return <see langword="null"/>.
     /// </summary>
     public TransactionScope TransactionScope =>
       context != null && context.Items.TryGetValue(TransactionScope, out var instance)
