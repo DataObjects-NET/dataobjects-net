@@ -5,17 +5,12 @@
 // Created:    2009.03.16
 
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Modelling;
-using Xtensive.Modelling.Comparison;
 
 
 namespace Xtensive.Modelling
@@ -28,8 +23,6 @@ namespace Xtensive.Modelling
     INodeCollection,
     IDeserializationCallback
   {
-    private static readonly ReadOnlyList<Node> emptyCountable =
-      new ReadOnlyList<Node>(new List<Node>(), false);
     [NonSerialized]
     private string escapedName;
     [NonSerialized]
@@ -90,7 +83,7 @@ namespace Xtensive.Modelling
         if (parentPath.Length==0)
           return EscapedName;
         return string.Concat(
-          parentPath, Node.PathDelimiter, 
+          parentPath, Node.PathDelimiterString,
           EscapedName);
       }
     }
@@ -355,7 +348,7 @@ namespace Xtensive.Modelling
       var m = Model;
       string fullName = Path;
       if (m!=null)
-        fullName = string.Concat(m.EscapedName, Node.PathDelimiter, fullName);
+        fullName = string.Concat(m.EscapedName, Node.PathDelimiterString, fullName);
       return string.Format(Strings.NodeInfoFormat, fullName, Count);
     }
 
