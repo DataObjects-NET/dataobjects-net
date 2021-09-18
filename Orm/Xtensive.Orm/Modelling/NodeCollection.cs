@@ -5,17 +5,12 @@
 // Created:    2009.03.16
 
 using System;
-using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
-
-using Xtensive.Modelling;
-using Xtensive.Modelling.Comparison;
 
 
 namespace Xtensive.Modelling
@@ -28,8 +23,6 @@ namespace Xtensive.Modelling
     INodeCollection,
     IDeserializationCallback
   {
-    private static readonly ReadOnlyList<Node> emptyCountable =
-      new ReadOnlyList<Node>(new List<Node>(), false);
     [NonSerialized]
     private string escapedName;
     [NonSerialized]

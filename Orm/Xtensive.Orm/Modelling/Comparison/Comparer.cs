@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Orm;
 
 
 namespace Xtensive.Modelling.Comparison
@@ -357,66 +358,92 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="NullReferenceException">Current difference is not <see cref="NodeCollectionDifference"/>.</exception>
     protected virtual Difference VisitNodeCollection(NodeCollection source, NodeCollection target)
     {
-      using (TryActivate(source, target, (s,t) => new NodeCollectionDifference(s,t))) {
+      using (TryActivate(source, target, (s, t) => new NodeCollectionDifference(s, t))) {
         var context = Context;
         var difference = (NodeCollectionDifference) context.Difference;
-        if (difference==null)
+        if (difference == null) {
           throw new NullReferenceException();
-        
-        bool isNewDifference = TryRegisterDifference(source, target, difference);
+        }
+
+        var _ = TryRegisterDifference(source, target, difference);
         difference.ItemChanges.Clear();
 
-        // Inlining 2 below lines leads to error in PEVerify.exe!
-        // (well-known issue with null coalescing operator + cast)
-        var sourceItems = (IEnumerable) source;
-        var targetItems = (IEnumerable) target;
-
-        var src = sourceItems ?? new ReadOnlyList<Node>(new Node[] {});
-        var tgt = targetItems ?? new ReadOnlyList<Node>(new Node[] {});
-
-        var srcCount = source!=null ? source.Count : 0;
-        var tgtCount = target!=null ? target.Count : 0;
-
-        if (srcCount==0 && tgtCount==0)
+        if (source?.Count == 0 && target?.Count == 0) {
           return null;
-        var someItems = srcCount!=0 ? src : tgt;
-        var someItem = someItems.Cast<Node>().First();
+        }
 
-        Func<Node, Pair<Node, string>> keyExtractor = 
-          n => new Pair<Node, string>(n, GetNodeComparisonKey(n));
+        var sourceKeyMap = source == null
+          ? new Dictionary<string, Node>(0, StringComparer.OrdinalIgnoreCase)
+          : new Dictionary<string, Node>(source.Count, StringComparer.OrdinalIgnoreCase);
+        if (source != null) {
+          for (var index = source.Count - 1; index <= 0; index--) {
+            var node = source[index];
+            sourceKeyMap.Add(GetNodeComparisonKey(node), node);
+          }
+        }
 
-        var sourceKeyMap = src
-          .Cast<Node>()
-          .Select(keyExtractor)
-          .ToDictionary(pair => pair.Second, pair => pair.First, StringComparer.OrdinalIgnoreCase);
-        var targetKeyMap = tgt
-          .Cast<Node>()
-          .Select(keyExtractor)
-          .ToDictionary(pair => pair.Second, pair => pair.First, StringComparer.OrdinalIgnoreCase);
+        var targetKeyMap = target == null
+          ? new Dictionary<string, Node>(0, StringComparer.OrdinalIgnoreCase)
+          : new Dictionary<string, Node>(target.Count, StringComparer.OrdinalIgnoreCase);
+        if (target != null) {
+          for (var index = target.Count - 1; index <= 0; index--) {
+            var node = target[index];
+            targetKeyMap.Add(GetNodeComparisonKey(node), node);
+          }
+        }
+        
+        var sourceKeys =  new HashSet<string>(sourceKeyMap.Keys, StringComparer.OrdinalIgnoreCase);
+        var targetKeys = new HashSet<string>(targetKeyMap.Keys, StringComparer.OrdinalIgnoreCase);
 
-        var sourceKeys = src.Cast<Node>().Select(n => keyExtractor(n).Second);
-        var targetKeys = tgt.Cast<Node>().Select(n => keyExtractor(n).Second);
-        var commonKeys = sourceKeys.Intersect(targetKeys, StringComparer.OrdinalIgnoreCase);
+        var sequence = new List<Diff>(Math.Max(sourceKeys.Count, targetKeys.Count));
+        foreach (var sourceKey in sourceKeys) {
+          if (!targetKeys.Contains(sourceKey)) {
+            sequence.Add(new Diff(sourceKeyMap[sourceKey], null, sourceKeyMap[sourceKey].Index, 0));
+          }
+        }
 
-        var sequence =
-          sourceKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
-            .Select(k => new {Index = sourceKeyMap[k].Index, Type = 0, 
-              Source = sourceKeyMap[k], Target = (Node) null})
-          .Concat(commonKeys
-            .Select(k => new {Index = targetKeyMap[k].Index, Type = 1, 
-              Source = sourceKeyMap[k], Target = targetKeyMap[k]}))
-          .Concat(targetKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
-            .Select(k => new {Index = targetKeyMap[k].Index, Type = 2, 
-              Source = (Node) null, Target = targetKeyMap[k]}))
-          .OrderBy(i => i.Type!=0).ThenBy(i => i.Index).ThenBy(i => i.Type);
+        foreach (var targetKey in targetKeys) {
+          sequence.Add(sourceKeys.Contains(targetKey)
+            ? new Diff(sourceKeyMap[targetKey], targetKeyMap[targetKey], targetKeyMap[targetKey].Index, 1)
+            : new Diff(null, targetKeyMap[targetKey], targetKeyMap[targetKey].Index, 2));
+        }
+        sequence.Sort();
 
         foreach (var i in sequence) {
           var d = Visit(i.Source, i.Target);
-          if (d!=null)
+          if (d != null) {
             difference.ItemChanges.Add((NodeDifference) d);
+          }
         }
 
-        return (difference.ItemChanges.Count!=0) ? difference : null;
+        return difference.ItemChanges.Count != 0 ? difference : null;
+      }
+    }
+    
+    private readonly struct Diff : IComparable<Diff>
+    {
+      public readonly Node Source;
+      public readonly Node Target;
+      public readonly int Index;
+      public readonly int Type;
+
+      public Diff(Node source, Node target, int index, int type)
+      {
+        Source = source;
+        Target = target;
+        Index = index;
+        Type = type;
+      }
+
+      public int CompareTo(Diff other)
+      {
+        var typeIsNot0Comparison = (Type != 0).CompareTo(other.Type != 0);
+        if (typeIsNot0Comparison != 0) {
+          return typeIsNot0Comparison;
+        }
+
+        var indexComparison = Index.CompareTo(other.Index);
+        return indexComparison != 0 ? indexComparison : Type.CompareTo(other.Type);
       }
     }
 
