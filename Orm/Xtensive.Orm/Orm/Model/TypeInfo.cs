@@ -618,7 +618,7 @@ namespace Xtensive.Orm.Model
 
       if (IsEntity) {
         if (HasVersionRoots) {
-          versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
+          versionFields = ReadOnlyList<FieldInfo>.Empty;
           versionColumns = new ReadOnlyList<ColumnInfo>(new List<ColumnInfo>());
         }
         else {
