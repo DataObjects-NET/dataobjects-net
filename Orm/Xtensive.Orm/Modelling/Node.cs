@@ -34,6 +34,7 @@ namespace Xtensive.Modelling
     /// Path delimiter character.
     /// </summary>
     public static readonly char PathDelimiter = '/';
+    public static readonly string PathDelimiterString = PathDelimiter.ToString();
     /// <summary>
     /// Path escape character.
     /// </summary>
@@ -185,18 +186,24 @@ namespace Xtensive.Modelling
     public string Path {
       [DebuggerStepThrough]
       get {
-        if (cachedPath!=null)
+        if (cachedPath!=null) {
           return cachedPath;
-        if (Parent==null)
+        }
+
+        if (Parent==null) {
           return string.Empty;
-        string parentPath = Parent.Path;
-        if (parentPath.Length!=0)
-          parentPath += PathDelimiter;
+        }
+
+        var parentPath = Parent.Path;
+        if (parentPath.Length!=0) {
+          parentPath += PathDelimiterString;
+        }
+
         return string.Concat(
           parentPath,
           Nesting.EscapedPropertyName,
-          Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
-          Nesting.IsNestedToCollection ? EscapedName : string.Empty);
+          Nesting.IsNestedToCollection ? PathDelimiterString : null,
+          Nesting.IsNestedToCollection ? EscapedName : null);
       }
     }
 
@@ -972,7 +979,7 @@ namespace Xtensive.Modelling
       var m = Model;
       var fullName = Path;
       if (m != null) {
-        fullName = string.Concat(m.EscapedName, PathDelimiter, fullName);
+        fullName = string.Concat(m.EscapedName, PathDelimiterString, fullName);
       }
 
       if (!Nesting.IsNestedToCollection && !(this is IModel)) {

@@ -83,7 +83,7 @@ namespace Xtensive.Modelling
         if (parentPath.Length==0)
           return EscapedName;
         return string.Concat(
-          parentPath, Node.PathDelimiter, 
+          parentPath, Node.PathDelimiterString,
           EscapedName);
       }
     }
@@ -348,7 +348,7 @@ namespace Xtensive.Modelling
       var m = Model;
       string fullName = Path;
       if (m!=null)
-        fullName = string.Concat(m.EscapedName, Node.PathDelimiter, fullName);
+        fullName = string.Concat(m.EscapedName, Node.PathDelimiterString, fullName);
       return string.Format(Strings.NodeInfoFormat, fullName, Count);
     }
 
