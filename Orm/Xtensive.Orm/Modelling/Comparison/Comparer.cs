@@ -150,21 +150,27 @@ namespace Xtensive.Modelling.Comparison
     {
       using (TryActivate(source, target, (s, t) => new NodeDifference(s, t))) {
         IgnoreHint ignoreHint = null;
-        if (source!=null)
+        if (source!=null) {
           ignoreHint = Hints.GetHint<IgnoreHint>(source);
-        if (ignoreHint!=null)
+        }
+
+        if (ignoreHint!=null) {
           return null;
+        }
 
         var context = Context;
         var difference = (NodeDifference) context.Difference;
-        if (difference==null)
+        if (difference==null) {
           throw new NullReferenceException();
-        var any = source ?? target;
-        if (any==null)
-          throw Exceptions.InternalError(Strings.ExBothSourceAndTargetAreNull, CoreLog.Instance);
+        }
 
-        
-        bool isNewDifference = TryRegisterDifference(source, target, difference);
+        var any = source ?? target;
+        if (any==null) {
+          throw Exceptions.InternalError(Strings.ExBothSourceAndTargetAreNull, CoreLog.Instance);
+        }
+
+
+        var isNewDifference = TryRegisterDifference(source, target, difference);
         if (isNewDifference) {
           // Build movement info
           difference.MovementInfo = BuildMovementInfo(source, target);
@@ -372,79 +378,60 @@ namespace Xtensive.Modelling.Comparison
           return null;
         }
 
-        var sourceKeyMap = source == null
-          ? new Dictionary<string, Node>(0, StringComparer.OrdinalIgnoreCase)
-          : new Dictionary<string, Node>(source.Count, StringComparer.OrdinalIgnoreCase);
-        if (source != null) {
+        var sourceKeyMap = new Dictionary<string, Node>(source?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
+        if (source != null && source.Count > 0) {
           for (var index = source.Count - 1; index <= 0; index--) {
             var node = source[index];
             sourceKeyMap.Add(GetNodeComparisonKey(node), node);
           }
         }
 
-        var targetKeyMap = target == null
-          ? new Dictionary<string, Node>(0, StringComparer.OrdinalIgnoreCase)
-          : new Dictionary<string, Node>(target.Count, StringComparer.OrdinalIgnoreCase);
-        if (target != null) {
+        var targetKeyMap = new Dictionary<string, Node>(target?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
+        if (target != null && target.Count > 0) {
           for (var index = target.Count - 1; index <= 0; index--) {
             var node = target[index];
             targetKeyMap.Add(GetNodeComparisonKey(node), node);
           }
         }
         
-        var sourceKeys =  new HashSet<string>(sourceKeyMap.Keys, StringComparer.OrdinalIgnoreCase);
-        var targetKeys = new HashSet<string>(targetKeyMap.Keys, StringComparer.OrdinalIgnoreCase);
-
-        var sequence = new List<Diff>(Math.Max(sourceKeys.Count, targetKeys.Count));
-        foreach (var sourceKey in sourceKeys) {
-          if (!targetKeys.Contains(sourceKey)) {
-            sequence.Add(new Diff(sourceKeyMap[sourceKey], null, sourceKeyMap[sourceKey].Index, 0));
+        foreach (var sourceItem in sourceKeyMap) {
+          if (!targetKeyMap.ContainsKey(sourceItem.Key)) {
+            var d = Visit(sourceKeyMap[sourceItem.Key], null);
+            if (d != null) {
+              difference.ItemChanges.Add((NodeDifference) d);
+            }
           }
         }
 
-        foreach (var targetKey in targetKeys) {
-          sequence.Add(sourceKeys.Contains(targetKey)
-            ? new Diff(sourceKeyMap[targetKey], targetKeyMap[targetKey], targetKeyMap[targetKey].Index, 1)
-            : new Diff(null, targetKeyMap[targetKey], targetKeyMap[targetKey].Index, 2));
-        }
-        sequence.Sort();
-
-        foreach (var i in sequence) {
-          var d = Visit(i.Source, i.Target);
+        foreach (var targetItem in targetKeyMap) {
+          var (s, t) = sourceKeyMap.ContainsKey(targetItem.Key)
+            ? (sourceKeyMap[targetItem.Key], targetKeyMap[targetItem.Key])
+            : (null, targetKeyMap[targetItem.Key]);
+          var d = Visit(s, t);
           if (d != null) {
             difference.ItemChanges.Add((NodeDifference) d);
           }
+          
         }
+        difference.ItemChanges.Sort(CompareNodeDifference);
 
         return difference.ItemChanges.Count != 0 ? difference : null;
       }
     }
-    
-    private readonly struct Diff : IComparable<Diff>
+
+    private static int CompareNodeDifference(NodeDifference curr, NodeDifference other)
     {
-      public readonly Node Source;
-      public readonly Node Target;
-      public readonly int Index;
-      public readonly int Type;
-
-      public Diff(Node source, Node target, int index, int type)
-      {
-        Source = source;
-        Target = target;
-        Index = index;
-        Type = type;
+      var currType = curr.Source != null && curr.Target != null ? 1 : curr.Source == null ? 3 : 0; 
+      var otherType = other.Source != null && other.Target != null ? 1 : other.Source == null ? 3 : 0; 
+      var typeIsNot0Comparison = (currType != 0).CompareTo(otherType != 0);
+      if (typeIsNot0Comparison != 0) {
+        return typeIsNot0Comparison;
       }
 
-      public int CompareTo(Diff other)
-      {
-        var typeIsNot0Comparison = (Type != 0).CompareTo(other.Type != 0);
-        if (typeIsNot0Comparison != 0) {
-          return typeIsNot0Comparison;
-        }
-
-        var indexComparison = Index.CompareTo(other.Index);
-        return indexComparison != 0 ? indexComparison : Type.CompareTo(other.Type);
-      }
+      var currIndex = curr.Target?.Index ?? curr.Source?.Index ?? 0;
+      var otherIndex = other.Target?.Index ?? other.Source?.Index ?? 0;
+      var indexComparison = currIndex.CompareTo(otherIndex);
+      return indexComparison != 0 ? indexComparison : currType.CompareTo(otherType);
     }
 
     /// <summary>
