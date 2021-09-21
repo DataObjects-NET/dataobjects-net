@@ -34,6 +34,7 @@ namespace Xtensive.Orm.Web.Middleware
         using (sessionAccessor.BindHttpContext(context)) {
           try {
             await next.Invoke(context);
+            transaction.Complete();
           }
           catch(Exception exception) {
             // if we caught exception here then
