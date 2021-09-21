@@ -21,47 +21,42 @@ namespace Xtensive.Orm.Web.Middleware
     /// next middleware execution and releases resources when execution returns.
     /// </summary>
     /// <param name="context">The <see cref="HttpContext"/>.</param>
+    /// <param name="domainFromServices"><see cref="Domain"/> regestered as service.</param>
+    /// <param name="sessionAccessor"><see cref="SessionAccessor"/> registered as service.</param>
     /// <returns>Task perfroming this operation.</returns>
-    public async Task Invoke(HttpContext context)
+    public async Task Invoke(HttpContext context, Domain domainFromServices, SessionAccessor sessionAccessor)
     {
-      var sessionAccessor = (SessionAccessor) context.RequestServices.GetService(WellKnownTypes.SessionAccessorType);
-      if (sessionAccessor != null) {
-        var domain = GetDomainFromServices(context);
-        var session = await OpenSessionAsync(domain, context);
-        var transaction = await OpenTransactionAsync(session, context);
-        BindResourcesToContext(session, transaction, context);
+      var session = await OpenSessionAsync(domainFromServices, context);
+      var transaction = await OpenTransactionAsync(session, context);
+      BindResourcesToContext(session, transaction, context);
 
-        using (sessionAccessor.BindHttpContext(context)) {
-          try {
-            await next.Invoke(context);
+      using (sessionAccessor.BindHttpContext(context)) {
+        try {
+          await next.Invoke(context);
+          transaction.Complete();
+        }
+        catch (Exception exception) {
+          // if we caught exception here then
+          // 1) it is unhendeled exception
+          // or
+          // 2) it was thrown intentionally
+          if (CompleteTransactionOnException(exception, context)) {
             transaction.Complete();
           }
-          catch(Exception exception) {
-            // if we caught exception here then
-            // 1) it is unhendeled exception
-            // or
-            // 2) it was thrown intentionally
-            if(CompleteTransactionOnException(exception, context)) {
-              transaction.Complete();
-            }
-            if(RethrowException(exception, context)) {
-              ExceptionDispatchInfo.Throw(exception);
-            }
-          }
-          finally {
-            RemoveResourcesFromContext(context);
-            await OnTransactionDisposingAsync(transaction, session, context);
-            await transaction.DisposeAsync();
-            await OnTransactionDisposedAsync(session, context);
-
-            await OnSessionDisposingAsync(session, context);
-            await session.DisposeAsync();
-            await OnSessionDisposedAsync(context);
+          if (RethrowException(exception, context)) {
+            ExceptionDispatchInfo.Throw(exception);
           }
         }
-      }
-      else {
-        await next.Invoke(context);
+        finally {
+          RemoveResourcesFromContext(context);
+          await OnTransactionDisposingAsync(transaction, session, context);
+          await transaction.DisposeAsync();
+          await OnTransactionDisposedAsync(session, context);
+
+          await OnSessionDisposingAsync(session, context);
+          await session.DisposeAsync();
+          await OnSessionDisposedAsync(context);
+        }
       }
     }
 
@@ -140,12 +135,6 @@ namespace Xtensive.Orm.Web.Middleware
     {
       _ = context.Items.Remove(SessionAccessor.ScopeIdentifier);
       _ = context.Items.Remove(SessionAccessor.SessionIdentifier);
-    }
-
-    private static Domain GetDomainFromServices(HttpContext context)
-    {
-      var domain = (Domain) context.RequestServices.GetService(WellKnownTypes.DomainType);
-      return domain ?? throw new InvalidOperationException("Domain is not found among registered services.");
     }
 
     /// <summary>

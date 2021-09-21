@@ -100,7 +100,6 @@ namespace Xtensive.Orm.Web.Tests
 
       using (var host = await hostBuilder.StartAsync()) {
         var ex = Assert.ThrowsAsync<InvalidOperationException>(async () => await host.GetTestClient().GetAsync("/"));
-        Assert.That(ex.Message.Contains("Domain is not found"), Is.True);
       }
     }
 
