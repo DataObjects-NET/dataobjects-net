@@ -386,12 +386,11 @@ namespace Xtensive.Modelling.Comparison
           }
         }
 
-        var targetKeyMap = new Dictionary<string, Node>(target?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
-        if (target != null && target.Count > 0) {
-          for (var index = target.Count - 1; index >= 0; index--) {
-            var node = target[index];
-            targetKeyMap.Add(GetNodeComparisonKey(node), node);
-          }
+        var targetSize = target?.Count ?? 0;
+        var targetKeyMap = new Dictionary<string, Node>(targetSize, StringComparer.OrdinalIgnoreCase);
+        for (var index = targetSize - 1; index >= 0; index--) {
+          var node = target[index];
+          targetKeyMap.Add(GetNodeComparisonKey(node), node);
         }
         
         foreach (var sourceItem in sourceKeyMap) {
