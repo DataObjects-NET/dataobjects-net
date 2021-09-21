@@ -380,7 +380,7 @@ namespace Xtensive.Modelling.Comparison
 
         var sourceKeyMap = new Dictionary<string, Node>(source?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
         if (source != null && source.Count > 0) {
-          for (var index = source.Count - 1; index <= 0; index--) {
+          for (var index = source.Count - 1; index >= 0; index--) {
             var node = source[index];
             sourceKeyMap.Add(GetNodeComparisonKey(node), node);
           }
@@ -388,7 +388,7 @@ namespace Xtensive.Modelling.Comparison
 
         var targetKeyMap = new Dictionary<string, Node>(target?.Count ?? 0, StringComparer.OrdinalIgnoreCase);
         if (target != null && target.Count > 0) {
-          for (var index = target.Count - 1; index <= 0; index--) {
+          for (var index = target.Count - 1; index >= 0; index--) {
             var node = target[index];
             targetKeyMap.Add(GetNodeComparisonKey(node), node);
           }
