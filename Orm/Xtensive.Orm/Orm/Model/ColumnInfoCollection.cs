@@ -19,11 +19,6 @@ namespace Xtensive.Orm.Model
   public sealed class ColumnInfoCollection : NodeCollection<ColumnInfo>,
     IFilterable<ColumnAttributes, ColumnInfo>
   {
-    public override void Insert(int index, ColumnInfo item)
-    {
-      throw new NotSupportedException();
-    }
-
     #region IFilterable<ColumnAttributes,ColumnInfo> Members
 
     public ICollection<ColumnInfo> Find(ColumnAttributes criteria)

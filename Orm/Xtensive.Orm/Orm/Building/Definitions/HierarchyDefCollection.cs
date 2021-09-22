@@ -5,18 +5,41 @@
 // Created:    2008.01.11
 
 using System;
-using Xtensive.Collections;
+using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Building.Definitions
 {
+  public sealed class HierarchyDefCollectionChangedEventArgs: EventArgs
+  {
+    public HierarchyDef Item { get; }
+
+    public HierarchyDefCollectionChangedEventArgs(HierarchyDef item)
+    {
+      Item = item;
+    }
+  }
+
   /// <summary>
   /// A collection of <see cref="HierarchyDef"/> items.
   /// </summary>
-  public class HierarchyDefCollection : CollectionBase<HierarchyDef>
+  public class HierarchyDefCollection : LockableBase, ICollection<HierarchyDef>, IReadOnlyList<HierarchyDef>
   {
+    private readonly List<HierarchyDef> items = new List<HierarchyDef>();
+
+    public event EventHandler<HierarchyDefCollectionChangedEventArgs> Added;
+
+    public event EventHandler<HierarchyDefCollectionChangedEventArgs> Removed;
+
+    public int Count => items.Count;
+
+    public bool IsReadOnly => IsLocked;
+
+    public HierarchyDef this[int index] => items[index];
+
     /// <inheritdoc/>
-    public override bool Contains(HierarchyDef item)
+    public bool Contains(HierarchyDef item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return TryGetValue(item.Root) != null;
@@ -60,6 +83,38 @@ namespace Xtensive.Orm.Building.Definitions
           return result;
           throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
       }
+    }
+
+    public void CopyTo(HierarchyDef[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
+
+    public List<HierarchyDef>.Enumerator GetEnumerator() => items.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator<HierarchyDef> IEnumerable<HierarchyDef>.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    public void Add(HierarchyDef item)
+    {
+      this.EnsureNotLocked();
+      items.Add(item);
+      Added(this, new HierarchyDefCollectionChangedEventArgs(item));
+    }
+    public virtual bool Remove(HierarchyDef item)
+    {
+      this.EnsureNotLocked();
+      if (items.Remove(item)) {
+        Removed(this, new HierarchyDefCollectionChangedEventArgs(item));
+        return true;
+      }
+      return false;
+    }
+
+    public virtual void Clear()
+    {
+      this.EnsureNotLocked();
+      items.Clear();
     }
   }
 }

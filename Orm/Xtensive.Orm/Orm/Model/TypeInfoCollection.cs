@@ -116,23 +116,21 @@ namespace Xtensive.Orm.Model
       return typeTable.TryGetValue(key, out value);
     }
 
+
+    /// <inheritdoc/>
+    public override void Add(TypeInfo item)
+    {
+      base.Add(item);
+      typeTable.Add(item.UnderlyingType, item);
+      fullNameTable.Add(item.UnderlyingType.FullName, item);
+    }
+
     /// <summary>
     /// Removes element from the the collection.
     /// </summary>
     /// <param name="value">Item to remove.</param>
     /// <exception cref="NotSupportedException">Always</exception>
     public override bool Remove(TypeInfo value)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <summary>
-    /// Removes the element at the specified index of the
-    /// collection instance.
-    /// </summary>
-    /// <param name="index">The zero-based index of the element to remove.</param>
-    /// <exception cref="NotSupportedException">Always</exception>
-    public override void RemoveAt(int index)
     {
       throw new NotSupportedException();
     }
@@ -374,14 +372,6 @@ namespace Xtensive.Orm.Model
     }
 
     #endregion
-
-    /// <inheritdoc/>
-    protected override void OnInserted(TypeInfo value, int index)
-    {
-      base.OnInserted(value, index);
-      typeTable.Add(value.UnderlyingType, value);
-      fullNameTable.Add(value.UnderlyingType.FullName, value);
-    }
 
     /// <summary>
     /// Registers the connection between ancestor &amp; descendant.
