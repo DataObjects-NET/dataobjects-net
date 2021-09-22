@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Operations
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Operations
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
     private bool isSystemOperationRegistrationEnabled = true;
-    private Deque<ICompletableScope> scopes = new Deque<ICompletableScope>();
+    private Collections.Deque<ICompletableScope> scopes = new Collections.Deque<ICompletableScope>();
 
     /// <summary>
     /// Gets the session this instance is bound to.

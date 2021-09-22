@@ -48,11 +48,11 @@ namespace Xtensive.Orm
     /// </summary>
     IReadOnlyList<IOperation> UndoOperations { get; }
 
-   /// <summary>
+    /// <summary>
     /// Gets or sets the identified entities.
     /// Value of this property can be assigned just once.
     /// </summary>
-    ReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; }
+    IReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; }
 
     /// <summary>
     /// Prepares the operation using specified execution context.

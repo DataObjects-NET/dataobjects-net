@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -41,8 +41,8 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ThreadSafeDictionary<Type, PropertyAccessorDictionary> cachedPropertyAccessors = 
-      ThreadSafeDictionary<Type, PropertyAccessorDictionary>.Create(new object());
+    private static Collections.ThreadSafeDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
+      Collections.ThreadSafeDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>>.Create(new object());
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -50,7 +50,7 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private Nesting nesting;
     [NonSerialized]
-    private PropertyAccessorDictionary propertyAccessors;
+    private IReadOnlyDictionary<string, PropertyAccessor> propertyAccessors;
     internal Node parent;
     private string name;
     private string escapedName;
@@ -129,7 +129,7 @@ namespace Xtensive.Modelling
     }
 
     /// <inheritdoc/>
-    public PropertyAccessorDictionary PropertyAccessors {
+    public IReadOnlyDictionary<string, PropertyAccessor> PropertyAccessors {
       [DebuggerStepThrough]
       get { return propertyAccessors; }
     }
@@ -849,7 +849,7 @@ namespace Xtensive.Modelling
       model = p == null ? (Node) (this as IModel) : p.Model;
     }
 
-    private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
+    private static IReadOnlyDictionary<string, PropertyAccessor> GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return cachedPropertyAccessors.GetValue(type,
@@ -869,7 +869,7 @@ namespace Xtensive.Modelling
             }
           }
 
-          return new PropertyAccessorDictionary(d, false);
+          return new ReadOnlyDictionary<string, PropertyAccessor>(d);
         });
     }
 
