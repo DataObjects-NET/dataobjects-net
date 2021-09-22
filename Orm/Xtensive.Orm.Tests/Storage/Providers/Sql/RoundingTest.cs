@@ -18,7 +18,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
   {
     private const double DoubleDelta = 0.00000001d;
     private const decimal DecimalDelta = 0.000000000001m;
-    private DisposableSet disposableSet;
 
     [Test]
     public void TruncateTest()
@@ -239,7 +238,6 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
 
     public override void TestFixtureTearDown()
     {
-      disposableSet.DisposeSafely();
       base.TestFixtureTearDown();
     }
 

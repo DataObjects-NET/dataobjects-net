@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets <see cref="DbTransaction"/> that is used for upgrade.
     /// You should not modify transaction state by calling <see cref="DbTransaction.Commit"/>,
-    /// <see cref="DbTransaction.Rollback"/> or similar methods. Transaction state is controlled by DataObjects.Net.
+    /// <see cref="DbTransaction.Rollback()"/> or similar methods. Transaction state is controlled by DataObjects.Net.
     /// </summary>
     public DbTransaction Transaction { get { return Services.Connection.ActiveTransaction; } }
 

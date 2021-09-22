@@ -17,8 +17,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       private string dummy;
 
-      public string InstanceField;
-      public static string StaticField;
+      public string InstanceField = null;
+      public static string StaticField = null;
 
       static public long StaticNonGenericMethod(int a, long b)
       {
@@ -66,8 +66,8 @@ namespace Xtensive.Orm.Tests.Linq
     {
       private T dummy;
 
-      public int InstanceField;
-      public static int StaticField;
+      public int InstanceField = 1;
+      public static int StaticField = 1;
 
       static public string StaticNonGenericMethod(T obj, int n)
       {
@@ -123,25 +123,25 @@ namespace Xtensive.Orm.Tests.Linq
 
     private class FieldCompiler
     {
-      [Compiler(typeof(NonGenericTarget), "InstanceField", TargetKind.Field)]
+      [Compiler(typeof(NonGenericTarget), nameof(NonGenericTarget.InstanceField), TargetKind.Field)]
       static public string C1(string this_)
       {
         return "NonGenericTarget.InstanceField";
       }
 
-      [Compiler(typeof(NonGenericTarget), "StaticField", TargetKind.Static | TargetKind.Field)]
+      [Compiler(typeof(NonGenericTarget), nameof(NonGenericTarget.StaticField), TargetKind.Static | TargetKind.Field)]
       static public string C2()
       {
         return "NonGenericTarget.StaticField";
       }
 
-      [Compiler(typeof(GenericTarget<>), "InstanceField", TargetKind.Field)]
+      [Compiler(typeof(GenericTarget<>), nameof(GenericTarget<int>.InstanceField), TargetKind.Field)]
       static public string C3(MemberInfo memberInfo, string this_)
       {
         return "GenericTarget`1.InstanceField";
       }
 
-      [Compiler(typeof(GenericTarget<>), "StaticField", TargetKind.Static | TargetKind.Field)]
+      [Compiler(typeof(GenericTarget<>), nameof(GenericTarget<int>.StaticField), TargetKind.Static | TargetKind.Field)]
       static public string C4(MemberInfo memberInfo)
       {
         return "GenericTarget`1.StaticField";
