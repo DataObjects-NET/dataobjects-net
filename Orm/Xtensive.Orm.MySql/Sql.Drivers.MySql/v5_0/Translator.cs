@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
       switch (ch) {
         case '\\':
-          output.Append("\\\\");
+          output.AppendLiteral("\\\\");
           break;
         default:
           base.TranslateStringChar(output, ch);

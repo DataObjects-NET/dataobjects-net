@@ -16,6 +16,8 @@ namespace Xtensive.Sql.Compiler
     internal ContextType Type { get; }
 
     internal ContainerNode ParentContainer { get; }
+    
+    internal bool StartOfCollection { get; }
 
     /// <inheritdoc/>
     public void Dispose()
@@ -23,11 +25,12 @@ namespace Xtensive.Sql.Compiler
       context.CloseScope(this);
     }
 
-    internal SqlCompilerOutputScope(SqlCompilerContext context, ContainerNode parentContainer, ContextType type)
+    internal SqlCompilerOutputScope(SqlCompilerContext context, ContextType type)
     {
       this.context = context;
       Type = type;
-      ParentContainer = parentContainer;
+      ParentContainer = context.Output;
+      StartOfCollection = ParentContainer.StartOfCollection;
     }
   }
 }

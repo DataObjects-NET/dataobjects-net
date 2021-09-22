@@ -55,7 +55,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       switch (ch) {
         case '\\':
-          output.Append("\\\\");
+          output.AppendLiteral("\\\\");
           break;
         default:
           base.TranslateStringChar(output, ch);

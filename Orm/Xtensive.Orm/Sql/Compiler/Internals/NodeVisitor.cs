@@ -21,11 +21,6 @@ namespace Xtensive.Sql.Compiler
       throw new InvalidOperationException();
     }
 
-    public virtual void Visit(DelimiterNode node)
-    {
-      throw new InvalidOperationException();
-    }
-
     public virtual void Visit(VariantNode node)
     {
       throw new InvalidOperationException();

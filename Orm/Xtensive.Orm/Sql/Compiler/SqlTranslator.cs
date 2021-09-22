@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Compiler
             .Append(node.Distinct ? "DISTINCT" : string.Empty);
           break;
         case NodeSection.Exit:
-          output.Append(")");
+          output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -244,22 +244,22 @@ namespace Xtensive.Sql.Compiler
           TranslateIdentifier(output, constraint.DbName);
           break;
         case ConstraintSection.Check:
-          output.Append("CHECK (");
+          output.AppendPunctuation("CHECK (");
           break;
         case ConstraintSection.PrimaryKey:
-          output.Append("PRIMARY KEY (");
+          output.AppendPunctuation("PRIMARY KEY (");
           break;
         case ConstraintSection.Unique:
-          output.Append("UNIQUE (");
+          output.AppendPunctuation("UNIQUE (");
           break;
         case ConstraintSection.ForeignKey:
-          output.Append("FOREIGN KEY (");
+          output.AppendPunctuation("FOREIGN KEY (");
           break;
         case ConstraintSection.ReferencedColumns: {
           var fk = (ForeignKey) constraint;
           output.Append(") REFERENCES ");
           Translate(context, fk.ReferencedColumns[0].DataTable);
-          output.Append(" (");
+          output.AppendPunctuation(" (");
         }
         break;
         case ConstraintSection.Exit: {
@@ -427,7 +427,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("(");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -566,13 +566,13 @@ namespace Xtensive.Sql.Compiler
           output.Append("(");
           break;
         case CreateIndexSection.ColumnsExit:
-          output.Append(")");
+          output.AppendClosingPunctuation(")");
           break;
         case CreateIndexSection.NonkeyColumnsEnter:
           output.Append(" INCLUDE (");
           break;
         case CreateIndexSection.NonkeyColumnsExit:
-          output.Append(")");
+          output.AppendClosingPunctuation(")");
           break;
         case CreateIndexSection.Where:
           output.Append(" WHERE");
@@ -1072,16 +1072,16 @@ namespace Xtensive.Sql.Compiler
           output.Append("(");
           break;
         case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
-          output.Append(")");
+          output.AppendClosingPunctuation(")");
           break;
         case InsertSection.From:
           output.Append("FROM");
           break;
         case InsertSection.ValuesEntry:
-          output.Append("VALUES (");
+          output.AppendPunctuation("VALUES (");
           break;
         case InsertSection.ValuesExit:
-          output.Append(")");
+          output.AppendClosingPunctuation(")");
           break;
         case InsertSection.DefaultValues:
           output.Append("DEFAULT VALUES");
@@ -1127,7 +1127,7 @@ namespace Xtensive.Sql.Compiler
           output.Append("(");
           break;
         case LikeSection.Exit:
-          output.Append(")");
+          output.AppendClosingPunctuation(")");
           break;
         case LikeSection.Like:
           output.Append(node.Not ? "NOT LIKE" : "LIKE");
@@ -1243,7 +1243,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("(");
           break;
         case TableSection.Exit when !(node.Query is SqlFreeTextTable || node.Query is SqlContainsTable):
-          context.Output.Append(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
         case TableSection.AliasDeclaration:
           string alias = context.TableNameProvider.GetName(node);
@@ -1261,7 +1261,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("(");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1273,7 +1273,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("ROW_NUMBER() OVER(ORDER BY");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
         default:
           throw new ArgumentOutOfRangeException("section");
@@ -1322,7 +1322,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("(");
           break;
         case NodeSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1373,7 +1373,7 @@ namespace Xtensive.Sql.Compiler
           context.Output.Append("FROM");
           break;
         case TrimSection.Exit:
-          context.Output.Append(")");
+          context.Output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1400,7 +1400,7 @@ namespace Xtensive.Sql.Compiler
           if (isNullCheck)
             output.Append(Translate(node.NodeType));
           if (!omitParenthesis)
-            output.Append(")");
+            output.AppendClosingPunctuation(")");
           break;
       }
     }
@@ -1443,12 +1443,17 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Translate(SqlCompilerContext context, SqlWhile node, WhileSection section)
     {
-      context.Output.Append(section switch {
-        WhileSection.Entry => "WHILE (",
-        WhileSection.Statement => ") BEGIN",
-        WhileSection.Exit => "END",
-        _ => string.Empty
-      });
+      switch (section) {
+        case WhileSection.Entry:
+          context.Output.AppendPunctuation("WHILE (");
+          break;
+        case WhileSection.Statement:
+          context.Output.Append(") BEGIN");
+          break;
+        case WhileSection.Exit:
+          context.Output.Append("END");
+          break;
+      }
     }
 
     public virtual void Translate(SqlCompilerContext context, SqlCommand node)
@@ -1805,21 +1810,21 @@ namespace Xtensive.Sql.Compiler
         case '\0':
           break;
         case '\'':
-          output.Append("''");
+          output.AppendLiteral("''");
           break;
         default:
-          output.Append(ch);
+          output.AppendLiteral(ch);
           break;
       }
     }
 
     public virtual void TranslateString(IOutput output, string str)
     {
-      output.Append('\'');
+      output.AppendLiteral('\'');
       foreach (var ch in str) {
         TranslateStringChar(output, ch);
       }
-      output.Append('\'');
+      output.AppendLiteral('\'');
     }
 
     public virtual SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithBrackets;
@@ -1838,16 +1843,16 @@ namespace Xtensive.Sql.Compiler
         return;
 
       var setup = EscapeSetup;
-      output.Append(setup.Opener);
+      output.AppendLiteral(setup.Opener);
       foreach (var ch in name) {
         if (ch == setup.Closer) {
-          output.Append(setup.EscapeCloser1)
-            .Append(setup.EscapeCloser2);
+          output.AppendLiteral(setup.EscapeCloser1)
+            .AppendLiteral(setup.EscapeCloser2);
         } else {
-          output.Append(ch);
+          output.AppendLiteral(ch);
         }
       }
-      output.Append(setup.Closer);
+      output.AppendLiteral(setup.Closer);
     }
 
     public void TranslateIdentifier(IOutput output, params string[] names)
@@ -1857,19 +1862,19 @@ namespace Xtensive.Sql.Compiler
       foreach (var name in names) {
         if (!string.IsNullOrEmpty(name)) {
           if (!first) {
-            output.Append(setup.Delimiter);
+            output.AppendLiteral(setup.Delimiter);
           }
-          output.Append(setup.Opener);
+          output.AppendLiteral(setup.Opener);
           foreach (var ch in name) {
             if (ch == setup.Closer) {
-              output.Append(setup.EscapeCloser1)
-                .Append(setup.EscapeCloser2);
+              output.AppendLiteral(setup.EscapeCloser1)
+                .AppendLiteral(setup.EscapeCloser2);
             }
             else {
-              output.Append(ch);
+              output.AppendLiteral(ch);
             }
           }
-          output.Append(setup.Closer);
+          output.AppendLiteral(setup.Closer);
           first = false;
         }
       }

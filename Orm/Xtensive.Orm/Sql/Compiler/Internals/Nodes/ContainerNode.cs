@@ -15,7 +15,11 @@ namespace Xtensive.Sql.Compiler
   {
     StringBuilder StringBuilder { get; }
     IOutput Append(string text);
+    IOutput AppendLiteral(string text);
+    IOutput AppendPunctuation(string text);
+    void AppendSpaceIfNecessary();
     IOutput Append(char v);
+    IOutput AppendLiteral(char v);
     IOutput Append(long v);
   }
 
@@ -27,6 +31,8 @@ namespace Xtensive.Sql.Compiler
     private static readonly IFormatProvider invarianCulture = CultureInfo.InvariantCulture;
 
     private readonly StringBuilder stringBuilder = new StringBuilder();
+    private char? lastChar;
+    private bool lastCharIsPunctuation;
     private readonly List<Node> children = new List<Node>();
 
     public IReadOnlyList<Node> Children
@@ -40,10 +46,12 @@ namespace Xtensive.Sql.Compiler
     public IEnumerator<Node> GetEnumerator() => Children.GetEnumerator();
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-    public bool RequireIndent;
+    public bool RequireIndent;            // Never set
+    public int Indent { get; set; }
+
+    public bool StartOfCollection { get; set; } = true;
 
     public Node Current => Children.Last();
-    public bool IsEmpty => !Children.Any();
 
     internal override void AcceptVisitor(NodeVisitor visitor)
     {
@@ -60,6 +68,8 @@ namespace Xtensive.Sql.Compiler
       if (stringBuilder.Length > 0) {
         children.Add(new TextNode(stringBuilder.ToString()));
         stringBuilder.Clear();
+        lastCharIsPunctuation = false;
+        lastChar = null;
       }
     }
 
@@ -75,12 +85,22 @@ namespace Xtensive.Sql.Compiler
     public void AppendPlaceholderWithId(object id) =>
       AppendPlaceholder(new PlaceholderNode(id));
 
-    public StringBuilder StringBuilder => stringBuilder;
+    public StringBuilder StringBuilder
+    {
+      get {
+        lastCharIsPunctuation = false;
+        lastChar = null;
+        return stringBuilder;
+      }
+    }
 
-    public IOutput Append(string text)
+    public IOutput AppendLiteral(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
         stringBuilder.Append(text);
+        lastCharIsPunctuation = false;
+        lastChar = null;
+        StartOfCollection = false;
       }
       return this;
     }
@@ -88,24 +108,82 @@ namespace Xtensive.Sql.Compiler
     public IOutput Append(char v)
     {
       stringBuilder.Append(v);
+      lastCharIsPunctuation = false;
+      lastChar = v;
+      StartOfCollection = false;
+      return this;
+    }
+
+    public IOutput AppendLiteral(char v)
+    {
+      stringBuilder.Append(v);
+      lastCharIsPunctuation = false;
+      lastChar = null;
+      StartOfCollection = false;
+      return this;
+    }
+
+    public IOutput Append(string text)
+    {
+      if (!string.IsNullOrEmpty(text)) {
+        stringBuilder.Append(text);
+        lastCharIsPunctuation = false;
+        lastChar = text[text.Length - 1];
+        StartOfCollection = false;
+      }
       return this;
     }
 
     public IOutput Append(long v)
     {
       stringBuilder.AppendFormat(invarianCulture, "{0}", v);
+      lastCharIsPunctuation = false;
+      lastChar = null;
+      StartOfCollection = false;
       return this;
     }
 
-    public void AppendDelimiter(string text)
+    public IOutput AppendPunctuation(string text)
     {
-      Add(new DelimiterNode(SqlDelimiterType.Row, text));
+      if (!string.IsNullOrEmpty(text)) {
+        Append(text);
+        lastCharIsPunctuation = true;
+      }
+      return this;
     }
 
-    public void AppendDelimiter(string text, SqlDelimiterType type)
+    // Call it with closing parenthesis like ")"
+    public IOutput AppendClosingPunctuation(string text)
     {
-      Add(new DelimiterNode(type, text));
+      if (!string.IsNullOrEmpty(text)) {
+        if (lastChar == ' ') {
+          stringBuilder.Length--;                                     // Remove space before closing punctuation
+        }
+        Append(text);
+        lastCharIsPunctuation = true;
+      }
+      return this;
     }
+
+    public void AppendSpaceIfNecessary()
+    {
+      if (lastCharIsPunctuation || lastChar == ' ' || lastChar == '\n' || lastChar == '(') {
+        lastCharIsPunctuation = false;
+        return;
+      }
+      Append(' ');
+    }
+
+    public void AppendIndent()
+    {
+      if (Indent > 0) {
+        for (int i = Indent; i-- > 0;) {
+          Append("  ");
+        }
+        lastCharIsPunctuation = true;
+      }
+    }
+
 
     // Constructors
 

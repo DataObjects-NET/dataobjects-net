@@ -24,8 +24,6 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerNamingOptions NamingOptions { get; private set; }
 
-    public bool IsEmpty { get { return Output.IsEmpty; } }
-
     public SqlNodeActualizer SqlNodeActualizer { get; private set; }
 
     public SqlNode[] GetTraversalPath() =>
@@ -98,24 +96,39 @@ namespace Xtensive.Sql.Compiler
 
     private SqlCompilerOutputScope OpenScope(ContextType type)
     {
-      var container = new ContainerNode();
-      Output.Add(container);
-      return OpenScope(type, container);
+      return OpenScope(type, Output);
     }
 
     private SqlCompilerOutputScope OpenScope(ContextType type, ContainerNode container)
     {
       traversalPath = null;
-      var scope = new SqlCompilerOutputScope(this, Output, type);
-      Output = container;
+      var scope = new SqlCompilerOutputScope(this, type);
+      if (Output != container) {
+        Output = container;
+      }
+      else {
+        Output.StartOfCollection = true;
+        if (Output.RequireIndent) {
+          Output.Indent++;
+        }
+      }
       return scope;
     }
 
     internal void CloseScope(SqlCompilerOutputScope scope)
     {
-      Output.FlushBuffer();
       traversalPath = null;
-      Output = scope.ParentContainer;
+      if (Output != scope.ParentContainer) {
+        Output.FlushBuffer();
+        Output = scope.ParentContainer;
+      }
+      else {
+        Output.StartOfCollection = scope.StartOfCollection;
+        Output.AppendSpaceIfNecessary();
+        if (Output.RequireIndent) {
+          Output.Indent--;
+        }
+      }
       if (scope.Type == ContextType.Node)
         traversalTable.Remove(traversalStack.Pop());
     }

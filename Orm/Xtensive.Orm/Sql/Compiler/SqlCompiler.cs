@@ -29,16 +29,21 @@ namespace Xtensive.Sql.Compiler
     protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
 
+    private void AppendCollectionDelimiterIfNecessary(System.Action action)
+    {
+      if (!context.Output.StartOfCollection) {
+        action();
+      }
+      context.Output.StartOfCollection = false;
+    }
+
     public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       configuration = compilerConfiguration;
       context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);
-      return new SqlCompilationResult(
-          Compressor.Process(translator, context.Output),
-          context.ParameterNameProvider.NameTable
-      );
+      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable);
     }
 
     public virtual void Visit(SqlAggregate node)
@@ -247,7 +252,7 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterCollectionScope()) {
           foreach (var item in statements) {
             item.AcceptVisitor(this);
-            context.Output.AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
           }
         }
         context.Output.Append(translator.BatchEnd);
@@ -319,9 +324,7 @@ namespace Xtensive.Sql.Compiler
 
         using (context.EnterCollectionScope()) {
           foreach (KeyValuePair<SqlExpression, SqlExpression> item in node) {
-            if (!context.IsEmpty) {
-              context.Output.AppendDelimiter(translator.WhenDelimiter);
-            }
+            AppendCollectionDelimiterIfNecessary(() => AppendDelimiter(translator.WhenDelimiter));
             AppendTranslated(node, item.Key, CaseSection.When);
             item.Key.AcceptVisitor(this);
             AppendTranslated(node, item.Value, CaseSection.Then);
@@ -465,8 +468,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, CreateIndexSection.ColumnsEnter);
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.Columns) {
-            if (!context.IsEmpty)
-              AppendColumnDelimiter();
+            AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
             Visit(node, item);
           }
         }
@@ -476,8 +478,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, CreateIndexSection.NonkeyColumnsEnter);
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.NonkeyColumns) {
-            if (!context.IsEmpty)
-              AppendColumnDelimiter();
+            AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
             translator.TranslateIdentifier(context.Output, item.Name);
           }
         }
@@ -542,8 +543,7 @@ namespace Xtensive.Sql.Compiler
         if (node.Schema.Collations.Count > 0)
           using (context.EnterCollectionScope())
             foreach (Collation collation in node.Schema.Collations) {
-              if (!context.IsEmpty)
-                AppendDdlStatementDelimiter();
+              AppendCollectionDelimiterIfNecessary(AppendDdlStatementDelimiter);
               new SqlCreateCollation(collation).AcceptVisitor(this);
             }
 
@@ -643,7 +643,7 @@ namespace Xtensive.Sql.Compiler
 
         AppendTranslated(node, CreateTableSection.TableElementsExit);
         if (node.Table.PartitionDescriptor != null) {
-          context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
           AppendTranslated(node, CreateTableSection.Partition);
         }
         AppendTranslated(node, CreateTableSection.Exit);
@@ -654,10 +654,12 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterCollectionScope()) {
         foreach (TableConstraint constraint in constraints) {
-          if (hasItems)
-            context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
-          else
+          if (hasItems) {
+            AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          }
+          else {
             hasItems = true;
+          }
           Visit(constraint);
         }
       }
@@ -671,10 +673,12 @@ namespace Xtensive.Sql.Compiler
           // Skipping computed columns
           if (!column.Expression.IsNullReference() && !CheckFeature(ColumnFeatures.Computed))
             continue;
-          if (hasItems)
-            context.Output.AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
-          else
+          if (hasItems) {
+            AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
+          }
+          else {
             hasItems = true;
+          }
           Visit(column);
         }
       }
@@ -916,9 +920,7 @@ namespace Xtensive.Sql.Compiler
           using (context.EnterCollectionScope()) {
             int argumentPosition = 0;
             foreach (SqlExpression item in node.Arguments) {
-              if (!context.IsEmpty) {
-                AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition);
-              }
+              AppendCollectionDelimiterIfNecessary(() => AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition));
               AppendTranslated(node, FunctionCallSection.ArgumentEntry, argumentPosition);
               item.AcceptVisitor(this);
               AppendTranslated(node, FunctionCallSection.ArgumentExit, argumentPosition);
@@ -970,8 +972,7 @@ namespace Xtensive.Sql.Compiler
         if (node.Values.Keys.Count > 0)
           using (context.EnterCollectionScope())
             foreach (SqlColumn item in node.Values.Keys) {
-              if (!context.IsEmpty)
-                AppendColumnDelimiter();
+              AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
               translator.TranslateIdentifier(context.Output, item.Name);
             }
         AppendTranslated(node, InsertSection.ColumnsExit);
@@ -988,8 +989,7 @@ namespace Xtensive.Sql.Compiler
             AppendTranslated(node, InsertSection.ValuesEntry);
             using (context.EnterCollectionScope())
               foreach (SqlExpression item in node.Values.Values) {
-                if (!context.IsEmpty)
-                  AppendColumnDelimiter();
+                AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
                 item.AcceptVisitor(this);
               }
             AppendTranslated(node, InsertSection.ValuesExit);
@@ -1126,9 +1126,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, NodeSection.Entry);
         using (context.EnterCollectionScope()) {
           foreach (SqlExpression item in node) {
-            if (!context.IsEmpty) {
-              AppendRowItemDelimiter();
-            }
+            AppendCollectionDelimiterIfNecessary(AppendRowItemDelimiter);
             item.AcceptVisitor(this);
           }
         }
@@ -1145,8 +1143,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, NodeSection.Entry);
         using (context.EnterCollectionScope()) {
           foreach (var item in node.OrderBy) {
-            if (!context.IsEmpty)
-              AppendColumnDelimiter();
+            AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
             item.AcceptVisitor(this);
           }
         }
@@ -1211,7 +1208,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(node, SelectSection.HintsEntry);
         hints[0].AcceptVisitor(this);
         for (int i = 1; i < hints.Count; i++) {
-          context.Output.AppendDelimiter(translator.HintDelimiter);
+          AppendDelimiter(translator.HintDelimiter);
           hints[i].AcceptVisitor(this);
         }
         AppendTranslated(node, SelectSection.HintsExit);
@@ -1232,8 +1229,7 @@ namespace Xtensive.Sql.Compiler
           if (!cr.IsNullReference() && cr.SqlColumn is SqlColumnStub)
             continue;
 
-          if (!context.IsEmpty)
-            AppendColumnDelimiter();
+          AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           if (!cr.IsNullReference()) {
             cr.SqlColumn.AcceptVisitor(this);
             AppendTranslated(cr, ColumnSection.AliasDeclaration);
@@ -1296,8 +1292,7 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(node, SelectSection.GroupBy);
       using (context.EnterCollectionScope()) {
         foreach (SqlColumn item in node.GroupBy) {
-          if (!context.IsEmpty)
-            AppendColumnDelimiter();
+          AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var cr = item as SqlColumnRef;
           if (!cr.IsNullReference())
             cr.SqlColumn.AcceptVisitor(this);
@@ -1319,8 +1314,7 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(node, SelectSection.OrderBy);
       using (context.EnterCollectionScope()) {
         foreach (SqlOrder item in node.OrderBy) {
-          if (!context.IsEmpty)
-            AppendColumnDelimiter();
+          AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           item.AcceptVisitor(this);
         }
       }
@@ -1344,7 +1338,7 @@ namespace Xtensive.Sql.Compiler
     {
       if (node.Lock != SqlLockType.Empty) {
         context.Output.Append(translator.Translate(node.Lock));
-        AppendSpace();
+        AppendSpaceIfNecessary();
       }
     }
 
@@ -1355,7 +1349,7 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterCollectionScope()) {
           foreach (SqlStatement item in node) {
             item.AcceptVisitor(this);
-            context.Output.AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
           }
         }
         AppendTranslated(node, NodeSection.Exit);
@@ -1387,7 +1381,7 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         AppendTranslated(node, TrimSection.Entry);
         context.Output.Append(translator.Translate(node.TrimType));
-        AppendSpace();
+        AppendSpaceIfNecessary();
         if (node.TrimCharacters != null) {
           AppendTranslatedLiteral(node.TrimCharacters);
         }
@@ -1445,14 +1439,12 @@ namespace Xtensive.Sql.Compiler
 
       using (context.EnterCollectionScope()) {
         foreach (ISqlLValue item in node.Values.Keys) {
-          if (!context.IsEmpty)
-            AppendColumnDelimiter();
+          AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var tc = item as SqlTableColumn;
           if (!tc.IsNullReference() && tc.SqlTable != node.Update)
             throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
           translator.TranslateIdentifier(context.Output, tc.Name);
           AppendTranslated(SqlNodeType.Equals);
-          AppendSpace();
           SqlExpression value = node.Values[item];
           value.AcceptVisitor(this);
         }
@@ -1493,6 +1485,7 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlPlaceholder node)
     {
       context.Output.AppendPlaceholderWithId(node.Id);
+      AppendSpaceIfNecessary();
     }
 
     public virtual void Visit(SqlUserColumn node)
@@ -1512,9 +1505,7 @@ namespace Xtensive.Sql.Compiler
           using (context.EnterCollectionScope()) {
             int argumentPosition = 0;
             foreach (SqlExpression item in node.Arguments) {
-              if (!context.IsEmpty) {
-                AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition++);
-              }
+              AppendCollectionDelimiterIfNecessary(() => AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition++));
               item.AcceptVisitor(this);
             }
           }
@@ -1611,8 +1602,7 @@ namespace Xtensive.Sql.Compiler
         throw new SqlCompilerException(Strings.ExReferencingColumnsCountCantBeLessThenOne);
       using (context.EnterCollectionScope()) {
         foreach (TableColumn column in constraint.Columns) {
-          if (!context.IsEmpty)
-            AppendColumnDelimiter();
+          AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           AppendTranslated(column, TableColumnSection.Entry);
         }
       }
@@ -1620,8 +1610,7 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(constraint, ConstraintSection.ReferencedColumns);
       using (context.EnterCollectionScope()) {
         foreach (TableColumn tc in constraint.ReferencedColumns) {
-          if (!context.IsEmpty)
-            AppendColumnDelimiter();
+          AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           AppendTranslated(tc, TableColumnSection.Entry);
         }
       }
@@ -1637,8 +1626,7 @@ namespace Xtensive.Sql.Compiler
       if (constraint.Columns.Count > 0)
         using (context.EnterCollectionScope())
           foreach (TableColumn tc in constraint.Columns) {
-            if (!context.IsEmpty)
-              AppendColumnDelimiter();
+            AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
             AppendTranslated(tc, TableColumnSection.Entry);
           }
     }
@@ -1659,7 +1647,7 @@ namespace Xtensive.Sql.Compiler
             ? translator.Translate(node.IntervalPart)
             : translator.Translate(node.DateTimeOffsetPart);
         context.Output.Append(part);
-        AppendSpace();
+        AppendSpaceIfNecessary();
         AppendTranslated(node, ExtractSection.From);
         node.Operand.AcceptVisitor(this);
         AppendTranslated(node, ExtractSection.Exit);
@@ -1707,16 +1695,19 @@ namespace Xtensive.Sql.Compiler
 
     private void TranslateDynamicFilterViaMultipleComparisons(SqlDynamicFilter node)
     {
-      int numberOfExpressions = node.Expressions.Count;
+      var expressions = node.Expressions;
+      int numberOfExpressions = expressions.Count;
       string delimiter = " " + translator.Translate(SqlNodeType.Or) + " ";
       using (context.EnterCycleBodyScope(node.Id, delimiter)) {
         context.Output.Append(translator.OpeningParenthesis);
         for (int i = 0; i < numberOfExpressions; i++) {
-          node.Expressions[i].AcceptVisitor(this);
+          expressions[i].AcceptVisitor(this);
           AppendTranslated(SqlNodeType.Equals);
           context.Output.AppendCycleItem(i);
-          if (i != numberOfExpressions - 1)
+          if (i != numberOfExpressions - 1) {
+            AppendSpaceIfNecessary();
             AppendTranslated(SqlNodeType.And);
+          }
         }
         context.Output.Append(translator.ClosingParenthesis);
       }
@@ -1725,515 +1716,611 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    protected void AppendDelimiter(string text, SqlDelimiterType type = SqlDelimiterType.Row)
+    {
+      switch (type) {
+        case SqlDelimiterType.Column:
+          context.Output.Append(translator.NewLine);
+          context.Output.AppendIndent();
+          break;
+      }
+      context.Output.Append(text);
+      AppendSpaceIfNecessary();
+    }
+
+
     protected void AppendColumnDelimiter()
     {
-      context.Output.AppendDelimiter(translator.ColumnDelimiter);
+      AppendDelimiter(translator.ColumnDelimiter);
     }
 
     protected void AppendDdlStatementDelimiter()
     {
-      context.Output.AppendDelimiter(translator.DdlStatementDelimiter, SqlDelimiterType.Column);
+      AppendDelimiter(translator.DdlStatementDelimiter, SqlDelimiterType.Column);
     }
 
     protected void AppendRowItemDelimiter()
     {
-      context.Output.AppendDelimiter(translator.RowItemDelimiter);
+      AppendDelimiter(translator.RowItemDelimiter);
     }
 
-    protected void AppendSpace()
+    protected void AppendSpaceIfNecessary()
     {
       context.Output.Append(' ');
     }
 
     protected void AppendTranslated(SqlNodeType nodeType)
     {
+      AppendSpaceIfNecessary();
       context.Output.Append(translator.Translate(nodeType));
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAggregate node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlArray node, ArraySection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlBetween node, BetweenSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlBinary node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlBreak node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCase node, CaseSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCase node, SqlExpression item, CaseSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, item, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCast node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAlterDomain node, AlterDomainSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAlterSequence node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAlterTable node, AlterTableSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCloseCursor node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCollate node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlColumnRef node, ColumnSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlConcat node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(TableColumn column, TableColumnSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, column, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(Constraint constraint, ConstraintSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, constraint, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCommand node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlContinue node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreateAssertion node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreateDomain node, CreateDomainSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreateIndex node, CreateIndexSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreatePartitionFunction node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, descriptor, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAlterPartitionFunction node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreatePartitionScheme node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreateSchema node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreateSequence node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreateTable node, CreateTableSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCreateView node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCursor node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDeclareCursor node, DeclareCursorSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDeclareVariable node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDefaultValue node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDelete node, DeleteSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropAssertion node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropCharacterSet node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropCollation node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropDomain node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropIndex node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropPartitionFunction node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropPartitionScheme node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropSchema node)
     {
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropSequence node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropTable node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropTranslation node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDropView node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlFetch node, FetchSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlFunctionCall node, FunctionCallSection section, int position)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section, position);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlUserFunctionCall node, FunctionCallSection section, int position)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section, position);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlIf node, IfSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlInsert node, InsertSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlJoinExpression node, JoinSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlLike node, LikeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlMatch node, MatchSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlNull node) {
+    protected void AppendTranslated(SqlNull node)
+    {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlNextValue node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SchemaNode node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlOpenCursor node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlOrder node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlQueryRef node, TableSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlQueryExpression node, QueryExpressionSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlRow node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlRowNumber node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlRenameTable node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlSelect node, SelectSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlStatementBlock node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlSubQuery node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlTableColumn node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlTableRef node, TableSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlTrim node, TrimSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlUnary node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlUpdate node, UpdateSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlUserColumn node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlVariable node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlWhile node, WhileSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlExtract extract, ExtractSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, extract, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAlterPartitionScheme node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlNative node)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAssignment node, NodeSection section)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslatedLiteral(object literalValue)
     {
+      AppendSpaceIfNecessary();
       translator.Translate(context, literalValue);
-      AppendSpace();
+      AppendSpaceIfNecessary();
     }
 
     private void WriteFalseExpression()
