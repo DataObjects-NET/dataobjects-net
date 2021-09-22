@@ -5,7 +5,6 @@
 // Created:    2007.07.30
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
@@ -18,7 +17,7 @@ namespace Xtensive.Orm.Model
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   [Serializable]
-  public class NodeCollection<TNode> : LockableBase, ICollection<TNode>, IReadOnlyList<TNode>
+  public class NodeCollection<TNode> : CollectionBaseSlim<TNode>
     where TNode: Node
   {
     [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
@@ -28,8 +27,6 @@ namespace Xtensive.Orm.Model
     private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
 
     protected Dictionary<string, TNode> NameIndex = new Dictionary<string, TNode>();
-
-    private readonly List<TNode> items = new List<TNode>();
     
     /// <summary>
     /// Gets empty collection.
@@ -50,19 +47,12 @@ namespace Xtensive.Orm.Model
     /// Gets the full name.
     /// </summary>
     public string FullName {
-      get
-      {
+      get {
         return Owner==null 
           ? Name
           : string.Format(Strings.NodeCollectionFullNameFormat, Owner.Name, Name);
       }
     }
-
-    public int Count => items.Count;
-
-    public bool IsReadOnly => IsLocked;
-
-    public TNode this[int index] => items[index];
 
     /// <summary>
     /// Adds new element to the collection.
@@ -70,11 +60,10 @@ namespace Xtensive.Orm.Model
     /// <param name="item">Item to add.</param>
     /// <exception cref="InvalidOperationException">Item already exists.</exception>
     [DebuggerStepThrough]
-    public virtual void Add(TNode item)
+    public override void Add(TNode item)
     {
       try {
-        this.EnsureNotLocked();
-        items.Add(item);
+        base.Add(item);
         NameIndex.Add(item.Name, item);
         TrySubscribe(item);
       }
@@ -88,33 +77,25 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    /// <summary>
-    /// Adds the elements of the specified collection to the end of the <see cref="NodeCollection{TNode}"/>.
-    /// </summary>
-    /// <param name="collection">The collection whose elements should be added to the end of the <see cref="NodeCollection{TNode}"/>. The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
-    /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
-    public void AddRange(IEnumerable<TNode> collection)
+    /// <inheritdoc/>
+    public override bool Remove(TNode item)
     {
-      foreach (var item in collection) {
-        Add(item);
+      if (base.Remove(item)) {
+        TryUnsubscribe(item);
+        NameIndex.Remove(item.Name);
+        return true;
       }
+      return false;
     }
 
-    public virtual bool Remove(TNode item)
+    /// <inheritdoc/>
+    public override void Clear()
     {
       this.EnsureNotLocked();
-      TryUnsubscribe(item);
-      NameIndex.Remove(item.Name);
-      return items.Remove(item);
-    }
-
-    public virtual void Clear()
-    {
-      this.EnsureNotLocked();
-      foreach(var item in items) {
+      foreach(var item in this) {
         TryUnsubscribe(item);
       }
-      items.Clear();
+      base.Clear();
       NameIndex.Clear();
     }
 
@@ -216,21 +197,12 @@ namespace Xtensive.Orm.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      foreach (var item in items) {
-        item.Lock(true);
+      if (recursive) {
+        foreach (var item in this) {
+          item.Lock(true);
+        }
       }
     }
-
-    public virtual bool Contains(TNode item) => items.Contains(item);
-    public void CopyTo(TNode[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
-
-    public List<TNode>.Enumerator GetEnumerator() => items.GetEnumerator();
-
-    /// <inheritdoc/>
-    IEnumerator<TNode> IEnumerable<TNode>.GetEnumerator() => GetEnumerator();
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     // Constructors
 
