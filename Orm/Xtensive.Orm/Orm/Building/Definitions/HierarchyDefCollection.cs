@@ -5,9 +5,8 @@
 // Created:    2008.01.11
 
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using Xtensive.Core;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.Building.Definitions
 {
@@ -24,22 +23,13 @@ namespace Xtensive.Orm.Building.Definitions
   /// <summary>
   /// A collection of <see cref="HierarchyDef"/> items.
   /// </summary>
-  public class HierarchyDefCollection : LockableBase, ICollection<HierarchyDef>, IReadOnlyList<HierarchyDef>
+  public class HierarchyDefCollection : CollectionBaseSlim<HierarchyDef>
   {
-    private readonly List<HierarchyDef> items = new List<HierarchyDef>();
-
     public event EventHandler<HierarchyDefCollectionChangedEventArgs> Added;
-
     public event EventHandler<HierarchyDefCollectionChangedEventArgs> Removed;
 
-    public int Count => items.Count;
-
-    public bool IsReadOnly => IsLocked;
-
-    public HierarchyDef this[int index] => items[index];
-
     /// <inheritdoc/>
-    public bool Contains(HierarchyDef item)
+    public override bool Contains(HierarchyDef item)
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       return TryGetValue(item.Root) != null;
@@ -76,45 +66,29 @@ namespace Xtensive.Orm.Building.Definitions
     /// <exception cref="ArgumentException"> when item was not found.</exception>
     public HierarchyDef this[Type key]
     {
-      get
-      {
+      get {
         HierarchyDef result = TryGetValue(key);
-        if (result!=null)
+        if (result != null)
           return result;
-          throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
+        throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
       }
     }
 
-    public void CopyTo(HierarchyDef[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
-
-    public List<HierarchyDef>.Enumerator GetEnumerator() => items.GetEnumerator();
-
     /// <inheritdoc/>
-    IEnumerator<HierarchyDef> IEnumerable<HierarchyDef>.GetEnumerator() => GetEnumerator();
-
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public void Add(HierarchyDef item)
+    public override void Add(HierarchyDef item)
     {
-      this.EnsureNotLocked();
-      items.Add(item);
+      base.Add(item);
       Added(this, new HierarchyDefCollectionChangedEventArgs(item));
     }
-    public virtual bool Remove(HierarchyDef item)
+
+    /// <inheritdoc/>
+    public override bool Remove(HierarchyDef item)
     {
-      this.EnsureNotLocked();
-      if (items.Remove(item)) {
+      if (base.Remove(item)) {
         Removed(this, new HierarchyDefCollectionChangedEventArgs(item));
         return true;
       }
       return false;
-    }
-
-    public virtual void Clear()
-    {
-      this.EnsureNotLocked();
-      items.Clear();
     }
   }
 }
