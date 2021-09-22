@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private const int MaxContainerCount = 120;
     private const int ColumnIndexesCacheSize = 256;
 
-    private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
+    private readonly HashSet<GraphContainer> graphContainers = new HashSet<GraphContainer>();
     private readonly ICache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
     private readonly Fetcher fetcher;
     private readonly Session session;
@@ -316,8 +316,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private GraphContainer GetGraphContainer(Key key, TypeInfo type, bool exactType)
     {
       var newTaskContainer = new GraphContainer(key, type, exactType, this);
-      var registeredTaskContainer = graphContainers[newTaskContainer];
-      if (registeredTaskContainer == null) {
+      if (!graphContainers.TryGetValue(newTaskContainer, out var registeredTaskContainer)) {
         _ = graphContainers.Add(newTaskContainer);
         return newTaskContainer;
       }

@@ -5,13 +5,11 @@
 // Created:    2010.01.15
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Collections;
 
-using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2;
 using Xtensive.Orm.Upgrade;
-using SimpleVersion2 = Xtensive.Orm.Tests.Upgrade.Model.SimpleVersion2;
 
 namespace Xtensive.Orm.Tests.Upgrade
 {

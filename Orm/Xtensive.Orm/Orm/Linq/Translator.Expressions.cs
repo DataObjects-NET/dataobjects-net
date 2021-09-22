@@ -632,7 +632,7 @@ namespace Xtensive.Orm.Linq
     private Dictionary<MemberInfo, Expression> GetBindingsForConstructor(ParameterInfo[] constructorParameters, IList<Expression> constructorArguments, Expression newExpression)
     {
       var bindings = new Dictionary<MemberInfo, Expression>();
-      var duplicateMembers = new SetSlim<MemberInfo>();
+      var duplicateMembers = new HashSet<MemberInfo>();
       var typeMembers = newExpression.Type.GetMembers();
       for (var parameterIndex = 0; parameterIndex < constructorParameters.Length; parameterIndex++) {
         var constructorParameter = constructorParameters[parameterIndex];

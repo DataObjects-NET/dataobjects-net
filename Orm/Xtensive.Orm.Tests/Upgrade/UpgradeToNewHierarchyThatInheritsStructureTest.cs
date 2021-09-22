@@ -5,16 +5,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Services;
 using Xtensive.Orm.Upgrade;
 using OneToOneStructure = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.OneToOneStructure;
 using NewColumnWithinTable = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.NewColumnWithinTable;
@@ -914,7 +911,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureT
       {
         public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           base.AddUpgradeHints(hints);
           var currentType = typeof(MasterNamedValueClassTable);
@@ -928,7 +925,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureT
       {
         public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           base.AddUpgradeHints(hints);
           var currentType = typeof(MasterNamedValueConcreteTable);
@@ -942,7 +939,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureT
       {
         public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           base.AddUpgradeHints(hints);
           var currentType = typeof(MasterNamedValueSingleTable);

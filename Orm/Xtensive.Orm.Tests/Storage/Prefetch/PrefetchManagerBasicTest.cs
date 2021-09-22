@@ -380,7 +380,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var graphContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(2, graphContainers.Count);
         foreach (var container in graphContainers)
           Assert.IsNull(container.ReferencedEntityContainers);
@@ -431,7 +431,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var taskContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var taskContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(1, taskContainers.Count);
         Assert.AreEqual(orderKey, taskContainers.Single().Key);
       }
