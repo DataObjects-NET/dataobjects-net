@@ -114,7 +114,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var actions = difference!=null
         ? new Upgrader().GetUpgradeSequence(difference, hints, comparer)
-        : EnumerableUtils<NodeAction>.Empty;
+        : Enumerable.Empty<NodeAction>();
       return new ActionSequence {actions};
     }
 

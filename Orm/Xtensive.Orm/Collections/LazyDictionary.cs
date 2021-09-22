@@ -137,7 +137,7 @@ namespace Xtensive.Collections
     {
       return HasItems 
         ? (_items as IEnumerable<KeyValuePair<TKey, TValue>>).GetEnumerator() 
-        : EnumerableUtils<KeyValuePair<TKey, TValue>>.Empty.GetEnumerator();
+        : Enumerable.Empty<KeyValuePair<TKey, TValue>>().GetEnumerator();
     }
 
     #endregion

@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 
 namespace Xtensive.Collections
 {
@@ -115,7 +116,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public IEnumerable<TItem> GetItems(TClass @class)
     {
-      return classified.GetValueOrDefault(@class) ?? EnumerableUtils<TItem>.Empty;
+      return classified.GetValueOrDefault(@class) ?? Enumerable.Empty<TItem>();
     }
 
     /// <inheritdoc/>
