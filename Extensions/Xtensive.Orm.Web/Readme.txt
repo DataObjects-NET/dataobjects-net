@@ -1,35 +1,23 @@
-﻿================
+================
 Xtensive.Orm.Web
 ================
 
 Summary
 -------
-The extension adds integration for DataObjects.Net Core and ASP.NET Core. It contains SessionManager class
-which is middleware and can be used as part of ASP.NET Core Pipeline. SessionManager opens session and transaction on going down the pipeline
-and disposes them on going up the pipeline.
-
-SessionManager has the following features:
-1. When Session.Current is accessed, and there is no current Session, it will provide a new instance of Session.
-   In that case a new transaction will be created. It will be committed when the pipeline execution returns to SessionManager without any exception, 
-   otherwise it will be rolled back.
-2. Setting SessionManager.Demand().HasErrors to true will lead to rollback of this transaction.
-3. SessionManager.Current (and SessionManager.Demand()) returns the instance of SessionManager 
-   bound to the current pipeline execution, i.e. current SessionManager. 
-   Its Session property (if not null) is the same value as the one provided by Session.Current.
-
-Note that presence of SessionManager does not prevent you from creating Sessions manually.
-It operates relying on Session.Resolver event, which is raised only when there is no current Session.
-
-Finally, no automatic Session + transaction will be provided, if you don't use Session.Current/Session.Demand() methods
-in your code (directly or indirectly). So e.g. requests to static web pages won't lead to any DB interaction.
+The extension adds integration for DataObjects.Net and ASP.NET Core. It contains an action filter called SessionActionFilter
+and a middleware called OpenSessionMiddleware. The action filter is useful for providing session per MVC action. The middleware,
+though, has wider coverage and can provide session to actions, controllers, razor pages and to other middleware down the pipeline.
+Both of them open session and transaction and at the end dispose them. As obsolete SessionManager, they complete transacton scope
+by default unless an exeption appeared. (more info on https://dataobjects.net)
 
 Prerequisites
 -------------
-DataObjects.Net Core  0.1 or later (http://dataobjects.net)
+DataObjects.Net 7 or later (https://dataobjects.net)
 
-Implementation
---------------
-To start using SessionManager it should be added to ASP.NET Middleware pipeline in Startup class like in example below
+Usage of action filter
+----------------------
+
+To start using action filter it should be added to action filters collection like so
 
 public class Startup
 {
@@ -40,28 +28,209 @@ public class Startup
 
   public void ConfigureServices(IServiceCollection services)
   {
-    // Configure services
+    var domain = BuildDomain();
+
+    // Domain should be available as service to have
+    // access to it from action filter.
+    services.AddSingleton<Domain>(domain);
+
+    // Adds SessionAccessor as scoped service (one instance per request).
+    // Session accessor will be able to access Session and TransactionScope
+    // instances which are in HttpContext
+    services.AddDataObjectsSessionAccessor();
+
+    // Adds the action filter
+    services.AddControllers(options => options.Filters.AddDataObjectsSessionActionFilter());
   }
 
   public void Configure(IApplicationBuilder app, IHostingEnvironment env)
   {
-    // Configure parts of the pipeline which are before SessionManager.
-    // It will be unable to use SessionManager functionality in these parts
-    // For instance,
+    if (env.IsDevelopment()) {
+      app.UseDeveloperExceptionPage();
+    }
+    else {
+      app.UseExceptionHandler("/Home/Error");
+    }
     app.UseStaticFiles()
+      .UseRouting()
+      .UseAuthorization()
+      .UseEndpoints(endpoints => {
+        endpoints.MapControllerRoute(
+          name: "default",
+          pattern: "{controller=Home}/{action=Index}/{id?}");
+      });
+  }
+}
 
-    // Add session manager to the pipeline
-    app.UseSessionManager();
-	
-    // Configure parts of the pipeline which are after SessionManager. 
-    // These parts will work with SessionManager.
-	
-    // For instance, MVC controllers will be able to query data using DataObjects.Net
-    app.UseMvc(routes =>
+
+After action filter is added you can use it like in the example bellow
+
+public class HomeController : Controller
+{
+  // If action require Session and TransactionScope to be opened then
+  // just put parameter like in this method.
+  // Action filter will find it wrap action with session
+  public IActionResult Index([FromServices] SessionAccessor sessionAccessor)
+  {
+    var sessionInstance = sessionAccessor.Session;
+    var transactionScopeInstance = sessionAccessor.TransactionScope;
+
+    // some queries to database
+
+    return View();
+  }
+
+  // If action does not require opened Session
+  // then don't put SessionAccessor as parameter
+  // action filter will skip openings
+  public IActionResult Privacy()
+  {
+    return View();
+  }
+}
+
+
+Usage of Middleware
+-------------------
+
+The middleware is needed to be placed to pipeline before any other middleware that require access
+to session. Pipeline may be configured like so
+
+public class Startup
+{
+  public Startup(IConfiguration configuration)
+  {
+    
+  }
+
+  public void ConfigureServices(IServiceCollection services)
+  {
+    var domain = BuildDomain();
+
+    // Domain should be available as service to have
+    // access to it from action filter.
+    services.AddSingleton<Domain>(domain);
+
+    // Adds SessionAccessor as scoped service (one instance per request).
+    // Session accessor will be able to access Session and TransactionScope
+    // instances which are in HttpContext
+    services.AddDataObjectsSessionAccessor();
+
+    // Adds the action filter
+    services.AddControllers();
+  }
+
+  public void Configure(IApplicationBuilder app, IHostingEnvironment env)
+  {
+    if (env.IsDevelopment()) {
+      app.UseDeveloperExceptionPage();
+    }
+    else {
+      app.UseExceptionHandler("/Home/Error");
+    }
+    app.UseStaticFiles()
+      .UseRouting()// this middleware won't have opened session
+      .UseDataObjectsSessionOpener()// open Session and Transaction scope
+      .UseAuthorization()// this middleware and the rest down the pipe have Session access
+      .UseEndpoints(endpoints => {
+        endpoints.MapControllerRoute(
+          name: "default",
+          pattern: "{controller=Home}/{action=Index}/{id?}");
+      });
+  }
+}
+
+After that you can access opened Session and TransactionScope
+
+public class HomeController : Controller
+{
+  // access from controller's constructor
+  public HomeController(SessionAccessor sessionAccessor)
+  {
+    // some work
+  }
+
+  // access from action
+  public IActionResult Index([FromServices] SessionAccessor sessionAccessor)
+  {
+    var sessionInstance = sessionAccessor.Session;
+    var transactionScopeInstance = sessionAccessor.TransactionScope;
+
+    // some queries to database
+
+    return View();
+  }
+
+  // NOTE that here session is opened too,
+  // even there is no SessionAccessor as parameter
+  // this is the difference in work of middleware and action filter
+  public IActionResult Privacy()
+  {
+    return View();
+  }
+}
+
+
+The middleware is also usable in Razor Pages projects. In this case
+your Startup class may look like this:
+
+public class Startup
+{
+  public Startup(IConfiguration configuration)
+  {
+    Configuration = configuration;
+  }
+
+  public IConfiguration Configuration { get; }
+
+  // This method gets called by the runtime. Use this method to add services to the container.
+  public void ConfigureServices(IServiceCollection services)
+  {
+    var domain = Domain.Build();
+    services.AddSingleton(domain);
+    services.AddDataObjectsSessionAccessor();
+    services.AddRazorPages();
+  }
+
+  // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+  public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+  {
+    if (env.IsDevelopment()) {
+      app.UseDeveloperExceptionPage();
+    }
+    else {
+      app.UseExceptionHandler("/Error");
+    }
+
+    app.UseStaticFiles();
+
+    app.UseRouting();
+
+    app.UseAuthorization();
+
+    app.UseDataObjectsSessionOpener();
+
+    app.UseEndpoints(endpoints =>
     {
-      routes.MapRoute(
-                name: "default",
-                template: "{controller=Home}/{action=Index}/{id?}");
+      endpoints.MapRazorPages();
     });
+  }
+}
+
+And then in actual pages you can use SessionAccessor like below
+
+public class IndexModel : PageModel
+{
+
+  public IndexModel(SessionAccessor accessor)
+  {
+    _logger = logger;
+  }
+
+  public void OnGet([FromServices] SessionAccessor sessionAccessor)
+  {
+    var sessionInstance = sessionAccessor.Session;
+
+    // query some data from database
   }
 }
