@@ -354,7 +354,7 @@ namespace Xtensive.Orm.Model
     {
       // We don't have any instance that has attributes == TypeAttributes.None
       if (criteria == TypeAttributes.None)
-        return ArrayUtils<TypeInfo>.EmptyArray;
+        return Array.Empty<TypeInfo>();
 
       return Find(criteria, MatchType.Partial);
     }
@@ -362,7 +362,7 @@ namespace Xtensive.Orm.Model
     public ICollection<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
     {
       if (criteria==TypeAttributes.None)
-        return ArrayUtils<TypeInfo>.EmptyArray;
+        return Array.Empty<TypeInfo>();
       switch (matchType) {
       case MatchType.Partial:
         return this.Where(f => (f.Attributes & criteria) > 0).ToList();

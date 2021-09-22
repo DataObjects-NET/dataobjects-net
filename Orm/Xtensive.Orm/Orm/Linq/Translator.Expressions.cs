@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Linq
 
       if (customCompiler!=null) {
         var member = ma.Member;
-        var expression = customCompiler.Invoke(ma.Expression, ArrayUtils<Expression>.EmptyArray);
+        var expression = customCompiler.Invoke(ma.Expression, Array.Empty<Expression>());
         if (expression == null) {
           if (member.ReflectedType.IsInterface)
             return Visit(BuildInterfaceExpression(ma));
