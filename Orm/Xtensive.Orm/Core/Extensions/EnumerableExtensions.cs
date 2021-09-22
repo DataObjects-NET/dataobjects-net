@@ -411,7 +411,7 @@ namespace Xtensive.Core
     [Obsolete("Use Enumerable.Append method instead.")]
     public static IEnumerable<T> AddOne<T>(this IEnumerable<T> source, T value)
     {
-      source = source ?? EnumerableUtils<T>.Empty;
+      source = source ?? Enumerable.Empty<T>();
       if (!ReferenceEquals(value, null))
         source = source.Concat(EnumerableUtils.One(value));
       return source;

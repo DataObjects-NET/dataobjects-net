@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -325,7 +326,7 @@ namespace Xtensive.Core
     public IEnumerator<Exception> GetEnumerator()
     {
       if (exceptions==null)
-        return EnumerableUtils<Exception>.EmptyEnumerator;
+        return Enumerable.Empty<Exception>().GetEnumerator();
       else 
         return exceptions.GetEnumerator();
     }

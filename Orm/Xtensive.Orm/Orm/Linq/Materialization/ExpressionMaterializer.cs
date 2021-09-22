@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
     {
       var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, null, EnumerableUtils<Parameter<Tuple>>.Empty);
+      var visitor = new ExpressionMaterializer(tupleParameter, context, null, Enumerable.Empty<Parameter<Tuple>>());
       var processedExpression = OwnerRemover.RemoveOwner(expression);
       return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
     }
