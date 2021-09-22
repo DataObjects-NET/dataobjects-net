@@ -29,13 +29,13 @@ namespace Xtensive.Core
     IDeserializationCallback,
     ISerializable
   {
-    private static readonly AsyncLocal<SetSlim<TypePair>> inProgressAsync = new AsyncLocal<SetSlim<TypePair>>();
+    private static readonly AsyncLocal<HashSet<TypePair>> inProgressAsync = new AsyncLocal<HashSet<TypePair>>();
 
-    private static SetSlim<TypePair> InProgress
+    private static HashSet<TypePair> InProgress
     {
       get {
         if (inProgressAsync.Value == null) {
-          inProgressAsync.Value = new SetSlim<TypePair>();
+          inProgressAsync.Value = new HashSet<TypePair>();
         }
         return inProgressAsync.Value;
       }
@@ -232,7 +232,7 @@ namespace Xtensive.Core
       where TAssociate : class
     {
       if (InProgress == null) {
-        InProgress = new SetSlim<TypePair>();
+        InProgress = new HashSet<TypePair>();
       }
 
       var progressionMark = new TypePair(typeof(TKey), typeof(TAssociate));

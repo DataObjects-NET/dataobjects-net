@@ -5,9 +5,9 @@
 // Created:    2016.04.16
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;

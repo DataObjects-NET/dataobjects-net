@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the upgrade hints.
     /// </summary>
-    public SetSlim<UpgradeHint> Hints { get; private set; }
+    public ISet<UpgradeHint> Hints { get; private set; }
     
     /// <summary>
     /// Gets the recycled definitions.
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Upgrade
     private void Initialize()
     {
       Stage = UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
-      Hints = new SetSlim<UpgradeHint>();
+      Hints = new HashSet<UpgradeHint>();
       RecycledDefinitions = new List<RecycledDefinition>();
       Services = new UpgradeServiceAccessor();
     }
