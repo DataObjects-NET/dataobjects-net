@@ -7,9 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
-using System.IO;
 using System.Linq;
-using System.Runtime.Serialization.Formatters.Binary;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql
@@ -269,10 +267,14 @@ namespace Xtensive.Sql
       if (value == null || value is byte[])
         return value;
 
-      var formatter = new BinaryFormatter();
-      var stream = new MemoryStream();
-      formatter.Serialize(stream, value);
-      return stream.ToArray();
+      throw new NotSupportedException("There is no support of SqlGeometry, SqlGeography, or other complex SQL types to the moment");
+      // As far as SqlGeometry and SqlGeography have no support in .Net 5
+      // we don't need to provide a functionality reading those data as byte arrays
+
+      // var formatter = new BinaryFormatter();
+      // var stream = new MemoryStream();
+      // formatter.Serialize(stream, value);
+      // return stream.ToArray();
     }
 
     #endregion
