@@ -3,7 +3,6 @@
 // See the License.txt file in the project root for more information.
 
 using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Sql.Dml;
 
 namespace Xtensive.Sql.Compiler
@@ -14,7 +13,7 @@ namespace Xtensive.Sql.Compiler
   public class SqlTableNameProvider
   {
     private readonly Dictionary<SqlTable, string> aliasMap = new Dictionary<SqlTable, string>(16);
-    private readonly Set<string> aliasIndex = new Set<string>();
+    private readonly HashSet<string> aliasIndex = new HashSet<string>();
     private byte prefixIndex;
     private byte suffix;
     private readonly SqlCompilerContext context;
