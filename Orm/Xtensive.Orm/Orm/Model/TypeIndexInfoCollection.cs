@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Model
 
     private List<IndexInfo> FindIndexesContainingAllData()
     {
-      var result = new List<IndexInfo>(Items.Count);
+      var result = new List<IndexInfo>(Count);
       var virtualIndexes = this.Where(index => index.IsVirtual);
       result.AddRange(virtualIndexes);
       var realIndexes = from index in this where !index.IsVirtual 

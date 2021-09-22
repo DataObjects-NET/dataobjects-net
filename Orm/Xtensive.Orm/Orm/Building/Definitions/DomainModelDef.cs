@@ -84,12 +84,12 @@ namespace Xtensive.Orm.Building.Definitions
         .FirstOrDefault(hierarchy => hierarchy.Root.UnderlyingType.IsAssignableFrom(item.UnderlyingType));
     }
 
-    private void OnTypesCleared(object sender, ChangeNotifierEventArgs e)
+    private void OnTypesCleared(object sender, TypeDefCollectionClearedEventArgs e)
     {
       hierarchies.Clear();
     }
 
-    private void OnTypeRemoved(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
+    private void OnTypeRemoved(object sender, TypeDefCollectionChangedEventArgs e)
     {
       HierarchyDef hd = hierarchies.TryGetValue(e.Item);
       if (hd != null)

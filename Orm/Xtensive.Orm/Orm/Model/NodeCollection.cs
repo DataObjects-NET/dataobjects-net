@@ -5,6 +5,7 @@
 // Created:    2007.07.30
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Collections;
@@ -17,11 +18,18 @@ namespace Xtensive.Orm.Model
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   [Serializable]
-  public class NodeCollection<TNode>
-    : CollectionBase<TNode>
+  public class NodeCollection<TNode> : LockableBase, ICollection<TNode>, IReadOnlyList<TNode>
     where TNode: Node
   {
+    [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private EventHandler<ChangeNotifierEventArgs> itemChangedHandler;
+
+    [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
+    private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
+
     protected Dictionary<string, TNode> NameIndex = new Dictionary<string, TNode>();
+
+    private readonly List<TNode> items = new List<TNode>();
     
     /// <summary>
     /// Gets empty collection.
@@ -50,16 +58,25 @@ namespace Xtensive.Orm.Model
       }
     }
 
+    public int Count => items.Count;
+
+    public bool IsReadOnly => IsLocked;
+
+    public TNode this[int index] => items[index];
+
     /// <summary>
     /// Adds new element to the collection.
     /// </summary>
     /// <param name="item">Item to add.</param>
     /// <exception cref="InvalidOperationException">Item already exists.</exception>
     [DebuggerStepThrough]
-    public override void Add(TNode item)
+    public virtual void Add(TNode item)
     {
       try {
-        base.Add(item);
+        this.EnsureNotLocked();
+        items.Add(item);
+        NameIndex.Add(item.Name, item);
+        TrySubscribe(item);
       }
       catch (ArgumentException e){
         throw new InvalidOperationException(
@@ -69,6 +86,36 @@ namespace Xtensive.Orm.Model
         throw new InvalidOperationException(
           string.Format(Strings.ExItemWithNameXAlreadyExistsInY, item.Name, FullName), e);
       }
+    }
+
+    /// <summary>
+    /// Adds the elements of the specified collection to the end of the <see cref="NodeCollection{TNode}"/>.
+    /// </summary>
+    /// <param name="collection">The collection whose elements should be added to the end of the <see cref="NodeCollection{TNode}"/>. The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
+    /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
+    public void AddRange(IEnumerable<TNode> collection)
+    {
+      foreach (var item in collection) {
+        Add(item);
+      }
+    }
+
+    public virtual bool Remove(TNode item)
+    {
+      this.EnsureNotLocked();
+      TryUnsubscribe(item);
+      NameIndex.Remove(item.Name);
+      return items.Remove(item);
+    }
+
+    public virtual void Clear()
+    {
+      this.EnsureNotLocked();
+      foreach(var item in items) {
+        TryUnsubscribe(item);
+      }
+      items.Clear();
+      NameIndex.Clear();
     }
 
     /// <inheritdoc/>
@@ -115,8 +162,7 @@ namespace Xtensive.Orm.Model
     public TNode this[string key]
     {
       [DebuggerStepThrough]
-      get
-      {
+      get {
         TNode result;
         if (!TryGetValue(key, out result))
           throw new KeyNotFoundException(GetExceptionMessage(key));
@@ -129,33 +175,39 @@ namespace Xtensive.Orm.Model
       return string.Format(Strings.ExItemWithKeyXWasNotFound, key);
     }
 
-    protected override void OnInserted(TNode value, int index)
+    /// <summary>
+    /// Tries to subscribe the collection on 
+    /// change notifications from the specified item.
+    /// </summary>
+    /// <param name="item">The item to try.</param>
+    protected void TrySubscribe(TNode item)
     {
-      base.OnInserted(value, index);
-      NameIndex.Add(value.Name, value);
+      if (item is IChangeNotifier notifier) {
+        notifier.Changing += itemChangingHandler;
+        notifier.Changed += itemChangedHandler;
+      }
     }
 
-    protected override void OnRemoved(TNode value, int index)
+    /// <summary>
+    /// Tries to unsubscribe the collection from
+    /// change notifications from the specified item.
+    /// </summary>
+    /// <param name="item">The item to try.</param>
+    protected void TryUnsubscribe(TNode item)
     {
-      base.OnRemoved(value, index);
-      NameIndex.Remove(value.Name);
+      if (item is IChangeNotifier notifier) {
+        notifier.Changing -= itemChangingHandler;
+        notifier.Changed -= itemChangedHandler;
+      }
     }
 
-    protected override void OnCleared()
+    protected virtual void OnItemChanging(object sender, ChangeNotifierEventArgs e)
     {
-      base.OnCleared();
-      NameIndex.Clear();
-    }
-
-    protected override void OnItemChanging(object sender, ChangeNotifierEventArgs e)
-    {
-      base.OnItemChanging(sender, e);
       NameIndex.Remove(((TNode) sender).Name);
     }
 
-    protected override void OnItemChanged(object sender, ChangeNotifierEventArgs e)
+    protected virtual void OnItemChanged(object sender, ChangeNotifierEventArgs e)
     {
-      base.OnItemChanged(sender, e);
       var tNode = (TNode)sender;
       NameIndex.Add(tNode.Name, tNode);
     }
@@ -164,10 +216,21 @@ namespace Xtensive.Orm.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      foreach (var item in Items)
+      foreach (var item in items) {
         item.Lock(true);
+      }
     }
 
+    public virtual bool Contains(TNode item) => items.Contains(item);
+    public void CopyTo(TNode[] array, int arrayIndex) => items.CopyTo(array, arrayIndex);
+
+    public List<TNode>.Enumerator GetEnumerator() => items.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator<TNode> IEnumerable<TNode>.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     // Constructors
 
@@ -181,6 +244,8 @@ namespace Xtensive.Orm.Model
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Owner = owner;
       Name = name;
+      itemChangingHandler = OnItemChanging;
+      itemChangedHandler = OnItemChanged;
     }
 
     // Type initializer
