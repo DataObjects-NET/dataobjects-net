@@ -392,8 +392,8 @@ namespace Xtensive.Core
       isDisposed = true;
       if (isCompleted && exceptions!=null && exceptions.Count>0) {
         var exception = string.IsNullOrEmpty(exceptionMessage) 
-          ? new AggregateException(exceptions) 
-          : new AggregateException(exceptionMessage, exceptions);
+          ? new AggregateException(exceptions.ToArray()) 
+          : new AggregateException(exceptionMessage, exceptions.ToArray());
         throw exception;
       }
     }

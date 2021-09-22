@@ -289,11 +289,11 @@ namespace Xtensive.Orm.Operations
         }
 
         if (scope.PrecedingOperations!=null)
-          operation.PrecedingOperations = new ReadOnlyList<IOperation>(scope.PrecedingOperations);
+          operation.PrecedingOperations = scope.PrecedingOperations.AsReadOnly();
         if (scope.FollowingOperations!=null)
-          operation.FollowingOperations = new ReadOnlyList<IOperation>(scope.FollowingOperations);
+          operation.FollowingOperations = scope.FollowingOperations.AsReadOnly();
         if (scope.UndoOperations!=null)
-          operation.UndoOperations = new ReadOnlyList<IOperation>(scope.UndoOperations);
+          operation.UndoOperations = scope.UndoOperations.AsReadOnly();
         if (scope.KeyByIdentifier!=null)
           operation.IdentifiedEntities = new ReadOnlyDictionary<string, Key>(scope.KeyByIdentifier);
       }

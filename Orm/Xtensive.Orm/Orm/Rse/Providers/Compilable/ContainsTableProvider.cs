@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     public Func<ParameterContext, int> TopN { get; private set; }
 
-    public ReadOnlyList<FullTextColumnInfo> TargetColumns { get; private set; } 
+    public IReadOnlyList<FullTextColumnInfo> TargetColumns { get; private set; } 
 
     protected override RecordSetHeader BuildHeader()
     {
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
       SearchCriteria = searchCriteria;
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
-      TargetColumns = new ReadOnlyList<FullTextColumnInfo>(targetColumns.Select(tc=>index.Columns.First(c=>c.Column==tc)).ToList());
+      TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc)).ToList().AsReadOnly();
       TopN = topNByRank;
       if (FullFeatured) {
         var primaryIndexRecordsetHeader =

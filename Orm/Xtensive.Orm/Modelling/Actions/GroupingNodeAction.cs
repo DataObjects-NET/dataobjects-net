@@ -5,9 +5,8 @@
 // Created:    2009.04.22
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Core;
 
@@ -109,7 +108,7 @@ namespace Xtensive.Modelling.Actions
       if (recursive)
         foreach (var action in actions)
           action.Lock(true);
-      actions = new ReadOnlyList<NodeAction>(actions, true);
+      actions = new ReadOnlyCollection<NodeAction>(actions.ToArray());
     }
   }
 }

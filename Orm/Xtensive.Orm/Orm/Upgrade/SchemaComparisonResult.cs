@@ -4,14 +4,14 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.01
 
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
-using Xtensive.Collections;
-
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using System.Linq;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the list of unsafe actions.
     /// </summary>
-    public ReadOnlyList<NodeAction> UnsafeActions { get; private set;}
+    public IReadOnlyList<NodeAction> UnsafeActions { get; private set;}
 
     #region Additional information
 
@@ -91,12 +91,12 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="upgradeActions">The upgrade actions.</param>
     /// <param name="unsafeActions">The unsafe (breaking) actions.</param>
     public SchemaComparisonResult(
-      SchemaComparisonStatus schemaComparisonStatus, 
-      bool hasColumnTypeChanges, 
-      bool? isCompatibleInLegacyMode, 
-      HintSet hints, 
-      Difference difference, 
-      ActionSequence upgradeActions, 
+      SchemaComparisonStatus schemaComparisonStatus,
+      bool hasColumnTypeChanges,
+      bool? isCompatibleInLegacyMode,
+      HintSet hints,
+      Difference difference,
+      ActionSequence upgradeActions,
       IList<NodeAction> unsafeActions)
     {
       SchemaComparisonStatus = schemaComparisonStatus;
@@ -105,9 +105,9 @@ namespace Xtensive.Orm.Upgrade
       Hints = hints;
       Difference = difference;
       UpgradeActions = upgradeActions;
-      UnsafeActions = unsafeActions!=null 
-        ? new ReadOnlyList<NodeAction>(unsafeActions) 
-        : new ReadOnlyList<NodeAction>(new List<NodeAction>());
+      UnsafeActions = unsafeActions!=null
+        ? new ReadOnlyCollection<NodeAction>(unsafeActions)
+        : Array.Empty<NodeAction>();
       HasUnsafeActions = UnsafeActions.Any();
     }
   }

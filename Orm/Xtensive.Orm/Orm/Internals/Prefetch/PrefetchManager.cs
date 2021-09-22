@@ -94,21 +94,21 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public int TaskExecutionCount { get; private set; }
 
-    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
+    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors)
     {
       var prefetchTask = Prefetch(key, type, descriptors, false, default);
       return prefetchTask.GetAwaiter().GetResult();
     }
 
     public async Task<StrongReferenceContainer> PrefetchAsync(Key key, TypeInfo type,
-      IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+      IReadOnlyList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
     {
       var prefetchTask = Prefetch(key, type, descriptors, true, token);
       return await prefetchTask.ConfigureAwait(false);
     }
 
     private async ValueTask<StrongReferenceContainer> Prefetch(
-      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, bool isAsync, CancellationToken token)
+      Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors, bool isAsync, CancellationToken token)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, nameof(key));
       ArgumentValidator.EnsureArgumentNotNull(descriptors, nameof(descriptors));
@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public GraphContainer SetUpContainers(Key key, TypeInfo type,
-      IList<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state, bool canUseCache)
+      IReadOnlyList<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state, bool canUseCache)
     {
       var result = GetGraphContainer(key, type, exactType);
       var areAnyColumns = false;
@@ -302,7 +302,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
-    private static void EnsureAllFieldsBelongToSpecifiedType(IList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
+    private static void EnsureAllFieldsBelongToSpecifiedType(IReadOnlyList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
     {
       for (var i = 0; i < descriptors.Count; i++) {
         var declaringType = descriptors[i].Field.DeclaringType;

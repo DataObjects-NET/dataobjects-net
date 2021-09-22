@@ -5,8 +5,8 @@
 // Created:    2012.03.14
 
 using System;
+using System.Collections.Generic;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Builders;
 using Xtensive.Orm.Configuration;
@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Upgrade
 {
   internal sealed class StageModelFilter : IModelFilter
   {
-    private readonly ReadOnlyDictionary<Assembly, IUpgradeHandler> handlers;
+    private readonly IReadOnlyDictionary<Assembly, IUpgradeHandler> handlers;
     private readonly UpgradeStage stage;
 
     public bool IsFieldAvailable(PropertyInfo field)
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Upgrade
 
     // Constructors
 
-    public StageModelFilter(ReadOnlyDictionary<Assembly, IUpgradeHandler> handlers, UpgradeStage stage)
+    public StageModelFilter(IReadOnlyDictionary<Assembly, IUpgradeHandler> handlers, UpgradeStage stage)
     {
       ArgumentValidator.EnsureArgumentNotNull(handlers, "handlers");
 

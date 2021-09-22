@@ -674,7 +674,7 @@ namespace Xtensive.Orm.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      validators = new ReadOnlyList<IPropertyValidator>(validators.ToList());
+      validators = Array.AsReadOnly(validators.ToArray());
       Fields.Lock(true);
       if (column != null)
         column.Lock(true);

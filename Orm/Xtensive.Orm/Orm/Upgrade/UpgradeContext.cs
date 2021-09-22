@@ -146,17 +146,17 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the map of upgrade handlers.
     /// </summary>
-    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get { return Services.UpgradeHandlers; } }
+    public IReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get { return Services.UpgradeHandlers; } }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get { return Services.OrderedUpgradeHandlers; } }
+    public IReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get { return Services.OrderedUpgradeHandlers; } }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IModule> Modules { get { return Services.Modules; } }
+    public IReadOnlyList<IModule> Modules { get { return Services.Modules; } }
 
     /// <summary>
     /// Gets <see cref="Session"/> that is used for upgrade.
