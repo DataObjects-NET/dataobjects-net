@@ -371,7 +371,7 @@ namespace Xtensive.Modelling.Comparison
           throw new NullReferenceException();
         }
 
-        var _ = TryRegisterDifference(source, target, difference);
+        TryRegisterDifference(source, target, difference);
         difference.ItemChanges.Clear();
 
         if (source?.Count == 0 && target?.Count == 0) {
@@ -380,14 +380,14 @@ namespace Xtensive.Modelling.Comparison
 
         var sourceSize = source?.Count ?? 0;
         var sourceKeyMap = new Dictionary<string, Node>(sourceSize, StringComparer.OrdinalIgnoreCase);
-        for (var index = sourceSize - 1; index >= 0; index--) {
+        for (var index = sourceSize; index-- > 0;) {
           var node = source[index];
           sourceKeyMap.Add(GetNodeComparisonKey(node), node);
         }
 
         var targetSize = target?.Count ?? 0;
         var targetKeyMap = new Dictionary<string, Node>(targetSize, StringComparer.OrdinalIgnoreCase);
-        for (var index = targetSize - 1; index >= 0; index--) {
+        for (var index = targetSize; index-- > 0;) {
           var node = target[index];
           targetKeyMap.Add(GetNodeComparisonKey(node), node);
         }
@@ -417,6 +417,7 @@ namespace Xtensive.Modelling.Comparison
       }
     }
 
+    // Sort by items only with source, then by (target ?? source).Index then with source and target and then only with target
     private static int CompareNodeDifference(NodeDifference curr, NodeDifference other)
     {
       var currType = curr.Source != null && curr.Target != null ? 1 : curr.Source == null ? 3 : 0; 
@@ -426,8 +427,8 @@ namespace Xtensive.Modelling.Comparison
         return typeIsNot0Comparison;
       }
 
-      var currIndex = curr.Target?.Index ?? curr.Source?.Index ?? 0;
-      var otherIndex = other.Target?.Index ?? other.Source?.Index ?? 0;
+      var currIndex = (curr.Target ?? curr.Source)?.Index ?? 0;
+      var otherIndex = (other.Target ?? other.Source)?.Index ?? 0;
       var indexComparison = currIndex.CompareTo(otherIndex);
       return indexComparison != 0 ? indexComparison : currType.CompareTo(otherType);
     }
