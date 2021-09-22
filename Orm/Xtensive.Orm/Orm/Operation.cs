@@ -6,11 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Collections;
 
 using Xtensive.Orm.Operations;
 
@@ -23,10 +22,10 @@ namespace Xtensive.Orm
   [Serializable]
   public abstract class Operation : IOperation
   {
-    private static readonly ReadOnlyDictionary<string, Key> EmptyIdentifiedEntities =
+    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = 
       new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
 
-    private ReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
+    private IReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
     private IReadOnlyList<IOperation> precedingOperations = Array.Empty<IOperation>();
     private IReadOnlyList<IOperation> followingOperations = Array.Empty<IOperation>();
     private IReadOnlyList<IOperation> undoOperations = Array.Empty<IOperation>();
@@ -61,7 +60,7 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public ReadOnlyDictionary<string, Key> IdentifiedEntities {
+    public IReadOnlyDictionary<string, Key> IdentifiedEntities {
       get { return identifiedEntities; }
       set { identifiedEntities = value; }
     }

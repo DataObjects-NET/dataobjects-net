@@ -5,8 +5,8 @@
 // Created:    2009.07.15
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using JetBrains.Annotations;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Sql.Info;
 
@@ -32,12 +32,12 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    public IDictionary<string, string> SchemaMapping { get; private set; }
+    public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }
 
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    public IDictionary<string, string> DatabaseMapping { get; private set; }
+    public IReadOnlyDictionary<string, string> DatabaseMapping { get; private set; }
 
     /// <summary>
     /// Clones this instance.

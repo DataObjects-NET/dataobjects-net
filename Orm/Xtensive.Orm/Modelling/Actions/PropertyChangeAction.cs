@@ -6,8 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
-using System.Linq;
+using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Modelling.Actions
@@ -47,7 +46,7 @@ namespace Xtensive.Modelling.Actions
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
-      properties = new ReadOnlyDictionary<string, object>(properties, true);
+      properties = new ReadOnlyDictionary<string, object>(new Dictionary<string, object>(properties));
       base.Lock(recursive);
     }
   }

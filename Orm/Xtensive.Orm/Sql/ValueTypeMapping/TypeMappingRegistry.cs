@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Reflection;
 
 namespace Xtensive.Sql
@@ -17,8 +17,8 @@ namespace Xtensive.Sql
   /// </summary>
   public sealed class TypeMappingRegistry
   {
-    public ReadOnlyDictionary<Type, TypeMapping> Mappings { get; private set; }
-    public ReadOnlyDictionary<SqlType, Type> ReverseMappings { get; private set; }
+    public IReadOnlyDictionary<Type, TypeMapping> Mappings { get; private set; }
+    public IReadOnlyDictionary<SqlType, Type> ReverseMappings { get; private set; }
 
     public TypeMapping this[Type type] { get { return GetMapping(type); } }
     
@@ -60,7 +60,7 @@ namespace Xtensive.Sql
     public TypeMappingRegistry(IEnumerable<TypeMapping> mappings, IEnumerable<KeyValuePair<SqlType, Type>> reverseMappings)
     {
       Mappings = new ReadOnlyDictionary<Type, TypeMapping>(mappings.ToDictionary(m => m.Type));
-      ReverseMappings = new ReadOnlyDictionary<SqlType, Type>(reverseMappings.ToDictionary(r => r.Key, r => r.Value), true);
+      ReverseMappings = new ReadOnlyDictionary<SqlType, Type>(reverseMappings.ToDictionary(r => r.Key, r => r.Value));
     }
   }
 }
