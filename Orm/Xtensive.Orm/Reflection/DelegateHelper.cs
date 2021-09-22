@@ -5,12 +5,11 @@
 // Created:    2007.10.25
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
-using System.Text;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -106,8 +105,8 @@ namespace Xtensive.Reflection
 
     #endregion
 
-    private static ThreadSafeDictionary<object, Delegate> cachedDelegates = 
-      ThreadSafeDictionary<object, Delegate>.Create(new object());
+    private static ConcurrentDictionary<object, Delegate> cachedDelegates = 
+      new ConcurrentDictionary<object, Delegate>();
 
     /// <summary>
     /// Creates get member delegate.
@@ -131,7 +130,7 @@ namespace Xtensive.Reflection
 
       TDelegateType result = GetCachedDelegate(methodKey) as TDelegateType;
       if (result==null)
-        lock (cachedDelegates.SyncRoot) {
+        lock (cachedDelegates) {
           result = GetCachedDelegate(methodKey) as TDelegateType;
           if (result!=null)
             return result;
@@ -197,7 +196,7 @@ namespace Xtensive.Reflection
 
       Action<TObject, TValue> result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
       if (result==null)
-        lock (cachedDelegates.SyncRoot) {
+        lock (cachedDelegates) {
           result = (Action<TObject, TValue>)GetCachedDelegate(methodKey);
           if (result!=null)
             return result;
@@ -259,7 +258,7 @@ namespace Xtensive.Reflection
 
       var result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
       if (result==null)
-        lock (cachedDelegates.SyncRoot) {
+        lock (cachedDelegates) {
           result = GetCachedDelegate(methodKey) as Converter<TSource, TTarget>;
           if (result!=null)
             return result;
@@ -501,7 +500,7 @@ namespace Xtensive.Reflection
 
     private static void AddCachedDelegate(object delegateKey, Delegate value)
     {
-      cachedDelegates.SetValue(delegateKey, value);
+      cachedDelegates[delegateKey] = value;
     }
 
     #endregion

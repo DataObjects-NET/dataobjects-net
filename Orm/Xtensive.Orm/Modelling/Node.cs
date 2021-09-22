@@ -5,6 +5,7 @@
 // Created:    2009.03.16
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -41,8 +42,8 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static Collections.ThreadSafeDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
-      Collections.ThreadSafeDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>>.Create(new object());
+    private static ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
+      new ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>>();
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -852,7 +853,7 @@ namespace Xtensive.Modelling
     private static IReadOnlyDictionary<string, PropertyAccessor> GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-      return cachedPropertyAccessors.GetValue(type,
+      return cachedPropertyAccessors.GetOrAdd(type,
         entityType => {
           var d = new Dictionary<string, PropertyAccessor>();
           if (entityType != WellKnownTypes.Object) {

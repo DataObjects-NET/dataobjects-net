@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
@@ -43,9 +44,9 @@ namespace Xtensive.Core
     }
 
     [NonSerialized]
-    private object _lock;
+    private object _lock = new object();
     [NonSerialized]
-    private ThreadSafeDictionary<TypePair, object> cache;
+    private ConcurrentDictionary<TypePair, object> cache;
 
     private object[] constructorParams;
     private string[] typeSuffixes;
@@ -124,7 +125,7 @@ namespace Xtensive.Core
       where TAssociate : class
     {
       var key = new TypePair(typeof(TKey), typeof(TResult));
-      return (TResult) cache.GetValue(key,
+      return (TResult) cache.GetOrAdd(key,
         _key => ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out var foundFor)));
     }
 
@@ -143,7 +144,7 @@ namespace Xtensive.Core
       where TAssociate : class
     {
       var key = new TypePair(typeof(TKey1), typeof(TResult));
-      return (TResult) cache.GetValue(key, _key => {
+      return (TResult) cache.GetOrAdd(key, _key => {
         var associate1 = CreateAssociate<TKey1, TAssociate>(out var foundFor);
         var associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
         // Preferring non-null ;)
@@ -294,8 +295,7 @@ namespace Xtensive.Core
     protected AssociateProvider()
     {
       constructorParams = new object[] { this };
-      _lock = new object();
-      cache = ThreadSafeDictionary<TypePair, object>.Create(_lock);
+      cache = new ConcurrentDictionary<TypePair, object>();
     }
 
     protected AssociateProvider(SerializationInfo info, StreamingContext context)
@@ -321,8 +321,7 @@ namespace Xtensive.Core
     /// <param name="sender"></param>
     public virtual void OnDeserialization(object sender)
     {
-      _lock = new object();
-      cache = ThreadSafeDictionary<TypePair, object>.Create(_lock);
+      cache = new ConcurrentDictionary<TypePair, object>();
     }
 
     /// <inheritdoc/>

@@ -6,19 +6,18 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.Collections.Concurrent;
 using System.Linq;
 using System.Reflection;
 using Xtensive.Collections;
-using Xtensive.Core;
 
 
 namespace Xtensive.IoC
 {
   internal sealed class DefaultServiceContainer : ServiceContainerBase
   {
-    ThreadSafeDictionary<Assembly, IServiceContainer> containers =
-      ThreadSafeDictionary<Assembly, IServiceContainer>.Create(new object());
+    ConcurrentDictionary<Assembly, IServiceContainer> containers =
+      new ConcurrentDictionary<Assembly, IServiceContainer>();
 
     protected override IEnumerable<object> HandleGetAll(Type serviceType)
     {
@@ -35,7 +34,7 @@ namespace Xtensive.IoC
     private IServiceContainer GetContainer(Type serviceType)
     {
       var assembly = serviceType.Assembly;
-      return containers.GetValue(assembly, _assembly => {
+      return containers.GetOrAdd(assembly, _assembly => {
         var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
         typeRegistry.Register(_assembly);
         return new ServiceContainer(typeRegistry.SelectMany(type => ServiceRegistration.CreateAll(type, true)));

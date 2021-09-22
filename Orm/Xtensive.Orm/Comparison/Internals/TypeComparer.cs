@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
@@ -18,7 +19,7 @@ namespace Xtensive.Comparison
     ISystemComparer<Type>
   {
     [NonSerialized]
-    private ThreadSafeDictionary<Pair<Type>, int> results;
+    private ConcurrentDictionary<(Pair<Type>, TypeComparer), int> results;
 
     protected override IAdvancedComparer<Type> CreateNew(ComparisonRules rules)
       => new TypeComparer(Provider, ComparisonRules.Combine(rules));
@@ -27,10 +28,11 @@ namespace Xtensive.Comparison
     {
       return x == y
         ? 0
-        : results.GetValue(new Pair<Type>(x, y), generator, this);
+        : results.GetOrAdd((new Pair<Type>(x, y), this), generator);
 
-      static int generator(Pair<Type> pair, TypeComparer _this)
+      static int generator((Pair<Type>, TypeComparer) key)
       {
+        var (pair, _this) = key;
         var result = _this.BaseComparer1.Compare(pair.First.FullName, pair.Second.FullName);
         if (result == 0) {
           result = _this.BaseComparer2.Compare(pair.First.Assembly, pair.Second.Assembly);
@@ -43,7 +45,7 @@ namespace Xtensive.Comparison
 
     public override int GetHashCode(Type obj) => AdvancedComparerStruct<Type>.System.GetHashCode(obj);
 
-    private void Initialize() => results = ThreadSafeDictionary<Pair<Type>, int>.Create(new object());
+    private void Initialize() => results = new ConcurrentDictionary<(Pair<Type>, TypeComparer), int>();
 
 
     // Constructors

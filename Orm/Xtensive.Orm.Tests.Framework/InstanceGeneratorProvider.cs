@@ -5,10 +5,9 @@
 // Created:    2008.01.17
 
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
-using Xtensive.Collections;
 using Xtensive.Core;
-using Xtensive.IoC;
 
 namespace Xtensive.Orm.Tests
 {
@@ -20,8 +19,8 @@ namespace Xtensive.Orm.Tests
   public class InstanceGeneratorProvider : AssociateProvider, IInstanceGeneratorProvider
   {
     private static readonly InstanceGeneratorProvider @default = new InstanceGeneratorProvider();
-    private ThreadSafeDictionary<Type, IInstanceGeneratorBase> generators = 
-      ThreadSafeDictionary<Type, IInstanceGeneratorBase>.Create(new object());
+    private ConcurrentDictionary<(Type, InstanceGeneratorProvider), IInstanceGeneratorBase> generators = 
+      new ConcurrentDictionary<(Type, InstanceGeneratorProvider), IInstanceGeneratorBase>();
 
     public static InstanceGeneratorProvider Default {
       [DebuggerStepThrough]
@@ -39,15 +38,16 @@ namespace Xtensive.Orm.Tests
     /// <inheritdoc/>
     public IInstanceGeneratorBase GetInstanceGenerator(Type type)
     {
-      return generators.GetValue(type,
-        (_type, _this) => _this
-          .GetType()
-          .GetMethod("GetInstanceGenerator",  Array.Empty<Type>())
-          .GetGenericMethodDefinition()
-          .MakeGenericMethod(new[] {_type})
-          .Invoke(_this, null)
-          as IInstanceGeneratorBase,
-        this);
+      return generators.GetOrAdd((type, this),
+        (tuple) => {
+          var (_type, _this) = tuple;
+          return _this.GetType()
+            .GetMethod("GetInstanceGenerator", Array.Empty<Type>())
+            .GetGenericMethodDefinition()
+            .MakeGenericMethod(new[] { _type })
+            .Invoke(_this, null)
+          as IInstanceGeneratorBase;
+        });
     }
 
     #endregion
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Tests
 
     // Constructors
 
-    
+
     protected InstanceGeneratorProvider()
     {
       TypeSuffixes = new[] {"InstanceGenerator"};
