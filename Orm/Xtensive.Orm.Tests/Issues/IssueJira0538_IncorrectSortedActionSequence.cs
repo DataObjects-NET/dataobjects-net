@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0538_IncorrectSortedActionSequenceM
   {
     [Field]
     [Key]
-    new Guid Id { get; }
+    Guid Id { get; }
   }
 
   public abstract class EntityBase : Entity, IEntityBase

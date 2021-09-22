@@ -12,9 +12,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   {
     protected const int MaxIdentifierLength = 128;
 
-    private readonly string databaseName;
-    private readonly string defaultSchemaName;
-
     public override EntityInfo GetCollationInfo()
     {
       EntityInfo collationInfo = new EntityInfo();

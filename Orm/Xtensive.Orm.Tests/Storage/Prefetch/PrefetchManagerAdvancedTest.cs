@@ -365,9 +365,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     public void EntitySetQueryPlanReusingTest()
     {
       Key order0Key;
-      Key author0Key;
       Key order1Key;
-      Key author1Key;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var order0 = new Order {Number = 1, Customer = null, Employee = null};

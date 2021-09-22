@@ -2887,11 +2887,11 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test138()
     {
-      string nativeSql = "DECLARE @EmpIDVar int; "
-        +"SET @EmpIDVar = 1234; "
-          +"SELECT * "
-            +"FROM HumanResources.Employee "
-              +"WHERE EmployeeID = @EmpIDVar;";
+      // string nativeSql = "DECLARE @EmpIDVar int; "
+      //   +"SET @EmpIDVar = 1234; "
+      //     +"SELECT * "
+      //       +"FROM HumanResources.Employee "
+      //         +"WHERE EmployeeID = @EmpIDVar;";
 
       SqlTableRef employee = SqlDml.TableRef(Catalog.Schemas["HumanResources"].Tables["Employee"]);
       SqlVariable empIDVar = SqlDml.Variable("EmpIDVar", SqlType.Int32);
@@ -3133,35 +3133,35 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void Test151()
     {
-      string nativeSql = "CREATE VIEW [HumanResources].[vEmployee] "
-        +"AS SELECT "
-          +"e.[EmployeeID], "
-            +"c.[Title], "
-              +"c.[FirstName], "
-                +"c.[MiddleName], "
-                  +"c.[LastName], "
-                    +"c.[Suffix], "
-                      +"e.[Title] AS [JobTitle], "
-                        +"c.[Phone], "
-                          +"c.[EmailAddress], "
-                            +"c.[EmailPromotion], "
-                              +"a.[AddressLine1], "
-                                +"a.[AddressLine2], "
-                                  +"a.[City], "
-                                    +"sp.[Name] AS [StateProvinceName], "
-                                      +"a.[PostalCode], "
-                                        +"cr.[Name] AS [CountryRegionName], "
-                                          +"FROM [HumanResources].[Employee] e "
-                                            +"INNER JOIN [Person].[Contact] c "
-                                              +"ON c.[ContactID] = e.[ContactID] "
-                                                +"INNER JOIN [HumanResources].[EmployeeAddress] ea "
-                                                  +"ON e.[EmployeeID] = ea.[EmployeeID] "
-                                                    +"INNER JOIN [Person].[Address] a "
-                                                      +"ON ea.[AddressID] = a.[AddressID] "
-                                                        +"INNER JOIN [Person].[StateProvince] sp "
-                                                          +"ON sp.[StateProvinceID] = a.[StateProvinceID] "
-                                                            +"INNER JOIN [Person].[CountryRegion] cr "
-                                                              +"ON cr.[CountryRegionCode] = sp.[CountryRegionCode]";
+      // string nativeSql = "CREATE VIEW [HumanResources].[vEmployee] "
+      //   +"AS SELECT "
+      //     +"e.[EmployeeID], "
+      //       +"c.[Title], "
+      //         +"c.[FirstName], "
+      //           +"c.[MiddleName], "
+      //             +"c.[LastName], "
+      //               +"c.[Suffix], "
+      //                 +"e.[Title] AS [JobTitle], "
+      //                   +"c.[Phone], "
+      //                     +"c.[EmailAddress], "
+      //                       +"c.[EmailPromotion], "
+      //                         +"a.[AddressLine1], "
+      //                           +"a.[AddressLine2], "
+      //                             +"a.[City], "
+      //                               +"sp.[Name] AS [StateProvinceName], "
+      //                                 +"a.[PostalCode], "
+      //                                   +"cr.[Name] AS [CountryRegionName], "
+      //                                     +"FROM [HumanResources].[Employee] e "
+      //                                       +"INNER JOIN [Person].[Contact] c "
+      //                                         +"ON c.[ContactID] = e.[ContactID] "
+      //                                           +"INNER JOIN [HumanResources].[EmployeeAddress] ea "
+      //                                             +"ON e.[EmployeeID] = ea.[EmployeeID] "
+      //                                               +"INNER JOIN [Person].[Address] a "
+      //                                                 +"ON ea.[AddressID] = a.[AddressID] "
+      //                                                   +"INNER JOIN [Person].[StateProvince] sp "
+      //                                                     +"ON sp.[StateProvinceID] = a.[StateProvinceID] "
+      //                                                       +"INNER JOIN [Person].[CountryRegion] cr "
+      //                                                         +"ON cr.[CountryRegionCode] = sp.[CountryRegionCode]";
       SqlCreateView create = SqlDdl.Create(Catalog.Schemas["HumanResources"].Views["vEmployee"]);
 
       Console.Write(Compile(create));
