@@ -5,10 +5,9 @@
 // Created:    2007.09.26
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -26,7 +25,24 @@ namespace Xtensive.Orm.Building.Builders
   {
     private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
 
-    private static ThreadSafeDictionary<string, Type> GeneratedTypes = ThreadSafeDictionary<string, Type>.Create(new object());
+    private readonly struct TypeKey: IEquatable<TypeKey>
+    {
+      public readonly string Name;
+      public readonly Type BaseType;
+
+      public bool Equals(TypeKey other) => string.Equals(Name, other.Name);
+
+      public override bool Equals(object obj) => obj is TypeKey other && Equals(other);
+
+      public override int GetHashCode() => (Name ?? string.Empty).GetHashCode();
+
+      public TypeKey(string name, Type baseType) {
+        Name = name;
+        BaseType = baseType;
+      }
+    }
+    private static ConcurrentDictionary<TypeKey, Type> GeneratedTypes =
+      new ConcurrentDictionary<TypeKey, Type>();
 
     private readonly BuildingContext context;
     private readonly TypeBuilder typeBuilder;
@@ -411,10 +427,8 @@ namespace Xtensive.Orm.Building.Builders
         masterType.Namespace,
         context.NameBuilder.BuildAssociationName(association));
 
-      var result = GeneratedTypes.GetValue(typeName,
-        (_typeName, _baseType) =>
-          TypeHelper.CreateInheritedDummyType(_typeName, _baseType, true),
-        baseType);
+      var result = GeneratedTypes.GetOrAdd(new TypeKey(typeName, baseType),
+        typeKey => TypeHelper.CreateInheritedDummyType(typeKey.Name, typeKey.BaseType, true));
 
       return result;
     }
