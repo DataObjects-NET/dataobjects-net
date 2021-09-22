@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private readonly SinglyLinkedList<KeyExtractorNode<TItem>> nodes;
     private readonly Queue<Key> unknownTypeQueue;
     private readonly Queue<Pair<IEnumerable<Key>, IHasNestedNodes>> prefetchQueue;
-    private readonly Dictionary<Pair<IHasNestedNodes, TypeInfo>, IList<PrefetchFieldDescriptor>> fieldDescriptorCache;
+    private readonly Dictionary<Pair<IHasNestedNodes, TypeInfo>, IReadOnlyList<PrefetchFieldDescriptor>> fieldDescriptorCache;
     private readonly SessionHandler sessionHandler;
 
     private StrongReferenceContainer strongReferenceContainer;
@@ -172,7 +172,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       sessionHandler = session.Handler;
       unknownTypeQueue = new Queue<Key>();
       prefetchQueue = new Queue<Pair<IEnumerable<Key>, IHasNestedNodes>>();
-      fieldDescriptorCache = new Dictionary<Pair<IHasNestedNodes, TypeInfo>, IList<PrefetchFieldDescriptor>>();
+      fieldDescriptorCache = new Dictionary<Pair<IHasNestedNodes, TypeInfo>, IReadOnlyList<PrefetchFieldDescriptor>>();
     }
   }
 }

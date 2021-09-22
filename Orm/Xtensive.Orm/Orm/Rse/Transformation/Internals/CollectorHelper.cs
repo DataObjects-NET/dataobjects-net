@@ -46,20 +46,8 @@ namespace Xtensive.Orm.Rse.Transformation
         .AndAlso(result.Body, newPredicate.Body), newParameter0, newParameter1);
     }
 
-    public Pair<Expression<Func<Tuple, bool>>, ColumnCollection> ConcatenateWithExistingPredicate(
-      FilterProvider provider, Pair<Expression<Func<Tuple, bool>>, ColumnCollection> existingPredicatePair)
-    {
-      var newPredicate = CreatePredicatesConjunction(provider.Predicate,
-        existingPredicatePair.First);
-      var currentColumns = existingPredicatePair.Second;
-      foreach (var column in provider.Header.Columns)
-        if (!currentColumns.Any(c => c.Name==column.Name))
-          currentColumns.Add(column);
-      return new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(newPredicate, currentColumns);
-    }
-
     public bool CheckPresenceOfOldColumns(IEnumerable<Column> oldColumns,
-      ICollection<Column> mappedColumns)
+      IReadOnlyCollection<Column> mappedColumns)
     {
       foreach (var column in oldColumns)
         if (!mappedColumns.Contains(column))
@@ -87,7 +75,7 @@ namespace Xtensive.Orm.Rse.Transformation
 
     public void ValidateNewColumnIndexes<TDictKey, TPairKey>(
       Dictionary<TDictKey, List<Pair<TPairKey, ColumnCollection>>> currentState,
-      ICollection<Column> mappedColumns, string description)
+      IReadOnlyCollection<Column> mappedColumns, string description)
     {
       foreach (var providerPair in currentState)
         foreach (var predicatePair in providerPair.Value)

@@ -305,9 +305,7 @@ namespace Xtensive.Orm.Providers
             result = string.Format("FK_{0}", field.Name);
         }
         if (result.IsNullOrEmpty()) {
-          string[] names = new string[index.KeyFields.Keys.Count];
-          index.KeyFields.Keys.CopyTo(names, 0);
-          result = string.Format("IX_{0}", string.Join("", names));
+          result = string.Format("IX_{0}", string.Join("", index.KeyFields.Keys));
         }
       }
       return ApplyNamingRules(result);

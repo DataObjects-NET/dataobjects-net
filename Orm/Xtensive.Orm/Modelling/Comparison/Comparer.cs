@@ -374,18 +374,19 @@ namespace Xtensive.Modelling.Comparison
         TryRegisterDifference(source, target, difference);
         difference.ItemChanges.Clear();
 
-        if (source?.Count == 0 && target?.Count == 0) {
+        var sourceSize = source?.Count ?? 0;
+        var targetSize = target?.Count ?? 0;
+
+        if (sourceSize == 0 && targetSize == 0) {
           return null;
         }
 
-        var sourceSize = source?.Count ?? 0;
         var sourceKeyMap = new Dictionary<string, Node>(sourceSize, StringComparer.OrdinalIgnoreCase);
         for (var index = sourceSize; index-- > 0;) {
           var node = source[index];
           sourceKeyMap.Add(GetNodeComparisonKey(node), node);
         }
 
-        var targetSize = target?.Count ?? 0;
         var targetKeyMap = new Dictionary<string, Node>(targetSize, StringComparer.OrdinalIgnoreCase);
         for (var index = targetSize; index-- > 0;) {
           var node = target[index];

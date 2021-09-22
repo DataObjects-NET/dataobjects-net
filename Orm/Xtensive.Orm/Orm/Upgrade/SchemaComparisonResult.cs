@@ -4,14 +4,14 @@
 // Created by: Ivan Galkin
 // Created:    2009.05.01
 
+using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
-using Xtensive.Collections;
-
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Modelling.Comparison.Hints;
-using System.Linq;
 
 namespace Xtensive.Orm.Upgrade
 {
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the list of unsafe actions.
     /// </summary>
-    public ReadOnlyList<NodeAction> UnsafeActions { get; private set;}
+    public IReadOnlyList<NodeAction> UnsafeActions { get; private set;}
 
     #region Additional information
 
@@ -106,8 +106,8 @@ namespace Xtensive.Orm.Upgrade
       Difference = difference;
       UpgradeActions = upgradeActions;
       UnsafeActions = unsafeActions!=null 
-        ? new ReadOnlyList<NodeAction>(unsafeActions) 
-        : ReadOnlyList<NodeAction>.Empty;
+        ? new ReadOnlyCollection<NodeAction>(unsafeActions) 
+        : Array.Empty<NodeAction>();
       HasUnsafeActions = UnsafeActions.Any();
     }
   }
