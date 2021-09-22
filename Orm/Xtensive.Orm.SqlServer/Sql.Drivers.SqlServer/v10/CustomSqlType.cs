@@ -6,6 +6,9 @@
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
+  /// <summary>
+  /// Contains definitions of the geometry and geography types for the MS SQL RDBMS.
+  /// </summary>
   public static class CustomSqlType
   {
     /// <summary>
