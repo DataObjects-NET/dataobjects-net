@@ -156,11 +156,11 @@ namespace Xtensive.Modelling.Comparison.Hints
         hintMap.Add(node, new Dictionary<Type, object>());
       var nodeHintMap = hintMap.GetValueOrDefault(node);
       if (nodeHintMap==null)
-        return ArrayUtils<THint>.EmptyArray;
+        return Array.Empty<THint>();
       var hintType = typeof (THint);
       var hintOrList = nodeHintMap.GetValueOrDefault(hintType);
       if (hintOrList==null)
-        return ArrayUtils<THint>.EmptyArray;
+        return Array.Empty<THint>();
       var hint = hintOrList as THint;
       if (hint!=null)
         return new[] {hint};

@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Model
     {
       // We don't have any instance that has attributes == FieldAttributes.None
       if (criteria == FieldAttributes.None)
-        return ArrayUtils<FieldInfo>.EmptyArray;
+        return Array.Empty<FieldInfo>();
 
       switch (matchType) {
         case MatchType.Partial:

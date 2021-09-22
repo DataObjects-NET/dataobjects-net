@@ -156,10 +156,10 @@ namespace Xtensive.Orm.Tests.Core.Linq
       var type = typeof(Pair<>).Assembly.GetType("Xtensive.Linq.CachingExpressionCompiler");
       var instance = type.InvokeMember("Instance",
         BindingFlags.Public | BindingFlags.Static | BindingFlags.GetProperty,
-        null, null, ArrayUtils<object>.EmptyArray);
+        null, null, Array.Empty<object>());
       type.InvokeMember("ClearCache",
         BindingFlags.Public | BindingFlags.Instance | BindingFlags.InvokeMethod,
-        null, instance, ArrayUtils<object>.EmptyArray);
+        null, instance,  Array.Empty<object>());
     }
 
     private static IDisposable CreateMeasurement(bool warmUp, string name, int operationCount)

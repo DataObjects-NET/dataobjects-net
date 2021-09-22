@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Tests
       return generators.GetValue(type,
         (_type, _this) => _this
           .GetType()
-          .GetMethod("GetInstanceGenerator", ArrayUtils<Type>.EmptyArray)
+          .GetMethod("GetInstanceGenerator",  Array.Empty<Type>())
           .GetGenericMethodDefinition()
           .MakeGenericMethod(new[] {_type})
           .Invoke(_this, null)

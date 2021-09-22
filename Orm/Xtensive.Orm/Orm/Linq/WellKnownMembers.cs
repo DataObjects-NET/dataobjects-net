@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Linq
       static Query()
       {
 #pragma warning disable 612,618
-        All = typeof(Orm.Query).GetMethod(nameof(Orm.Query.All), ArrayUtils<Type>.EmptyArray);
+        All = typeof(Orm.Query).GetMethod(nameof(Orm.Query.All), Array.Empty<Type>());
 
         var freetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name==nameof(Orm.Query.FreeText)).ToArray();
         FreeTextString = freetextMethods
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Linq
       static QueryEndpoint()
       {
 #pragma warning disable 612,618
-        All = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.All), ArrayUtils<Type>.EmptyArray);
+        All = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.All), Array.Empty<Type>());
 
         var freetextMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name==nameof(Orm.QueryEndpoint.FreeText)).ToArray();
         FreeTextString = freetextMethods

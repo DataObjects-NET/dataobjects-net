@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Internals
         System.Activator.CreateInstance(
           accessorType.MakeGenericType(field.ValueType),
           BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
-          null, ArrayUtils<object>.EmptyArray, null);
+          null, Array.Empty<object>(), null);
       accessor.Field = field;
       return accessor;
     }

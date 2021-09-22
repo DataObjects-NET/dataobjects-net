@@ -388,7 +388,7 @@ namespace Xtensive.Orm.Upgrade
       if (type==WellKnownTypes.String)
         return string.Empty;
       if (type==WellKnownTypes.ByteArray)
-        return ArrayUtils<byte>.EmptyArray;
+        return Array.Empty<byte>();
       return Activator.CreateInstance(column.ValueType);
     }
 

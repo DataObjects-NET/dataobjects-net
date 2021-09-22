@@ -466,7 +466,7 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(delegateType, "delegateType");
       // check for non-generic Action
       if (delegateType == ActionTypes[0])
-        return new Pair<Type, Type[]>(WellKnownTypes.Void, ArrayUtils<Type>.EmptyArray);
+        return new Pair<Type, Type[]>(WellKnownTypes.Void, Array.Empty<Type>());
       if (delegateType.IsGenericType) {
         var genericTypeDefinition = delegateType.GetGenericTypeDefinition();
         var genericArguments = delegateType.GetGenericArguments();
