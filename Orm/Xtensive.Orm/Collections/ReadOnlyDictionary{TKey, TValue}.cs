@@ -20,18 +20,12 @@ namespace Xtensive.Collections
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class ReadOnlyDictionary<TKey, TValue> :
-    IDictionary<TKey, TValue>,
-    IDictionary,
-    IReadOnly
+    IDictionary<TKey, TValue>
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly IDictionary<TKey, TValue> innerDictionary;
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly bool isFixedSize;
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private ReadOnlyCollection<TKey> innerKeyDictionary;
-    [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private ReadOnlyCollection<TValue> innerValueDictionary;
 
     /// <inheritdoc/>
     public int Count {
@@ -40,25 +34,8 @@ namespace Xtensive.Collections
     }
 
     /// <inheritdoc/>
-    public object SyncRoot {
-      [DebuggerStepThrough]
-      get { return this; }
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Always thrown by "set" accessor (setter).</exception>
     public TValue this[TKey key]     {
       get { return innerDictionary[key]; }
-      set { throw Exceptions.CollectionIsReadOnly(null); }
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException">Always thrown by "set" accessor (setter).</exception>
-    public object this[object key] {
-      get {
-        ArgumentValidator.EnsureArgumentIs<TKey>(key, "key");
-        return innerDictionary[(TKey)key];
-      }
       set { throw Exceptions.CollectionIsReadOnly(null); }
     }
 
@@ -76,42 +53,6 @@ namespace Xtensive.Collections
     {
       [DebuggerStepThrough]
       get { return innerDictionary.Values; }
-    }
-
-    ICollection IDictionary.Keys
-    {
-      get
-      {
-        ICollection<TKey> keys = innerDictionary.Keys;
-        if (innerKeyDictionary == null) {
-          innerKeyDictionary = new ReadOnlyCollection<TKey>(keys);
-          return innerKeyDictionary;
-        }
-        else {
-          // Potentialy innerDictionary.Keys collection can change, that is why validation should be performed.
-          if (!innerKeyDictionary.IsWrapperOf(keys))
-            innerKeyDictionary = new ReadOnlyCollection<TKey>(keys);
-          return innerKeyDictionary;
-        }
-      }
-    }
-
-    ICollection IDictionary.Values
-    {
-      get
-      {
-        ICollection<TValue> values = innerDictionary.Values;
-        if (innerValueDictionary == null) {
-          innerValueDictionary = new ReadOnlyCollection<TValue>(values);
-          return innerValueDictionary;
-        }
-        else {
-          // Potentialy innerDictionary.Values collection can change, that is why validation should be performed.
-          if (!innerValueDictionary.IsWrapperOf(values))
-            innerValueDictionary = new ReadOnlyCollection<TValue>(values);
-          return innerValueDictionary;
-        }
-      }
     }
 
     #endregion
@@ -253,14 +194,6 @@ namespace Xtensive.Collections
     public IEnumerator<KeyValuePair<TKey, TValue>> GetEnumerator()
     {
       return innerDictionary.GetEnumerator();
-    }
-
-    /// <inheritdoc/>
-    IDictionaryEnumerator IDictionary.GetEnumerator()
-    {
-      return new DictionaryEnumerator<TKey, TValue>(
-        innerDictionary.GetEnumerator(),
-        delegate(KeyValuePair<TKey, TValue> value) { return value; });
     }
 
     #endregion
