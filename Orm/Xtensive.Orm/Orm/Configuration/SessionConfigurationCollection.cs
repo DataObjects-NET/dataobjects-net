@@ -73,13 +73,6 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
-    public override void Insert(int index, SessionConfiguration item)
-    {
-      EnsureItemIsValid(item);
-      base.Insert(index, item);
-    }
-
-    /// <inheritdoc/>
     public override void Add(SessionConfiguration item)
     {
       EnsureItemIsValid(item);
