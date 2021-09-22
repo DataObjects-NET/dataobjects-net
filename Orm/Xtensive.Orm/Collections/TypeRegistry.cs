@@ -32,13 +32,13 @@ namespace Xtensive.Collections
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
     private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;
-    private readonly Set<Assembly> assemblies = new Set<Assembly>();
+    private System.Collections.Generic.ISet<Assembly> assemblies = new HashSet<Assembly>();
     protected ServiceRegistration[] serviceRegistrations;
 
     /// <summary>
     /// Gets assemblies containing registered types.
     /// </summary>
-    public Set<Assembly> Assemblies { get { return assemblies; } }
+    public IReadOnlySet<Assembly> Assemblies { get { return (IReadOnlySet<Assembly>)assemblies; } }
 
     /// <summary>
     /// Determines whether the specified <see cref="Type"/> is contained in this instance.
@@ -146,8 +146,9 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public override void Lock(bool recursive)
     {
+      this.EnsureNotLocked();
       ProcessPendingActions();
-      assemblies.Lock(true);
+      assemblies = new ReadOnlyHashSet<Assembly>((HashSet<Assembly>)assemblies);
       base.Lock(recursive);
     }
 
@@ -216,7 +217,7 @@ namespace Xtensive.Collections
       types = new List<Type>(source.types);
       typeSet = new HashSet<Type>(source.typeSet);
       processor = source.processor;
-      assemblies = new Set<Assembly>(source.assemblies);
+      assemblies = new HashSet<Assembly>(source.assemblies);
     }
   }
 }
