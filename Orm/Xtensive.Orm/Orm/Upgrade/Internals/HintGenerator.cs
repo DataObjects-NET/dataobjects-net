@@ -52,7 +52,6 @@ namespace Xtensive.Orm.Upgrade
 
       var removedTypes = GetRemovedTypes();
       var conflictsByTable = GetRecreatedTypes(removedTypes);
-      //GenerateRecreateHints(removedTypes);
       GenerateRecordCleanupHints(removedTypes, conflictsByTable, false);
 
       var movedTypes = GetMovedTypes();
