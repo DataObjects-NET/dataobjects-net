@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 namespace Xtensive.Sql.Compiler
 {
@@ -9,8 +9,6 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public abstract class Node
   {
-    public Node Next;
-
     internal abstract void AcceptVisitor(NodeVisitor visitor);
   }
 }

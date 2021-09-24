@@ -1252,11 +1252,11 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         foreach (var (segId, seq) in sequenceMap) {
           if (query.Length == 0) {
             query.AppendFormat("SELECT * FROM (\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.Translate(null, seq)); // context is not used in PostrgreSQL translator
+              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostrgreSQL translator
           }
           else {
             query.AppendFormat("\nUNION ALL\nSELECT {0} as id, * FROM {1}", segId,
-              Driver.Translator.Translate(null, seq)); // context is not used in PostgreSQL translator
+              Driver.Translator.TranslateToString(null, seq)); // context is not used in PostgreSQL translator
           }
         }
         query.Append("\n) all_sequences\nORDER BY id");

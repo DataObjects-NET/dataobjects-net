@@ -10,27 +10,31 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
 {
   internal class Translator : v8_0.Translator
   {
-    public override string Translate(SqlCompilerContext context, SqlContinue node)
+    public override void Translate(SqlCompilerContext context, SqlContinue node)
     {
-      return "CONTINUE";
+      context.Output.Append("CONTINUE");
     }
 
-    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
       switch (node.IntervalPart) {
         case SqlIntervalPart.Day:
         case SqlIntervalPart.Hour:
           break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          return;
       }
       switch (section) {
         case ExtractSection.From:
-          return "from justify_hours(";
+          context.Output.Append("from justify_hours(");
+          break;
         case ExtractSection.Exit:
-          return "))";
+          context.Output.Append("))");
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 

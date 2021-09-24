@@ -367,7 +367,7 @@ namespace Xtensive.Core
     /// <param name="source">A sequence to create a <see cref="Dictionary{TKey, TValue}"/> from.</param>
     /// <param name="keySelector">A function to extract a key from each element.</param>
     /// <param name="elementSelector">A funtion to extract a value from each element.</param>
-    /// <param name="equalityComparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
+    /// <param name="comparer">An <see cref="IEqualityComparer{T}"/> to compare keys.</param>
     /// <param name="capacity">Initial dictionary capacity.</param>
     /// <returns>A <see cref="Dictionary{TKey, TValue}"/> that contains keys and values.</returns>
     public static Dictionary<TKey, TValue> ToDictionary<TSource, TKey, TValue>(

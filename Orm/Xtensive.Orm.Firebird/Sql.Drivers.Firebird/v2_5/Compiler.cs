@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Csaba Beer
@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        AppendTranslated(node, SelectSection.Entry);
         VisitSelectLimitOffset(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -35,7 +35,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
         VisitSelectLock(node);
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        AppendTranslated(node, SelectSection.Exit);
       }
     }
 
@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       if (node.From!=null)
         base.VisitSelectFrom(node);
       else
-        context.Output.AppendText("FROM RDB$DATABASE");
+        context.Output.Append("FROM RDB$DATABASE ");
     }
 
     /// <inheritdoc/>
@@ -54,20 +54,20 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       using (context.EnterScope(node)) {
         bool needOpeningParenthesis = false;
         bool needClosingParenthesis = false;
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
+        AppendTranslated(node, QueryExpressionSection.Entry);
         if (needOpeningParenthesis)
-          context.Output.AppendText("(");
+          context.Output.Append("(");
         node.Left.AcceptVisitor(this);
         if (needClosingParenthesis)
-          context.Output.AppendText(")");
-        context.Output.AppendText(translator.Translate(node.NodeType));
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
+          context.Output.Append(")");
+        AppendTranslated(node.NodeType);
+        AppendTranslated(node, QueryExpressionSection.All);
         if (needOpeningParenthesis)
-          context.Output.AppendText("(");
+          context.Output.Append("(");
         node.Right.AcceptVisitor(this);
         if (needClosingParenthesis)
-          context.Output.AppendText(")");
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
+          context.Output.Append(")");
+        AppendTranslated(node, QueryExpressionSection.Exit);
       }
     }
 
@@ -204,8 +204,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
 
     public override void Visit(SqlAlterSequence node)
     {
-      context.Output.AppendText(translator.Translate(context, node, NodeSection.Entry));
-      context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
+      AppendTranslated(node, NodeSection.Entry);
+      AppendTranslated(node, NodeSection.Exit);
     }
 
     #region Static helpers

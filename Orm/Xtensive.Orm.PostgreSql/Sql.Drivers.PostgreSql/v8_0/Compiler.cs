@@ -322,17 +322,17 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected void DateTimeOffsetExtractOffset(SqlExtract node)
     {
       using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, ExtractSection.Entry));
+        AppendTranslated(node, ExtractSection.Entry);
         var part = node.DateTimePart!=SqlDateTimePart.Nothing
           ? translator.Translate(node.DateTimePart)
           : node.IntervalPart!=SqlIntervalPart.Nothing
             ? translator.Translate(node.IntervalPart)
             : translator.Translate(node.DateTimeOffsetPart);
-        context.Output.AppendText(part);
-        context.Output.AppendText(translator.Translate(context, node, ExtractSection.From));
+        context.Output.Append(part);
+        AppendTranslated(node, ExtractSection.From);
         node.Operand.AcceptVisitor(this);
-        context.Output.AppendText(translator.Translate(context, node, ExtractSection.Exit));
-        context.Output.AppendText(translator.Translate(SqlNodeType.Multiply));
+        AppendTranslated(node, ExtractSection.Exit);
+        AppendTranslated(SqlNodeType.Multiply);
         OneSecondInterval.AcceptVisitor(this);
       }
     }
