@@ -168,7 +168,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       if (node.From!=null)
         base.VisitSelectFrom(node);
       else
-        context.Output.AppendText("FROM DUAL");
+        context.Output.Append("FROM DUAL");
     }
 
     public override void Visit(SqlJoinHint node)
@@ -176,32 +176,32 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       var method = translator.Translate(node.Method);
       if (string.IsNullOrEmpty(method))
         return;
-      context.Output.AppendText(method);
-      context.Output.AppendText("(");
+      context.Output.Append(method);
+      context.Output.Append("(");
       node.Table.AcceptVisitor(this);
-      context.Output.AppendText(")");
+      context.Output.Append(")");
     }
 
     public override void Visit(SqlFastFirstRowsHint node)
     {
-      context.Output.AppendText(string.Format("FIRST_ROWS({0})", node.Amount));
+      context.Output.Append(string.Format("FIRST_ROWS({0})", node.Amount));
     }
 
     public override void Visit(SqlNativeHint node)
     {
-      context.Output.AppendText(node.HintText);
+      context.Output.Append(node.HintText);
     }
 
     public override void Visit(SqlForceJoinOrderHint node)
     {
       if (node.Tables.IsNullOrEmpty()) 
-        context.Output.AppendText("ORDERED");
+        context.Output.Append("ORDERED");
       else {
-        context.Output.AppendText("LEADING(");
+        context.Output.Append("LEADING(");
         using (context.EnterCollectionScope())
           foreach (var table in node.Tables)
             table.AcceptVisitor(this);
-        context.Output.AppendText(")");
+        context.Output.Append(")");
       }
     }
 

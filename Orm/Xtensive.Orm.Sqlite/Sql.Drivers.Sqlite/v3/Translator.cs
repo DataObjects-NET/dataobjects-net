@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -57,9 +57,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SchemaNode node)
+    public override void Translate(SqlCompilerContext context, SchemaNode node)
     {
-      return QuoteIdentifier(node.DbName);
+      TranslateIdentifier(context.Output, node.DbName);
     }
 
     /// <inheritdoc/>
@@ -100,68 +100,82 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       return base.Translate(functionType);
     }
 
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var literalType = literalValue.GetType();
-
-      if (literalType==typeof (byte[]))
-        return ByteArrayToString((byte[]) literalValue);
-      if (literalType==typeof (TimeSpan))
-        return Convert.ToString((long) ((TimeSpan) literalValue).Ticks * 100);
-      if (literalType==typeof (Boolean))
-        return ((Boolean) literalValue) ? "1" : "0";
-      if (literalType==typeof (Guid))
-        return ByteArrayToString(((Guid) literalValue).ToByteArray());
-      if (literalType==typeof (DateTimeOffset))
-        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString, DateTimeFormat);
-
-      return base.Translate(context, literalValue);
+      var output = context.Output;
+      switch (literalValue) {
+        case bool v:
+          output.Append(v ? '1' : '0');
+          break;
+        case byte[] values:
+          TranslateByteArray(output.StringBuilder, values);
+          break;
+        case Guid guid:
+          TranslateByteArray(output.StringBuilder, guid.ToByteArray());
+          break;
+        case TimeSpan timeSpan:
+          output.Append(timeSpan.Ticks * 100);
+          break;
+        case DateTimeOffset dt:
+          output.Append(dt.ToString(DateTimeOffsetFormatString, DateTimeFormat));
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
+      }
     }
 
-    private string ByteArrayToString(byte[] literalValue)
+    private void TranslateByteArray(StringBuilder sb, byte[] bytes)
     {
-      var result = new StringBuilder(literalValue.Length * 2 + 3);
-      result.Append("x'");
-      result.AppendHexArray(literalValue);
-      result.Append("'");
-      return result.ToString();
+      sb.EnsureCapacity(sb.Length + bytes.Length * 2 + 3);
+      sb.Append("x'");
+      sb.AppendHexArray(bytes);
+      sb.Append("'");
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+    public override void Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
-      case AlterTableSection.Entry:
-        return "ALTER TABLE " + Translate(context, node.Table);
-      case AlterTableSection.AddColumn:
-        return "ADD";
-      case AlterTableSection.Exit:
-        return string.Empty;
-      default:
-        throw SqlHelper.NotSupported(node.Action.GetType().Name);
+        case AlterTableSection.Entry:
+          context.Output.Append("ALTER TABLE ");
+          Translate(context, node.Table);
+          break;
+        case AlterTableSection.AddColumn:
+          context.Output.Append("ADD");
+          break;
+        case AlterTableSection.Exit:
+          break;
+        default:
+          throw SqlHelper.NotSupported(node.Action.GetType().Name);
       }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
+    public override void Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
     {
       switch (section) {
-      case ConstraintSection.Exit:
-        ForeignKey fk = constraint as ForeignKey;
-        if (fk!=null) {
-          if (fk.OnUpdate==ReferentialAction.Cascade)
-            return ") ON UPDATE CASCADE";
-          if (fk.OnDelete==ReferentialAction.Cascade)
-            return ") ON DELETE CASCADE";
-        }
-        return ")";
-      default:
-        return base.Translate(context, constraint, section);
+        case ConstraintSection.Exit:
+          if (constraint is ForeignKey fk) {
+            if (fk.OnUpdate == ReferentialAction.Cascade) {
+              context.Output.Append(") ON UPDATE CASCADE");
+              return;
+            }
+            if (fk.OnDelete == ReferentialAction.Cascade) {
+              context.Output.Append(") ON DELETE CASCADE");
+              return;
+            }
+          }
+          context.Output.Append(")");
+          break;
+        default:
+          base.Translate(context, constraint, section);
+          break;
       }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
+    public override void Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
       //switch (section) {
       //  case SequenceDescriptorSection.Increment:
@@ -169,126 +183,130 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       //      return "AUTOINCREMENT";
       //    return string.Empty;
       //}
-      return string.Empty;
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
+    public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
+      var output = context.Output;
       switch (section) {
-      case CreateTableSection.Entry:
-        var builder = new StringBuilder();
-        builder.Append("CREATE ");
-        var temporaryTable = node.Table as TemporaryTable;
-        if (temporaryTable!=null)
-          builder.Append("TEMPORARY TABLE " + Translate(context, temporaryTable));
-        else
-          builder.Append("TABLE " + Translate(context, node.Table));
-        return builder.ToString();
-      case CreateTableSection.Exit:
-        return string.Empty;
-      }
-      return base.Translate(context, node, section);
-    }
-
-    public override string Translate(SqlCompilerContext context, SqlCreateView node, NodeSection section)
-    {
-      switch (section) {
-      case NodeSection.Entry:
-        var sb = new StringBuilder();
-        if (node.View.ViewColumns.Count > 0) {
-          sb.Append(" (");
-          bool first = true;
-          foreach (DataTableColumn c in node.View.ViewColumns) {
-            if (first)
-              first = false;
-            else
-              sb.Append(ColumnDelimiter);
-            sb.Append(c.DbName);
+        case CreateTableSection.Entry:
+          output.Append("CREATE ");
+          if (node.Table is TemporaryTable temporaryTable) {
+            output.Append("TEMPORARY TABLE ");
+            Translate(context, temporaryTable);
           }
-          sb.Append(")");
-        }
-        return sb.ToString();
-      case NodeSection.Exit:
-        return string.Empty;
-      default:
-        return string.Empty;
+          else {
+            output.Append("TABLE ");
+            Translate(context, node.Table);
+          }
+          return;
+        case CreateTableSection.Exit:
+          return;
+      }
+      base.Translate(context, node, section);
+    }
+
+    public override void Translate(SqlCompilerContext context, SqlCreateView node, NodeSection section)
+    {
+      var output = context.Output;
+      switch (section) {
+        case NodeSection.Entry:
+          if (node.View.ViewColumns.Count > 0) {
+            output.Append(" (");
+            bool first = true;
+            foreach (DataTableColumn c in node.View.ViewColumns) {
+              if (first)
+                first = false;
+              else
+                output.Append(ColumnDelimiter);
+              output.Append(c.DbName);
+            }
+            output.Append(")");
+          }
+          break;
+        case NodeSection.Exit:
+          break;
       }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlDropSchema node)
+    public override void Translate(SqlCompilerContext context, SqlDropSchema node)
     {
       throw SqlHelper.NotSupported(node.GetType().Name);
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlDropTable node)
+    public override void Translate(SqlCompilerContext context, SqlDropTable node)
     {
-      return "DROP TABLE IF EXISTS " + Translate(context, node.Table);
+      context.Output.Append("DROP TABLE IF EXISTS ");
+      Translate(context, node.Table);
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlDropView node)
+    public override void Translate(SqlCompilerContext context, SqlDropView node)
     {
-      return "DROP VIEW IF EXISTS " + Translate(context, node.View);
+      context.Output.Append("DROP VIEW IF EXISTS ");
+      Translate(context, node.View);
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
+    public override void Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
-      if (node.FunctionType==SqlFunctionType.LastAutoGeneratedId) {
-        if (section==FunctionCallSection.Entry)
-          return Translate(node.FunctionType);
-        if (section==FunctionCallSection.Exit)
-          return string.Empty;
+      if (node.FunctionType == SqlFunctionType.LastAutoGeneratedId) {
+        if (section == FunctionCallSection.Entry) {
+          context.Output.Append(Translate(node.FunctionType));
+          return;
+        }
+        if (section == FunctionCallSection.Exit) {
+          return;
+        }
       }
       switch (section) {
-      case FunctionCallSection.ArgumentEntry:
-        return string.Empty;
-      case FunctionCallSection.ArgumentDelimiter:
-        return ArgumentDelimiter;
-      default:
-        return base.Translate(context, node, section, position);
+        case FunctionCallSection.ArgumentEntry:
+          break;
+        case FunctionCallSection.ArgumentDelimiter:
+          context.Output.Append(ArgumentDelimiter);
+          break;
+        default:
+          base.Translate(context, node, section, position);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
+    public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
-      switch (section) {
-      case UpdateSection.Entry:
-        return "UPDATE";
-      case UpdateSection.Set:
-        return "SET";
-      case UpdateSection.From:
-        return "FROM";
-      case UpdateSection.Where:
-        return "WHERE";
-      }
-      return string.Empty;
+      context.Output.Append(section switch {
+        UpdateSection.Entry => "UPDATE",
+        UpdateSection.Set => "SET",
+        UpdateSection.From => "FROM",
+        UpdateSection.Where => "WHERE",
+        _ => string.Empty
+      });
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       Index index = node.Index;
       switch (section) {
-      case CreateIndexSection.Entry:
-        return string.Format("CREATE {0} INDEX {1} ON {2} ", index.IsUnique ? "UNIQUE" : String.Empty, QuoteIdentifier(index.Name), QuoteIdentifier(index.DataTable.Name));
-
-      case CreateIndexSection.Exit:
-        return string.Empty;
-      default:
-        return base.Translate(context, node, section);
+        case CreateIndexSection.Entry:
+          context.Output.Append($"CREATE {(index.IsUnique ? "UNIQUE" : String.Empty)} INDEX {QuoteIdentifier(index.Name)} ON {QuoteIdentifier(index.DataTable.Name)} ");
+          return;
+        case CreateIndexSection.Exit:
+          return;
+        default:
+          base.Translate(context, node, section);
+          break;
       }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlDropIndex node)
+    public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      var dropIndexTemplate = "DROP INDEX {0}.{1}";
-      if (context==null)
-        return string.Format(dropIndexTemplate, node.Index.DataTable.Schema.Name, QuoteIdentifier(node.Index.DbName));
-      return string.Format(dropIndexTemplate, context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), QuoteIdentifier(node.Index.DbName));
+      context.Output.Append("DROP INDEX ")
+        .Append(context == null ? node.Index.DataTable.Schema.Name : context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema))    //!!! why context can be null?
+        .Append(".");
+      TranslateIdentifier(context.Output, node.Index.DbName);
     }
 
     /// <inheritdoc/>
@@ -338,64 +356,66 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
+    public override void Translate(SqlCompilerContext context, SqlExtract extract, ExtractSection section)
     {
-      switch (section) {
-      case ExtractSection.Entry:
-        return "CAST(STRFTIME(";
-      case ExtractSection.From:
-        return ", ";
-      case ExtractSection.Exit:
-        return ") as INTEGER)";
-      default:
-        return string.Empty;
-      }
+      context.Output.Append(section switch {
+        ExtractSection.Entry => "CAST(STRFTIME(",
+        ExtractSection.From => ", ",
+        ExtractSection.Exit => ") as INTEGER)",
+        _ => string.Empty
+      });
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
+      var output = context.Output;
       //http://www.sqlite.org/lang_expr.html
       var sqlType = node.Type.Type;
 
-      if (sqlType==SqlType.DateTime ||
-          sqlType==SqlType.DateTimeOffset) {
+      if (sqlType == SqlType.DateTime ||
+          sqlType == SqlType.DateTimeOffset) {
         switch (section) {
-        case NodeSection.Entry:
-          return string.Format("STRFTIME('{0}', ", DateTimeCastFormat);
-        case NodeSection.Exit:
-          return ")";
-        default:
-          throw new ArgumentOutOfRangeException("section");
+          case NodeSection.Entry:
+            output.Append(string.Format("STRFTIME('{0}', ", DateTimeCastFormat));
+            break;
+          case NodeSection.Exit:
+            output.Append(")");
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
         }
       }
-
-      if (sqlType==SqlType.Binary ||
-          sqlType==SqlType.Char ||
-          sqlType==SqlType.Interval ||
-          sqlType==SqlType.Int16 ||
-          sqlType==SqlType.Int32 ||
-          sqlType==SqlType.Int64)
+      else if (sqlType == SqlType.Binary ||
+          sqlType == SqlType.Char ||
+          sqlType == SqlType.Interval ||
+          sqlType == SqlType.Int16 ||
+          sqlType == SqlType.Int32 ||
+          sqlType == SqlType.Int64) {
         switch (section) {
-        case NodeSection.Entry:
-          return "CAST(";
-        case NodeSection.Exit:
-          return "AS " + Translate(node.Type) + ")";
-        default:
-          throw new ArgumentOutOfRangeException("section");
+          case NodeSection.Entry:
+            output.Append("CAST(");
+            break;
+          case NodeSection.Exit:
+            output.Append("AS ").Append(Translate(node.Type)).Append(")");
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
         }
-      if (sqlType==SqlType.Decimal ||
-          sqlType==SqlType.Double ||
-          sqlType==SqlType.Float)
+      }
+      else if (sqlType == SqlType.Decimal ||
+          sqlType == SqlType.Double ||
+          sqlType == SqlType.Float) {
         switch (section) {
-        case NodeSection.Entry:
-          return string.Empty;
-        case NodeSection.Exit:
-          return "+ 0.0";
-        default:
-          throw new ArgumentOutOfRangeException("section");
+          case NodeSection.Entry:
+            break;
+          case NodeSection.Exit:
+            output.Append("+ 0.0");
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
         }
-      return string.Empty;
+      }
     }
 
     /// <inheritdoc/>
@@ -405,61 +425,77 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
+    public override void Translate(SqlCompilerContext context, SqlTrim node, TrimSection section)
     {
+      var output = context.Output;
       switch (section) {
-      case TrimSection.Entry:
-        switch (node.TrimType) {
-        case SqlTrimType.Leading:
-          return "LTRIM(";
-        case SqlTrimType.Trailing:
-          return "RTRIM(";
-        case SqlTrimType.Both:
-          return "TRIM(";
+        case TrimSection.Entry:
+          switch (node.TrimType) {
+            case SqlTrimType.Leading:
+              output.Append("LTRIM(");
+              break;
+            case SqlTrimType.Trailing:
+              output.Append("RTRIM(");
+              break;
+            case SqlTrimType.Both:
+              output.Append("TRIM(");
+              break;
+            default:
+              throw new ArgumentOutOfRangeException();
+          }
+          break;
+        case TrimSection.Exit:
+          switch (node.TrimType) {
+            case SqlTrimType.Leading:
+            case SqlTrimType.Trailing:
+            case SqlTrimType.Both:
+              output.Append(")");
+              break;
+            default:
+              throw new ArgumentOutOfRangeException();
+          }
+          break;
         default:
           throw new ArgumentOutOfRangeException();
-        }
-      case TrimSection.Exit:
-        switch (node.TrimType) {
-        case SqlTrimType.Leading:
-        case SqlTrimType.Trailing:
-          return ")";
-        case SqlTrimType.Both:
-          return ")";
-        default:
-          throw new ArgumentOutOfRangeException();
-        }
-      default:
-        throw new ArgumentOutOfRangeException();
       }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
+    public override void Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
       switch (section) {
-      case TableColumnSection.Type:
-        if (column.SequenceDescriptor==null)
-          return base.Translate(context, column, section);
-        return "integer"; // SQLite requires autoincrement columns to have exactly 'integer' type.
-      case TableColumnSection.Exit:
-        if (column.SequenceDescriptor==null)
-          return string.Empty;
-        var primaryKey = column.Table.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
-        if (primaryKey==null)
-          return string.Empty;
-        return string.Format("CONSTRAINT {0} PRIMARY KEY AUTOINCREMENT", QuoteIdentifier(primaryKey.Name));
-      case TableColumnSection.GeneratedExit:
-        return string.Empty;
-      default:
-        return base.Translate(context, column, section);
+        case TableColumnSection.Type:
+          if (column.SequenceDescriptor == null) {
+            base.Translate(context, column, section);
+          }
+          else {
+            context.Output.Append("integer");   // SQLite requires autoincrement columns to have exactly 'integer' type.
+          }
+          break;
+        case TableColumnSection.Exit:
+          if (column.SequenceDescriptor == null) {
+            return;
+          }
+          var primaryKey = column.Table.TableConstraints.OfType<PrimaryKey>().FirstOrDefault();
+          if (primaryKey == null) {
+            return;
+          }
+          context.Output.Append("CONSTRAINT ");
+          TranslateIdentifier(context.Output, primaryKey.Name);
+          context.Output.Append(" PRIMARY KEY AUTOINCREMENT");
+          break;
+        case TableColumnSection.GeneratedExit:
+          break;
+        default:
+          base.Translate(context, column, section);
+          break;
       }
     }
 
     /// <inheritdoc/>
-    public override string Translate(Collation collation)
+    public override void Translate(IOutput output, Collation collation)
     {
-      return collation.DbName;
+      output.Append(collation.DbName);
     }
 
     /// <inheritdoc/>

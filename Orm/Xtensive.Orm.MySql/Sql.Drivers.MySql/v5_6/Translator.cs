@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -13,18 +13,23 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
   internal class Translator : v5_5.Translator
   {
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
-      if (node.Type.Type==SqlType.DateTime)
+      if (node.Type.Type == SqlType.DateTime) {
         switch (section) {
-        case NodeSection.Entry:
-          return "CAST(";
-        case NodeSection.Exit:
-          return "AS " + Translate(node.Type) + "(6))";
-        default:
-          throw new ArgumentOutOfRangeException("section");
+          case NodeSection.Entry:
+            context.Output.Append("CAST(");
+            break;
+          case NodeSection.Exit:
+            context.Output.Append("AS ").Append(Translate(node.Type)).Append("(6))");
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
         }
-      return base.Translate(context, node, section);
+      }
+      else {
+        base.Translate(context, node, section);
+      }
     }
 
     // Constructors

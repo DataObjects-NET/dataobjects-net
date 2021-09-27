@@ -33,8 +33,7 @@ namespace Xtensive.Caching
     public long MaxSize { get; private set; }
 
     /// <inheritdoc/>
-    public override void Clear() =>        //TODO: Change to imp.Clear() after updating BitFaster.Caching package to 1.0.4
-      imp = new FastConcurrentLru<TKey, TItem>((int)MaxSize);
+    public override void Clear() => imp.Clear();
 
     /// <inheritdoc/>
     public override bool TryGetItem(TKey key, bool markAsHit, out TItem item) => imp.TryGet(key, out item);
