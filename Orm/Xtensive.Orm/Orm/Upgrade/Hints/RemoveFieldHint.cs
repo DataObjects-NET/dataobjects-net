@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "field");
       Type = type;
       Field = field;
-      AffectedColumns = new ReadOnlyList<string>(new List<string>());
+      AffectedColumns = ReadOnlyList<string>.Empty;
     }
 
     /// <summary>
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Upgrade
 
       Type = type.FullName;
       Field = field;
-      AffectedColumns = new ReadOnlyList<string>(new List<string>());
+      AffectedColumns = ReadOnlyList<string>.Empty;
     }
 
     /// <summary>

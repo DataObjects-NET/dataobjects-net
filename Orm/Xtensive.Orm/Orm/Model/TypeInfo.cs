@@ -600,10 +600,12 @@ namespace Xtensive.Orm.Model
       targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
       ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
 
-      int adapterIndex = 0;
-      foreach (FieldInfo field in Fields)
-        if (field.IsStructure || field.IsEntitySet)
+      var adapterIndex = 0;
+      foreach (var field in Fields) {
+        if (field.IsStructure || field.IsEntitySet) {
           field.AdapterIndex = adapterIndex++;
+        }
+      }
 
       affectedIndexes.UpdateState();
       indexes.UpdateState();
@@ -618,14 +620,14 @@ namespace Xtensive.Orm.Model
 
       if (IsEntity) {
         if (HasVersionRoots) {
-          versionFields = new ReadOnlyList<FieldInfo>(new List<FieldInfo>());
+          versionFields = ReadOnlyList<FieldInfo>.Empty;
           versionColumns = new ReadOnlyList<ColumnInfo>(new List<ColumnInfo>());
         }
         else {
           versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
           versionColumns = new ReadOnlyList<ColumnInfo>(GetVersionColumns());
         }
-        HasVersionFields = versionFields.Any();
+        HasVersionFields = versionFields.Count > 0;
         HasExplicitVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
       }
 
@@ -634,7 +636,7 @@ namespace Xtensive.Orm.Model
         // We'll check that all implementors are mapped to the same database later.
         // MappingSchema is not important: it's copied for consistency.
         var firstImplementor = GetImplementors().FirstOrDefault();
-        if (firstImplementor!=null) {
+        if (firstImplementor != null) {
           MappingDatabase = firstImplementor.MappingDatabase;
           MappingSchema = firstImplementor.MappingSchema;
         }
@@ -698,10 +700,10 @@ namespace Xtensive.Orm.Model
       sequence.AddRange(b);
       
       var first = sequence.Where(a => a.Ancestors.Count > 0).ToList();
-      if (first.Count==0)
+      if (first.Count == 0)
         removalSequence = new ReadOnlyList<AssociationInfo>(sequence);
       else {
-        var second = sequence.Where(a => a.Ancestors.Count==0).ToList();
+        var second = sequence.Where(a => a.Ancestors.Count == 0);
         removalSequence = new ReadOnlyList<AssociationInfo>(first.Concat(second).ToList());
       }
     }
@@ -750,7 +752,7 @@ namespace Xtensive.Orm.Model
 
     private void CreateTupleDescriptor()
     {
-      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
+      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset);
       columns = new ColumnInfoCollection(this, "Columns");
       columns.AddRange(orderedColumns);
       TupleDescriptor = TupleDescriptor.Create(
