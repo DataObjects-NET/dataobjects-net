@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
@@ -42,8 +41,8 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>> cachedPropertyAccessors = 
-      new ConcurrentDictionary<Type, IReadOnlyDictionary<string, PropertyAccessor>>();
+    private static ConcurrentDictionary<Type, PropertyAccessorDictionary> cachedPropertyAccessors = 
+      new ConcurrentDictionary<Type, PropertyAccessorDictionary>();
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -51,7 +50,7 @@ namespace Xtensive.Modelling
     [NonSerialized]
     private Nesting nesting;
     [NonSerialized]
-    private IReadOnlyDictionary<string, PropertyAccessor> propertyAccessors;
+    private PropertyAccessorDictionary propertyAccessors;
     internal Node parent;
     private string name;
     private string escapedName;
@@ -129,8 +128,8 @@ namespace Xtensive.Modelling
       get { return nesting; }
     }
 
-    /// <inheritdoc/>
-    public IReadOnlyDictionary<string, PropertyAccessor> PropertyAccessors {
+    /// <inheritdoc/>    
+    public PropertyAccessorDictionary PropertyAccessors {
       [DebuggerStepThrough]
       get { return propertyAccessors; }
     }
@@ -850,7 +849,7 @@ namespace Xtensive.Modelling
       model = p == null ? (Node) (this as IModel) : p.Model;
     }
 
-    private static IReadOnlyDictionary<string, PropertyAccessor> GetPropertyAccessors(Type type)
+    private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return cachedPropertyAccessors.GetOrAdd(type,
@@ -870,7 +869,7 @@ namespace Xtensive.Modelling
             }
           }
 
-          return new ReadOnlyDictionary<string, PropertyAccessor>(d);
+          return new PropertyAccessorDictionary(d);
         });
     }
 
