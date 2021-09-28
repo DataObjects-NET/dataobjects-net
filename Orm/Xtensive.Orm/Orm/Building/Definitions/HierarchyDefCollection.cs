@@ -99,5 +99,14 @@ namespace Xtensive.Orm.Building.Definitions
       }
       return false;
     }
+
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+      foreach (var item in this) {
+        Removed?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
+      }
+      base.Clear();
+    }
   }
 }

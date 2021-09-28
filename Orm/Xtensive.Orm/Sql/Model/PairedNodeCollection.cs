@@ -55,6 +55,15 @@ namespace Xtensive.Sql.Model
       return result;
     }
 
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+      foreach (var item in this) {
+        item.UpdatePairedProperty(property, null);
+      }
+      base.Clear();
+    }
+
     #region Constructors
 
     /// <summary>
