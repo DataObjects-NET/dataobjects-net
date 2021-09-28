@@ -78,6 +78,15 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TNode> nodes)
+    {
+      this.EnsureNotLocked();
+      foreach (var node in nodes) {
+        Add(node);
+      }
+    }
+
+    /// <inheritdoc/>
     public override bool Remove(TNode item)
     {
       if (base.Remove(item)) {
@@ -225,6 +234,7 @@ namespace Xtensive.Orm.Model
     static NodeCollection()
     {
       Empty = new NodeCollection<TNode>(null, "Empty");
+      Empty.Lock(false);
     }
   }
 }

@@ -145,15 +145,24 @@ namespace Xtensive.Orm.Building.Definitions
     public override void Add(TypeDef item) {
       base.Add(item);
       typeIndex[item.UnderlyingType] = item;
-      Added(this, new TypeDefCollectionChangedEventArgs(item));
+      Added?.Invoke(this, new TypeDefCollectionChangedEventArgs(item));
+    }
+
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TypeDef> items)
+    {
+      this.EnsureNotLocked();
+      foreach (var item in items) {
+        Add(item);
+      }
     }
 
     /// <inheritdoc/>
     public override bool Remove(TypeDef item)
     {
-      typeIndex.Remove(item.UnderlyingType);
       if (base.Remove(item)) {
-        Removed(this, new TypeDefCollectionChangedEventArgs(item));
+        typeIndex.Remove(item.UnderlyingType);
+        Removed?.Invoke(this, new TypeDefCollectionChangedEventArgs(item));
         return true;
       }
       return false;
@@ -163,7 +172,7 @@ namespace Xtensive.Orm.Building.Definitions
     public override void Clear() {
       base.Clear();
       typeIndex.Clear();
-      Cleared(this, new TypeDefCollectionClearedEventArgs());
+      Cleared?.Invoke(this, new TypeDefCollectionClearedEventArgs());
     }
 
     // Constructors

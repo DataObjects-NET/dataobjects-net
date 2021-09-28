@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
@@ -36,6 +37,14 @@ namespace Xtensive.Sql.Model
     {
       base.Add(item);
       item.UpdatePairedProperty(property, owner);
+    }
+
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TNode> items)
+    {
+      foreach (var item in items) {
+        Add(item);
+      }
     }
 
     /// <inheritdoc/>
