@@ -97,11 +97,12 @@ namespace Xtensive.Orm.Rse
     /// <param name="columns">Collection of items to add.</param>
     public ColumnCollection(List<Column> columns)
     {
-      nameIndex = new Dictionary<string, int>(Count);
-      for (var index = 0; index < Count; index++) {
-        nameIndex.Add(this[index].Name, index);
-      }
       this.columns = columns;
+      var count = columns.Count;
+      nameIndex = new Dictionary<string, int>(count);
+      for (var index = count; index-- > 0;) {
+        nameIndex.Add(columns[index].Name, index);
+      }
     }
   }
 }
