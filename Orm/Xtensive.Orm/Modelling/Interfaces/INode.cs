@@ -35,7 +35,7 @@ namespace Xtensive.Modelling
     /// <summary>
     /// Gets the property accessors for this node.
     /// </summary>
-    IReadOnlyDictionary<string, PropertyAccessor> PropertyAccessors { get; }
+    PropertyAccessorDictionary PropertyAccessors { get; }
 
     /// <summary>
     /// Gets the value of the property with specified name.
