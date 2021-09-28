@@ -7,6 +7,7 @@
 using System;
 using Xtensive.Core;
 using Xtensive.Collections;
+using System.Collections.Generic;
 
 namespace Xtensive.Orm.Building.Definitions
 {
@@ -78,14 +79,22 @@ namespace Xtensive.Orm.Building.Definitions
     public override void Add(HierarchyDef item)
     {
       base.Add(item);
-      Added(this, new HierarchyDefCollectionChangedEventArgs(item));
+      Added?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
+    }
+
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<HierarchyDef> items)
+    {
+      foreach (var item in items) {
+        Add(item);
+      }
     }
 
     /// <inheritdoc/>
     public override bool Remove(HierarchyDef item)
     {
       if (base.Remove(item)) {
-        Removed(this, new HierarchyDefCollectionChangedEventArgs(item));
+        Removed?.Invoke(this, new HierarchyDefCollectionChangedEventArgs(item));
         return true;
       }
       return false;

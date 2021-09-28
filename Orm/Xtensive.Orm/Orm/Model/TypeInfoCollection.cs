@@ -125,6 +125,14 @@ namespace Xtensive.Orm.Model
       fullNameTable.Add(item.UnderlyingType.FullName, item);
     }
 
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TypeInfo> items)
+    {
+      foreach (var item in items) {
+        Add(item);
+      }
+    }
+
     /// <summary>
     /// Removes element from the the collection.
     /// </summary>
