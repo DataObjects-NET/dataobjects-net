@@ -13,7 +13,6 @@ using System.Runtime.Serialization;
 using System.Security;
 using System.Text;
 using System.Threading;
-using Xtensive.Collections;
 using Xtensive.Comparison;
 
 using Xtensive.Reflection;
@@ -30,13 +29,13 @@ namespace Xtensive.Core
     IDeserializationCallback,
     ISerializable
   {
-    private static readonly AsyncLocal<HashSet<TypePair>> inProgressAsync = new AsyncLocal<HashSet<TypePair>>();
+    private static readonly AsyncLocal<HashSet<(Type, Type)>> inProgressAsync = new AsyncLocal<HashSet<(Type, Type)>>();
 
-    private static HashSet<TypePair> InProgress
+    private static HashSet<(Type, Type)> InProgress
     {
       get {
         if (inProgressAsync.Value == null) {
-          inProgressAsync.Value = new HashSet<TypePair>();
+          inProgressAsync.Value = new HashSet<(Type, Type)>();
         }
         return inProgressAsync.Value;
       }
@@ -46,7 +45,7 @@ namespace Xtensive.Core
     [NonSerialized]
     private object _lock = new object();
     [NonSerialized]
-    private ConcurrentDictionary<TypePair, object> cache;
+    private ConcurrentDictionary<(Type, Type), object> cache;
 
     private object[] constructorParams;
     private string[] typeSuffixes;
@@ -124,7 +123,7 @@ namespace Xtensive.Core
     protected TResult GetAssociate<TKey, TAssociate, TResult>()
       where TAssociate : class
     {
-      var key = new TypePair(typeof(TKey), typeof(TResult));
+      var key = (typeof(TKey), typeof(TResult));
       return (TResult) cache.GetOrAdd(key,
         _key => ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out var foundFor)));
     }
@@ -143,7 +142,7 @@ namespace Xtensive.Core
     protected TResult GetAssociate<TKey1, TKey2, TAssociate, TResult>()
       where TAssociate : class
     {
-      var key = new TypePair(typeof(TKey1), typeof(TResult));
+      var key = (typeof(TKey1), typeof(TResult));
       return (TResult) cache.GetOrAdd(key, _key => {
         var associate1 = CreateAssociate<TKey1, TAssociate>(out var foundFor);
         var associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
@@ -233,10 +232,10 @@ namespace Xtensive.Core
       where TAssociate : class
     {
       if (InProgress == null) {
-        InProgress = new HashSet<TypePair>();
+        InProgress = new HashSet<(Type, Type)>();
       }
 
-      var progressionMark = new TypePair(typeof(TKey), typeof(TAssociate));
+      var progressionMark = (typeof(TKey), typeof(TAssociate));
       if (InProgress.Contains(progressionMark)) {
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
       }
@@ -295,7 +294,7 @@ namespace Xtensive.Core
     protected AssociateProvider()
     {
       constructorParams = new object[] { this };
-      cache = new ConcurrentDictionary<TypePair, object>();
+      cache = new ConcurrentDictionary<(Type, Type), object>();
     }
 
     protected AssociateProvider(SerializationInfo info, StreamingContext context)
@@ -321,7 +320,7 @@ namespace Xtensive.Core
     /// <param name="sender"></param>
     public virtual void OnDeserialization(object sender)
     {
-      cache = new ConcurrentDictionary<TypePair, object>();
+      cache = new ConcurrentDictionary<(Type, Type), object>();
     }
 
     /// <inheritdoc/>
