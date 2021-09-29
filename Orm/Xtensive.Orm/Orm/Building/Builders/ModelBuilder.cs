@@ -28,7 +28,8 @@ namespace Xtensive.Orm.Building.Builders
     private readonly struct TypeKey: IEquatable<TypeKey>
     {
       public readonly string Name;
-      public readonly Type BaseType;
+      public readonly Type OwnerType;
+      public readonly Type TargetType;
 
       public bool Equals(TypeKey other) => string.Equals(Name, other.Name);
 
@@ -36,13 +37,13 @@ namespace Xtensive.Orm.Building.Builders
 
       public override int GetHashCode() => (Name ?? string.Empty).GetHashCode();
 
-      public TypeKey(string name, Type baseType) {
+      public TypeKey(string name, Type ownerType, Type targetType) {
         Name = name;
-        BaseType = baseType;
+        OwnerType = ownerType;
+        TargetType = targetType;
       }
     }
-    private static ConcurrentDictionary<TypeKey, Type> GeneratedTypes =
-      new ConcurrentDictionary<TypeKey, Type>();
+    private static ConcurrentDictionary<TypeKey, Lazy<Type>> generatedTypes = new ConcurrentDictionary<TypeKey, Lazy<Type>>();
 
     private readonly BuildingContext context;
     private readonly TypeBuilder typeBuilder;
@@ -419,16 +420,20 @@ namespace Xtensive.Orm.Building.Builders
 
     private Type GenerateAuxiliaryType(AssociationInfo association)
     {
-      var masterType = association.OwnerType.UnderlyingType;
-      var slaveType = association.TargetType.UnderlyingType;
-      var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(masterType, slaveType);
+      var ownerType = association.OwnerType.UnderlyingType;
+      var targetType = association.TargetType.UnderlyingType;
 
       var typeName = string.Format(GeneratedTypeNameFormat,
-        masterType.Namespace,
+        ownerType.Namespace,
         context.NameBuilder.BuildAssociationName(association));
 
-      var result = GeneratedTypes.GetOrAdd(new TypeKey(typeName, baseType),
-        typeKey => TypeHelper.CreateInheritedDummyType(typeKey.Name, typeKey.BaseType, true));
+      static Lazy<Type> AuxiliaryTypeFactory(TypeKey typeKey) {
+        return new Lazy<Type>(() => {
+          var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(typeKey.OwnerType, typeKey.TargetType);
+          return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
+        });
+      };
+      var result = generatedTypes.GetOrAdd(new TypeKey(typeName, ownerType, targetType), AuxiliaryTypeFactory).Value;
 
       return result;
     }
