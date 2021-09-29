@@ -22,8 +22,8 @@ namespace Xtensive.Conversion
   [Serializable]
   public sealed class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
   {
-    private static ThreadSafeCached<AdvancedConverter<TFrom, TTo>> cachedConverter =
-      ThreadSafeCached<AdvancedConverter<TFrom, TTo>>.Create(new object());
+    private static Lazy<AdvancedConverter<TFrom, TTo>> cachedConverter =
+      new Lazy<AdvancedConverter<TFrom, TTo>>(() => AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>());
 
     /// <summary>
     /// Gets default advanced converter for types <typeparamref name="TFrom"/> and <typeparamref name="TTo"/>.
@@ -32,8 +32,7 @@ namespace Xtensive.Conversion
     public static AdvancedConverter<TFrom, TTo> Default {
       [DebuggerStepThrough]
       get {
-        return cachedConverter.GetValue(
-          () => AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>());
+        return cachedConverter.Value;
       }
     }
 
