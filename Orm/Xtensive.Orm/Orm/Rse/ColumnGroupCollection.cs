@@ -22,8 +22,8 @@ namespace Xtensive.Orm.Rse
   {
     private readonly IReadOnlyList<ColumnGroup> items;
 
-    private static ThreadSafeCached<ColumnGroupCollection> cachedEmpty =
-      ThreadSafeCached<ColumnGroupCollection>.Create(new object());
+    private static Lazy<ColumnGroupCollection> cachedEmpty =
+      new Lazy<ColumnGroupCollection>(() => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
 
     /// <inheritdoc/>
     public int Count => items.Count;
@@ -31,13 +31,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the <see cref="ColumnGroup"/> by specified group index.
     /// </summary>
-    public ColumnGroup this[int groupIndex]
-    {
-      get
-      {
-        return this.ElementAt(groupIndex);
-      }
-    }
+    public ColumnGroup this[int groupIndex] => items[groupIndex];
 
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -51,8 +45,7 @@ namespace Xtensive.Orm.Rse
     public static ColumnGroupCollection Empty {
       [DebuggerStepThrough]
       get {
-        return cachedEmpty.GetValue(
-          () => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
+        return cachedEmpty.Value;
       }
     }
 

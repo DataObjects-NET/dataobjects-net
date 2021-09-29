@@ -21,8 +21,8 @@ namespace Xtensive.Arithmetic
   [Serializable]
   public sealed class Arithmetic<T> : MethodCacheBase<IArithmetic<T>>
   {
-    private static ThreadSafeCached<Arithmetic<T>> cached =
-      ThreadSafeCached<Arithmetic<T>>.Create(new object());
+    private static Lazy<Arithmetic<T>> cached =
+      new Lazy<Arithmetic<T>>(() => ArithmeticProvider.Default.GetArithmetic<T>());
 
     /// <summary>
     /// Gets default arithmetic for type <typeparamref name="T"/>
@@ -31,8 +31,7 @@ namespace Xtensive.Arithmetic
     public static Arithmetic<T> Default {
       [DebuggerStepThrough]
       get {
-        return cached.GetValue(
-          () => ArithmeticProvider.Default.GetArithmetic<T>());
+        return cached.Value;
       }
     }
 
