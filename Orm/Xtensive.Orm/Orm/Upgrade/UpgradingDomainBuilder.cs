@@ -580,10 +580,10 @@ namespace Xtensive.Orm.Upgrade
 
         // Hints
         var triplet = BuildTargetModelAndHints(extractedSchema);
-        var hintProcessingResult = triplet.Third;
-        targetSchema = triplet.First;
+        var hintProcessingResult = triplet.Item3;
+        targetSchema = triplet.Item1;
         context.TargetStorageModel = targetSchema;
-        var hints = triplet.Second;
+        var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
           UpgradeLog.Info(Strings.LogExtractedSchema);
@@ -666,10 +666,10 @@ namespace Xtensive.Orm.Upgrade
 
         // Hints
         var triplet = BuildTargetModelAndHints(extractedSchema);
-        var hintProcessingResult = triplet.Third;
-        targetSchema = triplet.First;
+        var hintProcessingResult = triplet.Item3;
+        targetSchema = triplet.Item1;
         context.TargetStorageModel = targetSchema;
-        var hints = triplet.Second;
+        var hints = triplet.Item2;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
           UpgradeLog.Info(Strings.LogExtractedSchema);
@@ -727,7 +727,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult> BuildTargetModelAndHints(StorageModel extractedSchema)
+    private (StorageModel, HintSet, UpgradeHintsProcessingResult) BuildTargetModelAndHints(StorageModel extractedSchema)
     {
       var handlers = Domain.Demand().Handlers;
       var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
@@ -735,9 +735,10 @@ namespace Xtensive.Orm.Upgrade
       var processedInfo = hintProcessor.Process(context.Hints);
       var targetModel = GetTargetModel(handlers.Domain, processedInfo.ReverseFieldMapping, processedInfo.CurrentModelTypes, extractedSchema);
       context.SchemaHints = new HintSet(extractedSchema, targetModel);
-      if (context.Stage == UpgradeStage.Upgrading)
+      if (context.Stage == UpgradeStage.Upgrading) {
         BuildSchemaHints(extractedSchema, processedInfo, currentDomainModel);
-      return new Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult>(targetModel, context.SchemaHints, processedInfo);
+      }
+      return (targetModel, context.SchemaHints, processedInfo);
     }
 
 

@@ -60,16 +60,16 @@ namespace Xtensive.Orm
         if ((options & NotifyChangedOptions.Prefetch)==NotifyChangedOptions.Prefetch) {
           var keys =
             from triplet in entitySubscribers
-            select triplet.First;
+            select triplet.Item1;
           Query.Many<Entity>(keys).Run();
         }
 
         var skipRemovedEntities = 
           (options & NotifyChangedOptions.SkipRemovedEntities)==NotifyChangedOptions.SkipRemovedEntities;
         foreach (var triplet in entitySubscribers) {
-          if (triplet.Third!=null) {
-            var handler = (PropertyChangedEventHandler) triplet.Third;
-            var key = triplet.First;
+          if (triplet.Item3!=null) {
+            var handler = (PropertyChangedEventHandler) triplet.Item3;
+            var key = triplet.Item1;
             var entityState = EntityStateCache[key, false];
             var sender = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
             if (skipRemovedEntities && (sender==null || sender.IsRemoved))
@@ -79,15 +79,15 @@ namespace Xtensive.Orm
         }
 
         foreach (var triplet in entitySetSubscribers) {
-          if (triplet.Third!=null) {
-            var handler = (NotifyCollectionChangedEventHandler) triplet.Third;
-            var key = triplet.First;
+          if (triplet.Item3!=null) {
+            var handler = (NotifyCollectionChangedEventHandler) triplet.Item3;
+            var key = triplet.Item1;
             var entityState = EntityStateCache[key, false];
             var owner = entityState!=null ? entityState.Entity : Query.SingleOrDefault(key);
             var ownerIsRemoved = owner==null || owner.IsRemoved;
             if (skipRemovedEntities && ownerIsRemoved)
               continue;
-            var sender = ownerIsRemoved ? null : owner.GetFieldValue(triplet.Second);
+            var sender = ownerIsRemoved ? null : owner.GetFieldValue(triplet.Item2);
             handler.Invoke(sender, new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
           }
         }
