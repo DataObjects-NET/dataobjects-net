@@ -1,4 +1,4 @@
-// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -45,13 +45,7 @@ namespace Xtensive.Orm.BulkOperations
 
     #region Non-public methods
 
-    protected void EnsureTransactionIsStarted()
-    {
-      var accessor = QueryProvider.Session.Services.Demand<DirectSqlAccessor>();
-#pragma warning disable 168
-      var notUsed = accessor.Transaction;
-#pragma warning restore 168
-    }
+    protected void EnsureTransactionIsStarted() => Transaction.Require(QueryProvider.Session);
 
     protected abstract int ExecuteInternal();
 
