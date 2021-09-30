@@ -16,8 +16,8 @@ namespace Xtensive.IoC
 {
   internal sealed class DefaultServiceContainer : ServiceContainerBase
   {
-    ConcurrentDictionary<Assembly, IServiceContainer> containers =
-      new ConcurrentDictionary<Assembly, IServiceContainer>();
+    private ConcurrentDictionary<Assembly, Lazy<IServiceContainer>> containers =
+      new ConcurrentDictionary<Assembly, Lazy<IServiceContainer>>();
 
     protected override IEnumerable<object> HandleGetAll(Type serviceType)
     {
@@ -33,12 +33,16 @@ namespace Xtensive.IoC
 
     private IServiceContainer GetContainer(Type serviceType)
     {
-      var assembly = serviceType.Assembly;
-      return containers.GetOrAdd(assembly, _assembly => {
-        var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
-        typeRegistry.Register(_assembly);
-        return new ServiceContainer(typeRegistry.SelectMany(type => ServiceRegistration.CreateAll(type, true)));
-      });
+      static Lazy<IServiceContainer> ServiceContainerFactory(Assembly assembly)
+      {
+        return new Lazy<IServiceContainer>(() => {
+          var typeRegistry = new TypeRegistry(new ServiceTypeRegistrationProcessor());
+          typeRegistry.Register(assembly);
+          return new ServiceContainer(typeRegistry.SelectMany(type => ServiceRegistration.CreateAll(type, true)));
+        });
+      }
+
+      return containers.GetOrAdd(serviceType.Assembly, ServiceContainerFactory).Value;
     }
   }
 }

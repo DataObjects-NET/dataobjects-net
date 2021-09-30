@@ -433,9 +433,8 @@ namespace Xtensive.Orm.Building.Builders
           return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
         });
       };
-      var result = generatedTypes.GetOrAdd(new TypeKey(typeName, ownerType, targetType), AuxiliaryTypeFactory).Value;
 
-      return result;
+      return generatedTypes.GetOrAdd(new TypeKey(typeName, ownerType, targetType), AuxiliaryTypeFactory).Value;
     }
 
     private void FindAndMarkInboundAndOutboundTypes(BuildingContext context)

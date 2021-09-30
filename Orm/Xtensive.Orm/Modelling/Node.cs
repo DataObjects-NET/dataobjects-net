@@ -40,8 +40,8 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ConcurrentDictionary<Type, PropertyAccessorDictionary> cachedPropertyAccessors = 
-      new ConcurrentDictionary<Type, PropertyAccessorDictionary>();
+    private static ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> cachedPropertyAccessors = 
+      new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -845,8 +845,10 @@ namespace Xtensive.Modelling
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-      return cachedPropertyAccessors.GetOrAdd(type,
-        entityType => {
+
+      static Lazy<PropertyAccessorDictionary> PropertyAccessorExtractor(Type entityType)
+      {
+        return new Lazy<PropertyAccessorDictionary>(() => {
           var d = new Dictionary<string, PropertyAccessor>();
           if (entityType != WellKnownTypes.Object) {
             foreach (var pair in GetPropertyAccessors(entityType.BaseType)) {
@@ -864,6 +866,9 @@ namespace Xtensive.Modelling
 
           return new PropertyAccessorDictionary(d);
         });
+      }
+
+      return cachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
     private Node TryConstructor(IModel model, params object[] args)
