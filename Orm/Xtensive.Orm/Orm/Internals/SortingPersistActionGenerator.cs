@@ -182,12 +182,17 @@ namespace Xtensive.Orm.Internals
       if (result.HasLoops) {
         sortedNodes = result.SortedNodes.Union(result.LoopNodes).ToList();
         var loopNodes = result.LoopNodes.ToDictionary(el => el as Collections.Graphs.Node);
-        notBreakedEdges.Reverse();
-        var loopEdgeForBreak = notBreakedEdges.First(edge => loopNodes.ContainsKey(edge.Source) && loopNodes.ContainsKey(edge.Target));
-        result.BrokenEdges.Add(loopEdgeForBreak);
+        for (var i = notBreakedEdges.Count; i-- > 0;) {
+          var edge = notBreakedEdges[i];
+          if (loopNodes.ContainsKey(edge.Source) && loopNodes.ContainsKey(edge.Target)) {
+            result.BrokenEdges.Add(edge);
+            break;
+          }
+        }
       }
-      else
+      else {
         sortedNodes = result.SortedNodes;
+      }
 
       // Remove loop links
       referencesToRestore = new List<(EntityState, FieldInfo, Entity)>();

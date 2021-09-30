@@ -847,11 +847,11 @@ namespace Xtensive.Orm.Upgrade
       }
       List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
       var sortedTables = TopologicalSorter.Sort(nodes, out edges);
-      sortedTables.Reverse();
       // TODO: Process removed edges
 
       // Build DML commands
-      foreach (var table in sortedTables) {
+      for (var i = sortedTables.Count; i-- > 0;) {
+        var table = sortedTables[i];
         var tableRef = SqlDml.TableRef(FindTable(table));
         var delete = SqlDml.Delete(tableRef);
         var typeIds = deleteActions[table];
