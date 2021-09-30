@@ -17,7 +17,6 @@ using Xtensive.Comparison;
 
 using Xtensive.Reflection;
 
-
 namespace Xtensive.Core
 {
   /// <summary>
@@ -33,24 +32,28 @@ namespace Xtensive.Core
 
     private static HashSet<(Type, Type)> InProgress
     {
-      get {
-        if (inProgressAsync.Value == null) {
-          inProgressAsync.Value = new HashSet<(Type, Type)>();
-        }
-        return inProgressAsync.Value;
-      }
+      get => inProgressAsync.Value ??= new HashSet<(Type, Type)>();
       set => inProgressAsync.Value = value;
     }
 
     [NonSerialized]
-    private object _lock = new object();
-    [NonSerialized]
-    private ConcurrentDictionary<(Type, Type), object> cache;
+    private ConcurrentDictionary<(Type, Type), Lazy<object>> cache;
 
     private object[] constructorParams;
     private string[] typeSuffixes;
-    private volatile List<Pair<Assembly, string>> highPriorityLocations = 
-      new List<Pair<Assembly, string>>();
+
+    [NonSerialized]
+    private object highPriorityLocationsLock = new object();
+
+    private List<Pair<Assembly, string>> highPriorityLocations = new List<Pair<Assembly, string>>();
+
+    private List<Pair<Assembly, string>> HighPriorityLocations {
+      get {
+        lock (highPriorityLocationsLock) {
+          return highPriorityLocations;
+        }
+      }
+    }
 
     /// <summary>
     /// Gets associate constructor parameters.
@@ -93,23 +96,21 @@ namespace Xtensive.Core
     /// override all the others (i.e. be a first in the list of locations).</param>
     protected void AddHighPriorityLocation(Assembly assembly, string nameSpace, bool overriding)
     {
-      lock (_lock) {
-        var newHighPriorityLocations = new List<Pair<Assembly, string>>(highPriorityLocations);
+      lock (highPriorityLocationsLock) {
+        var newHighPriorityLocations = new List<Pair<Assembly, string>>(highPriorityLocations.Count + 1);
+        var newLocation = new Pair<Assembly, string>(assembly, nameSpace);
+
         if (overriding) {
-          newHighPriorityLocations.Insert(0, new Pair<Assembly, string>(assembly, nameSpace));
+          newHighPriorityLocations.Add(newLocation);
+          newHighPriorityLocations.AddRange(highPriorityLocations);
         }
         else {
-          newHighPriorityLocations.Add(new Pair<Assembly, string>(assembly, nameSpace));
+          newHighPriorityLocations.AddRange(highPriorityLocations);
+          newHighPriorityLocations.Add(newLocation);
         }
-        Thread.MemoryBarrier();
         highPriorityLocations = newHighPriorityLocations;
       }
     }
-
-    /// <summary>
-    /// Gets a list of high priority locations.
-    /// </summary>
-    protected List<Pair<Assembly, string>> HighPriorityLocations => highPriorityLocations;
 
     /// <summary>
     /// Gets associate instance for specified parameter and result types.
@@ -125,7 +126,8 @@ namespace Xtensive.Core
     {
       var key = (typeof(TKey), typeof(TResult));
       return (TResult) cache.GetOrAdd(key,
-        _key => ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out var foundFor)));
+        _key => new Lazy<object>(
+          () => ConvertAssociate<TKey, TAssociate, TResult>(CreateAssociate<TKey, TAssociate>(out var _)))).Value;
     }
 
     /// <summary>
@@ -143,7 +145,7 @@ namespace Xtensive.Core
       where TAssociate : class
     {
       var key = (typeof(TKey1), typeof(TResult));
-      return (TResult) cache.GetOrAdd(key, _key => {
+      return (TResult) cache.GetOrAdd(key, _key => new Lazy<object>(() => {
         var associate1 = CreateAssociate<TKey1, TAssociate>(out var foundFor);
         var associate2 = CreateAssociate<TKey2, TAssociate>(out foundFor);
         // Preferring non-null ;)
@@ -177,7 +179,7 @@ namespace Xtensive.Core
           }
         }
         return ConvertAssociate<TKey1, TKey2, TAssociate, TResult>(associate);
-      });
+      })).Value;
     }
 
     /// <summary>
@@ -231,19 +233,13 @@ namespace Xtensive.Core
     protected virtual TAssociate CreateAssociate<TKey, TAssociate>(out Type foundFor)
       where TAssociate : class
     {
-      if (InProgress == null) {
-        InProgress = new HashSet<(Type, Type)>();
-      }
-
       var progressionMark = (typeof(TKey), typeof(TAssociate));
-      if (InProgress.Contains(progressionMark)) {
+      if (!InProgress.Add(progressionMark)) {
         throw new InvalidOperationException(Strings.ExRecursiveAssociateLookupDetected);
       }
-      _ = InProgress.Add(progressionMark);
       try {
-        var associate = TypeHelper.CreateAssociate<TAssociate>(
-          typeof(TKey), out foundFor, TypeSuffixes, constructorParams, highPriorityLocations);
-        return associate;
+        return TypeHelper.CreateAssociate<TAssociate>(
+          typeof(TKey), out foundFor, TypeSuffixes, constructorParams, HighPriorityLocations);
       }
       finally {
         _ = InProgress.Remove(progressionMark);
@@ -294,7 +290,7 @@ namespace Xtensive.Core
     protected AssociateProvider()
     {
       constructorParams = new object[] { this };
-      cache = new ConcurrentDictionary<(Type, Type), object>();
+      cache = new ConcurrentDictionary<(Type, Type), Lazy<object>>();
     }
 
     protected AssociateProvider(SerializationInfo info, StreamingContext context)
@@ -320,7 +316,7 @@ namespace Xtensive.Core
     /// <param name="sender"></param>
     public virtual void OnDeserialization(object sender)
     {
-      cache = new ConcurrentDictionary<(Type, Type), object>();
+      cache = new ConcurrentDictionary<(Type, Type), Lazy<object>>();
     }
 
     /// <inheritdoc/>
@@ -339,7 +335,7 @@ namespace Xtensive.Core
       info.AddValue(nameof(constructorParams), constructorParamsExceptThis, constructorParams.GetType());
       info.AddValue(nameof(typeSuffixes), typeSuffixes, typeSuffixes.GetType());
 
-      var highPriorityLocationsSerializable = highPriorityLocations.SelectToList(l => new Pair<string, string>(l.First.FullName, l.Second));
+      var highPriorityLocationsSerializable = HighPriorityLocations.SelectToList(l => new Pair<string, string>(l.First.FullName, l.Second));
       info.AddValue(nameof(highPriorityLocations), highPriorityLocationsSerializable, highPriorityLocationsSerializable.GetType());
     }
   }
