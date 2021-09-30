@@ -324,35 +324,6 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Concatenates all <paramref name="values"/> using specified <paramref name="separator"/>.
-    /// This method aids with targeting .NET 3.5
-    /// </summary>
-    /// <param name="separator">Separator to use.</param>
-    /// <param name="values">Values to join.</param>
-    /// <returns>Joined value.</returns>
-    public static string Join(string separator, IEnumerable<string> values)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(separator, "separator");
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      return string.Join(separator, values.ToArray());
-    }
-
-    /// <summary>
-    /// Concatenates all <paramref name="values"/> using specified <paramref name="separator"/>.
-    /// This method aids with targeting .NET 3.5
-    /// </summary>
-    /// <param name="separator">Separator to use.</param>
-    /// <param name="values">Values to join.</param>
-    /// <returns>Joined value.</returns>
-    public static string Join<T>(string separator, IEnumerable<T> values)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(separator, "separator");
-      ArgumentValidator.EnsureArgumentNotNull(values, "values");
-      return string.Join(separator, values.Select(value => value.ToString()).ToArray());
-    }
-
-
-    /// <summary>
     /// Compares <paramref name="value"/> with <paramref name="sqlLikePattern"/>
     /// </summary>
     /// <param name="value">Value to compare.</param>
