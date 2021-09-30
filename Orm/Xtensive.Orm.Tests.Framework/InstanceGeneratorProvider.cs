@@ -19,8 +19,8 @@ namespace Xtensive.Orm.Tests
   public class InstanceGeneratorProvider : AssociateProvider, IInstanceGeneratorProvider
   {
     private static readonly InstanceGeneratorProvider @default = new InstanceGeneratorProvider();
-    private ConcurrentDictionary<(Type, InstanceGeneratorProvider), IInstanceGeneratorBase> generators = 
-      new ConcurrentDictionary<(Type, InstanceGeneratorProvider), IInstanceGeneratorBase>();
+    private ConcurrentDictionary<(Type, InstanceGeneratorProvider), Lazy<IInstanceGeneratorBase>> generators = 
+      new ConcurrentDictionary<(Type, InstanceGeneratorProvider), Lazy<IInstanceGeneratorBase>>();
 
     public static InstanceGeneratorProvider Default {
       [DebuggerStepThrough]
@@ -38,16 +38,18 @@ namespace Xtensive.Orm.Tests
     /// <inheritdoc/>
     public IInstanceGeneratorBase GetInstanceGenerator(Type type)
     {
-      return generators.GetOrAdd((type, this),
-        (tuple) => {
-          var (_type, _this) = tuple;
-          return _this.GetType()
-            .GetMethod("GetInstanceGenerator", Array.Empty<Type>())
-            .GetGenericMethodDefinition()
-            .MakeGenericMethod(new[] { _type })
-            .Invoke(_this, null)
-          as IInstanceGeneratorBase;
-        });
+      static Lazy<IInstanceGeneratorBase> InstanceGeneratorFactory((Type, InstanceGeneratorProvider) tuple)
+      {
+        var (_type, _this) = tuple;
+        return new Lazy<IInstanceGeneratorBase>(() => _this.GetType()
+          .GetMethod("GetInstanceGenerator", Array.Empty<Type>())
+          .GetGenericMethodDefinition()
+          .MakeGenericMethod(new[] { _type })
+          .Invoke(_this, null)
+        as IInstanceGeneratorBase);
+      };
+
+      return generators.GetOrAdd((type, this), InstanceGeneratorFactory).Value;
     }
 
     #endregion

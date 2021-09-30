@@ -19,33 +19,31 @@ namespace Xtensive.Comparison
     ISystemComparer<Type>
   {
     [NonSerialized]
-    private ConcurrentDictionary<(Pair<Type>, TypeComparer), int> results;
+    private ConcurrentDictionary<(Type, Type, TypeComparer), int> results;
 
     protected override IAdvancedComparer<Type> CreateNew(ComparisonRules rules)
       => new TypeComparer(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(Type x, Type y)
     {
-      return x == y
-        ? 0
-        : results.GetOrAdd((new Pair<Type>(x, y), this), generator);
-
-      static int generator((Pair<Type>, TypeComparer) key)
+      static int TypeComparison((Type, Type, TypeComparer) tuple)
       {
-        var (pair, _this) = key;
-        var result = _this.BaseComparer1.Compare(pair.First.FullName, pair.Second.FullName);
+        var (type1, type2, typeComparer) = tuple;
+        var result = typeComparer.BaseComparer1.Compare(type1.FullName, type2.FullName);
         if (result == 0) {
-          result = _this.BaseComparer2.Compare(pair.First.Assembly, pair.Second.Assembly);
+          result = typeComparer.BaseComparer2.Compare(type1.Assembly, type2.Assembly);
         }
         return result;
       }
+
+      return x == y ? 0 : results.GetOrAdd((x, y, this), TypeComparison);
     }
 
     public override bool Equals(Type x, Type y) => x == y;
 
     public override int GetHashCode(Type obj) => AdvancedComparerStruct<Type>.System.GetHashCode(obj);
 
-    private void Initialize() => results = new ConcurrentDictionary<(Pair<Type>, TypeComparer), int>();
+    private void Initialize() => results = new ConcurrentDictionary<(Type, Type, TypeComparer), int>();
 
 
     // Constructors
