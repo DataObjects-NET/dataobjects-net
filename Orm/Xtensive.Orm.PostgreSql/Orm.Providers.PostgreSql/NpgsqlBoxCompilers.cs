@@ -18,49 +18,49 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof(NpgsqlBox), "UpperRight", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlBoxExtractUpperRightPoint(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0);
+      return PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 0);
     }
 
     [Compiler(typeof(NpgsqlBox), "LowerLeft", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlBoxExtractLowerLeftPoint(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1);
+      return PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 1);
     }
 
     [Compiler(typeof(NpgsqlBox), "Right", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractRight(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlPointExtractX(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0));
+      return PostgresqlSqlGeometryDml.NpgsqlPointExtractX(PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 0));
     }
 
     [Compiler(typeof(NpgsqlBox), "Top", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractTop(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlPointExtractY(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0));
+      return PostgresqlSqlGeometryDml.NpgsqlPointExtractY(PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 0));
     }
 
     [Compiler(typeof(NpgsqlBox), "Left", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractLeft(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlPointExtractX(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1));
+      return PostgresqlSqlGeometryDml.NpgsqlPointExtractX(PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 1));
     }
 
     [Compiler(typeof(NpgsqlBox), "Bottom", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractBottom(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlPointExtractY(PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1));
+      return PostgresqlSqlGeometryDml.NpgsqlPointExtractY(PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 1));
     }
 
     [Compiler(typeof(NpgsqlBox), "Height", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractHeight(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlBoxExtractHeight(_this);
+      return PostgresqlSqlGeometryDml.NpgsqlBoxExtractHeight(_this);
     }
 
     [Compiler(typeof(NpgsqlBox), "Width", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractWidth(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlBoxExtractWidth(_this);
+      return PostgresqlSqlGeometryDml.NpgsqlBoxExtractWidth(_this);
     }
 
     #endregion
@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(NpgsqlBox))] SqlExpression left,
       [Type(typeof(NpgsqlBox))] SqlExpression right)
     {
-      return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
+      return PostgresqlSqlGeometryDml.NpgsqlTypeOperatorEquality(left, right);
     }
 
     [Compiler(typeof(NpgsqlBox), Operator.Inequality, TargetKind.Operator)]
@@ -94,9 +94,9 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(float))] SqlExpression bottom,
       [Type(typeof(float))] SqlExpression left)
     {
-      return PostgresqlSqlDml.NpgsqlBoxConstructor(
-        PostgresqlSqlDml.NpgsqlPointConstructor(right, top),
-        PostgresqlSqlDml.NpgsqlPointConstructor(left, bottom));
+      return PostgresqlSqlGeometryDml.NpgsqlBoxConstructor(
+        PostgresqlSqlGeometryDml.NpgsqlPointConstructor(right, top),
+        PostgresqlSqlGeometryDml.NpgsqlPointConstructor(left, bottom));
     }
 
     [Compiler(typeof(NpgsqlBox), null, TargetKind.Constructor)]
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(NpgsqlPoint))] SqlExpression upperRight,
       [Type(typeof(NpgsqlPoint))] SqlExpression lowerLeft)
     {
-      return PostgresqlSqlDml.NpgsqlBoxConstructor(upperRight, lowerLeft);
+      return PostgresqlSqlGeometryDml.NpgsqlBoxConstructor(upperRight, lowerLeft);
     }
 
     #endregion
