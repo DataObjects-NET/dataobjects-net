@@ -199,7 +199,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
     private void RemoveItem(CancellationToken cancellationToken)
     {
-      int counter = 0;
       while (!cancellationToken.IsCancellationRequested) {
         TestClass test = null;
         foreach (TestClass testClass in globalCache) {
