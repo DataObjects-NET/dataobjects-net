@@ -4,9 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2013.12.30
 
-using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -34,10 +32,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestMo
 
     [Field(Nullable = false)]
     public bool BoolField { get; set; }
-    
+
     [Field(Nullable = false)]
     public char CharField { get; set; }
-    
+
     [Field(Nullable = false)]
     public sbyte SbyteField { get; set; }
 
@@ -193,7 +191,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestMo
 
       [Field]
       public uint UIntField { get; set; }
-      
+
       [Field]
       public long LongField { get; set; }
 
@@ -406,7 +404,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void InitializeConnectionStrings()
     {
-      
+
       connectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
 
       var connectionUrl = connectionInfo.ConnectionUrl;
