@@ -7,9 +7,9 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Validation;
@@ -45,12 +45,12 @@ namespace Xtensive.Orm.Model
     private readonly NodeCollection<IndexInfo> affectedIndexes;
     private readonly DomainModel               model;
     private TypeAttributes                     attributes;
-    private ReadOnlyList<TypeInfo>             ancestors;
-    private ReadOnlyList<AssociationInfo>      targetAssociations;
-    private ReadOnlyList<AssociationInfo>      ownerAssociations;
-    private ReadOnlyList<AssociationInfo>      removalSequence;
-    private ReadOnlyList<FieldInfo>            versionFields;
-    private IList<ColumnInfo> versionColumns;
+    private ReadOnlyCollection<TypeInfo>             ancestors;
+    private ReadOnlyCollection<AssociationInfo>      targetAssociations;
+    private ReadOnlyCollection<AssociationInfo>      ownerAssociations;
+    private IReadOnlyList<AssociationInfo>      removalSequence;
+    private ReadOnlyCollection<FieldInfo>            versionFields;
+    private ReadOnlyCollection<ColumnInfo> versionColumns;
     private IList<IObjectValidator> validators;
     private Type                               underlyingType;
     private HierarchyInfo                      hierarchy;
@@ -494,19 +494,21 @@ namespace Xtensive.Orm.Model
     /// Gets the ancestors recursively. Root-to-inheritor order.
     /// </summary>
     /// <returns>The ancestor</returns>
-    public IList<TypeInfo> GetAncestors()
+    public IReadOnlyList<TypeInfo> GetAncestors() => IsLocked ? ancestors : InnerGetAncestors();
+
+    private List<TypeInfo> InnerGetAncestors()
     {
-      if (IsLocked)
-        return ancestors;
+      static void EnlistAncestors(List<TypeInfo> ancestors, TypeInfoCollection types, TypeInfo type)
+      {
+        var ancestor = types.FindAncestor(type);
+        if (ancestor != null) {
+          EnlistAncestors(ancestors, types, ancestor);
+          ancestors.Add(ancestor);
+        }
+      }
 
       var result = new List<TypeInfo>();
-      var ancestor = model.Types.FindAncestor(this);
-      // TODO: Refactor
-      while (ancestor!=null) {
-        result.Add(ancestor);
-        ancestor = model.Types.FindAncestor(ancestor);
-      }
-      result.Reverse();
+      EnlistAncestors(result, model.Types, this);
       return result;
     }
 
@@ -522,30 +524,22 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the associations this instance is participating in as target (it is referenced by other entities).
     /// </summary>
-    public IList<AssociationInfo> GetTargetAssociations()
-    {
-      if (IsLocked)
-        return targetAssociations;
+    public IReadOnlyList<AssociationInfo> GetTargetAssociations() => IsLocked ? targetAssociations : InnerGetTargetAssociations();
 
-      return model.Associations.Find(this, true).ToList();
-    }
+    private List<AssociationInfo> InnerGetTargetAssociations() => model.Associations.Find(this, true).ToList();
 
     /// <summary>
     /// Gets the associations this instance is participating in as owner (it has references to other entities).
     /// </summary>
-    public IList<AssociationInfo> GetOwnerAssociations()
-    {
-      if (IsLocked)
-        return ownerAssociations;
+    public IReadOnlyList<AssociationInfo> GetOwnerAssociations() => IsLocked ? ownerAssociations : InnerGetOwnerAssociations();
 
-      return model.Associations.Find(this, false).ToList();
-    }
+    public List<AssociationInfo> InnerGetOwnerAssociations() => model.Associations.Find(this, false).ToList();
 
     /// <summary>
     /// Gets the association sequence for entity removal.
     /// </summary>
     /// <returns></returns>
-    public IList<AssociationInfo> GetRemovalAssociationSequence()
+    public IReadOnlyList<AssociationInfo> GetRemovalAssociationSequence()
     {
       return removalSequence;
     }
@@ -554,17 +548,16 @@ namespace Xtensive.Orm.Model
     /// Gets the version field sequence.
     /// </summary>
     /// <returns>The version field sequence.</returns>
-    public IList<FieldInfo> GetVersionFields()
+    public IReadOnlyList<FieldInfo> GetVersionFields() => IsLocked ? versionFields : InnerGetVersionFields();
+
+    private List<FieldInfo> InnerGetVersionFields()
     {
-      if (IsLocked)
-        return versionFields;
-      
       var fields = Fields
         .Where(field => field.IsPrimitive && (field.AutoVersion || field.ManualVersion))
         .ToList();
       if (fields.Count == 0) {
         var skipSet = Fields.Where(f => f.SkipVersion).ToHashSet();
-        fields.AddRange(Fields.Where(f => f.IsPrimitive 
+        fields.AddRange(Fields.Where(f => f.IsPrimitive
           && !f.IsSystem
           && !f.IsPrimaryKey
           && !f.IsLazyLoad
@@ -580,25 +573,22 @@ namespace Xtensive.Orm.Model
     /// Gets the version columns.
     /// </summary>
     /// <returns>The version columns.</returns>
-    public IList<ColumnInfo> GetVersionColumns()
-    {
-      if (IsLocked)
-        return versionColumns;
+    public IReadOnlyList<ColumnInfo> GetVersionColumns() => IsLocked ? versionColumns : InnerGetVersionColumns();
 
-      return GetVersionFields()
+    private List<ColumnInfo> InnerGetVersionColumns() =>
+      InnerGetVersionFields()
         .SelectMany(f => f.Columns)
         .OrderBy(c => c.Field.MappingInfo.Offset)
         .ToList();
-    }
 
     /// <inheritdoc/>
     public override void UpdateState()
     {
       base.UpdateState();
 
-      ancestors = new ReadOnlyList<TypeInfo>(GetAncestors());
-      targetAssociations = new ReadOnlyList<AssociationInfo>(GetTargetAssociations());
-      ownerAssociations = new ReadOnlyList<AssociationInfo>(GetOwnerAssociations());
+      ancestors = InnerGetAncestors().AsReadOnly();
+      targetAssociations = InnerGetTargetAssociations().AsReadOnly();
+      ownerAssociations = InnerGetOwnerAssociations().AsReadOnly();
 
       var adapterIndex = 0;
       foreach (var field in Fields) {
@@ -620,12 +610,12 @@ namespace Xtensive.Orm.Model
 
       if (IsEntity) {
         if (HasVersionRoots) {
-          versionFields = ReadOnlyList<FieldInfo>.Empty;
-          versionColumns = new ReadOnlyList<ColumnInfo>(new List<ColumnInfo>());
+          versionFields = Array.AsReadOnly(Array.Empty<FieldInfo>());
+          versionColumns = Array.AsReadOnly(Array.Empty<ColumnInfo>());
         }
         else {
-          versionFields = new ReadOnlyList<FieldInfo>(GetVersionFields());
-          versionColumns = new ReadOnlyList<ColumnInfo>(GetVersionColumns());
+          versionFields = InnerGetVersionFields().AsReadOnly();
+          versionColumns = InnerGetVersionColumns().AsReadOnly();
         }
         HasVersionFields = versionFields.Count > 0;
         HasExplicitVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
@@ -654,8 +644,8 @@ namespace Xtensive.Orm.Model
       BuildTuplePrototype();
       BuildVersionExtractor();
 
-      if (associations.Count==0) {
-        removalSequence = ReadOnlyList<AssociationInfo>.Empty;
+      if (associations.Count == 0) {
+        removalSequence = Array.Empty<AssociationInfo>();
         return;
       }
 
@@ -698,13 +688,18 @@ namespace Xtensive.Orm.Model
           (a.OnOwnerRemove==OnRemoveAction.Cascade && a.OwnerType.UnderlyingType.IsAssignableFrom(UnderlyingType)) ||
           (a.OnTargetRemove==OnRemoveAction.Cascade && a.TargetType.UnderlyingType.IsAssignableFrom(UnderlyingType)));
       sequence.AddRange(b);
-      
-      var first = sequence.Where(a => a.Ancestors.Count > 0).ToList();
-      if (first.Count == 0)
-        removalSequence = new ReadOnlyList<AssociationInfo>(sequence);
+
+      var sortedRemovalSequence = sequence.Where(a => a.Ancestors.Count > 0).ToList();
+      if (sortedRemovalSequence.Count == 0) {
+        removalSequence = sequence.AsReadOnly();
+      }
       else {
-        var second = sequence.Where(a => a.Ancestors.Count == 0);
-        removalSequence = new ReadOnlyList<AssociationInfo>(first.Concat(second).ToList());
+        var sequenceSize = sequence.Count;
+        if (sortedRemovalSequence.Capacity < sequenceSize) {
+          sortedRemovalSequence.Capacity = sequenceSize;
+        }
+        sortedRemovalSequence.AddRange(sequence.Where(a => a.Ancestors.Count == 0));
+        removalSequence = sortedRemovalSequence.AsReadOnly();
       }
     }
 
@@ -725,7 +720,7 @@ namespace Xtensive.Orm.Model
       if (!recursive)
         return;
 
-      validators = new ReadOnlyList<IObjectValidator>(validators.ToList());
+      validators = Array.AsReadOnly(validators.ToArray());
 
       affectedIndexes.Lock(true);
       indexes.Lock(true);

@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         try {
           h.ThrowException();
         }
-        catch (Exception e) {
+        catch (Exception) {
         }
       }
     }

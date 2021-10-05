@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Rse.Providers
     public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
       : base(ProviderType.Aggregate, source)
     {
-      groupIndexes = groupIndexes ?? ArrayUtils<int>.EmptyArray;
+      groupIndexes = groupIndexes ?? Array.Empty<int>();
       var columns = new AggregateColumn[columnDescriptors.Length];
       for (int i = 0; i < columnDescriptors.Length; i++) {
         AggregateColumnDescriptor descriptor = columnDescriptors[i];

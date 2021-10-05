@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Model
     public ICollection<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
     {
       if (criteria == IndexAttributes.None)
-        return ArrayUtils<IndexInfo>.EmptyArray;
+        return Array.Empty<IndexInfo>();
 
       switch (matchType) {
         case MatchType.Partial:

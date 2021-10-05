@@ -72,16 +72,18 @@ namespace Xtensive.Orm.BulkOperations
         ex = Expression.Call(
             typeof (Queryable), "Select", new[] {parameter.Type, f.ValueType}, ex, lambda);
         ex = Expression.Call(typeof (Queryable), call.Method.Name, new[] {f.ValueType}, ex);*/
-              else
-              {
+              else {
                 //ex = Expression.Convert(ex, typeof(Structure));
-                var list = new List<FieldInfo> { f };
-                while (list.Last().Parent != setDescriptor.Field)
-                  list.Add(f.Parent);
-                list.Reverse();
+                var last = f;
+                var fields = new List<FieldInfo> { last };
+                while (last.Parent != setDescriptor.Field) {
+                  last = f.Parent;
+                  fields.Add(last);
+                }
                 Expression member = ex;
-                foreach (FieldInfo f2 in list)
-                  member = Expression.MakeMemberAccess(member, f2.UnderlyingProperty);
+                for (var i = fields.Count; i-- > 0;) {
+                  member = Expression.MakeMemberAccess(member, fields[i].UnderlyingProperty);
+                }
                 ex = member;
               }
               Descriptors.Add(new SetDescriptor(f, setDescriptor.Parameter, ex));

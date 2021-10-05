@@ -119,12 +119,12 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// <summary>
     /// Builds generic types mapping.
     /// </summary>
-    private List<Triplet<string, Type, List<Pair<string, Type>>>> BuildGenericTypeMapping(Dictionary<string, RenameTypeHint> renamedTypesLookup)
+    private List<(string, Type, List<Pair<string, Type>>)> BuildGenericTypeMapping(Dictionary<string, RenameTypeHint> renamedTypesLookup)
     {
       var oldGenericTypes = GetGenericTypes(extractedModel);
       var newGenericTypes = GetGenericTypes(domainModel);
 
-      var genericTypeMapping = new List<Triplet<string, Type, List<Pair<string, Type>>>>();
+      var genericTypeMapping = new List<(string, Type, List<Pair<string, Type>>)>();
       var newTypesLookup = newGenericTypes.GetClasses().ToDictionary(t => t.GetFullName());
       foreach (var oldGenericDefName in oldGenericTypes.GetClasses()) {
         var newGenericDefType = GetNewType(oldGenericDefName, newTypesLookup, renamedTypesLookup);
@@ -143,8 +143,7 @@ namespace Xtensive.Orm.Upgrade.Internals
             genericArgumentsMapping.Add(new Pair<string, Type>(oldGenericArgumentType, newGenericArgumentType));
           }
           if (genericArgumentsMapping.Count == pair.Second.Length) {
-            genericTypeMapping.Add(new Triplet<string, Type, List<Pair<string, Type>>>(
-              oldGenericDefName, newGenericDefType, genericArgumentsMapping));
+            genericTypeMapping.Add((oldGenericDefName, newGenericDefType, genericArgumentsMapping));
           }
         }
       }
@@ -154,15 +153,15 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// <summary>
     /// Builds <see cref="RenameTypeHint"/> for generic types.
     /// </summary>
-    private void BuildRenameHintsForGenericTypes(IList<Triplet<string, Type, List<Pair<string, Type>>>> genericTypeMapping, ICollection<UpgradeHint> rewrittenHints)
+    private void BuildRenameHintsForGenericTypes(IList<(string, Type, List<Pair<string, Type>>)> genericTypeMapping, ICollection<UpgradeHint> rewrittenHints)
     {
       foreach (var triplet in genericTypeMapping) {
-        var arrays = triplet.Third.SelectToArrays(pair => pair.First, pair => pair.Second);
+        var arrays = triplet.Item3.SelectToArrays(pair => pair.First, pair => pair.Second);
         var oldGenericArguments = arrays.First;
         var newGenericArguments = arrays.Second;
 
-        var oldTypeFullName = GetGenericTypeFullName(triplet.First, oldGenericArguments);
-        var newType = triplet.Second.MakeGenericType(newGenericArguments);
+        var oldTypeFullName = GetGenericTypeFullName(triplet.Item1, oldGenericArguments);
+        var newType = triplet.Item2.MakeGenericType(newGenericArguments);
         if (!oldTypeFullName.Equals(newType.GetFullName(), StringComparison.Ordinal)) {
           rewrittenHints.Add(new RenameTypeHint(oldTypeFullName, newType));
         }
@@ -174,13 +173,13 @@ namespace Xtensive.Orm.Upgrade.Internals
     /// of generic type.
     /// </summary>
     private void BuildRenameFieldHintsForGenericTypes(
-      IEnumerable<Triplet<string, Type, List<Pair<string, Type>>>> genericTypeMapping,
+      IEnumerable<(string, Type, List<Pair<string, Type>>)> genericTypeMapping,
       IEnumerable<RenameFieldHint> renameFieldHints,
       ICollection<UpgradeHint> rewrittenHints)
     {
       var genericTypeDefLookup = (
         from triplet in genericTypeMapping
-        group triplet by triplet.Second.GetGenericTypeDefinition()
+        group triplet by triplet.Item2.GetGenericTypeDefinition()
           into g
           select new { Definition = g.Key, Instances = g.ToArray() }
         ).ToDictionary(g => g.Definition);
@@ -193,7 +192,7 @@ namespace Xtensive.Orm.Upgrade.Internals
           continue;
         }
         foreach (var triplet in instanceGroup.Instances) {
-          var newGenericArguments = triplet.Third.SelectToArray(pair => pair.Second);
+          var newGenericArguments = triplet.Item3.SelectToArray(pair => pair.Second);
           rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(newGenericArguments),
             hint.OldFieldName, hint.NewFieldName));
         }
@@ -436,7 +435,7 @@ namespace Xtensive.Orm.Upgrade.Internals
         // Generating affected columns list explicitly for a situation when "type" is renamed to "targetType"
         if (type != targetType) {
           hint.IsExplicit = true;
-          hint.AffectedColumns = new ReadOnlyList<string>(new List<string> {
+          hint.AffectedColumns = Array.AsReadOnly(new string[] {
             GetColumnPath(targetType, targetTypeIdField.MappingName)
           });
         }

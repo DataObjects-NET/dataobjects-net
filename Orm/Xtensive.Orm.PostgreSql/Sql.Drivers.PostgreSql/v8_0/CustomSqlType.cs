@@ -6,6 +6,9 @@
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
+  /// <summary>
+  /// Contains definitions of the geometry types for the Postgres RDBMS.
+  /// </summary>
   public static class CustomSqlType
   {
     /// <summary>

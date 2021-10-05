@@ -8,7 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Collections.Generic;
-using Xtensive.Collections;
 
 namespace Xtensive.Orm.Model
 {
@@ -19,8 +18,8 @@ namespace Xtensive.Orm.Model
   public sealed class TypeIndexInfoCollection : IndexInfoCollection
   {
     private IndexInfo primaryIndex;
-    private ReadOnlyList<IndexInfo> realPrimaryIndexes;
-    private ReadOnlyList<IndexInfo> indexesContainingAllData;
+    private IReadOnlyList<IndexInfo> realPrimaryIndexes;
+    private IReadOnlyList<IndexInfo> indexesContainingAllData;
 
     /// <summary>
     /// Gets the primary index in this instance.
@@ -34,13 +33,13 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the list of real primary index in this instance.
     /// </summary>
-    public ReadOnlyList<IndexInfo> RealPrimaryIndexes
+    public IReadOnlyList<IndexInfo> RealPrimaryIndexes
     {
       [DebuggerStepThrough]
       get {
         return IsLocked 
           ? realPrimaryIndexes
-          : new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(PrimaryIndex));
+          : FindRealPrimaryIndexes(PrimaryIndex).AsReadOnly();
       }
     }
 
@@ -85,8 +84,8 @@ namespace Xtensive.Orm.Model
     {
       base.UpdateState();
       primaryIndex = FindPrimaryIndex();
-      realPrimaryIndexes = new ReadOnlyList<IndexInfo>(FindRealPrimaryIndexes(primaryIndex));
-      indexesContainingAllData = new ReadOnlyList<IndexInfo>(FindIndexesContainingAllData());
+      realPrimaryIndexes = FindRealPrimaryIndexes(primaryIndex).AsReadOnly();
+      indexesContainingAllData = FindIndexesContainingAllData().AsReadOnly();
     }
 
     private IndexInfo GetIndex(IEnumerable<FieldInfo> fields)
@@ -123,16 +122,16 @@ namespace Xtensive.Orm.Model
     /// Gets the minimal set of indexes containing all data for the type.
     /// </summary>
     /// <returns></returns>
-    public ReadOnlyList<IndexInfo> GetIndexesContainingAllData()
+    public IReadOnlyList<IndexInfo> GetIndexesContainingAllData()
     {
       return IsLocked
         ? indexesContainingAllData
-        : new ReadOnlyList<IndexInfo>(FindIndexesContainingAllData());
+        : FindIndexesContainingAllData().AsReadOnly();
     }
 
     private List<IndexInfo> FindIndexesContainingAllData()
     {
-      var result = new List<IndexInfo>(Items.Count);
+      var result = new List<IndexInfo>(Count);
       var virtualIndexes = this.Where(index => index.IsVirtual);
       result.AddRange(virtualIndexes);
       var realIndexes = from index in this where !index.IsVirtual 

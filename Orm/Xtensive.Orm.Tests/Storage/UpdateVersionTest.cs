@@ -380,14 +380,6 @@ namespace Xtensive.Orm.Tests.Storage
     {
       Key customerKey;
       VersionInfo customerVersion;
-      Key orderKey;
-      VersionInfo orderVersion;
-      Key orderItemKey;
-      VersionInfo orderItemVersion;
-      Key bookKey;
-      VersionInfo bookVersion;
-      Key authorKey;
-      VersionInfo authorVersion;
 
       using (var session = Domain.OpenSession()) {
         using (var transactionScope = session.OpenTransaction()) {

@@ -5,9 +5,9 @@
 // Created:    2012.06.06
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Orm.Upgrade;
 using V1 = Xtensive.Orm.Tests.Issues.StructureFieldRemoveModel1;
 using V2 = Xtensive.Orm.Tests.Issues.StructureFieldRemoveModel2;

@@ -16,14 +16,14 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof(NpgsqlPolygon), "Count", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPolygonCount(SqlExpression _this)
     {
-      return PostgresqlSqlDml.NpgsqlPathAndPolygonCount(_this);
+      return PostgresqlSqlGeometryDml.NpgsqlPathAndPolygonCount(_this);
     }
 
     [Compiler(typeof(NpgsqlPolygon), "Contains", TargetKind.Method)]
     public static SqlExpression NpgsqlPolygonContains(SqlExpression _this,
       [Type(typeof(NpgsqlPoint))] SqlExpression point)
     {
-      return PostgresqlSqlDml.NpgsqlPathAndPolygonContains(_this, point);
+      return PostgresqlSqlGeometryDml.NpgsqlPathAndPolygonContains(_this, point);
     }
 
     #region Operators
@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(NpgsqlPolygon))] SqlExpression left,
       [Type(typeof(NpgsqlPolygon))] SqlExpression right)
     {
-      return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
+      return PostgresqlSqlGeometryDml.NpgsqlTypeOperatorEquality(left, right);
     }
 
     [Compiler(typeof(NpgsqlPolygon), Operator.Inequality, TargetKind.Operator)]

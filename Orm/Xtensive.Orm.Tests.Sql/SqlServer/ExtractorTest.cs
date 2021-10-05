@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         try {
           ExecuteNonQuery(dropOperation);
         }
-        catch (Exception exception) {
+        catch (Exception) {
           Console.Write("Operation '{0}' wasn't performed correctly", dropOperation);
         }
       }
@@ -425,8 +425,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         CREATE NONCLUSTERED INDEX [IX_Sum] ON Tmp ( [Sum] ASC ) ON [PRIMARY]";
       string createView = @"
         CREATE VIEW Tmp_View WITH SCHEMABINDING AS SELECT Value, Sum FROM dbo.Tmp";
-      string createIndex = @"
-        CREATE UNIQUE CLUSTERED INDEX [x] ON Tmp_View (	[Value] ASC )";
       string drop = @"
         if object_id('Tmp_View') is not null drop view Tmp_View
         if object_id('Tmp') is not null drop table Tmp";

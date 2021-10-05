@@ -5,10 +5,9 @@
 // Created:    2007.09.26
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -26,7 +25,25 @@ namespace Xtensive.Orm.Building.Builders
   {
     private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
 
-    private static ThreadSafeDictionary<string, Type> GeneratedTypes = ThreadSafeDictionary<string, Type>.Create(new object());
+    private readonly struct TypeKey: IEquatable<TypeKey>
+    {
+      public readonly string Name;
+      public readonly Type OwnerType;
+      public readonly Type TargetType;
+
+      public bool Equals(TypeKey other) => string.Equals(Name, other.Name);
+
+      public override bool Equals(object obj) => obj is TypeKey other && Equals(other);
+
+      public override int GetHashCode() => (Name ?? string.Empty).GetHashCode();
+
+      public TypeKey(string name, Type ownerType, Type targetType) {
+        Name = name;
+        OwnerType = ownerType;
+        TargetType = targetType;
+      }
+    }
+    private static ConcurrentDictionary<TypeKey, Lazy<Type>> generatedTypes = new ConcurrentDictionary<TypeKey, Lazy<Type>>();
 
     private readonly BuildingContext context;
     private readonly TypeBuilder typeBuilder;
@@ -403,20 +420,21 @@ namespace Xtensive.Orm.Building.Builders
 
     private Type GenerateAuxiliaryType(AssociationInfo association)
     {
-      var masterType = association.OwnerType.UnderlyingType;
-      var slaveType = association.TargetType.UnderlyingType;
-      var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(masterType, slaveType);
+      var ownerType = association.OwnerType.UnderlyingType;
+      var targetType = association.TargetType.UnderlyingType;
 
       var typeName = string.Format(GeneratedTypeNameFormat,
-        masterType.Namespace,
+        ownerType.Namespace,
         context.NameBuilder.BuildAssociationName(association));
 
-      var result = GeneratedTypes.GetValue(typeName,
-        (_typeName, _baseType) =>
-          TypeHelper.CreateInheritedDummyType(_typeName, _baseType, true),
-        baseType);
+      static Lazy<Type> AuxiliaryTypeFactory(TypeKey typeKey) {
+        return new Lazy<Type>(() => {
+          var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(typeKey.OwnerType, typeKey.TargetType);
+          return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
+        });
+      };
 
-      return result;
+      return generatedTypes.GetOrAdd(new TypeKey(typeName, ownerType, targetType), AuxiliaryTypeFactory).Value;
     }
 
     private void FindAndMarkInboundAndOutboundTypes(BuildingContext context)

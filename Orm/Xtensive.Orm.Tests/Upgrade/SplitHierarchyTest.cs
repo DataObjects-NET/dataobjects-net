@@ -5,6 +5,7 @@
 // Created:    2012.09.19
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -78,7 +79,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
         protected override string DetectAssemblyVersion() => "2";
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           _ = hints.Add(new RemoveTypeHint(typeof(V1.MyBaseClass).FullName));
           _ = hints.Add(new RenameTypeHint(typeof(V1.MyFirstClass).FullName, typeof(MyFirstClass)));

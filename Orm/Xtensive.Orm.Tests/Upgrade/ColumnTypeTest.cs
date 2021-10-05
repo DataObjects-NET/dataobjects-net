@@ -5,18 +5,16 @@
 // Created:    2009.06.04
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Core;
 
-using Xtensive.Orm;
 using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
-using Xtensive.Orm.Tests;
 using Xtensive.Orm.Upgrade;
 using Mode = Xtensive.Orm.DomainUpgradeMode;
 

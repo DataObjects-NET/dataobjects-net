@@ -5,6 +5,7 @@
 // Created:    2012.09.28
 
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -78,7 +79,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           await KeyGeneratorTableCleanUpTest.CheckKeyGeneratorTableIsEmptyAsync(UpgradeContext);
         }
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           _ = hints.Add(new RenameTypeHint(typeof (V1.MyEntity).FullName, typeof (MyEntity)));
         }

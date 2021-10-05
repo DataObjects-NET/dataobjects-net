@@ -5,16 +5,13 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Services;
 using Xtensive.Orm.Upgrade;
 using OneToOneStructure = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.OneToOneStructure;
 using NewColumnWithinTable = Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureTestModel.NewColumnWithinTable;
@@ -61,8 +58,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var upgradeTypes = GetOneToOneStructureTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)); })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)); });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { await using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; });
       Assert.That(ex.ComparisonResult, Is.Not.Null);
       Assert.That(ex.ComparisonResult.HasUnsafeActions, Is.True);
       Assert.That(ex.ComparisonResult.UnsafeActions.Count, Is.EqualTo(1));
@@ -177,8 +174,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var upgradeTypes = GetOneToOneStructureTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.Validate, upgradeTypes)); })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.Validate, upgradeTypes)); });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.Validate, upgradeTypes)) {}; })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.Validate, upgradeTypes)) {}; });
       Assert.That(ex.ComparisonResult, Is.Null);
       Assert.That(ex.Message, Is.EqualTo("Extracted and target schemas are equal but there are changes in type identifiers set."));
     }
@@ -197,8 +194,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var upgradeTypes = GetNewColumnWithinTableTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)); })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)); });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; });
       Assert.That(ex.ComparisonResult, Is.Not.Null);
       var allActions = ex.ComparisonResult.UpgradeActions.Flatten().ToList();
       Assert.That(allActions.Count(), Is.EqualTo(5));
@@ -255,8 +252,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var upgradeTypes = GetRemoveColumnWithinTableTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)); })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)); });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; });
       Assert.That(ex.ComparisonResult, Is.Not.Null);
       var allActions = ex.ComparisonResult.UpgradeActions.Flatten().ToList();
       Assert.That(allActions.Count(), Is.EqualTo(2));
@@ -314,8 +311,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var upgradeTypes = GetNewTableTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)) ; })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) ; });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; });
       Assert.That(ex.ComparisonResult, Is.Not.Null);
       var allActions = ex.ComparisonResult.UpgradeActions.Flatten().ToList();
       var expectedActionsCount = StorageProviderInfo.Instance.CheckProviderIsNot(StorageProvider.SqlServer)
@@ -376,8 +373,8 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       var upgradeTypes = GetRemoveTableTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)) ; })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) ; });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeTypes)) {}; });
       Assert.That(ex.ComparisonResult, Is.Not.Null);
       var allActions = ex.ComparisonResult.UpgradeActions.Flatten().ToList();
       Assert.That(allActions.Count(), Is.EqualTo(5)); // (2 data deletions + 2 types deletion) + table reuse data deletion
@@ -914,7 +911,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureT
       {
         public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           base.AddUpgradeHints(hints);
           var currentType = typeof(MasterNamedValueClassTable);
@@ -928,7 +925,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureT
       {
         public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           base.AddUpgradeHints(hints);
           var currentType = typeof(MasterNamedValueConcreteTable);
@@ -942,7 +939,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeToNewHierarchyThatInheritsStructureT
       {
         public override bool CanUpgradeFrom(string oldVersion) => true;
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           base.AddUpgradeHints(hints);
           var currentType = typeof(MasterNamedValueSingleTable);

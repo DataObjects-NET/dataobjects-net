@@ -18,9 +18,6 @@ namespace Xtensive.Orm.Tests.Core.Comparison
     public void StringCompare()
     {
       //      var x = "X" + char.MaxValue + char.MaxValue;
-      int z = char.MaxValue;
-      int z1 = short.MaxValue;
-      int z2 = ushort.MaxValue;
       string x = "X" + (char) 0xDBFF + (char) 0xDFFF;
       string y = "X";
 
@@ -60,7 +57,7 @@ namespace Xtensive.Orm.Tests.Core.Comparison
       int actual5 = compare3(x, y, CompareOptions.Ordinal);
       int actual6 = compare4(x, y, CompareOptions.Ordinal);
       int actual7 = compare5(x, y);
-      int i = 0;
+
       Assert.Greater(actual0, 0);
       Assert.Greater(actual1, 0);
       Assert.Greater(actual2, 0);

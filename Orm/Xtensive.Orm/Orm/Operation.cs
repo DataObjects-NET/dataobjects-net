@@ -6,11 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Globalization;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Collections;
 
 using Xtensive.Orm.Operations;
 
@@ -23,14 +22,13 @@ namespace Xtensive.Orm
   [Serializable]
   public abstract class Operation : IOperation
   {
-    private static readonly ReadOnlyDictionary<string, Key> EmptyIdentifiedEntities =
+    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = 
       new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
-    private static readonly ReadOnlyList<IOperation> EmptyOperations = ReadOnlyList<IOperation>.Empty;
 
-    private ReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
-    private ReadOnlyList<IOperation> precedingOperations = EmptyOperations;
-    private ReadOnlyList<IOperation> followingOperations = EmptyOperations;
-    private ReadOnlyList<IOperation> undoOperations = EmptyOperations;
+    private IReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
+    private IReadOnlyList<IOperation> precedingOperations = Array.Empty<IOperation>();
+    private IReadOnlyList<IOperation> followingOperations = Array.Empty<IOperation>();
+    private IReadOnlyList<IOperation> undoOperations = Array.Empty<IOperation>();
 
     /// <inheritdoc/>
     public abstract string Title { get; }
@@ -44,25 +42,25 @@ namespace Xtensive.Orm
     public OperationType Type { get; internal set; }
 
     /// <inheritdoc/>
-    public ReadOnlyList<IOperation> PrecedingOperations {
+    public IReadOnlyList<IOperation> PrecedingOperations {
       get { return precedingOperations; }
       internal set { precedingOperations = value; }
     }
 
     /// <inheritdoc/>
-    public ReadOnlyList<IOperation> FollowingOperations {
+    public IReadOnlyList<IOperation> FollowingOperations {
       get { return followingOperations; }
       internal set { followingOperations = value; }
     }
 
     /// <inheritdoc/>
-    public ReadOnlyList<IOperation> UndoOperations {
+    public IReadOnlyList<IOperation> UndoOperations {
       get { return undoOperations; }
       internal set { undoOperations = value; }
     }
 
     /// <inheritdoc/>
-    public ReadOnlyDictionary<string, Key> IdentifiedEntities {
+    public IReadOnlyDictionary<string, Key> IdentifiedEntities {
       get { return identifiedEntities; }
       set { identifiedEntities = value; }
     }
@@ -99,7 +97,7 @@ namespace Xtensive.Orm
           select o.Clone(false)
           ).ToList();
         if (preconditions.Count != 0)
-          clone.PrecedingOperations = new ReadOnlyList<IOperation>(preconditions);
+          clone.PrecedingOperations = preconditions.AsReadOnly();
       }
       if (IdentifiedEntities.Count!=0 && withIdentifiedEntities)
         clone.IdentifiedEntities = IdentifiedEntities;

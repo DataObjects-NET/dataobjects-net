@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="hints">A set of hints to add new hints to
     /// (a shortcut to <see cref="Upgrade.UpgradeContext.Hints"/> collection).</param>
-    protected virtual void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected virtual void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
     }
 
@@ -333,7 +333,7 @@ namespace Xtensive.Orm.Upgrade
     /// </summary>
     /// <param name="hints">A set of hints to add new hints to
     /// (a shortcut to <see cref="Upgrade.UpgradeContext.Hints"/> collection).</param>
-    protected virtual void AddAutoHints(Collections.ISet<UpgradeHint> hints)
+    protected virtual void AddAutoHints(ISet<UpgradeHint> hints)
     {
       var context = UpgradeContext;
       var types = Assembly.GetTypes();

@@ -5,7 +5,7 @@
 // Created:    2009.10.21
 
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Collections.ObjectModel;
 
 
 namespace Xtensive.Orm.Operations
@@ -79,7 +79,7 @@ namespace Xtensive.Orm.Operations
     public OperationExecutionContext(Session session)
     {
       Session = session;
-      KeyMapping = new ReadOnlyDictionary<Key, Key>(keyMapping, false);
+      KeyMapping = new ReadOnlyDictionary<Key, Key>(keyMapping);
       prefetchKeys = new HashSet<Key>();
       excludedKeys = new HashSet<Key>();
     }

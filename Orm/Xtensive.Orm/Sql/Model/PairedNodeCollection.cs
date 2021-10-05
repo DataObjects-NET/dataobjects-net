@@ -4,6 +4,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Model
@@ -39,11 +40,28 @@ namespace Xtensive.Sql.Model
     }
 
     /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TNode> items)
+    {
+      foreach (var item in items) {
+        Add(item);
+      }
+    }
+
+    /// <inheritdoc/>
     public override bool Remove(TNode item)
     {
       bool result = base.Remove(item);
       item.UpdatePairedProperty(property, null);
       return result;
+    }
+
+    /// <inheritdoc/>
+    public override void Clear()
+    {
+      foreach (var item in this) {
+        item.UpdatePairedProperty(property, null);
+      }
+      base.Clear();
     }
 
     #region Constructors

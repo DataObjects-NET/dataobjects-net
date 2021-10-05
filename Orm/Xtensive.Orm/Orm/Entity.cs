@@ -265,13 +265,13 @@ namespace Xtensive.Orm
     {
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(keyParameter, Key.Value);
-      object key = new Triplet<TypeInfo, LockMode, LockBehavior>(TypeInfo, lockMode, lockBehavior);
+      object key = (TypeInfo, lockMode, lockBehavior);
       Func<object, object> generator = tripletObj => {
-        var triplet = (Triplet<TypeInfo, LockMode, LockBehavior>) tripletObj;
-        var index = triplet.First.Indexes.PrimaryIndex;
+        var triplet = ((TypeInfo, LockMode, LockBehavior)) tripletObj;
+        var index = triplet.Item1.Indexes.PrimaryIndex;
         var query = index.GetQuery()
           .Seek(context => context.GetValue(keyParameter))
-          .Lock(() => triplet.Second, () => triplet.Third)
+          .Lock(() => triplet.Item2, () => triplet.Item3)
           .Select();
         return Session.Compile(query);
       };

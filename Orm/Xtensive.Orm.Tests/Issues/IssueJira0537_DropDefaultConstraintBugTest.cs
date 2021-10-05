@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2013.12.30
 
+using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
@@ -253,7 +254,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestMo
   {
     public override bool CanUpgradeFrom(string oldVersion) => true;
 
-    protected override void  AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void  AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.StoredObject", typeof(WMS.StoredObject)));
       _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.Area", typeof(Core.Area)));

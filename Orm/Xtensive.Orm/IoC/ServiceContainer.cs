@@ -85,7 +85,7 @@ namespace Xtensive.IoC
           select c
           ).SingleOrDefault();
         if (@ctor == null)
-          @ctor = mappedType.GetConstructor(ArrayUtils<Type>.EmptyArray);
+          @ctor = mappedType.GetConstructor(Array.Empty<Type>());
         var @params = @ctor == null ? null : @ctor.GetParameters();
         cachedInfo = new Pair<ConstructorInfo, ParameterInfo[]>(@ctor, @params);
         constructorCache[serviceInfo] = cachedInfo;

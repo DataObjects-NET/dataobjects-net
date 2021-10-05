@@ -15,20 +15,6 @@ namespace Xtensive.Orm.Model
   [Serializable]
   public sealed class FullTextColumnInfoCollection : NodeCollection<FullTextColumnInfo>
   {
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException"></exception>
-    public override void Insert(int index, FullTextColumnInfo value)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <inheritdoc/>
-    /// <exception cref="NotSupportedException"></exception>
-    public override void RemoveAt(int index)
-    {
-      throw new NotSupportedException();
-    }
-
 
     // Constructors
 

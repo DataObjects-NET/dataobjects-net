@@ -146,8 +146,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
       Assert.Throws<ArgumentNullException>(() => cache.Remove(test1));
     }
 
-    private static readonly bool canFinish = true;
-
     [Test]
     public void SynchronizationTest()
     {
@@ -201,7 +199,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
 
     private void RemoveItem(CancellationToken cancellationToken)
     {
-      int counter = 0;
       while (!cancellationToken.IsCancellationRequested) {
         TestClass test = null;
         foreach (TestClass testClass in globalCache) {

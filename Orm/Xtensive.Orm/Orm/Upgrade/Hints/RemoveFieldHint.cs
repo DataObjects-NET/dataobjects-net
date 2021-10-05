@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
-using Xtensive.Collections;
 
 
 namespace Xtensive.Orm.Upgrade
@@ -40,7 +39,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets affected column paths.
     /// </summary>
-    public ReadOnlyList<string> AffectedColumns { get; internal set; }
+    public IReadOnlyList<string> AffectedColumns { get; internal set; }
 
     /// <inheritdoc/>
     public bool Equals(RemoveFieldHint other)
@@ -91,7 +90,7 @@ namespace Xtensive.Orm.Upgrade
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(field, "field");
       Type = type;
       Field = field;
-      AffectedColumns = ReadOnlyList<string>.Empty;
+      AffectedColumns = Array.Empty<string>();
     }
 
     /// <summary>
@@ -106,7 +105,7 @@ namespace Xtensive.Orm.Upgrade
 
       Type = type.FullName;
       Field = field;
-      AffectedColumns = ReadOnlyList<string>.Empty;
+      AffectedColumns = Array.Empty<string>();
     }
 
     /// <summary>

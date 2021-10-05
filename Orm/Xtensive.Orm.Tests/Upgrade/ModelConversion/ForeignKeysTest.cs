@@ -19,8 +19,6 @@ namespace Xtensive.Orm.Tests.Upgrade
   [TestFixture]
   public class ForeignKeysTest : AutoBuildTest
   {
-    private Domain domain;
-
     protected override void CheckRequirements()
     {
       Require.AllFeaturesSupported(ProviderFeatures.ForeignKeyConstraints);
@@ -29,8 +27,6 @@ namespace Xtensive.Orm.Tests.Upgrade
     [Test]
     public void MainTest()
     {
-      if (domain!=null)
-        domain.DisposeSafely();
       using (TargetSchemaVerifier.Enable("1")) {
         BuildDomain(BuildConfiguration());
       }

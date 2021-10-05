@@ -8,7 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
-using Xtensive.Collections;
 using Xtensive.Orm.Upgrade;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug.Model.Version2;
@@ -50,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
       return true;
     }
 
-    protected override void AddUpgradeHints(global::Xtensive.Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));

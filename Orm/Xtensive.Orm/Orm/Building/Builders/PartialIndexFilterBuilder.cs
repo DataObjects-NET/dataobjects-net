@@ -20,6 +20,7 @@ using Xtensive.Orm.Model;
 using ExpressionVisitor = Xtensive.Linq.ExpressionVisitor;
 using FieldInfo = Xtensive.Orm.Model.FieldInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
+using System.Text;
 
 namespace Xtensive.Orm.Building.Builders
 {
@@ -71,21 +72,31 @@ namespace Xtensive.Orm.Building.Builders
 
       var memberAccess = originalMemberAccess;
       var memberAccessSequence = new List<MemberExpression>();
-      for (;;) {
-        if (!IsPersistentFieldAccess(memberAccess))
+      for (; ; ) {
+        if (!IsPersistentFieldAccess(memberAccess)) {
           break;
+        }
         memberAccessSequence.Add(memberAccess);
-        if (memberAccess.Expression.NodeType!=ExpressionType.MemberAccess)
+        if (memberAccess.Expression.NodeType != ExpressionType.MemberAccess) {
           break;
+        }
         memberAccess = (MemberExpression) memberAccess.Expression;
       }
-      if (memberAccessSequence.Count==0 || !IsEntityParameter(memberAccess.Expression))
+      if (memberAccessSequence.Count == 0 || !IsEntityParameter(memberAccess.Expression)) {
         return base.VisitMemberAccess(originalMemberAccess);
-      memberAccessSequence.Reverse();
-      var fieldName = StringExtensions.Join(".", memberAccessSequence.Select(item => item.Member.Name));
+      }
+      var nameBuilder = new StringBuilder();
+      for (var i = memberAccessSequence.Count; i-- > 0;) {
+        nameBuilder
+          .Append(memberAccessSequence[i].Member.Name)
+          .Append('.');
+      }
+      nameBuilder.Length -= 1;
+      var fieldName = nameBuilder.ToString();
       var field = reflectedType.Fields[fieldName];
-      if (field==null)
+      if (field == null) {
         throw UnableToTranslate(originalMemberAccess, Strings.MemberAccessSequenceContainsNonPersistentFields);
+      }
       if (field.IsEntity) {
         EnsureCanBeUsedInFilter(originalMemberAccess, field);
         entityAccessMap[originalMemberAccess] = field;

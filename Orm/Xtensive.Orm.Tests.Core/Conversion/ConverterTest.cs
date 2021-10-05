@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Tests.Core.Conversion
           //AdvancedConverter<typeFrom, typeTo>();
           Type providerType = provider.GetType();
           MethodInfo getConverterMethod =
-            providerType.GetMethod("GetConverter", ArrayUtils<Type>.EmptyArray).GetGenericMethodDefinition().MakeGenericMethod(new Type[] {typeFrom, typeTo});
+            providerType.GetMethod("GetConverter", Array.Empty<Type>()).GetGenericMethodDefinition().MakeGenericMethod(new Type[] {typeFrom, typeTo});
           object converter = null;
           try {
             converter = getConverterMethod.Invoke(provider, null);

@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.ObjectModel
         validateConfig.UpgradeMode = DomainUpgradeMode.Validate;
         domain = Domain.Build(validateConfig);
       }
-      catch (Exception ex) {
+      catch (Exception) {
         var recreateConfig = configuration.Clone();
         recreateConfig.UpgradeMode = DomainUpgradeMode.Recreate;
         domain = base.BuildDomain(recreateConfig);

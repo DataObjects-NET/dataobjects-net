@@ -24,19 +24,18 @@ namespace Xtensive.Modelling.Comparison.Hints
     IHintSet
   {
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private static ThreadSafeCached<HintSet> cachedEmpty = 
-      ThreadSafeCached<HintSet>.Create(new object());
+    private static Lazy<HintSet> cachedEmpty = new Lazy<HintSet>(() => {
+      var hs = new HintSet();
+      hs.Lock(true);
+      return hs;
+    });
 
     /// <summary>
     /// Gets the empty <see cref="HintSet"/>.
     /// </summary>
     public static HintSet Empty {
       get {
-        return cachedEmpty.GetValue(() => {
-          var hs = new HintSet();
-          hs.Lock(true);
-          return hs;
-        });
+        return cachedEmpty.Value;
       }
     }
 
@@ -156,11 +155,11 @@ namespace Xtensive.Modelling.Comparison.Hints
         hintMap.Add(node, new Dictionary<Type, object>());
       var nodeHintMap = hintMap.GetValueOrDefault(node);
       if (nodeHintMap==null)
-        return ArrayUtils<THint>.EmptyArray;
+        return Array.Empty<THint>();
       var hintType = typeof (THint);
       var hintOrList = nodeHintMap.GetValueOrDefault(hintType);
       if (hintOrList==null)
-        return ArrayUtils<THint>.EmptyArray;
+        return Array.Empty<THint>();
       var hint = hintOrList as THint;
       if (hint!=null)
         return new[] {hint};

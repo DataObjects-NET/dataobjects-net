@@ -6,14 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
-using System.Text;
 using Xtensive.Core;
-using Xtensive.Collections;
-
 
 
 namespace Xtensive.Orm
@@ -25,12 +22,10 @@ namespace Xtensive.Orm
   [Serializable]
   public sealed class KeyMapping : ISerializable
   {
-    private readonly IDictionary<Key, Key> map;
-
     /// <summary>
     /// Gets the key map.
     /// </summary>
-    public ReadOnlyDictionary<Key, Key> Map { get; private set; }
+    public IReadOnlyDictionary<Key, Key> Map { get; }
 
     /// <summary>
     /// Tries to remaps the specified key;
@@ -62,7 +57,7 @@ namespace Xtensive.Orm
     public override string ToString()
     {
       return string.Format("{0}:\r\n", Strings.KeyMapping) + (
-        from pair in map
+        from pair in Map
         let pairKeyString = pair.Key.ToString()
         orderby pairKeyString
         select string.Format("  {0} => {1}", pairKeyString, pair.Value)
@@ -75,10 +70,9 @@ namespace Xtensive.Orm
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    public KeyMapping(ReadOnlyDictionary<Key,Key> map)
+    public KeyMapping(IDictionary<Key,Key> map)
     {
-      this.map = map;
-      Map = new ReadOnlyDictionary<Key, Key>(map, false);
+      Map = new ReadOnlyDictionary<Key, Key>(map);
     }
 
     // Serialization
@@ -103,10 +97,10 @@ namespace Xtensive.Orm
     {
       var serializedMapping = (Dictionary<Ref<Entity>, Ref<Entity>>)
         info.GetValue("Map", typeof(Dictionary<Ref<Entity>, Ref<Entity>>));
-      map = new Dictionary<Key, Key>();
+      var map = new Dictionary<Key, Key>();
       foreach (var pair in serializedMapping)
         map.Add(pair.Key, pair.Value);
-      Map = new ReadOnlyDictionary<Key, Key>(map, false);
+      Map = new ReadOnlyDictionary<Key, Key>(map);
     }
   }
 }

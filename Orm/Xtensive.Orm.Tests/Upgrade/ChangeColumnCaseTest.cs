@@ -5,6 +5,7 @@
 // Created:    2012.11.15
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
@@ -62,7 +63,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           return "2";
         }
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           hints.Add(new RenameTypeHint(typeof (V1.MyEntity).FullName, typeof (MyEntity)));
         }

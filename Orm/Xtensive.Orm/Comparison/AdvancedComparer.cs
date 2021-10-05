@@ -21,11 +21,11 @@ namespace Xtensive.Comparison
   [Serializable]
   public sealed class AdvancedComparer<T>: MethodCacheBase<IAdvancedComparer<T>>
   {
-    private static ThreadSafeCached<AdvancedComparer<T>> systemCached =
-      ThreadSafeCached<AdvancedComparer<T>>.Create(new object());
+    private static Lazy<AdvancedComparer<T>> systemCached =
+      new Lazy<AdvancedComparer<T>>(() => ComparerProvider.System.GetComparer<T>());
 
-    private static ThreadSafeCached<AdvancedComparer<T>> defaultCached =
-      ThreadSafeCached<AdvancedComparer<T>>.Create(new object());
+    private static Lazy<AdvancedComparer<T>> defaultCached =
+      new Lazy<AdvancedComparer<T>>(() => ComparerProvider.Default.GetComparer<T>());
 
     /// <summary>
     /// Gets default advanced comparer for type <typeparamref name="T"/>
@@ -34,8 +34,7 @@ namespace Xtensive.Comparison
     public static AdvancedComparer<T> Default {
       [DebuggerStepThrough]
       get {
-        return defaultCached.GetValue(
-          () => ComparerProvider.Default.GetComparer<T>());
+        return defaultCached.Value;
       }
     }
 
@@ -44,8 +43,7 @@ namespace Xtensive.Comparison
     /// </summary>
     public static AdvancedComparer<T> System {
       get {
-        return systemCached.GetValue(
-          () => ComparerProvider.System.GetComparer<T>());
+        return systemCached.Value;
       }
     }
 
