@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -124,8 +124,7 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitLambda(LambdaExpression le)
     {
-      using (state.CreateLambdaScope(le)) {
-        state.AllowCalculableColumnCombine = false;
+      using (CreateLambdaScope(le, allowCalculableColumnCombine: false)) {
         Expression body = le.Body;
         if (!state.IsTailMethod)
           body = NullComparsionRewriter.Rewrite(body);
@@ -147,8 +146,7 @@ namespace Xtensive.Orm.Linq
     protected override MemberAssignment VisitMemberAssignment(MemberAssignment ma)
     {
       Expression expression;
-      using (state.CreateScope()) {
-        state.CalculateExpressions = false;
+      using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
         expression = Visit(ma.Expression);
       }
 
@@ -314,8 +312,7 @@ namespace Xtensive.Orm.Linq
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
       }
       Expression source;
-      using (state.CreateScope()) {
-//        state.BuildingProjection = false;
+      using (CreateScope(new TranslatorState(state) { /* BuildingProjection = false */ })) {
         source = Visit(ma.Expression);
       }
 
@@ -325,8 +322,7 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      using (state.CreateScope()) {
-        state.IsTailMethod = mc==context.Query && mc.IsQuery();
+      using (CreateScope(new TranslatorState(state) { IsTailMethod = mc == context.Query && mc.IsQuery() })) {
         var method = mc.Method;
         var customCompiler = context.CustomCompilerProvider.GetCompiler(method);
         if (customCompiler != null) {
@@ -1134,7 +1130,7 @@ namespace Xtensive.Orm.Linq
       context.Bindings.ReplaceBound(sourceParameter, newResult);
 
       var result = ColumnExpression.Create(originalColumnType, dataSource.Header.Length - 1);
-      state.AllowCalculableColumnCombine = true;
+      ModifyStateAllowCalculableColumnCombine(true);
 
       return result;
     }
@@ -1398,7 +1394,7 @@ namespace Xtensive.Orm.Linq
         return Visit(Expression.Convert(source, targetType));
 
       // Cast to subclass or interface.
-      using (state.CreateScope()) {
+      using (CreateScope(new TranslatorState(state))) {       //!!! why to create State Scope without modifying the state?
         var targetTypeInfo = context.Model.Types[targetType];
         // Using of state.Parameter[0] is a very weak approach.
         // `as` operator could be applied on expression that has no relation with current parameter

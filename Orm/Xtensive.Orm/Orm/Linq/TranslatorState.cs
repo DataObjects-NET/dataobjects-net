@@ -1,4 +1,4 @@
-// Copyright (C) 2010-2020 Xtensive LLC.
+// Copyright (C) 2010-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -6,11 +6,11 @@
 
 using System;
 using System.Linq.Expressions;
-using Xtensive.Core;
+using System.Runtime.CompilerServices;
 
 namespace Xtensive.Orm.Linq
 {
-  internal sealed class TranslatorState
+  internal readonly struct TranslatorState
   {
     [Flags]
     private enum TranslatorStateFlags
@@ -27,155 +27,118 @@ namespace Xtensive.Orm.Linq
       SkipNullableColumnsDetectionInGroupBy = 1 << 9
     }
 
-    internal readonly ref struct TranslatorScope
+    internal readonly struct TranslatorScope : IDisposable
     {
       private readonly TranslatorState previousState;
       private readonly Translator translator;
 
-      public void Dispose() => translator.state = previousState;
+      public void Dispose() => translator.RestoreState(previousState);
 
-      public TranslatorScope(Translator translator, TranslatorState previousState)
+      public TranslatorScope(Translator translator)
       {
         this.translator = translator;
-        this.previousState = previousState;
+        previousState = translator.state;
       }
     }
 
-    private readonly Translator translator;
+    public static readonly TranslatorState InitState = new TranslatorState {
+      BuildingProjection = true,
+      IsTailMethod = true,
+      OuterParameters = Array.Empty<ParameterExpression>(),
+      Parameters = Array.Empty<ParameterExpression>(),
+      CurrentLambda = null,
+      IncludeAlgorithm = IncludeAlgorithm.Auto,
+      TypeOfEntityStoredInKey = null,
+    };
 
-    private TranslatorStateFlags flags;
+    private readonly TranslatorStateFlags flags;
 
-    public ParameterExpression[] Parameters { get; set; }
+    public ParameterExpression[] Parameters { get; init; }
 
-    public ParameterExpression[] OuterParameters { get; set; }
+    public ParameterExpression[] OuterParameters { get; init; }
 
-    public LambdaExpression CurrentLambda { get; set; }
+    public LambdaExpression CurrentLambda { get; init; }
 
-    public IncludeAlgorithm IncludeAlgorithm { get; set; }
+    public IncludeAlgorithm IncludeAlgorithm { get; init; }
 
-    public Type TypeOfEntityStoredInKey { get; set; }
+    public Type TypeOfEntityStoredInKey { get; init; }
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private bool GetFlag(TranslatorStateFlags f) => (flags & f) != 0;
+
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ModifyFlag(ref TranslatorStateFlags flags, TranslatorStateFlags f, bool value) =>
+      flags = value ? flags | f : flags & ~f;
 
     public bool JoinLocalCollectionEntity
     {
-      get => (flags & TranslatorStateFlags.JoinLocalCollectionEntity) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.JoinLocalCollectionEntity
-        : flags & ~TranslatorStateFlags.JoinLocalCollectionEntity;
+      get => GetFlag(TranslatorStateFlags.JoinLocalCollectionEntity);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.JoinLocalCollectionEntity, value);
     }
 
-    public bool AllowCalculableColumnCombine    {
-      get => (flags & TranslatorStateFlags.AllowCalculableColumnCombine) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.AllowCalculableColumnCombine
-        : flags & ~TranslatorStateFlags.AllowCalculableColumnCombine;
+    public bool AllowCalculableColumnCombine
+    {
+      get => GetFlag(TranslatorStateFlags.AllowCalculableColumnCombine);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.AllowCalculableColumnCombine, value);
     }
 
     public bool BuildingProjection
     {
-      get => (flags & TranslatorStateFlags.IsBuildingProjection) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.IsBuildingProjection
-        : flags & ~TranslatorStateFlags.IsBuildingProjection;
+      get => GetFlag(TranslatorStateFlags.IsBuildingProjection);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.IsBuildingProjection, value);
     }
 
     public bool CalculateExpressions
     {
-      get => (flags & TranslatorStateFlags.CalculateExpressions) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.CalculateExpressions
-        : flags & ~TranslatorStateFlags.CalculateExpressions;
+      get => GetFlag(TranslatorStateFlags.CalculateExpressions);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.CalculateExpressions, value);
     }
 
     public bool GroupingKey
     {
-      get => (flags & TranslatorStateFlags.IsGroupingKey) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.IsGroupingKey
-        : flags & ~TranslatorStateFlags.IsGroupingKey;
+      get => GetFlag(TranslatorStateFlags.IsGroupingKey);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.IsGroupingKey, value);
     }
 
     public bool IsTailMethod
     {
-      get => (flags & TranslatorStateFlags.IsTailMethod) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.IsTailMethod
-        : flags & ~TranslatorStateFlags.IsTailMethod;
+      get => GetFlag(TranslatorStateFlags.IsTailMethod);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.IsTailMethod, value);
     }
 
     public bool ShouldOmitConvertToObject
     {
-      get => (flags & TranslatorStateFlags.ShouldOmitConvertToObject) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.ShouldOmitConvertToObject
-        : flags & ~TranslatorStateFlags.ShouldOmitConvertToObject;
+      get => GetFlag(TranslatorStateFlags.ShouldOmitConvertToObject);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.ShouldOmitConvertToObject, value);
     }
 
     public bool RequestCalculateExpressions
     {
-      get => (flags & TranslatorStateFlags.RequestCalculateExpressions) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.RequestCalculateExpressions
-        : flags & ~TranslatorStateFlags.RequestCalculateExpressions;
+      get => GetFlag(TranslatorStateFlags.RequestCalculateExpressions);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.RequestCalculateExpressions, value);
     }
 
     public bool RequestCalculateExpressionsOnce
     {
-      get => (flags & TranslatorStateFlags.RequestCalculateExpressionsOnce) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.RequestCalculateExpressionsOnce
-        : flags & ~TranslatorStateFlags.RequestCalculateExpressionsOnce;
+      get => GetFlag(TranslatorStateFlags.RequestCalculateExpressionsOnce);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.RequestCalculateExpressionsOnce, value);
     }
 
-    public bool SkipNullableColumnsDetectionInGroupBy 
+    public bool SkipNullableColumnsDetectionInGroupBy
     {
-      get => (flags & TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy) != 0;
-      set => flags = value
-        ? flags | TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy
-        : flags & ~TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy;
+      get => GetFlag(TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy);
+      init => ModifyFlag(ref flags, TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy, value);
     }
 
-    public TranslatorScope CreateScope()
-    {
-      var currentState = translator.state;
-      translator.state = new TranslatorState(currentState);
-      return new TranslatorScope(translator, currentState);
-    }
-
-    public TranslatorScope CreateLambdaScope(LambdaExpression le)
-    {
-      var currentState = translator.state;
-      var newState = new TranslatorState(currentState);
-      var newOuterParameters = new ParameterExpression[newState.OuterParameters.Length + newState.Parameters.Length];
-      newState.OuterParameters.CopyTo(newOuterParameters, 0);
-      newState.Parameters.CopyTo(newOuterParameters, newState.OuterParameters.Length);
-      newState.OuterParameters = newOuterParameters;
-      newState.Parameters = le.Parameters.ToArray(le.Parameters.Count);
-      newState.CurrentLambda = le;
-      translator.state = newState;
-      return new TranslatorScope(translator, currentState);
-    }
-
-
-    // Constructors
-
-    public TranslatorState(Translator translator)
-    {
-      this.translator = translator;
-      flags = TranslatorStateFlags.IsBuildingProjection | TranslatorStateFlags.IsTailMethod;
-      OuterParameters = Parameters = Array.Empty<ParameterExpression>();
-      IncludeAlgorithm = IncludeAlgorithm.Auto;
-      TypeOfEntityStoredInKey = null;
-    }
-
-    private TranslatorState(TranslatorState currentState)
-    {
-      translator = currentState.translator;
-      flags = currentState.flags;
-      Parameters = currentState.Parameters;
-      OuterParameters = currentState.OuterParameters;
-      CurrentLambda = currentState.CurrentLambda;
-      IncludeAlgorithm = currentState.IncludeAlgorithm;
-      TypeOfEntityStoredInKey = currentState.TypeOfEntityStoredInKey;
-    }
+    public TranslatorState(in TranslatorState currentState) =>
+      this = currentState;
   }
 }
+
+#if !NET5_0_OR_GREATER
+// Workaround of error CS0518: Predefined type 'System.Runtime.CompilerServices.IsExternalInit' is not defined or imported
+namespace System.Runtime.CompilerServices
+{
+  internal static class IsExternalInit { }
+}
+#endif
