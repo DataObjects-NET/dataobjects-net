@@ -26,7 +26,8 @@ namespace Xtensive.Collections
     /// </summary>
     public int Count => innerSet.Count;
 
-    bool ICollection<T>.IsReadOnly => throw new NotImplementedException();
+    /// <inheritdoc/>
+    bool ICollection<T>.IsReadOnly => true;
 
     /// <summary>
     /// Determines whether a <see href="ReadOnlyHashSet{T}"/> object contains the specified element.
