@@ -105,6 +105,12 @@ namespace Xtensive.Collections
     /// </returns>
     public bool SetEquals(IEnumerable<T> other) => innerSet.SetEquals(other);
 
+    /// <summary>
+    /// Copies the elements of a <see cref="ReadOnlyHashSet{T}"/> object to an <see paramref="array"/>,
+    /// starting at the specified <see paramref="arrayIndex"/>.
+    /// </summary>
+    public void CopyTo(T[] array, int arrayIndex) => innerSet.CopyTo(array, arrayIndex);
+
     #region Not Implemented Members
 
     bool System.Collections.Generic.ISet<T>.Add(T item) => throw new NotImplementedException();
@@ -114,7 +120,6 @@ namespace Xtensive.Collections
     void System.Collections.Generic.ISet<T>.UnionWith(IEnumerable<T> other) => throw new NotImplementedException();
     void ICollection<T>.Add(T item) => throw new NotImplementedException();
     void ICollection<T>.Clear() => throw new NotImplementedException();
-    void ICollection<T>.CopyTo(T[] array, int arrayIndex) => throw new NotImplementedException();
     bool ICollection<T>.Remove(T item) => throw new NotImplementedException();
 
     #endregion
