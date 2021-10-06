@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Weaver.Stages
     {
       TypeInfo result;
       if (!processedTypes.TryGetValue(identity, out result))
-        throw new InvalidOperationException(string.Format("Unable to find type '{0}'", identity.TypeName));
+        throw new InvalidOperationException($"Unable to find type '{identity.TypeName}'");
       return result;
     }
 

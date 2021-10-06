@@ -198,7 +198,7 @@ namespace Xtensive.Modelling.Comparison
         action.Add(stageActions);
       }
 
-      CoreLog.Info(string.Format("Stage {0} complete.", stage));
+      CoreLog.Info($"Stage {stage} complete.");
     }
 
     /// <summary>

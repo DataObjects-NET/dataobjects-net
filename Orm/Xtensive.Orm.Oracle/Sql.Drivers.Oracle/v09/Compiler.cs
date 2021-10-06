@@ -184,7 +184,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlFastFirstRowsHint node)
     {
-      context.Output.AppendText(string.Format("FIRST_ROWS({0})", node.Amount));
+      context.Output.AppendText($"FIRST_ROWS({node.Amount})");
     }
 
     public override void Visit(SqlNativeHint node)
@@ -194,7 +194,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlForceJoinOrderHint node)
     {
-      if (node.Tables.IsNullOrEmpty()) 
+      if (node.Tables.IsNullOrEmpty())
         context.Output.AppendText("ORDERED");
       else {
         context.Output.AppendText("LEADING(");
@@ -315,10 +315,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
       return SqlDml.FunctionCall("FROM_TZ",
         dateTime,
-        AnsiString(string.Format("{0}{1}:{2}",
-          (offsetToInt.Value < 0) ? "-" : "+",
-          offsetToInt.Value / 60,
-          offsetToInt.Value % 60))
+        AnsiString($"{((offsetToInt.Value < 0) ? "-" : "+")}{offsetToInt.Value / 60}:{offsetToInt.Value % 60}")
         );
     }
 

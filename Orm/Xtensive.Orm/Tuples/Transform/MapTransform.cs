@@ -255,14 +255,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = string.Format("{0}: {1}, {2}", 
-        SourceCount, 
-        SourceCount==1 ? 
-          singleSourceMap.ToCommaDelimitedString() : 
-          map.ToCommaDelimitedString(),
-        isReadOnly ? 
-          Strings.ReadOnlyShort : 
-          Strings.ReadWriteShort);
+      string description = $"{SourceCount}: {(SourceCount == 1 ? singleSourceMap.ToCommaDelimitedString() : map.ToCommaDelimitedString())}, {(isReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat, 
         GetType().GetShortName(), 
         description);

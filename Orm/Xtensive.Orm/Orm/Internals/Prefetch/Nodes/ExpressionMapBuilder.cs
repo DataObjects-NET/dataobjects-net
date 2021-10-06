@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         && (memberExpression.Member is PropertyInfo);
 
       if (!isInstanceProperty)
-        throw new NotSupportedException(string.Format("Only instance properties are supported"));
+        throw new NotSupportedException("Only instance properties are supported");
     }
 
     private static void ValidateMethodCall(MethodCallExpression e)

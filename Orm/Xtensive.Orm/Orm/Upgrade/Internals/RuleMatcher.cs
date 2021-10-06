@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade
         var items = pattern.Split(MatchingHelper.WildcardSymbol.ToCharArray());
         for (int i = 0; i < items.Length; i++)
           items[i] = Regex.Escape(items[i]);
-        return string.Format("^{0}$", string.Join(".*", items));
+        return $"^{string.Join(".*", items)}$";
       }
 
       public PatternMatcher(string pattern)

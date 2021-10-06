@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -99,7 +99,7 @@ namespace Xtensive.Sql.Drivers.MySql
     private static string GetCreateSavepointCommandText(string name) => $"SAVEPOINT {name}";
 
     private static string GetRollbackToSavepointCommandText(string name) =>
-      string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
+      $"ROLLBACK TO SAVEPOINT {name}; RELEASE SAVEPOINT {name};";
 
     private static string GetReleaseSavepointCommandText(string name) => $"RELEASE SAVEPOINT {name}";
 
