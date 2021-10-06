@@ -32,11 +32,13 @@ namespace Xtensive.Orm.Rse.Transformation
       if (owner.State.SelfConvertibleApplyProviders[applyParameter])
         return false;
       var newPair = new Pair<CalculateProvider, ColumnCollection>(provider, provider.Header.Columns);
-      if (owner.State.CalculateProviders.ContainsKey(applyParameter))
-        owner.State.CalculateProviders[applyParameter].Add(newPair);
-      else
+      if (owner.State.CalculateProviders.TryGetValue(applyParameter, out var providers)) {
+        providers.Add(newPair);
+      }
+      else {
         owner.State.CalculateProviders.Add(applyParameter,
           new List<Pair<CalculateProvider, ColumnCollection>> {newPair});
+      }
       return true;
     }
 
@@ -83,9 +85,10 @@ namespace Xtensive.Orm.Rse.Transformation
     {
       var result = false;
       foreach (var key in owner.State.Predicates.Keys) {
-        if (!owner.State.CalculateProviders.ContainsKey(key))
+        if (!owner.State.CalculateProviders.TryGetValue(key, out var providers)) {
           continue;
-        foreach (var providerPair in owner.State.CalculateProviders[key]) {
+        }
+        foreach (var providerPair in providers) {
           if (ContainsAccessToTupleField(tupleAccesses, providerPair.First, filterProvider)) {
             result = true;
             AddCalculateFilter(providerPair.First, filterProvider);
@@ -106,11 +109,13 @@ namespace Xtensive.Orm.Rse.Transformation
       var newPair =
         new Pair<Expression<Func<Tuple, bool>>, ColumnCollection>(filterProvider.Predicate,
           filterProvider.Header.Columns);
-      if (owner.State.CalculateFilters.ContainsKey(calculateProvider))
-        owner.State.CalculateFilters[calculateProvider].Add(newPair);
-      else
+      if (owner.State.CalculateFilters.TryGetValue(calculateProvider, out var filters)) {
+        filters.Add(newPair);
+      }
+      else {
         owner.State.CalculateFilters.Add(calculateProvider,
           new List<Pair<Expression<Func<Tuple, bool>>, ColumnCollection>> {newPair});
+      }
     }
 
     #endregion

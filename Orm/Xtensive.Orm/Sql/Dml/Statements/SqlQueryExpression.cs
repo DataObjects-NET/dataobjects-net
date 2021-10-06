@@ -32,17 +32,12 @@ namespace Xtensive.Sql.Dml
       get { return all; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlQueryExpression clone = new SqlQueryExpression(NodeType,
-        (ISqlQueryExpression)((SqlNode) left).Clone(context),
-        (ISqlQueryExpression)((SqlNode) right).Clone(context), all);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlQueryExpression(NodeType,
+          (ISqlQueryExpression)((SqlNode) left).Clone(context),
+          (ISqlQueryExpression)((SqlNode) right).Clone(context), all);
 
     #region IEnumerable<ISqlQueryExpression> Members
 

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -18,19 +18,13 @@ namespace Xtensive.Orm.Upgrade
     private readonly ReadOnlyDictionary<Assembly, IUpgradeHandler> handlers;
     private readonly UpgradeStage stage;
 
-    public bool IsFieldAvailable(PropertyInfo field)
-    {
-      var assembly = field.DeclaringType.Assembly;
-      return handlers.ContainsKey(assembly) && handlers[assembly].IsFieldAvailable(field, stage);
-    }
+    public bool IsFieldAvailable(PropertyInfo field) =>
+      handlers.TryGetValue(field.DeclaringType.Assembly, out var handler) && handler.IsFieldAvailable(field, stage);
 
-    public bool IsTypeAvailable(Type type)
-    {
-      var assembly = type.Assembly;
-      return handlers.ContainsKey(assembly)
+    public bool IsTypeAvailable(Type type) =>
+      handlers.TryGetValue(type.Assembly, out var handler)
         && DomainTypeRegistry.IsPersistentType(type)
-        && handlers[assembly].IsTypeAvailable(type, stage);
-    }
+        && handler.IsTypeAvailable(type, stage);
 
     // Constructors
 

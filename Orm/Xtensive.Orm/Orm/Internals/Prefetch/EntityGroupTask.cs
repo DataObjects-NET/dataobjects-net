@@ -86,18 +86,8 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public CompilableProvider Provider { get; private set; }
 
-    public void AddKey(Key key, bool exactType)
-    {
-      if (keys == null) {
-        keys = new Dictionary<Key, bool>();
-      }
-
-      if (keys.ContainsKey(key)) {
-        return;
-      }
-
-      keys.Add(key, exactType);
-    }
+    public void AddKey(Key key, bool exactType) =>
+      (keys ??= new Dictionary<Key, bool>()).TryAdd(key, exactType);
 
     public void RegisterQueryTasks()
     {
