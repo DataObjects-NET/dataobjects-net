@@ -403,9 +403,7 @@ namespace Xtensive.Modelling.Comparison
         }
 
         foreach (var targetItem in targetKeyMap) {
-          var (s, t) = sourceKeyMap.ContainsKey(targetItem.Key)
-            ? (sourceKeyMap[targetItem.Key], targetKeyMap[targetItem.Key])
-            : (null, targetKeyMap[targetItem.Key]);
+          var (s, t) = (sourceKeyMap.GetValueOrDefault(targetItem.Key), targetKeyMap[targetItem.Key]);
           var d = Visit(s, t);
           if (d != null) {
             difference.ItemChanges.Add((NodeDifference) d);

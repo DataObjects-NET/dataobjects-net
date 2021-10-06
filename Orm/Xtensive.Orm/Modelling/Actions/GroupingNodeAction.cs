@@ -55,8 +55,7 @@ namespace Xtensive.Modelling.Actions
         var last = actions[lastIndex] as PropertyChangeAction;
         if (last!=null && ca.Path==last.Path) {
           foreach (var pair in last.Properties) {
-            if (!ca.Properties.ContainsKey(pair.Key))
-              ca.Properties.Add(pair.Key, pair.Value);
+            ca.Properties.TryAdd(pair.Key, pair.Value);
           }
           actions.RemoveAt(lastIndex);
         }

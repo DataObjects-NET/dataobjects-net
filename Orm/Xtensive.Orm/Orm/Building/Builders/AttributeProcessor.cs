@@ -387,12 +387,10 @@ namespace Xtensive.Orm.Building.Builders
 
         context.Validator.ValidateName(result.First, ValidationRule.Column);
 
-        if (target.ContainsKey(result.First)) {
+        if (!target.TryAdd(result.First, result.Second)) {
           throw new DomainBuilderException(
             string.Format(Strings.ExIndexAlreadyContainsField, fieldName));
         }
-
-        target.Add(result.First, result.Second);
       }
     }
 

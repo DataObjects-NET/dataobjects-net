@@ -18,16 +18,10 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      
-      SqlCreateCharacterSet clone = new SqlCreateCharacterSet(characterSet);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreateCharacterSet(characterSet);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

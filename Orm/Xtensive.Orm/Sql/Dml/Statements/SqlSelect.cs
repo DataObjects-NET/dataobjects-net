@@ -188,8 +188,9 @@ namespace Xtensive.Sql.Dml
 
     internal override object Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
+      if (context.NodeMapping.TryGetValue(this, out var value)) {
+        return value;
+      }
 
       SqlSelect clone = new SqlSelect(from==null ? null : (SqlTable) from.Clone(context));
 

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -112,9 +112,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Calculate cross-database reference information (i.e. build a graph).
       foreach (var reference in outgoingReferences) {
-        var dbReference = reference.DatabaseReference;
-        if (!referenceRegistry.ContainsKey(dbReference))
-          referenceRegistry.Add(dbReference, reference);
+        referenceRegistry.TryAdd(reference.DatabaseReference, reference);
       }
 
       var databases = typesToProcess.Select(t => t.MappingDatabase).Distinct().ToList();

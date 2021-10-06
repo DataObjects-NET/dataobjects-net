@@ -46,7 +46,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
     private readonly Dictionary<Node, Dictionary<Type, object>> hintMap =
       new Dictionary<Node, Dictionary<Type, object>>();
-    
+
     /// <summary>
     /// Gets the number of elements contained in a collection.
     /// </summary>
@@ -81,26 +81,20 @@ namespace Xtensive.Modelling.Comparison.Hints
           else
             node = (Node) TargetModel.Resolve(target.Path, true);
           nodes.Add(node);
-          
-          if (!hintMap.ContainsKey(node))
-            hintMap.Add(node, new Dictionary<Type, object>());
-          var nodeHintMap = hintMap[node];
+
+          var nodeHintMap = GetNodeHints(node);
           var hintType = hint.GetType();
           
-          if (!nodeHintMap.ContainsKey(hintType))
-            nodeHintMap.Add(hintType, null);
-          
-          var hintOrList = nodeHintMap[hintType];
-          if (hintOrList==null)
-            nodeHintMap[hintType] = hint;
-          else {
-            var list = hintOrList as List<Hint>;
-            if (list==null) {
-              var oldHint = (Hint) hintOrList;
-              nodeHintMap[hintType] = new List<Hint>(new[] {oldHint, hint});
-            }
-            else
+          if (nodeHintMap.TryGetValue(hintType, out var hintOrList)) {
+            if (hintOrList is List<Hint> list) {
               list.Add(hint);
+            }
+            else {
+              nodeHintMap[hintType] = new List<Hint>(new[] { (Hint) hintOrList, hint });
+            }
+          }
+          else {
+            nodeHintMap.Add(hintType, hint);
           }
         }
       }
@@ -125,46 +119,20 @@ namespace Xtensive.Modelling.Comparison.Hints
 
     /// <inheritdoc/>
     /// <exception cref="InvalidOperationException">Multiple hints found.</exception>
-    public THint GetHint<THint>(Node node)
-      where THint : Hint
-    {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
-
-      if (!hintMap.ContainsKey(node))
-        hintMap.Add(node, new Dictionary<Type, object>());
-      var nodeHintMap = hintMap.GetValueOrDefault(node);
-      if (nodeHintMap==null)
-        return null;
-      var hintType = typeof(THint);
-      var hintOrList = nodeHintMap.GetValueOrDefault(hintType);
-      if (hintOrList==null)
-        return null;
-      var hint = hintOrList as THint;
-      if (hint!=null)
-        return hint;
-      throw new InvalidOperationException(Strings.ExMultipleHintsFound);
-    }
+    public THint GetHint<THint>(Node node) where THint : Hint =>
+      GetNodeHints(node).GetValueOrDefault(typeof(THint)) switch {
+        null => null,
+        THint hint => hint,
+        _ => throw new InvalidOperationException(Strings.ExMultipleHintsFound)
+      };
 
     /// <inheritdoc/>
-    public THint[] GetHints<THint>(Node node)
-      where THint : Hint
-    {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
-
-      if (!hintMap.ContainsKey(node))
-        hintMap.Add(node, new Dictionary<Type, object>());
-      var nodeHintMap = hintMap.GetValueOrDefault(node);
-      if (nodeHintMap==null)
-        return Array.Empty<THint>();
-      var hintType = typeof (THint);
-      var hintOrList = nodeHintMap.GetValueOrDefault(hintType);
-      if (hintOrList==null)
-        return Array.Empty<THint>();
-      var hint = hintOrList as THint;
-      if (hint!=null)
-        return new[] {hint};
-      return ((List<Hint>) hintOrList).Cast<THint>().ToArray();
-    }
+    public THint[] GetHints<THint>(Node node) where THint : Hint =>
+      GetNodeHints(node).GetValueOrDefault(typeof(THint)) switch {
+        null => Array.Empty<THint>(),
+        THint hint => new[] { hint },
+        var list => ((List<Hint>) list).Cast<THint>().ToArray()
+      };
 
     /// <summary>
     /// Determines whether there are any hints associated with the specified.
@@ -174,29 +142,10 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <see langword="true"/> if the specified node has associated hints; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
-    public bool HasHints(Node node)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+    public bool HasHints(Node node) => GetNodeHints(node).Count > 0;
 
-      if (!hintMap.ContainsKey(node))
-        hintMap.Add(node, new Dictionary<Type, object>());
-      var nodeHintMap = hintMap.GetValueOrDefault(node);
-      if (nodeHintMap==null)
-        return false;
-
-      return nodeHintMap.Values.Count > 0;
-    }
-
-    public bool HasHints<THint>(Node node)
-      where THint : Hint
-    {
-      ArgumentValidator.EnsureArgumentNotNull(node, "node");
-
-      if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
-        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
-      }
-      return nodeHintMap.ContainsKey(typeof(THint));
-    }
+    public bool HasHints<THint>(Node node) where THint : Hint =>
+      GetNodeHints(node).ContainsKey(typeof(THint));
 
     #region IEnumerable<...> methods
 
@@ -213,6 +162,16 @@ namespace Xtensive.Modelling.Comparison.Hints
     }
 
     #endregion
+
+    private Dictionary<Type, object> GetNodeHints(Node node)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(node, "node");
+
+      if (!hintMap.TryGetValue(node, out var nodeHintMap)) {
+        hintMap.Add(node, nodeHintMap = new Dictionary<Type, object>());
+      }
+      return nodeHintMap;
+    }
 
     #region ILockable methods
 

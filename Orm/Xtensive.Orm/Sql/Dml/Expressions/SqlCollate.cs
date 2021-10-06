@@ -43,15 +43,10 @@ namespace Xtensive.Sql.Dml
       collation = replacingExpression.Collation;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlCollate clone = new SqlCollate((SqlExpression)operand.Clone(context), collation);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCollate((SqlExpression)operand.Clone(context), collation);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
