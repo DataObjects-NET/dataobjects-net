@@ -80,17 +80,17 @@ namespace Xtensive.Orm.Providers
           if (!namingConvention.NamespaceSynonyms.TryGetValue(@namespace, out synonym))
             synonym = @namespace;
           if (!synonym.IsNullOrEmpty())
-            result = string.Format("{0}.{1}", synonym, result);
+            result = $"{synonym}.{result}";
         }
           break;
         case NamespacePolicy.AsIs:
           if (!@namespace.IsNullOrEmpty())
-            result = string.Format("{0}.{1}", @namespace, result);
+            result = $"{@namespace}.{result}";
           break;
         case NamespacePolicy.Hash:
           var hash = GetHash(@namespace);
           if (!@hash.IsNullOrEmpty())
-            result = string.Format("{0}.{1}", hash, result);
+            result = $"{hash}.{result}";
           break;
       }
       return ApplyNamingRules(result);
@@ -293,7 +293,7 @@ namespace Xtensive.Orm.Providers
       if (!index.Name.IsNullOrEmpty())
         result = index.Name;
       else if (index.IsPrimary)
-        result = string.Format("PK_{0}", type.Name);
+        result = $"PK_{type.Name}";
       else if (index.KeyFields.Count == 0)
         result = string.Empty;
       else if (!index.MappingName.IsNullOrEmpty())
@@ -302,10 +302,10 @@ namespace Xtensive.Orm.Providers
         if (index.KeyFields.Count == 1) {
           FieldDef field;
           if (type.Fields.TryGetValue(index.KeyFields[0].Key, out field) && field.IsEntity)
-            result = string.Format("FK_{0}", field.Name);
+            result = $"FK_{field.Name}";
         }
         if (result.IsNullOrEmpty()) {
-          result = string.Format("IX_{0}", string.Join("", index.KeyFields.Keys));
+          result = $"IX_{string.Join("", index.KeyFields.Keys)}";
         }
       }
       return ApplyNamingRules(result);
@@ -343,21 +343,21 @@ namespace Xtensive.Orm.Providers
             }
           }
           result = originIndex != null
-            ? string.Format("PK_{0}.{1}", type, originIndex.ReflectedType)
+            ? $"PK_{type}.{originIndex.ReflectedType}"
             : (type == index.DeclaringType
-                ? string.Format("PK_{0}", type)
-                : string.Format("PK_{0}.{1}", type, index.DeclaringType));
+                ? $"PK_{type}"
+                : $"PK_{type}.{index.DeclaringType}");
         }
         else
           result = index.DeclaringType != type
-            ? string.Format("PK_{0}.{1}", type, index.DeclaringType)
-            : string.Format("PK_{0}", type);
+            ? $"PK_{type}.{index.DeclaringType}"
+            : $"PK_{type}";
       }
       else {
         if (!index.MappingName.IsNullOrEmpty()) {
           result = index.DeclaringType != type
-            ? string.Format("{0}.{1}.{2}", type, index.DeclaringType, index.MappingName)
-            : string.Format("{0}.{1}", type, index.MappingName);
+            ? $"{type}.{index.DeclaringType}.{index.MappingName}"
+            : $"{type}.{index.MappingName}";
         }
         else if (index.IsVirtual && index.DeclaringIndex.Name!=null) {
           result = index.DeclaringIndex.Name;
@@ -375,12 +375,12 @@ namespace Xtensive.Orm.Providers
             .ToDelimitedString(String.Empty);
           if (keyFields.Count == 1 && keyFields.Single().IsEntity)
             result = index.DeclaringType != type
-              ? string.Format("{0}.{1}.FK_{2}", type, index.DeclaringType, indexNameSuffix)
-              : string.Format("{0}.FK_{1}", type, indexNameSuffix);
+              ? $"{type}.{index.DeclaringType}.FK_{indexNameSuffix}"
+              : $"{type}.FK_{indexNameSuffix}";
           else
             result = index.DeclaringType != type
-              ? string.Format("{0}.{1}.IX_{2}", type, index.DeclaringType, indexNameSuffix)
-              : string.Format("{0}.IX_{1}", type, indexNameSuffix);
+              ? $"{type}.{index.DeclaringType}.IX_{indexNameSuffix}"
+              : $"{type}.IX_{indexNameSuffix}";
         }
       }
 
@@ -408,7 +408,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Index name.</returns>
     public string BuildFullTextIndexName(TypeInfo typeInfo)
     {
-      var result = string.Format("FT_{0}", typeInfo.MappingName ?? typeInfo.Name);
+      var result = $"FT_{typeInfo.MappingName ?? typeInfo.Name}";
       return ApplyNamingRules(result);
     }
 
@@ -421,7 +421,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>Name for <paramref name="index"/>.</returns>
     public string BuildPartialIndexName(IndexDef index, Type filterType, string filterMember)
     {
-      return string.Format("IXP_{0}.{1}", filterType.Name, filterMember);
+      return $"IXP_{filterType.Name}.{filterMember}";
     }
 
     /// <summary>
@@ -579,13 +579,13 @@ namespace Xtensive.Orm.Providers
     {
       using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
         byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
-        return string.Format("H{0:x2}{1:x2}{2:x2}{3:x2}", hash[0], hash[1], hash[2], hash[3]);
+        return $"H{hash[0]:x2}{hash[1]:x2}{hash[2]:x2}{hash[3]:x2}";
       }
     }
 
     private static string FormatKeyGeneratorName(string database, string name)
     {
-      return string.Format("{0}@{1}", name, database);
+      return $"{name}@{database}";
     }
 
 

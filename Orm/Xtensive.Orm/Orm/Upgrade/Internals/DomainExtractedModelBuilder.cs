@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -219,7 +219,7 @@ namespace Xtensive.Orm.Upgrade.Internals
           idColumn,
           sequenceInfo.Current ?? sequenceInfo.Seed,
           sequenceInfo.Increment);
-      sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
+      sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
       if (!provider.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = sequenceTable.CreateColumn(
           WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));

@@ -159,7 +159,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql
     private static string GetCreateSavepointCommandText(string name) => $"SAVEPOINT {name}";
 
     private static string GetRollbackToSavepointCommandText(string name) =>
-      string.Format("ROLLBACK TO SAVEPOINT {0}; RELEASE SAVEPOINT {0};", name);
+      $"ROLLBACK TO SAVEPOINT {name}; RELEASE SAVEPOINT {name};";
 
     private static string GetReleaseSavepointCommandText(string name) => $"RELEASE SAVEPOINT {name}";
 

@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Make type '{0}' non-abstract.", Type.Name);
+      return $"Make type '{Type.Name}' non-abstract.";
     }
 
     public MakeTypeNonAbstractAction(TypeDef type)

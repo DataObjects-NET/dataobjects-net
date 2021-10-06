@@ -246,7 +246,7 @@ namespace Xtensive.Reflection
     {
       Type sourceType = typeof(TSource);
       Type targetType = typeof(TTarget);
-      string methodName = string.Format("{0}_{1}_{2}", primitiveCastMethodName, sourceType, targetType);
+      string methodName = $"{primitiveCastMethodName}_{sourceType}_{targetType}";
       var methodKey = new MethodCallDelegateKey(methodName);
 
       static Lazy<Delegate> DelegateFactory(MethodCallDelegateKey methodKey, (Type sourceType, Type targetType) arg)

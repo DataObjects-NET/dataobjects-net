@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Add TypeId as key field to '{0}' type.", Hierarchy.Root.Name);
+      return $"Add TypeId as key field to '{Hierarchy.Root.Name}' type.";
     }
 
 

@@ -56,11 +56,11 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("{0}:\r\n", Strings.KeyMapping) + (
+      return $"{Strings.KeyMapping}:\r\n" + (
         from pair in Map
         let pairKeyString = pair.Key.ToString()
         orderby pairKeyString
-        select string.Format("  {0} => {1}", pairKeyString, pair.Value)
+        select $"  {pairKeyString} => {pair.Value}"
         ).ToDelimitedString(Environment.NewLine);
     }
 

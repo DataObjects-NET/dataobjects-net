@@ -918,7 +918,7 @@ namespace Xtensive.Modelling
     {
       var prefix = string.Empty;
       if (Nesting.IsNestedToCollection && !(Nesting.PropertyValue is IUnorderedNodeCollection)) {
-        prefix = string.Format("{0}: ", Index);
+        prefix = $"{Index}: ";
       }
 
       CoreLog.Info("{0}{1} \"{2}\"", prefix, GetType().GetShortName(), this);

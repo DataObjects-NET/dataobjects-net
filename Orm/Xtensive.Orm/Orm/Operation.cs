@@ -139,7 +139,7 @@ namespace Xtensive.Orm
       return "  Identified entities:\r\n" + (
         from pair in IdentifiedEntities
         orderby pair.Key
-        select string.Format("    {0}: {1}", pair.Key, pair.Value)
+        select $"    {pair.Key}: {pair.Value}"
         ).ToDelimitedString(Environment.NewLine);
     }
 
@@ -147,7 +147,7 @@ namespace Xtensive.Orm
     private string FormatOperations(string title, IEnumerable<IOperation> operations)
     {
       // Shouldn't be moved to resources
-      return string.Format("  {0}:\r\n", title) +
+      return $"  {title}:\r\n" +
         operations.ToDelimitedString(Environment.NewLine).ToString().Indent(4);
     }
 

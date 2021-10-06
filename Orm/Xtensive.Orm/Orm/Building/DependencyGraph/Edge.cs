@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("{0} -> {1}, ({2}, {3})", Tail, Head, Kind, Weight);
+      return $"{Tail} -> {Head}, ({Kind}, {Weight})";
     }
 
 

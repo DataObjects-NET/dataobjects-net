@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Add TypeId field to '{0}' type.", Type.Name);
+      return $"Add TypeId field to '{Type.Name}' type.";
     }
 
 

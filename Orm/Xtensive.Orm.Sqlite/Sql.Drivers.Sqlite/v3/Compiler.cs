@@ -492,7 +492,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       case SqlDateTimeOffsetPart.TimeZoneMinute:
         return SqlDateTimePart.TimeZoneMinute;
       }
-      throw SqlHelper.NotSupported(string.Format("Converting {0} to SqlDateTimePart", dateTimeOffsetPart));
+      throw SqlHelper.NotSupported($"Converting {dateTimeOffsetPart} to SqlDateTimePart");
     }
 
     // Constructors

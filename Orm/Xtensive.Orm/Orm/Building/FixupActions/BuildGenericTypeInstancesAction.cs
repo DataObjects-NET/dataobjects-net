@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Build generic type instances for '{0}' type.", Type.Name);
+      return $"Build generic type instances for '{Type.Name}' type.";
     }
 
 

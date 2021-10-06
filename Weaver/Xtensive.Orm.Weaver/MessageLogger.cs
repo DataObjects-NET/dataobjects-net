@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Weaver
       var messageCode = string.Format(CultureInfo.InvariantCulture, "XW{0:0000}", (int) code);
       var messageText = string.IsNullOrEmpty(extraInformation)
         ? description
-        : string.Format("{0}: {1}", description, extraInformation);
+        : $"{description}: {extraInformation}";
 
       var message = new ProcessorMessage {
         MessageCode = messageCode,

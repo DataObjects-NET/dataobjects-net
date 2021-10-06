@@ -72,7 +72,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
         context.Output.Append(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
       }
       context.Output.Append(translator.ColumnDelimiter);
-      context.Output.Append(string.Format("{0} AS {1}", vector, vectorName));
+      context.Output.Append($"{vector} AS {vectorName}");
       context.Output.Append(translator.ColumnDelimiter);
 
       var languages = fullTextIndex

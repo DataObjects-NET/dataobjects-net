@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Manual.Advanced.CustomSqlCompiler
 
     public static string BuildAddressString(string country, string city, string building)
     {
-      return string.Format("{0}, {1}-{2}", country, city, building);
+      return $"{country}, {city}-{building}";
     }
   }
 

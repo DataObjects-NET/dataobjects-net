@@ -404,13 +404,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       base.Visit(node, item);
 
       if (item.TypeColumn!=null)
-        context.Output.Append(string.Format("TYPE COLUMN {0} ", translator.QuoteIdentifier(item.TypeColumn.Name)));
+        context.Output.Append($"TYPE COLUMN {translator.QuoteIdentifier(item.TypeColumn.Name)} ");
       switch (item.Languages.Count) {
         case 0:
           break;
         case 1:
           if (!string.IsNullOrEmpty(item.Languages[0].Name))
-            context.Output.Append(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
+            context.Output.Append($"LANGUAGE '{item.Languages[0].Name}'");
           break;
         default:
           throw new InvalidOperationException(string.Format(

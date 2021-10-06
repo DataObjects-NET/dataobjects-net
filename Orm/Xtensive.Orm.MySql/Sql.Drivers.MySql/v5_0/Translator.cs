@@ -329,9 +329,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       switch (section) {
         case CreateIndexSection.Entry:
           context.Output.Append(
-            string.Format("CREATE {0}INDEX {1} USING BTREE ON "
-              , index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty)
-              , QuoteIdentifier(index.Name)));
+            $"CREATE {(index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty))}INDEX {QuoteIdentifier(index.Name)} USING BTREE ON ");
           Translate(context, index.DataTable);
           context.Output.Append(" ");
           break;

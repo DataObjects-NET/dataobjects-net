@@ -184,7 +184,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlFastFirstRowsHint node)
     {
-      context.Output.Append(string.Format("FIRST_ROWS({0})", node.Amount));
+      context.Output.Append($"FIRST_ROWS({node.Amount})");
     }
 
     public override void Visit(SqlNativeHint node)
@@ -315,10 +315,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
       return SqlDml.FunctionCall("FROM_TZ",
         dateTime,
-        AnsiString(string.Format("{0}{1}:{2}",
-          (offsetToInt.Value < 0) ? "-" : "+",
-          offsetToInt.Value / 60,
-          offsetToInt.Value % 60))
+        AnsiString($"{((offsetToInt.Value < 0) ? "-" : "+")}{offsetToInt.Value / 60}:{offsetToInt.Value % 60}")
         );
     }
 

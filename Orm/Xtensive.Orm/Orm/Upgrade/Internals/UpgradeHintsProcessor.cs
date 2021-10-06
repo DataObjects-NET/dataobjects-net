@@ -572,7 +572,7 @@ namespace Xtensive.Orm.Upgrade.Internals
       // StoredFieldInfo.MappingName is taken directly from FieldInfo.MappingName and thus is incorrect too.
       // We need to apply naming rules here to make it work.
       var actualColumnName = nameBuilder.ApplyNamingRules(columnName);
-      return string.Format("Tables/{0}/Columns/{1}", nodeName, actualColumnName);
+      return $"Tables/{nodeName}/Columns/{actualColumnName}";
     }
 
     private static Type GetNewType(string oldTypeName, Dictionary<string, Type> newTypes, Dictionary<string, RenameTypeHint> hints)
@@ -584,8 +584,7 @@ namespace Xtensive.Orm.Upgrade.Internals
 
     private static string GetGenericTypeFullName(string genericDefinitionTypeName, string[] genericArgumentNames)
     {
-      return string.Format("{0}<{1}>", genericDefinitionTypeName.Replace("<>", string.Empty),
-        genericArgumentNames.ToCommaDelimitedString());
+      return $"{genericDefinitionTypeName.Replace("<>", string.Empty)}<{genericArgumentNames.ToCommaDelimitedString()}>";
     }
 
     private static bool CheckPropertyNameWasOverriden(StoredFieldInfo fieldInfo)
