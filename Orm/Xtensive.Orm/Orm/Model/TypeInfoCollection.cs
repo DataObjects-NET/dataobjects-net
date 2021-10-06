@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -34,14 +34,9 @@ namespace Xtensive.Orm.Model
     /// An indexer that provides access to collection items.
     /// </summary>
     /// <exception cref="ArgumentException">Item was not found.</exception>
-    public TypeInfo this[Type key] {
-      get {
-        TypeInfo result;
-        if (!TryGetValue(key, out result))
-          throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
-        return result;
-      }
-    }
+    public TypeInfo this[Type key] => TryGetValue(key, out var result)
+      ? result
+      : throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
 
     /// <summary>
     /// An indexer that provides access to collection items by their <see cref="TypeInfo.TypeId"/>.
@@ -176,7 +171,7 @@ namespace Xtensive.Orm.Model
     /// Finds the type by its full name.
     /// </summary>
     /// <param name="fullName">The full name of the type to find.</param>
-    /// <returns>Found type, if any; 
+    /// <returns>Found type, if any;
     /// <see langword="null" />, if there is no type with specified full name.</returns>
     public TypeInfo Find(string fullName)
     {
@@ -189,7 +184,7 @@ namespace Xtensive.Orm.Model
     /// Finds the ancestor of the specified <paramref name="item"/>.
     /// </summary>
     /// <param name="item">The type to search ancestor for.</param>
-    /// <returns><see cref="TypeInfo"/> instance that is ancestor of specified <paramref name="item"/> or 
+    /// <returns><see cref="TypeInfo"/> instance that is ancestor of specified <paramref name="item"/> or
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     public TypeInfo FindAncestor(TypeInfo item)
@@ -223,15 +218,13 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      HashSet<TypeInfo> result;
-      if (!descendantTable.TryGetValue(item, out result))
-        result = new HashSet<TypeInfo>();
-
-      foreach (var item1 in result) {
-        yield return item1;
-        if (recursive)
-          foreach (var item2 in FindDescendants(item1, true))
-            yield return item2;
+      if (descendantTable.TryGetValue(item, out var result)) {
+        foreach (var item1 in result) {
+          yield return item1;
+          if (recursive)
+            foreach (var item2 in FindDescendants(item1, true))
+              yield return item2;
+        }
       }
     }
 
@@ -257,12 +250,10 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      HashSet<TypeInfo> result;
-      if (!interfaceTable.TryGetValue(item, out result))
-        result = new HashSet<TypeInfo>();
-
-      foreach (var item1 in result)
-        yield return item1;
+      if (interfaceTable.TryGetValue(item, out var result)) {
+        foreach (var item1 in result)
+          yield return item1;
+      }
 
       if (!recursive || item.IsInterface)
         yield break;
@@ -299,15 +290,13 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      HashSet<TypeInfo> result;
-      if (!implementorTable.TryGetValue(item, out result))
-        result = new HashSet<TypeInfo>();
-
-      foreach (var item1 in result) {
-        yield return item1;
-        if (recursive && !item1.IsInterface)
-          foreach (var item2 in FindDescendants(item1, true))
-            yield return item2;
+      if (implementorTable.TryGetValue(item, out var result)) {
+        foreach (var item1 in result) {
+          yield return item1;
+          if (recursive && !item1.IsInterface)
+            foreach (var item2 in FindDescendants(item1, true))
+              yield return item2;
+        }
       }
     }
 
@@ -337,14 +326,18 @@ namespace Xtensive.Orm.Model
     /// Finds the ancestor of the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type to search ancestor for.</param>
-    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or 
+    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private TypeInfo FindAncestor(Type type)
     {
-      if (type == WellKnownTypes.Object || type.BaseType == null)
+      if (type == WellKnownTypes.Object) {
         return null;
-      return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
+      }
+      return type.BaseType switch {
+        null => null,
+        var baseType => TryGetValue(baseType, out var typeInfo) ? typeInfo : FindAncestor(baseType)
+      };
     }
 
     #endregion
@@ -441,7 +434,7 @@ namespace Xtensive.Orm.Model
 
 
     // Constructors
-    
+
     /// <inheritdoc/>
     public TypeInfoCollection(Node owner, string name)
       : base(owner, name)
