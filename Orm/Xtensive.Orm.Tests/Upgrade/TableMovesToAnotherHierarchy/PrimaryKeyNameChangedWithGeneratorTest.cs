@@ -26,27 +26,25 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
     {
       Assert.That(comparisonResult, Is.Not.Null);
       Assert.That(comparisonResult.HasUnsafeActions, Is.True);
-      Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(1));
+      Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(2));
 
-      var dataAction = comparisonResult.UnsafeActions[0] as DataAction;
-      Assert.That(dataAction, Is.Not.Null);
-      Assert.That(dataAction.Path, Is.EqualTo($"Tables/SingleTableRoot"));
+      var dataActions = comparisonResult.UnsafeActions.OfType<DataAction>().ToList();
+      Assert.That(dataActions.Count, Is.EqualTo(2));
+      Assert.That(dataActions[0].Path, Is.EqualTo($"Tables/SingleTableRoot"));
+      Assert.That(dataActions[1].Path, Is.EqualTo($"Tables/SingleTableRoot"));
     }
 
     protected override void CheckClassTableComparisonResult(SchemaComparisonResult comparisonResult)
     {
       Assert.That(comparisonResult, Is.Not.Null);
       Assert.That(comparisonResult.HasUnsafeActions, Is.True);
-      Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(2));
+      Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(3));
 
       var dataActions = comparisonResult.UnsafeActions.OfType<DataAction>().ToList();
-      Assert.That(dataActions.Count, Is.EqualTo(2));
-
-      Assert.That(dataActions[0], Is.Not.Null);
+      Assert.That(dataActions.Count, Is.EqualTo(3));
       Assert.That(dataActions[0].Path, Is.EqualTo($"Tables/ClassTableRoot"));
-
-      Assert.That(dataActions[1], Is.Not.Null);
-      Assert.That(dataActions[1].Path, Is.EqualTo($"Tables/ClassTableLeaf"));
+      Assert.That(dataActions[1].Path, Is.EqualTo($"Tables/ClassTableRoot"));
+      Assert.That(dataActions[2].Path, Is.EqualTo($"Tables/ClassTableLeaf"));
     }
 
     protected override void CheckConcreteTableComparisonResult(SchemaComparisonResult comparisonResult)
@@ -57,11 +55,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
 
       var dataActions = comparisonResult.UnsafeActions.OfType<DataAction>().ToList();
       Assert.That(dataActions.Count, Is.EqualTo(2));
-
-      Assert.That(dataActions[0], Is.Not.Null);
       Assert.That(dataActions[0].Path, Is.EqualTo($"Tables/ConcreteTableRoot"));
-
-      Assert.That(dataActions[1], Is.Not.Null);
       Assert.That(dataActions[1].Path, Is.EqualTo($"Tables/ConcreteTableLeaf"));
     }
 
