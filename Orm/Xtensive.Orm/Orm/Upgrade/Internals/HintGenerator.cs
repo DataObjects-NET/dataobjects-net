@@ -40,6 +40,7 @@ namespace Xtensive.Orm.Upgrade
     private readonly IReadOnlyList<StoredTypeInfo> extractedNonConnectorTypes;
 
     private readonly List<Hint> schemaHints = new List<Hint>();
+    private readonly HashSet<string> skipInPost = new HashSet<string>(StringComparer.Ordinal);
 
     public HintGenerationResult Run()
     {
@@ -52,7 +53,7 @@ namespace Xtensive.Orm.Upgrade
       GenerateCopyColumnHints(copyFieldHints);
 
       var removedTypes = GetRemovedTypes();
-      var conflictsByTable = GetRecreatedTypes(removedTypes);
+      var conflictsByTable = GetConflictsByTable(removedTypes);
       GenerateRecordCleanupHints(removedTypes, conflictsByTable, false);
 
       var movedTypes = GetMovedTypes();
@@ -220,102 +221,151 @@ namespace Xtensive.Orm.Upgrade
     }
 
     private void GenerateRecordCleanupHints(List<StoredTypeInfo> removedTypes,
-      Dictionary<StoredTypeInfo, StoredTypeInfo> conflictsByTable, bool isMovedToAnotherHierarchy)
+      HashSet<StoredTypeInfo> conflictsByTable, bool isMovedToAnotherHierarchy)
     {
       if (!isMovedToAnotherHierarchy) {
         removedTypes.ForEach((rType) => GenerateCleanupByForeignKeyHints(rType, GetDeleteReasonFK(rType)));
       }
       removedTypes.ForEach(type =>
-        GenerateCleanupByPrimaryKeyHints(type, isMovedToAnotherHierarchy, conflictsByTable.ContainsKey(type.Hierarchy.Root)));
+          GenerateCleanupByPrimaryKeyHints(type, conflictsByTable, isMovedToAnotherHierarchy));
 
       return;
 
       DataDeletionInfo GetDeleteReasonFK(StoredTypeInfo removedType)
       {
-        return conflictsByTable.ContainsKey(removedType.Hierarchy.Root)
-          ? DataDeletionInfo.TableMovement
+        return conflictsByTable.Contains(removedType.Hierarchy.Root)
+          ? DataDeletionInfo.None
           : DataDeletionInfo.None;
       }
     }
 
-    private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType, bool isMovedToAnotherHierarchy, bool conflictsWithNewType)
+    private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType,
+      HashSet<StoredTypeInfo> conflictsByTable,
+      bool isMovedToAnotherHierarchy)
     {
-      var inheritanceSchema = removedType.Hierarchy.InheritanceSchema;
+      var isConflictRoot = !removedType.AllAncestors.Any(t => conflictsByTable.Contains(t));
+      var hasTableConflict = conflictsByTable.Contains(removedType) || !isConflictRoot;
 
-      IEnumerable<(StoredTypeInfo type, IdentityPair[] pairs)> hintInfo;
-      switch (inheritanceSchema) {
-        case InheritanceSchema.ClassTable: {
-          hintInfo = GetTypesToCleanForClassTable(removedType, isMovedToAnotherHierarchy, conflictsWithNewType);
+      IEnumerable<(StoredTypeInfo, IdentityPair)> typesToProcess;
+      var hierarchy = removedType.Hierarchy;
+      switch (hierarchy.InheritanceSchema) {
+        case InheritanceSchema.ClassTable:
+          typesToProcess = GetTypesToCleanForClassTable(removedType, isMovedToAnotherHierarchy,
+            hasTableConflict, isConflictRoot);
           break;
-        }
-        case InheritanceSchema.SingleTable: {
-          hintInfo = GetTypesToCleanForSinleTable(removedType, isMovedToAnotherHierarchy, conflictsWithNewType);
+        case InheritanceSchema.SingleTable:
+          typesToProcess = GetTypesToCleanForSingleTable(removedType, isMovedToAnotherHierarchy, hasTableConflict);
           break;
-        }
-        case InheritanceSchema.ConcreteTable: {
-          //ConcreteTable schema doesn't include TypeId
-          hintInfo = GetTypesToCleanForConcreteTable(removedType, isMovedToAnotherHierarchy, conflictsWithNewType);
+        case InheritanceSchema.ConcreteTable:
+          typesToProcess = GetTypesToCleanForConcreteTable(removedType, isMovedToAnotherHierarchy,
+            hasTableConflict, isConflictRoot);
           break;
-        }
         default:
-          throw Exceptions.InternalError(
-            string.Format(Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), UpgradeLog.Instance);
+          throw Exceptions.InternalError(string.Format(Strings.ExInheritanceSchemaIsInvalid, hierarchy.InheritanceSchema), UpgradeLog.Instance);
       }
 
-      var deleteReason = DataDeletionInfo.None;
+      var deleteInfo = DataDeletionInfo.None;
       if (isMovedToAnotherHierarchy)
-        deleteReason |= DataDeletionInfo.PostCopy;
-      if (conflictsWithNewType)
-        deleteReason |= DataDeletionInfo.TableMovement;
+        deleteInfo |= DataDeletionInfo.PostCopy;
+      if (hasTableConflict)
+        deleteInfo |= DataDeletionInfo.TableMovement;
 
-      foreach (var item in hintInfo) {
-        schemaHints.Add(new DeleteDataHint(GetTablePath(item.type), item.pairs, deleteReason));
+      foreach (var info in typesToProcess) {
+        var sourceTablePath = GetTablePath(info.Item1);
+        var identities = info.Item2 != null
+          ? new IdentityPair[] { info.Item2 }
+          : Array.Empty<IdentityPair>();
+        schemaHints.Add(
+          new DeleteDataHint(sourceTablePath, identities, deleteInfo));
       }
     }
 
-    private IEnumerable<(StoredTypeInfo type, IdentityPair[] pairs)> GetTypesToCleanForClassTable(
-      StoredTypeInfo removedType, bool isMovedToAnotherHierarchy, bool conflictsWithNewType)
+    private IEnumerable<(StoredTypeInfo, IdentityPair)> GetTypesToCleanForClassTable(
+      StoredTypeInfo removedType,
+      bool isMovedToAnotherHierarchy,
+      bool conflictsWithNewType,
+      bool isConflictRoot)
     {
-      if (!conflictsWithNewType) {
-        var typesToProcess = !isMovedToAnotherHierarchy
-          ? EnumerableUtils.One(removedType).Concat(removedType.AllAncestors)
-          : removedType.AllAncestors;
-        return typesToProcess.Select(t => (t, new[] {
-          new IdentityPair(
-            GetColumnPath(t, GetTypeIdMappingName(t)),
-            removedType.TypeId.ToString(),
-            true)}));
+      if (!isMovedToAnotherHierarchy) {
+        if (!conflictsWithNewType) {
+          return EnumerableUtils.One(removedType)
+            .Union(removedType.AllAncestors)
+            .Select(t => (t, CreateIdentityPair(removedType, t)));
+        }
+        else {
+          if (!isConflictRoot)
+            return Array.Empty<(StoredTypeInfo, IdentityPair)>();
+
+          var capacity = (2 * removedType.AllAncestors.Length) + removedType.AllDescendants.Length + 1;
+          var typesToProcess = new List<(StoredTypeInfo, IdentityPair)>(capacity);
+          typesToProcess.Add((removedType, CreateIdentityPair(removedType, removedType)));
+          foreach(var dType in removedType.AllDescendants) {
+            typesToProcess.Add((removedType, CreateIdentityPair(removedType, removedType, dType.TypeId)));
+            typesToProcess.Add((dType, null));
+          }
+
+          foreach(var aType in removedType.AllAncestors) {
+            typesToProcess.Add((aType, CreateIdentityPair(removedType, aType, removedType.TypeId)));
+            foreach (var dType in removedType.AllDescendants) {
+              typesToProcess.Add((aType, CreateIdentityPair(removedType, aType, dType.TypeId)));
+            }
+          }
+          return typesToProcess;
+        }
       }
-      else if (!isMovedToAnotherHierarchy) {
-        return removedType.Hierarchy.Types.Select(t => (t, Array.Empty<IdentityPair>()));
+      else {
+        if (!conflictsWithNewType) {
+          return removedType.AllAncestors
+            .Select(aType =>(aType, CreateIdentityPair(removedType, aType)));
+        }
       }
-      return Enumerable.Empty<(StoredTypeInfo type, IdentityPair[] pairs)>();
+      return Array.Empty<(StoredTypeInfo, IdentityPair)>();
     }
 
-    private IEnumerable<(StoredTypeInfo type, IdentityPair[] pairs)> GetTypesToCleanForSinleTable(
-      StoredTypeInfo removedType, bool isMovedToAnotherHierarchy, bool conflictsWithNewType)
+    private IEnumerable<(StoredTypeInfo, IdentityPair)> GetTypesToCleanForSingleTable(
+      StoredTypeInfo removedType,
+      bool isMovedToAnotherHierarchy,
+      bool conflictsWithNewType)
     {
-      var hierarchy = removedType.Hierarchy;
-      if (!conflictsWithNewType) {
-        return EnumerableUtils.One(hierarchy.Root)
-          .Select(t => (t, new[] {
-            new IdentityPair(GetColumnPath(t, GetTypeIdMappingName(t)), removedType.TypeId.ToString(), true)}));
+      var rootType = removedType.Hierarchy.Root;
+      if (!isMovedToAnotherHierarchy) {
+        if (!conflictsWithNewType)
+          return new (StoredTypeInfo, IdentityPair)[] { (rootType, CreateIdentityPair(removedType, rootType)) };
+        else {
+          return EnumerableUtils.One(rootType)
+            .Union(removedType.AllDescendants)
+            .Select(t => (rootType, CreateIdentityPair(t, rootType)));
+        }
       }
-      else if (!isMovedToAnotherHierarchy) {
-        return EnumerableUtils.One((hierarchy.Root, Array.Empty<IdentityPair>()));
+      else {
+        if (!conflictsWithNewType)
+          return new(StoredTypeInfo, IdentityPair)[] {(rootType, CreateIdentityPair(removedType, rootType))};
       }
-      return Enumerable.Empty<(StoredTypeInfo type, IdentityPair[] pairs)>();
+      return Array.Empty<(StoredTypeInfo, IdentityPair)>();
     }
 
-    private IEnumerable<(StoredTypeInfo type, IdentityPair[] pairs)> GetTypesToCleanForConcreteTable(
-      StoredTypeInfo removedType, bool isMovedToAnotherHierarchy, bool conflictsWithNewType)
+    private IEnumerable<(StoredTypeInfo, IdentityPair)> GetTypesToCleanForConcreteTable(
+      StoredTypeInfo removedType,
+      bool isMovedToAnotherHierarchy,
+      bool conflictsWithNewType,
+      bool isConflictRoot)
     {
-      var hierarchy = removedType.Hierarchy;
-      return (!conflictsWithNewType)
-        ? EnumerableUtils.One(removedType).Select(t => (t, Array.Empty<IdentityPair>()))
-        : (!isMovedToAnotherHierarchy)
-          ? hierarchy.Types.Select(t => (t, Array.Empty<IdentityPair>()))
-          : Enumerable.Empty<(StoredTypeInfo type, IdentityPair[] pairs)>();
+      if (!isMovedToAnotherHierarchy) {
+        if (!conflictsWithNewType)
+          return new (StoredTypeInfo, IdentityPair)[] { (removedType, null) };
+        else {
+          if (!isConflictRoot)
+            return Array.Empty<(StoredTypeInfo, IdentityPair)>();
+          return EnumerableUtils.One(removedType)
+            .Union(removedType.AllDescendants)
+            .Select(t => (t, (IdentityPair)null));
+        }
+      }
+      else {
+        if (!conflictsWithNewType)
+          return new (StoredTypeInfo, IdentityPair)[] { (removedType, null) };
+      }
+      return Array.Empty<(StoredTypeInfo, IdentityPair)>();
     }
 
     private void GenerateCleanupByForeignKeyHints(StoredTypeInfo removedType, DataDeletionInfo dataDeletionInfo)
@@ -440,7 +490,12 @@ namespace Xtensive.Orm.Upgrade
         schemaHints.Add(new UpdateDataHint(sourceTablePath, identities, updatedColumns));
       }
       else {
-        schemaHints.Add(new DeleteDataHint(sourceTablePath, identities, dataDeletionInfo));
+        if (dataDeletionInfo.HasFlag(DataDeletionInfo.TableMovement)){
+          schemaHints.Add(new DeleteDataHint(sourceTablePath, Array.Empty<IdentityPair>(), dataDeletionInfo));
+        }
+        else {
+          schemaHints.Add(new DeleteDataHint(sourceTablePath, identities, dataDeletionInfo));
+        }
       }
     }
 
@@ -640,25 +695,35 @@ namespace Xtensive.Orm.Upgrade
       return affectedColumns;
     }
 
-    private Dictionary<StoredTypeInfo, StoredTypeInfo> GetRecreatedTypes(IReadOnlyList<StoredTypeInfo> removedTypes)
+    private HashSet<StoredTypeInfo> GetConflictsByTable(IReadOnlyList<StoredTypeInfo> removedTypes)
     {
-      // Return types that were removed but there is a new type
-      // which uses the same table in database (and|or) schema
-      // that means further comparison will not find schema changes (table removes or renames),
-      // but data in the table has different meaning so old data should be cleaned.
+      // It gets new types and removed types and looks if they use
+      // table with the same path (db/schema/table path is unique).
+      // If there is such pair of new and removed types then table
+      // will be reused on schema comparison but data will be cleared
+      // because it no longer represents type connected to the table.
+
+      // IMPORTANT NOTE! SingleTable hierarchies use the same table
+      // so any new type from such hierarhcy will conflict with removed
+      // by table. Knowing that we basically cannot register table conflicts
+      // on table basis, except for the case when root is conflict.
 
       var capacity = currentModel.Types.Length - typeMapping.Count;
-      var currentTables = new Dictionary<string, StoredTypeInfo>(capacity, StringComparer.Ordinal);
-      foreach (var t in currentNonConnectorTypes.Where(t => !reverseTypeMapping.ContainsKey(t))) {
-        currentTables.Add($"{t.MappingDatabase}.{t.MappingSchema}.{t.MappingName}", t);
+      var currentTables = new HashSet<string>(capacity, StringComparer.Ordinal);
+      foreach (var newType in currentNonConnectorTypes.Where(t => !reverseTypeMapping.ContainsKey(t))) {
+        if (newType.Hierarchy == null
+          || (newType.Hierarchy.InheritanceSchema == InheritanceSchema.SingleTable && !newType.IsHierarchyRoot))
+          continue;
+        var key = $"{newType.MappingDatabase}.{newType.MappingSchema}.{newType.MappingName}";
+        currentTables.Add(key);
       }
 
-      var conflictsByTable = new Dictionary<StoredTypeInfo, StoredTypeInfo>();
+      var conflictsByTable = new HashSet<StoredTypeInfo>();
 
       foreach (var rType in removedTypes) {
         var rTypeIdentifier = $"{rType.MappingDatabase}.{rType.MappingSchema}.{rType.MappingName}";
-        if (suspiciousTypes.Contains(rType) && currentTables.TryGetValue(rTypeIdentifier, out var nType)) {
-          conflictsByTable.Add(rType, nType);
+        if (suspiciousTypes.Contains(rType) && currentTables.Contains(rTypeIdentifier)) {
+          _ = conflictsByTable.Add(rType);
         }
       }
       return conflictsByTable;
@@ -730,6 +795,13 @@ namespace Xtensive.Orm.Upgrade
         ? result.Where(t => !t.IsAbstract).ToArray()
         : result.ToArray(count);
 
+    }
+
+    private IdentityPair CreateIdentityPair(StoredTypeInfo rType, StoredTypeInfo cType, int? typeIdOverride = null)
+    {
+      return new IdentityPair(GetColumnPath(cType, GetTypeIdMappingName(rType)),
+        (typeIdOverride ?? rType.TypeId).ToString(),
+        true);
     }
 
     private string GetTableName(StoredTypeInfo type)
