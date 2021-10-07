@@ -336,7 +336,7 @@ namespace Xtensive.Orm.Providers
       var rootSelectProvider = RootProvider as SelectProvider;
       var currentIsRoot = RootProvider==provider;
       var currentIsOwnedRootSelect = (rootSelectProvider!=null && rootSelectProvider.Source==provider);
-      var currentIsOwnedByPaging = !currentIsRoot && Owner.Type.In(ProviderType.Take, ProviderType.Skip, ProviderType.Paging);
+      var currentIsOwnedByPaging = !currentIsRoot && Owner.Type is ProviderType.Take or ProviderType.Skip or ProviderType.Paging;
 
       if (currentIsRoot || currentIsOwnedRootSelect || currentIsOwnedByPaging) {
         query.OrderBy.Clear();

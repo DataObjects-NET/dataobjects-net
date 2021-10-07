@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Building.Builders
       var domain = context.Domain;
       foreach (var type in context.Model.Types.Entities) {
         var associations = type.GetOwnerAssociations()
-          .Where(a => a.OnOwnerRemove.In(OnRemoveAction.Cascade, OnRemoveAction.Clear))
+          .Where(a => a.OnOwnerRemove is OnRemoveAction.Cascade or OnRemoveAction.Clear)
           .ToList();
         if (associations.Count <= 0)
           continue;
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private void TryAddForeignKeyIndex(AssociationInfo association)
     {
-      if (!association.Multiplicity.In(Multiplicity.OneToOne, Multiplicity.ZeroToOne))
+      if (!(association.Multiplicity is Multiplicity.OneToOne or Multiplicity.ZeroToOne))
         return;
       var typeDef = context.ModelDef.Types[association.OwnerType.UnderlyingType];
       var field = association.OwnerField;

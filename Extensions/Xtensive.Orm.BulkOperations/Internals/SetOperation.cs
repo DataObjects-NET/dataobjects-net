@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.BulkOperations
               Expression ex = setDescriptor.Expression;
               var call = ex as MethodCallExpression;
               if (call != null && call.Method.DeclaringType == typeof(Queryable) &&
-                call.Method.Name.In("First", "FirstOrDefault", "Single", "SingleOrDefault"))
+                call.Method.Name is "First" or "FirstOrDefault" or "Single" or "SingleOrDefault")
                 throw new NotSupportedException("Subqueries with structures are not supported");
               /*ex = call.Arguments[0];
         ParameterExpression parameter = Expression.Parameter(setDescriptor.Expression.Type, "parameter");
@@ -165,7 +165,7 @@ namespace Xtensive.Orm.BulkOperations
       int i;
       if (methodCall!=null) {
         if (methodCall.Method.DeclaringType==typeof (QueryEndpoint) &&
-          methodCall.Method.Name.In("Single", "SingleOrDefault")) {
+          methodCall.Method.Name is "Single" or "SingleOrDefault") {
           object[] keys;
           if (methodCall.Arguments[0].Type==typeof (Key) || methodCall.Arguments[0].Type.IsSubclassOf(typeof (Key))) {
             var key = (Key) methodCall.Arguments[0].Invoke();
@@ -193,7 +193,7 @@ namespace Xtensive.Orm.BulkOperations
           return;
         }
         if (methodCall.Method.DeclaringType==typeof (Queryable) &&
-          methodCall.Method.Name.In("Single", "SingleOrDefault", "First", "FirstOrDefault")) {
+          methodCall.Method.Name is "Single" or "SingleOrDefault" or "First" or "FirstOrDefault") {
           Expression exp = methodCall.Arguments[0];
           TypeInfo info = parent.GetTypeInfo(addContext.Field.ValueType);
           if (methodCall.Arguments.Count==2)

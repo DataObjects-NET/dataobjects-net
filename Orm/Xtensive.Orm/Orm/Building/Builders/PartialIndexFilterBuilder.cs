@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Building.Builders
     {
       // Detect f!=null and f==null for entity fields
 
-      if (!b.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual))
+      if (!(b.NodeType is ExpressionType.Equal or ExpressionType.NotEqual))
         return base.VisitBinary(b);
 
       var left = Visit(b.Left);
