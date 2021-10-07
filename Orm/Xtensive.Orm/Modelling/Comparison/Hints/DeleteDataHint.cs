@@ -62,12 +62,13 @@ namespace Xtensive.Modelling.Comparison.Hints
     public override string ToString()
     {
       return string.Format(
-        "Delete from '{0}' where ({1}){2}{3}",
+        "Delete from '{0}' {1}{2}{3}",
         SourceTablePath,
-        string.Join(" and ",
-          Identities.Select(pair => pair.ToString()).ToArray()),
+        (Identities.Count > 0)
+          ? "where (" + string.Join(" and ", Identities.Select(pair => pair.ToString()).ToArray()) + ")"
+          : string.Empty,
         PostCopy ? " (after data copying)" : string.Empty,
-        DueToTableOwnerChange ? " due to table changed owner type" : string.Empty);
+        DueToTableOwnerChange ? " (due to table changed owner type)" : string.Empty);
     }
 
     // Constructors
@@ -103,7 +104,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <param name="dueToOnwerChange"><see langword="true"/> if reason of deletion is the table <paramref name="sourceTablePath"/>
     /// has changed assigned type.</param>
     public DeleteDataHint(string sourceTablePath, IList<IdentityPair> identities, bool postCopy, bool dueToOnwerChange)
-      : this(sourceTablePath, identities)
+      : base(sourceTablePath, identities)
     {
       if (postCopy) {
         info |= DeleteDataHintInfo.PostCopy;
