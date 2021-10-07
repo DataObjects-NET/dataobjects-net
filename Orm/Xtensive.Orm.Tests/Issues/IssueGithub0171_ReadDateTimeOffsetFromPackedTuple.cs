@@ -62,14 +62,20 @@ namespace Xtensive.Orm.Tests.Issues
       return config;
     }
 
+    protected override void CheckRequirements()
+    {
+      Require.ProviderIs(StorageProvider.SqlServer | StorageProvider.Oracle);
+    }
+
     [Test]
     public void DateTimeOffsetCase()
     {
-      // NRE on within PackedFieldAccessor.GetValue<T>
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var cargo3 = new Cargo(session);
-        var cargoLoad = new CargoLoad(session, null);
+        var expectedDateTimeOffset = new DateTimeOffset(2021, 9, 13, 0, 0, 1, new TimeSpan(5, 0, 0));
+        var cargo = new Cargo(session) { DateTimeOffsetField = expectedDateTimeOffset};
+        var loadNoCargo = new CargoLoad(session, null);
+        var loadWithCargo = new CargoLoad(session, cargo);
 
         var query = session.Query.All<CargoLoad>()
           .LeftJoin(session.Query.All<Cargo>(),
@@ -78,17 +84,22 @@ namespace Xtensive.Orm.Tests.Issues
             (cl, c) => new { CargoLoad = cl, Cargo = c })
           .Select(t => t.Cargo.DateTimeOffsetField)
           .ToArray();
+
+        Assert.That(query.Length, Is.EqualTo(2));
+        Assert.That(query.Any(d => d == DateTimeOffset.MinValue), Is.True);
+        Assert.That(query.Any(d => d == expectedDateTimeOffset), Is.True);
       }
     }
 
     [Test]
     public void DateTimeCase()
     {
-      //Works fine.
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
-        var cargo3 = new Cargo(session);
-        var cargoLoad = new CargoLoad(session, null);
+        var expectedDateTime = new DateTime(2021, 9, 13, 0, 0, 1);
+        var cargo = new Cargo(session) { DateTimeField = expectedDateTime };
+        var loadNoCargo = new CargoLoad(session, null);
+        var loadWithCargo = new CargoLoad(session, cargo);
 
         var query = session.Query.All<CargoLoad>()
           .LeftJoin(session.Query.All<Cargo>(),
@@ -97,6 +108,9 @@ namespace Xtensive.Orm.Tests.Issues
             (cl, c) => new { CargoLoad = cl, Cargo = c })
           .Select(t => t.Cargo.DateTimeField)
           .ToArray();
+        Assert.That(query.Length, Is.EqualTo(2));
+        Assert.That(query.Any(d => d == DateTime.MinValue), Is.True);
+        Assert.That(query.Any(d => d == expectedDateTime), Is.True);
       }
     }
   }
