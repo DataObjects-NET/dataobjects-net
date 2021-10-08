@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.12.29
 
@@ -63,6 +63,8 @@ namespace Xtensive.Tuples.Packed
       private static readonly Type NullableDecimalType = typeof(decimal?);
       private static readonly Type GuidType = typeof(Guid);
       private static readonly Type NullableGuidType = typeof(Guid?);
+      private static readonly Type DateTimeOffsetType = typeof(DateTimeOffset);
+      private static readonly Type NullableDateTimeOffsetType = typeof(DateTimeOffset?);
 
       private static readonly ValueFieldAccessor BoolAccessor = new BooleanFieldAccessor();
       private static readonly ValueFieldAccessor ByteAccessor = new ByteFieldAccessor();
@@ -79,48 +81,55 @@ namespace Xtensive.Tuples.Packed
       private static readonly ValueFieldAccessor TimeSpanAccessor = new TimeSpanFieldAccessor();
       private static readonly ValueFieldAccessor DecimalAccessor = new DecimalFieldAccessor();
       private static readonly ValueFieldAccessor GuidAccessor = new GuidFieldAccessor();
+      private static readonly ValueFieldAccessor DateTimeOffsetAccessor = new DateTimeOffsetFieldAccessor();
 
       private static readonly int NullableTypeMetadataToken = typeof(Nullable<>).MetadataToken;
 
       public static ValueFieldAccessor GetValue(Type probeType)
       {
-        ValueFieldAccessor ResolveByType(Type type) =>
-          ReferenceEquals(type, BoolType) ? BoolAccessor :
-          ReferenceEquals(type, ByteType) ? ByteAccessor :
-          ReferenceEquals(type, SByteType) ? SByteAccessor :
-          ReferenceEquals(type, Int16Type) ? Int16Accessor :
-          ReferenceEquals(type, UInt16Type) ? UInt16Accessor :
-          ReferenceEquals(type, Int32Type) ? Int32Accessor :
-          ReferenceEquals(type, UInt32Type) ? UInt32Accessor :
-          ReferenceEquals(type, Int64Type) ? Int64Accessor :
-          ReferenceEquals(type, UInt64Type) ? UInt64Accessor :
-          ReferenceEquals(type, SingleType) ? SingleAccessor :
-          ReferenceEquals(type, DoubleType) ? DoubleAccessor :
-          ReferenceEquals(type, DateTimeType) ? DateTimeAccessor :
-          ReferenceEquals(type, TimeSpanType) ? TimeSpanAccessor :
-          ReferenceEquals(type, DecimalType) ? DecimalAccessor :
-          ReferenceEquals(type, GuidType) ? GuidAccessor : null;
-
-        ValueFieldAccessor ResolveByNullableType(Type type) =>
-          ReferenceEquals(type, NullableBoolType) ? BoolAccessor :
-          ReferenceEquals(type, NullableByteType) ? ByteAccessor :
-          ReferenceEquals(type, NullableSByteType) ? SByteAccessor :
-          ReferenceEquals(type, NullableInt16Type) ? Int16Accessor :
-          ReferenceEquals(type, NullableUInt16Type) ? UInt16Accessor :
-          ReferenceEquals(type, NullableInt32Type) ? Int32Accessor :
-          ReferenceEquals(type, NullableUInt32Type) ? UInt32Accessor :
-          ReferenceEquals(type, NullableInt64Type) ? Int64Accessor :
-          ReferenceEquals(type, NullableUInt64Type) ? UInt64Accessor :
-          ReferenceEquals(type, NullableSingleType) ? SingleAccessor :
-          ReferenceEquals(type, NullableDoubleType) ? DoubleAccessor :
-          ReferenceEquals(type, NullableDateTimeType) ? DateTimeAccessor :
-          ReferenceEquals(type, NullableTimeSpanType) ? TimeSpanAccessor :
-          ReferenceEquals(type, NullableDecimalType) ? DecimalAccessor :
-          ReferenceEquals(type, NullableGuidType) ? GuidAccessor : null;
-
         return (probeType.MetadataToken ^ NullableTypeMetadataToken) == 0
           ? ResolveByNullableType(probeType)
           : ResolveByType(probeType);
+
+        ValueFieldAccessor ResolveByType(Type type)
+        {
+          return ReferenceEquals(type, BoolType) ? BoolAccessor :
+            ReferenceEquals(type, ByteType) ? ByteAccessor :
+            ReferenceEquals(type, SByteType) ? SByteAccessor :
+            ReferenceEquals(type, Int16Type) ? Int16Accessor :
+            ReferenceEquals(type, UInt16Type) ? UInt16Accessor :
+            ReferenceEquals(type, Int32Type) ? Int32Accessor :
+            ReferenceEquals(type, UInt32Type) ? UInt32Accessor :
+            ReferenceEquals(type, Int64Type) ? Int64Accessor :
+            ReferenceEquals(type, UInt64Type) ? UInt64Accessor :
+            ReferenceEquals(type, SingleType) ? SingleAccessor :
+            ReferenceEquals(type, DoubleType) ? DoubleAccessor :
+            ReferenceEquals(type, DateTimeType) ? DateTimeAccessor :
+            ReferenceEquals(type, TimeSpanType) ? TimeSpanAccessor :
+            ReferenceEquals(type, DecimalType) ? DecimalAccessor :
+            ReferenceEquals(type, GuidType) ? GuidAccessor :
+            ReferenceEquals(type, DateTimeOffsetType) ? DateTimeOffsetAccessor : null;
+        }
+
+        ValueFieldAccessor ResolveByNullableType(Type type)
+        {
+          return ReferenceEquals(type, NullableBoolType) ? BoolAccessor :
+            ReferenceEquals(type, NullableByteType) ? ByteAccessor :
+            ReferenceEquals(type, NullableSByteType) ? SByteAccessor :
+            ReferenceEquals(type, NullableInt16Type) ? Int16Accessor :
+            ReferenceEquals(type, NullableUInt16Type) ? UInt16Accessor :
+            ReferenceEquals(type, NullableInt32Type) ? Int32Accessor :
+            ReferenceEquals(type, NullableUInt32Type) ? UInt32Accessor :
+            ReferenceEquals(type, NullableInt64Type) ? Int64Accessor :
+            ReferenceEquals(type, NullableUInt64Type) ? UInt64Accessor :
+            ReferenceEquals(type, NullableSingleType) ? SingleAccessor :
+            ReferenceEquals(type, NullableDoubleType) ? DoubleAccessor :
+            ReferenceEquals(type, NullableDateTimeType) ? DateTimeAccessor :
+            ReferenceEquals(type, NullableTimeSpanType) ? TimeSpanAccessor :
+            ReferenceEquals(type, NullableDecimalType) ? DecimalAccessor :
+            ReferenceEquals(type, NullableGuidType) ? GuidAccessor :
+            ReferenceEquals(type, NullableDateTimeOffsetType) ? DateTimeOffsetAccessor : null;
+        }
       }
     }
 
