@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -52,6 +52,9 @@ namespace Xtensive.Orm.Linq
       }
     }
 
+    private static readonly ParameterExpression paramContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly MethodInfo selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
+
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
     private Func<TItem, Tuple> converter;
@@ -61,9 +64,7 @@ namespace Xtensive.Orm.Linq
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var paramContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
       var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, paramContext);
-      var selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof (TItem), WellKnownOrmTypes.Tuple);
       var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
       return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, paramContext);
     }

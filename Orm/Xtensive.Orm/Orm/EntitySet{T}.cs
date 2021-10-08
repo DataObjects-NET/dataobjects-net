@@ -62,6 +62,9 @@ namespace Xtensive.Orm
     IQueryable<TItem>
     where TItem : IEntity
   {
+    private static readonly MemberExpression ownerPropertyExpression = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
+      .GetProperty("Value", WellKnownOrmTypes.Entity));
+
     private Expression expression;
 
     /// <summary>
@@ -230,9 +233,7 @@ namespace Xtensive.Orm
 
     private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
     {
-      var owner = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
-        .GetProperty("Value", WellKnownOrmTypes.Entity));
-      var queryExpression = QueryHelper.CreateEntitySetQuery(owner, field);
+      var queryExpression = QueryHelper.CreateEntitySetQuery(ownerPropertyExpression, field);
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 
