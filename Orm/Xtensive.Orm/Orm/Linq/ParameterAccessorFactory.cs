@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -17,6 +17,8 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly MethodInfo GetParameterValueMethod =
       WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
+
+    private static readonly ParameterExpression parameterContextArgument = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
 
     private class ParameterAccessorFactoryImpl<T>: ExpressionVisitor
     {
@@ -55,7 +57,6 @@ namespace Xtensive.Orm.Linq
 
     public static Expression<Func<ParameterContext, T>> CreateAccessorExpression<T>(Expression parameterExpression)
     {
-      var parameterContextArgument = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
       return new ParameterAccessorFactoryImpl<T>(parameterContextArgument).BindToParameterContext(parameterExpression);
     }
   }

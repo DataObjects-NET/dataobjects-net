@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -21,9 +21,10 @@ namespace Xtensive.Linq
   /// </summary>
   public sealed class ConstantExtractor : ExpressionVisitor
   {
+    private static readonly ParameterExpression constantParameter = Expression.Parameter(WellKnownTypes.ObjectArray, "constants");
+
     private readonly Func<ConstantExpression, bool> constantFilter;
     private readonly LambdaExpression lambda;
-    private readonly ParameterExpression constantParameter;
     private List<object> constantValues;
 
     /// <summary>
@@ -106,7 +107,6 @@ namespace Xtensive.Linq
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       this.lambda = lambda;
       this.constantFilter = constantFilter ?? DefaultConstantFilter;
-      constantParameter = Expression.Parameter(WellKnownTypes.ObjectArray, "constants");
     }
   }
 }

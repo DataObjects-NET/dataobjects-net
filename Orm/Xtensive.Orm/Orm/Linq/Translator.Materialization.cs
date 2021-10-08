@@ -23,6 +23,10 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private static readonly ParameterExpression parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
+    private static readonly ParameterExpression tupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
+    private static readonly ParameterExpression session = Expression.Parameter(typeof(Session), "session");
+
     private readonly CompiledQueryProcessingScope compiledQueryScope;
     public static readonly MethodInfo TranslateMethod;
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
@@ -107,10 +111,6 @@ namespace Xtensive.Orm.Linq
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleReader = Expression.Parameter(typeof (RecordSetReader), "tupleReader");
-      var session = Expression.Parameter(typeof (Session), "session");
-      var parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
-
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
@@ -148,8 +148,8 @@ namespace Xtensive.Orm.Linq
         using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
-        body = body.IsProjection() 
-          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type) 
+        body = body.IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
         arguments.Add(body);
       }
@@ -172,9 +172,9 @@ namespace Xtensive.Orm.Linq
         var indexProjectionExpression = new ProjectionExpression(WellKnownTypes.Int64, indexItemProjector, sequence.TupleParameterBindings);
         var sequenceItemProjector = sequence.ItemProjector.Remap(indexDataSource, 0);
         sequence = new ProjectionExpression(
-          sequence.Type, 
-          sequenceItemProjector, 
-          sequence.TupleParameterBindings, 
+          sequence.Type,
+          sequenceItemProjector,
+          sequence.TupleParameterBindings,
           sequence.ResultAccessMethod);
         return indexProjectionExpression;
       }

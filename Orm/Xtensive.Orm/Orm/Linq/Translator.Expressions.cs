@@ -33,19 +33,29 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private static readonly ParameterExpression parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly ConstantExpression
+      nullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
+      falseBoolExpression = Expression.Constant(false, WellKnownTypes.Bool),
+      trueBoolExpression = Expression.Constant(true, WellKnownTypes.Bool),
+      falseExpression = Expression.Constant(false),
+      trueExpression = Expression.Constant(true);
+
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
       var expression = tb.Expression;
       Type expressionType = expression.Type;
       Type operandType = tb.TypeOperand;
-      if (operandType.IsAssignableFrom(expressionType))
-        return Expression.Constant(true);
+      if (operandType.IsAssignableFrom(expressionType)) {
+        return trueExpression;
+      }
 
       // Structure
       var memberType = expression.GetMemberType();
       if (memberType==MemberType.Structure
-        && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType))
-        return Expression.Constant(false);
+        && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType)) {
+        return falseExpression;
+      }
 
       // Entity
       if (memberType==MemberType.Entity
@@ -467,7 +477,6 @@ namespace Xtensive.Orm.Linq
         searchCriteria = searchCriteria.StripQuotes();
       if (searchCriteria.Type==typeof (Func<string>)) {
         if (compiledQueryScope==null) {
-          var parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
           var originalSearchCriteria = (Expression<Func<string>>) searchCriteria;
           var body = originalSearchCriteria.Body;
           var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, parameterContextParam);
@@ -536,7 +545,6 @@ namespace Xtensive.Orm.Linq
       var conditionCompiler = context.Domain.Handler.GetSearchConditionCompiler();
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
 
-      var parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
       var preparedSearchCriteria = FastExpression.Lambda<Func<ParameterContext, string>>(
         Expression.Constant(conditionCompiler.CurrentOutput), parameterContextParam);
 
@@ -646,6 +654,9 @@ namespace Xtensive.Orm.Linq
       return bindings;
     }
 
+    private static ConstantExpression SelectBoolConstantExpression(bool b) =>
+      b ? trueBoolExpression : falseBoolExpression;
+
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression VisitBinaryRecursive(BinaryExpression binaryExpression, BinaryExpression originalBinaryExpression)
@@ -663,11 +674,11 @@ namespace Xtensive.Orm.Linq
       bool leftOrRightIsIndex = false;
 
       if (left is IndexExpression) {
-        left = VisitIndex((IndexExpression)left);
+        left = VisitIndex((IndexExpression) left);
         leftOrRightIsIndex = true;
       }
       if (right is IndexExpression) {
-        right = VisitIndex((IndexExpression)right);
+        right = VisitIndex((IndexExpression) right);
         leftOrRightIsIndex = true;
       }
 
@@ -675,143 +686,144 @@ namespace Xtensive.Orm.Linq
       IList<Expression> rightExpressions;
 
       // Split left and right arguments to subexpressions.
-      MemberType memberType = left.Type==WellKnownTypes.Object
+      MemberType memberType = left.Type == WellKnownTypes.Object
         ? right.GetMemberType()
         : left.GetMemberType();
       switch (memberType) {
-      case MemberType.EntitySet:
-        if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value==null)
-          || left is ConstantExpression && ((ConstantExpression) left).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
-        if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
-          || right is ConstantExpression && ((ConstantExpression) right).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
-        var leftEntitySetExpression = left as EntitySetExpression;
-        var rightEntitySetExpression = right as EntitySetExpression;
-        if (leftEntitySetExpression!=null && rightEntitySetExpression!=null) {
-          if (leftEntitySetExpression.Field!=rightEntitySetExpression.Field)
-            return Expression.Constant(false, WellKnownTypes.Bool);
-          var binary = Expression.MakeBinary(binaryExpression.NodeType,
-            (Expression) leftEntitySetExpression.Owner,
-            (Expression) rightEntitySetExpression.Owner,
-            binaryExpression.IsLiftedToNull,
-            binaryExpression.Method);
-          return VisitBinaryRecursive(binary, originalBinaryExpression);
-        }
-        if (rightEntitySetExpression!=null && left is ConstantExpression) {
-          var leftEntitySet = (EntitySetBase) ((ConstantExpression) left).Value;
-          var binary = Expression.MakeBinary(binaryExpression.NodeType,
-            Expression.Constant(leftEntitySet.Owner),
-            (Expression) rightEntitySetExpression.Owner,
-            binaryExpression.IsLiftedToNull,
-            binaryExpression.Method);
-          return VisitBinaryRecursive(binary, originalBinaryExpression);
-        }
-        if (leftEntitySetExpression!=null && right is ConstantExpression) {
-          var rightEntitySet = (EntitySetBase) ((ConstantExpression) right).Value;
-          var binary = Expression.MakeBinary(binaryExpression.NodeType,
-            (Expression) leftEntitySetExpression.Owner,
-            Expression.Constant(rightEntitySet.Owner),
-            binaryExpression.IsLiftedToNull,
-            binaryExpression.Method);
-          return VisitBinaryRecursive(binary, originalBinaryExpression);
-        }
-        return binaryExpression;
-      case MemberType.Key:
-        var leftKeyExpression = left as KeyExpression;
-        var rightKeyExpression = right as KeyExpression;
-        if (leftKeyExpression==null && rightKeyExpression==null)
-          throw new InvalidOperationException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, originalBinaryExpression.ToString(true)));
-        // Check key compatibility
-        leftKeyExpression.EnsureKeyExpressionCompatible(rightKeyExpression, originalBinaryExpression);
-        // Key split to it's fields.
-        IEnumerable<Type> keyFields = (leftKeyExpression ?? rightKeyExpression)
-          .KeyFields
-          .Select(fieldExpression => fieldExpression.Type);
-        leftExpressions = GetKeyFields(left, keyFields);
-        rightExpressions = GetKeyFields(right, keyFields);
-        break;
-      case MemberType.Entity:
-        // Entity split to key fields.
-        var leftEntityExpression = (Expression) (left as EntityExpression) ?? left as EntityFieldExpression;
-        var rightEntityExpression = (Expression) (right as EntityExpression) ?? right as EntityFieldExpression;
-        if (leftEntityExpression == null && rightEntityExpression == null)
-          if (!IsConditionalOrWellknown(left) && !IsConditionalOrWellknown(right))
-            throw new NotSupportedException(
-              String.Format(
-                Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression,
-                binaryExpression));
-         var type = left.Type == WellKnownTypes.Object
+        case MemberType.EntitySet:
+          if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value == null)
+            || left is ConstantExpression && ((ConstantExpression) left).Value == null)
+            return SelectBoolConstantExpression(binaryExpression.NodeType == ExpressionType.NotEqual);
+          if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value == null)
+            || right is ConstantExpression && ((ConstantExpression) right).Value == null)
+            return SelectBoolConstantExpression(binaryExpression.NodeType == ExpressionType.NotEqual);
+          var leftEntitySetExpression = left as EntitySetExpression;
+          var rightEntitySetExpression = right as EntitySetExpression;
+          if (leftEntitySetExpression != null && rightEntitySetExpression != null) {
+            if (leftEntitySetExpression.Field != rightEntitySetExpression.Field) {
+              return falseBoolExpression;
+            }
+            var binary = Expression.MakeBinary(binaryExpression.NodeType,
+              (Expression) leftEntitySetExpression.Owner,
+              (Expression) rightEntitySetExpression.Owner,
+              binaryExpression.IsLiftedToNull,
+              binaryExpression.Method);
+            return VisitBinaryRecursive(binary, originalBinaryExpression);
+          }
+          if (rightEntitySetExpression != null && left is ConstantExpression) {
+            var leftEntitySet = (EntitySetBase) ((ConstantExpression) left).Value;
+            var binary = Expression.MakeBinary(binaryExpression.NodeType,
+              Expression.Constant(leftEntitySet.Owner),
+              (Expression) rightEntitySetExpression.Owner,
+              binaryExpression.IsLiftedToNull,
+              binaryExpression.Method);
+            return VisitBinaryRecursive(binary, originalBinaryExpression);
+          }
+          if (leftEntitySetExpression != null && right is ConstantExpression) {
+            var rightEntitySet = (EntitySetBase) ((ConstantExpression) right).Value;
+            var binary = Expression.MakeBinary(binaryExpression.NodeType,
+              (Expression) leftEntitySetExpression.Owner,
+              Expression.Constant(rightEntitySet.Owner),
+              binaryExpression.IsLiftedToNull,
+              binaryExpression.Method);
+            return VisitBinaryRecursive(binary, originalBinaryExpression);
+          }
+          return binaryExpression;
+        case MemberType.Key:
+          var leftKeyExpression = left as KeyExpression;
+          var rightKeyExpression = right as KeyExpression;
+          if (leftKeyExpression == null && rightKeyExpression == null)
+            throw new InvalidOperationException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotKeyExpression, originalBinaryExpression.ToString(true)));
+          // Check key compatibility
+          leftKeyExpression.EnsureKeyExpressionCompatible(rightKeyExpression, originalBinaryExpression);
+          // Key split to it's fields.
+          IEnumerable<Type> keyFields = (leftKeyExpression ?? rightKeyExpression)
+            .KeyFields
+            .Select(fieldExpression => fieldExpression.Type);
+          leftExpressions = GetKeyFields(left, keyFields);
+          rightExpressions = GetKeyFields(right, keyFields);
+          break;
+        case MemberType.Entity:
+          // Entity split to key fields.
+          var leftEntityExpression = (Expression) (left as EntityExpression) ?? left as EntityFieldExpression;
+          var rightEntityExpression = (Expression) (right as EntityExpression) ?? right as EntityFieldExpression;
+          if (leftEntityExpression == null && rightEntityExpression == null)
+            if (!IsConditionalOrWellknown(left) && !IsConditionalOrWellknown(right))
+              throw new NotSupportedException(
+                String.Format(
+                  Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotEntityExpressionEntityFieldExpression,
+                  binaryExpression));
+          var type = left.Type == WellKnownTypes.Object
+             ? right.Type
+             : left.Type;
+
+          var keyFieldTypes = context
+            .Model
+            .Types[type]
+            .Key
+            .TupleDescriptor;
+
+          leftExpressions = GetEntityFields(left, keyFieldTypes);
+          rightExpressions = GetEntityFields(right, keyFieldTypes);
+          break;
+        case MemberType.Anonymous:
+          // Anonymous type split to constructor arguments.
+          var anonymousType = (left.Type == WellKnownTypes.Object)
             ? right.Type
             : left.Type;
+          leftExpressions = GetAnonymousArguments(left, anonymousType);
+          rightExpressions = GetAnonymousArguments(right, anonymousType);
+          break;
+        case MemberType.Structure:
+          if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value == null)
+            || left is ConstantExpression && ((ConstantExpression) left).Value == null)
+            return SelectBoolConstantExpression(binaryExpression.NodeType == ExpressionType.NotEqual);
+          if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value == null)
+            || right is ConstantExpression && ((ConstantExpression) right).Value == null)
+            return SelectBoolConstantExpression(binaryExpression.NodeType == ExpressionType.NotEqual);
+          // Structure split to it's fields.
+          var leftStructureExpression = left as StructureFieldExpression;
+          var rightStructureExpression = right as StructureFieldExpression;
+          if (leftStructureExpression == null && rightStructureExpression == null)
+            throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
 
-        var keyFieldTypes = context
-          .Model
-          .Types[type]
-          .Key
-          .TupleDescriptor;
+          StructureFieldExpression structureFieldExpression = (leftStructureExpression ?? rightStructureExpression);
+          leftExpressions = GetStructureFields(left, structureFieldExpression.Fields, structureFieldExpression.Type);
+          rightExpressions = GetStructureFields(right, structureFieldExpression.Fields, structureFieldExpression.Type);
+          break;
+        case MemberType.Array:
+          // Special case. ArrayIndex expression.
+          if (binaryExpression.NodeType == ExpressionType.ArrayIndex) {
+            var arrayExpression = Visit(left);
+            var arrayIndex = Visit(right);
+            return Expression.ArrayIndex(arrayExpression, arrayIndex);
+          }
 
-        leftExpressions = GetEntityFields(left, keyFieldTypes);
-        rightExpressions = GetEntityFields(right, keyFieldTypes);
-        break;
-      case MemberType.Anonymous:
-        // Anonymous type split to constructor arguments.
-        var anonymousType = (left.Type==WellKnownTypes.Object)
-          ? right.Type
-          : left.Type;
-        leftExpressions = GetAnonymousArguments(left, anonymousType);
-        rightExpressions = GetAnonymousArguments(right, anonymousType);
-        break;
-      case MemberType.Structure:
-        if ((leftIsConstant && ExpressionEvaluator.Evaluate(left).Value==null)
-          || left is ConstantExpression && ((ConstantExpression) left).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
-        if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
-          || right is ConstantExpression && ((ConstantExpression) right).Value==null)
-          return Expression.Constant(binaryExpression.NodeType==ExpressionType.NotEqual, WellKnownTypes.Bool);
-        // Structure split to it's fields.
-        var leftStructureExpression = left as StructureFieldExpression;
-        var rightStructureExpression = right as StructureFieldExpression;
-        if (leftStructureExpression==null && rightStructureExpression==null)
-          throw new NotSupportedException(String.Format(Strings.ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression, binaryExpression));
-
-        StructureFieldExpression structureFieldExpression = (leftStructureExpression ?? rightStructureExpression);
-        leftExpressions = GetStructureFields(left, structureFieldExpression.Fields, structureFieldExpression.Type);
-        rightExpressions = GetStructureFields(right, structureFieldExpression.Fields, structureFieldExpression.Type);
-        break;
-      case MemberType.Array:
-        // Special case. ArrayIndex expression. 
-        if (binaryExpression.NodeType==ExpressionType.ArrayIndex) {
-          var arrayExpression = Visit(left);
-          var arrayIndex = Visit(right);
-          return Expression.ArrayIndex(arrayExpression, arrayIndex);
-        }
-
-        // If array compares to null use standard routine.
-        if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
-          || (rightIsConstant && ExpressionEvaluator.Evaluate(right).Value==null)
-            || (right.Type==WellKnownTypes.ByteArray && (left is FieldExpression || left is ColumnExpression || right is FieldExpression || right is ColumnExpression)))
-          return Expression.MakeBinary(binaryExpression.NodeType,
-            left,
-            right,
-            binaryExpression.IsLiftedToNull,
-            binaryExpression.Method);
+          // If array compares to null use standard routine.
+          if ((rightIsConstant && ExpressionEvaluator.Evaluate(right).Value == null)
+            || (rightIsConstant && ExpressionEvaluator.Evaluate(right).Value == null)
+              || (right.Type == WellKnownTypes.ByteArray && (left is FieldExpression || left is ColumnExpression || right is FieldExpression || right is ColumnExpression)))
+            return Expression.MakeBinary(binaryExpression.NodeType,
+              left,
+              right,
+              binaryExpression.IsLiftedToNull,
+              binaryExpression.Method);
 
 
-        // Array split to it's members.
-        leftExpressions = ((NewArrayExpression) left).Expressions;
-        rightExpressions = ((NewArrayExpression) right).Expressions;
-        break;
-      default:
-        // Primitive types don't has subexpressions. Use standart routine.
-        if (leftOrRightIsIndex) {
-          var binary = Expression.MakeBinary(binaryExpression.NodeType, left, right, binaryExpression.IsLiftedToNull, binaryExpression.Method);
-          return VisitBinaryRecursive(binary, binaryExpression);
-        }
-        return binaryExpression;
+          // Array split to it's members.
+          leftExpressions = ((NewArrayExpression) left).Expressions;
+          rightExpressions = ((NewArrayExpression) right).Expressions;
+          break;
+        default:
+          // Primitive types don't has subexpressions. Use standart routine.
+          if (leftOrRightIsIndex) {
+            var binary = Expression.MakeBinary(binaryExpression.NodeType, left, right, binaryExpression.IsLiftedToNull, binaryExpression.Method);
+            return VisitBinaryRecursive(binary, binaryExpression);
+          }
+          return binaryExpression;
       }
 
-      if (leftExpressions.Count!=rightExpressions.Count || leftExpressions.Count==0)
+      if (leftExpressions.Count != rightExpressions.Count || leftExpressions.Count == 0)
         throw Exceptions.InternalError(Strings.ExMistmatchCountOfLeftAndRightExpressions, OrmLog.Instance);
 
       // Combine new binary expression from subexpression pairs.
@@ -830,22 +842,22 @@ namespace Xtensive.Orm.Linq
           : rightItem.LiftToNullable();
 
         switch (binaryExpression.NodeType) {
-        case ExpressionType.Equal:
-          pairExpression = Expression.Equal(leftItem, rightItem);
-          break;
-        case ExpressionType.NotEqual:
-          pairExpression = Expression.NotEqual(leftItem, rightItem);
-          break;
-        default:
-          throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported,
-            binaryExpression.NodeType));
+          case ExpressionType.Equal:
+            pairExpression = Expression.Equal(leftItem, rightItem);
+            break;
+          case ExpressionType.NotEqual:
+            pairExpression = Expression.NotEqual(leftItem, rightItem);
+            break;
+          default:
+            throw new NotSupportedException(String.Format(Strings.ExBinaryExpressionsWithNodeTypeXAreNotSupported,
+              binaryExpression.NodeType));
         }
 
         // visit new expression recursively
         var visitedResultExpression = VisitBinaryRecursive(pairExpression, originalBinaryExpression);
 
         // Combine expression chain with AndAlso
-        resultExpression = resultExpression==null
+        resultExpression = resultExpression == null
           ? visitedResultExpression
           : Expression.AndAlso(resultExpression, visitedResultExpression);
       }
@@ -998,12 +1010,14 @@ namespace Xtensive.Orm.Linq
 
       Expression keyExpression;
 
-      if (expression.IsNull())
-        keyExpression = Expression.Constant(null, WellKnownOrmTypes.Key);
-      else if (IsConditionalOrWellknown(expression))
+      if (expression.IsNull()) {
+        keyExpression = nullKeyExpression;
+      }
+      else if (IsConditionalOrWellknown(expression)) {
         return keyFieldTypes
           .Select((type, index) => GetConditionalKeyField(expression, type, index))
           .ToList();
+      }
       else
       {
         ConstantExpression nullEntityExpression = Expression.Constant(null, expression.Type);
@@ -1012,7 +1026,7 @@ namespace Xtensive.Orm.Linq
           expression = Expression.Convert(expression, WellKnownOrmInterfaces.Entity);
         keyExpression = Expression.Condition(
           isNullExpression,
-          Expression.Constant(null, WellKnownOrmTypes.Key),
+          nullKeyExpression,
           Expression.MakeMemberAccess(expression, WellKnownMembers.IEntityKey));
       }
       return GetKeyFields(keyExpression, keyFieldTypes);

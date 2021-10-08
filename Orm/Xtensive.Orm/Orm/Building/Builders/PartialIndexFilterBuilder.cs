@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -26,18 +26,18 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal class PartialIndexFilterBuilder : ExpressionVisitor
   {
+    private static readonly ParameterExpression parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+
     private readonly TypeInfo declaringType;
     private readonly TypeInfo reflectedType;
     private readonly IndexInfo index;
-    private readonly ParameterExpression parameter;
     private readonly List<FieldInfo> usedFields = new List<FieldInfo>();
     private readonly Dictionary<Expression, FieldInfo> entityAccessMap = new Dictionary<Expression, FieldInfo>();
 
     public static void BuildFilter(IndexInfo index)
     {
       ArgumentValidator.EnsureArgumentNotNull(index, "index");
-      var parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var builder = new PartialIndexFilterBuilder(index, parameter);
+      var builder = new PartialIndexFilterBuilder(index);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
         Expression = FastExpression.Lambda(body, parameter),
@@ -185,10 +185,9 @@ namespace Xtensive.Orm.Building.Builders
       return UnableToTranslate(expression, string.Format(Strings.ExpressionsOfTypeXAreNotSupported, expression.NodeType));
     }
 
-    private PartialIndexFilterBuilder(IndexInfo index, ParameterExpression parameter)
+    private PartialIndexFilterBuilder(IndexInfo index)
     {
       this.index = index;
-      this.parameter = parameter;
 
       declaringType = index.DeclaringType;
       reflectedType = index.ReflectedType;

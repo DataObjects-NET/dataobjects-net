@@ -27,6 +27,8 @@ namespace Xtensive.Orm.Linq
   internal sealed partial class Translator : QueryableVisitor
   {
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
+    private static readonly ParameterExpression tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly ParameterExpression parameterContextContextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
 
     internal TranslatorState state { get; private set; } = TranslatorState.InitState;
     private readonly TranslatorContext context;
@@ -548,7 +550,7 @@ namespace Xtensive.Orm.Linq
         ParameterExpression contextParameter;
         if (compiledQueryScope == null) {
           var indexLambda = (Expression<Func<int>>) index;
-          contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+          contextParameter = parameterContextContextParameter;
           elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, contextParameter);
         }
         else {
@@ -625,9 +627,8 @@ namespace Xtensive.Orm.Linq
 
       if (take.Type == typeof(Func<int>)) {
         if (compiledQueryScope == null) {
-          var contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
           var takeLambda = (Expression<Func<int>>) take;
-          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, contextParameter);
+          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, parameterContextContextParameter);
           compiledParameter = newTakeLambda.CachingCompile();
         }
         else {
@@ -990,7 +991,6 @@ namespace Xtensive.Orm.Linq
         })
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 
       var filterBody = (nullableKeyColumns.Count == 0)
         ? comparisonInfos.Aggregate(
