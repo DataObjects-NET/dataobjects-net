@@ -28,15 +28,9 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      var kf = obj as KeyField;
-      if (kf == null)
-        return false;
-      if (ReferenceEquals(this, kf))
-        return true;
-      return (Name==kf.Name && Direction==kf.Direction);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+      || obj is KeyField kf && Name == kf.Name && Direction == kf.Direction;
 
 
     // Constructors

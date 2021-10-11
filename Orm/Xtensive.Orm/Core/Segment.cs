@@ -62,14 +62,8 @@ namespace Xtensive.Core
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj is Pair<T>) {
-        Pair<T> other = (Pair<T>)obj;
-        return Equals(other);
-      }
-      return false;
-    }
+    public override bool Equals(object obj) =>
+      obj is Pair<T> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

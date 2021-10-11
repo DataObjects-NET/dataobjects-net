@@ -21,6 +21,9 @@ namespace Xtensive.Core
     IComparable<Pair<TFirst, TSecond>>,
     IEquatable<Pair<TFirst, TSecond>>
   {
+    private static readonly AdvancedComparerStruct<TFirst> firstComparer = AdvancedComparerStruct<TFirst>.System;
+    private static readonly AdvancedComparerStruct<TSecond> secondComparer = AdvancedComparerStruct<TSecond>.System;
+
     /// <summary>
     /// A first value.
     /// </summary>
@@ -33,20 +36,16 @@ namespace Xtensive.Core
     #region IComparable<...>, IEquatable<...> methods
 
     /// <inheritdoc/>
-    public bool Equals(Pair<TFirst, TSecond> other)
-    {
-      if (!AdvancedComparerStruct<TFirst>.System.Equals(First, other.First))
-        return false;
-      return AdvancedComparerStruct<TSecond>.System.Equals(Second, other.Second);
-    }
+    public bool Equals(Pair<TFirst, TSecond> other) =>
+      firstComparer.Equals(First, other.First) && secondComparer.Equals(Second, other.Second);
 
     /// <inheritdoc/>
     public int CompareTo(Pair<TFirst, TSecond> other)
     {
-      int result = AdvancedComparerStruct<TFirst>.System.Compare(First, other.First);
-      if (result != 0)
-        return result;
-      return AdvancedComparerStruct<TSecond>.System.Compare(Second, other.Second);
+      int result = firstComparer.Compare(First, other.First);
+      return result != 0
+        ? result
+        : secondComparer.Compare(Second, other.Second);
     }
 
     #endregion
@@ -54,12 +53,8 @@ namespace Xtensive.Core
     #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj.GetType() != typeof(Pair<TFirst, TSecond>))
-        return false;
-      return Equals((Pair<TFirst, TSecond>) obj);
-    }
+    public override bool Equals(object obj) =>
+      obj is Pair<TFirst, TSecond> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Linq
         usedColumns.Add(0);
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
         var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
-        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns.ToArray());
+        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns);
         var result = new ProjectionExpression(
           origin.Type,
           itemProjector,

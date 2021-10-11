@@ -9,7 +9,7 @@ using System;
 namespace Xtensive.Orm.Building.DependencyGraph
 {
   [Serializable]
-  internal class Edge<TValue>
+  internal sealed class Edge<TValue>
   {
     public Node<TValue> Tail { get; private set; }
 
@@ -38,16 +38,9 @@ namespace Xtensive.Orm.Building.DependencyGraph
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType()!=typeof (Edge<TValue>))
-        return false;
-      return Equals((Edge<TValue>) obj);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+      || obj is Edge<TValue> other && Equals(other);
 
     /// <inheritdoc/>
     public static bool operator ==(Edge<TValue> left, Edge<TValue> right)
