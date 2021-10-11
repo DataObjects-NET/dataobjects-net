@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Ivan Galkin
 // Created:    2009.03.31
 
@@ -21,104 +21,41 @@ namespace Xtensive.Sql.Model
     /// <param name="node">The node.</param>
     /// <returns>Visit result.</returns>
     /// <exception cref="ArgumentException">Node type is unknown.</exception>
-    protected virtual TResult Visit(Node node)
-    {
-      var characterSet = node as CharacterSet;
-      if (characterSet!=null)
-        return VisitCharacterSet(characterSet);
-      var collation = node as Collation;
-      if (collation!=null)
-        return VisitCollation(collation);
-      var temporaryTable = node as TemporaryTable;
-      if (temporaryTable!=null)
-        return VisitTemporaryTable(temporaryTable);
-      var table = node as Table;
-      if (table!=null)
-        return VisitTable(table);
-      var view = node as View;
-      if (view!=null)
-        return VisitView(view);
-      var dataTable = node as DataTable;
-      if (dataTable!=null)
-        return VisitDataTable(dataTable);
-      var tableColumn = node as TableColumn;
-      if (tableColumn!=null)
-        return VisitTableColumn(tableColumn);
-      var viewColumn = node as ViewColumn;
-      if (viewColumn!=null)
-        return VisitViewColumn(viewColumn);
-      var dataTableColumn = node as DataTableColumn;
-      if (dataTableColumn!=null)
-        return VisitDataTableColumn(dataTableColumn);
-      var domain = node as Domain;
-      if (domain!=null)
-        return VisitDomain(domain);
-      var ftIndex = node as FullTextIndex;
-      if (ftIndex != null)
-        return VisitFullTextIndex(ftIndex);
-      var index = node as Index;
-      if (index!=null)
-        return VisitIndex(index);
-      var indexColumn = node as IndexColumn;
-      if (indexColumn!=null)
-        return VisitIndexColumn(indexColumn);
-      var foreignKey = node as ForeignKey;
-      if (foreignKey!=null)
-        return VisitForeignKey(foreignKey);
-      var primaryKey = node as PrimaryKey;
-      if (primaryKey!=null)
-        return VisitPrimaryKey(primaryKey);
-      var uniqueConstraint = node as UniqueConstraint;
-      if (uniqueConstraint!=null)
-        return VisitUniqueConstraint(uniqueConstraint);
-      var checkConstraint = node as CheckConstraint;
-      if (checkConstraint!=null)
-        return VisitCheckConstraint(checkConstraint);
-      var domainConstraint = node as DomainConstraint;
-      if (domainConstraint!=null)
-        return VisitDomainConstraint(domainConstraint);
-      var constraint = node as Constraint;
-      if (constraint!=null)
-        return VisitConstraint(constraint);
-      var schema = node as Schema;
-      if (schema!=null)
-        return VisitSchema(schema);
-      var sequence = node as Sequence;
-      if (sequence!=null)
-        return VisitSequence(sequence);
-      var sequenceDescriptor = node as SequenceDescriptor;
-      if (sequenceDescriptor!=null)
-        return VisitSequenceDescriptor(sequenceDescriptor);
-      var catalog = node as Catalog;
-      if (catalog!=null)
-        return VisitCatalog(catalog);
-      var translation = node as Translation;
-      if (translation!=null)
-        return VisitTranslation(translation);
-      var hashPartition = node as HashPartition;
-      if (hashPartition!=null)
-        return VisitHashPartition(hashPartition);
-      var listPartition = node as ListPartition;
-      if (listPartition!=null)
-        return VisitListPartition(listPartition);
-      var rangePartition = node as RangePartition;
-      if (rangePartition!=null)
-        return VisitRangePartition(rangePartition);
-      var partition = node as Partition;
-      if (partition!=null)
-        return VisitPartition(partition);
-      var partitionDescriptor = node as PartitionDescriptor;
-      if (partitionDescriptor!=null)
-        return VisitPartitionDescriptor(partitionDescriptor);
-      var partitionFunction = node as PartitionFunction;
-      if (partitionFunction!=null)
-        return VisitPartitionFunction(partitionFunction);
-      var partitionSchema = node as PartitionSchema;
-      if (partitionSchema!=null)
-        return VisitPartitionSchema(partitionSchema);
-
-      throw new ArgumentException(Strings.ExNodeTypeIsUnknown, "node");
-    }
+    protected virtual TResult Visit(Node node) =>
+      node switch {
+        CharacterSet characterSet => VisitCharacterSet(characterSet),
+        Collation collation => VisitCollation(collation),
+        TemporaryTable temporaryTable => VisitTemporaryTable(temporaryTable),
+        Table table => VisitTable(table),
+        View view => VisitView(view),
+        DataTable dataTable => VisitDataTable(dataTable),
+        TableColumn tableColumn => VisitTableColumn(tableColumn),
+        ViewColumn viewColumn => VisitViewColumn(viewColumn),
+        DataTableColumn dataTableColumn => VisitDataTableColumn(dataTableColumn),
+        Domain domain => VisitDomain(domain),
+        FullTextIndex ftIndex => VisitFullTextIndex(ftIndex),
+        Index index => VisitIndex(index),
+        IndexColumn indexColumn => VisitIndexColumn(indexColumn),
+        ForeignKey foreignKey => VisitForeignKey(foreignKey),
+        PrimaryKey primaryKey => VisitPrimaryKey(primaryKey),
+        UniqueConstraint uniqueConstraint => VisitUniqueConstraint(uniqueConstraint),
+        CheckConstraint checkConstraint => VisitCheckConstraint(checkConstraint),
+        DomainConstraint domainConstraint => VisitDomainConstraint(domainConstraint),
+        Constraint constraint => VisitConstraint(constraint),
+        Schema schema => VisitSchema(schema),
+        Sequence sequence => VisitSequence(sequence),
+        SequenceDescriptor sequenceDescriptor => VisitSequenceDescriptor(sequenceDescriptor),
+        Catalog catalog => VisitCatalog(catalog),
+        Translation translation => VisitTranslation(translation),
+        HashPartition hashPartition => VisitHashPartition(hashPartition),
+        ListPartition listPartition => VisitListPartition(listPartition),
+        RangePartition rangePartition => VisitRangePartition(rangePartition),
+        Partition partition => VisitPartition(partition),
+        PartitionDescriptor partitionDescriptor => VisitPartitionDescriptor(partitionDescriptor),
+        PartitionFunction partitionFunction => VisitPartitionFunction(partitionFunction),
+        PartitionSchema partitionSchema => VisitPartitionSchema(partitionSchema),
+        _ => throw new ArgumentException(Strings.ExNodeTypeIsUnknown, "node")
+      };
 
     /// <summary>
     /// Visits unique constraint.

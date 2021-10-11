@@ -272,7 +272,7 @@ namespace Xtensive.Orm
         var query = index.GetQuery()
           .Seek(context => context.GetValue(keyParameter))
           .Lock(() => triplet.Item2, () => triplet.Item3)
-          .Select();
+          .Select(Array.Empty<int>());
         return Session.Compile(query);
       };
       var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);

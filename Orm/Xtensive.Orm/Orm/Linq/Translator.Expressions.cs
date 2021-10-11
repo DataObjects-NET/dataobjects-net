@@ -1198,7 +1198,7 @@ namespace Xtensive.Orm.Linq
         var newExpression = ((NewExpression) expression);
         IEnumerable<Expression> arguments = newExpression
           .Members
-          .Select((methodInfo, index) => new {methodInfo.Name, Argument = newExpression.Arguments[index]})
+          .Select((methodInfo, index) => (methodInfo.Name, Argument: newExpression.Arguments[index]))
           .OrderBy(a => a.Name)
           .Select(a => a.Argument);
         return arguments.ToList();

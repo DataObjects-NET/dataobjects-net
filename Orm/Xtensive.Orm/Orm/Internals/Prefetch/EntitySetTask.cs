@@ -36,16 +36,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           && Equals(other.ReferencingField, ReferencingField);
       }
 
-      public override bool Equals(object obj)
-      {
-        if (ReferenceEquals(null, obj)) {
-          return false;
-        }
-        if (obj.GetType() != typeof (CacheKey)) {
-          return false;
-        }
-        return Equals((CacheKey) obj);
-      }
+      public override bool Equals(object obj) =>
+        obj is CacheKey other && Equals(other);
 
       public override int GetHashCode() => cachedHashCode;
 
@@ -158,19 +150,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       return other.cacheKey.Equals(cacheKey);
     }
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) {
-        return false;
-      }
-      if (ReferenceEquals(this, obj)) {
-        return true;
-      }
-      if (obj.GetType() != typeof (EntitySetTask)) {
-        return false;
-      }
-      return Equals((EntitySetTask) obj);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is EntitySetTask other && Equals(other);
 
     public override int GetHashCode() => cacheKey.GetHashCode();
 
@@ -205,7 +187,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var result = association.AuxiliaryType == null
         ? CreateQueryForDirectAssociation(pair, primaryTargetIndex, resultColumns)
         : CreateQueryForAssociationViaAuxType(pair, primaryTargetIndex, resultColumns);
-      result = result.Select(resultColumns.ToArray());
+      result = result.Select(resultColumns);
       if (pair.Second.ItemCountLimit != null)
         result = result.Take(context => context.GetValue(itemCountLimitParameter));
       return result;

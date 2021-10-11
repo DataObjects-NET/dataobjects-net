@@ -189,12 +189,8 @@ namespace Xtensive.Sql
       return string.Equals(Name, other.Name, StringComparison.Ordinal);
     }
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      return obj is SqlType && Equals((SqlType) obj);
-    }
+    public override bool Equals(object obj) =>
+      obj is SqlType other && Equals(other);
 
     public override int GetHashCode()
     {

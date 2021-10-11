@@ -242,11 +242,11 @@ namespace Xtensive.Orm.Upgrade
     private static void GetTableRecreateDataLossActions(IEnumerable<NodeAction> actions, ICollection<NodeAction> output)
     {
       actions.OfType<DataAction>()
-        .Select(da => new {
-          DataAction = da,
-          Difference = da.Difference as NodeDifference,
-          DeleteDataHint = da.DataHint as DeleteDataHint
-        })
+        .Select(da => (
+          DataAction: da,
+          Difference: da.Difference as NodeDifference,
+          DeleteDataHint: da.DataHint as DeleteDataHint
+        ))
         .Where(a => a.DeleteDataHint != null && a.Difference != null && a.Difference.MovementInfo.HasFlag(MovementInfo.Removed | MovementInfo.Created))
         .Select(a => a.DataAction)
         .ForEach(output.Add);

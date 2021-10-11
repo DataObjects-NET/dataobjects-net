@@ -181,20 +181,18 @@ namespace Xtensive.Orm.Upgrade.Internals
         from triplet in genericTypeMapping
         group triplet by triplet.Item2.GetGenericTypeDefinition()
           into g
-          select new { Definition = g.Key, Instances = g.ToArray() }
+        select (Definition: g.Key, Instances: g.ToArray())
         ).ToDictionary(g => g.Definition);
 
       // Build rename generic type field hints
       foreach (var hint in renameFieldHints) {
         var newGenericDefType = hint.TargetType;
-        var instanceGroup = genericTypeDefLookup.GetValueOrDefault(newGenericDefType);
-        if (instanceGroup == null) {
-          continue;
-        }
-        foreach (var triplet in instanceGroup.Instances) {
-          var newGenericArguments = triplet.Item3.SelectToArray(pair => pair.Second);
-          rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(newGenericArguments),
-            hint.OldFieldName, hint.NewFieldName));
+        if (genericTypeDefLookup.TryGetValue(newGenericDefType, out var instanceGroup)) {
+          foreach (var triplet in instanceGroup.Instances) {
+            var newGenericArguments = triplet.Item3.SelectToArray(pair => pair.Second);
+            rewrittenHints.Add(new RenameFieldHint(newGenericDefType.MakeGenericType(newGenericArguments),
+              hint.OldFieldName, hint.NewFieldName));
+          }
         }
       }
     }

@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new FullTextExpression(FullTextIndex, remappedEntityExpression, remappedRankExpression, OuterParameter);
     }
 
-    public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
     {
       if (!CanRemap)
         return this;

@@ -104,34 +104,35 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlAlterTable node)
     {
-      using (context.EnterScope(node)) {
-        AppendTranslated(node, AlterTableSection.Entry);
-        if (node.Action is SqlAddColumn) {
-          var column = ((SqlAddColumn) node.Action).Column;
+      using var _ = context.EnterScope(node);
+
+      AppendTranslated(node, AlterTableSection.Entry);
+      switch (node.Action) {
+        case SqlAddColumn sqlAddColumn: {
+          var column = sqlAddColumn.Column;
           AppendTranslated(node, AlterTableSection.AddColumn);
           Visit(column);
         }
-        else if (node.Action is SqlDropDefault) {
-          var column = ((SqlDropDefault) node.Action).Column;
+        break;
+        case SqlDropDefault sqlDropDefault: {
+          var column = sqlDropDefault.Column;
           AppendTranslated(node, AlterTableSection.AlterColumn);
           AppendTranslated(column, TableColumnSection.Entry);
           AppendTranslated(column, TableColumnSection.DropDefault);
         }
-        else if (node.Action is SqlSetDefault) {
-          var action = node.Action as SqlSetDefault;
+        break;
+        case SqlSetDefault action:
           AppendTranslated(node, AlterTableSection.AlterColumn);
           AppendTranslated(action.Column, TableColumnSection.Entry);
           AppendTranslated(action.Column, TableColumnSection.SetDefault);
           action.DefaultValue.AcceptVisitor(this);
-        }
-        else if (node.Action is SqlDropColumn) {
-          var action = node.Action as SqlDropColumn;
+          break;
+        case SqlDropColumn action:
           AppendTranslated(node, AlterTableSection.DropColumn);
           AppendTranslated(action.Column, TableColumnSection.Entry);
           AppendTranslated(node, AlterTableSection.DropBehavior);
-        }
-        else if (node.Action is SqlAlterIdentityInfo) {
-          var action = node.Action as SqlAlterIdentityInfo;
+          break;
+        case SqlAlterIdentityInfo action:
           AppendTranslated(node, AlterTableSection.AlterColumn);
           AppendTranslated(action.Column, TableColumnSection.Entry);
           if ((action.InfoOption & SqlAlterIdentityInfoOptions.RestartWithOption) != 0)
@@ -154,28 +155,28 @@ namespace Xtensive.Sql.Compiler
             AppendTranslated(action.Column, TableColumnSection.SetIdentityInfoElement);
             AppendTranslated(action.SequenceDescriptor, SequenceDescriptorSection.IsCyclic);
           }
-        }
-        else if (node.Action is SqlAddConstraint) {
-          var constraint = ((SqlAddConstraint) node.Action).Constraint as TableConstraint;
+          break;
+        case SqlAddConstraint action: {
+          var constraint = action.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.AddConstraint);
           Visit(constraint);
         }
-        else if (node.Action is SqlDropConstraint) {
-          var action = node.Action as SqlDropConstraint;
+        break;
+        case SqlDropConstraint action: {
           var constraint = action.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.DropConstraint);
           AppendTranslated(constraint, ConstraintSection.Entry);
           AppendTranslated(node, AlterTableSection.DropBehavior);
         }
-        else if (node.Action is SqlRenameColumn) {
-          var action = node.Action as SqlRenameColumn;
+        break;
+        case SqlRenameColumn action:
           AppendTranslated(node, AlterTableSection.RenameColumn);
           AppendTranslated(action.Column, TableColumnSection.Entry);
           AppendTranslated(node, AlterTableSection.To);
           translator.TranslateIdentifier(context.Output, action.NewName);
-        }
-        AppendTranslated(node, AlterTableSection.Exit);
+          break;
       }
+      AppendTranslated(node, AlterTableSection.Exit);
     }
 
     public virtual void Visit(SqlAlterSequence node)
@@ -1586,9 +1587,9 @@ namespace Xtensive.Sql.Compiler
         var uniqueConstraint = constraint as UniqueConstraint;
         if (uniqueConstraint != null)
           VisitUniqueConstraint(uniqueConstraint);
-        var foreignKey = constraint as ForeignKey;
-        if (constraint is ForeignKey)
+        if (constraint is ForeignKey foreignKey) {
           VisitForeignKeyConstraint(foreignKey);
+        }
         AppendTranslated(constraint, ConstraintSection.Exit);
       }
     }

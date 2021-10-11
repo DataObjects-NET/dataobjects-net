@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Model
       var candidates = this
         .Where(i => i.KeyColumns
           .TakeWhile((_, index) => index < columns.Count)
-          .Select((pair, index) => new {column = pair.Key, columnIndex = index})
+          .Select((pair, index) => (column: pair.Key, columnIndex: index))
           .All(p => p.column==columns[p.columnIndex]))
         .OrderByDescending(i => i.Attributes).ToList();
 

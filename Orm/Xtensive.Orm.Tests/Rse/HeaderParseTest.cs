@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Title
-          CompilableProvider rsTitle = rsMain.Select(0, 1, 2);
+          CompilableProvider rsTitle = rsMain.Select(new[] { 0, 1, 2 });
           UpdateCache(session, rsTitle.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Tests.Rse
           ResetState(state);
 
           // Select Id, TypeId, Text
-          CompilableProvider rsText = rsMain.Select(0, 1, 3);
+          CompilableProvider rsText = rsMain.Select(new[] { 0, 1, 3 });
           UpdateCache(session, rsText.GetRecordSetReader(session, parameterContext));
           state = Session.Current.EntityStateCache[key, true];
           Assert.IsNotNull(state);

@@ -320,7 +320,7 @@ namespace Xtensive.Orm.Linq
         currentIndex++;
       }
 
-      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes.ToArray());
+      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
       var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       var keyPairs = keySegment
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -864,7 +864,7 @@ namespace Xtensive.Orm.Linq
       sourceProjection = VisitSequence(source);
       if (aggregateParameter == null) {
         if (sourceProjection.ItemProjector.IsPrimitive) {
-          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey).ToList();
         }
         else {
           var lambdaType = sourceProjection.ItemProjector.Item.Type;
@@ -883,7 +883,7 @@ namespace Xtensive.Orm.Linq
               string.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
           }
 
-          columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+          columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey).ToList();
           sourceProjection = context.Bindings[aggregateParameter.Parameters[0]];
         }
       }
@@ -984,11 +984,11 @@ namespace Xtensive.Orm.Linq
       // subqueryIndex - values of array
       // groupIndex    - indexes of values of array
       var comparisonInfos = keyColumns
-        .Select((subqueryIndex, groupIndex) => new {
-          SubQueryIndex = subqueryIndex,
-          GroupIndex = groupIndex,
-          Type = keyDataSource.Header.Columns[groupIndex].Type.ToNullable()
-        })
+        .Select((subqueryIndex, groupIndex) => (
+          SubQueryIndex: subqueryIndex,
+          GroupIndex: groupIndex,
+          Type: keyDataSource.Header.Columns[groupIndex].Type.ToNullable()
+        ))
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
 
@@ -1576,19 +1576,18 @@ namespace Xtensive.Orm.Linq
 
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
+      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
       if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
         outerColumnList = outerColumnList.OrderBy(i => i).ToList();
         innerColumnList = innerColumnList.OrderBy(i => i).ToList();
       }
 
-      var outerColumns = outerColumnList.ToArray();
       var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumnList)
-        ? outerItemProjector.DataSource.Select(outerColumns)
+        ? outerItemProjector.DataSource.Select(outerColumnList)
         : outerItemProjector.DataSource;
       var innerRecordSet = ShouldWrapDataSourceWithSelect(innerItemProjector, innerColumnList)
-        ? innerItemProjector.DataSource.Select(innerColumnList.ToArray())
+        ? innerItemProjector.DataSource.Select(innerColumnList)
         : innerItemProjector.DataSource;
 
       var recordSet = outerItemProjector.DataSource;
@@ -1609,14 +1608,14 @@ namespace Xtensive.Orm.Linq
 
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings)
         .ToDictionary(pair => pair.Key, pair => pair.Value);
-      var itemProjector = outerItemProjector.Remap(recordSet, outerColumns);
+      var itemProjector = outerItemProjector.Remap(recordSet, outerColumnList);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
 
-    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, ICollection<int> columns) =>
+    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, IReadOnlyList<int> columns) =>
       expression.DataSource.Type != ProviderType.Select
       || expression.DataSource.Header.Length != columns.Count
-      || columns.Select((c, i) => new {c, i}).Any(x => x.c != x.i);
+      || columns.Select((c, i) => (c, i)).Any(x => x.c != x.i);
 
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
     {

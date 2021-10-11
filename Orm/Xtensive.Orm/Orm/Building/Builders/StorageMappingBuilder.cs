@@ -28,12 +28,8 @@ namespace Xtensive.Orm.Building.Builders
         return Equals(Assembly, other.Assembly) && string.Equals(Namespace, other.Namespace, StringComparison.Ordinal);
       }
 
-      public override bool Equals(object obj)
-      {
-        if (ReferenceEquals(null, obj))
-          return false;
-        return obj is MappingRequest && Equals((MappingRequest) obj);
-      }
+      public override bool Equals(object obj) =>
+        obj is MappingRequest other && Equals(other);
 
       public override int GetHashCode()
       {

@@ -298,7 +298,7 @@ namespace Xtensive.Orm.Upgrade
           // X.EntitySet<Y>, where X is in removedTypeAndAncestors,
           // connectorType.X must be cleaned up as well
           requiresInverseCleanup
-        select new {association, requiresInverseCleanup}
+        select (association, requiresInverseCleanup)
         ).ToList();
       foreach (var pair in affectedAssociations) {
         var association = pair.association;

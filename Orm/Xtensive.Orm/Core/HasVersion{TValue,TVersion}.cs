@@ -57,12 +57,8 @@ namespace Xtensive.Core
     #region Equals, GetHashCode, ==, !=
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj.GetType()!=typeof (HasVersion<TValue, TVersion>))
-        return false;
-      return Equals((HasVersion<TValue, TVersion>) obj);
-    }
+    public override bool Equals(object obj) =>
+      obj is HasVersion<TValue, TVersion> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

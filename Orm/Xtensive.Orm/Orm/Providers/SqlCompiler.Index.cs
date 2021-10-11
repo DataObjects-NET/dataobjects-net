@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Providers
         var columnType = discriminatorMap.Column.ValueType;
         var discriminatorColumnIndex = underlyingIndex.Columns
           .Where(c => !c.Field.IsTypeId)
-          .Select((c,i) => new {c,i})
+          .Select((c, i) => (c, i))
           .Where(p => p.c == discriminatorMap.Column)
           .Single().i;
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.Providers
 
       var baseColumns = baseQuery.Columns.ToList();
       var typeIdColumnIndex = index.Columns
-        .Select((c, i) => new {c.Field, i})
+        .Select((c, i) => (c.Field, i))
         .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
       var type = index.ReflectedType;
       var typeIdColumn = SqlDml.ColumnRef(
