@@ -160,35 +160,30 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private TranslatedQuery PrepareSubqueryParameters(SubQueryExpression subQueryExpression, out Parameter<Tuple> parameterOfTuple, out Type elementType, out ProjectionExpression projection)
     {
+      var projectionExpression = subQueryExpression.ProjectionExpression;
+
       // 1. Rewrite recordset and ItemProjector to parameter<tuple>
       var subqueryTupleParameter = context.GetTupleParameter(subQueryExpression.OuterParameter);
       var newDataSource = ApplyParameterToTupleParameterRewriter.Rewrite(
-        subQueryExpression.ProjectionExpression.ItemProjector.DataSource,
+        projectionExpression.ItemProjector.DataSource,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter);
 
       var newItemProjectorBody = ApplyParameterToTupleParameterRewriter.Rewrite(
-        subQueryExpression.ProjectionExpression.ItemProjector.Item,
+        projectionExpression.ItemProjector.Item,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter);
 
-      var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, subQueryExpression.ProjectionExpression.ItemProjector.Context);
+      var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, projectionExpression.ItemProjector.Context);
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
       // 2. Add only parameter<tuple>. Tuple value will be assigned 
       // at the moment of materialization in SubQuery constructor
-      projection = new ProjectionExpression(
-        subQueryExpression.ProjectionExpression.Type,
-        itemProjector,
-        subQueryExpression.ProjectionExpression.TupleParameterBindings,
-        subQueryExpression.ProjectionExpression.ResultAccessMethod);
+      projection = projectionExpression.Apply(itemProjector);
 
       // 3. Make translation 
-      elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
-      var translateMethod = Translator.TranslateMethod;
-      return (TranslatedQuery) translateMethod.Invoke(
-        context.Translator,
-        new object[] {projection, tupleParameters.Append(parameterOfTuple)});
+      elementType = projectionExpression.ItemProjector.Item.Type;
+      return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple));
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)

@@ -503,7 +503,7 @@ namespace Xtensive.Orm.Linq
       rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     private Expression ConstructContainsTableQueryRoot(Type elementType, System.Collections.ObjectModel.ReadOnlyCollection<Expression> parameters)
@@ -569,7 +569,7 @@ namespace Xtensive.Orm.Linq
       rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
@@ -1157,7 +1157,7 @@ namespace Xtensive.Orm.Linq
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
       var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
@@ -1552,7 +1552,7 @@ namespace Xtensive.Orm.Linq
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
       if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
-      return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(itemType, itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     private Expression BuildInterfaceExpression(MemberExpression ma)

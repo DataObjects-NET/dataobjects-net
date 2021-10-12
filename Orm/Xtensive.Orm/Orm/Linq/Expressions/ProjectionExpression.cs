@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -13,40 +13,30 @@ namespace Xtensive.Orm.Linq.Expressions
 {
   internal class ProjectionExpression : ExtendedExpression
   {
-    public ItemProjectorExpression ItemProjector { get; private set;}
-    public ResultAccessMethod ResultAccessMethod { get; private set; }
-    public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
+    public ItemProjectorExpression ItemProjector { get; }
+    public ResultAccessMethod ResultAccessMethod { get; }
+    public IReadOnlyDictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; }
 
-    public bool IsScalar
-    {
-      get {  return ResultAccessMethod != ResultAccessMethod.All; }
-    }
+    public bool IsScalar => ResultAccessMethod != ResultAccessMethod.All;
 
-    public override string ToString()
-    {
-      return $"Projection:  {ItemProjector}, IsScalar = {IsScalar}";
-    }
+    public override string ToString() => $"Projection:  {ItemProjector}, IsScalar = {IsScalar}";
 
+    // Creates new ItemProjectorExpression, based on this but with new ItemProjectorExpression
+    public ProjectionExpression Apply(ItemProjectorExpression itemProjectorExpression) =>
+      new ProjectionExpression(Type, itemProjectorExpression, TupleParameterBindings, ResultAccessMethod);
 
     // Constructors
 
     public ProjectionExpression(
-      Type type,
-      ItemProjectorExpression itemProjectorExpression,
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
-      : this(type, itemProjectorExpression, tupleParameterBindings, ResultAccessMethod.All)
-    {}
-
-    public ProjectionExpression(
       Type type, 
-      ItemProjectorExpression itemProjectorExpression, 
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
-      ResultAccessMethod resultAccessMethod)
+      ItemProjectorExpression itemProjectorExpression,
+      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
+      ResultAccessMethod resultAccessMethod = ResultAccessMethod.All)
       : base(ExtendedExpressionType.Projection, type)
     {
       ItemProjector = itemProjectorExpression;
       ResultAccessMethod = resultAccessMethod;
-      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
+      TupleParameterBindings = tupleParameterBindings;
     }
   }
 }
