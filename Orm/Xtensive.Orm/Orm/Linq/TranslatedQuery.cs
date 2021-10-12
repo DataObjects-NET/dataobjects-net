@@ -1,9 +1,10 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.05.27
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
@@ -21,6 +22,8 @@ namespace Xtensive.Orm.Linq
   /// </summary>
   internal class TranslatedQuery
   {
+    public static IReadOnlyDictionary<Parameter<Tuple>, Tuple> EmptyTupleParameterBindings { get; } = new Dictionary<Parameter<Tuple>, Tuple>();
+
     internal readonly ResultAccessMethod ResultAccessMethod;
 
     /// <summary>
@@ -38,12 +41,12 @@ namespace Xtensive.Orm.Linq
     /// <summary>
     /// Gets the tuple parameter bindings.
     /// </summary>
-    public Dictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; private set; }
+    public IReadOnlyDictionary<Parameter<Tuple>, Tuple> TupleParameterBindings { get; }
 
     /// <summary>
     /// Gets the tuple parameters.
     /// </summary>
-    public List<Parameter<Tuple>> TupleParameters { get; private set; }
+    public IEnumerable<Parameter<Tuple>> TupleParameters { get; }
 
     /// <summary>
     /// Executes the query in specified parameter context.
@@ -65,10 +68,7 @@ namespace Xtensive.Orm.Linq
     /// <returns>Query execution result.</returns>
     public QueryResult<T> ExecuteSequence<T>(Session session, ParameterContext parameterContext)
     {
-      var newParameterContext = new ParameterContext(parameterContext);
-      foreach (var (parameter, tuple) in TupleParameterBindings) {
-        newParameterContext.SetValue(parameter, tuple);
-      }
+      var newParameterContext = new ParameterContext(parameterContext, TupleParameterBindings);
       var recordSetReader = DataSource.GetRecordSetReader(session, newParameterContext);
       return Materializer.Invoke<T>(recordSetReader, session, newParameterContext);
     }
@@ -101,10 +101,7 @@ namespace Xtensive.Orm.Linq
     public async Task<QueryResult<T>> ExecuteSequenceAsync<T>(
       Session session, ParameterContext parameterContext, CancellationToken token)
     {
-      var newParameterContext = new ParameterContext(parameterContext);
-      foreach (var (parameter, tuple) in TupleParameterBindings) {
-        newParameterContext.SetValue(parameter, tuple);
-      }
+      var newParameterContext = new ParameterContext(parameterContext, TupleParameterBindings);
       var recordSetReader =
         await DataSource.GetRecordSetReaderAsync(session, newParameterContext, token).ConfigureAwait(false);
       return Materializer.Invoke<T>(recordSetReader, session, newParameterContext);
@@ -120,7 +117,7 @@ namespace Xtensive.Orm.Linq
     /// <param name="materializer">The materializer.</param>
     /// <param name="resultAccessMethod">The value describing how it is supposed to access query result.</param>
     public TranslatedQuery(ExecutableProvider dataSource, Materializer materializer, ResultAccessMethod resultAccessMethod)
-      : this(dataSource, materializer, resultAccessMethod, new Dictionary<Parameter<Tuple>, Tuple>(), Enumerable.Empty<Parameter<Tuple>>())
+      : this(dataSource, materializer, resultAccessMethod, EmptyTupleParameterBindings, Array.Empty<Parameter<Tuple>>())
     {
     }
 
@@ -135,13 +132,13 @@ namespace Xtensive.Orm.Linq
     public TranslatedQuery(ExecutableProvider dataSource,
       Materializer materializer,
       ResultAccessMethod resultAccessMethod,
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
+      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       DataSource = dataSource;
       Materializer = materializer;
       ResultAccessMethod = resultAccessMethod;
-      TupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(tupleParameterBindings);
-      TupleParameters = tupleParameters.ToList();
+      TupleParameterBindings = tupleParameterBindings;
+      TupleParameters = tupleParameters;
     }
   }
 }

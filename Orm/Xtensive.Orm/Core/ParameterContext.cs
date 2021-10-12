@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
@@ -7,7 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Core
 {
@@ -42,9 +42,15 @@ namespace Xtensive.Core
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    public ParameterContext(ParameterContext outerContext = null)
+    public ParameterContext(ParameterContext outerContext = null, IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings = null)
     {
       this.outerContext = outerContext;
+
+      if (tupleParameterBindings != null) {
+        foreach (var (parameter, tuple) in tupleParameterBindings) {
+          SetValue(parameter, tuple);
+        }
+      }
     }
   }
 }
