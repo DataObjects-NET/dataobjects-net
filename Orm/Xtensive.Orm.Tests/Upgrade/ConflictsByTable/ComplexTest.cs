@@ -38,6 +38,8 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 
     private TypeIds BuildInitialDomain(InheritanceSchema inheritanceSchema)
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite, "SQlite has some problems with table changes");
+
       var domainConfig = DomainConfigurationFactory.Create();
       RegisterTypes(domainConfig, inheritanceSchema, "Original");
       domainConfig.UpgradeMode = DomainUpgradeMode.Recreate;
