@@ -13,11 +13,11 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Orm;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
-using V1 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.PrimaryKeyNameChangedWithGeneratorTestModel.Before;
-using V2 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.PrimaryKeyNameChangedWithGeneratorTestModel.After;
-using TheTestHelper = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.PrimaryKeyNameChangedWithGeneratorTestModel.TestHelper;
+using V1 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.PrimaryKeyNameChangedWithGeneratorTestModel.Before;
+using V2 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.PrimaryKeyNameChangedWithGeneratorTestModel.After;
+using TheTestHelper = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.PrimaryKeyNameChangedWithGeneratorTestModel.TestHelper;
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 {
   [TestFixture]
   public sealed class PrimaryKeyNameChangedWithGeneratorTest : TestBase
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
   }
 }
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.PrimaryKeyNameChangedWithGeneratorTestModel
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.PrimaryKeyNameChangedWithGeneratorTestModel
 {
   public static class TestHelper
   {

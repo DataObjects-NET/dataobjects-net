@@ -9,7 +9,7 @@ using Xtensive.Orm.Building;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Model;
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel
 {
   namespace Modifiers
   {

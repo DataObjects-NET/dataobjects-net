@@ -13,11 +13,11 @@ using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
-using V1 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ExactTableStructureNoGeneratorTestModel.Before;
-using V2 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ExactTableStructureNoGeneratorTestModel.After;
-using TheTestHelper = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ExactTableStructureNoGeneratorTestModel.TestHelper;
+using V1 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureNoGeneratorTestModel.Before;
+using V2 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureNoGeneratorTestModel.After;
+using TheTestHelper = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureNoGeneratorTestModel.TestHelper;
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 {
   public abstract class TestBase
   {

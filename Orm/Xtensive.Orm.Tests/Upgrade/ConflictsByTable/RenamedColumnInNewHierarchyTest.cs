@@ -12,11 +12,11 @@ using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
-using V1 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.RenamedColumnInNewHierarchyTestModel.Before;
-using V2 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.RenamedColumnInNewHierarchyTestModel.After;
-using TheTestHelper = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.RenamedColumnInNewHierarchyTestModel.TestHelper;
+using V1 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.RenamedColumnInNewHierarchyTestModel.Before;
+using V2 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.RenamedColumnInNewHierarchyTestModel.After;
+using TheTestHelper = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.RenamedColumnInNewHierarchyTestModel.TestHelper;
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 {
   [TestFixture]
   public sealed class RenamedColumnInNewHierarchytest : TestBase
@@ -31,8 +31,8 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
 
       var removeActions = unsafeActions.OfType<RemoveNodeAction>().ToList(2);
       Assert.That(removeActions.Count, Is.EqualTo(2));
-      Assert.That(removeActions.All(r => r.Path.Contains("SingleTableRoot/Columns/OldNameFieldRoot", StringComparison.Ordinal)
-          || r.Path.Contains("SingleTableRoot/Columns/OldNameFieldLeaf", StringComparison.Ordinal)),
+      Assert.That(removeActions.All(r => r.Path.Contains("SingleTableRoot/Columns/OldNameFieldRoot", StringComparison.OrdinalIgnoreCase)
+          || r.Path.Contains("SingleTableRoot/Columns/OldNameFieldLeaf", StringComparison.OrdinalIgnoreCase)),
         Is.True);
 
       var dataActions = unsafeActions.OfType<DataAction>().ToList(1);
@@ -51,8 +51,8 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
 
       var removeActions = unsafeActions.OfType<RemoveNodeAction>().ToList(2);
       Assert.That(removeActions.Count, Is.EqualTo(2));
-      Assert.That(removeActions.All(r => r.Path.Contains("ClassTableRoot/Columns/OldNameFieldRoot", StringComparison.Ordinal)
-          || r.Path.Contains("ClassTableLeaf/Columns/OldNameFieldLeaf", StringComparison.Ordinal)),
+      Assert.That(removeActions.All(r => r.Path.Contains("ClassTableRoot/Columns/OldNameFieldRoot", StringComparison.OrdinalIgnoreCase)
+          || r.Path.Contains("ClassTableLeaf/Columns/OldNameFieldLeaf", StringComparison.OrdinalIgnoreCase)),
         Is.True);
 
       var dataActions = unsafeActions.OfType<DataAction>().ToList(3);
@@ -72,9 +72,9 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
 
       var removeActions = unsafeActions.OfType<RemoveNodeAction>().ToList(3);
       Assert.That(removeActions.Count, Is.EqualTo(3));
-      Assert.That(removeActions.All(r => r.Path.Contains("ConcreteTableRoot/Columns/OldNameFieldRoot", StringComparison.Ordinal)
-          || r.Path.Contains("ConcreteTableLeaf/Columns/OldNameFieldRoot", StringComparison.Ordinal)
-          || r.Path.Contains("ConcreteTableLeaf/Columns/OldNameFieldLeaf", StringComparison.Ordinal)),
+      Assert.That(removeActions.All(r => r.Path.Contains("ConcreteTableRoot/Columns/OldNameFieldRoot", StringComparison.OrdinalIgnoreCase)
+          || r.Path.Contains("ConcreteTableLeaf/Columns/OldNameFieldRoot", StringComparison.OrdinalIgnoreCase)
+          || r.Path.Contains("ConcreteTableLeaf/Columns/OldNameFieldLeaf", StringComparison.OrdinalIgnoreCase)),
         Is.True);
 
       var dataActions = unsafeActions.OfType<DataAction>().ToList();
@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
   }
 }
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.RenamedColumnInNewHierarchyTestModel
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.RenamedColumnInNewHierarchyTestModel
 {
   public static class TestHelper
   {

@@ -12,12 +12,12 @@ using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
-using V1 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ExactTableStructureWithGeneratorTestModel.Before;
-using V2 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ExactTableStructureWithGeneratorTestModel.After;
-using TheTestHelper = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ExactTableStructureWithGeneratorTestModel.TestHelper;
+using V1 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureWithGeneratorTestModel.Before;
+using V2 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureWithGeneratorTestModel.After;
+using TheTestHelper = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureWithGeneratorTestModel.TestHelper;
 
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 {
   [TestFixture]
   public sealed class ExactTableStructureWithGeneratorTest : TestBase
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
   }
 }
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ExactTableStructureWithGeneratorTestModel
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureWithGeneratorTestModel
 {
   public static class TestHelper
   {

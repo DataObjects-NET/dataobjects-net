@@ -10,18 +10,18 @@ using NUnit.Framework;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
-using Modifiers = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Modifiers;
-using Orig = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Original;
-using Case1 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case1;
-using Case2 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case2;
-using Case3 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case3;
-using Case4 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case4;
-using Case5 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case5;
-using Case6 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case6;
-using Case7 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case7;
-using Case8 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ComplexTestModel.Case8;
+using Modifiers = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Modifiers;
+using Orig = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Original;
+using Case1 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case1;
+using Case2 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case2;
+using Case3 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case3;
+using Case4 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case4;
+using Case5 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case5;
+using Case6 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case6;
+using Case7 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case7;
+using Case8 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ComplexTestModel.Case8;
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 {
   public class ComplexTest
   {

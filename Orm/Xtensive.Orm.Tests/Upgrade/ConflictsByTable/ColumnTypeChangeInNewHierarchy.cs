@@ -12,11 +12,11 @@ using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
-using V1 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ColumnTypeChangeInNewHierarchyModel.Before;
-using V2 = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ColumnTypeChangeInNewHierarchyModel.After;
-using TheTestHelper = Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ColumnTypeChangeInNewHierarchyModel.TestHelper;
+using V1 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ColumnTypeChangeInNewHierarchyModel.Before;
+using V2 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ColumnTypeChangeInNewHierarchyModel.After;
+using TheTestHelper = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ColumnTypeChangeInNewHierarchyModel.TestHelper;
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 {
   [TestFixture]
   public sealed class ColumnTypeChangeInNewHierarchy : TestBase
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy
   }
 }
 
-namespace Xtensive.Orm.Tests.Upgrade.TableMovesToAnotherHierarchy.ColumnTypeChangeInNewHierarchyModel
+namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ColumnTypeChangeInNewHierarchyModel
 {
   public static class TestHelper
   {
