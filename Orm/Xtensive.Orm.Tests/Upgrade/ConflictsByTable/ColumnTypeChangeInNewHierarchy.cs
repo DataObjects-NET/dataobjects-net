@@ -25,14 +25,25 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
     {
       Assert.That(comparisonResult, Is.Not.Null);
       Assert.That(comparisonResult.HasUnsafeActions, Is.True);
-      Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(4));
 
-      var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
-      Assert.That(structureActions.Count, Is.EqualTo(2));
-      Assert.That(structureActions
-          .All(a => a.Path == $"Tables/SingleTableRoot/Columns/FieldToChangeTypeRoot"
-            || a.Path == "Tables/SingleTableRoot/Columns/FieldToChangeTypeLeaf"),
-        Is.True);
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Sqlite)) {
+        // length change is not important for SQLite
+        Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(3));
+
+        var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
+        Assert.That(structureActions.Count, Is.EqualTo(1));
+        Assert.That(structureActions[0].Path == $"Tables/SingleTableRoot/Columns/FieldToChangeTypeRoot");
+      }
+      else {
+        Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(4));
+
+        var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
+        Assert.That(structureActions.Count, Is.EqualTo(2));
+        Assert.That(structureActions
+            .All(a => a.Path == $"Tables/SingleTableRoot/Columns/FieldToChangeTypeRoot"
+              || a.Path == "Tables/SingleTableRoot/Columns/FieldToChangeTypeLeaf"),
+          Is.True);
+      }
 
       var dataActions = comparisonResult.UnsafeActions.OfType<DataAction>().ToList();
       Assert.That(dataActions.Count, Is.EqualTo(2));
@@ -44,14 +55,24 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
     {
       Assert.That(comparisonResult, Is.Not.Null);
       Assert.That(comparisonResult.HasUnsafeActions, Is.True);
-      Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(5));
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Sqlite)) {
+        // length change is not important for SQLite
+        Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(4));
 
-      var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
-      Assert.That(structureActions.Count, Is.EqualTo(2));
-      Assert.That(structureActions
-          .All(a => a.Path == $"Tables/ClassTableRoot/Columns/FieldToChangeTypeRoot"
-            || a.Path == "Tables/ClassTableLeaf/Columns/FieldToChangeTypeLeaf"),
-        Is.True);
+        var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
+        Assert.That(structureActions.Count, Is.EqualTo(1));
+        Assert.That(structureActions[0].Path == $"Tables/ClassTableRoot/Columns/FieldToChangeTypeRoot");
+      }
+      else {
+        Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(5));
+
+        var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
+        Assert.That(structureActions.Count, Is.EqualTo(2));
+        Assert.That(structureActions
+            .All(a => a.Path == $"Tables/ClassTableRoot/Columns/FieldToChangeTypeRoot"
+              || a.Path == "Tables/ClassTableLeaf/Columns/FieldToChangeTypeLeaf"),
+          Is.True);
+      }
 
       var dataActions = comparisonResult.UnsafeActions.OfType<DataAction>().ToList();
       Assert.That(dataActions.Count, Is.EqualTo(3));
@@ -64,14 +85,27 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
     {
       Assert.That(comparisonResult, Is.Not.Null);
       Assert.That(comparisonResult.HasUnsafeActions, Is.True);
-      Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(5));
 
-      var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
-      Assert.That(structureActions.Count, Is.EqualTo(3));
-      Assert.That(structureActions
-          .All(a => a.Path.Contains($"Columns/FieldToChangeTypeRoot", StringComparison.Ordinal)
-            || a.Path.Contains($"Columns/FieldToChangeTypeLeaf", StringComparison.Ordinal)),
-        Is.True);
+      if (StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.Sqlite)) {
+        // length change is not important for SQLite
+        Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(4));
+
+        var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
+        Assert.That(structureActions.Count, Is.EqualTo(2));
+        Assert.That(structureActions
+            .All(a => a.Path.Contains($"Columns/FieldToChangeTypeRoot", StringComparison.Ordinal)),
+          Is.True);
+      }
+      else {
+        Assert.That(comparisonResult.UnsafeActions.Count, Is.EqualTo(5));
+
+        var structureActions = comparisonResult.UnsafeActions.OfType<PropertyChangeAction>().ToList();
+        Assert.That(structureActions.Count, Is.EqualTo(3));
+        Assert.That(structureActions
+            .All(a => a.Path.Contains($"Columns/FieldToChangeTypeRoot", StringComparison.Ordinal)
+              || a.Path.Contains($"Columns/FieldToChangeTypeLeaf", StringComparison.Ordinal)),
+          Is.True);
+      }
 
       var dataActions = comparisonResult.UnsafeActions.OfType<DataAction>().ToList();
       Assert.That(dataActions.Count, Is.EqualTo(2));
