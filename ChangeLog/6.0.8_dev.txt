@@ -1,0 +1,3 @@
+[main] Resolved DateTimeOffset reading for certain queries with JOIN
+[main] Improved compiled queries work with entity parameters
+[bulkoperations] Ressuracted check for transaction to prevent unrollbackable changes
