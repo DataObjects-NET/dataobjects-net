@@ -26,7 +26,10 @@ namespace Xtensive.Orm.Configuration
     private readonly static Type iModuleType = typeof (IModule);
     private readonly static Type iUpgradeHandlerType = typeof (IUpgradeHandler);
     private readonly static Type keyGeneratorType = typeof (KeyGenerator);
-    private static readonly Type ifulltextCatalogNameBuilder = typeof (IFullTextCatalogNameBuilder);
+    private readonly static Type ifulltextCatalogNameBuilder = typeof(IFullTextCatalogNameBuilder);
+    private readonly static Type iDbConnectionAccessorType = typeof(IDbConnectionAccessor);
+
+    private Type[] connectionAccessors;
 
     /// <summary>
     /// Gets all the registered persistent types.
@@ -100,6 +103,27 @@ namespace Xtensive.Orm.Configuration
       get { return this.Where(IsFullTextCatalogNameBuilder); }
     }
 
+    /// <summary>
+    /// Gets all the registered <see cref="IDbConnectionAccessor"/> implementations.
+    /// </summary>
+    public IEnumerable<Type> DbConnectionAccessors
+    {
+      get {
+        // a lot of access to this property. better to have items cached;
+        if (IsLocked) {
+          if (connectionAccessors == null) {
+            var container = new List<Type>(10);// not so many accessors expected
+            foreach (var type in this.Where(IsDbConnectionAccessor))
+              container.Add(type);
+            connectionAccessors = container.Count == 0 ? Array.Empty<Type>() : container.ToArray();
+          }
+          return connectionAccessors;
+        }
+        // if instance is not locked then there is a chance of new accessors appeared
+        return this.Where(IsDbConnectionAccessor);
+      }
+    }
+
     #region IsXxx method group
 
     /// <summary>
@@ -119,7 +143,8 @@ namespace Xtensive.Orm.Configuration
         IsUpgradeHandler(type) ||
         IsKeyGenerator(type) ||
         IsCompilerContainer(type) ||
-        IsFullTextCatalogNameBuilder(type);
+        IsFullTextCatalogNameBuilder(type) ||
+        IsDbConnectionAccessor(type);
     }
 
     /// <summary>
@@ -236,6 +261,21 @@ namespace Xtensive.Orm.Configuration
       if (ifulltextCatalogNameBuilder.IsAssignableFrom(type) && ifulltextCatalogNameBuilder!=type)
         return true;
       return false;
+    }
+
+    /// <summary>
+    /// Determines whether the <paramref name="type"/> is
+    /// a database connection accessor.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>Check result.</returns>
+    public static bool IsDbConnectionAccessor(Type type)
+    {
+      if (type.IsAbstract) {
+        return false;
+      }
+
+      return iDbConnectionAccessorType.IsAssignableFrom(type) && iDbConnectionAccessorType != type;
     }
 
     #endregion

@@ -27,6 +27,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     private const string DatabaseAndSchemaQuery = "SELECT DB_NAME(), COALESCE(SCHEMA_NAME(), 'dbo')";
 
+    private const string LangIdQuery = "SELECT @@LANGID";
     private const string MessagesQuery = @"Declare @MSGLANGID int; 
       Select @MSGLANGID = msglangid FROM [master].[sys].[syslanguages] lang
       WHERE lang.langid = @@LANGID;
@@ -34,11 +35,15 @@ namespace Xtensive.Sql.Drivers.SqlServer
       FROM [master].[sys].[sysmessages] msg
       WHERE   msg.msglangid = @MSGLANGID AND msg.error IN ( 2627, 2601, 515, 547 )";
 
+    private const string VersionQuery = "SELECT @@VERSION";
+
+    private const string ForcedAzureVersion = "12.0.0.0";
+
     private static ErrorMessageParser CreateMessageParser(SqlServerConnection connection)
     {
       bool isEnglish;
       using (var command = connection.CreateCommand()) {
-        command.CommandText = "SELECT @@LANGID";
+        command.CommandText = LangIdQuery;
         isEnglish = command.ExecuteScalar().ToString()=="0";
       }
       var templates = new Dictionary<int, string>();
@@ -54,7 +59,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
     private static bool IsAzure(SqlServerConnection connection)
     {
       using (var command = connection.CreateCommand()) {
-        command.CommandText = "SELECT @@VERSION";
+        command.CommandText = VersionQuery;
         return ((string) command.ExecuteScalar()).IndexOf("Azure", StringComparison.Ordinal) >= 0;
       }
     }
@@ -94,116 +99,219 @@ namespace Xtensive.Sql.Drivers.SqlServer
     protected override SqlDriver CreateDriver(string connectionString, SqlDriverConfiguration configuration)
     {
       var isPooingOn = !IsPoolingOff(connectionString);
-      configuration.EnsureConnectionIsAlive = isPooingOn && configuration.EnsureConnectionIsAlive;
+      configuration.EnsureConnectionIsAlive &= isPooingOn;
 
-      using (var connection = CreateAndOpenConnection(connectionString, configuration)) {
-        string versionString;
-        bool isAzure;
+      using var connection = CreateAndOpenConnection(connectionString, configuration);
+      var isEnsureAlive = configuration.EnsureConnectionIsAlive;
+      var forcedServerVersion = configuration.ForcedServerVersion;
+      var isForcedVersion = !string.IsNullOrEmpty(forcedServerVersion);
+      var isForcedAzure = isForcedVersion && forcedServerVersion.Equals("azure", StringComparison.OrdinalIgnoreCase);
+      var isAzure = isForcedAzure || (!isForcedVersion && IsAzure(connection));
+      var parser = isAzure ? new ErrorMessageParser() : CreateMessageParser(connection);
+      
+      var versionString = isForcedVersion
+        ? isForcedAzure ? ForcedAzureVersion : forcedServerVersion
+        : connection.ServerVersion ?? string.Empty;
+      var version = new Version(versionString);
+      var defaultSchema = GetDefaultSchema(connection);
 
-        var forcedServerVersion = configuration.ForcedServerVersion;
-        if (string.IsNullOrEmpty(forcedServerVersion)) {
-          versionString = connection.ServerVersion;
-          isAzure = IsAzure(connection);
-        }
-        else if (forcedServerVersion.Equals("azure", StringComparison.OrdinalIgnoreCase)) {
-          versionString = "12.0.0.0";
-          isAzure = true;
-        }
-        else {
-          versionString = forcedServerVersion;
-          isAzure = false;
-        }
+      return CreateDriverInstance(connectionString, isAzure, version, defaultSchema, parser, isEnsureAlive);
+    }
 
-        var builder = new SqlConnectionStringBuilder(connectionString);
-        var version = new Version(versionString);
-        var defaultSchema = GetDefaultSchema(connection);
-        var coreServerInfo = new CoreServerInfo {
-          ServerVersion = version,
-          ConnectionString = connectionString,
-          MultipleActiveResultSets = builder.MultipleActiveResultSets,
-          DatabaseName = defaultSchema.Database,
-          DefaultSchemaName = defaultSchema.Schema,
-        };
-        if (isAzure)
-          return new Azure.Driver(coreServerInfo, new ErrorMessageParser(), configuration.EnsureConnectionIsAlive);
-        if (version.Major < 9)
-          throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
-        var parser = CreateMessageParser(connection);
-        if (version.Major==9)
-          return new v09.Driver(coreServerInfo, parser, configuration.EnsureConnectionIsAlive);
-        if (version.Major==10)
-          return new v10.Driver(coreServerInfo, parser, configuration.EnsureConnectionIsAlive);
-        if (version.Major==11)
-          return new v11.Driver(coreServerInfo, parser, configuration.EnsureConnectionIsAlive);
-        if (version.Major==12)
-          return new v12.Driver(coreServerInfo, parser, configuration.EnsureConnectionIsAlive);
-        if (version.Major==13)
-          return new v13.Driver(coreServerInfo, parser, configuration.EnsureConnectionIsAlive);
-        return new v13.Driver(coreServerInfo, parser, configuration.EnsureConnectionIsAlive);
+    private static SqlDriver CreateDriverInstance(string connectionString, bool isAzure, Version version,
+      DefaultSchemaInfo defaultSchema, ErrorMessageParser parser, bool isEnsureAlive)
+    {
+      var builder = new SqlConnectionStringBuilder(connectionString);
+      var coreServerInfo = new CoreServerInfo {
+        ServerVersion = version,
+        ConnectionString = connectionString,
+        MultipleActiveResultSets = builder.MultipleActiveResultSets,
+        DatabaseName = defaultSchema.Database,
+        DefaultSchemaName = defaultSchema.Schema,
+      };
+      if (isAzure) {
+        return new Azure.Driver(coreServerInfo, parser, isEnsureAlive);
       }
+
+      if (version.Major < 9) {
+        throw new NotSupportedException(Strings.ExSqlServerBelow2005IsNotSupported);
+      }
+      return version.Major switch {
+        9 => new v09.Driver(coreServerInfo, parser, isEnsureAlive),
+        10 => new v10.Driver(coreServerInfo, parser, isEnsureAlive),
+        11 => new v11.Driver(coreServerInfo, parser, isEnsureAlive),
+        12 => new v12.Driver(coreServerInfo, parser, isEnsureAlive),
+        13 => new v13.Driver(coreServerInfo, parser, isEnsureAlive),
+        _ => new v13.Driver(coreServerInfo, parser, isEnsureAlive)
+      };
     }
 
     /// <inheritdoc/>
-    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction)
-    {
-      return SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
-    }
+    protected override DefaultSchemaInfo ReadDefaultSchema(DbConnection connection, DbTransaction transaction) =>
+      SqlHelper.ReadDatabaseAndSchema(DatabaseAndSchemaQuery, connection, transaction);
 
     private SqlServerConnection CreateAndOpenConnection(string connectionString, SqlDriverConfiguration configuration)
     {
       var connection = new SqlServerConnection(connectionString);
+      var initScript = configuration.ConnectionInitializationSql;
+
       if (!configuration.EnsureConnectionIsAlive) {
-        connection.Open();
-        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        if (configuration.DbConnectionAccessors.Count == 0)
+          OpenConnectionFast(connection, initScript);
+        else
+          OpenConnectionWithNotification(connection, configuration);
         return connection;
       }
 
-      var testQuery = (string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+      var testQuery = string.IsNullOrEmpty(initScript)
         ? CheckConnectionQuery
-        : configuration.ConnectionInitializationSql;
-      connection.Open();
-      EnsureConnectionIsAlive(ref connection, testQuery);
-      return connection;
+        : initScript;
+      if (configuration.DbConnectionAccessors.Count == 0)
+        return EnsureConnectionIsAliveFast(connection, testQuery);
+      else
+        return EnsureConnectionIsAliveWithNotification(connection, testQuery, configuration.DbConnectionAccessors);
     }
 
-    private void EnsureConnectionIsAlive(ref SqlServerConnection connection, string query)
+    private static void OpenConnectionFast(SqlServerConnection connection, string sqlScript)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, sqlScript);
+    }
+
+    private static void OpenConnectionWithNotification(SqlServerConnection connection,
+      SqlDriverConfiguration configuration)
+    {
+      var accessors = configuration.DbConnectionAccessors;
+      var initSql = configuration.ConnectionInitializationSql;
+
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(initSql)) {
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, initSql);
+          SqlHelper.ExecuteInitializationSql(connection, initSql);
+        }
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
+        throw;
+      }
+    }
+
+    private static SqlServerConnection EnsureConnectionIsAliveFast(SqlServerConnection connection, string query)
     {
       try {
+        connection.Open();
+
         using (var command = connection.CreateCommand()) {
           command.CommandText = query;
-          command.ExecuteNonQuery();
+          _ = command.ExecuteNonQuery();
         }
+
+        return connection;
       }
       catch (Exception exception) {
-        if (InternalHelpers.ShouldRetryOn(exception)) {
-          if (!TryReconnect(ref connection, query))
-            throw;
-        }
-        else
-          throw;
-      }
-    }
-
-    private static bool TryReconnect(ref SqlServerConnection connection, string query)
-    {
-      try {
-        var newConnection = new SqlServerConnection(connection.ConnectionString);
         try {
           connection.Close();
           connection.Dispose();
         }
-        catch { }
+        catch {
+          // ignored
+        }
 
-        connection = newConnection;
+        if (InternalHelpers.ShouldRetryOn(exception)) {
+          var (isReconnected, newConnection) = TryReconnectFast(connection.ConnectionString, query);
+          if (isReconnected) {
+            return newConnection;
+          }
+        }
+        throw;
+      }
+    }
+
+    private static SqlServerConnection EnsureConnectionIsAliveWithNotification(SqlServerConnection connection,
+      string query, IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors)
+    {
+      SqlHelper.NotifyConnectionOpening(connectionAccessors, connection);
+      try {
         connection.Open();
+
+        SqlHelper.NotifyConnectionInitializing(connectionAccessors, connection, query);
+
         using (var command = connection.CreateCommand()) {
           command.CommandText = query;
-          command.ExecuteNonQuery();
+          _ = command.ExecuteNonQuery();
         }
-        return true;
+
+        SqlHelper.NotifyConnectionOpened(connectionAccessors, connection);
+        return connection;
       }
-      catch (Exception) {
-        return false;
+      catch (Exception exception) {
+        var retryToConnect = InternalHelpers.ShouldRetryOn(exception);
+        if (!retryToConnect)
+          SqlHelper.NotifyConnectionOpeningFailed(connectionAccessors, connection, exception);
+        try {
+          connection.Close();
+          connection.Dispose();
+        }
+        catch {
+          // ignored
+        }
+
+        if (retryToConnect) {
+          var (isReconnected, newConnection) = TryReconnectWithNotification(connection.ConnectionString, query, connectionAccessors);
+          if (isReconnected) {
+            return newConnection;
+          }
+        }
+        throw;
+      }
+    }
+
+    private static (bool isReconnected, SqlServerConnection connection) TryReconnectFast(
+      string connectionString, string query)
+    {
+      var connection = new SqlServerConnection(connectionString);
+
+      try {
+        connection.Open();
+
+        using (var command = connection.CreateCommand()) {
+          command.CommandText = query;
+          _ = command.ExecuteNonQuery();
+        }
+
+        return (true, connection);
+      }
+      catch {
+        connection.Dispose();
+        return (false, null);
+      }
+    }
+
+    private static (bool isReconnected, SqlServerConnection connection) TryReconnectWithNotification(
+      string connectionString, string query, IReadOnlyCollection<IDbConnectionAccessor> connectionAccessors)
+    {
+      var connection = new SqlServerConnection(connectionString);
+
+      SqlHelper.NotifyConnectionOpening(connectionAccessors, connection, true);
+      try {
+        connection.Open();
+        SqlHelper.NotifyConnectionInitializing(connectionAccessors, connection, query, true);
+
+        using (var command = connection.CreateCommand()) {
+          command.CommandText = query;
+          _ = command.ExecuteNonQuery();
+        }
+
+        SqlHelper.NotifyConnectionOpened(connectionAccessors, connection, true);
+        return (true, connection);
+      }
+      catch (Exception exception) {
+        SqlHelper.NotifyConnectionOpeningFailed(connectionAccessors, connection, exception, true);
+        connection.Dispose();
+        return (false, null);
       }
     }
 
