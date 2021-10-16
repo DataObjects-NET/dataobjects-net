@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.12.15
 
@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.Diagnostics;
+using System.Threading;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.IoC;
@@ -61,6 +62,24 @@ namespace Xtensive.Orm.Tests.Core.IoC
     public void Print(string msg)
     {
       Debug.WriteLine(msg);
+    }
+  }
+
+  [Service(typeof(IPrintService), "SlowConstructor")]
+  public class SlowConstructorService : IPrintService
+  {
+    public static int ConstructorInvocations;
+
+    public void Print(string msg)
+    {
+      Debug.WriteLine(msg);
+    }
+
+    [ServiceConstructor]
+    public SlowConstructorService()
+    {
+      Interlocked.Increment(ref ConstructorInvocations);
+      Thread.Sleep(1000);
     }
   }
 
@@ -121,6 +140,23 @@ namespace Xtensive.Orm.Tests.Core.IoC
       AssertEx.Throws<ActivationException>(() => {
         var s = container.Get<ISelfConsumer>();
       });
+    }
+
+    [Test]
+    public void SingleConstructorInvocationTest()
+    {
+      var container = ServiceContainer.Create(Configuration);
+      var prevInvocations = SlowConstructorService.ConstructorInvocations;
+      var threads = new List<Thread>();
+      for (int i = 0; i < 2; ++i) {
+        var thread = new Thread(() => container.Get<IPrintService>("SlowConstructor"));
+        thread.Start();
+        threads.Add(thread);
+      }
+      foreach (var t in threads) {
+        t.Join();
+      }
+      Assert.AreEqual(prevInvocations + 1, SlowConstructorService.ConstructorInvocations);
     }
   }
 }
