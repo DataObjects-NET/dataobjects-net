@@ -5304,11 +5304,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Recursive constructor paremeter dependency is detected..
+        ///   Looks up a localized string similar to Recursive constructor parameter dependency is detected..
         /// </summary>
-        internal static string ExRecursiveConstructorParemeterDependencyIsDetected {
+        internal static string ExRecursiveConstructorParameterDependencyIsDetected {
             get {
-                return ResourceManager.GetString("ExRecursiveConstructorParemeterDependencyIsDetected", resourceCulture);
+                return ResourceManager.GetString("ExRecursiveConstructorParameterDependencyIsDetected", resourceCulture);
             }
         }
         
