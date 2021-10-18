@@ -181,6 +181,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Where(a => a.FullName.FirstName != null)
           .OrderBy(a => a.FullName.FirstName).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
       }
     }
 
@@ -203,6 +204,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Where(a => a.FullName.FirstName != null)
           .OrderBy(a => a.FullName.FirstName).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
       }
     }
 
@@ -277,6 +279,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(b => (b.Reviews.SingleOrDefault().ReviewAuthor ?? nullReviewAuthor))
           .Where(e => e != nullReviewAuthor).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
       }
     }
 
@@ -297,6 +300,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(a => a.FullName ?? nullFullNameInstance)
           .Where(a => a.FirstName.Length > 0).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
       }
     }
 
@@ -311,6 +315,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Select(a => nullFullNameInstance ?? a.FullName)
           .Where(a => a.FirstName.Length > 0).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
       }
     }
 
@@ -382,7 +387,7 @@ namespace Xtensive.Orm.Tests.Issues
           .OrderBy(d => d)
           .ToList(7);
 
-        Assert.That(expectedSequence.SequenceEqual(resultSequence), Is.True);//but it's false
+        Assert.That(expectedSequence.SequenceEqual(resultSequence), Is.True);
       }
     }
 
@@ -459,6 +464,7 @@ namespace Xtensive.Orm.Tests.Issues
           .OrderBy(a => a.FullName.FirstName)
           .Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Conditional expressions", StringComparison.Ordinal));
       }
     }
 
@@ -481,7 +487,7 @@ namespace Xtensive.Orm.Tests.Issues
           .OrderBy(a => a.FullName.FirstName)
           .ToList(7);
 
-
+        Assert.That(localResult.SequenceEqual(storageResult), Is.True);
       }
     }
 
@@ -506,6 +512,7 @@ namespace Xtensive.Orm.Tests.Issues
           .OrderBy(a => a.FullName.FirstName)
           .Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Conditional expressions", StringComparison.Ordinal));
       }
     }
 
@@ -528,6 +535,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Where(a => a.FirstName.Length > 0)
           .Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Conditional expressions", StringComparison.Ordinal));
       }
     }
 
@@ -550,6 +558,7 @@ namespace Xtensive.Orm.Tests.Issues
           .Where(a => a.FirstName.Length > 0)
           .Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Conditional expressions", StringComparison.Ordinal));
       }
     }
 
