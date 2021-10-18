@@ -7864,6 +7864,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} expressions with constant values of {1} type are not supported..
+        /// </summary>
+        internal static string ExXExpressionsWithConstantValuesOfYTypeNotSupported {
+            get {
+                return ResourceManager.GetString("ExXExpressionsWithConstantValuesOfYTypeNotSupported", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; field is not declared in Entity descendant, so cannot be used as type discriminator..
         /// </summary>
         internal static string ExXFieldIsNotDeclaredInEntityDescendantSoCannotBeUsedAsTypeDiscriminator {

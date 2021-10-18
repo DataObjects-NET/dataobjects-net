@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Linq
           if ((context.Evaluator.CanBeEvaluated(binaryExpression.Right) && !(binaryExpression.Right is ConstantExpression))
             || (context.Evaluator.CanBeEvaluated(binaryExpression.Left) && !(binaryExpression.Left is ConstantExpression)))
             throw new NotSupportedException(
-              string.Format("Coalesce expressions with constant values of {0} type are not supported", memberType.ToString()));
+              string.Format(Strings.ExXExpressionsWithConstantValuesOfYTypeNotSupported,"Coalesce", memberType.ToString()));
 
           return Visit(Expression.Condition(
             Expression.NotEqual(binaryExpression.Left, Expression.Constant(null)),
@@ -241,7 +241,7 @@ namespace Xtensive.Orm.Linq
       if (memberType == MemberType.Entity || memberType == MemberType.Structure) {
         if ((context.Evaluator.CanBeEvaluated(c.IfFalse) && !(c.IfFalse is ConstantExpression))
           || (context.Evaluator.CanBeEvaluated(c.IfTrue) && !(c.IfTrue is ConstantExpression)))
-          throw new NotSupportedException(string.Format("Conditional expressions with constant values of {0} type are not supported.", memberType.ToString()));
+          throw new NotSupportedException(string.Format(Strings.ExXExpressionsWithConstantValuesOfYTypeNotSupported, "Conditional", memberType.ToString()));
       }
       return base.VisitConditional(c);
     }
