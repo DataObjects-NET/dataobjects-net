@@ -28,8 +28,7 @@ namespace Xtensive.Orm.Upgrade
       None = 0,
       TypeMovedToAnotherHierarchy = 1,
       ConflictByTable = 2,
-      RootOfConflict = 4,
-      All = TypeMovedToAnotherHierarchy | ConflictByTable | RootOfConflict
+      RootOfConflict = 4
     }
 
     private readonly NameBuilder nameBuilder;
@@ -256,9 +255,9 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var deleteInfo = DataDeletionInfo.None;
-      if (cleanupInfo.HasFlag(CleanupInfo.TypeMovedToAnotherHierarchy))
+      if ((cleanupInfo & CleanupInfo.TypeMovedToAnotherHierarchy) != 0)
         deleteInfo |= DataDeletionInfo.PostCopy;
-      if (cleanupInfo.HasFlag(CleanupInfo.ConflictByTable))
+      if ((cleanupInfo & CleanupInfo.ConflictByTable) != 0)
         deleteInfo |= DataDeletionInfo.TableMovement;
 
       foreach (var info in typesToProcess) {
@@ -274,13 +273,13 @@ namespace Xtensive.Orm.Upgrade
     private IEnumerable<(StoredTypeInfo, IdentityPair)> GetTypesToCleanForClassTable(
       StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
-      if (!cleanupInfo.HasFlag(CleanupInfo.TypeMovedToAnotherHierarchy)) {
-        if (!cleanupInfo.HasFlag(CleanupInfo.ConflictByTable)) {
+      if ((cleanupInfo & CleanupInfo.TypeMovedToAnotherHierarchy) == 0) {
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0) {
           return removedType.AllAncestors.Append(removedType)
             .Select(t => (t, CreateIdentityPair(removedType, t)));
         }
         else {
-          if (!cleanupInfo.HasFlag(CleanupInfo.RootOfConflict))
+          if ((cleanupInfo & CleanupInfo.RootOfConflict) == 0)
             return Array.Empty<(StoredTypeInfo, IdentityPair)>();
 
           var capacity = (2 * removedType.AllAncestors.Length) + removedType.AllDescendants.Length + 1;
@@ -301,7 +300,7 @@ namespace Xtensive.Orm.Upgrade
         }
       }
       else {
-        if (!cleanupInfo.HasFlag(CleanupInfo.ConflictByTable)) {
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0) {
           return removedType.AllAncestors
             .Select(aType =>(aType, CreateIdentityPair(removedType, aType)));
         }
@@ -313,8 +312,8 @@ namespace Xtensive.Orm.Upgrade
       StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
       var rootType = removedType.Hierarchy.Root;
-      if (!cleanupInfo.HasFlag(CleanupInfo.TypeMovedToAnotherHierarchy)) {
-        if (!cleanupInfo.HasFlag(CleanupInfo.ConflictByTable))
+      if ((cleanupInfo & CleanupInfo.TypeMovedToAnotherHierarchy) == 0) {
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0)
           return new (StoredTypeInfo, IdentityPair)[] { (rootType, CreateIdentityPair(removedType, rootType)) };
         else {
           return removedType.AllDescendants.Append(rootType)
@@ -322,7 +321,7 @@ namespace Xtensive.Orm.Upgrade
         }
       }
       else {
-        if (!cleanupInfo.HasFlag(CleanupInfo.ConflictByTable))
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0)
           return new (StoredTypeInfo, IdentityPair)[] { (rootType, CreateIdentityPair(removedType, rootType)) };
       }
       return Array.Empty<(StoredTypeInfo, IdentityPair)>();
@@ -331,18 +330,18 @@ namespace Xtensive.Orm.Upgrade
     private IEnumerable<(StoredTypeInfo, IdentityPair)> GetTypesToCleanForConcreteTable(
       StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
-      if (!cleanupInfo.HasFlag(CleanupInfo.TypeMovedToAnotherHierarchy)) {
-        if (!cleanupInfo.HasFlag(CleanupInfo.ConflictByTable))
+      if ((cleanupInfo & CleanupInfo.TypeMovedToAnotherHierarchy) == 0) {
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0)
           return new (StoredTypeInfo, IdentityPair)[] { (removedType, null) };
         else {
-          if (!cleanupInfo.HasFlag(CleanupInfo.RootOfConflict))
+          if ((cleanupInfo & CleanupInfo.RootOfConflict) == 0)
             return Array.Empty<(StoredTypeInfo, IdentityPair)>();
           return removedType.AllDescendants.Append(removedType)
             .Select(t => (t, (IdentityPair)null));
         }
       }
       else {
-        if (!cleanupInfo.HasFlag(CleanupInfo.ConflictByTable))
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0)
           return new (StoredTypeInfo, IdentityPair)[] { (removedType, null) };
       }
       return Array.Empty<(StoredTypeInfo, IdentityPair)>();
@@ -354,7 +353,7 @@ namespace Xtensive.Orm.Upgrade
       removedType.AllAncestors.Append(removedType).ForEach(t => removedTypeAndAncestors.Add(t));
 
 
-      var descendantsToHash = cleanupInfo.HasFlag(CleanupInfo.ConflictByTable)
+      var descendantsToHash = (cleanupInfo & CleanupInfo.ConflictByTable) != 0
         ? removedType.AllDescendants
         : Array.Empty<StoredTypeInfo>();
       var descendants = new HashSet<StoredTypeInfo>(descendantsToHash.Length);
@@ -431,7 +430,7 @@ namespace Xtensive.Orm.Upgrade
       CleanupInfo cleanupInfo)
     {
       var inheritanceSchema = declaringType.Hierarchy.InheritanceSchema;
-      if (!cleanupInfo.HasFlag(CleanupInfo.ConflictByTable)) {
+      if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0) {
         var includeInheritors = inheritanceSchema == InheritanceSchema.ConcreteTable;
         GenerateClearReferenceHints(
           removedType,
@@ -440,7 +439,7 @@ namespace Xtensive.Orm.Upgrade
           requiresInverseCleanup);
       }
       else {
-        if (cleanupInfo.HasFlag(CleanupInfo.ConflictByTable) && !cleanupInfo.HasFlag(CleanupInfo.RootOfConflict))
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) != 0 && (cleanupInfo & CleanupInfo.RootOfConflict) == 0)
           return;
         var type = useRemovedType
           ? removedType
@@ -469,10 +468,10 @@ namespace Xtensive.Orm.Upgrade
       CleanupInfo cleanupInfo)
     {
       var deleteInfo = DataDeletionInfo.None;
-      if (cleanupInfo.HasFlag(CleanupInfo.ConflictByTable))
+      if ((cleanupInfo & CleanupInfo.ConflictByTable) != 0)
         deleteInfo |= DataDeletionInfo.TableMovement;
 
-      if (!deleteInfo.HasFlag(DataDeletionInfo.TableMovement)) {
+      if ((deleteInfo & DataDeletionInfo.TableMovement) == 0) {
         GenerateClearReferenceHints(
         removedType,
         new[] { association.ConnectorType },
@@ -481,7 +480,7 @@ namespace Xtensive.Orm.Upgrade
         deleteInfo);
       }
       else {
-        if (cleanupInfo.HasFlag(CleanupInfo.ConflictByTable) && !cleanupInfo.HasFlag(CleanupInfo.RootOfConflict))
+        if ((cleanupInfo & CleanupInfo.ConflictByTable) != 0 && (cleanupInfo & CleanupInfo.RootOfConflict) == 0)
           return;
         var type = useRemovedType
           ? removedType
