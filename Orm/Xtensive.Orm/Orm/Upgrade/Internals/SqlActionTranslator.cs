@@ -734,7 +734,7 @@ namespace Xtensive.Orm.Upgrade
       var deleteActions = (
         from action in clearDataActions
         let deleteDataHint = action.DataHint as DeleteDataHint
-        where deleteDataHint!=null && deleteDataHint.PostCopy==postCopy
+        where deleteDataHint!=null && deleteDataHint.IsPostCopyCleanup==postCopy
         select action
         ).ToList();
 

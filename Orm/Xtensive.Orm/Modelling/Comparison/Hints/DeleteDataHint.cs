@@ -23,7 +23,6 @@ namespace Xtensive.Modelling.Comparison.Hints
       None = 0,
       PostCopy = 1,
       TableMovement = 2,
-      All = PostCopy | TableMovement
     }
 
     private readonly DeleteDataHintInfo info = DeleteDataHintInfo.None;
@@ -34,12 +33,21 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// these records are still necessary during upgrade to be copied, but must be removed on its
     /// completion.
     /// </summary>
-    public bool PostCopy => info.HasFlag(DeleteDataHintInfo.PostCopy);
+    [Obsolete("Use IsPostCopyCleanup instead")]
+    public bool PostCopy => IsPostCopyCleanup;
+
+    /// <summary>
+    /// Gets a value indicating whether deletion must be performed after completion of copy data hint processing.
+    /// Normally this flag is used to remove records related to types moved to other hierarchies -
+    /// these records are still necessary during upgrade to be copied, but must be removed on its
+    /// completion.
+    /// </summary>
+    public bool IsPostCopyCleanup => (info & DeleteDataHintInfo.PostCopy) > 0;
 
     /// <summary>
     /// Gets a value indicating whether cause of data deletion is due to table have changed its owner type.
     /// </summary>
-    public bool DueToTableOwnerChange => info.HasFlag(DeleteDataHintInfo.TableMovement);
+    public bool IsOwnerChangeCleanup => (info & DeleteDataHintInfo.TableMovement) > 0;
 
     /// <summary>
     /// Gets a value indication whether deletion is unsafe. Deletion is considered insafe
@@ -67,8 +75,8 @@ namespace Xtensive.Modelling.Comparison.Hints
         (Identities.Count > 0)
           ? "where (" + string.Join(" and ", Identities.Select(pair => pair.ToString()).ToArray()) + ")"
           : string.Empty,
-        PostCopy ? " (after data copying)" : string.Empty,
-        DueToTableOwnerChange ? " (due to table changed owner type)" : string.Empty);
+        IsPostCopyCleanup ? " (after data copying)" : string.Empty,
+        IsOwnerChangeCleanup ? " (due to table changed owner type)" : string.Empty);
     }
 
     // Constructors
@@ -86,7 +94,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     /// <param name="sourceTablePath">Source table path.</param>
     /// <param name="identities">Identities for data operation.</param>
-    /// <param name="postCopy"><see cref="PostCopy"/> property value.</param>
+    /// <param name="postCopy"><see cref="IsPostCopyCleanup"/> property value.</param>
     public DeleteDataHint(string sourceTablePath,  IList<IdentityPair> identities, bool postCopy)
       : base(sourceTablePath, identities)
     {
@@ -100,7 +108,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     /// <param name="sourceTablePath">Source table path.</param>
     /// <param name="identities">Identities for data operation.</param>
-    /// <param name="postCopy"><see cref="PostCopy"/> property value.</param>
+    /// <param name="postCopy"><see cref="IsPostCopyCleanup"/> property value.</param>
     /// <param name="dueToOnwerChange"><see langword="true"/> if reason of deletion is the table <paramref name="sourceTablePath"/>
     /// has changed assigned type.</param>
     public DeleteDataHint(string sourceTablePath, IList<IdentityPair> identities, bool postCopy, bool dueToOnwerChange)
