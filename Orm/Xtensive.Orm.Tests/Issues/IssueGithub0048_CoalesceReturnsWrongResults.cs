@@ -22,10 +22,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueGithub0048_CoalesceReturnsWrongResultsM
     [Field]
     public AuthorName NoFullName { get; set; }
 
-    [Field(Nullable = true)]
+    [Field(Nullable = true, Length = 50)]
     public string ShortDescription { get; set; }
 
-    [Field(Nullable = true, LazyLoad = true)]
+    [Field(Nullable = true, Length = 100, LazyLoad = true)]
     public string LongDescription { get; set; }
 
     [Field]
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueGithub0048_CoalesceReturnsWrongResultsM
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 25)]
     public string Title { get; set; }
 
     [Field]
@@ -81,19 +81,19 @@ namespace Xtensive.Orm.Tests.Issues.IssueGithub0048_CoalesceReturnsWrongResultsM
     [Field, Key]
     public int Id { get; private set; }
 
-    [Field]
+    [Field(Length = 20)]
     public string Nickname { get; set; }
   }
 
   public class AuthorName : Structure
   {
-    [Field]
+    [Field(Length = 20)]
     public string FirstName { get; set; }
 
-    [Field]
+    [Field(Length = 20)]
     public string LastName { get; set; }
 
-    [Field]
+    [Field(Length = 20)]
     public string MidName { get; set; }
   }
 }
@@ -407,7 +407,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var storageResult = session.Query.All<Book>()
           .Select(b => b.Title ?? nullTitle)
-          .Where(t => t.Contains("N"))
+          .Where(t => t.Contains("N") || t.Contains("n"))
           .ToList(7)
           .OrderBy(t => t);
 
@@ -717,7 +717,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var storageResult = session.Query.All<Book>()
           .Select(b => b.Title != null ? b.Title : nullTitle)
-          .Where(t => t.Contains("N"))
+          .Where(t => t.Contains("N") || t.Contains("n"))
           .ToList(7)
           .OrderBy(t => t);
 
@@ -742,7 +742,7 @@ namespace Xtensive.Orm.Tests.Issues
 
         var storageResult = session.Query.All<Book>()
           .Select(b => b.Title == null ? nullTitle : b.Title)
-          .Where(t => t.Contains("N"))
+          .Where(t => t.Contains("N") || t.Contains("n"))
           .ToList(7)
           .OrderBy(t => t);
 
