@@ -283,7 +283,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-
       return CastToDecimal(DateDiffDay(date2, date1), 18, 0) * NanosecondsPerDay
           + CastToDecimal(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1),18 , 0) * NanosecondsPerMillisecond;
     }
