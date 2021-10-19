@@ -1571,7 +1571,9 @@ namespace Xtensive.Orm.Linq
       QueryHelper.TryAddConvarianceCast(ref outerSource, elementType);
       QueryHelper.TryAddConvarianceCast(ref innerSource, elementType);
 
-      using (CreateScope(new TranslatorState(state) { JoinLocalCollectionEntity = true, CalculateExpressions = true, RequestCalculateExpressions = true })) {
+      using (CreateScope(new TranslatorState(state) {
+          JoinLocalCollectionEntity = true, CalculateExpressions = true,
+          RequestCalculateExpressions = true })) {
         outer = VisitSequence(outerSource);
         inner = VisitSequence(innerSource);
       }
