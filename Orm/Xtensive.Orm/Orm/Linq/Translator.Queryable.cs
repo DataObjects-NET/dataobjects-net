@@ -1370,10 +1370,12 @@ namespace Xtensive.Orm.Linq
       }
 
       context.Bindings.PermanentAdd(le.Parameters[0], sequence);
+      var calculateExpressions = state.RequestCalculateExpressions || state.RequestCalculateExpressionsOnce;
       using (CreateScope(new TranslatorState(state) {
-            CalculateExpressions = state.RequestCalculateExpressions || state.RequestCalculateExpressionsOnce,
-            RequestCalculateExpressionsOnce = false
-          })) {
+          CalculateExpressions = calculateExpressions,
+          RequestCalculateExpressionsOnce = false })) {
+        return BuildProjection(le);
+      }
         return BuildProjection(le);
       }
     }
