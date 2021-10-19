@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Linq
             return base.VisitUnary(u);
           throw new InvalidOperationException(String.Format(Strings.ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead, u, u.Operand.Type, u.Type));
         }
-        else if (u.Type==WellKnownTypes.Object && state.ShouldOmitConvertToObject) {
+        else if (u.Type==WellKnownTypes.Object && State.ShouldOmitConvertToObject) {
           var expression = u.StripCasts();
           return Visit(expression);
         }
@@ -126,14 +126,14 @@ namespace Xtensive.Orm.Linq
     {
       using (CreateLambdaScope(le, allowCalculableColumnCombine: false)) {
         Expression body = le.Body;
-        if (!state.IsTailMethod)
+        if (!State.IsTailMethod)
           body = NullComparsionRewriter.Rewrite(body);
         body = Visit(body);
         ParameterExpression parameter = le.Parameters[0];
         var shouldTranslate =
           (body.NodeType!=ExpressionType.New || body.IsNewExpressionSupportedByStorage())
           && body.NodeType!=ExpressionType.MemberInit
-          && !(body.NodeType==ExpressionType.Constant && state.BuildingProjection);
+          && !(body.NodeType==ExpressionType.Constant && State.BuildingProjection);
         if (shouldTranslate)
           body = body.IsProjection()
             ? BuildSubqueryResult((ProjectionExpression) body, le.Body.Type)
@@ -146,7 +146,7 @@ namespace Xtensive.Orm.Linq
     protected override MemberAssignment VisitMemberAssignment(MemberAssignment ma)
     {
       Expression expression;
-      using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
+      using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
         expression = Visit(ma.Expression);
       }
 
@@ -228,8 +228,8 @@ namespace Xtensive.Orm.Linq
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     protected override Expression VisitParameter(ParameterExpression p)
     {
-      bool isInnerParameter = state.Parameters.Contains(p);
-      bool isOuterParameter = state.OuterParameters.Contains(p);
+      bool isInnerParameter = State.Parameters.Contains(p);
+      bool isOuterParameter = State.OuterParameters.Contains(p);
 
       if (!isInnerParameter && !isOuterParameter)
         throw new InvalidOperationException(Strings.ExLambdaParameterIsOutOfScope);
@@ -312,7 +312,7 @@ namespace Xtensive.Orm.Linq
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
       }
       Expression source;
-      using (CreateScope(new TranslatorState(state) { /* BuildingProjection = false */ })) {
+      using (CreateScope(new TranslatorState(State) { /* BuildingProjection = false */ })) {
         source = Visit(ma.Expression);
       }
 
@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
     {
-      using (CreateScope(new TranslatorState(state) { IsTailMethod = mc == context.Query && mc.IsQuery() })) {
+      using (CreateScope(new TranslatorState(State) { IsTailMethod = mc == context.Query && mc.IsQuery() })) {
         var method = mc.Method;
         var customCompiler = context.CustomCompilerProvider.GetCompiler(method);
         if (customCompiler != null) {
@@ -1072,7 +1072,7 @@ namespace Xtensive.Orm.Linq
       var reduceCastBody = body.StripCasts();
 
       var canCalculate =
-        state.CalculateExpressions
+        State.CalculateExpressions
           && reduceCastBody.GetMemberType()==MemberType.Unknown
           && (reduceCastBody.NodeType!=ExpressionType.New || reduceCastBody.IsNewExpressionSupportedByStorage())
           && reduceCastBody.NodeType!=ExpressionType.ArrayIndex
@@ -1082,7 +1082,7 @@ namespace Xtensive.Orm.Linq
       if (!canCalculate)
         return body;
 
-      var lambdaParameter = state.Parameters[0];
+      var lambdaParameter = State.Parameters[0];
       var calculator = ExpressionMaterializer.MakeLambda(body, context);
       var columnDescriptor = CreateCalculatedColumnDescriptor(calculator);
       return AddCalculatedColumn(lambdaParameter, columnDescriptor, originalBodyType);
@@ -1101,7 +1101,7 @@ namespace Xtensive.Orm.Linq
     private ColumnExpression AddCalculatedColumn(ParameterExpression sourceParameter, CalculatedColumnDescriptor descriptor, Type originalColumnType)
     {
       var oldResult = context.Bindings[sourceParameter];
-      var isInlined = !state.BuildingProjection && !state.GroupingKey;
+      var isInlined = !State.BuildingProjection && !State.GroupingKey;
       var dataSource = oldResult.ItemProjector.DataSource;
 
       SortProvider sortProvider = null;
@@ -1111,7 +1111,7 @@ namespace Xtensive.Orm.Linq
       }
 
       var columns = new List<CalculatedColumnDescriptor>();
-      if (state.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
+      if (State.AllowCalculableColumnCombine && dataSource is CalculateProvider && isInlined==((CalculateProvider) dataSource).IsInlined) {
         var calculateProvider = ((CalculateProvider) dataSource);
         var presentColumns = calculateProvider
           .CalculatedColumns
@@ -1163,20 +1163,20 @@ namespace Xtensive.Orm.Linq
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
     {
-      if (state.Parameters.Length==0)
+      if (State.Parameters.Length==0)
         throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXStateContainsNoParameters, subQuery), OrmLog.Instance);
 
       if (!resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT))
         throw Exceptions.InternalError(String.Format(Strings.ExUnableToBuildSubqueryResultForExpressionXResultTypeIsNotIEnumerable, subQuery), OrmLog.Instance);
 
-      ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[state.Parameters[0]]);
+      ApplyParameter applyParameter = context.GetApplyParameter(context.Bindings[State.Parameters[0]]);
       if (subQuery.Type!=resultType)
         subQuery = new ProjectionExpression(
           resultType,
           subQuery.ItemProjector,
           subQuery.TupleParameterBindings,
           subQuery.ResultAccessMethod);
-      return new SubQueryExpression(resultType, state.Parameters[0], false, subQuery, applyParameter);
+      return new SubQueryExpression(resultType, State.Parameters[0], false, subQuery, applyParameter);
     }
 
     private static IList<Expression> GetAnonymousArguments(Expression expression, Type anonymousTypeForNullValues = null)
@@ -1394,7 +1394,7 @@ namespace Xtensive.Orm.Linq
         return Visit(Expression.Convert(source, targetType));
 
       // Cast to subclass or interface.
-      using (CreateScope(new TranslatorState(state))) {       //!!! why to create State Scope without modifying the state?
+      using (CreateScope(new TranslatorState(State))) {       //!!! why to create State Scope without modifying the state?
         var targetTypeInfo = context.Model.Types[targetType];
         // Using of state.Parameter[0] is a very weak approach.
         // `as` operator could be applied on expression that has no relation with current parameter
@@ -1402,7 +1402,7 @@ namespace Xtensive.Orm.Linq
         // We can't easily find real parameter that need replacement.
         // We work around this situation by supporting some known cases.
         // The simplest (and the only at moment) case is a source being chain of MemberExpressions.
-        var currentParameter = state.Parameters[0];
+        var currentParameter = State.Parameters[0];
         var parameter = (source.StripMemberAccessChain() as ParameterExpression) ?? currentParameter;
         var entityExpression = visitedSource.StripCasts().StripMarkers() as IEntityExpression;
 
@@ -1442,7 +1442,7 @@ namespace Xtensive.Orm.Linq
     private void EnsureEntityFieldsAreJoined(EntityExpression entityExpression)
     {
       ItemProjectorExpression itemProjector = entityExpression.OuterParameter==null
-        ? context.Bindings[state.Parameters[0]].ItemProjector
+        ? context.Bindings[State.Parameters[0]].ItemProjector
         : context.Bindings[entityExpression.OuterParameter].ItemProjector;
       EnsureEntityFieldsAreJoined(entityExpression, itemProjector);
     }
@@ -1481,7 +1481,7 @@ namespace Xtensive.Orm.Linq
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
         .ToArray();
       ItemProjectorExpression originalItemProjector = entityFieldExpression.OuterParameter==null
-        ? context.Bindings[state.Parameters[0]].ItemProjector
+        ? context.Bindings[State.Parameters[0]].ItemProjector
         : context.Bindings[entityFieldExpression.OuterParameter].ItemProjector;
       int offset = originalItemProjector.DataSource.Header.Length;
       var oldDataSource = originalItemProjector.DataSource;
@@ -1547,13 +1547,13 @@ namespace Xtensive.Orm.Linq
 
     private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator, Expression sourceExpression)
     {
-      var storedEntityType = translator.state.TypeOfEntityStoredInKey;
+      var storedEntityType = translator.State.TypeOfEntityStoredInKey;
       var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translator.context.Model, sourceExpression);
       var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider);
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
-      if (translator.state.JoinLocalCollectionEntity)
+      if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
       return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
     }

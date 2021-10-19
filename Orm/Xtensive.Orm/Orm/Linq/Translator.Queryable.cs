@@ -28,25 +28,26 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
 
-    internal TranslatorState state { get; private set; } = TranslatorState.InitState;
     private readonly TranslatorContext context;
 
+    internal TranslatorState State { get; private set; } = TranslatorState.InitState;
+
     internal void RestoreState(in TranslatorState previousState) =>
-      state = previousState;
+      State = previousState;
 
     public TranslatorState.TranslatorScope CreateScope(in TranslatorState newState)
     {
       var scope = new TranslatorState.TranslatorScope(this);
-      state = newState;
+      State = newState;
       return scope;
     }
 
     public TranslatorState.TranslatorScope CreateLambdaScope(LambdaExpression le, bool allowCalculableColumnCombine)
     {
-      var newOuterParameters = new ParameterExpression[state.OuterParameters.Length + state.Parameters.Length];
-      state.OuterParameters.CopyTo(newOuterParameters, 0);
-      state.Parameters.CopyTo(newOuterParameters, state.OuterParameters.Length);
-      return CreateScope(new TranslatorState(state) {
+      var newOuterParameters = new ParameterExpression[State.OuterParameters.Length + State.Parameters.Length];
+      State.OuterParameters.CopyTo(newOuterParameters, 0);
+      State.Parameters.CopyTo(newOuterParameters, State.OuterParameters.Length);
+      return CreateScope(new TranslatorState(State) {
         OuterParameters = newOuterParameters,
         Parameters = le.Parameters.ToArray(le.Parameters.Count),
         CurrentLambda = le,
@@ -69,7 +70,7 @@ namespace Xtensive.Orm.Linq
 
     protected override Expression VisitQueryableMethod(MethodCallExpression mc, QueryableMethodKind methodKind)
     {
-      using (CreateScope(new TranslatorState(state))) {
+      using (CreateScope(new TranslatorState(State))) {
         switch (methodKind) {
           case QueryableMethodKind.Cast:
             return VisitCast(mc.Arguments[0], mc.Method.GetGenericArguments()[0],
@@ -96,7 +97,7 @@ namespace Xtensive.Orm.Linq
           case QueryableMethodKind.Intersect:
           case QueryableMethodKind.Concat:
           case QueryableMethodKind.Union:
-            using (CreateScope(new TranslatorState(state) { BuildingProjection = false })) {
+            using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
               return VisitSetOperations(mc.Arguments[0], mc.Arguments[1], methodKind, mc.Method.GetGenericArguments()[0]);
             }
           case QueryableMethodKind.Reverse:
@@ -166,7 +167,7 @@ namespace Xtensive.Orm.Linq
 
             break;
           case QueryableMethodKind.GroupBy:
-            using (CreateScope(new TranslatorState(state) { BuildingProjection = false })) {
+            using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
               var groupBy = QueryParser.ParseGroupBy(mc);
               return VisitGroupBy(mc.Method.ReturnType,
                 groupBy.Source,
@@ -175,7 +176,7 @@ namespace Xtensive.Orm.Linq
                 groupBy.ResultSelector);
             }
           case QueryableMethodKind.GroupJoin:
-            using (CreateScope(new TranslatorState(state) { BuildingProjection = false })) {
+            using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
               return VisitGroupJoin(mc.Arguments[0],
                 mc.Arguments[1],
                 mc.Arguments[2].StripQuotes(),
@@ -185,7 +186,7 @@ namespace Xtensive.Orm.Linq
                 mc);
             }
           case QueryableMethodKind.Join:
-            using (CreateScope(new TranslatorState(state) { BuildingProjection = false })) {
+            using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
               return VisitJoin(mc.Arguments[0],
                 mc.Arguments[1],
                 mc.Arguments[2].StripQuotes(),
@@ -196,7 +197,7 @@ namespace Xtensive.Orm.Linq
             }
           case QueryableMethodKind.OrderBy:
           case QueryableMethodKind.OrderByDescending:
-            using (CreateScope(new TranslatorState(state) { BuildingProjection = false })) {
+            using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
               return VisitSort(mc);
             }
           case QueryableMethodKind.Select:
@@ -246,11 +247,11 @@ namespace Xtensive.Orm.Linq
             break;
           case QueryableMethodKind.ThenBy:
           case QueryableMethodKind.ThenByDescending:
-            using (CreateScope(new TranslatorState(state) { BuildingProjection = false })) {
+            using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
               return VisitSort(mc);
             }
           case QueryableMethodKind.Where:
-            using (CreateScope(new TranslatorState(state) { BuildingProjection = false })) {
+            using (CreateScope(new TranslatorState(State) { BuildingProjection = false })) {
               return VisitWhere(mc.Arguments[0], mc.Arguments[1].StripQuotes());
             }
           default:
@@ -464,8 +465,8 @@ namespace Xtensive.Orm.Linq
       var applySequenceType = ApplySequenceType.All;
 
       ProjectionExpression projection;
-      using (CreateScope(new TranslatorState(state) {
-            RequestCalculateExpressions = state.RequestCalculateExpressions || !isRoot && context.ProviderInfo.SupportedTypes.Contains(method.ReturnType)
+      using (CreateScope(new TranslatorState(State) {
+            RequestCalculateExpressions = State.RequestCalculateExpressions || !isRoot && context.ProviderInfo.SupportedTypes.Contains(method.ReturnType)
           })) {
         projection = predicate != null ? VisitWhere(source, predicate) : VisitSequence(source);
       }
@@ -504,14 +505,14 @@ namespace Xtensive.Orm.Linq
           resultType);
       }
 
-      var lambdaParameter = state.Parameters[0];
+      var lambdaParameter = State.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var applyParameter = context.GetApplyParameter(oldResult);
 
       var leftDataSource = oldResult.ItemProjector.DataSource;
       var columnIndex = leftDataSource.Header.Length;
       var dataSource = leftDataSource.Apply(applyParameter, rightDataSource.Alias(context.GetNextAlias()),
-        !state.BuildingProjection, applySequenceType, JoinType.LeftOuter);
+        !State.BuildingProjection, applySequenceType, JoinType.LeftOuter);
       var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
       var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0),
         oldResult.TupleParameterBindings);
@@ -588,13 +589,13 @@ namespace Xtensive.Orm.Linq
           resultType);
       }
 
-      var lambdaParameter = state.Parameters[0];
+      var lambdaParameter = State.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var applyParameter = context.GetApplyParameter(oldResult);
 
       var leftDataSource = oldResult.ItemProjector.DataSource;
       var columnIndex = leftDataSource.Header.Length;
-      var dataSource = leftDataSource.Apply(applyParameter, rs.Alias(context.GetNextAlias()), !state.BuildingProjection,
+      var dataSource = leftDataSource.Apply(applyParameter, rs.Alias(context.GetNextAlias()), !State.BuildingProjection,
         ApplySequenceType.All, JoinType.LeftOuter);
       var rightItemProjector = projection.ItemProjector.Remap(dataSource, columnIndex);
       var result = new ProjectionExpression(oldResult.Type, oldResult.ItemProjector.Remap(dataSource, 0),
@@ -686,7 +687,7 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitDistinct(Expression expression)
     {
       ProjectionExpression result;
-      using (CreateScope(new TranslatorState(state) { RequestCalculateExpressionsOnce = true })) {
+      using (CreateScope(new TranslatorState(State) { RequestCalculateExpressionsOnce = true })) {
         result = VisitSequence(expression);
       }
 
@@ -763,10 +764,10 @@ namespace Xtensive.Orm.Linq
               groupingProjection.Type, optimizedItemProjector,
               groupingProjection.TupleParameterBindings, groupingProjection.ResultAccessMethod);
             context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
-            var isSubqueryParameter = state.OuterParameters.Contains(groupingParameter);
+            var isSubqueryParameter = State.OuterParameters.Contains(groupingParameter);
             if (isSubqueryParameter) {
               var newApplyParameter = context.GetApplyParameter(resultDataSource);
-              foreach (var innerParameter in state.Parameters) {
+              foreach (var innerParameter in State.Parameters) {
                 var projectionExpression = context.Bindings[innerParameter];
                 var newProjectionExpression = new ProjectionExpression(
                   projectionExpression.Type,
@@ -872,7 +873,7 @@ namespace Xtensive.Orm.Linq
 
       if (aggregateParameter != null) {
         using (context.Bindings.Add(aggregateParameter.Parameters[0], sourceProjection))
-        using (CreateScope(new TranslatorState(state) { CalculateExpressions = true })) {
+        using (CreateScope(new TranslatorState(State) { CalculateExpressions = true })) {
           var result = (ItemProjectorExpression) VisitLambda(aggregateParameter);
           if (!result.IsPrimitive) {
             throw new NotSupportedException(
@@ -950,7 +951,7 @@ namespace Xtensive.Orm.Linq
 
       ProjectionExpression groupingSourceProjection;
       context.Bindings.PermanentAdd(keySelector.Parameters[0], sequence);
-      using (CreateScope(new TranslatorState(state) { CalculateExpressions = true, GroupingKey = true })) {
+      using (CreateScope(new TranslatorState(State) { CalculateExpressions = true, GroupingKey = true })) {
         var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
         groupingSourceProjection = new ProjectionExpression(
           WellKnownInterfaces.QueryableOfT.MakeGenericType(keySelector.Body.Type),
@@ -964,7 +965,7 @@ namespace Xtensive.Orm.Linq
         ColumnExtractionModes.TreatEntityAsKey |
         ColumnExtractionModes.KeepTypeId);
 
-      var nullableKeyColumns = (!state.SkipNullableColumnsDetectionInGroupBy)
+      var nullableKeyColumns = (!State.SkipNullableColumnsDetectionInGroupBy)
         ? GetNullableGroupingExpressions(keyFieldsRaw)
         : ArrayUtils<int>.EmptyArray;
 
@@ -1107,7 +1108,7 @@ namespace Xtensive.Orm.Linq
       }
 
       ProjectionExpression projection;
-      using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
+      using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
         projection = VisitSequence(extractor.BaseExpression);
       }
 
@@ -1118,7 +1119,7 @@ namespace Xtensive.Orm.Linq
         var direction = item.Value;
         var sortParameter = sortExpression.Parameters[0];
         using (context.Bindings.Add(sortParameter, projection))
-        using (CreateScope(new TranslatorState(state) { ShouldOmitConvertToObject = true, CalculateExpressions = true })) {
+        using (CreateScope(new TranslatorState(State) { ShouldOmitConvertToObject = true, CalculateExpressions = true })) {
           var orderByProjector = (ItemProjectorExpression) VisitLambda(sortExpression);
           var columns = orderByProjector
             .GetColumns(ColumnExtractionModes.TreatEntityAsKey | ColumnExtractionModes.Distinct);
@@ -1148,7 +1149,7 @@ namespace Xtensive.Orm.Linq
       using (context.Bindings.Add(innerParameter, innerSequence)) {
         ItemProjectorExpression outerKeyProjector;
         ItemProjectorExpression innerKeyProjector;
-        using (CreateScope(new TranslatorState(state) { CalculateExpressions = true })) {
+        using (CreateScope(new TranslatorState(State) { CalculateExpressions = true })) {
           outerKeyProjector = (ItemProjectorExpression) VisitLambda(outerKey);
           innerKeyProjector = (ItemProjectorExpression) VisitLambda(innerKey);
         }
@@ -1215,7 +1216,7 @@ namespace Xtensive.Orm.Linq
       var groupingResultType = WellKnownInterfaces.QueryableOfT.MakeGenericType(enumerableType);
 
       ProjectionExpression innerGrouping;
-      using (CreateScope(new TranslatorState(state) { SkipNullableColumnsDetectionInGroupBy = true })) {
+      using (CreateScope(new TranslatorState(State) { SkipNullableColumnsDetectionInGroupBy = true })) {
         innerGrouping = VisitGroupBy(groupingResultType, visitedInnerSource, innerKey, null, null);
       }
 
@@ -1280,11 +1281,11 @@ namespace Xtensive.Orm.Linq
         }
 
         ProjectionExpression innerProjection;
-        var outerParameters = state.OuterParameters
-          .Concat(state.Parameters)
+        var outerParameters = State.OuterParameters
+          .Concat(State.Parameters)
           .Concat(collectionSelector.Parameters)
-          .Append(outerParameter).ToArray(state.Parameters.Length + collectionSelector.Parameters.Count + 1);
-        using (CreateScope(new TranslatorState(state) {
+          .Append(outerParameter).ToArray(State.Parameters.Length + collectionSelector.Parameters.Count + 1);
+        using (CreateScope(new TranslatorState(State) {
               OuterParameters = outerParameters,
               Parameters = Array.Empty<ParameterExpression>(),
               RequestCalculateExpressionsOnce = true
@@ -1368,8 +1369,8 @@ namespace Xtensive.Orm.Linq
       }
 
       context.Bindings.PermanentAdd(le.Parameters[0], sequence);
-      var calculateExpressions = state.RequestCalculateExpressions || state.RequestCalculateExpressionsOnce;
-      using (CreateScope(new TranslatorState(state) {
+      var calculateExpressions = State.RequestCalculateExpressions || State.RequestCalculateExpressionsOnce;
+      using (CreateScope(new TranslatorState(State) {
           CalculateExpressions = calculateExpressions,
           RequestCalculateExpressionsOnce = false })) {
         return BuildProjection(le);
@@ -1378,7 +1379,7 @@ namespace Xtensive.Orm.Linq
 
     private ProjectionExpression BuildProjection(LambdaExpression le)
     {
-      using (CreateScope(new TranslatorState(state) { BuildingProjection = true })) {
+      using (CreateScope(new TranslatorState(State) { BuildingProjection = true })) {
         var itemProjector = (ItemProjectorExpression) VisitLambda(le);
         return new ProjectionExpression(
           WellKnownInterfaces.QueryableOfT.MakeGenericType(le.Body.Type),
@@ -1399,7 +1400,7 @@ namespace Xtensive.Orm.Linq
 
       using (indexBinding)
       using (context.Bindings.Add(parameter, visitedSource))
-      using (CreateScope(new TranslatorState(state) { CalculateExpressions = false, CurrentLambda = le })) {
+      using (CreateScope(new TranslatorState(State) { CalculateExpressions = false, CurrentLambda = le })) {
         var predicateExpression = (ItemProjectorExpression) VisitLambda(le);
         var predicate = predicateExpression.ToLambda(context);
         var source = context.Bindings[parameter];
@@ -1438,7 +1439,7 @@ namespace Xtensive.Orm.Linq
       }
 
       ProjectionExpression subquery;
-      using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
+      using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
         subquery = predicate == null
           ? VisitSequence(source)
           : VisitWhere(source, predicate);
@@ -1463,20 +1464,20 @@ namespace Xtensive.Orm.Linq
 
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
-      using (CreateScope(new TranslatorState(state) {
+      using (CreateScope(new TranslatorState(State) {
             TypeOfEntityStoredInKey = source.IsLocalCollection(context) && IsKeyCollection(source.Type)
               ? LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body)
-              : state.TypeOfEntityStoredInKey,
+              : State.TypeOfEntityStoredInKey,
             IncludeAlgorithm = IncludeAlgorithm.Auto
           })) {
         visitedSource = VisitSequence(source);
       }
 
-      var outerParameter = state.Parameters[0];
+      var outerParameter = State.Parameters[0];
       using (context.Bindings.Add(parameter, visitedSource))
-      using (CreateScope(new TranslatorState(state) { CalculateExpressions = false, CurrentLambda = predicate })) {
+      using (CreateScope(new TranslatorState(State) { CalculateExpressions = false, CurrentLambda = predicate })) {
         ItemProjectorExpression predicateExpression;
-        using (CreateScope(new TranslatorState(state) { IncludeAlgorithm = IncludeAlgorithm.Auto })) {
+        using (CreateScope(new TranslatorState(State) { IncludeAlgorithm = IncludeAlgorithm.Auto })) {
           predicateExpression = (ItemProjectorExpression) VisitLambda(predicate);
         }
 
@@ -1515,7 +1516,7 @@ namespace Xtensive.Orm.Linq
         var outerResult = context.Bindings[outerParameter];
         var columnIndex = outerResult.ItemProjector.DataSource.Header.Length;
         var newDataSource = outerResult.ItemProjector.DataSource
-          .Include(state.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
+          .Include(State.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
 
         var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
         var newOuterResult = new ProjectionExpression(
@@ -1553,7 +1554,7 @@ namespace Xtensive.Orm.Linq
           break;
       }
 
-      using (CreateScope(new TranslatorState(state) { IncludeAlgorithm = algorithm })) {
+      using (CreateScope(new TranslatorState(State) { IncludeAlgorithm = algorithm })) {
         return VisitContains(source, match, false);
       }
     }
@@ -1567,7 +1568,7 @@ namespace Xtensive.Orm.Linq
       QueryHelper.TryAddConvarianceCast(ref outerSource, elementType);
       QueryHelper.TryAddConvarianceCast(ref innerSource, elementType);
 
-      using (CreateScope(new TranslatorState(state) {
+      using (CreateScope(new TranslatorState(State) {
           JoinLocalCollectionEntity = true, CalculateExpressions = true,
           RequestCalculateExpressions = true })) {
         outer = VisitSequence(outerSource);
@@ -1625,13 +1626,13 @@ namespace Xtensive.Orm.Linq
           OrmLog.Instance);
       }
 
-      var lambdaParameter = state.Parameters[0];
+      var lambdaParameter = State.Parameters[0];
       var oldResult = context.Bindings[lambdaParameter];
       var dataSource = oldResult.ItemProjector.DataSource;
       var applyParameter = context.GetApplyParameter(oldResult.ItemProjector.DataSource);
       var columnIndex = dataSource.Header.Length;
       var newRecordSet = dataSource.Apply(
-        applyParameter, subquery, !state.BuildingProjection, ApplySequenceType.Single, JoinType.Inner);
+        applyParameter, subquery, !State.BuildingProjection, ApplySequenceType.Single, JoinType.Inner);
       var newItemProjector = oldResult.ItemProjector.Remap(newRecordSet, 0);
       var newResult = new ProjectionExpression(oldResult.Type, newItemProjector, oldResult.TupleParameterBindings);
       context.Bindings.ReplaceBound(lambdaParameter, newResult);
@@ -1804,6 +1805,6 @@ namespace Xtensive.Orm.Linq
     }
 
     private void ModifyStateAllowCalculableColumnCombine(bool b) =>
-      state = new TranslatorState(state) { AllowCalculableColumnCombine = b };
+      State = new TranslatorState(State) { AllowCalculableColumnCombine = b };
   }
 }
