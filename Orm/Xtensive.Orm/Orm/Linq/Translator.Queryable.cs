@@ -54,9 +54,6 @@ namespace Xtensive.Orm.Linq
       });
     }
 
-    private void ModifyStateAllowCalculableColumnCombine(bool b) =>
-      state = new TranslatorState(state) { AllowCalculableColumnCombine = b };
-
     protected override Expression VisitConstant(ConstantExpression c)
     {
       if (c.Value == null) {
@@ -1283,11 +1280,12 @@ namespace Xtensive.Orm.Linq
         }
 
         ProjectionExpression innerProjection;
+        var outerParameters = state.OuterParameters
+          .Concat(state.Parameters)
+          .Concat(collectionSelector.Parameters)
+          .Append(outerParameter).ToArray(state.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(state) {
-              OuterParameters = state.OuterParameters
-                .Concat(state.Parameters)
-                .Concat(collectionSelector.Parameters)
-                .Append(outerParameter).ToArray(),
+              OuterParameters = outerParameters,
               Parameters = Array.Empty<ParameterExpression>(),
               RequestCalculateExpressionsOnce = true
             })) {
@@ -1374,8 +1372,6 @@ namespace Xtensive.Orm.Linq
       using (CreateScope(new TranslatorState(state) {
           CalculateExpressions = calculateExpressions,
           RequestCalculateExpressionsOnce = false })) {
-        return BuildProjection(le);
-      }
         return BuildProjection(le);
       }
     }
@@ -1806,5 +1802,8 @@ namespace Xtensive.Orm.Linq
       return (localCollectionType.IsArray && localCollectionType.GetElementType() == WellKnownOrmTypes.Key)
         || IEnumerableOfKeyType.IsAssignableFrom(localCollectionType);
     }
+
+    private void ModifyStateAllowCalculableColumnCombine(bool b) =>
+      state = new TranslatorState(state) { AllowCalculableColumnCombine = b };
   }
 }
