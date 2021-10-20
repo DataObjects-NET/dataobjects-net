@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
     [ServiceConstructor]
     public SlowConstructorService()
     {
-      Interlocked.Increment(ref ConstructorInvocations);
+      _ = Interlocked.Increment(ref ConstructorInvocations);
       Thread.Sleep(1000);
     }
   }
