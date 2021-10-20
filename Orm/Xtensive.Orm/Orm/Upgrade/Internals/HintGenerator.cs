@@ -16,7 +16,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade.Internals;
 using Xtensive.Orm.Upgrade.Model;
 using Xtensive.Reflection;
-using DataDeletionInfo = Xtensive.Modelling.Comparison.Hints.DeleteDataHint.DeleteDataHintInfo;
+using DataDeletionInfo = Xtensive.Modelling.Comparison.Hints.DeleteDataHint.DeleteDataHintState;
 
 namespace Xtensive.Orm.Upgrade
 {

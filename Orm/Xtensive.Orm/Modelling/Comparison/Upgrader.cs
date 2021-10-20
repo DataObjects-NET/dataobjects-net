@@ -790,7 +790,7 @@ namespace Xtensive.Modelling.Comparison
         var identities = deleteDataHint.Identities.Select(pair =>
             new IdentityPair(GetActualPath(pair.Source), pair.Target, pair.IsIdentifiedByConstant))
           .ToList();
-        var newDeleteDataHint = new DeleteDataHint(sourceTablePath, identities, deleteDataHint.Info);
+        var newDeleteDataHint = new DeleteDataHint(sourceTablePath, identities, deleteDataHint.State);
         Hints.Add(newDeleteDataHint);
       }
 

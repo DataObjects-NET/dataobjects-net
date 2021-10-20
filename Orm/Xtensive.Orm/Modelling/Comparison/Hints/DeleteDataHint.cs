@@ -18,14 +18,14 @@ namespace Xtensive.Modelling.Comparison.Hints
   public class DeleteDataHint : DataHint
   {
     [Flags]
-    internal enum DeleteDataHintInfo : byte
+    internal enum DeleteDataHintState : byte
     {
       None = 0,
       PostCopy = 1,
       TableMovement = 2,
     }
 
-    private readonly DeleteDataHintInfo info = DeleteDataHintInfo.None;
+    private readonly DeleteDataHintState state = DeleteDataHintState.None;
 
     /// <summary>
     /// Gets a value indicating whether deletion must be performed after completion of copy data hint processing.
@@ -42,18 +42,18 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// these records are still necessary during upgrade to be copied, but must be removed on its
     /// completion.
     /// </summary>
-    public bool IsPostCopyCleanup => (info & DeleteDataHintInfo.PostCopy) > 0;
+    public bool IsPostCopyCleanup => (state & DeleteDataHintState.PostCopy) > 0;
 
     /// <summary>
     /// Gets a value indicating whether cause of data deletion is due to table have changed its owner type.
     /// </summary>
-    public bool IsOwnerChangeCleanup => (info & DeleteDataHintInfo.TableMovement) > 0;
+    public bool IsOwnerChangeCleanup => (state & DeleteDataHintState.TableMovement) > 0;
 
     /// <summary>
     /// Gets a value indication whether deletion is unsafe. Deletion is considered insafe
     /// if PostCopy or DueToTableOwnerChange equals <see langword="true"/>.
     /// </summary>
-    public bool IsUnsafe => info != DeleteDataHintInfo.None;
+    public bool IsUnsafe => state != DeleteDataHintState.None;
 
 
     /// <summary>
@@ -64,7 +64,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// constructors but enum is better.
     /// </para>
     /// </summary>
-    internal DeleteDataHintInfo Info => info;
+    internal DeleteDataHintState State => state;
 
     /// <inheritdoc/>
     public override string ToString()
@@ -99,7 +99,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       : base(sourceTablePath, identities)
     {
       if (postCopy) {
-        info |= DeleteDataHintInfo.PostCopy;
+        state |= DeleteDataHintState.PostCopy;
       }
     }
 
@@ -115,23 +115,23 @@ namespace Xtensive.Modelling.Comparison.Hints
       : base(sourceTablePath, identities)
     {
       if (postCopy) {
-        info |= DeleteDataHintInfo.PostCopy;
+        state |= DeleteDataHintState.PostCopy;
       }
       if (dueToOnwerChange) {
-        info |= DeleteDataHintInfo.TableMovement;
+        state |= DeleteDataHintState.TableMovement;
       }
     }
 
     /// <summary>
     /// Initializes new instance of this type.
     /// </summary>
-    /// <param name="sourceTablePath"></param>
-    /// <param name="identities"></param>
-    /// <param name="deleteDataInfo"></param>
-    internal DeleteDataHint(string sourceTablePath, IList<IdentityPair> identities, DeleteDataHintInfo deleteDataInfo)
+    /// <param name="sourceTablePath">Source table path.</param>
+    /// <param name="identities">Identities for data operation.</param>
+    /// <param name="state">Hint state.</param>
+    internal DeleteDataHint(string sourceTablePath, IList<IdentityPair> identities, DeleteDataHintState state)
       : base(sourceTablePath, identities)
     {
-      info = deleteDataInfo;
+      this.state = state;
     }
   }
 }
