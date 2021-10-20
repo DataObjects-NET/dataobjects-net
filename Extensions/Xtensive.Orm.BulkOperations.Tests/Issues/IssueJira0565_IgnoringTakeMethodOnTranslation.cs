@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
+// Copyright (C) 2015 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -307,7 +307,7 @@ namespace Xtensive.Orm.BulkOperations.Tests.Issues
     {
       var message = string.Format(format, argument);
       if (!string.IsNullOrEmpty(reason)) {
-        message = string.Format("{0}. Reason: {1}", message, reason);
+        message = $"{message}. Reason: {reason}";
       }
 
       throw new IgnoreException(message);

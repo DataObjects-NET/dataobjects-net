@@ -90,19 +90,19 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(key, "key");
       ArgumentValidator.EnsureArgumentNotNull(array, "array");
 
-      info.AddValue(string.Format("{0}Count", key), array.Length); 
+      info.AddValue($"{key}Count", array.Length);
       for (int i = 0; i < array.Length; i++)
-        info.AddValue(string.Format("{0}_{1}", key, i), array[i]);
+        info.AddValue($"{key}_{i}", array[i]);
     }
 
     public static T[] GetArrayFromSerializableForm<T>(this SerializationInfo info, string key)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(key, "key");
 
-      var count = info.GetInt32(string.Format("{0}Count", key));
+      var count = info.GetInt32($"{key}Count");
       var array = new T[count];
       for (int i = 0; i < count; i++)
-        array[i] = (T) info.GetValue(string.Format("{0}_{1}", key, i), typeof (T));
+        array[i] = (T) info.GetValue($"{key}_{i}", typeof (T));
 
       return array;
     }

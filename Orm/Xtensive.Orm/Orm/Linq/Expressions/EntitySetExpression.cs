@@ -109,7 +109,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override string ToString()
     {
-      return string.Format("{0} {1}", base.ToString(), Name);
+      return $"{base.ToString()} {Name}";
     }
 
 

@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override string ToString()
     {
-      return string.Format("{0} {1}, {2}", base.ToString(), Name, Mapping);
+      return $"{base.ToString()} {Name}, {Mapping}";
     }
 
 

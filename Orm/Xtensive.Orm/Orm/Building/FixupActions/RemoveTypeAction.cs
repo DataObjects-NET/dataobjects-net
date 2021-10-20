@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Remove '{0}' type.", Type.Name);
+      return $"Remove '{Type.Name}' type.";
     }
 
 

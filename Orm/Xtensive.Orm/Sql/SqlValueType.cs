@@ -140,9 +140,9 @@ namespace Xtensive.Sql
       if (TypeName!=null)
         return TypeName;
       if (Length!=null)
-        return string.Format("{0}({1})", Type, Length.Value);
+        return $"{Type}({Length.Value})";
       if (Precision!=null)
-        return string.Format("{0}({1},{2})", Type, Precision.Value, Scale.Value);
+        return $"{Type}({Precision.Value},{Scale.Value})";
       return Type.ToString();
     }
 

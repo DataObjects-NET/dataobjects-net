@@ -308,7 +308,7 @@ namespace Xtensive.Orm
           return;
         }
         if (!field.ValueType.IsAssignableFrom(value.TypeInfo.UnderlyingType)) {
-          throw new InvalidOperationException(string.Format("Key of {0} type is not assignable to field of {1} type", value.TypeInfo.Name, field.ValueType.Name));
+          throw new InvalidOperationException($"Key of {value.TypeInfo.Name} type is not assignable to field of {field.ValueType.Name} type");
         }
 
         if (value == oldValue && !isPersisting) {
