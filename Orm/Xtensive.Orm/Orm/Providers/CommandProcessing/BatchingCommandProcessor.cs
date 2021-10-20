@@ -322,7 +322,7 @@ namespace Xtensive.Orm.Providers
     }
 
     private static string GetParameterPrefix(CommandProcessorContext context) =>
-      string.Format("p{0}_", context.ActiveCommand.Count + 1);
+      $"p{context.ActiveCommand.Count + 1}_";
 
     #endregion
 

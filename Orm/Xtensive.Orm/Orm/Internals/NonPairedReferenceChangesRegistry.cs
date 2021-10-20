@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -280,7 +280,7 @@ namespace Xtensive.Orm.Internals
 
     private string BuildNameOfEntityField(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure)
     {
-      var name = string.Format("{0}.{1}", fieldOfOwner.Name, referenceFieldOfStructure.Name);
+      var name = $"{fieldOfOwner.Name}.{referenceFieldOfStructure.Name}";
       return name;
     }
 

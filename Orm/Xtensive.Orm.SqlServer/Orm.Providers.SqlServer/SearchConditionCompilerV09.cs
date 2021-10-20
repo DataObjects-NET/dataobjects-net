@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Providers.SqlServer
 
       var term = node.Term.Trim();
       if (term.IndexOf(' ')!=-1)
-        term = string.Format("\"{0}\"", term);
+        term = $"\"{term}\"";
 
       builder.Append(term);
     }

@@ -362,7 +362,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           sqlType==SqlType.DateTimeOffset) {
         switch (section) {
         case NodeSection.Entry:
-          return string.Format("STRFTIME('{0}', ", DateTimeCastFormat);
+          return $"STRFTIME('{DateTimeCastFormat}', ";
         case NodeSection.Exit:
           return ")";
         default:

@@ -198,13 +198,13 @@ namespace Xtensive.Orm.Upgrade
           continue;
         }
 
-        var tablePath = string.Format("Tables/{0}", pathItems[1]);
+        var tablePath = $"Tables/{pathItems[1]}";
         var columnName = pathItems[3];
 
         string originalTablePath;
 
         if (reverseTableMapping.TryGetValue(tablePath, out originalTablePath))
-          columnPath = string.Format("{0}/Columns/{1}", originalTablePath, columnName);
+          columnPath = $"{originalTablePath}/Columns/{columnName}";
 
         if (!safeColumns.Contains(columnPath))
           output.Add(action);

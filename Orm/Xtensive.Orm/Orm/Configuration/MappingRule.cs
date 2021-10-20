@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Configuration
       var nsPart = !string.IsNullOrEmpty(Namespace) ? Namespace : "<any namespace>";
       var databasePart = !string.IsNullOrEmpty(Database) ? Database : "<default database>";
       var schemaPart = !string.IsNullOrEmpty(Schema) ? Schema : "<default schema>";
-      return string.Format("{0}/{1} -> {2}/{3}", assemblyPart, nsPart, databasePart, schemaPart);
+      return $"{assemblyPart}/{nsPart} -> {databasePart}/{schemaPart}";
     }
 
     /// <summary>
