@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
       var container = ServiceContainer.Create(Configuration);
       var prevInvocations = SlowConstructorService.ConstructorInvocations;
       var threads = new List<Thread>();
-      for (int i = 0; i < 2; ++i) {
+      for (var i = 0; i < 2; ++i) {
         var thread = new Thread(() => container.Get<IPrintService>("SlowConstructor"));
         thread.Start();
         threads.Add(thread);
