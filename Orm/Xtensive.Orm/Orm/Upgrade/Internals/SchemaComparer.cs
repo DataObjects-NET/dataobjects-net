@@ -295,7 +295,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var filter = schemaUpgradeMode!=SchemaUpgradeMode.ValidateCompatible
         ? (Func<Type, bool>) (targetType => true)
-        : targetType => targetType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo);
+        : targetType => targetType == WellKnownUpgradeTypes.TableInfo || targetType == WellKnownUpgradeTypes.StorageColumnInfo;
       var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Select(action => action.Difference.Target.GetType())
@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Upgrade
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
         .Select(action => action.Difference.Source.GetType())
-        .Any(sourceType => sourceType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo));
+        .Any(sourceType => sourceType == WellKnownUpgradeTypes.TableInfo || sourceType == WellKnownUpgradeTypes.StorageColumnInfo);
 
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;
