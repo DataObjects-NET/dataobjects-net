@@ -62,6 +62,33 @@ namespace Xtensive.Reflection
     private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
       new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
 
+    private static readonly ConcurrentDictionary<(Type, Type), Type> genericInterfaceMap =
+      new ConcurrentDictionary<(Type, Type), Type>();
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> genericMethodInstances1 =
+      new ConcurrentDictionary<(MethodInfo, Type), MethodInfo>();
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInfo> genericMethodFactory1 =
+      key => key.genericDefinition.MakeGenericMethod(key.typeArgument);
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> genericMethodInstances2 =
+      new ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo>();
+
+    private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInfo> genericMethodFactory2 =
+      key => key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2);
+
+    private static readonly ConcurrentDictionary<(Type, Type), Type> genericTypeInstances1 =
+      new ConcurrentDictionary<(Type, Type), Type>();
+
+    private static readonly Func<(Type genericDefinition, Type typeArgument), Type> genericTypeFactory1 = key =>
+      key.genericDefinition.MakeGenericType(key.typeArgument);
+
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Type> genericTypeInstances2 =
+      new ConcurrentDictionary<(Type, Type, Type), Type>();
+
+    private static readonly Func<(Type genericDefinition, Type typeArgument1, Type typeArgument2), Type> genericTypeFactory2 = key =>
+      key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
+
     private static int createDummyTypeNumber = 0;
     private static AssemblyBuilder assemblyBuilder;
     private static ModuleBuilder moduleBuilder;
@@ -925,6 +952,18 @@ namespace Xtensive.Reflection
         || method.Module == genericMethodDefinition.Module)
       && method.IsGenericMethod && genericMethodDefinition.IsGenericMethodDefinition;
 
+    public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument) =>
+      genericMethodInstances1.GetOrAdd((genericDefinition, typeArgument), genericMethodFactory1);
+
+    public static MethodInfo CachedMakeGenericMethod(this MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      genericMethodInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), genericMethodFactory2);
+
+    public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument) =>
+      genericTypeInstances1.GetOrAdd((genericDefinition, typeArgument), genericTypeFactory1);
+
+    public static Type CachedMakeGenericType(this Type genericDefinition, Type typeArgument1, Type typeArgument2) =>
+      genericTypeInstances2.GetOrAdd((genericDefinition, typeArgument1, typeArgument2), genericTypeFactory2);
+
     /// <summary>
     /// Determines whether the specified <paramref name="type"/> is an ancestor or an instance of the
     /// provided <paramref name="openGenericBaseType"/>.
@@ -1026,7 +1065,7 @@ namespace Xtensive.Reflection
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       return type.IsValueType && !type.IsNullable()
-        ? WellKnownTypes.NullableOfT.MakeGenericType(type)
+        ? WellKnownTypes.NullableOfT.CachedMakeGenericType(type)
         : type;
     }
 

@@ -109,12 +109,12 @@ namespace Xtensive.Orm.Linq
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
-      var materializeMethod = MaterializationHelper.MaterializeMethodInfo.MakeGenericMethod(elementType);
+      var materializeMethod = MaterializationHelper.MaterializeMethodInfo.CachedMakeGenericMethod(elementType);
       var itemMaterializerFactoryMethod =
         elementType.IsNullable()
-          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.MakeGenericMethod(
+          ? MaterializationHelper.CreateNullableItemMaterializerMethodInfo.CachedMakeGenericMethod(
             elementType.GetGenericArguments()[0])
-          : MaterializationHelper.CreateItemMaterializerMethodInfo.MakeGenericMethod(elementType);
+          : MaterializationHelper.CreateItemMaterializerMethodInfo.CachedMakeGenericMethod(elementType);
 
       var itemMaterializer = itemMaterializerFactoryMethod.Invoke(
         null, new object[] { materializationInfo.Expression, itemProjector.AggregateType });
@@ -177,7 +177,7 @@ namespace Xtensive.Orm.Linq
       var returnType = mc.Method.ReturnType;
 
       var argument = mc.Arguments[0];
-      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(returnType));
+      var queryAll = Expression.Call(null, WellKnownMembers.Query.All.CachedMakeGenericMethod(returnType));
       var source = ConstructQueryable(queryAll);
       var parameter = Expression.Parameter(returnType, "entity");
       var keyAccessor = Expression.MakeMemberAccess(parameter, WellKnownMembers.IEntityKey);

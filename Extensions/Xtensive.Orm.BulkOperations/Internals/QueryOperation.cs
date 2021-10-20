@@ -9,6 +9,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 
@@ -35,7 +36,7 @@ namespace Xtensive.Orm.BulkOperations
               ex.Arguments.Count == 2) {
             var localCollection = ex.Arguments[0];//IEnumerable<T>
             var valueToCheck = ex.Arguments[1];
-            var genericInMethod = WellKnownMembers.InMethod.MakeGenericMethod(new[] { valueToCheck.Type });
+            var genericInMethod = WellKnownMembers.InMethod.CachedMakeGenericMethod(valueToCheck.Type);
             ex = Expression.Call(genericInMethod, valueToCheck, Expression.Constant(IncludeAlgorithm.ComplexCondition), localCollection);
             methodInfo = ex.Method;
           }

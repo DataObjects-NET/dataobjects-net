@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Building.Builders
       var valueType = addNullability ? field.ValueType.ToNullable() : field.ValueType;
       usedFields.Add(field);
       return Expression.Call(parameter,
-        WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(valueType),
+        WellKnownMembers.Tuple.GenericAccessor.CachedMakeGenericMethod(valueType),
         Expression.Constant(fieldIndex));
     }
 

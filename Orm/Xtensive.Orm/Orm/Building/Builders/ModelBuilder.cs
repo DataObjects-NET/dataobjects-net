@@ -429,7 +429,7 @@ namespace Xtensive.Orm.Building.Builders
 
       static Lazy<Type> AuxiliaryTypeFactory(TypeKey typeKey) {
         return new Lazy<Type>(() => {
-          var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(typeKey.OwnerType, typeKey.TargetType);
+          var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.CachedMakeGenericType(typeKey.OwnerType, typeKey.TargetType);
           return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
         });
       };

@@ -382,7 +382,7 @@ namespace Xtensive.Reflection
         return null;
 
       for (int i = 0; i<count; i++) {
-        MethodInfo instantiatedMethodInfo = methodInfo.MakeGenericMethod(genericArgumentVariants[i]);
+        MethodInfo instantiatedMethodInfo = methodInfo.CachedMakeGenericMethod(genericArgumentVariants[i]);
         if (callTarget==null)
           delegates[i] = (TDelegate)(object)Delegate.CreateDelegate(delegateType, instantiatedMethodInfo, true);
         else
