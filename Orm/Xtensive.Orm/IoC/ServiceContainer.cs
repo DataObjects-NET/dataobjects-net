@@ -95,7 +95,7 @@ namespace Xtensive.IoC
       }
       var args = new object[pInfos.Length];
       try {
-        for (int i = 0; i < pInfos.Length; i++) {
+        for (var i = 0; i < pInfos.Length; i++) {
           var type = pInfos[i].ParameterType;
           if (creating.ContainsKey((type, managedThreadId))) {
             throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
