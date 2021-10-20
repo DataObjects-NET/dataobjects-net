@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Operations
     public override string Description {
       get
       {
-        return string.Format("{0}, Version = {1}", base.Description, Version);
+        return $"{base.Description}, Version = {Version}";
       }
     }
 

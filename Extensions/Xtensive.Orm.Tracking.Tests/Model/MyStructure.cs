@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Tracking.Tests.Model
     public MyStructure(Session session) : base(session) {}
     public override string ToString()
     {
-      return string.Format("MyEntityStructure: Z={0}, SubStructure=({1})", Z, SubStructure);
+      return $"MyEntityStructure: Z={Z}, SubStructure=({SubStructure})";
     }
   }
 
@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tracking.Tests.Model
     public MyEntitySubStructure(Session session) : base(session) { }
     public override string ToString()
     {
-      return string.Format("MyEntitySubStructure: X={0}, Y={1}", X, Y);
+      return $"MyEntitySubStructure: X={X}, Y={Y}";
     }
   }
 }

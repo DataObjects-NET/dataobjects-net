@@ -157,7 +157,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var tableInfo = currentTable;
       var name = index.Name.IsNullOrEmpty()
-        ? string.Format("FT_{0}", index.DataTable.Name)
+        ? $"FT_{index.DataTable.Name}"
         : index.Name;
       var ftIndex = new StorageFullTextIndexInfo(tableInfo, name) {
         FullTextCatalog = index.FullTextCatalog,

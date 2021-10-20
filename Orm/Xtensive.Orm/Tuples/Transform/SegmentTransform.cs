@@ -38,9 +38,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = string.Format("{0}, {1}", 
-        segment, 
-        IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
+      string description = $"{segment}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat, 
         GetType().GetShortName(), 
         description);

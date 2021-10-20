@@ -43,7 +43,7 @@ namespace Xtensive.Modelling.Comparison.Hints
         "Update '{0}' set ({1}) where ({2})",
         SourceTablePath,
         string.Join(", ", UpdateParameter.Select(pair =>
-          string.Format("{0}={1}", pair.First, pair.Second ?? "Default"))
+          $"{pair.First}={pair.Second ?? "Default"}")
           .ToArray()),
         string.Join(" and ", Identities.Select(pair => pair.ToString()).ToArray()));
     }

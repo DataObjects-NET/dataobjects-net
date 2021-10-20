@@ -94,7 +94,7 @@ namespace Xtensive.Orm.Internals
         tupleIndex++;
       for (int valueIndex = 0; valueIndex < values.Length; valueIndex++) {
         var value = values[valueIndex];
-        ArgumentValidator.EnsureArgumentNotNull(value, String.Format("values[{0}]", valueIndex));
+        ArgumentValidator.EnsureArgumentNotNull(value, $"values[{valueIndex}]");
         var entity = value as Entity;
         if (entity!=null) {
           entity.EnsureNotRemoved();

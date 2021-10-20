@@ -198,13 +198,13 @@ namespace Xtensive.Orm.Upgrade
           continue;
         }
 
-        var tablePath = string.Format("Tables/{0}", pathItems[1]);
+        var tablePath = $"Tables/{pathItems[1]}";
         var columnName = pathItems[3];
 
         string originalTablePath;
 
         if (reverseTableMapping.TryGetValue(tablePath, out originalTablePath))
-          columnPath = string.Format("{0}/Columns/{1}", originalTablePath, columnName);
+          columnPath = $"{originalTablePath}/Columns/{columnName}";
 
         if (!safeColumns.Contains(columnPath))
           output.Add(action);
@@ -295,7 +295,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var filter = schemaUpgradeMode!=SchemaUpgradeMode.ValidateCompatible
         ? (Func<Type, bool>) (targetType => true)
-        : targetType => targetType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo);
+        : targetType => targetType == WellKnownUpgradeTypes.TableInfo || targetType == WellKnownUpgradeTypes.StorageColumnInfo;
       var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Select(action => action.Difference.Target.GetType())
@@ -303,7 +303,7 @@ namespace Xtensive.Orm.Upgrade
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
         .Select(action => action.Difference.Source.GetType())
-        .Any(sourceType => sourceType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo));
+        .Any(sourceType => sourceType == WellKnownUpgradeTypes.TableInfo || sourceType == WellKnownUpgradeTypes.StorageColumnInfo);
 
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;

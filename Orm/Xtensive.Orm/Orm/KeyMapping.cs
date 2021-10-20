@@ -19,7 +19,7 @@ using Xtensive.Collections;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Maps local ("disconnected") <see cref="Key"/> instances 
+  /// Maps local ("disconnected") <see cref="Key"/> instances
   /// to actual (storage) <see cref="Key"/> instances.
   /// </summary>
   [Serializable]
@@ -34,7 +34,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Tries to remaps the specified key;
-    /// returns the original key, if there is no 
+    /// returns the original key, if there is no
     /// remapped key in <see cref="Map"/> for it.
     /// </summary>
     /// <param name="key">The key to remap.</param>
@@ -61,11 +61,11 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("{0}:\r\n", Strings.KeyMapping) + (
+      return  $"{Strings.KeyMapping}:\r\n" + (
         from pair in map
         let pairKeyString = pair.Key.ToString()
         orderby pairKeyString
-        select string.Format("  {0} => {1}", pairKeyString, pair.Value)
+        select $"  {pairKeyString} => {pair.Value}"
         ).ToDelimitedString(Environment.NewLine);
     }
 

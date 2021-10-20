@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Operations
     public override string Description {
       get
       {
-        return string.Format("{0}, Key = {1}", Title, Key);
+        return $"{Title}, Key = {Key}";
       }
     }
 

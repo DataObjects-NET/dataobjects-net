@@ -201,7 +201,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected static SqlExpression NpgsqlPointExtractPart(SqlExpression expression, int part)
     {
-      return SqlDml.RawConcat(expression, SqlDml.Native(String.Format("[{0}]", part)));
+      return SqlDml.RawConcat(expression, SqlDml.Native($"[{part}]"));
     }
 
     protected static SqlExpression NpgsqlTypeExtractPoint(SqlExpression expression, SqlExpression numberPoint)
@@ -213,7 +213,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         SqlDml.Native("("),
         SqlDml.RawConcat(
           expression,
-          SqlDml.Native(String.Format("[{0}])", valueNumberPoint))));
+          SqlDml.Native($"[{valueNumberPoint}])")));
     }
 
     protected static SqlExpression NpgsqlBoxExtractHeight(SqlExpression expression)
@@ -266,7 +266,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     private static SqlExpression NpgsqlTypeConstructor(SqlExpression left, SqlExpression right, string type)
     {
       return SqlDml.RawConcat(
-        SqlDml.Native(String.Format("{0}(", type)),
+        SqlDml.Native($"{type}("),
         SqlDml.RawConcat(left,
           SqlDml.RawConcat(
             SqlDml.Native(","),
@@ -370,7 +370,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       int minutes = 0;
       //if something simple as double or int or even timespan can be separated into hours and minutes parts
       if (TryDivideOffsetIntoParts(offsetInMinutes, ref hours, ref minutes))
-        return SqlDml.Native(string.Format("'{0}'", ZoneStringFromParts(hours, minutes)));
+        return SqlDml.Native($"'{ZoneStringFromParts(hours, minutes)}'");
 
       var intervalExpression = offsetInMinutes * OneMinuteInterval;
       return IntervalToIsoString(intervalExpression, true);
@@ -378,7 +378,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     private string ZoneStringFromParts(int hours, int minutes)
     {
-      return string.Format("{0}{1:00}:{2:00}", hours < 0 ? "-" : "+", Math.Abs(hours), Math.Abs(minutes));
+      return $"{(hours < 0 ? "-" : "+")}{Math.Abs(hours):00}:{Math.Abs(minutes):00}";
     }
 
     private SqlExpression GetDateTimeInTimeZone(SqlExpression expression, SqlExpression zone)

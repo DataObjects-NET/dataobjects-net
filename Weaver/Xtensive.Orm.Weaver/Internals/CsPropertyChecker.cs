@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Weaver
       // we should check it contains both getter and setter
       // otherwise the whole idea is corrupted
       if (getter==null || setter==null) {
-        context.Logger.Write(MessageCode.WarningPersistentPropertyHasNoSetterOrGetter, string.Format("'{0}' property of '{1}' type", property.Name, property.DeclaringType.FullName));
+        context.Logger.Write(MessageCode.WarningPersistentPropertyHasNoSetterOrGetter, $"'{property.Name}' property of '{property.DeclaringType.FullName}' type");
         HasSkippedProperties = true;
         return false;
       }

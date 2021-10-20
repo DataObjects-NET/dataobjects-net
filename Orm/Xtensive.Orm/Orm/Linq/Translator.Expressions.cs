@@ -1566,7 +1566,7 @@ namespace Xtensive.Orm.Linq
       var fields = implementors
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
         .Concat(implementors
-          .Select(im => im.UnderlyingType.GetProperty(string.Format("{0}.{1}", @interface.Name, property.Name), BindingFlags.Instance|BindingFlags.NonPublic)))
+          .Select(im => im.UnderlyingType.GetProperty($"{@interface.Name}.{property.Name}", BindingFlags.Instance|BindingFlags.NonPublic)))
         .Where(f => f != null);
 
       return BuildExpression(ma, fields);

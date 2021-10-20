@@ -1,4 +1,4 @@
-﻿// Copyright (C) a Xtensive LLC.
+// Copyright (C) a Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Elena Vakhtina
@@ -31,9 +31,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = string.Format("Index {0}, {1}",
-        Index,
-        IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort);
+      string description = $"Index {Index}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat,
         GetType().GetShortName(),
         description);

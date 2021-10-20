@@ -37,7 +37,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("Rename '{0}' -> '{1}'", SourcePath, TargetPath);
+      return $"Rename '{SourcePath}' -> '{TargetPath}'";
     }
 
     // Constructors

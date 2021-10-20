@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Security
       var service = Session.Services.Get<IHashingService>(config.HashingServiceName);
 
       if (service == null)
-        throw new InvalidOperationException(string.Format("Hashing service by name {0} is not found. Check Xtensive.Security configuration", config.HashingServiceName));
+        throw new InvalidOperationException($"Hashing service by name {config.HashingServiceName} is not found. Check Xtensive.Security configuration");
 
       // GenericPrincipal is not in the model, let's find its descendant
       var model = Session.Domain.Model;
