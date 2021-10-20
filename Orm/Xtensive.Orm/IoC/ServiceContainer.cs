@@ -104,7 +104,7 @@ namespace Xtensive.IoC
         }
       }
       finally {
-        creating.TryRemove(key, out _);
+        _ = creating.TryRemove(key, out _);
       }
       return cInfo.Invoke(args);
     }
