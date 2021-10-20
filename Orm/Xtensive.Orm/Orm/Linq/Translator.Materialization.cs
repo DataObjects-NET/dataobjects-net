@@ -143,8 +143,8 @@ namespace Xtensive.Orm.Linq
         using (CreateScope(new TranslatorState(state) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
-        body = body.IsProjection()
-          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
+        body = body.StripMarkers().IsProjection()
+          ? BuildSubqueryResult((ProjectionExpression) body, argument.Type) 
           : ProcessProjectionElement(body);
         arguments.Add(body);
       }
