@@ -32,29 +32,6 @@ namespace Xtensive.Orm.Linq
 
     internal TranslatorState State { get; private set; } = TranslatorState.InitState;
 
-    internal void RestoreState(in TranslatorState previousState) =>
-      State = previousState;
-
-    public TranslatorState.TranslatorScope CreateScope(in TranslatorState newState)
-    {
-      var scope = new TranslatorState.TranslatorScope(this);
-      State = newState;
-      return scope;
-    }
-
-    public TranslatorState.TranslatorScope CreateLambdaScope(LambdaExpression le, bool allowCalculableColumnCombine)
-    {
-      var newOuterParameters = new ParameterExpression[State.OuterParameters.Length + State.Parameters.Length];
-      State.OuterParameters.CopyTo(newOuterParameters, 0);
-      State.Parameters.CopyTo(newOuterParameters, State.OuterParameters.Length);
-      return CreateScope(new TranslatorState(State) {
-        OuterParameters = newOuterParameters,
-        Parameters = le.Parameters.ToArray(le.Parameters.Count),
-        CurrentLambda = le,
-        AllowCalculableColumnCombine = allowCalculableColumnCombine
-      });
-    }
-
     protected override Expression VisitConstant(ConstantExpression c)
     {
       if (c.Value == null) {
@@ -309,7 +286,7 @@ namespace Xtensive.Orm.Linq
 
       var currentIndex = 0;
       var indexes = new List<int>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
-      foreach(var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
+      foreach (var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
         if (targetTypeInfo.Columns.Contains(indexColumn)) {
           indexes.Add(currentIndex);
         }
@@ -379,20 +356,20 @@ namespace Xtensive.Orm.Linq
       var targetProjectionType = WellKnownInterfaces.QueryableOfT.MakeGenericType(targetType);
       return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings,
         projection.ResultAccessMethod);
-//      if (targetType.IsSubclassOf(sourceType)) {
-//        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-//        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-//        offset = recordSet.Header.Columns.Count;
-//        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-//        var keyPairs = keySegment
-//          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-//          .ToArray();
-//        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
-//      }
-//      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
-//      entityExpression.Remap()
-//      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
-//      return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
+      //      if (targetType.IsSubclassOf(sourceType)) {
+      //        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
+      //        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+      //        offset = recordSet.Header.Columns.Count;
+      //        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+      //        var keyPairs = keySegment
+      //          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+      //          .ToArray();
+      //        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+      //      }
+      //      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+      //      entityExpression.Remap()
+      //      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
+      //      return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
 
 
@@ -466,8 +443,8 @@ namespace Xtensive.Orm.Linq
 
       ProjectionExpression projection;
       using (CreateScope(new TranslatorState(State) {
-            RequestCalculateExpressions = State.RequestCalculateExpressions || !isRoot && context.ProviderInfo.SupportedTypes.Contains(method.ReturnType)
-          })) {
+        RequestCalculateExpressions = State.RequestCalculateExpressions || !isRoot && context.ProviderInfo.SupportedTypes.Contains(method.ReturnType)
+      })) {
         projection = predicate != null ? VisitWhere(source, predicate) : VisitSequence(source);
       }
 
@@ -1286,10 +1263,10 @@ namespace Xtensive.Orm.Linq
           .Concat(collectionSelector.Parameters)
           .Append(outerParameter).ToArray(State.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(State) {
-              OuterParameters = outerParameters,
-              Parameters = Array.Empty<ParameterExpression>(),
-              RequestCalculateExpressionsOnce = true
-            })) {
+          OuterParameters = outerParameters,
+          Parameters = Array.Empty<ParameterExpression>(),
+          RequestCalculateExpressionsOnce = true
+        })) {
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
           if (visitedCollectionSelector.IsGroupingExpression()) {
@@ -1371,8 +1348,9 @@ namespace Xtensive.Orm.Linq
       context.Bindings.PermanentAdd(le.Parameters[0], sequence);
       var calculateExpressions = State.RequestCalculateExpressions || State.RequestCalculateExpressionsOnce;
       using (CreateScope(new TranslatorState(State) {
-          CalculateExpressions = calculateExpressions,
-          RequestCalculateExpressionsOnce = false })) {
+        CalculateExpressions = calculateExpressions,
+        RequestCalculateExpressionsOnce = false
+      })) {
         return BuildProjection(le);
       }
     }
@@ -1465,11 +1443,11 @@ namespace Xtensive.Orm.Linq
       var parameter = predicate.Parameters[0];
       ProjectionExpression visitedSource;
       using (CreateScope(new TranslatorState(State) {
-            TypeOfEntityStoredInKey = source.IsLocalCollection(context) && IsKeyCollection(source.Type)
+        TypeOfEntityStoredInKey = source.IsLocalCollection(context) && IsKeyCollection(source.Type)
               ? LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body)
               : State.TypeOfEntityStoredInKey,
-            IncludeAlgorithm = IncludeAlgorithm.Auto
-          })) {
+        IncludeAlgorithm = IncludeAlgorithm.Auto
+      })) {
         visitedSource = VisitSequence(source);
       }
 
@@ -1569,8 +1547,10 @@ namespace Xtensive.Orm.Linq
       QueryHelper.TryAddConvarianceCast(ref innerSource, elementType);
 
       using (CreateScope(new TranslatorState(State) {
-          JoinLocalCollectionEntity = true, CalculateExpressions = true,
-          RequestCalculateExpressions = true })) {
+        JoinLocalCollectionEntity = true,
+        CalculateExpressions = true,
+        RequestCalculateExpressions = true
+      })) {
         outer = VisitSequence(outerSource);
         inner = VisitSequence(innerSource);
       }
@@ -1617,7 +1597,7 @@ namespace Xtensive.Orm.Linq
     private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, ICollection<int> columns) =>
       expression.DataSource.Type != ProviderType.Select
       || expression.DataSource.Header.Length != columns.Count
-      || columns.Select((c, i) => new {c, i}).Any(x => x.c != x.i);
+      || columns.Select((c, i) => new { c, i }).Any(x => x.c != x.i);
 
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
     {
@@ -1675,7 +1655,7 @@ namespace Xtensive.Orm.Linq
         var itemType = QueryHelper.GetSequenceElementType(sequenceType);
         return (ProjectionExpression) VisitLocalCollectionSequenceMethod
           .MakeGenericMethod(itemType)
-          .Invoke(this, new object[] {sequence});
+          .Invoke(this, new object[] { sequence });
       }
 
       var visitedExpression = Visit(sequenceExpression).StripCasts();
@@ -1716,7 +1696,7 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
     {
       Func<ParameterContext, IEnumerable<TItem>> collectionGetter;
-      if (compiledQueryScope!=null) {
+      if (compiledQueryScope != null) {
         var replacer = compiledQueryScope.QueryParameterReplacer;
         var replace = replacer.Replace(sequence);
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
@@ -1726,7 +1706,7 @@ namespace Xtensive.Orm.Linq
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(sequence);
         collectionGetter = parameter.CachingCompile();
       }
-      return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this, sequence);
+      return CreateLocalCollectionProjectionExpression(typeof(TItem), collectionGetter, this, sequence);
     }
 
     private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)
@@ -1802,6 +1782,29 @@ namespace Xtensive.Orm.Linq
     {
       return (localCollectionType.IsArray && localCollectionType.GetElementType() == WellKnownOrmTypes.Key)
         || IEnumerableOfKeyType.IsAssignableFrom(localCollectionType);
+    }
+
+    internal void RestoreState(in TranslatorState previousState) =>
+      State = previousState;
+
+    private TranslatorState.TranslatorScope CreateScope(in TranslatorState newState)
+    {
+      var scope = new TranslatorState.TranslatorScope(this);
+      State = newState;
+      return scope;
+    }
+
+    private TranslatorState.TranslatorScope CreateLambdaScope(LambdaExpression le, bool allowCalculableColumnCombine)
+    {
+      var newOuterParameters = new ParameterExpression[State.OuterParameters.Length + State.Parameters.Length];
+      State.OuterParameters.CopyTo(newOuterParameters, 0);
+      State.Parameters.CopyTo(newOuterParameters, State.OuterParameters.Length);
+      return CreateScope(new TranslatorState(State) {
+        OuterParameters = newOuterParameters,
+        Parameters = le.Parameters.ToArray(le.Parameters.Count),
+        CurrentLambda = le,
+        AllowCalculableColumnCombine = allowCalculableColumnCombine
+      });
     }
 
     private void ModifyStateAllowCalculableColumnCombine(bool b) =>
