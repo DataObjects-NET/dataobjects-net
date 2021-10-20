@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Linq
         SingleOrDefault = typeof (System.Linq.Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name==nameof(System.Linq.Enumerable.SingleOrDefault) && m.GetParameters().Length==1);
-        OfTuple = WellKnownInterfaces.EnumerableOfT.MakeGenericType(typeof (Xtensive.Tuples.Tuple));
+        OfTuple = WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(typeof (Xtensive.Tuples.Tuple));
         DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.DefaultIfEmpty));
         Contains = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Contains), 1, 2);
         Cast = GetMethod(typeof (System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);

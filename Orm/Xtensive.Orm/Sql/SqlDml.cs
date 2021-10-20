@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 using System.Linq;
@@ -19,6 +20,10 @@ namespace Xtensive.Sql
   /// </summary>
   public static class SqlDml
   {
+    private static readonly Type
+      sqlArrayType = typeof(SqlArray<>),
+      sqlLiteralType = typeof(SqlLiteral<>);
+
     public static readonly SqlDefaultValue DefaultValue = new SqlDefaultValue();
     public static readonly SqlNull Null = new SqlNull();
     public static readonly SqlBreak Break = new SqlBreak();
@@ -149,7 +154,7 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      var resultType = typeof (SqlArray<>).MakeGenericType(itemType);
+      var resultType = sqlArrayType.CachedMakeGenericType(itemType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
@@ -969,7 +974,7 @@ namespace Xtensive.Sql
     public static SqlLiteral Literal(object value)
     {
       var valueType = value.GetType();
-      var resultType = typeof (SqlLiteral<>).MakeGenericType(valueType);
+      var resultType = sqlLiteralType.CachedMakeGenericType(valueType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,

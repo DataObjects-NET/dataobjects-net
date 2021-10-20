@@ -74,14 +74,14 @@ namespace Xtensive.Linq
     internal Factory CreateFactorySlow(Type delegateType)
     {
       var factory = (SlowFactory) Delegate.CreateDelegate(
-        SlowFactoryType, slowFactoryMethod.MakeGenericMethod(delegateType));
+        SlowFactoryType, slowFactoryMethod.CachedMakeGenericMethod(delegateType));
 
       return (body, parameters) => factory.Invoke(body, parameters);
     }
 
     internal static Factory CreateFactoryFast(Type delegateType)
     {
-      var method = WellKnownTypes.ExpressionOfT.MakeGenericType(delegateType).GetMethod(
+      var method = WellKnownTypes.ExpressionOfT.CachedMakeGenericType(delegateType).GetMethod(
         "Create", BindingFlags.Static | BindingFlags.NonPublic, null, internalFactorySignature, null);
 
       if (method == null) {

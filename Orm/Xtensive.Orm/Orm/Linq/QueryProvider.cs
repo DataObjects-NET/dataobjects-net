@@ -54,8 +54,8 @@ namespace Xtensive.Orm.Linq
     {
       var resultType = expression.Type;
       var executeMethod = resultType.IsOfGenericInterface(WellKnownInterfaces.EnumerableOfT)
-        ? WellKnownMembers.QueryProvider.ExecuteSequence.MakeGenericMethod(SequenceHelper.GetElementType(resultType))
-        : WellKnownMembers.QueryProvider.ExecuteScalar.MakeGenericMethod(resultType);
+        ? WellKnownMembers.QueryProvider.ExecuteSequence.CachedMakeGenericMethod(SequenceHelper.GetElementType(resultType))
+        : WellKnownMembers.QueryProvider.ExecuteScalar.CachedMakeGenericMethod(resultType);
       try {
         return executeMethod.Invoke(this, new object[] {expression});
       }

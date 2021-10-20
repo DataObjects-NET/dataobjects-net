@@ -79,7 +79,7 @@ namespace Xtensive.Linq
     {
       var tupleGenericAccessor = WellKnownOrmTypes.Tuple.GetMethods()
         .Single(mi => mi.Name == nameof(Tuple.GetValueOrDefault) && mi.IsGenericMethod);
-      TupleValueAccessorFactory = type => tupleGenericAccessor.MakeGenericMethod(type);
+      TupleValueAccessorFactory = type => tupleGenericAccessor.CachedMakeGenericMethod(type);
     }
   }
 }
