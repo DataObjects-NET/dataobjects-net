@@ -28,8 +28,6 @@ namespace Xtensive.Modelling
     INodeCollection,
     IDeserializationCallback
   {
-    private static readonly ReadOnlyList<Node> emptyCountable =
-      new ReadOnlyList<Node>(new List<Node>(), false);
     [NonSerialized]
     private string escapedName;
     [NonSerialized]

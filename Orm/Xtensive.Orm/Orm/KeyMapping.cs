@@ -57,7 +57,7 @@ namespace Xtensive.Orm
     public override string ToString()
     {
       return  $"{Strings.KeyMapping}:\r\n" + (
-        from pair in map
+        from pair in Map
         let pairKeyString = pair.Key.ToString()
         orderby pairKeyString
         select $"  {pairKeyString} => {pair.Value}"

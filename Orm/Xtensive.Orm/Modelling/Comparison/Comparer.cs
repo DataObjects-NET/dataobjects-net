@@ -360,10 +360,11 @@ namespace Xtensive.Modelling.Comparison
       using (TryActivate(source, target, (s,t) => new NodeCollectionDifference(s,t))) {
         var context = Context;
         var difference = (NodeCollectionDifference) context.Difference;
-        if (difference==null)
+        if (difference == null) {
           throw new NullReferenceException();
+        }
 
-        bool isNewDifference = TryRegisterDifference(source, target, difference);
+        TryRegisterDifference(source, target, difference);
         difference.ItemChanges.Clear();
 
         var sourceSize = source?.Count ?? 0;
@@ -385,30 +386,43 @@ namespace Xtensive.Modelling.Comparison
           targetKeyMap.Add(GetNodeComparisonKey(node), node);
         }
 
-        var sourceKeys = src.Cast<Node>().Select(n => keyExtractor(n).Second);
-        var targetKeys = tgt.Cast<Node>().Select(n => keyExtractor(n).Second);
-        var commonKeys = sourceKeys.Intersect(targetKeys, StringComparer.OrdinalIgnoreCase);
-
-        var sequence =
-          sourceKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
-            .Select(k => new {Index = sourceKeyMap[k].Index, Type = 0,
-              Source = sourceKeyMap[k], Target = (Node) null})
-          .Concat(commonKeys
-            .Select(k => new {Index = targetKeyMap[k].Index, Type = 1,
-              Source = sourceKeyMap[k], Target = targetKeyMap[k]}))
-          .Concat(targetKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
-            .Select(k => new {Index = targetKeyMap[k].Index, Type = 2,
-              Source = (Node) null, Target = targetKeyMap[k]}))
-          .OrderBy(i => i.Type!=0).ThenBy(i => i.Index).ThenBy(i => i.Type);
-
-        foreach (var i in sequence) {
-          var d = Visit(i.Source, i.Target);
-          if (d!=null)
-            difference.ItemChanges.Add((NodeDifference) d);
+        foreach (var sourceItem in sourceKeyMap) {
+          if (!targetKeyMap.ContainsKey(sourceItem.Key)) {
+            var d = Visit(sourceKeyMap[sourceItem.Key], null);
+            if (d != null) {
+              difference.ItemChanges.Add((NodeDifference) d);
+            }
+          }
         }
+
+        foreach (var targetItem in targetKeyMap) {
+          var (s, t) = (sourceKeyMap.GetValueOrDefault(targetItem.Key), targetKeyMap[targetItem.Key]);
+          var d = Visit(s, t);
+          if (d != null) {
+            difference.ItemChanges.Add((NodeDifference) d);
+          }
+
+        }
+        difference.ItemChanges.Sort(CompareNodeDifference);
 
         return (difference.ItemChanges.Count!=0) ? difference : null;
       }
+    }
+
+    // Sort by items only with source, then by (target ?? source).Index then with source and target and then only with target
+    private static int CompareNodeDifference(NodeDifference curr, NodeDifference other)
+    {
+      var currType = curr.Source != null && curr.Target != null ? 1 : curr.Source == null ? 3 : 0;
+      var otherType = other.Source != null && other.Target != null ? 1 : other.Source == null ? 3 : 0;
+      var typeIsNot0Comparison = (currType != 0).CompareTo(otherType != 0);
+      if (typeIsNot0Comparison != 0) {
+        return typeIsNot0Comparison;
+      }
+
+      var currIndex = (curr.Target ?? curr.Source)?.Index ?? 0;
+      var otherIndex = (other.Target ?? other.Source)?.Index ?? 0;
+      var indexComparison = currIndex.CompareTo(otherIndex);
+      return indexComparison != 0 ? indexComparison : currType.CompareTo(otherType);
     }
 
     /// <summary>
