@@ -1394,49 +1394,47 @@ namespace Xtensive.Orm.Linq
         return Visit(Expression.Convert(source, targetType));
 
       // Cast to subclass or interface.
-      using (CreateScope(new TranslatorState(State))) {       //!!! why to create State Scope without modifying the state?
-        var targetTypeInfo = context.Model.Types[targetType];
-        // Using of state.Parameter[0] is a very weak approach.
-        // `as` operator could be applied on expression that has no relation with current parameter
-        // thus the later code will fail.
-        // We can't easily find real parameter that need replacement.
-        // We work around this situation by supporting some known cases.
-        // The simplest (and the only at moment) case is a source being chain of MemberExpressions.
-        var currentParameter = State.Parameters[0];
-        var parameter = (source.StripMemberAccessChain() as ParameterExpression) ?? currentParameter;
-        var entityExpression = visitedSource.StripCasts().StripMarkers() as IEntityExpression;
+      var targetTypeInfo = context.Model.Types[targetType];
+      // Using of state.Parameter[0] is a very weak approach.
+      // `as` operator could be applied on expression that has no relation with current parameter
+      // thus the later code will fail.
+      // We can't easily find real parameter that need replacement.
+      // We work around this situation by supporting some known cases.
+      // The simplest (and the only at moment) case is a source being chain of MemberExpressions.
+      var currentParameter = State.Parameters[0];
+      var parameter = (source.StripMemberAccessChain() as ParameterExpression) ?? currentParameter;
+      var entityExpression = visitedSource.StripCasts().StripMarkers() as IEntityExpression;
 
-        if (entityExpression==null)
-          throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
+      if (entityExpression==null)
+        throw new InvalidOperationException(Strings.ExAsOperatorSupportsEntityOnly);
 
-        // Replace original recordset. New recordset is left join with old recordset
-        ProjectionExpression originalResultExpression = context.Bindings[parameter];
-        var originalQuery = originalResultExpression.ItemProjector.DataSource;
-        int offset = originalQuery.Header.Columns.Count;
+      // Replace original recordset. New recordset is left join with old recordset
+      ProjectionExpression originalResultExpression = context.Bindings[parameter];
+      var originalQuery = originalResultExpression.ItemProjector.DataSource;
+      int offset = originalQuery.Header.Columns.Count;
 
-        // Join primary index of target type
-        IndexInfo indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
-        var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
-        var keySegment = entityExpression.Key.Mapping.GetItems();
-        var keyPairs = keySegment
-          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-          .ToArray();
+      // Join primary index of target type
+      IndexInfo indexToJoin = targetTypeInfo.Indexes.PrimaryIndex;
+      var queryToJoin = indexToJoin.GetQuery().Alias(context.GetNextAlias());
+      var keySegment = entityExpression.Key.Mapping.GetItems();
+      var keyPairs = keySegment
+        .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+        .ToArray();
 
-        // Replace recordset.
-        var joinedRecordQuery = originalQuery.LeftJoin(queryToJoin, keyPairs);
-        var itemProjectorExpression = new ItemProjectorExpression(
-          originalResultExpression.ItemProjector.Item, joinedRecordQuery, context);
-        var projectionExpression = new ProjectionExpression(
-          originalResultExpression.Type, itemProjectorExpression, originalResultExpression.TupleParameterBindings);
-        context.Bindings.ReplaceBound(parameter, projectionExpression);
+      // Replace recordset.
+      var joinedRecordQuery = originalQuery.LeftJoin(queryToJoin, keyPairs);
+      var itemProjectorExpression = new ItemProjectorExpression(
+        originalResultExpression.ItemProjector.Item, joinedRecordQuery, context);
+      var projectionExpression = new ProjectionExpression(
+        originalResultExpression.Type, itemProjectorExpression, originalResultExpression.TupleParameterBindings);
+      context.Bindings.ReplaceBound(parameter, projectionExpression);
 
-        // return new EntityExpression
-        var result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
-        result.IsNullable = true;
-        if (parameter!=currentParameter)
-          result = (EntityExpression) result.BindParameter(parameter, new Dictionary<Expression, Expression>());
-        return result;
-      }
+      // return new EntityExpression
+      var result = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+      result.IsNullable = true;
+      if (parameter!=currentParameter)
+        result = (EntityExpression) result.BindParameter(parameter, new Dictionary<Expression, Expression>());
+      return result;
     }
 
     private void EnsureEntityFieldsAreJoined(EntityExpression entityExpression)
