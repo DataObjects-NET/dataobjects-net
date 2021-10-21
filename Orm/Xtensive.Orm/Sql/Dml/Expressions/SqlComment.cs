@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2021 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Edgar Isajanyan
 // Created:    2021.09.13
 
