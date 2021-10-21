@@ -29,6 +29,17 @@ namespace Xtensive.IoC
   {
     private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
 
+    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
+      var mappedType = serviceInfo.MappedType;
+      var ctor = (
+        from c in mappedType.GetConstructors()
+        where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
+        select c
+        ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
+      var @params = ctor?.GetParameters();
+      return new Pair<ConstructorInfo, ParameterInfo[]>(ctor, @params);
+    };
+
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
 
     private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
@@ -59,17 +70,6 @@ namespace Xtensive.IoC
       types.TryGetValue(GetKey(serviceType, null), out var list)
         ? list.Select(GetOrCreateInstance)
         : Array.Empty<object>();
-
-    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
-      var mappedType = serviceInfo.MappedType;
-      var ctor = (
-        from c in mappedType.GetConstructors()
-        where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
-        select c
-        ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
-      var @params = ctor?.GetParameters();
-      return new Pair<ConstructorInfo, ParameterInfo[]>(ctor, @params);
-    };
 
     /// <summary>
     /// Creates the service instance for the specified <paramref name="serviceInfo"/>.
