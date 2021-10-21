@@ -52,7 +52,8 @@ namespace Xtensive.Sql
     }
 
     /// <summary>
-    /// Assigns connection accessors to <paramref name="connection"/> so they will have access.
+    /// Assigns connection accessors to <paramref name="connection"/> so they will have access
+    /// to database connection on certain operations.
     /// </summary>
     /// <param name="connection">The connection to assign accessors.</param>
     /// <param name="connectionAccessors">The accessors.</param>

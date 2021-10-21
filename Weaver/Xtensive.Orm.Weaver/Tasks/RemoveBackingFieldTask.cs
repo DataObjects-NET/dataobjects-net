@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Weaver.Tasks
       if (fieldName!=null && type.Fields.Remove(fieldName))
         return ActionResult.Success;
       context.Logger.Write(MessageCode.ErrorUnableToRemoveBackingField,
-        string.Format("type: {0}, property: {1}, field: {2}", type.FullName, property.Name, fieldName));
+        $"type: {type.FullName}, property: {property.Name}, field: {fieldName}");
       return ActionResult.Failure;
     }
 

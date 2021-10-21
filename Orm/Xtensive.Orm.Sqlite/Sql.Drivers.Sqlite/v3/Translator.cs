@@ -377,7 +377,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           sqlType == SqlType.DateTimeOffset) {
         switch (section) {
           case NodeSection.Entry:
-            output.Append(string.Format("STRFTIME('{0}', ", DateTimeCastFormat));
+            output.Append($"STRFTIME('{DateTimeCastFormat}', ");
             break;
           case NodeSection.Exit:
             output.Append(")");

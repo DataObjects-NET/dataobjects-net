@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Tests.Storage.ConnectionAccessorsModel
 namespace Xtensive.Orm.Tests.Storage
 {
   [TestFixture]
-  public class ConnectionAccessorTest
+  public sealed class ConnectionAccessorTest
   {
     [Test]
     public void DomainRegistryTest()
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Tests.Storage
       using (var session = domain.OpenSession()) {
         var nativeHandler = (SqlSessionHandler) session.Handler;
         var extension = nativeHandler.Connection.Extensions.Get<DbConnectionAccessorExtension>();
-        var accessorInstance = (MyConnectionAccessor)extension.Accessors.First();
+        var accessorInstance = (MyConnectionAccessor) extension.Accessors.First();
         Assert.That(accessorInstance.ConnectionOpeningCounter, Is.Not.EqualTo(0));
         Assert.That(accessorInstance.ConnectionOpenedCounter, Is.Not.EqualTo(0));
         first = accessorInstance.UniqueInstanceIdentifier;

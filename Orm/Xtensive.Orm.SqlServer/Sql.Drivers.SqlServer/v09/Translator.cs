@@ -449,9 +449,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var schema = defaultConstraint.Column.DataTable.Schema;
       var gettingNameOfDefaultConstraintScript = GetCurentNameOfDefaultConstraintScript();
 
-      var sqlVariableName = RemoveFromStringInvalidCharacters(string.Format("var_{0}_{1}_{2}", schema.DbName,
-        table.DbName,
-        column.DbName));
+      var sqlVariableName = RemoveFromStringInvalidCharacters($"var_{schema.DbName}_{table.DbName}_{column.DbName}");
 
       context.Output.Append(string.Format(gettingNameOfDefaultConstraintScript,
           sqlVariableName,

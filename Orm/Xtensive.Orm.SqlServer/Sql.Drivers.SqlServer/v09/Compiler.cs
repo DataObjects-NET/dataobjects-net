@@ -24,7 +24,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected static readonly long MillisecondsPerDay = (long) TimeSpan.FromDays(1).TotalMilliseconds;
     protected static readonly long MillisecondsPerSecond = 1000L;
     protected static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
-    
+
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
@@ -196,14 +196,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       if (node.TrimCharacters!=null && !node.TrimCharacters.All(_char => _char==' '))
         throw new NotSupportedException(Strings.ExSqlServerSupportsTrimmingOfSpaceCharactersOnly);
-      
+
       using (context.EnterScope(node)) {
         AppendTranslated(node, TrimSection.Entry);
         node.Expression.AcceptVisitor(this);
         AppendTranslated(node, TrimSection.Exit);
       }
     }
-    
+
     public override void Visit(SqlExtract node)
     {
       if (node.DateTimePart==SqlDateTimePart.DayOfWeek) {
@@ -280,10 +280,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         -SqlDml.Extract(SqlDateTimePart.Second, date)),
         -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
     }
-    
+
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
-      
       return CastToDecimal(DateDiffDay(date2, date1), 18, 0) * NanosecondsPerDay
           + CastToDecimal(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1),18 , 0) * NanosecondsPerMillisecond;
     }
@@ -404,13 +403,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       base.Visit(node, item);
 
       if (item.TypeColumn!=null)
-        context.Output.Append(string.Format("TYPE COLUMN {0} ", translator.QuoteIdentifier(item.TypeColumn.Name)));
+        context.Output.AppendText($"TYPE COLUMN {translator.QuoteIdentifier(item.TypeColumn.Name)} ");
       switch (item.Languages.Count) {
         case 0:
           break;
         case 1:
           if (!string.IsNullOrEmpty(item.Languages[0].Name))
-            context.Output.Append(string.Format("LANGUAGE '{0}'", item.Languages[0].Name));
+            context.Output.AppendText($"LANGUAGE '{item.Languages[0].Name}'");
           break;
         default:
           throw new InvalidOperationException(string.Format(

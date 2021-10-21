@@ -19,8 +19,10 @@ namespace Xtensive.IoC
   [Serializable]
   public sealed class ServiceRegistration
   {
-    private static readonly ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]> serviceRegistrationsByType =
+    private static readonly ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]> ServiceRegistrationsByType =
       new ConcurrentDictionary<ServiceRegistrationKey, ServiceRegistration[]>();
+
+    private static readonly Func<ServiceRegistrationKey, ServiceRegistration[]> ServiceRegistrationsExtractor = ServiceRegistrationsExtractorImpl;
 
     /// <summary>
     /// Gets the type of the service.
@@ -74,11 +76,12 @@ namespace Xtensive.IoC
     /// An array of <see cref="ServiceRegistration"/> objects.
     /// </returns>
     public static ServiceRegistration[] CreateAll(Type type, bool defaultOnly) =>
-      serviceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly), ServiceRegistrationsExtractor);
+      ServiceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly), ServiceRegistrationsExtractor);
 
-    private static readonly Func<ServiceRegistrationKey, ServiceRegistration[]> ServiceRegistrationsExtractor = ((Type type, bool defaultOnly) t) => {
+    private static ServiceRegistration[] ServiceRegistrationsExtractorImpl(ServiceRegistrationKey t)
+    {
       (var type, var defaultOnly) = t;
-      ArgumentValidator.EnsureArgumentNotNull(type, "type");
+      ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
       if (type.IsAbstract)
         return Array.Empty<ServiceRegistration>();
 
@@ -90,8 +93,7 @@ namespace Xtensive.IoC
         }
       }
       return registrations.ToArray();
-    };
-
+    }
 
     // Constructors
 

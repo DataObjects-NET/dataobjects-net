@@ -194,8 +194,8 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlForceJoinOrderHint node)
     {
-      if (node.Tables.IsNullOrEmpty()) 
-        context.Output.Append("ORDERED");
+      if (node.Tables.IsNullOrEmpty())
+        context.Output.AppendText("ORDERED");
       else {
         context.Output.Append("LEADING(");
         using (context.EnterCollectionScope())
@@ -315,10 +315,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
       return SqlDml.FunctionCall("FROM_TZ",
         dateTime,
-        AnsiString(string.Format("{0}{1}:{2}",
-          (offsetToInt.Value < 0) ? "-" : "+",
-          offsetToInt.Value / 60,
-          offsetToInt.Value % 60))
+        AnsiString($"{((offsetToInt.Value < 0) ? "-" : "+")}{offsetToInt.Value / 60}:{offsetToInt.Value % 60}")
         );
     }
 

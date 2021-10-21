@@ -557,7 +557,7 @@ namespace Xtensive.Orm.Upgrade
       var extractedStoredColumn = GetExtractedStoredColumn(column);
       if (extractedStoredColumn==null)
         return null;
-      var path = string.Format("Tables/{0}/Columns/{1}", extractedStoredColumn.DeclaringType.MappingName, extractedStoredColumn.MappingName);
+      var path = $"Tables/{extractedStoredColumn.DeclaringType.MappingName}/Columns/{extractedStoredColumn.MappingName}";
 
       return StorageModel.Resolve(path) as StorageColumnInfo;
     }

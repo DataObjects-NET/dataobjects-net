@@ -43,9 +43,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
       if (lockType.Supports(SqlLockType.SkipLocked)) {
         return base.Translate(lockType);
       }
-      return string.Format("FOR {0}{1}",
-        lockType.Supports(SqlLockType.Shared) ? "SHARE" : "UPDATE",
-        lockType.Supports(SqlLockType.ThrowIfLocked) ? " NOWAIT" : "");
+      return $"FOR {(lockType.Supports(SqlLockType.Shared) ? "SHARE" : "UPDATE")}{(lockType.Supports(SqlLockType.ThrowIfLocked) ? " NOWAIT" : "")}";
     }
 
     // Constructors

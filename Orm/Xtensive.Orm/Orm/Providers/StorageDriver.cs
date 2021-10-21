@@ -180,7 +180,7 @@ namespace Xtensive.Orm.Providers
       List<IDbConnectionAccessor> instances;
       Dictionary<Type, Func<IDbConnectionAccessor>> factoriesLocal;
 
-      if(connectionAccessorTypes is IReadOnlyCollection<Type> asCollection) {
+      if (connectionAccessorTypes is IReadOnlyCollection<Type> asCollection) {
         if (asCollection.Count == 0)
           return Array.Empty<IDbConnectionAccessor>();
         instances = new List<IDbConnectionAccessor>(asCollection.Count);
@@ -203,7 +203,7 @@ namespace Xtensive.Orm.Providers
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }
-      factories = factoriesLocal; 
+      factories = factoriesLocal;
       return instances.ToArray();
     }
 
@@ -258,7 +258,7 @@ namespace Xtensive.Orm.Providers
       ProviderInfo providerInfo,
       DomainConfiguration configuration,
       Func<DomainModel> modelProvider,
-      IReadOnlyDictionary<Type,Func<IDbConnectionAccessor>> factoryCache)
+      IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> factoryCache)
     {
       underlyingDriver = driver;
       ProviderInfo = providerInfo;

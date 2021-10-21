@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override string ToString()
     {
-      return string.Format("Projection:  {0}, IsScalar = {1}", ItemProjector, IsScalar);
+      return $"Projection:  {ItemProjector}, IsScalar = {IsScalar}";
     }
 
 

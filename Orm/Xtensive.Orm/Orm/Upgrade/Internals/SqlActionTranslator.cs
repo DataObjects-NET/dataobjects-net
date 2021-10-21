@@ -1032,7 +1032,7 @@ namespace Xtensive.Orm.Upgrade
           idColumn,
           sequenceInfo.Current ?? sequenceInfo.Seed,
           sequenceInfo.Increment);
-      sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
+      sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));
         fakeColumn.IsNullable = true;

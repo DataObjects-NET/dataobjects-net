@@ -246,6 +246,21 @@ namespace Xtensive.Orm.Configuration
       return iDbConnectionAccessorType.IsAssignableFrom(type) && iDbConnectionAccessorType != type;
     }
 
+    /// <summary>
+    /// Determines whether the <paramref name="type"/> is
+    /// a database connection accessor.
+    /// </summary>
+    /// <param name="type">The type to check.</param>
+    /// <returns>Check result.</returns>
+    public static bool IsDbConnectionAccessor(Type type)
+    {
+      if (type.IsAbstract) {
+        return false;
+      }
+
+      return iDbConnectionAccessorType.IsAssignableFrom(type) && iDbConnectionAccessorType != type;
+    }
+
     #endregion
 
     #region ICloneable members
