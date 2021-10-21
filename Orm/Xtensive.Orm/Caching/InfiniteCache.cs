@@ -67,7 +67,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override void RemoveKey(TKey key)
     {
-      items.Remove(key);
+      _ = items.Remove(key);
     }
 
     /// <inheritdoc/>
