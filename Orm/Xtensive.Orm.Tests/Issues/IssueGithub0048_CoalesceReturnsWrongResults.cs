@@ -1,3 +1,7 @@
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -232,6 +236,52 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    public void CoalesceComplexEntityTest1()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var nullAuthorInstance = session.Query.All<Author>().FirstOrDefault(a => a.Id == nullAuthorId);
+
+        var localResult = session.Query.All<Book>()
+          .AsEnumerable()
+          .Select(a => a.Author ?? a.NoAuthor ?? nullAuthorInstance)
+          .Where(a => a.FullName.FirstName != null)
+          .OrderBy(a => a.FullName.FirstName)
+          .ToList(7);
+
+        var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Book>()
+          .Select(a => a.Author ?? a.NoAuthor ?? nullAuthorInstance)
+          .Where(a => a.FullName.FirstName != null)
+          .OrderBy(a => a.FullName.FirstName).Run());
+        Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
+      }
+    }
+
+    [Test]
+    public void CoalesceComplexEntityTest2()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var nullAuthorInstance = session.Query.All<Author>().FirstOrDefault(a => a.Id == nullAuthorId);
+
+        var localResult = session.Query.All<Book>()
+          .AsEnumerable()
+          .Select(a => a.Author ?? nullAuthorInstance ?? a.NoAuthor)
+          .Where(a => a.FullName.FirstName != null)
+          .OrderBy(a => a.FullName.FirstName)
+          .ToList(7);
+
+        var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Book>()
+          .Select(a => a.Author ?? nullAuthorInstance ?? a.NoAuthor)
+          .Where(a => a.FullName.FirstName != null)
+          .OrderBy(a => a.FullName.FirstName).Run());
+        Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
+      }
+    }
+
+    [Test]
     public void CoalesceWithNullConstantTest01()
     {
       using (var session = Domain.OpenSession())
@@ -313,6 +363,48 @@ namespace Xtensive.Orm.Tests.Issues
 
         var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Author>()
           .Select(a => nullFullNameInstance ?? a.FullName)
+          .Where(a => a.FirstName.Length > 0).Run());
+        Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
+      }
+    }
+
+    [Test]
+    public void CoalesceComplexStructureTest1()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var nullFullNameInstance = new AuthorName();
+
+        var localResult = session.Query.All<Author>()
+          .AsEnumerable()
+          .Select(a => a.FullName ?? a.NoFullName ?? nullFullNameInstance)
+          .Where(a => a.FirstName.Length > 0)
+          .ToList(7);
+
+        var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Author>()
+          .Select(a => a.FullName ?? a.NoFullName ?? nullFullNameInstance)
+          .Where(a => a.FirstName.Length > 0).Run());
+        Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
+      }
+    }
+
+    [Test]
+    public void CoalesceComplexStructureTest2()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var nullFullNameInstance = new AuthorName();
+
+        var localResult = session.Query.All<Author>()
+          .AsEnumerable()
+          .Select(a => a.FullName ?? nullFullNameInstance ?? a.NoFullName)
+          .Where(a => a.FirstName.Length > 0)
+          .ToList(7);
+
+        var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Author>()
+          .Select(a => a.FullName ?? nullFullNameInstance ?? a.NoFullName)
           .Where(a => a.FirstName.Length > 0).Run());
         Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
         Assert.That(ex.InnerException.Message.Contains("Coalesce expressions", StringComparison.Ordinal));
@@ -469,6 +561,31 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
+    [SuppressMessage("Style", "IDE0029:Use coalesce expression", Justification = "Test suppose to have ternary operator, not coalesce one")]
+    public void TernaryWithNullObjectEntityTest02()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var nullAuthorInstance = session.Query.All<Author>().FirstOrDefault(a => a.Id == nullAuthorId);
+
+        var localResult = session.Query.All<Book>()
+          .AsEnumerable()
+          .Select(book => book.Author == null ? nullAuthorInstance : book.Author)
+          .Where(a => a.FullName.FirstName != null)
+          .OrderBy(a => a.FullName.FirstName)
+          .ToList(7);
+
+        var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Book>()
+          .Select(book => book.Author == null ? nullAuthorInstance : book.Author)
+          .Where(a => a.FullName.FirstName != null)
+          .OrderBy(a => a.FullName.FirstName)
+          .Run());
+        Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Conditional expressions", StringComparison.Ordinal));
+      }
+    }
+
+    [Test]
     public void TernaryWithTwoEntityFieldsTest()
     {
       using (var session = Domain.OpenSession())
@@ -492,22 +609,39 @@ namespace Xtensive.Orm.Tests.Issues
     }
 
     [Test]
-    [SuppressMessage("Style", "IDE0029:Use coalesce expression", Justification = "Test suppose to have ternary operator, not coalesce one")]
-    public void TernaryWithNullObjectEntityTest02()
+    public void TernaryComplexEntityTest1()
     {
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         var nullAuthorInstance = session.Query.All<Author>().FirstOrDefault(a => a.Id == nullAuthorId);
 
-        var localResult = session.Query.All<Book>()
-          .AsEnumerable()
-          .Select(book => book.Author == null ? nullAuthorInstance : book.Author)
+        var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Book>()
+          .Select(book => book.Author.Id > 0
+                          ? (book.Author.Id > 10)
+                            ? book.Author
+                            : book.NoAuthor
+                          : nullAuthorInstance)
           .Where(a => a.FullName.FirstName != null)
           .OrderBy(a => a.FullName.FirstName)
-          .ToList(7);
+          .Run());
+        Assert.That(ex.InnerException, Is.InstanceOf<NotSupportedException>());
+        Assert.That(ex.InnerException.Message.Contains("Conditional expressions", StringComparison.Ordinal));
+      }
+    }
+
+    [Test]
+    public void TernaryComplexEntityTest2()
+    {
+      using (var session = Domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var nullAuthorInstance = session.Query.All<Author>().FirstOrDefault(a => a.Id == nullAuthorId);
 
         var ex = Assert.Throws<QueryTranslationException>(() => session.Query.All<Book>()
-          .Select(book => book.Author == null ? nullAuthorInstance : book.Author)
+          .Select(book => book.Author.Id > 0
+                          ? (book.Author.Id > 10)
+                            ? book.Author
+                            : nullAuthorInstance
+                          : book.NoAuthor)
           .Where(a => a.FullName.FirstName != null)
           .OrderBy(a => a.FullName.FirstName)
           .Run());
