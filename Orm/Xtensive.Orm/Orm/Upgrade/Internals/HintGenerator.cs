@@ -357,7 +357,7 @@ namespace Xtensive.Orm.Upgrade
         ? removedType.AllDescendants
         : Array.Empty<StoredTypeInfo>();
       var descendants = new HashSet<StoredTypeInfo>(descendantsToHash.Length);
-      descendantsToHash.ForEach(t => descendants.Add(t));
+      descendants.UnionWith(descendantsToHash);
 
       var affectedAssociations = (
         from association in extractedModel.Associations
