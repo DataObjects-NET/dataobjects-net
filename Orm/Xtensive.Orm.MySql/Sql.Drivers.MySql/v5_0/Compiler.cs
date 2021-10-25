@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
@@ -26,6 +26,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
       using (context.EnterScope(node)) {
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        Visit(node.Comment);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectHints(node);
