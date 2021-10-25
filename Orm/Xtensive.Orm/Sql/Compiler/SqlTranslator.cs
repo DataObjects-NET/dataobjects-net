@@ -1799,17 +1799,13 @@ namespace Xtensive.Sql.Compiler
 
     public virtual string Translate(SqlComment comment)
     {
-      if (comment?.Value == null)
+      if (comment?.Text == null)
         return string.Empty;
       
-      if (comment.Value.IndexOfAny(new char[] { '*', '/' }) != -1)
+      if (comment.Text.IndexOfAny(new char[] { '*', '/' }) != -1)
         throw new ArgumentException(string.Format(Strings.ExArgumentContainsInvalidCharacters, nameof(comment), "*/"));
-      
-      StringBuilder sb = new StringBuilder(32);
-      sb.Append("/*");
-      sb.Append(comment.Value);
-      sb.Append("*/");
-      return sb.ToString();
+
+      return $"/*{comment.Text}*/";
     }
 
     /// <summary>
