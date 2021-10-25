@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
+// Copyright (C) 2011 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -10,15 +10,10 @@ namespace Xtensive.Sql.Dml
   {
     public SqlExpression Expression { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var expression = (SqlExpression) Expression.Clone(context);
-      var clone = new SqlFragment(expression);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlFragment((SqlExpression) Expression.Clone(context));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

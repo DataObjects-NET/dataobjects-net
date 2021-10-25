@@ -106,7 +106,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="target">The target.</param>
-    /// <returns>Difference between <paramref name="source"/> 
+    /// <returns>Difference between <paramref name="source"/>
     /// and <paramref name="target"/> objects.
     /// <see langword="null" />, if they're equal.</returns>
     protected Difference Visit(object source, object target)
@@ -120,7 +120,7 @@ namespace Xtensive.Modelling.Comparison
     /// <param name="type">The type.</param>
     /// <param name="source">The source.</param>
     /// <param name="target">The target.</param>
-    /// <returns>Difference between <paramref name="source"/> 
+    /// <returns>Difference between <paramref name="source"/>
     /// and <paramref name="target"/> objects.
     /// <see langword="null" />, if they're equal.</returns>
     protected virtual Difference Visit(Type type, object source, object target)
@@ -162,7 +162,7 @@ namespace Xtensive.Modelling.Comparison
         if (any==null)
           throw Exceptions.InternalError(Strings.ExBothSourceAndTargetAreNull, CoreLog.Instance);
 
-        
+
         bool isNewDifference = TryRegisterDifference(source, target, difference);
         if (isNewDifference) {
           // Build movement info
@@ -172,7 +172,7 @@ namespace Xtensive.Modelling.Comparison
         }
 
         difference.PropertyChanges.Clear();
-       
+
         // Compare properties
         CompareProperties(source, target, difference);
 
@@ -262,7 +262,7 @@ namespace Xtensive.Modelling.Comparison
     protected virtual void CompareProperties(Node source, Node target, NodeDifference difference)
     {
       var any = source ?? target;
-      
+
       foreach (var pair in any.PropertyAccessors) {
         var accessor = pair.Value;
         if (accessor.IgnoreInComparison)
@@ -320,8 +320,8 @@ namespace Xtensive.Modelling.Comparison
         var isImmutable = IsImmutable(target);
         var referencedPropertyDifference = Results.GetValueOrDefault(targetValue);
         if (referencedPropertyDifference!=null)
-          return HasChanges(referencedPropertyDifference, isDataDependent, isImmutable) 
-            ? new ValueDifference(sourceValue, targetValue) 
+          return HasChanges(referencedPropertyDifference, isDataDependent, isImmutable)
+            ? new ValueDifference(sourceValue, targetValue)
             : null;
 
         throw new InvalidOperationException(string.Format(
@@ -350,7 +350,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="target">The target.</param>
-    /// <returns>Difference between <paramref name="source"/> 
+    /// <returns>Difference between <paramref name="source"/>
     /// and <paramref name="target"/> objects.
     /// <see langword="null" />, if they're equal.</returns>
     /// <exception cref="InvalidOperationException">Both source and target are <see langword="null" />.</exception>
@@ -362,7 +362,7 @@ namespace Xtensive.Modelling.Comparison
         var difference = (NodeCollectionDifference) context.Difference;
         if (difference==null)
           throw new NullReferenceException();
-        
+
         bool isNewDifference = TryRegisterDifference(source, target, difference);
         difference.ItemChanges.Clear();
 
@@ -382,7 +382,7 @@ namespace Xtensive.Modelling.Comparison
         var someItems = srcCount!=0 ? src : tgt;
         var someItem = someItems.Cast<Node>().First();
 
-        Func<Node, Pair<Node, string>> keyExtractor = 
+        Func<Node, Pair<Node, string>> keyExtractor =
           n => new Pair<Node, string>(n, GetNodeComparisonKey(n));
 
         var sourceKeyMap = src
@@ -400,13 +400,13 @@ namespace Xtensive.Modelling.Comparison
 
         var sequence =
           sourceKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
-            .Select(k => new {Index = sourceKeyMap[k].Index, Type = 0, 
+            .Select(k => new {Index = sourceKeyMap[k].Index, Type = 0,
               Source = sourceKeyMap[k], Target = (Node) null})
           .Concat(commonKeys
-            .Select(k => new {Index = targetKeyMap[k].Index, Type = 1, 
+            .Select(k => new {Index = targetKeyMap[k].Index, Type = 1,
               Source = sourceKeyMap[k], Target = targetKeyMap[k]}))
           .Concat(targetKeys.Except(commonKeys, StringComparer.OrdinalIgnoreCase)
-            .Select(k => new {Index = targetKeyMap[k].Index, Type = 2, 
+            .Select(k => new {Index = targetKeyMap[k].Index, Type = 2,
               Source = (Node) null, Target = targetKeyMap[k]}))
           .OrderBy(i => i.Type!=0).ThenBy(i => i.Index).ThenBy(i => i.Type);
 
@@ -425,7 +425,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="source">The source.</param>
     /// <param name="target">The target.</param>
-    /// <returns>Difference between <paramref name="source"/> 
+    /// <returns>Difference between <paramref name="source"/>
     /// and <paramref name="target"/> objects.
     /// <see langword="null" />, if they're equal.</returns>
     protected virtual Difference VisitObject(object source, object target)
@@ -469,9 +469,9 @@ namespace Xtensive.Modelling.Comparison
         return false;
       if ((nodeDifference.MovementInfo & MovementInfo.Relocated)==0)
         return false;
-      var diffs = 
+      var diffs =
         EnumerableUtils.Unfold(difference, d => d.Parent).Reverse();
-      var currentDiffs = 
+      var currentDiffs =
         EnumerableUtils.Unfold(Context.Difference, d => d.Parent).Reverse();
       var commonDiffs = diffs.Zip(currentDiffs, (first, second) => new Pair<Difference>(first, second)).Where(p => p.First==p.Second).Select(p => p.First);
       var newDiffs = diffs.Except(commonDiffs);
@@ -485,7 +485,7 @@ namespace Xtensive.Modelling.Comparison
     }
 
     /// <summary>
-    /// Determines whether difference contains node property 
+    /// Determines whether difference contains node property
     /// with <see cref="MovementInfo"/> equals to <see cref="MovementInfo.Changed"/>.
     /// </summary>
     /// <param name="difference">The difference.</param>
@@ -502,12 +502,12 @@ namespace Xtensive.Modelling.Comparison
           return true;
       }
       var nodeCollectionDifference = difference as NodeCollectionDifference;
-      return nodeCollectionDifference != null && 
+      return nodeCollectionDifference != null &&
         nodeCollectionDifference.ItemChanges.Any(HasChangedNodeProperties);
     }
 
     /// <summary>
-    /// Determines whether difference contains node property 
+    /// Determines whether difference contains node property
     /// with <see cref="MovementInfo"/> equals to <see cref="MovementInfo.Changed"/>.
     /// </summary>
     /// <param name="difference">The difference.</param>
@@ -524,9 +524,9 @@ namespace Xtensive.Modelling.Comparison
       var nodeDifference = difference as NodeDifference;
       if (nodeDifference!=null) {
         if (nodeDifference.MovementInfo != MovementInfo.NameChanged) {
-          if ((nodeDifference.MovementInfo & MovementInfo.Relocated)!=0 || 
-            (nodeDifference.MovementInfo & MovementInfo.Changed)!=0 || 
-            (nodeDifference.PropertyChanges.Count!=0) || 
+          if ((nodeDifference.MovementInfo & MovementInfo.Relocated)!=0 ||
+            (nodeDifference.MovementInfo & MovementInfo.Changed)!=0 ||
+            (nodeDifference.PropertyChanges.Count!=0) ||
             (isDataDependent && nodeDifference.IsDataChanged))
           return true;
         }
@@ -538,7 +538,7 @@ namespace Xtensive.Modelling.Comparison
       }
 
       var nodeCollectionDifference = difference as NodeCollectionDifference;
-      return nodeCollectionDifference!=null && 
+      return nodeCollectionDifference!=null &&
         nodeCollectionDifference.ItemChanges.Any(HasChangedNodeProperties);
     }
 
@@ -561,7 +561,7 @@ namespace Xtensive.Modelling.Comparison
     /// <summary>
     /// Determines whether specified node is immutable.
     /// </summary>
-    /// <returns><see langword="true"/> if the specified node is immutable; 
+    /// <returns><see langword="true"/> if the specified node is immutable;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     protected virtual bool IsImmutable(Node node)
@@ -573,9 +573,9 @@ namespace Xtensive.Modelling.Comparison
       var propertyAccessor = parent.PropertyAccessors[propertyName];
       return propertyAccessor.IsImmutable;
     }
-    
+
     /// <summary>
-    /// Extracts the comparison key, that used to find associations 
+    /// Extracts the comparison key, that used to find associations
     /// between old and new <see cref="NodeCollection"/> items.
     /// </summary>
     /// <param name="node">The node to get the comparison key for.</param>
@@ -584,13 +584,13 @@ namespace Xtensive.Modelling.Comparison
     {
       if (!(node is INodeReference))
         return GetTargetName(node);
-      
+
       var targetNode = ((INodeReference) node).Value;
       return targetNode==null ? null : GetTargetPath(targetNode);
     }
 
     /// <summary>
-    /// Determines whether the specified node has dependencies 
+    /// Determines whether the specified node has dependencies
     /// and must be removed on <see cref="UpgradeStage.Cleanup"/>.
     /// </summary>
     /// <param name="source">The source node.</param>
@@ -614,7 +614,7 @@ namespace Xtensive.Modelling.Comparison
       if (source==null)
         return false;
 
-      return 
+      return
         Hints.HasHints<CopyDataHint>(source)
         || Hints.HasHints<DeleteDataHint>(source)
         || Hints.HasHints<UpdateDataHint>(source);
@@ -635,7 +635,7 @@ namespace Xtensive.Modelling.Comparison
     #region Helper methods
 
     /// <summary>
-    /// Tries to create the new <see cref="ComparisonContext"/> 
+    /// Tries to create the new <see cref="ComparisonContext"/>
     /// for the specified <paramref name="source"/>
     /// and <paramref name="target"/> objects and activate it.
     /// </summary>

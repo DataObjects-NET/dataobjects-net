@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Upgrade
         // Checking target string length
         return !to.Length.HasValue || CanConvertToString(from, to.Length.Value);
 
-      return supportedConversions.ContainsKey(fromType) && supportedConversions[fromType].Contains(toType);
+      return supportedConversions.TryGetValue(fromType, out var types) && types.Contains(toType);
     }
 
     /// <summary>

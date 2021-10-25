@@ -22,7 +22,7 @@ namespace Xtensive.Caching
   /// <typeparam name="TItem">The type of the item.</typeparam>
   public sealed class InfiniteCache<TKey, TItem>:
     CacheBase<TKey, TItem>
-    where TItem : class 
+    where TItem : class
   {
     private readonly Dictionary<TKey, TItem> items;
 
@@ -55,7 +55,7 @@ namespace Xtensive.Caching
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
-      
+
       TItem cachedItem;
       if (!replaceIfExists && items.TryGetValue(key, out cachedItem))
         return cachedItem;
@@ -67,8 +67,7 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override void RemoveKey(TKey key)
     {
-      if (items.ContainsKey(key))
-        items.Remove(key);
+      _ = items.Remove(key);
     }
 
     /// <inheritdoc/>

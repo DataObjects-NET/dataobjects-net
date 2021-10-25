@@ -25,15 +25,10 @@ namespace Xtensive.Sql.Dml
       Id = replacingExpression.Id;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlVariant(Id, (SqlExpression) Main.Clone(context), (SqlExpression) Alternative.Clone(context));
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlVariant(Id, (SqlExpression) Main.Clone(context), (SqlExpression) Alternative.Clone(context));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

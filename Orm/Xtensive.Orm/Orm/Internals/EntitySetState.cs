@@ -161,10 +161,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to add.</param>
     public void Add(Key key)
     {
-      if (removedKeys.ContainsKey(key)) {
-        _ = removedKeys.Remove(key);
-      }
-      else {
+      if (!removedKeys.Remove(key)) {
         addedKeys[key] = key;
       }
       if (TotalItemCount != null) {
@@ -183,10 +180,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="key">The key to remove.</param>
     public void Remove(Key key)
     {
-      if (addedKeys.ContainsKey(key)) {
-        _ = addedKeys.Remove(key);
-      }
-      else {
+      if (!addedKeys.Remove(key)) {
         removedKeys[key] = key;
       }
       if (TotalItemCount!=null) {
@@ -394,10 +388,7 @@ namespace Xtensive.Orm.Internals
       FetchedKeys.Clear();
       var becameRemovedOnSever = new HashSet<Key>(removedKeys.Keys);
       foreach (var key in syncronizedKeys) {
-        if (addedKeys.ContainsKey(key)) {
-          _ = addedKeys.Remove(key);
-        }
-        else if (becameRemovedOnSever.Contains(key)) {
+        if (!addedKeys.Remove(key)) {
           _ = becameRemovedOnSever.Remove(key);
         }
         FetchedKeys.Add(key);

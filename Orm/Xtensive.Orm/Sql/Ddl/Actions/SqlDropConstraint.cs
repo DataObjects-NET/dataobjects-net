@@ -12,16 +12,10 @@ namespace Xtensive.Sql.Ddl
   {
     public Constraint Constraint { get; private set; }
     
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      var clone = new SqlDropConstraint(Constraint, Cascade);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDropConstraint(Constraint, Cascade);
 
     // Constructors
 

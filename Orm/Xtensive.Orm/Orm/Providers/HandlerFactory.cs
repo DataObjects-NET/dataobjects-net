@@ -52,8 +52,7 @@ namespace Xtensive.Orm.Providers
       var contract = type;
       var implementor = type;
 
-      while (contract!=HandlerType && contract!=DomainBoundHandlerType && !serviceMapping.ContainsKey(contract)) {
-        serviceMapping[contract] = implementor;
+      while (contract != HandlerType && contract != DomainBoundHandlerType && serviceMapping.TryAdd(contract, implementor)) {
         contract = contract.BaseType;
       }
     }
