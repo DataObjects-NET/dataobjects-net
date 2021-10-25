@@ -20,15 +20,10 @@ namespace Xtensive.Sql.Dml
       get { return variable; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlDeclareVariable clone = new SqlDeclareVariable(variable);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlDeclareVariable(variable);
 
     internal SqlDeclareVariable(SqlVariable variable)
       : base(SqlNodeType.DeclareVariable)

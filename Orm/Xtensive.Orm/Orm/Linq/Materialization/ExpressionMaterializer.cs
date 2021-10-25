@@ -342,7 +342,7 @@ namespace Xtensive.Orm.Linq.Materialization
       if (itemMaterializationContextParameter == null)
         throw new InvalidOperationException(
           string.Format(Strings.ExUnableToTranslateLambdaExpressionXBecauseItRequiresToMaterializeEntityOfTypeX,
-            context.Translator.state.CurrentLambda,
+            context.Translator.State.CurrentLambda,
             expression.PersistentType.UnderlyingType.FullName));
 
       var typeIdField = expression.Fields.SingleOrDefault(f => f.Name == WellKnown.TypeIdFieldName);

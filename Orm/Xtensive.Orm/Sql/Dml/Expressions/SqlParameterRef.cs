@@ -25,16 +25,12 @@ namespace Xtensive.Sql.Dml
       Parameter = replacingExpression.Parameter;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-      var clone = Name != null
-        ? new SqlParameterRef(Name)
-        : new SqlParameterRef(Parameter);
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = Name != null
+            ? new SqlParameterRef(Name)
+            : new SqlParameterRef(Parameter);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

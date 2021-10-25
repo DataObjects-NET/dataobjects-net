@@ -88,11 +88,10 @@ namespace Xtensive.Orm.Model.Stored
           //   we need to be able to upgrade from database created by this version.
           //   Thus we skip duplicated associtations here.
           //
-          if (associations.ContainsKey(association.Name))
-            continue;
-          associations.Add(association.Name, association);
-          UpdateAssociationMultiplicity(association);
-          UpdateAssociationReferencingField(association);
+          if (associations.TryAdd(association.Name, association)) {
+            UpdateAssociationMultiplicity(association);
+            UpdateAssociationReferencingField(association);
+          }
         }
       }
 
