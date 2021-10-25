@@ -114,11 +114,11 @@ namespace Xtensive.Orm.Tests.Linq
     protected override DomainConfiguration BuildConfiguration()
     {
       var configuration = base.BuildConfiguration();
-      configuration.Types.Register(typeof (Book));
-      configuration.Types.Register(typeof (Author));
-      configuration.Types.Register(typeof (TagType));
-      configuration.Types.Register(typeof (BusinessUnit));
-      configuration.Types.Register(typeof (Tag));
+      configuration.Types.Register(typeof(Book));
+      configuration.Types.Register(typeof(Author));
+      configuration.Types.Register(typeof(TagType));
+      configuration.Types.Register(typeof(BusinessUnit));
+      configuration.Types.Register(typeof(Tag));
       return configuration;
     }
     
@@ -148,28 +148,32 @@ namespace Xtensive.Orm.Tests.Linq
         Console.WriteLine(queryString);
 
         Assert.IsFalse(queryString.Contains("/*firstTag*/"));
-        Assert.IsTrue(queryString.Contains("/*secondTag*/"));
+        Assert.IsTrue(queryString.StartsWith("/*secondTag*/"));
 
         Assert.DoesNotThrow(() => query.Run());
       }
     }
 
     [Test]
-    [TestCase("simpleTag", TestName = "OneLineTag")]
-    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TestName = "MultilineTag")]
-    public void SingleTag(string tagText)
+    [TestCase("simpleTag", TagPlace.Beginning, TestName = "OneLineTagBeggining")]
+    [TestCase("simpleTag", TagPlace.Within, TestName = "OneLineTagWithin")]
+    [TestCase("simpleTag", TagPlace.End, TestName = "OneLineTagEnd")]
+    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagPlace.Beginning, TestName = "MultilineTagBeggining")]
+    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagPlace.Within, TestName = "MultilineTagWithin")]
+    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagPlace.End, TestName = "MultilineTagEnd")]
+    public void SingleTag(string tagText, TagPlace place)
     {
       var session = Session.Demand();
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
         var query = session.Query.All<Book>()
-        .Tag(tagText);
+        .Tag(tagText, place);
 
         var queryFormatter = session.Services.Demand<QueryFormatter>();
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(queryString.Contains($"/*{tagText}*/"));
+        Assert.IsTrue(CheckTag(queryString, $"/*{tagText}*/", place));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -188,7 +192,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(queryString.Contains("/*superCoolTag*/"));
+        Assert.IsTrue(queryString.StartsWith("/*superCoolTag*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -214,7 +218,7 @@ namespace Xtensive.Orm.Tests.Linq
 
         // Currently we don't enforce which tag should be in resulting query
         // when there are many of them in sqlexpression tree
-        Assert.IsTrue(queryString.Contains("/*BU000"));
+        Assert.IsTrue(queryString.StartsWith("/*BU000"));
         Assert.DoesNotThrow(() => tagLookup.Run());
       }
     }
@@ -320,6 +324,16 @@ namespace Xtensive.Orm.Tests.Linq
       {
         allCommands.Add(args.Command.CommandText);
       }
+    }
+
+    private static bool CheckTag(string query, string expectedComment, TagPlace place)
+    {
+      return place switch {
+        TagPlace.Beginning => query.StartsWith(expectedComment),
+        TagPlace.Within => query.Contains(expectedComment),
+        TagPlace.End => query.EndsWith(expectedComment),
+        _ => throw new NotImplementedException()
+      };
     }
 
     private void PrintList(List<string> list)

@@ -27,8 +27,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
+        VisitCommentIfBeginning(node.Comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        Visit(node.Comment);
+        VisitCommentIfWithin(node.Comment);
         VisitSelectLimitOffset(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -37,6 +38,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         VisitSelectOrderBy(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        VisitCommentIfEnd(node.Comment);
       }
     }
 

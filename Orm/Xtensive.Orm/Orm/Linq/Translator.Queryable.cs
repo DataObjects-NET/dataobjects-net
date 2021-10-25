@@ -261,8 +261,9 @@ namespace Xtensive.Orm.Linq
     {
       var source = expression.Arguments[0];
       var tag = (string)(((ConstantExpression)expression.Arguments[1]).Value);
+      var place = (TagPlace) (((ConstantExpression) expression.Arguments[2]).Value);
       var visitedSource = (ProjectionExpression) Visit(source);
-      var newDataSource = visitedSource.ItemProjector.DataSource.Tag(tag);
+      var newDataSource = visitedSource.ItemProjector.DataSource.Tag(tag, place);
       var newItemProjector = new ItemProjectorExpression(
         visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
       var projectionExpression = new ProjectionExpression(

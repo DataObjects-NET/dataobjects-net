@@ -28,8 +28,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
+        VisitCommentIfBeginning(node.Comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        Visit(node.Comment);
+        VisitCommentIfWithin(node.Comment);
         VisitSelectLimitOffset(node);
         VisitSelectHints(node);
         VisitSelectColumns(node);
@@ -39,6 +40,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         VisitSelectOrderBy(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        VisitCommentIfEnd(node.Comment);
       }
     }
 

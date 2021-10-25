@@ -455,7 +455,7 @@ namespace Xtensive.Orm.Linq
         ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
         ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
         ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
-        ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
+        ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 3);
       }
 
       private static Type[] GetLambdaFuncGenericArguments(Type selectorType)

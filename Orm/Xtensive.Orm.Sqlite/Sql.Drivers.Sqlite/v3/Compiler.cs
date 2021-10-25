@@ -219,8 +219,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       // For hinting limitations see http://www.sqlite.org/lang_indexedby.html
 
       using (context.EnterScope(node)) {
+        VisitCommentIfBeginning(node.Comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        Visit(node.Comment);
+        VisitCommentIfWithin(node.Comment);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectWhere(node);
@@ -228,6 +229,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         VisitSelectOrderBy(node);
         VisitSelectLimitOffset(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        VisitCommentIfEnd(node.Comment);
       }
     }
 

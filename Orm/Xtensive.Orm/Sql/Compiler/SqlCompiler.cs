@@ -1166,8 +1166,9 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
+        VisitCommentIfBeginning(node.Comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        Visit(node.Comment);
+        VisitCommentIfWithin(node.Comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -1177,7 +1178,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
-        
+        VisitCommentIfEnd(node.Comment);
       }
     }
 
@@ -1640,6 +1641,27 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlComment node)
     {
+      context.Output.AppendText(translator.Translate(node));
+    }
+
+    public virtual void VisitCommentIfBeginning(SqlComment node)
+    {
+      if (node?.Place != SqlCommentPlace.Beginning)
+        return;
+      context.Output.AppendText(translator.Translate(node));
+    }
+
+    public virtual void VisitCommentIfWithin(SqlComment node)
+    {
+      if (node?.Place != SqlCommentPlace.Within)
+        return;
+      context.Output.AppendText(translator.Translate(node));
+    }
+
+    public virtual void VisitCommentIfEnd(SqlComment node)
+    {
+      if (node?.Place != SqlCommentPlace.End)
+        return;
       context.Output.AppendText(translator.Translate(node));
     }
 

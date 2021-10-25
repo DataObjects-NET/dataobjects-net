@@ -209,9 +209,9 @@ namespace Xtensive.Orm.Rse
     }
 
     public static CompilableProvider Tag(this CompilableProvider source,
-      string tag)
+      string tag, TagPlace tagPlace)
     {
-      return new TagProvider(source, tag);
+      return new TagProvider(source, tag, tagPlace);
     }
 
     public static CompilableProvider MakeVoid(this CompilableProvider source)

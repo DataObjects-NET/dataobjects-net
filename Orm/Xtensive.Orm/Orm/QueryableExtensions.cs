@@ -46,10 +46,37 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { typeof(TSource) });
-      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
+      var expression = Expression.Call(null, genericMethod,
+        new[] { source.Expression, Expression.Constant(tag), Expression.Constant(TagPlace.Default) });
       return source.Provider.CreateQuery<TSource>(expression);
     }
-    
+
+    /// <summary>
+    /// Tags query with given <paramref name="tag"/> string 
+    /// (inserts string as comment in SQL statement) for 
+    /// further query identification.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="tag">The unique tag to insert.</param>
+    /// <param name="tagPlace">Desired place on the tag in SQL statement.</param>
+    /// <returns>The same sequence, but with "comment" applied to query.</returns>
+    public static IQueryable<TSource> Tag<TSource>(this IQueryable<TSource> source, string tag, TagPlace tagPlace)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
+
+      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider)
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { typeof(TSource) });
+      var expression = Expression.Call(null, genericMethod,
+        new[] { source.Expression, Expression.Constant(tag), Expression.Constant(tagPlace) });
+      return source.Provider.CreateQuery<TSource>(expression);
+    }
+
     /// <summary>
     /// Tags query with given <paramref name="tag"/> string 
     /// (inserts string as comment in SQL statement) for 
@@ -69,7 +96,33 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { source.ElementType });
-      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
+      var expression = Expression.Call(null, genericMethod,
+        new[] { source.Expression, Expression.Constant(tag), Expression.Constant(TagPlace.Default) });
+      return source.Provider.CreateQuery(expression);
+    }
+
+    /// <summary>
+    /// Tags query with given <paramref name="tag"/> string 
+    /// (inserts string as comment in SQL statement) for 
+    /// further query identification.
+    /// </summary>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="tag">The unique tag to insert.</param>
+    /// <param name="tagPlace">Desired place on the tag in SQL statement.</param>
+    /// <returns>The same sequence, but with "comment" applied to query.</returns>
+    public static IQueryable Tag(this IQueryable source, string tag, TagPlace tagPlace)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
+
+      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider)
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { source.ElementType });
+      var expression = Expression.Call(null, genericMethod,
+        new[] { source.Expression, Expression.Constant(tag), Expression.Constant(tagPlace) });
       return source.Provider.CreateQuery(expression);
     }
 

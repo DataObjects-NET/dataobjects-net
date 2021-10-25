@@ -17,14 +17,16 @@ namespace Xtensive.Orm.Rse.Providers
   public sealed class TagProvider : UnaryProvider
   {
     public readonly string Tag;
+    public readonly TagPlace TagPlace;
 
     // Constructors
 
-    public TagProvider(CompilableProvider source, string tag) :
+    public TagProvider(CompilableProvider source, string tag, TagPlace tagPlace) :
       base(ProviderType.Tag, source)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmptyOrWhiteSpace(tag, "tag");
       Tag = tag;
+      TagPlace = tagPlace;
       Initialize();
     }
   }
