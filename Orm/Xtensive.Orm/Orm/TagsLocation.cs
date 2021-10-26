@@ -5,27 +5,30 @@
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Tag place in result SQL query.
+  /// Tags location in result SQL query.
   /// </summary>
-  public enum TagPlace
+  public enum TagsLocation
   {
     /// <summary>
-    /// Tag will be at the beginning
+    /// Tags, if any, won't appear in SQL query.
     /// </summary>
-    Beginning = 0,
+    Nowhere = 0,
     /// <summary>
-    /// Tag will be placed somewhere
-    /// within query.
+    /// Tags, if any, will appear before SQL statement.
     /// </summary>
-    Within = 1,
+    BeforeStatement = 1,
+    /// <summary>
+    /// Tags, if any, will appear within SQL statement.
+    /// </summary>
+    WithinStatement = 2,
     /// <summary>
     /// Tag will be placed at the end
     /// of SQL statement
     /// </summary>
-    End = 2,
+    AfterStatement = 3,
     /// <summary>
-    /// <see cref="Beginning"/>
+    /// <see cref="BeforeStatement"/>
     /// </summary>
-    Default = Beginning
+    Default = BeforeStatement
   }
 }

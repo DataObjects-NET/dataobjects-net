@@ -93,6 +93,19 @@ namespace Xtensive.Orm.Tests.Linq.TagTestModel
     public bool Active { get; set; }
   }
 
+  [HierarchyRoot]
+  public class Property : Entity
+  {
+    [Field, Key]
+    public long Id { get; private set; }
+
+    [Field]
+    public BusinessUnit Owner { get; set; }
+
+    [Field]
+    public string Name { get; set; }
+  }
+
   public class TagTypePair
   {
     public Tag Tag { get; set; }
@@ -118,6 +131,7 @@ namespace Xtensive.Orm.Tests.Linq
       configuration.Types.Register(typeof(Author));
       configuration.Types.Register(typeof(TagType));
       configuration.Types.Register(typeof(BusinessUnit));
+      configuration.Types.Register(typeof(Property));
       configuration.Types.Register(typeof(Tag));
       return configuration;
     }
@@ -155,20 +169,19 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [TestCase("simpleTag", TagPlace.Beginning, TestName = "OneLineTagBeggining")]
-    [TestCase("simpleTag", TagPlace.Within, TestName = "OneLineTagWithin")]
-    [TestCase("simpleTag", TagPlace.End, TestName = "OneLineTagEnd")]
-    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagPlace.Beginning, TestName = "MultilineTagBeggining")]
-    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagPlace.Within, TestName = "MultilineTagWithin")]
-    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagPlace.End, TestName = "MultilineTagEnd")]
-    public void SingleTag(string tagText, TagPlace place)
+    [TestCase("simpleTag", TagsLocation.BeforeStatement, TestName = "OneLineTagBeggining")]
+    [TestCase("simpleTag", TagsLocation.WithinStatement, TestName = "OneLineTagWithin")]
+    [TestCase("simpleTag", TagsLocation.AfterStatement, TestName = "OneLineTagEnd")]
+    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagsLocation.BeforeStatement, TestName = "MultilineTagBeggining")]
+    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagsLocation.WithinStatement, TestName = "MultilineTagWithin")]
+    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagsLocation.AfterStatement, TestName = "MultilineTagEnd")]
+    public void SingleTag(string tagText, TagsLocation place)
     {
       var session = Session.Demand();
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
         var query = session.Query.All<Book>()
-        .Tag(tagText, place);
-
+         .Tag(tagText);
         var queryFormatter = session.Services.Demand<QueryFormatter>();
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
@@ -179,14 +192,34 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void TagInJoin()
+    public void TagInSubquery()
     {
       var session = Session.Demand();
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
         var query = session.Query.All<Author>()
-        .Tag("superCoolTag")
-        .Where(author => author.Books.Any(book => book.Name.Equals("something")));
+        .Tag("rootquery")
+        .Where(author => author.Books.Tag("subquery").Any(book => book.Name.Equals("something")));
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(queryString.StartsWith("/*superCoolTag*/"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
+    [Test]
+    public void TagInJoin()
+    {
+      var session = Session.Demand();
+
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        var inner = session.Query.All<BusinessUnit>().Tag("Inner");
+        var outer = session.Query.All<Property>().Tag("outer");
+
+        var query = outer.LeftJoin(inner, o => o.Owner.Id, i => i.Id, (i, o) => new { i, o });
 
         var queryFormatter = session.Services.Demand<QueryFormatter>();
         var queryString = queryFormatter.ToSqlString(query);
@@ -223,6 +256,7 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
+
     [Test]
     public void TagInGrouping()
     {
@@ -234,51 +268,64 @@ namespace Xtensive.Orm.Tests.Linq
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
 
-        _ = new BusinessUnit() { Name = "Active#1", Active = true };
-        _ = new BusinessUnit() { Name = "Active#2", Active = true };
-        _ = new BusinessUnit() { Name = "Disabled#1", Active = false };
+        var bu = new BusinessUnit() { Name = "Active#1", Active = true };
+        _ = new Property() { Name = "Prop#1", Owner = bu };
+        _ = new Property() { Name = "Prop#2", Owner = bu };
+        _ = new Property() { Name = "Prop#3", Owner = bu };
+        bu = new BusinessUnit() { Name = "Active#2", Active = true };
+        _ = new Property() { Name = "Prop#4", Owner = bu };
+        _ = new Property() { Name = "Prop#5", Owner = bu };
+        _ = new Property() { Name = "Prop#6", Owner = bu };
+        bu = new BusinessUnit() { Name = "Disabled#1", Active = false };
+        _ = new Property() { Name = "Prop#1", Owner = bu };
+        _ = new Property() { Name = "Prop#2", Owner = bu };
+        _ = new Property() { Name = "Prop#3", Owner = bu };
 
         session.SaveChanges();
 
-        var query = session.Query.All<BusinessUnit>().Tag("BeforeGroupBy")
-          .GroupBy(b => b.Active)
-          .Select(g => new { g.Key, Items = g });
+        //var query = session.Query.All<BusinessUnit>().Tag("BeforeGroupBy")
+        //  .GroupBy(b => b.Active)
+        //  .Select(g => new { g.Key, Items = g });
 
-        session.Events.DbCommandExecuting += SqlCapturer;
-        foreach (var group in query)
-          foreach (var groupItem in group.Items);
-        session.Events.DbCommandExecuting -= SqlCapturer;
+        //session.Events.DbCommandExecuting += SqlCapturer;
+        //foreach (var group in query)
+        //  foreach (var groupItem in group.Items);
+        //session.Events.DbCommandExecuting -= SqlCapturer;
 
-        PrintList(allCommands);
-        allCommands.Clear();
+        //PrintList(allCommands);
+        //allCommands.Clear();
 
-        query = session.Query.All<BusinessUnit>()
-          .GroupBy(b => b.Active)
-          .Tag("AfterGroupBy")
-          .Select(g => new { g.Key, Items = g });
+        //query = session.Query.All<BusinessUnit>()
+        //  .GroupBy(b => b.Active)
+        //  .Tag("AfterGroupBy")
+        //  .Select(g => new { g.Key, Items = g });
 
-        session.Events.DbCommandExecuting += SqlCapturer;
-        foreach (var group in query)
-          foreach (var groupItem in group.Items);
-        session.Events.DbCommandExecuting -= SqlCapturer;
+        //session.Events.DbCommandExecuting += SqlCapturer;
+        //foreach (var group in query)
+        //  foreach (var groupItem in group.Items);
+        //session.Events.DbCommandExecuting -= SqlCapturer;
 
-        PrintList(allCommands);
-        allCommands.Clear();
+        //PrintList(allCommands);
+        //allCommands.Clear();
 
-        query = session.Query.All<BusinessUnit>()
-          .GroupBy(b => b.Active)
+        var query1 = session.Query.All<Property>()
+          .GroupBy(b => b.Owner.Id)
+          .Tag("AfterGroup")
           .Select(g => new { g.Key, Items = g })
-          .Tag("AtTheEnd");
+          .Tag("AfterSelect")
+          .Where(g => g.Items.Count()>=0)
+          .Tag("AfterWhere")
+          .LeftJoin(session.Query.All<BusinessUnit>().Tag("WithinJoin"), g=>g.Key, bu=>bu.Id, (g, bu) => new {Key = bu, Items = g.Items });
 
         session.Events.DbCommandExecuting += SqlCapturer;
-        foreach (var group in query)
+        foreach (var group in query1)
           foreach (var groupItem in group.Items);
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
         allCommands.Clear();
 
-        query = session.Query.All<BusinessUnit>().Tag("BeforeGrouping")
+        var query = session.Query.All<BusinessUnit>().Tag("BeforeGrouping")
           .GroupBy(b => b.Active)
           .Tag("AfterGrouping")
           .Select(g => new { g.Key, Items = g });
@@ -326,12 +373,12 @@ namespace Xtensive.Orm.Tests.Linq
       }
     }
 
-    private static bool CheckTag(string query, string expectedComment, TagPlace place)
+    private static bool CheckTag(string query, string expectedComment, TagsLocation place)
     {
       return place switch {
-        TagPlace.Beginning => query.StartsWith(expectedComment),
-        TagPlace.Within => query.Contains(expectedComment),
-        TagPlace.End => query.EndsWith(expectedComment),
+        TagsLocation.BeforeStatement => query.StartsWith(expectedComment),
+        TagsLocation.WithinStatement => query.Contains(expectedComment),
+        TagsLocation.AfterStatement => query.EndsWith(expectedComment),
         _ => throw new NotImplementedException()
       };
     }

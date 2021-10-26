@@ -354,13 +354,5 @@ namespace Xtensive.Orm.Providers
         ? sqlProvider.PermanentReference[columnIndex]
         : ExtractColumnExpression(sqlProvider.Request.Statement.Columns[columnIndex]);
     }
-
-    protected static SqlCommentPlace ToCommentPlace(TagPlace tagPlace) =>
-      tagPlace switch {
-        TagPlace.Beginning => SqlCommentPlace.Beginning,
-        TagPlace.Within => SqlCommentPlace.Within,
-        TagPlace.End => SqlCommentPlace.End,
-        _ => throw new ArgumentOutOfRangeException(nameof(tagPlace))
-      };
   }
 }

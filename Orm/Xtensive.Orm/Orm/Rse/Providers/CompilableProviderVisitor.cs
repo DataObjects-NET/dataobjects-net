@@ -84,7 +84,7 @@ namespace Xtensive.Orm.Rse.Providers
       OnRecursionExit(provider);
       if (source == provider.Source)
         return provider;
-      return new TagProvider(source, provider.Tag, provider.TagPlace);
+      return new TagProvider(source, provider.Tag);
     }
 
     /// <inheritdoc/>

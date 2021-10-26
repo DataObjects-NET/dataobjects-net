@@ -1166,7 +1166,7 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        VisitCommentIfBeginning(node.Comment);
+        VisitCommentIfBefore(node.Comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
         VisitCommentIfWithin(node.Comment);
         VisitSelectHints(node);
@@ -1178,7 +1178,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
-        VisitCommentIfEnd(node.Comment);
+        VisitCommentIfAfter(node.Comment);
       }
     }
 
@@ -1644,25 +1644,25 @@ namespace Xtensive.Sql.Compiler
       context.Output.AppendText(translator.Translate(node));
     }
 
-    public virtual void VisitCommentIfBeginning(SqlComment node)
+    public virtual void VisitCommentIfBefore(SqlComment node)
     {
-      if (node?.Place != SqlCommentPlace.Beginning)
+      if (configuration.CommentLocation != SqlCommentLocation.BeforeStatement)
         return;
-      context.Output.AppendText(translator.Translate(node));
+      Visit(node);
     }
 
     public virtual void VisitCommentIfWithin(SqlComment node)
     {
-      if (node?.Place != SqlCommentPlace.Within)
+      if (configuration.CommentLocation != SqlCommentLocation.WithinStatement)
         return;
-      context.Output.AppendText(translator.Translate(node));
+      Visit(node);
     }
 
-    public virtual void VisitCommentIfEnd(SqlComment node)
+    public virtual void VisitCommentIfAfter(SqlComment node)
     {
-      if (node?.Place != SqlCommentPlace.End)
+      if (configuration.CommentLocation != SqlCommentLocation.AfterStatement)
         return;
-      context.Output.AppendText(translator.Translate(node));
+      Visit(node);
     }
 
     private void TranslateDynamicFilterViaInOperator(SqlDynamicFilter node)

@@ -260,10 +260,9 @@ namespace Xtensive.Orm.Linq
     private Expression VisitTag(MethodCallExpression expression)
     {
       var source = expression.Arguments[0];
-      var tag = (string)(((ConstantExpression)expression.Arguments[1]).Value);
-      var place = (TagPlace) (((ConstantExpression) expression.Arguments[2]).Value);
+      var tag = (string) ((ConstantExpression) expression.Arguments[1]).Value;
       var visitedSource = (ProjectionExpression) Visit(source);
-      var newDataSource = visitedSource.ItemProjector.DataSource.Tag(tag, place);
+      var newDataSource = visitedSource.ItemProjector.DataSource.Tag(tag);
       var newItemProjector = new ItemProjectorExpression(
         visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
       var projectionExpression = new ProjectionExpression(

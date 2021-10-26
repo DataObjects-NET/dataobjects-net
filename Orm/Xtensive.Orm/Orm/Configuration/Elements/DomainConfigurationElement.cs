@@ -50,6 +50,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string FullTextChangeTrackingModeElementName = "fullTextChangeTrackingMode";
     private const string VersioningConventionElementName = "versioningConvention";
     private const string EnsureConnectionIsAliveElementName = "ensureConnectionIsAlive";
+    private const string TagsLocationElementName = "tagsLocation";
 
 
     /// <inheritdoc/>
@@ -392,6 +393,15 @@ namespace Xtensive.Orm.Configuration.Elements
       set { this[EnsureConnectionIsAliveElementName] = value; }
     }
 
+    /// <summary>
+    /// <see cref="DomainConfiguration.TagsLocation" copy="true"/>.
+    /// </summary>
+    [ConfigurationProperty(TagsLocationElementName, DefaultValue = "Default")]
+    public string TagsLocation
+    {
+      get => (string) this[TagsLocationElementName];
+      set => this[TagsLocationElementName] = value;
+    }
 
     /// <summary>
     /// Converts the element to a native configuration object it corresponds to - 
@@ -425,7 +435,8 @@ namespace Xtensive.Orm.Configuration.Elements
         ShareStorageSchemaOverNodes = ShareStorageSchemaOverNodes,
         EnsureConnectionIsAlive = EnsureConnectionIsAlive,
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
-        VersioningConvention = VersioningConvention.ToNative()
+        VersioningConvention = VersioningConvention.ToNative(),
+        TagsLocation = (TagsLocation) Enum.Parse(typeof(TagsLocation), TagsLocation, true),
       };
 
       foreach (var element in Types)

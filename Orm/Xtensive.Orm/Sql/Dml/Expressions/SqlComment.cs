@@ -16,8 +16,6 @@ namespace Xtensive.Sql.Dml
     /// Gets the value.
     /// </summary>
     public string Text { get; private set; }
-
-    public SqlCommentPlace Place { get; private set; }
     
     public override void ReplaceWith(SqlExpression expression)
     {
@@ -25,7 +23,6 @@ namespace Xtensive.Sql.Dml
       ArgumentValidator.EnsureArgumentIs<SqlComment>(expression, nameof(expression));
       var replacingExpression = (SqlComment) expression;
       Text = replacingExpression.Text;
-      Place = replacingExpression.Place;
     }
 
     internal override object Clone(SqlNodeCloneContext context)
@@ -33,7 +30,7 @@ namespace Xtensive.Sql.Dml
       if (context.NodeMapping.TryGetValue(this, out var node))
         return node;
 
-      var clone = new SqlComment(Text, Place);
+      var clone = new SqlComment(Text);
       context.NodeMapping[this] = clone;
       return clone;
     }
@@ -49,14 +46,6 @@ namespace Xtensive.Sql.Dml
       : base(SqlNodeType.Comment)
     {
       Text = text;
-      Place = SqlCommentPlace.Default;
-    }
-
-    public SqlComment(string text, SqlCommentPlace place)
-      : base(SqlNodeType.Comment)
-    {
-      Text = text;
-      Place = place;
     }
   }
 }
