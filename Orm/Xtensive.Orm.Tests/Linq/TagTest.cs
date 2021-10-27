@@ -184,9 +184,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsFalse(queryString.Contains("/*firstTag*/"));
-        Assert.IsTrue(queryString.StartsWith("/*secondTag*/"));
-
+        Assert.IsTrue(queryString.StartsWith("/*firstTag secondTag*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -218,7 +216,7 @@ namespace Xtensive.Orm.Tests.Linq
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
         var query = session.Query.All<Author>()
         .Tag("superCoolTag")
-        .Where(author => author.Books.Any(book => book.Name.Equals("something")));
+        .Where(author => author.Books.Tag("evenCoolerTag").Any(book => book.Name.Equals("something")));
 
         var queryFormatter = session.Services.Demand<QueryFormatter>();
         var queryString = queryFormatter.ToSqlString(query);
@@ -244,11 +242,91 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(queryString.StartsWith("/*inner*/"));
+        Assert.IsTrue(queryString.StartsWith("/*outer inner*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
-    
+
+    [Test]
+    public void TagInUnion()
+    {
+      var session = Session.Demand();
+
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        var left = session.Query.All<BusinessUnit>().Tag("left");
+        var right = session.Query.All<BusinessUnit>().Tag("right");
+
+        var query = left.Union(right).Tag("final");
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(queryString.StartsWith("/*final left right*/"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
+    [Test]
+    public void TagInConcat()
+    {
+      var session = Session.Demand();
+
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        var left = session.Query.All<BusinessUnit>().Tag("left");
+        var right = session.Query.All<BusinessUnit>().Tag("right");
+
+        var query = left.Union(right).Tag("final");
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(queryString.StartsWith("/*final left right*/"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
+    [Test]
+    public void TagInExcept()
+    {
+      var session = Session.Demand();
+
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        var left = session.Query.All<BusinessUnit>().Tag("left");
+        var right = session.Query.All<BusinessUnit>().Tag("right");
+
+        var query = left.Except(right).Tag("final");
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(queryString.StartsWith("/*final left right*/"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
+    [Test]
+    public void TagInIntersect()
+    {
+      var session = Session.Demand();
+
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        var left = session.Query.All<BusinessUnit>().Tag("left");
+        var right = session.Query.All<BusinessUnit>().Tag("right");
+
+        var query = left.Intersect(right).Tag("final");
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(queryString.StartsWith("/*final left right*/"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
     [Test]
     public void TagInPredicateJoin()
     {
@@ -268,9 +346,9 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(tagLookup);
         Console.WriteLine(queryString);
 
-        // Currently we don't enforce which tag should be in resulting query
-        // when there are many of them in sqlexpression tree
         Assert.IsTrue(queryString.StartsWith("/*BU000"));
+        Assert.IsTrue(queryString.Contains("BU0003"));
+        Assert.IsTrue(queryString.Contains("BU0002"));
         Assert.DoesNotThrow(() => tagLookup.Run());
       }
     }

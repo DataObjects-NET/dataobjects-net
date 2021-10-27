@@ -1,4 +1,4 @@
-﻿using Xtensive.Core;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -474,8 +474,10 @@ namespace Xtensive.Orm.Providers
       if (!keepOrderBy)
         node.OrderBy.Clear();
 
-      if (!isCurrentRoot)
+      if (!isCurrentRoot) {
+        rootSelect.Comment = SqlComment.Join(rootSelect.Comment, node.Comment);
         node.Comment = null;
+      }
       
       var addOrderBy = hasPaging
         && node.OrderBy.Count==0

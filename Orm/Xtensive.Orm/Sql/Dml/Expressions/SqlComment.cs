@@ -39,7 +39,23 @@ namespace Xtensive.Sql.Dml
     {
       visitor.Visit(this);
     }
-    
+
+    public static SqlComment Join(SqlComment comment1, SqlComment comment2)
+    {
+      if (ReferenceEquals(comment1, comment2))
+        return comment1;
+
+      if (comment1 == null && comment2 == null)
+        return null;
+      if (comment1 != null) {
+        if (comment2 != null)
+          comment1.Text += $" {comment2.Text}";
+        return comment1;
+      }
+      else
+        return comment2;
+    }
+
     // Constructors
 
     public SqlComment(string text)
