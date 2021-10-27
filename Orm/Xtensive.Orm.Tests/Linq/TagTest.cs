@@ -147,6 +147,29 @@ namespace Xtensive.Orm.Tests.Linq
       Require.AllFeaturesSupported(Providers.ProviderFeatures.Savepoints);
 
     [Test]
+    [TestCase(TagsLocation.BeforeStatement, TestName = nameof(TagsLocation.BeforeStatement))]
+    [TestCase(TagsLocation.WithinStatement, TestName = nameof(TagsLocation.WithinStatement))]
+    [TestCase(TagsLocation.AfterStatement, TestName = nameof(TagsLocation.AfterStatement))]
+    public void VariousPlacements(TagsLocation tagsLocation)
+    {
+      var config = Domain.Configuration.Clone();
+      config.TagsLocation = tagsLocation;
+      config.UpgradeMode = DomainUpgradeMode.Skip;
+
+      using (var domain = Domain.Build(config))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var query = session.Query.All<Book>().Tag("simpleTag");
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(CheckTag(queryString, $"/*simpleTag*/", tagsLocation));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
+    [Test]
     public void LatestTagWins()
     {
       var session = Session.Demand();
@@ -169,13 +192,9 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    [TestCase("simpleTag", TagsLocation.BeforeStatement, TestName = "OneLineTagBeggining")]
-    [TestCase("simpleTag", TagsLocation.WithinStatement, TestName = "OneLineTagWithin")]
-    [TestCase("simpleTag", TagsLocation.AfterStatement, TestName = "OneLineTagEnd")]
-    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagsLocation.BeforeStatement, TestName = "MultilineTagBeggining")]
-    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagsLocation.WithinStatement, TestName = "MultilineTagWithin")]
-    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TagsLocation.AfterStatement, TestName = "MultilineTagEnd")]
-    public void SingleTag(string tagText, TagsLocation place)
+    [TestCase("simpleTag", TestName = "OneLineTag")]
+    [TestCase("A long time ago in a galaxy far,\t\rfar away...", TestName = "MultilineTag")]
+    public void SingleTag(string tagText)
     {
       var session = Session.Demand();
 
@@ -186,7 +205,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(CheckTag(queryString, $"/*{tagText}*/", place));
+        Assert.IsTrue(queryString.StartsWith($"/*{tagText}*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
@@ -198,8 +217,8 @@ namespace Xtensive.Orm.Tests.Linq
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
         var query = session.Query.All<Author>()
-        .Tag("rootquery")
-        .Where(author => author.Books.Tag("subquery").Any(book => book.Name.Equals("something")));
+        .Tag("superCoolTag")
+        .Where(author => author.Books.Any(book => book.Name.Equals("something")));
 
         var queryFormatter = session.Services.Demand<QueryFormatter>();
         var queryString = queryFormatter.ToSqlString(query);
@@ -216,7 +235,7 @@ namespace Xtensive.Orm.Tests.Linq
       var session = Session.Demand();
 
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
-        var inner = session.Query.All<BusinessUnit>().Tag("Inner");
+        var inner = session.Query.All<BusinessUnit>().Tag("inner");
         var outer = session.Query.All<Property>().Tag("outer");
 
         var query = outer.LeftJoin(inner, o => o.Owner.Id, i => i.Id, (i, o) => new { i, o });
@@ -225,7 +244,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(queryString.StartsWith("/*superCoolTag*/"));
+        Assert.IsTrue(queryString.StartsWith("/*inner*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }

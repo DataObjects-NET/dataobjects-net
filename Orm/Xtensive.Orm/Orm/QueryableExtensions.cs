@@ -46,8 +46,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { typeof(TSource) });
-      var expression = Expression.Call(null, genericMethod,
-        new[] { source.Expression, Expression.Constant(tag), Expression.Constant(TagsLocation.Default) });
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag)});
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
