@@ -30,6 +30,7 @@ namespace Xtensive.Orm.Linq
 
     public TranslatorState state;
     private readonly TranslatorContext context;
+    private readonly bool tagsArePossible;
 
     protected override Expression VisitConstant(ConstantExpression c)
     {
@@ -262,7 +263,9 @@ namespace Xtensive.Orm.Linq
       var source = expression.Arguments[0];
       var tag = (string) ((ConstantExpression) expression.Arguments[1]).Value;
       var visitedSource = (ProjectionExpression) Visit(source);
-      var newDataSource = visitedSource.ItemProjector.DataSource.Tag(tag);
+      var newDataSource = (tagsArePossible)
+        ? visitedSource.ItemProjector.DataSource.Tag(tag)
+        : visitedSource.ItemProjector.DataSource;
       var newItemProjector = new ItemProjectorExpression(
         visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
       var projectionExpression = new ProjectionExpression(

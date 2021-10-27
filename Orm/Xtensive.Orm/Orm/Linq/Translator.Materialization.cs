@@ -204,6 +204,7 @@ namespace Xtensive.Orm.Linq
       this.compiledQueryScope = compiledQueryScope;
       this.context = context;
       state = new TranslatorState(this);
+      tagsArePossible = context.Domain.Configuration.TagsLocation != TagsLocation.Nowhere;
     }
 
     static Translator()
