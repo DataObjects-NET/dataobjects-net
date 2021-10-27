@@ -380,49 +380,40 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.SaveChanges();
 
-        //var query = session.Query.All<BusinessUnit>().Tag("BeforeGroupBy")
-        //  .GroupBy(b => b.Active)
-        //  .Select(g => new { g.Key, Items = g });
-
-        //session.Events.DbCommandExecuting += SqlCapturer;
-        //foreach (var group in query)
-        //  foreach (var groupItem in group.Items);
-        //session.Events.DbCommandExecuting -= SqlCapturer;
-
-        //PrintList(allCommands);
-        //allCommands.Clear();
-
-        //query = session.Query.All<BusinessUnit>()
-        //  .GroupBy(b => b.Active)
-        //  .Tag("AfterGroupBy")
-        //  .Select(g => new { g.Key, Items = g });
-
-        //session.Events.DbCommandExecuting += SqlCapturer;
-        //foreach (var group in query)
-        //  foreach (var groupItem in group.Items);
-        //session.Events.DbCommandExecuting -= SqlCapturer;
-
-        //PrintList(allCommands);
-        //allCommands.Clear();
-
-        var query1 = session.Query.All<Property>()
-          .GroupBy(b => b.Owner.Id)
-          .Tag("AfterGroup")
-          .Select(g => new { g.Key, Items = g })
-          .Tag("AfterSelect")
-          .Where(g => g.Items.Count()>=0)
-          .Tag("AfterWhere")
-          .LeftJoin(session.Query.All<BusinessUnit>().Tag("WithinJoin"), g=>g.Key, bu=>bu.Id, (g, bu) => new {Key = bu, Items = g.Items });
+        var query = session.Query.All<BusinessUnit>().Tag("BeforeGroupBy")
+          .GroupBy(b => b.Active)
+          .Select(g => new { g.Key, Items = g });
 
         session.Events.DbCommandExecuting += SqlCapturer;
-        foreach (var group in query1)
+        foreach (var group in query)
           foreach (var groupItem in group.Items);
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
+        Assert.That(allCommands[0].StartsWith("/*BeforeGroupBy*/"));
+        Assert.That(allCommands.Skip(1)
+          .All(command => command.StartsWith("/*BeforeGroupBy Root query tags -> BeforeGroupBy*/")));
+
         allCommands.Clear();
 
-        var query = session.Query.All<BusinessUnit>().Tag("BeforeGrouping")
+        query = session.Query.All<BusinessUnit>()
+          .GroupBy(b => b.Active)
+          .Tag("AfterGroupBy")
+          .Select(g => new { g.Key, Items = g });
+
+        session.Events.DbCommandExecuting += SqlCapturer;
+        foreach (var group in query)
+          foreach (var groupItem in group.Items);
+        session.Events.DbCommandExecuting -= SqlCapturer;
+
+        PrintList(allCommands);
+        Assert.That(allCommands[0].StartsWith("/*AfterGroupBy*/"));
+        Assert.That(allCommands.Skip(1)
+          .All(command => command.StartsWith("/*Root query tags -> AfterGroupBy*/")));
+
+        allCommands.Clear();
+
+        query = session.Query.All<BusinessUnit>().Tag("BeforeGrouping")
           .GroupBy(b => b.Active)
           .Tag("AfterGrouping")
           .Select(g => new { g.Key, Items = g });
@@ -433,6 +424,10 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
+        Assert.That(allCommands[0].StartsWith("/*BeforeGrouping AfterGrouping*/"));
+        Assert.That(allCommands.Skip(1)
+          .All(command => command.StartsWith("/*BeforeGrouping Root query tags -> BeforeGrouping AfterGrouping*/")));
+
         allCommands.Clear();
 
         query = session.Query.All<BusinessUnit>()
@@ -447,6 +442,10 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
+        Assert.That(allCommands[0].StartsWith("/*AfterGrouping AtTheEnd*/"));
+        Assert.That(allCommands.Skip(1)
+          .All(command => command.StartsWith("/*Root query tags -> AfterGrouping AtTheEnd*/")));
+
         allCommands.Clear();
 
         query = session.Query.All<BusinessUnit>().Tag("BeforeGrouping")
@@ -461,6 +460,31 @@ namespace Xtensive.Orm.Tests.Linq
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
+        Assert.That(allCommands[0].StartsWith("/*BeforeGrouping AfterGrouping AtTheEnd*/"));
+        Assert.That(allCommands.Skip(1)
+          .All(command => command.StartsWith("/*BeforeGrouping Root query tags -> BeforeGrouping AfterGrouping AtTheEnd*/")));
+
+        allCommands.Clear();
+
+        var query1 = session.Query.All<Property>()
+          .GroupBy(b => b.Owner.Id)
+          .Tag("AfterGroup")
+          .Select(g => new { g.Key, Items = g })
+          .Tag("AfterSelect")
+          .Where(g => g.Items.Count() >= 0)
+          .Tag("AfterWhere")
+          .LeftJoin(session.Query.All<BusinessUnit>().Tag("WithinJoin"), g => g.Key, bu => bu.Id, (g, bu) => new { Key = bu, Items = g.Items });
+
+        session.Events.DbCommandExecuting += SqlCapturer;
+        foreach (var group in query1)
+          foreach (var groupItem in group.Items);
+        session.Events.DbCommandExecuting -= SqlCapturer;
+
+        PrintList(allCommands);
+        Assert.That(allCommands[0].StartsWith("/*AfterGroup AfterSelect AfterWhere WithinJoin*/"));
+        Assert.That(allCommands.Skip(1)
+          .All(command => command.StartsWith("/*Root query tags -> AfterGroup AfterSelect AfterWhere WithinJoin*/")));
+
         allCommands.Clear();
       }
 

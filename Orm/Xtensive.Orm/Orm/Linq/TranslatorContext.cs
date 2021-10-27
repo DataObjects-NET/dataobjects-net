@@ -4,6 +4,7 @@
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,6 +24,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorContext
   {
+    private readonly static System.Type TagProviderType = typeof(TagProvider);
+
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
@@ -82,6 +85,17 @@ namespace Xtensive.Orm.Linq
         applyParameters.Add(provider, parameter);
       }
       return parameter;
+    }
+
+    public string[] GetAllTags()
+    {
+      if (Domain.Configuration.TagsLocation == TagsLocation.Nowhere)
+        return Array.Empty<string>();
+
+      var tags = applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList();
+      if (tags.Count == 0)
+        return Array.Empty<string>();
+      return tags.ToArray();
     }
 
     public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
