@@ -71,7 +71,7 @@
     <Copyright>$(DoProductCopyright)</Copyright>
     <PackageProjectUrl>https://dataobjects.net/</PackageProjectUrl>
     <PackageIcon>do-nuget.png</PackageIcon>
-    <PackageLicense>MIT</PackageLicense>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
     <PackageOutputPath>$(BaseOutputPath)packages\</PackageOutputPath>
     <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
