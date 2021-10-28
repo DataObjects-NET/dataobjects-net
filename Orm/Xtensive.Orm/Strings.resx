@@ -3473,4 +3473,7 @@ Error: {1}</value>
   <data name="ExConnectionAccessorXHasNoParameterlessConstructor" xml:space="preserve">
     <value>Connection accessor '{0}' has no parameterless constructor.</value>
   </data>
+  <data name="ExXExpressionsWithConstantValuesOfYTypeNotSupported" xml:space="preserve">
+    <value>{0} expressions with constant values of {1} type are not supported.</value>
+  </data>
 </root>
