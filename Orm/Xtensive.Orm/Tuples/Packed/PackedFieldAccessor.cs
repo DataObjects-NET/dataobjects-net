@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2013.01.22
 
@@ -556,5 +556,33 @@ namespace Xtensive.Tuples.Packed
       : base(sizeof(decimal) * 8)
     {
     }
+  }
+
+  internal sealed class DateTimeOffsetFieldAccessor : ValueFieldAccessor<DateTimeOffset>
+  {
+    protected override DateTimeOffset Decode(long[] values, int offset)
+    {
+      unsafe {
+        fixed (long* valuePtr = &values[offset])
+          return *(DateTimeOffset*) valuePtr;
+      }
+    }
+
+    protected override void Encode(DateTimeOffset value, long[] values, int offset)
+    {
+      unsafe {
+        fixed (long* valuePtr = &values[offset])
+          *(DateTimeOffset*) valuePtr = value;
+      }
+    }
+
+    private static unsafe int GetSize()
+    {
+      return sizeof(DateTimeOffset);
+    }
+
+    public DateTimeOffsetFieldAccessor()
+       : base(GetSize() * 8)
+    { }
   }
 }

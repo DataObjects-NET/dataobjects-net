@@ -1,0 +1,5 @@
+[main] Resolved DateTimeOffset reading issues for certain queries with JOIN
+[main] Improved compiled queries work with entity parameters
+[main] Coalesce operator with local Entity/Structure instance in it is prohibited to prevent wrong query results
+[main] Ternary operator with local Entity/Structure instance in it is prohibited to prevent wrong query results
+[bulkoperations] Ressuracted check for transaction to prevent unrollbackable changes
