@@ -262,7 +262,19 @@ namespace Xtensive.Orm.Linq
     {
       var source = expression.Arguments[0];
       var tag = (string) ((ConstantExpression) expression.Arguments[1]).Value;
-      var visitedSource = (ProjectionExpression) Visit(source);
+      var visitedSourceRaw = Visit(source);
+
+      ProjectionExpression visitedSource;
+      if (visitedSourceRaw.IsEntitySetExpression()) {
+        var entitySetExpression = (EntitySetExpression) visitedSourceRaw;
+        var entitySetQuery =
+          QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+        visitedSource = (ProjectionExpression) Visit(entitySetQuery);
+      }
+      else {
+        visitedSource = (ProjectionExpression) visitedSourceRaw;
+      }
+
       var newDataSource = (tagsArePossible)
         ? visitedSource.ItemProjector.DataSource.Tag(tag)
         : visitedSource.ItemProjector.DataSource;

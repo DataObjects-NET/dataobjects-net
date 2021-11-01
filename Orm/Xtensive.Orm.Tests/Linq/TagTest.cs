@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Tests.Linq
         var queryString = queryFormatter.ToSqlString(query);
         Console.WriteLine(queryString);
 
-        Assert.IsTrue(queryString.StartsWith("/*superCoolTag*/"));
+        Assert.IsTrue(queryString.StartsWith("/*superCoolTag evenCoolerTag*/"));
         Assert.DoesNotThrow(() => query.Run());
       }
     }
