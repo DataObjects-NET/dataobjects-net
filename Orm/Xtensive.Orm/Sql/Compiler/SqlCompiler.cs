@@ -1649,6 +1649,7 @@ namespace Xtensive.Sql.Compiler
       if (configuration.CommentLocation != SqlCommentLocation.BeforeStatement)
         return;
       Visit(node);
+      context.Output.AppendText(translator.NewLine);
     }
 
     public virtual void VisitCommentIfWithin(SqlComment node)
@@ -1662,6 +1663,7 @@ namespace Xtensive.Sql.Compiler
     {
       if (configuration.CommentLocation != SqlCommentLocation.AfterStatement)
         return;
+      context.Output.AppendText(translator.NewLine);
       Visit(node);
     }
 
