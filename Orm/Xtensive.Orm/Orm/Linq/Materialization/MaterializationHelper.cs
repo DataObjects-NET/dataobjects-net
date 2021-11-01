@@ -30,16 +30,17 @@ namespace Xtensive.Orm.Linq.Materialization
     public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo;
     public static readonly MethodInfo PrefetchEntitySetMethodInfo;
 
-    public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
+    public static int[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<int>> remappedColumns)
     {
       var map = new int[targetLength];
       for (var i = 0; i < map.Length; i++) {
         map[i] = MapTransform.NoMapping;
       }
 
-      for (var i = 0; i < remappedColumns.Length; i++) {
-        var targetIndex = remappedColumns[i].First;
-        var sourceIndex = remappedColumns[i].Second;
+      for (var i = 0; i < remappedColumns.Count; i++) {
+        var remappedColumn = remappedColumns[i];
+        var targetIndex = remappedColumn.First;
+        var sourceIndex = remappedColumn.Second;
         map[targetIndex] = sourceIndex;
       }
 
@@ -101,8 +102,8 @@ namespace Xtensive.Orm.Linq.Materialization
       where TEntitySet : EntitySetBase
     {
       context.Session.Handler.Prefetch(
-        entitySet.Owner.Key, 
-        entitySet.Owner.TypeInfo, 
+        entitySet.Owner.Key,
+        entitySet.Owner.TypeInfo,
         new List<PrefetchFieldDescriptor>{new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)});
       return entitySet;
     }
