@@ -1,5 +1,5 @@
 [main] Changed boolean expression translation to have better index utilization (rebuild of filtered indexes required)
-[main] Introduced access to DbConnection by using IDbConnectionAccessor implementors
+[main] Introduced access to DbConnection by using IDbConnectionAccessor implementers
 [main] Much faster query cache in multithreaded workloads
 [main] Addressed issue appeared in 7.0.0 when certain items of prefetch graph weren't fetched
 [main] Fixed certain issues caused by unnecessary check for zombie transactions on commit
