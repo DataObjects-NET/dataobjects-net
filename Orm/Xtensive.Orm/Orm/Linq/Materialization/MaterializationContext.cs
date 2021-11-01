@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private struct EntityMappingCache
     {
-      public TypeMapping SingleItem;
+      public TypeMapping? SingleItem;
       public Dictionary<int, TypeMapping> Items;
     }
 
@@ -58,34 +58,36 @@ namespace Xtensive.Orm.Linq.Materialization
     /// </summary>
     public Queue<Action> MaterializationQueue { get; set; }
 
-    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, Pair<int>[] columns)
+    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IReadOnlyList<Pair<int>> columns)
     {
       TypeMapping result;
-      var cache = entityMappings[entityIndex];
-      if (cache.SingleItem!=null) {
-        if (typeId!=ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem.Type))
+      ref var cache = ref entityMappings[entityIndex];
+      if (cache.SingleItem != null) {
+        if (typeId != ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem?.Type)) {
           throw new ArgumentOutOfRangeException("typeId");
-        return cache.SingleItem;
+        }
+        return cache.SingleItem.Value;
       }
       if (cache.Items.TryGetValue(typeId, out result))
         return result;
 
-      var type       = TypeIdRegistry[typeId];
-      var keyInfo    = type.Key;
+      var type = TypeIdRegistry[typeId];
+      var keyInfo = type.Key;
       var descriptor = type.TupleDescriptor;
 
       var typeColumnMap = columns;
       if (approximateType.IsInterface) {
         // fixup target index
-        typeColumnMap = new Pair<int>[columns.Length];
-        for (int i = columns.Length; i-- > 0;) {
+        var newColumns = new Pair<int>[columns.Count];
+        for (int i = columns.Count; i-- > 0;) {
           var pair = columns[i];
           var approxTargetIndex = pair.First;
           var interfaceField = approximateType.Columns[approxTargetIndex].Field;
           var field = type.FieldMap[interfaceField];
           var targetIndex = field.MappingInfo.Offset;
-          typeColumnMap[i] = new Pair<int>(targetIndex, pair.Second);
+          newColumns[i] = new Pair<int>(targetIndex, pair.Second);
         }
+        typeColumnMap = newColumns;
       }
 
       ArraySegment<int> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
@@ -100,7 +102,6 @@ namespace Xtensive.Orm.Linq.Materialization
         cache.SingleItem = result;
       else
         cache.Items.Add(typeId, result);
-      entityMappings[entityIndex] = cache;
       
       return result;
     }

@@ -30,12 +30,12 @@ namespace Xtensive.Orm.Linq.Materialization
     public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo;
     public static readonly MethodInfo PrefetchEntitySetMethodInfo;
 
-    public static int[] CreateSingleSourceMap(int targetLength, Pair<int>[] remappedColumns)
+    public static int[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<int>> remappedColumns)
     {
       var map = new int[targetLength];
       Array.Fill(map, MapTransform.NoMapping);
 
-      for (var i = 0; i < remappedColumns.Length; i++) {
+      for (var i = 0; i < remappedColumns.Count; i++) {
         var remappedColumn = remappedColumns[i];
         var targetIndex = remappedColumn.First;
         var sourceIndex = remappedColumn.Second;

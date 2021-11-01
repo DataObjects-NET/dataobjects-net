@@ -10,7 +10,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
 {
-  internal class TypeMapping
+  internal readonly struct TypeMapping
   {
     public readonly TypeInfo Type;
     public readonly MapTransform KeyTransform;
