@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
@@ -161,13 +161,11 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var entityRecords = reader.Read(queryResult, Provider.Header, manager.Owner.Session);
       foreach (var entityRecord in entityRecords) {
-        if (entityRecord != null) {
-          var fetchedKey = entityRecord.GetKey();
-          var tuple = entityRecord.GetTuple();
-          if (tuple != null) {
-            manager.SaveStrongReference(manager.Owner.UpdateState(fetchedKey, tuple));
-            foundedKeys.Add(fetchedKey);
-          }
+        var fetchedKey = entityRecord.GetKey();
+        var tuple = entityRecord.GetTuple();
+        if (tuple != null) {
+          manager.SaveStrongReference(manager.Owner.UpdateState(fetchedKey, tuple));
+          foundedKeys.Add(fetchedKey);
         }
       }
     }
