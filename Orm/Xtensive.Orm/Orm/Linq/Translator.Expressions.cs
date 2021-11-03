@@ -654,9 +654,6 @@ namespace Xtensive.Orm.Linq
       return bindings;
     }
 
-    private static ConstantExpression SelectBoolConstantExpression(bool b) =>
-      b ? trueBoolExpression : falseBoolExpression;
-
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression VisitBinaryRecursive(BinaryExpression binaryExpression, BinaryExpression originalBinaryExpression)
@@ -865,6 +862,9 @@ namespace Xtensive.Orm.Linq
       // Return result.
       return resultExpression;
     }
+
+    private static ConstantExpression SelectBoolConstantExpression(bool b) =>
+      b ? trueBoolExpression : falseBoolExpression;
 
     private Expression VisitIndex(IndexExpression ie)
     {

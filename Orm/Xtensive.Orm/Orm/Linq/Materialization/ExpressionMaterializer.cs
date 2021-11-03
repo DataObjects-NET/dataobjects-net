@@ -32,9 +32,8 @@ namespace Xtensive.Orm.Linq.Materialization
     private static readonly PropertyInfo ParameterContextProperty;
     private static readonly MethodInfo GetTupleParameterValueMethod;
     private static readonly ParameterExpression tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-
     private static readonly ParameterExpression materializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
-    private static readonly ConstantExpression typeReferenceAccuracyBaseTypeConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
+    private static readonly ConstantExpression typeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
 
     private readonly TranslatorContext context;
     private readonly ParameterExpression itemMaterializationContextParameter;
@@ -321,7 +320,7 @@ namespace Xtensive.Orm.Linq.Materialization
           Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
           WellKnownMembers.SessionNodeId),
         Expression.Constant(expression.EntityType),
-        typeReferenceAccuracyBaseTypeConstantExpression,
+        typeReferenceAccuracyConstantExpression,
         tupleExpression);
     }
 
