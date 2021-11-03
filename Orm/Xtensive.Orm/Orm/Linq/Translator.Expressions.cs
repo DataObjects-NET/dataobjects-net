@@ -33,6 +33,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private static IReadOnlyDictionary<Parameter<Tuple>, Tuple> EmptyTupleParameterBindings { get; } = new Dictionary<Parameter<Tuple>, Tuple>();
+
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
       var expression = tb.Expression;
@@ -503,7 +505,7 @@ namespace Xtensive.Orm.Linq
       rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
     }
 
     private Expression ConstructContainsTableQueryRoot(Type elementType, System.Collections.ObjectModel.ReadOnlyCollection<Expression> parameters)
@@ -569,7 +571,7 @@ namespace Xtensive.Orm.Linq
       rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
@@ -1157,7 +1159,7 @@ namespace Xtensive.Orm.Linq
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
       var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
     }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
