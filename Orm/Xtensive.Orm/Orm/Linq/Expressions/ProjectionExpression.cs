@@ -21,16 +21,15 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public override string ToString() => $"Projection:  {ItemProjector}, IsScalar = {IsScalar}";
 
-    // Creates new ItemProjectorExpression, based on this but with new ItemProjectorExpression
     public ProjectionExpression Apply(ItemProjectorExpression itemProjectorExpression) =>
       new ProjectionExpression(Type, itemProjectorExpression, TupleParameterBindings, ResultAccessMethod);
 
     // Constructors
 
     public ProjectionExpression(
-      Type type, 
+      Type type,
       ItemProjectorExpression itemProjectorExpression,
-      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
+      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings,
       ResultAccessMethod resultAccessMethod = ResultAccessMethod.All)
       : base(ExtendedExpressionType.Projection, type)
     {
