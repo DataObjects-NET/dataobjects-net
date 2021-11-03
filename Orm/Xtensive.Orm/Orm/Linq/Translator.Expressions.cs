@@ -36,8 +36,6 @@ namespace Xtensive.Orm.Linq
     private static readonly ParameterExpression parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
       nullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
-      falseBoolExpression = Expression.Constant(false, WellKnownTypes.Bool),
-      trueBoolExpression = Expression.Constant(true, WellKnownTypes.Bool),
       falseExpression = Expression.Constant(false),
       trueExpression = Expression.Constant(true);
 
@@ -698,7 +696,7 @@ namespace Xtensive.Orm.Linq
           var rightEntitySetExpression = right as EntitySetExpression;
           if (leftEntitySetExpression != null && rightEntitySetExpression != null) {
             if (leftEntitySetExpression.Field != rightEntitySetExpression.Field) {
-              return falseBoolExpression;
+              return falseExpression;
             }
             var binary = Expression.MakeBinary(binaryExpression.NodeType,
               (Expression) leftEntitySetExpression.Owner,
@@ -864,7 +862,7 @@ namespace Xtensive.Orm.Linq
     }
 
     private static ConstantExpression SelectBoolConstantExpression(bool b) =>
-      b ? trueBoolExpression : falseBoolExpression;
+      b ? trueExpression : falseExpression;
 
     private Expression VisitIndex(IndexExpression ie)
     {
