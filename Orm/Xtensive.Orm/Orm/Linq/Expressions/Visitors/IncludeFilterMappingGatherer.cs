@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       }
     }
 
-    private static readonly ParameterExpression calculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
+    private static readonly ParameterExpression CalculatedColumnParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "filteredRow");
 
     private readonly Expression filterDataTuple;
     private readonly ApplyParameter filteredTuple;
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       }
 
       if (target.NodeType == ExpressionType.Constant && ((ConstantExpression) target).Value == filteredTuple) {
-        return calculatedColumnParameter;
+        return CalculatedColumnParameter;
       }
       return base.VisitMemberAccess(m);
     }
@@ -96,8 +96,8 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
       if (tupleAccess != null) {
         return new MappingEntry(tupleAccess.GetTupleAccessArgument());
       }
-      expression = ExpressionReplacer.Replace(expression, filterDataTuple, calculatedColumnParameter);
-      return new MappingEntry(FastExpression.Lambda(expression, calculatedColumnParameter));
+      expression = ExpressionReplacer.Replace(expression, filterDataTuple, CalculatedColumnParameter);
+      return new MappingEntry(FastExpression.Lambda(expression, CalculatedColumnParameter));
     }
 
     private IncludeFilterMappingGatherer(Expression filterDataTuple, ApplyParameter filteredTuple, MappingEntry[] resultMapping)
