@@ -81,19 +81,19 @@ namespace Xtensive.Orm.Providers
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       var options = new SqlCompilerConfiguration {
-        DatabaseQualifiedObjects = configuration.IsMultidatabase
+        DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        CommentLocation = configuration.TagsLocation.ToCommentLocation(),
       };
       return underlyingDriver.Compile(statement, options);
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
     {
-      SqlCompilerConfiguration options;
-      if (configuration.ShareStorageSchemaOverNodes)
-        options = new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping());
-      else
-        options = new SqlCompilerConfiguration();
+      var options = configuration.ShareStorageSchemaOverNodes
+        ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
+        : new SqlCompilerConfiguration();
       options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
+      options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
       return underlyingDriver.Compile(statement, options);
     }
 

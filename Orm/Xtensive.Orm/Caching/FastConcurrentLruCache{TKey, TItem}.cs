@@ -53,9 +53,7 @@ namespace Xtensive.Caching
     public override void RemoveKey(TKey key, bool removeCompletely) => realCache.TryRemove(key);
 
     /// <inheritdoc/>
-    public override void Clear() =>
-      //TODO: Change to imp.Clear() after updating BitFaster.Caching package to 1.0.4
-      realCache = new FastConcurrentLru<TKey, TItem>((int) MaxSize);
+    public override void Clear() => realCache.Clear();
 
     /// <inheritdoc/>
     /// <exception cref="NotImplementedException"/>

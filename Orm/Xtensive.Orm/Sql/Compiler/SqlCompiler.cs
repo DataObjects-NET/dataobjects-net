@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -1166,7 +1166,10 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        VisitCommentIfWithin(comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -1176,7 +1179,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
-        
+        VisitCommentIfAfter(comment);
       }
     }
 
@@ -1635,6 +1638,34 @@ namespace Xtensive.Sql.Compiler
         node.Operand.AcceptVisitor(this);
         context.Output.AppendText(translator.Translate(context, node, ExtractSection.Exit));
       }
+    }
+
+    public virtual void Visit(SqlComment node)
+    {
+      context.Output.AppendText(translator.Translate(node));
+    }
+
+    public virtual void VisitCommentIfBefore(SqlComment node)
+    {
+      if (configuration.CommentLocation != SqlCommentLocation.BeforeStatement)
+        return;
+      Visit(node);
+      context.Output.AppendText(translator.NewLine);
+    }
+
+    public virtual void VisitCommentIfWithin(SqlComment node)
+    {
+      if (configuration.CommentLocation != SqlCommentLocation.WithinStatement)
+        return;
+      Visit(node);
+    }
+
+    public virtual void VisitCommentIfAfter(SqlComment node)
+    {
+      if (configuration.CommentLocation != SqlCommentLocation.AfterStatement)
+        return;
+      context.Output.AppendText(translator.NewLine);
+      Visit(node);
     }
 
     private void TranslateDynamicFilterViaInOperator(SqlDynamicFilter node)
