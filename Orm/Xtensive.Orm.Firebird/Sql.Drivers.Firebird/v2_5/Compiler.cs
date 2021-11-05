@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -27,9 +27,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        VisitCommentIfBefore(node.Comment);
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        VisitCommentIfWithin(node.Comment);
+        VisitCommentIfWithin(comment);
         VisitSelectLimitOffset(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -38,7 +39,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         VisitSelectOrderBy(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
-        VisitCommentIfAfter(node.Comment);
+        VisitCommentIfAfter(comment);
       }
     }
 

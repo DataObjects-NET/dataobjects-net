@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -26,6 +26,8 @@ namespace Xtensive.Orm.Linq.Materialization
   [Serializable]
   internal class ExpressionMaterializer : PersistentExpressionVisitor
   {
+    private const string RootQueryTagsPrefix = "Root query tags ->";
+
     private static readonly MethodInfo BuildPersistentTupleMethod;
     private static readonly MethodInfo GetTupleSegmentMethod;
     private static readonly MethodInfo GetParameterValueMethod;
@@ -167,8 +169,8 @@ namespace Xtensive.Orm.Linq.Materialization
       var dataSource = subQueryExpression.ProjectionExpression.ItemProjector.DataSource;
 
       var rootTags = context.GetAllTags();
-      if (rootTags.Length > 0) {
-        dataSource = dataSource.Tag($"Root query tags -> {string.Join(' ', rootTags)}");
+      if (rootTags.Count > 0) {
+        dataSource = dataSource.Tag($"{RootQueryTagsPrefix} {string.Join(' ', rootTags)}");
       }
 
       var newDataSource = ApplyParameterToTupleParameterRewriter.Rewrite(

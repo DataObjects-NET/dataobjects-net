@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -1166,9 +1166,10 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        VisitCommentIfBefore(node.Comment);
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        VisitCommentIfWithin(node.Comment);
+        VisitCommentIfWithin(comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -1178,7 +1179,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
-        VisitCommentIfAfter(node.Comment);
+        VisitCommentIfAfter(comment);
       }
     }
 

@@ -25,9 +25,10 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        VisitCommentIfBefore(node.Comment);
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
-        VisitCommentIfWithin(node.Comment);
+        VisitCommentIfWithin(comment);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectHints(node);
@@ -37,7 +38,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
-        VisitCommentIfAfter(node.Comment);
+        VisitCommentIfAfter(comment);
       }
     }
 

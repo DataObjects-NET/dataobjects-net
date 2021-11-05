@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -87,15 +87,12 @@ namespace Xtensive.Orm.Linq
       return parameter;
     }
 
-    public string[] GetAllTags()
+    public IReadOnlyList<string> GetAllTags()
     {
       if (Domain.Configuration.TagsLocation == TagsLocation.Nowhere)
         return Array.Empty<string>();
 
-      var tags = applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList();
-      if (tags.Count == 0)
-        return Array.Empty<string>();
-      return tags.ToArray();
+      return applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList();
     }
 
     public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
