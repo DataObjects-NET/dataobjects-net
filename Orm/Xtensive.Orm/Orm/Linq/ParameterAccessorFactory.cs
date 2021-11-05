@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Linq
     private static readonly MethodInfo GetParameterValueMethod =
       WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
 
-    private static readonly ParameterExpression parameterContextArgument = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly ParameterExpression ParameterContextArgument = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
 
     private class ParameterAccessorFactoryImpl<T>: ExpressionVisitor
     {
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq
 
     public static Expression<Func<ParameterContext, T>> CreateAccessorExpression<T>(Expression parameterExpression)
     {
-      return new ParameterAccessorFactoryImpl<T>(parameterContextArgument).BindToParameterContext(parameterExpression);
+      return new ParameterAccessorFactoryImpl<T>(ParameterContextArgument).BindToParameterContext(parameterExpression);
     }
   }
 }

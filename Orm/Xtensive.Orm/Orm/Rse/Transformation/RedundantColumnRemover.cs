@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class RedundantColumnRemover : ColumnMappingInspector
   {
-    private static readonly MethodInfo selectMethodInfo = WellKnownTypes.Enumerable
+    private static readonly MethodInfo SelectMethodInfo = WellKnownTypes.Enumerable
       .GetMethods()
       .Single(methodInfo => methodInfo.Name == nameof(Enumerable.Select)
         && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == WellKnownTypes.FuncOfTArgTResultType)
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Rse.Transformation
       Expression<Func<ParameterContext, IEnumerable<Tuple>>> source, MapTransform mappingTransform)
     {
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
-      var newExpression = Expression.Call(selectMethodInfo, source.Body, Expression.Constant(selector));
+      var newExpression = Expression.Call(SelectMethodInfo, source.Body, Expression.Constant(selector));
       return (Expression<Func<ParameterContext, IEnumerable<Tuple>>>)FastExpression.Lambda(newExpression, source.Parameters[0]);
     }
 

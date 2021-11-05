@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static readonly ParameterExpression tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 
     public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IReadOnlyList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq
       for (var i = 0; i < keyColumnTypes.Count; i++) {
         var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);
         var tupleParameterFieldAccess = Expression.Call(
-          tupleParameter,
+          TupleParameter,
           getValueMethod,
           Expression.Constant(startIndex + i));
         var keyParameterFieldAccess = Expression.Call(
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Linq
           filterExpression = Expression.And(filterExpression,
             Expression.Equal(tupleParameterFieldAccess, keyParameterFieldAccess));
       }
-      return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter);
+      return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, TupleParameter);
     }
 
     private static Expression CreateEntityQuery(Type elementType)

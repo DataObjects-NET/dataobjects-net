@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Rse.Transformation
 {
   internal sealed class ApplyFilterRewriter : ExpressionVisitor
   {
-    private static readonly ParameterExpression leftTupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "leftTuple");
+    private static readonly ParameterExpression LeftTupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "leftTuple");
     private ColumnCollection sourceColumns;
     private ColumnCollection targetColumns;
 
@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Rse.Transformation
       Initialize(predicate, predicateColumns, currentColumns);
       var visited = Visit(predicate.Body);
       return (Expression<Func<Tuple, Tuple, bool>>) FastExpression
-        .Lambda(visited, leftTupleParameter, predicate.Parameters[0]);
+        .Lambda(visited, LeftTupleParameter, predicate.Parameters[0]);
     }
 
     protected override Expression VisitMethodCall(MethodCallExpression mc)
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Rse.Transformation
       if (mc.AsTupleAccess() != null) {
         var sourceIndex = mc.GetTupleAccessArgument();
         if (mc.GetApplyParameter() != null)
-          return Expression.Call(leftTupleParameter, mc.Method, mc.Arguments[0]);
+          return Expression.Call(LeftTupleParameter, mc.Method, mc.Arguments[0]);
         var name = sourceColumns.Single(column => column.Index == sourceIndex).Name;
         var currentIndex = targetColumns[name].Index;
         return Expression.Call(mc.Object, mc.Method, Expression.Constant(currentIndex));
