@@ -1187,9 +1187,10 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
-        VisitCommentIfBefore(node.Comment);
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         AppendTranslated(node, SelectSection.Entry);
-        VisitCommentIfWithin(node.Comment);
+        VisitCommentIfWithin(comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -1199,7 +1200,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         AppendTranslated(node, SelectSection.Exit);
-        VisitCommentIfAfter(node.Comment);
+        VisitCommentIfAfter(comment);
       }
     }
 

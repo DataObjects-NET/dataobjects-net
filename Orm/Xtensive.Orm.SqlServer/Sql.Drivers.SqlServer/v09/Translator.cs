@@ -476,19 +476,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       resultBuilder.Append(
       @"SELECT
         @{0} = {1}.sys.default_constraints.name
-      FROM 
+      FROM
         {1}.sys.all_columns
       INNER JOIN
         {1}.sys.tables
       ON all_columns.object_id = tables.object_id
-      INNER JOIN 
+      INNER JOIN
         {1}.sys.schemas
-      ON tables.schema_id = schemas.schema_id  
+      ON tables.schema_id = schemas.schema_id
       INNER JOIN
         {1}.sys.default_constraints
       ON all_columns.default_object_id = default_constraints.object_id
 
-      WHERE 
+      WHERE
         schemas.name = '{2}'
         AND tables.name = '{3}'
         AND all_columns.name = '{4}'");

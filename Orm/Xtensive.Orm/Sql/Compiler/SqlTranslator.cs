@@ -1796,7 +1796,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Translate(IOutput output, SqlComment comment)
     {
-      if (comment?.Text != null) {      
+      if (comment?.Text != null) {
         if (comment.Text.IndexOfAny(new char[] { '*', '/' }) != -1)
           throw new ArgumentException(string.Format(Strings.ExArgumentContainsInvalidCharacters, nameof(comment), "*/"));
 

@@ -55,7 +55,6 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override void RemoveKey(TKey key, bool removeCompletely) => realCache.TryRemove(key);
 
-    /// <inheritdoc/>
     /// <exception cref="NotImplementedException"/>
     public override IEnumerator<TItem> GetEnumerator() => throw new NotImplementedException();
 

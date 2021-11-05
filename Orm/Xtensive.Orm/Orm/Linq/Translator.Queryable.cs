@@ -31,7 +31,7 @@ namespace Xtensive.Orm.Linq
     private static readonly ParameterExpression parameterContextContextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
 
     private readonly TranslatorContext context;
-    private readonly bool tagsArePossible;
+    private readonly bool tagsEnabled;
 
     internal TranslatorState State { get; private set; } = TranslatorState.InitState;
 
@@ -283,7 +283,7 @@ namespace Xtensive.Orm.Linq
         visitedSource = (ProjectionExpression) visitedSourceRaw;
       }
 
-      var newDataSource = (tagsArePossible)
+      var newDataSource = (tagsEnabled)
         ? visitedSource.ItemProjector.DataSource.Tag(tag)
         : visitedSource.ItemProjector.DataSource;
       var newItemProjector = new ItemProjectorExpression(
