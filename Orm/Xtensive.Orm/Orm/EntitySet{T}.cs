@@ -62,7 +62,7 @@ namespace Xtensive.Orm
     IQueryable<TItem>
     where TItem : IEntity
   {
-    private static readonly MemberExpression ownerPropertyExpression = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
+    private static readonly MemberExpression OwnerPropertyExpression = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
       .GetProperty("Value", WellKnownOrmTypes.Entity));
 
     private Expression expression;
