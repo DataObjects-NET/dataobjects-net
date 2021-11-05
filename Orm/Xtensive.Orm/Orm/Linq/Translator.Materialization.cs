@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -145,8 +145,7 @@ namespace Xtensive.Orm.Linq
       var arguments = new List<Expression>();
       foreach (var argument in n.Arguments) {
         Expression body;
-        using (state.CreateScope()) {
-          state.CalculateExpressions = false;
+        using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
         body = body.IsProjection() 
@@ -203,7 +202,7 @@ namespace Xtensive.Orm.Linq
     {
       this.compiledQueryScope = compiledQueryScope;
       this.context = context;
-      state = new TranslatorState(this);
+      tagsEnabled = context.Domain.Configuration.TagsLocation != TagsLocation.Nowhere;
     }
 
     static Translator()

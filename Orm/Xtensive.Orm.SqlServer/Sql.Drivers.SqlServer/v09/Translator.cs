@@ -327,6 +327,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var output = context.Output;
       switch (section) {
+        case SelectSection.Entry:
+          base.Translate(context, node, section);
         case SelectSection.Limit:
           output.Append("TOP");
           break;

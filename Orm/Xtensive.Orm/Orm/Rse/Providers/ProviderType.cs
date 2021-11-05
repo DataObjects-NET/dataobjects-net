@@ -38,6 +38,7 @@ namespace Xtensive.Orm.Rse.Providers
     FreeText,
     ContainsTable,
     Paging,
+    Tag,
     Void,
   }
 }

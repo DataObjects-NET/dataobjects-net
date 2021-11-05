@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Rse.Transformation
       var newFilters =
         new Dictionary<TDictKey, List<Pair<TPairKey, ColumnCollection>>>(currentState.Count);
       foreach (var providerPair in currentState) {
-        var newProviderPairValue = new List<Pair<TPairKey, ColumnCollection>>();
+        var newProviderPairValue = new List<Pair<TPairKey, ColumnCollection>>(providerPair.Value.Count);
         foreach (var predicatePair in providerPair.Value) {
           var newPredicatePair = new Pair<TPairKey, ColumnCollection>(
             predicatePair.First, predicatePair.Second.Alias(provider.Alias));

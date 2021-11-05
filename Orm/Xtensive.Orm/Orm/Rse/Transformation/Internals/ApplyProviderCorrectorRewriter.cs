@@ -80,22 +80,25 @@ namespace Xtensive.Orm.Rse.Transformation
         if (previousState == null)
           return;
         foreach (var pair in CalculateProviders) {
-          if (previousState.CalculateProviders.ContainsKey(pair.Key))
-            previousState.CalculateProviders[pair.Key].AddRange(pair.Value);
-          else
+          if (previousState.CalculateProviders.TryGetValue(pair.Key, out var providers)) {
+            providers.AddRange(pair.Value);
+          }
+          else {
             previousState.CalculateProviders.Add(pair.Key, pair.Value);
+          }
         }
         foreach (var pair in CalculateFilters) {
-          if (previousState.CalculateFilters.ContainsKey(pair.Key))
-            previousState.CalculateFilters[pair.Key].AddRange(pair.Value);
-          else
+          if (previousState.CalculateFilters.TryGetValue(pair.Key, out var filter)) {
+            filter.AddRange(pair.Value);
+          }
+          else {
             previousState.CalculateFilters.Add(pair.Key, pair.Value);
+          }
         }
         foreach (var pair in Predicates) {
-          if (previousState.Predicates.ContainsKey(pair.Key))
+          if (!previousState.Predicates.TryAdd(pair.Key, pair.Value)) {
             ThrowInvalidOperationException();
-          else
-            previousState.Predicates.Add(pair.Key, pair.Value);
+          }
         }
       }
     }
@@ -316,8 +319,7 @@ namespace Xtensive.Orm.Rse.Transformation
     private Provider ProcesSelfConvertibleApply(ApplyProvider provider, CompilableProvider left,
       CompilableProvider right)
     {
-      if (State.Predicates.ContainsKey(provider.ApplyParameter))
-        State.Predicates.Remove(provider.ApplyParameter);
+      State.Predicates.Remove(provider.ApplyParameter);
       if (left != provider.Left || right != provider.Right)
         return new ApplyProvider(provider.ApplyParameter, left, right, provider.IsInlined, provider.SequenceType, provider.ApplyType);
       return provider;
@@ -343,10 +345,11 @@ namespace Xtensive.Orm.Rse.Transformation
 
     private Provider InsertCalculateProviders(ApplyProvider provider, CompilableProvider convertedApply)
     {
-      if (!State.CalculateProviders.ContainsKey(provider.ApplyParameter))
+      if (!State.CalculateProviders.TryGetValue(provider.ApplyParameter, out var providers)) {
         return convertedApply;
+      }
       var result = convertedApply;
-      foreach (var providerPair in State.CalculateProviders[provider.ApplyParameter]) {
+      foreach (var providerPair in providers) {
         result = RewriteCalculateColumnExpressions(providerPair, result);
         result = InsertCalculateFilter(result, providerPair.First);
       }
@@ -358,9 +361,9 @@ namespace Xtensive.Orm.Rse.Transformation
       CalculateProvider calculateProvider)
     {
       var result = source;
-      if (State.CalculateFilters.ContainsKey(calculateProvider)) {
+      if (State.CalculateFilters.TryGetValue(calculateProvider, out var filters)) {
         Expression<Func<Tuple, bool>> concatenatedPredicate = null;
-        foreach (var filterPair in State.CalculateFilters[calculateProvider]) {
+        foreach (var filterPair in filters) {
           var currentPredicate = (Expression<Func<Tuple, bool>>) calculateExpressionRewriter
             .Rewrite(filterPair.First, filterPair.First.Parameters[0],
               filterPair.Second, result.Header.Columns);

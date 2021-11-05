@@ -1,0 +1,9 @@
+[main] Changed boolean expression translation to have better index utilization (rebuild of filtered indexes required)
+[main] Introduced access to DbConnection by using IDbConnectionAccessor implementers
+[main] Much faster query cache in multithreaded workloads
+[main] Addressed issue appeared in 7.0.0 when certain items of prefetch graph weren't fetched
+[main] Fixed certain issues caused by unnecessary check for zombie transactions on commit
+[main] Improved silent cleanup detection when new and removed Entities happen to conflict by table
+[main] Improved speed and memory usage of Session creation
+[main] Overall performance improvements
+[web] Introduced better way of integration with ASP.NET

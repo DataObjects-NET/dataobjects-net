@@ -1,4 +1,10 @@
-﻿using System.Data.SqlClient;
+﻿// Copyright (C) 2013-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+// Created by: Denis Krjuchkov
+// Created:    2013.07.02
+
+using Microsoft.Data.SqlClient;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;

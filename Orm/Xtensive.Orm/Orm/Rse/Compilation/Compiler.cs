@@ -96,6 +96,9 @@ namespace Xtensive.Orm.Rse.Compilation
         case ProviderType.Select:
           result = VisitSelect((SelectProvider)cp);
           break;
+        case ProviderType.Tag:
+          result = VisitTag((TagProvider) cp);
+          break;
         case ProviderType.Skip:
           result = VisitSkip((SkipProvider)cp);
           break;
@@ -171,6 +174,12 @@ namespace Xtensive.Orm.Rse.Compilation
     /// </summary>
     /// <param name="provider">Select provider.</param>
     protected abstract TResult VisitSelect(SelectProvider provider);
+
+    /// <summary>
+    /// Compiles <see cref="TagProvider"/>.
+    /// </summary>
+    /// <param name="provider">Tag provider.</param>
+    protected abstract TResult VisitTag(TagProvider provider);
 
     /// <summary>
     /// Compiles <see cref="SeekProvider"/>.

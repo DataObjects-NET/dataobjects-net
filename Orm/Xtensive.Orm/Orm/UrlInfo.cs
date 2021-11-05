@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -77,7 +77,7 @@ namespace Xtensive.Orm
     ISerializable
   {
     private static readonly Regex Pattern = new Regex(
-          @"^(?'proto'[^:]*)://" +
+          @"^(?'proto'[^:]*[^sS])(?'secure'[sS]?)://" +
           @"((?'username'[^:@]*)" +
           @"(:(?'password'[^@]*))?@)?" +
           @"(?'host'[^:/]*)" +
@@ -88,6 +88,7 @@ namespace Xtensive.Orm
 
     private string url = string.Empty;
     private string protocol = string.Empty;
+    private bool secure = false;
     private string host = string.Empty;
     private int    port;
     private string resource = string.Empty;
@@ -114,6 +115,16 @@ namespace Xtensive.Orm
     {
       [DebuggerStepThrough]
       get { return protocol; }
+    }
+
+    /// <summary>
+    /// Gets the security part of the current <see cref="Url"/>
+    /// Scheme with 's' suffix is secure.
+    /// </summary>
+    public bool Secure
+    {
+      [DebuggerStepThrough]
+      get => secure;
     }
 
     /// <summary>
@@ -237,6 +248,7 @@ namespace Xtensive.Orm
         info.resource = UrlDecode(result.Result("${resource}"));
         info.host = UrlDecode(result.Result("${host}"));
         info.protocol = UrlDecode(result.Result("${proto}"));
+        info.secure = !string.IsNullOrEmpty(result.Result("${secure}"));
         info.port = @port;
         info.parameters = new ReadOnlyDictionary<string, string>(@params);
       }

@@ -562,8 +562,8 @@ namespace Xtensive.Reflection
                 var projectedConstraintArguments = new Type[constraintArguments.Length];
                 for (var j = 0; j < constraintArguments.Length; j++) {
                   projectedConstraintArguments[j] =
-                    genericParameterIndexes.ContainsKey(constraintArguments[j])
-                      ? genericArguments[genericParameterIndexes[constraintArguments[j]]]
+                    genericParameterIndexes.TryGetValue(constraintArguments[j], out var index)
+                      ? genericArguments[index]
                       : constraintArguments[j];
                 }
 

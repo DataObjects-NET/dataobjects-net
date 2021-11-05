@@ -13,6 +13,7 @@ namespace Xtensive.Modelling.Comparison.Hints
   /// How to treat it is up to comparer.
   /// </summary>
   [Serializable]
+  [Obsolete("Hint is no longer in use and will be removed in future releases.")]
   public sealed class RecreateTableHint : Hint
   {
     /// <summary>
