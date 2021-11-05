@@ -329,6 +329,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       switch (section) {
         case SelectSection.Entry:
           base.Translate(context, node, section);
+          break;
         case SelectSection.Limit:
           output.Append("TOP");
           break;
