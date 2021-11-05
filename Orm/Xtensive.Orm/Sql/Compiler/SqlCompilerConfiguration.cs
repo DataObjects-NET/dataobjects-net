@@ -30,6 +30,11 @@ namespace Xtensive.Sql.Compiler
     public bool DatabaseQualifiedObjects { get; set; }
 
     /// <summary>
+    /// Gets or sets comment location.
+    /// </summary>
+    public SqlCommentLocation CommentLocation { get; set; } = SqlCommentLocation.Nowhere;
+
+    /// <summary>
     /// Gets database mapping.
     /// </summary>
     public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }

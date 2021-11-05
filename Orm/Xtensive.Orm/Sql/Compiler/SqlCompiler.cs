@@ -1187,7 +1187,9 @@ namespace Xtensive.Sql.Compiler
     public void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
+        VisitCommentIfBefore(node.Comment);
         AppendTranslated(node, SelectSection.Entry);
+        VisitCommentIfWithin(node.Comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -1197,6 +1199,7 @@ namespace Xtensive.Sql.Compiler
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         AppendTranslated(node, SelectSection.Exit);
+        VisitCommentIfAfter(node.Comment);
       }
     }
 
@@ -1653,6 +1656,34 @@ namespace Xtensive.Sql.Compiler
         node.Operand.AcceptVisitor(this);
         AppendTranslated(node, ExtractSection.Exit);
       }
+    }
+
+    public virtual void Visit(SqlComment node)
+    {
+      translator.Translate(context.Output, node);
+    }
+
+    public virtual void VisitCommentIfBefore(SqlComment node)
+    {
+      if (configuration.CommentLocation != SqlCommentLocation.BeforeStatement)
+        return;
+      Visit(node);
+      context.Output.Append(translator.NewLine);
+    }
+
+    public virtual void VisitCommentIfWithin(SqlComment node)
+    {
+      if (configuration.CommentLocation != SqlCommentLocation.WithinStatement)
+        return;
+      Visit(node);
+    }
+
+    public virtual void VisitCommentIfAfter(SqlComment node)
+    {
+      if (configuration.CommentLocation != SqlCommentLocation.AfterStatement)
+        return;
+      context.Output.Append(translator.NewLine);
+      Visit(node);
     }
 
     private void TranslateDynamicFilterViaInOperator(SqlDynamicFilter node)

@@ -557,6 +557,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid argument: Argument {0} cannot contain &apos;{1}&apos; characters..
+        /// </summary>
+        internal static string ExArgumentContainsInvalidCharacters {
+            get {
+                return ResourceManager.GetString("ExArgumentContainsInvalidCharacters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Argument must be greater than &apos;{0}&apos;.
         /// </summary>
         internal static string ExArgumentMustBeGreaterThanX {

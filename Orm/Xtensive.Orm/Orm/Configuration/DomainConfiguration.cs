@@ -116,6 +116,7 @@ namespace Xtensive.Orm.Configuration
     private KeyGeneratorConfigurationCollection keyGenerators = new KeyGeneratorConfigurationCollection();
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
     private VersioningConvention versioningConvention = new VersioningConvention();
+    private TagsLocation tagsLocation = TagsLocation.Default;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -590,6 +591,18 @@ namespace Xtensive.Orm.Configuration
       set {
         this.EnsureNotLocked();
         ensureConnectionIsAlive = value;
+      }
+    }
+
+    /// <summary>
+    /// Defines where tags will be placed when used within queries.
+    /// </summary>
+    public TagsLocation TagsLocation
+    {
+      get => tagsLocation;
+      set {
+        this.EnsureNotLocked();
+        tagsLocation = value;
       }
     }
 

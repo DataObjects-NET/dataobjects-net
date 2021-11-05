@@ -193,6 +193,7 @@ namespace Xtensive.Orm.Linq
     {
       this.compiledQueryScope = compiledQueryScope;
       this.context = context;
+      tagsArePossible = context.Domain.Configuration.TagsLocation != TagsLocation.Nowhere;
     }
   }
 }

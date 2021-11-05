@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
@@ -25,7 +25,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
+        VisitCommentIfBefore(node.Comment);
         AppendTranslated(node, SelectSection.Entry);
+        VisitCommentIfWithin(node.Comment);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectHints(node);
@@ -35,6 +37,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
         AppendTranslated(node, SelectSection.Exit);
+        VisitCommentIfAfter(node.Comment);
       }
     }
 
@@ -267,7 +270,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     {
       return SqlDml.FunctionCall("DATE_FORMAT", dateTime, "%Y-%m-%dT%T");
     }
-    
+
     protected static SqlUserFunctionCall BitNot(SqlExpression operand)
     {
       return SqlDml.FunctionCall(

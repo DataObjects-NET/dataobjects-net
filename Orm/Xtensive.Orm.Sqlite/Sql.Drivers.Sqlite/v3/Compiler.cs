@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.04.29
 
@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private const string DateTimeFormat = "%Y-%m-%d %H:%M:%f";
     private const string DateTimeIsoFormat = "%Y-%m-%dT%H:%M:%S";
     private const string DateTimeOffsetExampleString = "2001-02-03 04:05:06.789+02.45";
-    
+
 
     protected override bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
@@ -221,7 +221,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       // For hinting limitations see http://www.sqlite.org/lang_indexedby.html
 
       using (context.EnterScope(node)) {
+        VisitCommentIfBefore(node.Comment);
         AppendTranslated(node, SelectSection.Entry);
+        VisitCommentIfWithin(node.Comment);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectWhere(node);
@@ -229,6 +231,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         VisitSelectOrderBy(node);
         VisitSelectLimitOffset(node);
         AppendTranslated(node, SelectSection.Exit);
+        VisitCommentIfAfter(node.Comment);
       }
     }
 

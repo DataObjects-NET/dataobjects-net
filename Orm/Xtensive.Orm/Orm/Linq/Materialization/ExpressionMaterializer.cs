@@ -164,8 +164,15 @@ namespace Xtensive.Orm.Linq.Materialization
 
       // 1. Rewrite recordset and ItemProjector to parameter<tuple>
       var subqueryTupleParameter = context.GetTupleParameter(subQueryExpression.OuterParameter);
+      var dataSource = projectionExpression.ItemProjector.DataSource;
+
+      var rootTags = context.GetAllTags();
+      if (rootTags.Length > 0) {
+        dataSource = dataSource.Tag($"Root query tags -> {string.Join(' ', rootTags)}");
+      }
+
       var newDataSource = ApplyParameterToTupleParameterRewriter.Rewrite(
-        projectionExpression.ItemProjector.DataSource,
+        dataSource,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter);
 

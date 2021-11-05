@@ -106,5 +106,6 @@ namespace Xtensive.Sql
     void Visit(SqlVariant node);
     void Visit(SqlWhile node);
     void Visit(SqlFragment node);
+    void Visit(SqlComment node);
   }
 }
