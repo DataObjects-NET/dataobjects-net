@@ -78,7 +78,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
     [ServiceConstructor]
     public SlowConstructorService()
     {
-      Interlocked.Increment(ref ConstructorInvocations);
+      _ = Interlocked.Increment(ref ConstructorInvocations);
       Thread.Sleep(1000);
     }
   }
@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
   public class MainTest : HasConfigurationAccessTest
   {
     [Test]
-    public void DefaultSectionContainerTest() 
+    public void DefaultSectionContainerTest()
     {
       var defaultSectionContainer = ServiceContainer.Create(Configuration);
       var ps = defaultSectionContainer.Get<IPrintService>();
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
 
     [Test]
     public void CustomContainerTest()
-    { 
+    {
       var container = ServiceContainer.Create(Configuration, "second");
 
       var ps = container.Get<IPrintService>();
@@ -148,7 +148,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
       var container = ServiceContainer.Create(Configuration);
       var prevInvocations = SlowConstructorService.ConstructorInvocations;
       var threads = new List<Thread>();
-      for (int i = 0; i < 2; ++i) {
+      for (var i = 0; i < 2; ++i) {
         var thread = new Thread(() => container.Get<IPrintService>("SlowConstructor"));
         thread.Start();
         threads.Add(thread);

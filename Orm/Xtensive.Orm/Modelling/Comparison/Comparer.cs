@@ -235,10 +235,6 @@ namespace Xtensive.Modelling.Comparison
         return movementInfo;
       }
 
-      var recreateHint = Hints.GetHint<RecreateTableHint>(source);
-      if (recreateHint != null) {
-        movementInfo |= MovementInfo.Removed | MovementInfo.Created;// recreated;
-      }
       var sc = StringComparer.OrdinalIgnoreCase;
 
       // both source!=null && target!=null

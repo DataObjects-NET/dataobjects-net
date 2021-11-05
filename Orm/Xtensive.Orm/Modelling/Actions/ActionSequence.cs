@@ -51,12 +51,12 @@ namespace Xtensive.Modelling.Actions
         var last = actions[lastIndex] as PropertyChangeAction;
         if (last!=null && ca.Path==last.Path) {
           foreach (var pair in last.Properties) {
-            ca.Properties.TryAdd(pair.Key, pair.Value);
+            _ = ca.Properties.TryAdd(pair.Key, pair.Value);
           }
           actions.RemoveAt(lastIndex);
         }
       }
-      action.Lock(true); 
+      action.Lock(true);
       actions.Add(action);
     }
 

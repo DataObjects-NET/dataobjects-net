@@ -7,6 +7,7 @@
 using System;
 using System.Data;
 using System.Data.Common;
+using System.IO;
 using System.Linq;
 using Xtensive.Sql.Info;
 
@@ -295,7 +296,7 @@ namespace Xtensive.Sql
     {
       return ChooseStreamType(SqlType.VarChar, SqlType.VarCharMax, length, VarCharMaxLength);
     }
-    
+
     public virtual SqlValueType MapByte(int? length, int? precision, int? scale)
     {
       return new SqlValueType(SqlType.UInt8);

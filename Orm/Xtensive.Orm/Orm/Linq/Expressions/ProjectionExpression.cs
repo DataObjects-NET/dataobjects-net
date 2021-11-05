@@ -28,9 +28,9 @@ namespace Xtensive.Orm.Linq.Expressions
     // Constructors
 
     public ProjectionExpression(
-      Type type, 
+      Type type,
       ItemProjectorExpression itemProjectorExpression,
-      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
+      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings,
       ResultAccessMethod resultAccessMethod = ResultAccessMethod.All)
       : base(ExtendedExpressionType.Projection, type)
     {

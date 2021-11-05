@@ -16,7 +16,7 @@ using Xtensive.Core;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Maps local ("disconnected") <see cref="Key"/> instances 
+  /// Maps local ("disconnected") <see cref="Key"/> instances
   /// to actual (storage) <see cref="Key"/> instances.
   /// </summary>
   [Serializable]
@@ -29,7 +29,7 @@ namespace Xtensive.Orm
 
     /// <summary>
     /// Tries to remaps the specified key;
-    /// returns the original key, if there is no 
+    /// returns the original key, if there is no
     /// remapped key in <see cref="Map"/> for it.
     /// </summary>
     /// <param name="key">The key to remap.</param>

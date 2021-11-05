@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Linq
       public TranslatorScope(Translator translator)
       {
         this.translator = translator;
-        previousState = translator.state;
+        previousState = translator.State;
       }
     }
 
@@ -65,10 +65,6 @@ namespace Xtensive.Orm.Linq
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private bool GetFlag(TranslatorStateFlags f) => (flags & f) != 0;
-
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    private static void ModifyFlag(ref TranslatorStateFlags flags, TranslatorStateFlags f, bool value) =>
-      flags = value ? flags | f : flags & ~f;
 
     public bool JoinLocalCollectionEntity
     {
@@ -130,8 +126,14 @@ namespace Xtensive.Orm.Linq
       init => ModifyFlag(ref flags, TranslatorStateFlags.SkipNullableColumnsDetectionInGroupBy, value);
     }
 
-    public TranslatorState(in TranslatorState currentState) =>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    private static void ModifyFlag(ref TranslatorStateFlags flags, TranslatorStateFlags f, bool value) =>
+      flags = value ? flags | f : flags & ~f;
+
+    public TranslatorState(in TranslatorState currentState)
+    {
       this = currentState;
+    }
   }
 }
 

@@ -194,7 +194,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlForceJoinOrderHint node)
     {
-      if (node.Tables.IsNullOrEmpty()) 
+      if (node.Tables.IsNullOrEmpty())
         context.Output.Append("ORDERED");
       else {
         context.Output.Append("LEADING(");

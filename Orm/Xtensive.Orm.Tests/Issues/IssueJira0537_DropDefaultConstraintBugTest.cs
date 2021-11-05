@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2021 Xtensive LLC.
+﻿// Copyright (C) 2013-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov

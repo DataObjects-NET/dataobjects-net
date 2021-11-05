@@ -29,6 +29,17 @@ namespace Xtensive.IoC
   {
     private static readonly Type typeofIServiceContainer = typeof(IServiceContainer);
 
+    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
+      var mappedType = serviceInfo.MappedType;
+      var ctor = (
+        from c in mappedType.GetConstructors()
+        where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
+        select c
+        ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
+      var @params = ctor?.GetParameters();
+      return new Pair<ConstructorInfo, ParameterInfo[]>(ctor, @params);
+    };
+
     private readonly IReadOnlyDictionary<Key, List<ServiceRegistration>> types;
 
     private readonly ConcurrentDictionary<ServiceRegistration, Lazy<object>> instances =
@@ -60,17 +71,6 @@ namespace Xtensive.IoC
         ? list.Select(GetOrCreateInstance)
         : Array.Empty<object>();
 
-    private static readonly Func<ServiceRegistration, Pair<ConstructorInfo, ParameterInfo[]>> ConstructorFactory = serviceInfo => {
-      var mappedType = serviceInfo.MappedType;
-      var ctor = (
-        from c in mappedType.GetConstructors()
-        where c.GetAttribute<ServiceConstructorAttribute>(AttributeSearchOptions.InheritNone) != null
-        select c
-        ).SingleOrDefault() ?? mappedType.GetConstructor(Array.Empty<Type>());
-      var @params = ctor?.GetParameters();
-      return new Pair<ConstructorInfo, ParameterInfo[]>(ctor, @params);
-    };
-
     /// <summary>
     /// Creates the service instance for the specified <paramref name="serviceInfo"/>.
     /// </summary>
@@ -95,7 +95,7 @@ namespace Xtensive.IoC
       }
       var args = new object[pInfos.Length];
       try {
-        for (int i = 0; i < pInfos.Length; i++) {
+        for (var i = 0; i < pInfos.Length; i++) {
           var type = pInfos[i].ParameterType;
           if (creating.ContainsKey((type, managedThreadId))) {
             throw new ActivationException(Strings.ExRecursiveConstructorParameterDependencyIsDetected);
@@ -104,7 +104,7 @@ namespace Xtensive.IoC
         }
       }
       finally {
-        creating.TryRemove(key, out _);
+        _ = creating.TryRemove(key, out _);
       }
       return cInfo.Invoke(args);
     }

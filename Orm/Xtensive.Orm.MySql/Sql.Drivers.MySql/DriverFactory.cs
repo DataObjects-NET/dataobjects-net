@@ -103,7 +103,6 @@ namespace Xtensive.Sql.Drivers.MySql
         return CreateDriverInstance(connectionString, version, defaultSchema);
       }
     }
-
     private static SqlDriver CreateDriverInstance(string connectionString, Version version, DefaultSchemaInfo defaultSchema)
     {
       var coreServerInfo = new CoreServerInfo {
@@ -189,6 +188,29 @@ namespace Xtensive.Sql.Drivers.MySql
           await SqlHelper.NotifyConnectionOpeningFailedAsync(acessors, connection, ex, false, cancellationToken).ConfigureAwait(false);
           throw;
         }
+      }
+    }
+
+    private void OpenConnectionFast(MySqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+    }
+
+    private void OpenConnectionWithNotification(MySqlConnection connection, SqlDriverConfiguration configuration)
+    {
+      var accessors = configuration.DbConnectionAccessors;
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
+        throw;
       }
     }
   }

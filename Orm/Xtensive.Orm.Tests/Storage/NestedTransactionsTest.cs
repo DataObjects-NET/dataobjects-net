@@ -230,7 +230,7 @@ namespace Xtensive.Orm.Tests.Storage
       outerTx.Complete();
       if (storageProviderInfo.CheckProviderIs(StorageProvider.SqlServer)) {
         var exception = Assert.Throws<StorageException>(() => outerTx.Dispose());
-        Assert.That(exception.InnerException, Is.InstanceOf<SqlException>());
+        Assert.That(exception.InnerException, Is.InstanceOf<Microsoft.Data.SqlClient.SqlException>());
       }
       else {
         Assert.DoesNotThrow(() => outerTx.Dispose());

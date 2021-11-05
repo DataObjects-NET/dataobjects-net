@@ -185,5 +185,28 @@ namespace Xtensive.Sql.Drivers.Oracle
         }
       }
     }
+
+    private void OpenConnectionFast(OracleConnection connection, SqlDriverConfiguration configuration)
+    {
+      connection.Open();
+      SqlHelper.ExecuteInitializationSql(connection, configuration);
+    }
+
+    private void OpenConnectionWithNotification(OracleConnection connection, SqlDriverConfiguration configuration)
+    {
+      var accessors = configuration.DbConnectionAccessors;
+      SqlHelper.NotifyConnectionOpening(accessors, connection);
+      try {
+        connection.Open();
+        if (!string.IsNullOrEmpty(configuration.ConnectionInitializationSql))
+          SqlHelper.NotifyConnectionInitializing(accessors, connection, configuration.ConnectionInitializationSql);
+        SqlHelper.ExecuteInitializationSql(connection, configuration);
+        SqlHelper.NotifyConnectionOpened(accessors, connection);
+      }
+      catch (Exception ex) {
+        SqlHelper.NotifyConnectionOpeningFailed(accessors, connection, ex);
+        throw;
+      }
+    }
   }
 }

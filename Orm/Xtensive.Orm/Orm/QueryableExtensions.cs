@@ -20,7 +20,7 @@ using Xtensive.Reflection;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries. 
+  /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries.
   /// </summary>
   public static partial class QueryableExtensions
   {
@@ -30,7 +30,7 @@ namespace Xtensive.Orm
     /// <param name="source">The source sequence.</param>
     public static int Count([InstantHandle] this IQueryable source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
       return (int) source.Provider.Execute(
         Expression.Call(
           WellKnownTypes.Queryable, nameof(Queryable.Count),
@@ -38,7 +38,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Version of <see cref="Queryable.Take{TSource}"/>, where <paramref name="count"/> is specified as 
+    /// Version of <see cref="Queryable.Take{TSource}"/>, where <paramref name="count"/> is specified as
     /// <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -47,13 +47,14 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Take<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(count, "count");
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentValidator.EnsureArgumentNotNull(count, nameof(count));
 
-      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, providerType));
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTake.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
@@ -61,7 +62,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Version of <see cref="Queryable.Skip{TSource}"/>, where <paramref name="count"/> is specified as 
+    /// Version of <see cref="Queryable.Skip{TSource}"/>, where <paramref name="count"/> is specified as
     /// <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -70,13 +71,14 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static IQueryable<TSource> Skip<TSource>(this IQueryable<TSource> source, Expression<Func<int>> count)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(count, "count");
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentValidator.EnsureArgumentNotNull(count, nameof(count));
 
-      var errorMessage = Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, providerType));
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExSkipDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionSkip.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
@@ -93,13 +95,14 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static TSource ElementAt<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentValidator.EnsureArgumentNotNull(index, nameof(index));
 
-      var errorMessage = Strings.ExElementAtDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, providerType));
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExElementAtDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionElementAt.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
@@ -116,13 +119,14 @@ namespace Xtensive.Orm
     /// <returns>The same result as its original version.</returns>
     public static TSource ElementAtOrDefault<TSource>(this IQueryable<TSource> source, Expression<Func<int>> index)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(index, "index");
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentValidator.EnsureArgumentNotNull(index, nameof(index));
 
-      var errorMessage = Strings.ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, providerType));
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExElementAtOrDefaultDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
@@ -139,13 +143,15 @@ namespace Xtensive.Orm
     /// <returns>The same sequence, but with "apply lock" hint.</returns>
     public static IQueryable<TSource> Lock<TSource>(this IQueryable<TSource> source, LockMode lockMode, LockBehavior lockBehavior)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNull(lockMode, "lockMode");
-      ArgumentValidator.EnsureArgumentNotNull(lockBehavior, "lockBehavior");
-      var errorMessage = Strings.ExLockDoesNotSupportQueryProviderOfTypeX;
+      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
+      ArgumentValidator.EnsureArgumentNotNull(lockMode, nameof(lockMode));
+      ArgumentValidator.EnsureArgumentNotNull(lockBehavior, nameof(lockBehavior));
+
       var providerType = source.Provider.GetType();
-      if (providerType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, providerType));
+      if (providerType!=WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExLockDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLock.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(lockMode), Expression.Constant(lockBehavior)});
@@ -160,10 +166,8 @@ namespace Xtensive.Orm
     /// <param name="values">List of values to check.</param>
     /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
     /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>
-    public static bool In<T>(this T source, params T[] values)
-    {
-      return In(source, (IEnumerable<T>)values);
-    }
+    public static bool In<T>(this T source, params T[] values) =>
+      In(source, (IEnumerable<T>) values);
 
     /// <summary>
     /// Checks if <paramref name="source"/> value is contained in the specified list of values.
@@ -173,12 +177,8 @@ namespace Xtensive.Orm
     /// <param name="values">List of values to check.</param>
     /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
     /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>
-    public static bool In<T>(this T source, IEnumerable<T> values)
-    {
-      if (values==null)
-        return false;
-      return values.Contains(source);
-    }
+    public static bool In<T>(this T source, IEnumerable<T> values) =>
+      values == null ? false : values.Contains(source);
 
     /// <summary>
     /// Checks if <paramref name="source"/> value is contained in the specified list of values.
@@ -189,10 +189,8 @@ namespace Xtensive.Orm
     /// <param name="values">List of values to check.</param>
     /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
     /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>
-    public static bool In<T>(this T source, IncludeAlgorithm algorithm, params T[] values)
-    {
-      return In(source, algorithm, (IEnumerable<T>)values);
-    }
+    public static bool In<T>(this T source, IncludeAlgorithm algorithm, params T[] values) =>
+      In(source, algorithm, (IEnumerable<T>) values);
 
     /// <summary>
     /// Checks if <paramref name="source"/> value is contained in the specified list of values.
@@ -203,15 +201,13 @@ namespace Xtensive.Orm
     /// <param name="values">List of values to check.</param>
     /// <returns><see langword="True"/> if <paramref name="source"/> contains in the list of values, otherwise returns <see langword="false"/>.</returns>
     /// <remarks>LINQ translator detects this method and converts it to appropriate <see langword="Contains"/> method.</remarks>
-    public static bool In<T>(this T source, IncludeAlgorithm algorithm, IEnumerable<T> values)
-    {
-      if (values==null)
-        return false;
-      return values.Contains(source);
-    }
+#pragma warning disable IDE0060 // Remove unused parameter
+    public static bool In<T>(this T source, IncludeAlgorithm algorithm, IEnumerable<T> values) =>
+      values == null ? false : values.Contains(source);
+#pragma warning restore IDE0060 // Remove unused parameter
 
     /// <summary>
-    /// Correlates the elements of two sequences based on matching keys. 
+    /// Correlates the elements of two sequences based on matching keys.
     /// </summary>
     /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
     /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>
@@ -227,16 +223,17 @@ namespace Xtensive.Orm
     /// <exception cref="NotSupportedException">Queryable is not a <see cref="Xtensive.Orm.Linq"/> query.</exception>
     public static IQueryable<TResult> LeftJoin<TOuter, TInner, TKey, TResult>(this IQueryable<TOuter> outer, IEnumerable<TInner> inner, Expression<Func<TOuter, TKey>> outerKeySelector, Expression<Func<TInner, TKey>> innerKeySelector, Expression<Func<TOuter, TInner, TResult>> resultSelector)
     {
-      ArgumentValidator.EnsureArgumentNotNull(outer, "outer");
-      ArgumentValidator.EnsureArgumentNotNull(inner, "inner");
-      ArgumentValidator.EnsureArgumentNotNull(outerKeySelector, "outerKeySelector");
-      ArgumentValidator.EnsureArgumentNotNull(innerKeySelector, "innerKeySelector");
-      ArgumentValidator.EnsureArgumentNotNull(resultSelector, "resultSelector");
-      var errorMessage = Strings.ExLeftJoinDoesNotSupportQueryProviderOfTypeX;
+      ArgumentValidator.EnsureArgumentNotNull(outer, nameof(outer));
+      ArgumentValidator.EnsureArgumentNotNull(inner, nameof(inner));
+      ArgumentValidator.EnsureArgumentNotNull(outerKeySelector, nameof(outerKeySelector));
+      ArgumentValidator.EnsureArgumentNotNull(innerKeySelector, nameof(innerKeySelector));
+      ArgumentValidator.EnsureArgumentNotNull(resultSelector, nameof(resultSelector));
 
       var outerProviderType = outer.Provider.GetType();
-      if (outerProviderType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, outerProviderType));
+      if (outerProviderType!=WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExLeftJoinDoesNotSupportQueryProviderOfTypeX;
+        throw new NotSupportedException(string.Format(errorMessage, outerProviderType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionLeftJoin.MakeGenericMethod(new[] {typeof (TOuter), typeof(TInner), typeof(TKey), typeof(TResult)});
       var expression = Expression.Call(null, genericMethod, new[] {outer.Expression, GetSourceExpression(inner), outerKeySelector, innerKeySelector, resultSelector});
@@ -294,30 +291,12 @@ namespace Xtensive.Orm
     /// <returns>A task which runs query.</returns>
     public static async Task<QueryResult<T>> ExecuteAsync<T>(this IQueryable<T> source, CancellationToken cancellationToken)
     {
-      if (source.Provider is QueryProvider queryProvider) {
-        return await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwait(false);
-      }
-
-      return new QueryResult<T>(source.AsEnumerable());
+      return source.Provider is QueryProvider queryProvider
+        ? await queryProvider.ExecuteSequenceAsync<T>(source.Expression, cancellationToken).ConfigureAwait(false)
+        : new QueryResult<T>(source.AsEnumerable());
     }
 
     #region Private / internal members
-
-    // ReSharper disable UnusedMember.Local
-
-    private static IQueryable<TSource> CallTranslator<TSource>(MethodInfo methodInfo, IQueryable source, Expression fieldSelector, string errorMessage)
-    {
-      
-      var providerType = source.Provider.GetType();
-      if (providerType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, providerType));
-
-      var genericMethod = methodInfo.CachedMakeGenericMethod(typeof(TSource));
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, fieldSelector});
-      return source.Provider.CreateQuery<TSource>(expression);
-    }
-
-    // ReSharper restore UnusedMember.Local
 
     private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
     {

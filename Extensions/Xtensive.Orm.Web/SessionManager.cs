@@ -3,17 +3,20 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Linq;
 using Xtensive.Core;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Builder;
 using System.Threading.Tasks;
 using System.Threading;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace Xtensive.Orm.Web
 {
   /// <summary>
   /// Provides access to current <see cref="Session"/>.
   /// </summary>
+  [Obsolete]
   public class SessionManager
   {
     private static SessionManager current;
@@ -105,6 +108,21 @@ namespace Xtensive.Orm.Web
     /// <returns>Task</returns>
     public async Task Invoke(HttpContext context)
     {
+      var accessor = (SessionAccessor)context.RequestServices.GetService(typeof(SessionAccessor));
+      using (accessor.BindHttpContext(context)) {
+        BeforeActions(context);
+        try {
+          await nextMiddlewareRunner.Invoke(context);
+        }
+        catch (Exception) {
+          HasErrors = true;
+          throw;
+        }
+        finally {
+          AfterActions(context);
+        }
+
+      }
       BeforeActions(context);
 
       try

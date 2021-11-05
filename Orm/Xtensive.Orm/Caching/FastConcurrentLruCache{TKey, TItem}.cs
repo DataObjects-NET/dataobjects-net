@@ -3,43 +3,37 @@
 // See the License.txt file in the project root for more information.
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
 using BitFaster.Caching.Lru;
-using Xtensive.Collections;
-using Xtensive.Conversion;
 using Xtensive.Core;
 
 
 namespace Xtensive.Caching
 {
   /// <summary>
-  /// A set of items limited by the maximal amount of memory it can use, or by any other measure.
-  /// Stores as many most frequently accessed items in memory as long as it is possible
-  /// while maintaining the total size of cached items less or equal to <see cref="MaxSize"/>.
+  /// An adapter for <see cref="BitFaster.Caching.Lru.FastConcurrentLru{K, V}"/> type.
   /// </summary>
   /// <typeparam name="TKey">The key of the item.</typeparam>
   /// <typeparam name="TItem">The type of the item to cache.</typeparam>
   public class FastConcurrentLruCache<TKey, TItem> :
     CacheBase<TKey, TItem>
   {
-    private FastConcurrentLru<TKey, TItem> imp;
+    private readonly FastConcurrentLru<TKey, TItem> realCache;
 
     /// <inheritdoc/>
-    public override int Count => imp.Count;
+    public override int Count => realCache.Count;
 
     /// <inheritdoc/>
     public long MaxSize { get; private set; }
 
     /// <inheritdoc/>
-    public override void Clear() => imp.Clear();
+    public override void Clear() => realCache.Clear();
 
     /// <inheritdoc/>
-    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item) => imp.TryGet(key, out item);
+    public override bool TryGetItem(TKey key, bool markAsHit, out TItem item) => realCache.TryGet(key, out item);
 
     /// <inheritdoc/>
-    public override bool ContainsKey(TKey key) => imp.TryGet(key, out var _);
+    public override bool ContainsKey(TKey key) => realCache.TryGet(key, out var _);
 
     /// <inheritdoc/>
     public override TItem Add(TItem item, bool replaceIfExists)
@@ -47,30 +41,37 @@ namespace Xtensive.Caching
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
       var key = KeyExtractor(item);
       if (replaceIfExists) {
-        imp.AddOrUpdate(key, item);
+        realCache.AddOrUpdate(key, item);
         return item;
       }
       else {
-        return imp.GetOrAdd(key, _ => item);
+        return realCache.GetOrAdd(key, _ => item);
       }
     }
 
     /// <inheritdoc/>
-    public override void RemoveKey(TKey key) => imp.TryRemove(key);
+    public override void RemoveKey(TKey key) => realCache.TryRemove(key);
 
     /// <inheritdoc/>
-    public override void RemoveKey(TKey key, bool removeCompletely) => imp.TryRemove(key);
+    public override void RemoveKey(TKey key, bool removeCompletely) => realCache.TryRemove(key);
 
     /// <inheritdoc/>
+    /// <exception cref="NotImplementedException"/>
     public override IEnumerator<TItem> GetEnumerator() => throw new NotImplementedException();
 
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    /// <param name="maxSize">Max size of the original cache. Ideally it should be devisible by 3</param>
+    /// <param name="keyExtractor">Extracts key value from caching item.</param>
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxSize"/> is less than 3.</exception>
     public FastConcurrentLruCache(int maxSize, Converter<TItem, TKey> keyExtractor)
     {
-      if (maxSize <= 0)
-        ArgumentValidator.EnsureArgumentIsInRange(maxSize, 1, int.MaxValue, "maxSize");
+      ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxSize, 3, nameof(maxSize));
       MaxSize = maxSize;
       KeyExtractor = keyExtractor;
-      imp = new FastConcurrentLru<TKey, TItem>(maxSize);
+      realCache = new FastConcurrentLru<TKey, TItem>(maxSize);
     }
   }
 }

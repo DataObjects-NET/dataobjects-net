@@ -24,6 +24,8 @@ namespace Xtensive.IoC
     private static readonly ConcurrentDictionary<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> serviceRegistrationsByType =
       new ConcurrentDictionary<ServiceRegistrationKey, Lazy<ServiceRegistration[]>>();
 
+    private static readonly Func<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> ServiceRegistrationsExtractor = ServiceRegistrationsExtractorImpl;
+
     /// <summary>
     /// Gets the type of the service.
     /// </summary>
@@ -78,10 +80,10 @@ namespace Xtensive.IoC
     public static ServiceRegistration[] CreateAll(Type type, bool defaultOnly) =>
       serviceRegistrationsByType.GetOrAdd(new ServiceRegistrationKey(type, defaultOnly), ServiceRegistrationsExtractor).Value;
 
-    private static readonly Func<ServiceRegistrationKey, Lazy<ServiceRegistration[]>> ServiceRegistrationsExtractor =
-      (ServiceRegistrationKey key) => new Lazy<ServiceRegistration[]>(() => {
+    private static Lazy<ServiceRegistration[]> ServiceRegistrationsExtractorImpl(ServiceRegistrationKey key) =>
+      new Lazy<ServiceRegistration[]>(() => {
         (var type, var defaultOnly) = key;
-        ArgumentValidator.EnsureArgumentNotNull(type, "type");
+        ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
         if (type.IsAbstract) {
           return Array.Empty<ServiceRegistration>();
         }

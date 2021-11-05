@@ -1,0 +1,31 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(ExtensionsKeyFile)</AssemblyOriginatorKeyFile>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)MSBuild\DataObjects.Net.InternalBuild.targets" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.TestHost" Version="3.1.19" />
+    <PackageReference Include="NUnit" Version="3.12.0" />
+    <PackageReference Include="NUnit3TestAdapter" Version="3.15.1" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.9.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.Firebird\Xtensive.Orm.Firebird.csproj" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.MySql\Xtensive.Orm.MySql.csproj" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.Oracle\Xtensive.Orm.Oracle.csproj" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.PostgreSql\Xtensive.Orm.PostgreSql.csproj" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.Sqlite\Xtensive.Orm.Sqlite.csproj" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.SqlServer\Xtensive.Orm.SqlServer.csproj" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm\Xtensive.Orm.csproj" />
+    <ProjectReference Include="..\..\Orm\Xtensive.Orm.Tests.Framework\Xtensive.Orm.Tests.Framework.csproj" />
+    <ProjectReference Include="..\Xtensive.Orm.Web\Xtensive.Orm.Web.csproj" />
+  </ItemGroup>
+
+</Project>

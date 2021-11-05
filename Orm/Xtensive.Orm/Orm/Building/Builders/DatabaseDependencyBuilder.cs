@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Calculate cross-database reference information (i.e. build a graph).
       foreach (var reference in outgoingReferences) {
-        referenceRegistry.TryAdd(reference.DatabaseReference, reference);
+        _ = referenceRegistry.TryAdd(reference.DatabaseReference, reference);
       }
 
       var databases = typesToProcess.Select(t => t.MappingDatabase).Distinct().ToList();
