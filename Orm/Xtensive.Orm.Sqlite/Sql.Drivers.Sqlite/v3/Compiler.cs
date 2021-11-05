@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.04.29
 
@@ -219,7 +219,10 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       // For hinting limitations see http://www.sqlite.org/lang_indexedby.html
 
       using (context.EnterScope(node)) {
+        var comment = node.Comment;
+        VisitCommentIfBefore(comment);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        VisitCommentIfWithin(comment);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
         VisitSelectWhere(node);
@@ -227,6 +230,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         VisitSelectOrderBy(node);
         VisitSelectLimitOffset(node);
         context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        VisitCommentIfAfter(comment);
       }
     }
 

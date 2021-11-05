@@ -1,9 +1,10 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.02.10
 
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -23,6 +24,8 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed class TranslatorContext
   {
+    private readonly static System.Type TagProviderType = typeof(TagProvider);
+
     private readonly AliasGenerator resultAliasGenerator;
     private readonly AliasGenerator columnAliasGenerator;
     private readonly Dictionary<ParameterExpression, Parameter<Tuple>> tupleParameters;
@@ -82,6 +85,14 @@ namespace Xtensive.Orm.Linq
         applyParameters.Add(provider, parameter);
       }
       return parameter;
+    }
+
+    public IReadOnlyList<string> GetAllTags()
+    {
+      if (Domain.Configuration.TagsLocation == TagsLocation.Nowhere)
+        return Array.Empty<string>();
+
+      return applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList();
     }
 
     public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)

@@ -1,0 +1,1 @@
+[main] Introduced IQueryable<T>.Tag() extensions allowing to add tags to result SQL statement

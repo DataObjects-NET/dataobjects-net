@@ -81,6 +81,8 @@ namespace Xtensive.Orm.Providers
           ? ProcessApplyViaCrossApply(provider, left, right)
           : ProcessApplyViaSubqueries(provider, left, right, shouldUseQueryReference);
 
+        query.Comment = SqlComment.Join(left.Request.Statement.Comment, right.Request.Statement.Comment);
+        
         return CreateProvider(query, provider, left, right);
       }
     }

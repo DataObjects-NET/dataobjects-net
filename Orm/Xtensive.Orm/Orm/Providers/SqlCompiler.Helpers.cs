@@ -77,6 +77,7 @@ namespace Xtensive.Orm.Providers
         var queryRef = compiledSource.PermanentReference;
         var query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns);
+        query.Comment = sourceSelect.Comment;
         return query;
       }
       return sourceSelect.ShallowClone();

@@ -1,4 +1,4 @@
-﻿using Xtensive.Core;
+using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -469,10 +469,16 @@ namespace Xtensive.Orm.Providers
 
       var hasPaging = node.HasLimit || node.HasOffset;
 
-      var keepOrderBy = ReferenceEquals(node, rootSelect) || hasPaging;
+      var isCurrentRoot = ReferenceEquals(node, rootSelect);
+      var keepOrderBy = isCurrentRoot || hasPaging;
       if (!keepOrderBy)
         node.OrderBy.Clear();
 
+      if (!isCurrentRoot) {
+        rootSelect.Comment = SqlComment.Join(rootSelect.Comment, node.Comment);
+        node.Comment = null;
+      }
+      
       var addOrderBy = hasPaging
         && node.OrderBy.Count==0
         && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
@@ -579,6 +585,11 @@ namespace Xtensive.Orm.Providers
     {
     }
 
+    public void Visit(SqlComment comment)
+    {
+      
+    }
+    
     public static void Process(SqlSelect select, ProviderInfo providerInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(select, "select");
