@@ -233,7 +233,7 @@ namespace Xtensive.Orm
 
     private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
     {
-      var queryExpression = QueryHelper.CreateEntitySetQuery(ownerPropertyExpression, field);
+      var queryExpression = QueryHelper.CreateEntitySetQuery(OwnerPropertyExpression, field);
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 
