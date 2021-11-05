@@ -104,6 +104,7 @@ namespace Xtensive.Orm.Providers
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
       query.Where = queryRef.Columns.Last() > skipParameterBinding.ParameterReference;
+      query.Comment = source.Comment;
       return CreateProvider(query, bindings, provider, compiledSource);
     }
 
@@ -117,6 +118,7 @@ namespace Xtensive.Orm.Providers
       var query = SqlDml.Select(queryRef);
       query.Columns.AddRange(queryRef.Columns);
       query.Where = queryRef.Columns.Last() <= takeParameterBinding.ParameterReference;
+      query.Comment = source.Comment;
       return CreateProvider(query, bindings, provider, compiledSource);
     }
 
@@ -134,6 +136,7 @@ namespace Xtensive.Orm.Providers
       query.Where = SqlDml.Between(rowNumberColumn,
         fromParameterBinding.ParameterReference,
         toParameterBinding.ParameterReference);
+      query.Comment = source.Comment;
       return CreateProvider(query, bindings, provider, compiledSource);
     }
 

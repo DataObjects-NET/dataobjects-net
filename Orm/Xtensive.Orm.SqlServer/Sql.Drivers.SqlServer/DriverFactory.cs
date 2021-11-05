@@ -7,13 +7,13 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
-using System.Data.SqlClient;
+using Microsoft.Data.SqlClient;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Orm;
 using Xtensive.Sql.Info;
 using Xtensive.SqlServer.Resources;
-using SqlServerConnection = System.Data.SqlClient.SqlConnection;
+using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer
 {
@@ -109,6 +109,7 @@ namespace Xtensive.Sql.Drivers.SqlServer
       SqlHelper.ValidateConnectionUrl(url);
 
       var builder = new SqlConnectionStringBuilder();
+      builder.Encrypt = url.Secure;
 
       // host, port, database
       if (url.Port==0) {

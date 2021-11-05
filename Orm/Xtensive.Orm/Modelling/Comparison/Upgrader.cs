@@ -295,7 +295,7 @@ namespace Xtensive.Modelling.Comparison
               .ForEach(hint => AddAction(UpgradeActionType.Regular,
                 new DataAction {DataHint = hint}));
             Hints.GetHints<DeleteDataHint>(difference.Source)
-              .Where(hint => !hint.PostCopy)
+              .Where(hint => !hint.IsPostCopyCleanup)
               .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
               .ForEach(hint => AddAction(UpgradeActionType.Regular,
                 new DataAction {DataHint = hint}));
@@ -338,7 +338,7 @@ namespace Xtensive.Modelling.Comparison
         case UpgradeStage.PostCopyData:
           if (difference.IsDataChanged) {
             Hints.GetHints<DeleteDataHint>(difference.Source)
-              .Where(hint => hint.PostCopy)
+              .Where(hint => hint.IsPostCopyCleanup)
               .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
               .ForEach(hint => AddAction(UpgradeActionType.Regular,
                 new DataAction {DataHint = hint}));
@@ -783,7 +783,7 @@ namespace Xtensive.Modelling.Comparison
 
       // Process DeleteDataHints
       foreach (var deleteDataHint in originalHints.OfType<DeleteDataHint>()) {
-        if (!deleteDataHint.PostCopy) {
+        if (!deleteDataHint.IsPostCopyCleanup) {
           continue; // It's not necessary to copy this hint
         }
 
@@ -791,7 +791,7 @@ namespace Xtensive.Modelling.Comparison
         var identities = deleteDataHint.Identities.Select(pair =>
             new IdentityPair(GetActualPath(pair.Source), pair.Target, pair.IsIdentifiedByConstant))
           .ToList();
-        var newDeleteDataHint = new DeleteDataHint(sourceTablePath, identities, true);
+        var newDeleteDataHint = new DeleteDataHint(sourceTablePath, identities, deleteDataHint.State);
         Hints.Add(newDeleteDataHint);
       }
 

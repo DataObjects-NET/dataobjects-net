@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -3831,7 +3831,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       SqlTableRef unitMeasure = SqlDml.TableRef(Catalog.Schemas["Person"].Tables["Contact"]);
       SqlInsert insert = SqlDml.Insert(unitMeasure);
 
-      Assert.Throws<System.Data.SqlClient.SqlException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert)));
+      Assert.Throws<Microsoft.Data.SqlClient.SqlException>(() => Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert)));
     }
 
     [Test]

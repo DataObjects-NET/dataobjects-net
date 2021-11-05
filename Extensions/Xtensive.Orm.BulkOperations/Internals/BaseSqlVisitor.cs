@@ -522,6 +522,10 @@ namespace Xtensive.Orm.BulkOperations
       VisitInternal(node.Expression);
     }
 
+    public virtual void Visit(SqlComment node)
+    {
+    }
+    
     #region Non-public methods
 
     private void VisitInternal(ISqlNode node)

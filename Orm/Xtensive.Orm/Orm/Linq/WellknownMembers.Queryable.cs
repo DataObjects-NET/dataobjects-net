@@ -85,6 +85,7 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo ExtensionSkip;
       public static readonly MethodInfo ExtensionElementAt;
       public static readonly MethodInfo ExtensionElementAtOrDefault;
+      public static readonly MethodInfo ExtensionTag;
 
       static Queryable()
       {
@@ -454,6 +455,7 @@ namespace Xtensive.Orm.Linq
         ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
         ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
         ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
+        ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
       }
 
       private static Type[] GetLambdaFuncGenericArguments(Type selectorType)

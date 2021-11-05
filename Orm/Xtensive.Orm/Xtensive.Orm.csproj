@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
@@ -40,8 +40,8 @@
     </Content>
   </ItemGroup>
   <ItemGroup Label="Packages">
-    <PackageReference Include="System.Configuration.ConfigurationManager" Version="4.7.0" />
-    <PackageReference Include="BitFaster.Caching" Version="1.0.3" />
+    <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
+    <PackageReference Include="BitFaster.Caching" Version="1.0.4" />
   </ItemGroup>
   <ItemGroup Label="T4GeneratorsUpdaters">
     <None Update="Arithmetic\Internal\PrimitiveArithmetics.tt">

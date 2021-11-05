@@ -29,6 +29,7 @@ namespace Xtensive.Orm.Linq
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
 
     private readonly TranslatorContext context;
+    private readonly bool tagsEnabled;
 
     internal TranslatorState State { get; private set; } = TranslatorState.InitState;
 
@@ -257,6 +258,36 @@ namespace Xtensive.Orm.Linq
       var lockBehavior = (LockBehavior) ((ConstantExpression) expression.Arguments[2]).Value;
       var visitedSource = (ProjectionExpression) Visit(source);
       var newDataSource = visitedSource.ItemProjector.DataSource.Lock(lockMode, lockBehavior);
+      var newItemProjector = new ItemProjectorExpression(
+        visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
+      var projectionExpression = new ProjectionExpression(
+        visitedSource.Type,
+        newItemProjector,
+        visitedSource.TupleParameterBindings,
+        visitedSource.ResultAccessMethod);
+      return projectionExpression;
+    }
+
+    private Expression VisitTag(MethodCallExpression expression)
+    {
+      var source = expression.Arguments[0];
+      var tag = (string) ((ConstantExpression) expression.Arguments[1]).Value;
+      var visitedSourceRaw = Visit(source);
+
+      ProjectionExpression visitedSource;
+      if (visitedSourceRaw.IsEntitySetExpression()) {
+        var entitySetExpression = (EntitySetExpression) visitedSourceRaw;
+        var entitySetQuery =
+          QueryHelper.CreateEntitySetQuery((Expression) entitySetExpression.Owner, entitySetExpression.Field);
+        visitedSource = (ProjectionExpression) Visit(entitySetQuery);
+      }
+      else {
+        visitedSource = (ProjectionExpression) visitedSourceRaw;
+      }
+
+      var newDataSource = (tagsEnabled)
+        ? visitedSource.ItemProjector.DataSource.Tag(tag)
+        : visitedSource.ItemProjector.DataSource;
       var newItemProjector = new ItemProjectorExpression(
         visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
       var projectionExpression = new ProjectionExpression(

@@ -26,6 +26,8 @@ namespace Xtensive.Orm.Linq.Materialization
   [Serializable]
   internal class ExpressionMaterializer : PersistentExpressionVisitor
   {
+    private const string RootQueryTagsPrefix = "Root query tags ->";
+
     private static readonly MethodInfo BuildPersistentTupleMethod;
     private static readonly MethodInfo GetTupleSegmentMethod;
     private static readonly MethodInfo GetParameterValueMethod;
@@ -162,8 +164,15 @@ namespace Xtensive.Orm.Linq.Materialization
     {
       // 1. Rewrite recordset and ItemProjector to parameter<tuple>
       var subqueryTupleParameter = context.GetTupleParameter(subQueryExpression.OuterParameter);
+      var dataSource = subQueryExpression.ProjectionExpression.ItemProjector.DataSource;
+
+      var rootTags = context.GetAllTags();
+      if (rootTags.Count > 0) {
+        dataSource = dataSource.Tag($"{RootQueryTagsPrefix} {string.Join(' ', rootTags)}");
+      }
+
       var newDataSource = ApplyParameterToTupleParameterRewriter.Rewrite(
-        subQueryExpression.ProjectionExpression.ItemProjector.DataSource,
+        dataSource,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter);
 
