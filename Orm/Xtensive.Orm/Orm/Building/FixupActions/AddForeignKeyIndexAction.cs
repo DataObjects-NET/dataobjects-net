@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Add secondary index to '{0}.{1}'", Type.Name, Field.Name);
+      return $"Add secondary index to '{Type.Name}.{Field.Name}'";
     }
 
 

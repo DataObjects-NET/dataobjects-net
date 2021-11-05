@@ -15,26 +15,32 @@ Supported databases:
 
 DataObjects.Net is available on Nuget. Install main package (NOTE this package does not include any providers, install needed provider addtionally)
 
-    dotnet add package Xtensive.Orm
+```console
+dotnet add package Xtensive.Orm
+```
 
 Providers for MS SQL Server, Oracle, PostgreSQL, Mysql, Firebird and SQLite may be installed following way
 
-    dotnet add package Xtensive.Orm.SqlServer
-    dotnet add package Xtensive.Orm.Oracle
-    dotnet add package Xtensive.Orm.PostgreSQL
-    dotnet add package Xtensive.Orm.MySql
-    dotnet add package Xtensive.Orm.Firebird
-    dotnet add package Xtensive.Orm.Sqlite
+```console
+dotnet add package Xtensive.Orm.SqlServer
+dotnet add package Xtensive.Orm.Oracle
+dotnet add package Xtensive.Orm.PostgreSQL
+dotnet add package Xtensive.Orm.MySql
+dotnet add package Xtensive.Orm.Firebird
+dotnet add package Xtensive.Orm.Sqlite
+```
 
 DataObjects.Net extensions are available on Nuget as well (more about extensions [here](https://github.com/DataObjects-NET/dataobjects-net/blob/master/Documentation/Extensions.md))
 
-    dotnet add package Xtensive.Orm.BulkOperations
-    dotnet add package Xtensive.Orm.Localization
-    dotnet add package Xtensive.Orm.Logging.log4net
-    dotnet add package Xtensive.Orm.Reprocessing
-    dotnet add package Xtensive.Orm.Security
-    dotnet add package Xtensive.Orm.Tracking
-    dotnet add package Xtensive.Orm.Web
+```console
+dotnet add package Xtensive.Orm.BulkOperations
+dotnet add package Xtensive.Orm.Localization
+dotnet add package Xtensive.Orm.Logging.log4net
+dotnet add package Xtensive.Orm.Reprocessing
+dotnet add package Xtensive.Orm.Security
+dotnet add package Xtensive.Orm.Tracking
+dotnet add package Xtensive.Orm.Web
+```
 
 Use the --version option to specify version to install
 
@@ -94,16 +100,22 @@ This solution contains `Weaver` project responsible for post-build processing of
 
 In order to build project binaries one need to execute the `dotnet build` command in the solution folder. It will build everything in `Debug` configuration. In case `Release` binaries are needed just specify configuration parameter as following
 
-    dotnet build -c Release
+```console
+dotnet build -c Release
+```
 
 By defuault `Debug` configuration build doesn't generate Nuget packages but `Release` configuration build does. It is possible to change this default behavior by specifying `GeneratePackageOnBuild` parameter explicitly.
 So in case Nuget packages aren't needed for release build consider to run 
 
-    dotnet build -c Release /p:GeneratePackageOnBuild=false
+```console
+dotnet build -c Release /p:GeneratePackageOnBuild=false
+```
 
 alternatively the following command will generate packages for `Debug` build
 
-    dotnet build /p:GeneratePackageOnBuild=true
+```console
+dotnet build /p:GeneratePackageOnBuild=true
+```
 
 Build results are available in the `_Build` subdirectory of solution folder.
 

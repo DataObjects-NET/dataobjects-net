@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Building.Builders
 
     private static string GetDatabaseMapping(TypeInfo type)
     {
-      return string.Format("{0} -> {1}", type.UnderlyingType.GetShortName(), type.MappingDatabase);
+      return $"{type.UnderlyingType.GetShortName()} -> {type.MappingDatabase}";
     }
 
     // Constructors

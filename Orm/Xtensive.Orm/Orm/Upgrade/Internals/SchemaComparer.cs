@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Upgrade
       GetUnsafeColumnTypeChanges(actions, hints, unsafeActions);
       GetUnsafeColumnRemovals(actions, hints, unsafeActions);
       GetUnsafeTableRemovals(actions, hints, unsafeActions);
-      GetUnsafeDataActions(actions, hints, unsafeActions);
+      GetCrossHierarchicalMovements(actions, unsafeActions);
 
       return unsafeActions;
     }
@@ -198,13 +198,13 @@ namespace Xtensive.Orm.Upgrade
           continue;
         }
 
-        var tablePath = string.Format("Tables/{0}", pathItems[1]);
+        var tablePath = $"Tables/{pathItems[1]}";
         var columnName = pathItems[3];
 
         string originalTablePath;
 
         if (reverseTableMapping.TryGetValue(tablePath, out originalTablePath))
-          columnPath = string.Format("{0}/Columns/{1}", originalTablePath, columnName);
+          columnPath = $"{originalTablePath}/Columns/{columnName}";
 
         if (!safeColumns.Contains(columnPath))
           output.Add(action);
@@ -225,31 +225,12 @@ namespace Xtensive.Orm.Upgrade
         .ForEach(output.Add);
     }
 
-    private static void GetUnsafeDataActions(IEnumerable<NodeAction> actions, IEnumerable<UpgradeHint> hints, ICollection<NodeAction> output)
-    {
-      GetCrossHierarchicalMovements(actions, output);
-      GetTableRecreateDataLossActions(actions, output);
-    }
-
     private static void GetCrossHierarchicalMovements(IEnumerable<NodeAction> actions, ICollection<NodeAction> output)
     {
       (from action in actions.OfType<DataAction>()
         let deleteDataHint = action.DataHint as DeleteDataHint
-        where deleteDataHint!=null && deleteDataHint.PostCopy
+        where deleteDataHint!=null && deleteDataHint.IsUnsafe
         select action).ForEach(output.Add);
-    }
-
-    private static void GetTableRecreateDataLossActions(IEnumerable<NodeAction> actions, ICollection<NodeAction> output)
-    {
-      actions.OfType<DataAction>()
-        .Select(da => new {
-          DataAction = da,
-          Difference = da.Difference as NodeDifference,
-          DeleteDataHint = da.DataHint as DeleteDataHint
-        })
-        .Where(a => a.DeleteDataHint != null && a.Difference != null && a.Difference.MovementInfo.HasFlag(MovementInfo.Removed | MovementInfo.Created))
-        .Select(a => a.DataAction)
-        .ForEach(output.Add);
     }
 
     private static bool IsTypeChangeAction(PropertyChangeAction action)
@@ -295,7 +276,7 @@ namespace Xtensive.Orm.Upgrade
     {
       var filter = schemaUpgradeMode!=SchemaUpgradeMode.ValidateCompatible
         ? (Func<Type, bool>) (targetType => true)
-        : targetType => targetType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo);
+        : targetType => targetType == WellKnownUpgradeTypes.TableInfo || targetType == WellKnownUpgradeTypes.StorageColumnInfo;
       var hasCreateActions = actions
         .OfType<CreateNodeAction>()
         .Select(action => action.Difference.Target.GetType())
@@ -303,7 +284,7 @@ namespace Xtensive.Orm.Upgrade
       var hasRemoveActions = actions
         .OfType<RemoveNodeAction>()
         .Select(action => action.Difference.Source.GetType())
-        .Any(sourceType => sourceType.In(WellKnownUpgradeTypes.TableInfo, WellKnownUpgradeTypes.StorageColumnInfo));
+        .Any(sourceType => sourceType == WellKnownUpgradeTypes.TableInfo || sourceType == WellKnownUpgradeTypes.StorageColumnInfo);
 
       if (hasCreateActions && hasRemoveActions)
         return SchemaComparisonStatus.NotEqual;

@@ -50,8 +50,7 @@ namespace Xtensive.Orm.Model
     {
       this.EnsureNotLocked();
       map.Add(interfaceField, typeField);
-      if (reversedMap.ContainsKey(typeField)) {
-        var interfaceFields = reversedMap[typeField];
+      if (reversedMap.TryGetValue(typeField, out var interfaceFields)) {
         interfaceFields.Add(interfaceField);
       }
       else

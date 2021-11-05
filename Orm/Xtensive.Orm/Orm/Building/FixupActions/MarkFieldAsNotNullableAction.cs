@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Building.FixupActions
 
     public override string ToString()
     {
-      return string.Format("Mark '{0}.{1}' field as not nullable.", Type.Name, Field.Name);
+      return $"Mark '{Type.Name}.{Field.Name}' field as not nullable.";
     }
 
     // Constructors

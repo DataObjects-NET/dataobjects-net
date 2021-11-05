@@ -300,8 +300,7 @@ namespace Xtensive.Linq
 
       if (name.IndexOf("__AnonymousType", StringComparison.Ordinal) > 0 &&
         type.GetAttributes<CompilerGeneratedAttribute>(AttributeSearchOptions.InheritNone).Count > 0) {
-        return string.Format("@<{0}>",
-          (from pi in type.GetProperties() select pi.Name).ToCommaDelimitedString());
+        return $"@<{(from pi in type.GetProperties() select pi.Name).ToCommaDelimitedString()}>";
       }
 
       return name;

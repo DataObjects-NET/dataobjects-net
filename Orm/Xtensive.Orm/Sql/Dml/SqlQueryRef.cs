@@ -22,23 +22,12 @@ namespace Xtensive.Sql.Dml
       get { return query; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlQueryRef clone;
-      var ss = query as SqlSelect;
-      if (ss!=null)
-        clone = new SqlQueryRef((SqlSelect) ss.Clone(context), Name);
-      else {
-        var qe = (SqlQueryExpression) query;
-        clone = new SqlQueryRef((SqlQueryExpression) qe.Clone(context), Name);
-      }
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = query is SqlSelect ss
+          ? new SqlQueryRef((SqlSelect) ss.Clone(context), Name)
+          : new SqlQueryRef((SqlQueryExpression) ((SqlQueryExpression) query).Clone(context), Name);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

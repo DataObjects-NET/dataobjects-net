@@ -34,7 +34,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format("Ignore '{0}'", Path);
+      return $"Ignore '{Path}'";
     }
 
 

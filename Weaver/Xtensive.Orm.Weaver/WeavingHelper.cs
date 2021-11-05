@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Weaver
         return accessorName.Substring(getterPrefix.Length);
       if (accessorName.StartsWith(setterPrefix, StringComparison.Ordinal))
         return accessorName.Substring(setterPrefix.Length);
-      throw new InvalidOperationException(String.Format("Invalid or unsupported accessor name '{0}'", accessorName));
+      throw new InvalidOperationException($"Invalid or unsupported accessor name '{accessorName}'");
     }
 
     public static void MarkAsCompilerGenerated(ProcessorContext context, ICustomAttributeProvider target)
@@ -86,7 +86,7 @@ namespace Xtensive.Orm.Weaver
 
     public static string BuildComplexPersistentName(TypeInfo type, PropertyInfo property)
     {
-      return String.Format("{0}.{1}", type.Name, property.Name);
+      return $"{type.Name}.{property.Name}";
     }
 
     public static SourceLanguage ParseLanguage(string projectType)

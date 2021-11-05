@@ -114,7 +114,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     private static string BuildTableExistenceCheckQuery(string tableName) =>
-      string.Format("SELECT name FROM {0} WHERE type = 'table' AND name='{1}'", SqliteMaster, tableName);
+      $"SELECT name FROM {SqliteMaster} WHERE type = 'table' AND name='{tableName}'";
 
     private bool DoesTableExist(string tableName)
     {
@@ -137,7 +137,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     private static string BuildIncrementValueQuery(string tableName) =>
-      string.Format("SELECT seq from {0} WHERE name = '{1}' ", SqliteSequence, tableName);
+      $"SELECT seq from {SqliteSequence} WHERE name = '{tableName}' ";
 
     private int? GetIncrementValue(string tableName)
     {

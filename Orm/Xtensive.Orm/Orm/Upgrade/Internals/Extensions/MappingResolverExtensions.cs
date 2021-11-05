@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
+// Copyright (C) 2015 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Upgrade.Internals.Extensions
     private static string GetTablePath(this MappingResolver resolver,StoredTypeInfo type)
     {
       var nodeName = resolver.GetTableName(type);
-      return string.Format("Tables/{0}", nodeName);
+      return $"Tables/{nodeName}";
     }
   }
 }

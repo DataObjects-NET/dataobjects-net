@@ -734,7 +734,7 @@ namespace Xtensive.Orm.Upgrade
       var deleteActions = (
         from action in clearDataActions
         let deleteDataHint = action.DataHint as DeleteDataHint
-        where deleteDataHint!=null && deleteDataHint.PostCopy==postCopy
+        where deleteDataHint!=null && deleteDataHint.IsPostCopyCleanup==postCopy
         select action
         ).ToList();
 
@@ -1032,7 +1032,7 @@ namespace Xtensive.Orm.Upgrade
           idColumn,
           sequenceInfo.Current ?? sequenceInfo.Seed,
           sequenceInfo.Increment);
-      sequenceTable.CreatePrimaryKey(string.Format("PK_{0}", sequenceInfo.Name), idColumn);
+      sequenceTable.CreatePrimaryKey($"PK_{sequenceInfo.Name}", idColumn);
       if (!providerInfo.Supports(ProviderFeatures.InsertDefaultValues)) {
         var fakeColumn = sequenceTable.CreateColumn(WellKnown.GeneratorFakeColumnName, driver.MapValueType(WellKnownTypes.Int32));
         fakeColumn.IsNullable = true;

@@ -175,13 +175,13 @@ namespace Xtensive.Orm.Internals
           }
 
           if (closureType.DeclaringType == null) {
-            if (expression.Type == closureType)
+            if (expression.Type.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
           else {
-            if (expression.Type == closureType)
+            if (expression.Type.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type == closureType.DeclaringType) {
+            if (expression.Type.IsAssignableFrom(closureType.DeclaringType)) {
               var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
               if (memberInfo != null)
                 return Expression.MakeMemberAccess(

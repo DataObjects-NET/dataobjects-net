@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
+// Copyright (C) 2003-2010 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Andrey Turkov
@@ -74,9 +74,9 @@ namespace Xtensive.Orm
     public override string ToString()
     {
       var fieldName = !string.IsNullOrEmpty(OriginalFieldName)
-        ? string.Format("{0}({1})", FieldName, OriginalFieldName)
+        ? $"{FieldName}({OriginalFieldName})"
         : FieldName;
-      return string.Format("RecycledFieldDefinition(Owner: {0}, Field: {1}, Type: {2})", OwnerType.Name, fieldName, FieldType.Name);
+      return $"RecycledFieldDefinition(Owner: {OwnerType.Name}, Field: {fieldName}, Type: {FieldType.Name})";
     }
   }
 }

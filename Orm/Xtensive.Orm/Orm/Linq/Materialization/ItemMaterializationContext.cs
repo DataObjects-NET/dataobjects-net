@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -14,12 +14,10 @@ namespace Xtensive.Orm.Linq.Materialization
 {
   internal sealed class ItemMaterializationContext
   {
-    public ParameterContext ParameterContext { get; }
-    public static MethodInfo IsMaterializedMethodInfo { get; private set; }
-    public static MethodInfo GetEntityMethodInfo      { get; private set; }
-    public static MethodInfo MaterializeMethodInfo    { get; private set; }
-
-    public static System.Reflection.FieldInfo SessionFieldInfo { get; private set; }
+    public static readonly MethodInfo IsMaterializedMethodInfo;
+    public static readonly MethodInfo GetEntityMethodInfo;
+    public static readonly MethodInfo MaterializeMethodInfo;
+    public static readonly System.Reflection.FieldInfo SessionFieldInfo;
 
     public readonly Session Session;
     public readonly MaterializationContext MaterializationContext;
@@ -27,30 +25,23 @@ namespace Xtensive.Orm.Linq.Materialization
     private readonly TypeIdRegistry typeIdRegistry;
     private readonly Entity[] entities;
 
-    // ReSharper disable UnusedMember.Global
+    public ParameterContext ParameterContext { get; }
 
-    public bool IsMaterialized(int index)
-    {
-      return entities[index]!=null;
-    }
+    public bool IsMaterialized(int index) => entities[index] != null;
 
-    public Entity GetEntity(int index)
-    {
-      return entities[index];
-    }
+    public Entity GetEntity(int index) => entities[index];
 
     public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, Pair<int>[] entityColumns, Tuple tuple)
     {
       var result = entities[entityIndex];
-      if (result!=null)
+      if (result != null)
         return result;
 
-      TypeReferenceAccuracy accuracy;
-      int typeId = EntityDataReader.ExtractTypeId(type, typeIdRegistry, tuple, typeIdIndex, out accuracy);
-      if (typeId==TypeInfo.NoTypeId)
+      var typeId = EntityDataReader.ExtractTypeId(type, typeIdRegistry, tuple, typeIdIndex, out var accuracy);
+      if (typeId == TypeInfo.NoTypeId)
         return null;
 
-      bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
+      var canCache = accuracy==TypeReferenceAccuracy.ExactType;
       var materializationInfo = MaterializationContext.GetTypeMapping(entityIndex, type, typeId, entityColumns);
       Key key;
       var keyIndexes = materializationInfo.KeyIndexes;
@@ -62,7 +53,7 @@ namespace Xtensive.Orm.Linq.Materialization
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
         key = KeyFactory.Materialize(Session.Domain, Session.StorageNodeId, materializationInfo.Type, keyTuple, accuracy, canCache, null);
       }
-      if (accuracy==TypeReferenceAccuracy.ExactType) {
+      if (accuracy == TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
         var entityState = Session.Handler.UpdateState(key, entityTuple);
         result = entityState.Entity;
@@ -73,8 +64,6 @@ namespace Xtensive.Orm.Linq.Materialization
       entities[entityIndex] = result;
       return result;
     }
-
-    // ReSharper restore UnusedMember.Global
 
 
     // Constructors

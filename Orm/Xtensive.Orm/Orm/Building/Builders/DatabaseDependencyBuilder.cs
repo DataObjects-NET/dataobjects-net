@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -78,9 +78,7 @@ namespace Xtensive.Orm.Building.Builders
       public override string ToString()
       {
         var ownerType = OwnerField.DeclaringType;
-        return String.Format("[{0}] {1}.{2} -> [{3}] {4}",
-          ownerType.MappingDatabase, ownerType.UnderlyingType.GetShortName(), OwnerField.Name,
-          TargetType.MappingDatabase, TargetType.UnderlyingType.GetShortName());
+        return $"[{ownerType.MappingDatabase}] {ownerType.UnderlyingType.GetShortName()}.{OwnerField.Name} -> [{TargetType.MappingDatabase}] {TargetType.UnderlyingType.GetShortName()}";
       }
 
       public TypeReference(FieldInfo ownerField, TypeInfo targetEntry)
@@ -112,9 +110,7 @@ namespace Xtensive.Orm.Building.Builders
 
       // Calculate cross-database reference information (i.e. build a graph).
       foreach (var reference in outgoingReferences) {
-        var dbReference = reference.DatabaseReference;
-        if (!referenceRegistry.ContainsKey(dbReference))
-          referenceRegistry.Add(dbReference, reference);
+        _ = referenceRegistry.TryAdd(reference.DatabaseReference, reference);
       }
 
       var databases = typesToProcess.Select(t => t.MappingDatabase).Distinct().ToList();

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -115,7 +115,7 @@ namespace Xtensive.Orm.BulkOperations
         case ExpressionType.ListInit:
           return VisitListInit((ListInitExpression) exp);
         default:
-          throw new Exception(String.Format("Unhandled expression type: '{0}'", exp.NodeType));
+          throw new Exception($"Unhandled expression type: '{exp.NodeType}'");
       }
     }
 
@@ -142,7 +142,7 @@ namespace Xtensive.Orm.BulkOperations
         case MemberBindingType.ListBinding:
           return VisitMemberListBinding((MemberListBinding) binding);
         default:
-          throw new Exception(String.Format("Unhandled binding type '{0}'", binding.BindingType));
+          throw new Exception($"Unhandled binding type '{binding.BindingType}'");
       }
     }
 
