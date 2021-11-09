@@ -1009,7 +1009,7 @@ namespace Xtensive.Orm.Linq
       Expression keyExpression;
 
       if (expression.IsNull()) {
-        keyExpression = nullKeyExpression;
+        keyExpression = NullKeyExpression;
       }
       else if (IsConditionalOrWellknown(expression)) {
         return keyFieldTypes
