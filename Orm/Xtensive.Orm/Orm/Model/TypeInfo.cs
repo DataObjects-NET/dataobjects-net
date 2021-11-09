@@ -590,10 +590,12 @@ namespace Xtensive.Orm.Model
       targetAssociations = InnerGetTargetAssociations().AsReadOnly();
       ownerAssociations = InnerGetOwnerAssociations().AsReadOnly();
 
-      int adapterIndex = 0;
-      foreach (FieldInfo field in Fields)
-        if (field.IsStructure || field.IsEntitySet)
+      var adapterIndex = 0;
+      foreach (var field in Fields) {
+        if (field.IsStructure || field.IsEntitySet) {
           field.AdapterIndex = adapterIndex++;
+        }
+      }
 
       affectedIndexes.UpdateState();
       indexes.UpdateState();
@@ -615,7 +617,7 @@ namespace Xtensive.Orm.Model
           versionFields = InnerGetVersionFields().AsReadOnly();
           versionColumns = InnerGetVersionColumns().AsReadOnly();
         }
-        HasVersionFields = versionFields.Any();
+        HasVersionFields = versionFields.Count > 0;
         HasExplicitVersionFields = versionFields.Any(f => f.ManualVersion || f.AutoVersion);
       }
 
@@ -624,7 +626,7 @@ namespace Xtensive.Orm.Model
         // We'll check that all implementors are mapped to the same database later.
         // MappingSchema is not important: it's copied for consistency.
         var firstImplementor = GetImplementors().FirstOrDefault();
-        if (firstImplementor!=null) {
+        if (firstImplementor != null) {
           MappingDatabase = firstImplementor.MappingDatabase;
           MappingSchema = firstImplementor.MappingSchema;
         }
@@ -745,7 +747,7 @@ namespace Xtensive.Orm.Model
 
     private void CreateTupleDescriptor()
     {
-      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
+      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset);
       columns = new ColumnInfoCollection(this, "Columns");
       columns.AddRange(orderedColumns);
       TupleDescriptor = TupleDescriptor.Create(

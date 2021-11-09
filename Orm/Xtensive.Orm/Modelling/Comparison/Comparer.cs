@@ -14,6 +14,7 @@ using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Modelling.Attributes;
 using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Orm;
 
 
 namespace Xtensive.Modelling.Comparison
@@ -149,21 +150,27 @@ namespace Xtensive.Modelling.Comparison
     {
       using (TryActivate(source, target, (s, t) => new NodeDifference(s, t))) {
         IgnoreHint ignoreHint = null;
-        if (source!=null)
+        if (source!=null) {
           ignoreHint = Hints.GetHint<IgnoreHint>(source);
-        if (ignoreHint!=null)
+        }
+
+        if (ignoreHint!=null) {
           return null;
+        }
 
         var context = Context;
         var difference = (NodeDifference) context.Difference;
-        if (difference==null)
+        if (difference==null) {
           throw new NullReferenceException();
+        }
+
         var any = source ?? target;
-        if (any==null)
+        if (any==null) {
           throw Exceptions.InternalError(Strings.ExBothSourceAndTargetAreNull, CoreLog.Instance);
+        }
 
 
-        bool isNewDifference = TryRegisterDifference(source, target, difference);
+        var isNewDifference = TryRegisterDifference(source, target, difference);
         if (isNewDifference) {
           // Build movement info
           difference.MovementInfo = BuildMovementInfo(source, target);
@@ -353,7 +360,7 @@ namespace Xtensive.Modelling.Comparison
     /// <exception cref="NullReferenceException">Current difference is not <see cref="NodeCollectionDifference"/>.</exception>
     protected virtual Difference VisitNodeCollection(NodeCollection source, NodeCollection target)
     {
-      using (TryActivate(source, target, (s,t) => new NodeCollectionDifference(s,t))) {
+      using (TryActivate(source, target, (s, t) => new NodeCollectionDifference(s, t))) {
         var context = Context;
         var difference = (NodeCollectionDifference) context.Difference;
         if (difference == null) {
@@ -401,8 +408,24 @@ namespace Xtensive.Modelling.Comparison
         }
         difference.ItemChanges.Sort(CompareNodeDifference);
 
-        return (difference.ItemChanges.Count!=0) ? difference : null;
+        return difference.ItemChanges.Count != 0 ? difference : null;
       }
+    }
+    
+    // Sort by items only with source, then by (target ?? source).Index then with source and target and then only with target
+    private static int CompareNodeDifference(NodeDifference curr, NodeDifference other)
+    {
+      var currType = curr.Source != null && curr.Target != null ? 1 : curr.Source == null ? 3 : 0; 
+      var otherType = other.Source != null && other.Target != null ? 1 : other.Source == null ? 3 : 0; 
+      var typeIsNot0Comparison = (currType != 0).CompareTo(otherType != 0);
+      if (typeIsNot0Comparison != 0) {
+        return typeIsNot0Comparison;
+      }
+
+      var currIndex = (curr.Target ?? curr.Source)?.Index ?? 0;
+      var otherIndex = (other.Target ?? other.Source)?.Index ?? 0;
+      var indexComparison = currIndex.CompareTo(otherIndex);
+      return indexComparison != 0 ? indexComparison : currType.CompareTo(otherType);
     }
 
     // Sort by items only with source, then by (target ?? source).Index then with source and target and then only with target
