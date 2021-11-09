@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Upgrade
 
       Type = type;
       FieldName = fieldName;
-      AffectedColumns = new ReadOnlyList<string>(new List<string>());
+      AffectedColumns = ReadOnlyList<string>.Empty;
     }
 
     /// <summary>

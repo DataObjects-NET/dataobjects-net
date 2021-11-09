@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Building
     {
       this.type = type;
       this.associations = associations;
-      fields = new ReadOnlyList<PrefetchFieldDescriptor>(new List<PrefetchFieldDescriptor>());
+      fields = ReadOnlyList<PrefetchFieldDescriptor>.Empty;
     }
   }
 }

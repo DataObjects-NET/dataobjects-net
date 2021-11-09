@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Upgrade
       UpgradeActions = upgradeActions;
       UnsafeActions = unsafeActions!=null 
         ? new ReadOnlyList<NodeAction>(unsafeActions) 
-        : new ReadOnlyList<NodeAction>(new List<NodeAction>());
+        : ReadOnlyList<NodeAction>.Empty;
       HasUnsafeActions = UnsafeActions.Any();
     }
   }

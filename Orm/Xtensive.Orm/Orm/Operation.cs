@@ -25,8 +25,7 @@ namespace Xtensive.Orm
   {
     private static readonly ReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = 
       new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
-    private static readonly ReadOnlyList<IOperation> EmptyOperations = 
-      new ReadOnlyList<IOperation>(new List<IOperation>());
+    private static readonly ReadOnlyList<IOperation> EmptyOperations = ReadOnlyList<IOperation>.Empty;
 
     private ReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
     private ReadOnlyList<IOperation> precedingOperations = EmptyOperations;
