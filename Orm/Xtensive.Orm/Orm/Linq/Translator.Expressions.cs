@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Linq
       Type expressionType = expression.Type;
       Type operandType = tb.TypeOperand;
       if (operandType.IsAssignableFrom(expressionType)) {
-        return trueExpression;
+        return TrueExpression;
       }
 
       // Structure
