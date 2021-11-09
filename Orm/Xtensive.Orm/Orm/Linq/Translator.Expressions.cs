@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Linq
       var memberType = expression.GetMemberType();
       if (memberType==MemberType.Structure
         && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType)) {
-        return falseExpression;
+        return FalseExpression;
       }
 
       // Entity
