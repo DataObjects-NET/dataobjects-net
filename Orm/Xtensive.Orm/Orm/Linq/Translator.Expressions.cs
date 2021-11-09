@@ -35,9 +35,9 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly ParameterExpression parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
-      nullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
-      falseExpression = Expression.Constant(false),
-      trueExpression = Expression.Constant(true);
+      NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
+      FalseExpression = Expression.Constant(false),
+      TrueExpression = Expression.Constant(true);
 
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
