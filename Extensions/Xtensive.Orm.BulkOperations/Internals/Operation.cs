@@ -51,7 +51,15 @@ namespace Xtensive.Orm.BulkOperations
       return value;
     }
 
-    protected void EnsureTransactionIsStarted() => Transaction.Require(QueryProvider.Session);
+    protected void EnsureTransactionIsStarted()
+    {
+      Transaction.Require(QueryProvider.Session);
+#pragma warning disable 168
+      // this prepares connection which ensures that connection is opened
+      // this is weird way but it is required for some scenarios.
+      _ = QueryProvider.Session.Services.Demand<DirectSqlAccessor>().Transaction;
+#pragma warning restore 168
+    }
 
     protected abstract int ExecuteInternal();
 
