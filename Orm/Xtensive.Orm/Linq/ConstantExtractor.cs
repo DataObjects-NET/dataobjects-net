@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -21,9 +21,10 @@ namespace Xtensive.Linq
   /// </summary>
   public sealed class ConstantExtractor : ExpressionVisitor
   {
+    private static readonly ParameterExpression ConstantParameter = Expression.Parameter(WellKnownTypes.ObjectArray, "constants");
+
     private readonly Func<ConstantExpression, bool> constantFilter;
     private readonly LambdaExpression lambda;
-    private readonly ParameterExpression constantParameter;
     private List<object> constantValues;
 
     /// <summary>
@@ -48,7 +49,7 @@ namespace Xtensive.Linq
       if (constantValues != null)
         throw new InvalidOperationException();
       constantValues = new List<object>();
-      var parameters = EnumerableUtils.One(constantParameter).Concat(lambda.Parameters).ToArray();
+      var parameters = EnumerableUtils.One(ConstantParameter).Concat(lambda.Parameters).ToArray();
       var body = Visit(lambda.Body);
       // Preserve original delegate type because it may differ from types of parameters / return value
       return FastExpression.Lambda(FixDelegateType(lambda.Type), body, parameters);
@@ -60,7 +61,7 @@ namespace Xtensive.Linq
       if (!constantFilter.Invoke(c))
         return c;
       var result = Expression.Convert(
-        Expression.ArrayIndex(constantParameter, Expression.Constant(constantValues.Count)), c.Type);
+        Expression.ArrayIndex(ConstantParameter, Expression.Constant(constantValues.Count)), c.Type);
       constantValues.Add(c.Value);
       return result;
     }
@@ -70,7 +71,7 @@ namespace Xtensive.Linq
     private Type FixDelegateType(Type delegateType)
     {
       var signature = DelegateHelper.GetDelegateSignature(delegateType);
-      return DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(constantParameter.Type));
+      return DelegateHelper.MakeDelegateType(signature.First, signature.Second.Prepend(ConstantParameter.Type));
     }
 
     private static bool DefaultConstantFilter(ConstantExpression constant)
@@ -106,7 +107,6 @@ namespace Xtensive.Linq
       ArgumentValidator.EnsureArgumentNotNull(lambda, "lambda");
       this.lambda = lambda;
       this.constantFilter = constantFilter ?? DefaultConstantFilter;
-      constantParameter = Expression.Parameter(WellKnownTypes.ObjectArray, "constants");
     }
   }
 }

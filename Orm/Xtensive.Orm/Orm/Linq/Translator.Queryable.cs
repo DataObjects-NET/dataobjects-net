@@ -27,6 +27,8 @@ namespace Xtensive.Orm.Linq
   internal sealed partial class Translator : QueryableVisitor
   {
     private static readonly Type IEnumerableOfKeyType = typeof(IEnumerable<Key>);
+    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly ParameterExpression ParameterContextContextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
 
     private readonly TranslatorContext context;
     private readonly bool tagsEnabled;
@@ -549,7 +551,7 @@ namespace Xtensive.Orm.Linq
         ParameterExpression contextParameter;
         if (compiledQueryScope == null) {
           var indexLambda = (Expression<Func<int>>) index;
-          contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+          contextParameter = ParameterContextContextParameter;
           elementAtIndex = FastExpression.Lambda<Func<ParameterContext, int>>(indexLambda.Body, contextParameter);
         }
         else {
@@ -626,9 +628,8 @@ namespace Xtensive.Orm.Linq
 
       if (take.Type == typeof(Func<int>)) {
         if (compiledQueryScope == null) {
-          var contextParameter = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
           var takeLambda = (Expression<Func<int>>) take;
-          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, contextParameter);
+          var newTakeLambda = FastExpression.Lambda<Func<ParameterContext, int>>(takeLambda.Body, ParameterContextContextParameter);
           compiledParameter = newTakeLambda.CachingCompile();
         }
         else {
@@ -985,7 +986,6 @@ namespace Xtensive.Orm.Linq
         })
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 
       var filterBody = (nullableKeyColumns.Count == 0)
         ? comparisonInfos.Aggregate(
@@ -993,7 +993,7 @@ namespace Xtensive.Orm.Linq
           (current, comparisonInfo) =>
             MakeBooleanExpression(
               current,
-              tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+              TupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
               Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue)
                 .MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
               ExpressionType.Equal,
@@ -1006,7 +1006,7 @@ namespace Xtensive.Orm.Linq
                 WellKnownMembers.ApplyParameterValue);
               var left = MakeBooleanExpression(
                 null,
-                tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+                TupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
                 groupingSubqueryConnector.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
                 ExpressionType.Equal,
                 ExpressionType.AndAlso);
@@ -1015,7 +1015,7 @@ namespace Xtensive.Orm.Linq
                 null,
                 MakeBooleanExpression(
                   null,
-                  tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+                  TupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
                   Expression.Constant(null, comparisonInfo.Type),
                   ExpressionType.Equal,
                   ExpressionType.AndAlso),
@@ -1032,7 +1032,7 @@ namespace Xtensive.Orm.Linq
 
             return MakeBooleanExpression(
               current,
-              tupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
+              TupleParameter.MakeTupleAccess(comparisonInfo.Type, comparisonInfo.SubQueryIndex),
               Expression.MakeMemberAccess(Expression.Constant(applyParameter), WellKnownMembers.ApplyParameterValue)
                 .MakeTupleAccess(comparisonInfo.Type, comparisonInfo.GroupIndex),
               ExpressionType.Equal,
@@ -1272,7 +1272,8 @@ namespace Xtensive.Orm.Linq
         var outerParameters = State.OuterParameters
           .Concat(State.Parameters)
           .Concat(collectionSelector.Parameters)
-          .Append(outerParameter).ToArray(State.Parameters.Length + collectionSelector.Parameters.Count + 1);
+          .Append(outerParameter)
+          .ToArray(State.OuterParameters.Length + State.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(State) {
           OuterParameters = outerParameters,
           Parameters = Array.Empty<ParameterExpression>(),

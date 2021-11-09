@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -33,17 +33,18 @@ namespace Xtensive.Orm.Linq
       }
     }
 
+    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+
     public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IReadOnlyList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
       var valueProperty = WellKnownOrmTypes.ParameterOfTuple
         .GetProperty(nameof(Parameter<Tuple>.Value), WellKnownOrmTypes.Tuple);
       var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
       for (var i = 0; i < keyColumnTypes.Count; i++) {
         var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);
         var tupleParameterFieldAccess = Expression.Call(
-          tupleParameter,
+          TupleParameter,
           getValueMethod,
           Expression.Constant(startIndex + i));
         var keyParameterFieldAccess = Expression.Call(
@@ -56,7 +57,7 @@ namespace Xtensive.Orm.Linq
           filterExpression = Expression.And(filterExpression,
             Expression.Equal(tupleParameterFieldAccess, keyParameterFieldAccess));
       }
-      return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter);
+      return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, TupleParameter);
     }
 
     private static Expression CreateEntityQuery(Type elementType)

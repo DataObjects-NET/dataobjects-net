@@ -33,9 +33,11 @@ namespace Xtensive.Orm.Linq.Materialization
     private static readonly MethodInfo GetParameterValueMethod;
     private static readonly PropertyInfo ParameterContextProperty;
     private static readonly MethodInfo GetTupleParameterValueMethod;
+    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
+    private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
 
     private readonly TranslatorContext context;
-    private readonly ParameterExpression tupleParameter;
     private readonly ParameterExpression itemMaterializationContextParameter;
     private readonly Dictionary<IEntityExpression, int> entityRegistry = new Dictionary<IEntityExpression, int>();
     private readonly HashSet<Parameter<Tuple>> tupleParameters;
@@ -52,19 +54,16 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public static LambdaExpression MakeLambda(Expression expression, TranslatorContext context)
     {
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, null, EnumerableUtils<Parameter<Tuple>>.Empty);
+      var visitor = new ExpressionMaterializer(context, null, Enumerable.Empty<Parameter<Tuple>>());
       var processedExpression = OwnerRemover.RemoveOwner(expression);
-      return FastExpression.Lambda(visitor.Visit(processedExpression), tupleParameter);
+      return FastExpression.Lambda(visitor.Visit(processedExpression), TupleParameter);
     }
 
-    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context, 
+    public static MaterializationInfo MakeMaterialization(ItemProjectorExpression projector, TranslatorContext context,
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
-      var materializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
-      var visitor = new ExpressionMaterializer(tupleParameter, context, materializationContextParameter, tupleParameters);
-      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), tupleParameter, materializationContextParameter);
+      var visitor = new ExpressionMaterializer(context, MaterializationContextParameter, tupleParameters);
+      var lambda = FastExpression.Lambda(visitor.Visit(projector.Item), TupleParameter, MaterializationContextParameter);
       var count = visitor.entityRegistry.Count;
       return new MaterializationInfo(count, lambda);
     }
@@ -96,7 +95,7 @@ namespace Xtensive.Orm.Linq.Materialization
         if (itemMaterializationContextParameter == null)
           return processedTarget;
         var columns = ColumnGatherer.GetColumns(target, ColumnExtractionModes.Distinct | ColumnExtractionModes.Ordered).ToArray();
-        var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, tupleParameter, Expression.Constant(columns));
+        var sequenceCheck = Expression.Call(MaterializationHelper.IsNullMethodInfo, TupleParameter, Expression.Constant(columns));
         var throwException = Expression.Convert(Expression.Call(MaterializationHelper.ThrowEmptySequenceExceptionMethodInfo), target.Type);
         return Expression.Condition(sequenceCheck, throwException, processedTarget);
       }
@@ -129,7 +128,7 @@ namespace Xtensive.Orm.Linq.Materialization
         Expression.Constant(projection),
         Expression.Constant(translatedQuery),
         Expression.Constant(parameterOfTuple),
-        tupleParameter,
+        TupleParameter,
         keyMaterializer,
         itemMaterializationContextParameter);
 
@@ -154,7 +153,7 @@ namespace Xtensive.Orm.Linq.Materialization
         Expression.Constant(projection),
         Expression.Constant(translatedQuery),
         Expression.Constant(parameterOfTuple),
-        tupleParameter,
+        TupleParameter,
         itemMaterializationContextParameter);
 
       return Expression.Convert(resultExpression, subQueryExpression.Type);
@@ -186,7 +185,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, projectionExpression.ItemProjector.Context);
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
-      // 2. Add only parameter<tuple>. Tuple value will be assigned 
+      // 2. Add only parameter<tuple>. Tuple value will be assigned
       // at the moment of materialization in SubQuery constructor
       projection = projectionExpression.Apply(itemProjector);
 
@@ -273,8 +272,8 @@ namespace Xtensive.Orm.Linq.Materialization
 
       var realBindings = expression.NativeBindings;
 
-      return expression.NativeBindings.Count == 0 
-        ? newExpression 
+      return expression.NativeBindings.Count == 0
+        ? newExpression
         : (Expression) Expression.MemberInit(newExpression, expression
           .NativeBindings
           .Where(item => Translator.FilterBindings(item.Key, item.Key.Name, item.Value.Type))
@@ -325,7 +324,7 @@ namespace Xtensive.Orm.Linq.Materialization
           Expression.Field(itemMaterializationContextParameter, ItemMaterializationContext.SessionFieldInfo),
           WellKnownMembers.SessionNodeId),
         Expression.Constant(expression.EntityType),
-        Expression.Constant(TypeReferenceAccuracy.BaseType),
+        TypeReferenceAccuracyConstantExpression,
         tupleExpression);
     }
 
@@ -502,7 +501,7 @@ namespace Xtensive.Orm.Linq.Materialization
     private Expression GetTupleExpression(ParameterizedExpression expression)
     {
       if (expression.OuterParameter == null)
-        return tupleParameter;
+        return TupleParameter;
 
       var parameterOfTuple = context.GetTupleParameter(expression.OuterParameter);
       if (tupleParameters.Contains(parameterOfTuple)) {
@@ -520,7 +519,7 @@ namespace Xtensive.Orm.Linq.Materialization
         return Expression.Property(applyParameterExpression, WellKnownMembers.ApplyParameterValue);
       }
 
-      return tupleParameter;
+      return TupleParameter;
     }
 
     private static Tuple BuildPersistentTuple(Tuple tuple, Tuple tuplePrototype, int[] mapping)
@@ -536,14 +535,12 @@ namespace Xtensive.Orm.Linq.Materialization
 
     // Constructors
 
-    private ExpressionMaterializer(ParameterExpression
-      tupleParameter,
+    private ExpressionMaterializer(
       TranslatorContext context,
       ParameterExpression itemMaterializationContextParameter,
       IEnumerable<Parameter<Tuple>> tupleParameters)
     {
       this.itemMaterializationContextParameter = itemMaterializationContextParameter;
-      this.tupleParameter = tupleParameter;
       this.context = context;
       this.tupleParameters = new HashSet<Parameter<Tuple>>(tupleParameters);
     }

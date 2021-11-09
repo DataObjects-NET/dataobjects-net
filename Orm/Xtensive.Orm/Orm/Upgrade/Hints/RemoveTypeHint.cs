@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(type, "sourceType");
       Type = type;
-      AffectedTables = new ReadOnlyList<string>(new List<string>());
+      AffectedTables = ReadOnlyList<string>.Empty;
     }
   }
 }

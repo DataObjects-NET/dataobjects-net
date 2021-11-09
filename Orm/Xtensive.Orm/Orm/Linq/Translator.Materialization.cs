@@ -28,9 +28,9 @@ namespace Xtensive.Orm.Linq
         new[] { "TItem" },
         new object[] { WellKnownTypes.Expression });
 
-    private static readonly ParameterExpression parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
-    private static readonly ParameterExpression tupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
-    private static readonly ParameterExpression session = Expression.Parameter(typeof(Session), "session");
+    private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
+    private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
+    private static readonly ParameterExpression Session = Expression.Parameter(typeof(Session), "session");
 
     private readonly CompiledQueryProcessingScope compiledQueryScope;
 
@@ -122,17 +122,17 @@ namespace Xtensive.Orm.Linq
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(Session, Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
-        tupleReader,
+        TupleReader,
         materializationContextExpression,
-        parameterContext,
+        ParameterContext,
         Expression.Constant(itemMaterializer));
 
       var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(
-        body, tupleReader, session, parameterContext);
+        body, TupleReader, Session, ParameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Orm.Session"/>.</exception>
     internal Translator(TranslatorContext context, CompiledQueryProcessingScope compiledQueryScope)
     {
       this.compiledQueryScope = compiledQueryScope;

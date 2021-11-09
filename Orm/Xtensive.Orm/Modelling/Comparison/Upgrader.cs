@@ -121,7 +121,7 @@ namespace Xtensive.Modelling.Comparison
       ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
       ArgumentValidator.EnsureArgumentNotNull(comparer, nameof(comparer));
       if (difference == null) {
-        return new ReadOnlyList<NodeAction>(Enumerable.Empty<NodeAction>().ToList());
+        return ReadOnlyList<NodeAction>.Empty;
       }
 
       TemporaryRenames = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
