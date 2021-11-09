@@ -23,6 +23,10 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
+    private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
+    private static readonly ParameterExpression Session = Expression.Parameter(typeof(Session), "session");
+
     private readonly CompiledQueryProcessingScope compiledQueryScope;
     public static readonly MethodInfo TranslateMethod;
     private static readonly MethodInfo VisitLocalCollectionSequenceMethod;
@@ -107,10 +111,6 @@ namespace Xtensive.Orm.Linq
     private Materializer
       BuildMaterializer(ProjectionExpression projection, IEnumerable<Parameter<Tuple>> tupleParameters)
     {
-      var tupleReader = Expression.Parameter(typeof (RecordSetReader), "tupleReader");
-      var session = Expression.Parameter(typeof (Session), "session");
-      var parameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
-
       var itemProjector = projection.ItemProjector;
       var materializationInfo = itemProjector.Materialize(context, tupleParameters);
       var elementType = itemProjector.Item.Type;
@@ -126,17 +126,17 @@ namespace Xtensive.Orm.Linq
       Expression<Func<Session, int, MaterializationContext>> materializationContextCtor =
         (s, entityCount) => new MaterializationContext(s, entityCount);
       var materializationContextExpression = materializationContextCtor
-        .BindParameters(session, Expression.Constant(materializationInfo.EntitiesInRow));
+        .BindParameters(Session, Expression.Constant(materializationInfo.EntitiesInRow));
 
       Expression body = Expression.Call(
         materializeMethod,
-        tupleReader,
+        TupleReader,
         materializationContextExpression,
-        parameterContext,
+        ParameterContext,
         Expression.Constant(itemMaterializer));
 
       var projectorExpression = FastExpression.Lambda<Func<RecordSetReader, Session, ParameterContext, object>>(
-        body, tupleReader, session, parameterContext);
+        body, TupleReader, Session, ParameterContext);
       return new Materializer(projectorExpression.CachingCompile());
     }
 
@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Linq
 
     // Constructors
 
-    /// <exception cref="InvalidOperationException">There is no current <see cref="Session"/>.</exception>
+    /// <exception cref="InvalidOperationException">There is no current <see cref="Orm.Session"/>.</exception>
     internal Translator(TranslatorContext context, CompiledQueryProcessingScope compiledQueryScope)
     {
       this.compiledQueryScope = compiledQueryScope;
