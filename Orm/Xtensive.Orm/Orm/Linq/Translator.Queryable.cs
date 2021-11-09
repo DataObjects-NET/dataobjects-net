@@ -1272,7 +1272,8 @@ namespace Xtensive.Orm.Linq
         var outerParameters = State.OuterParameters
           .Concat(State.Parameters)
           .Concat(collectionSelector.Parameters)
-          .Append(outerParameter).ToArray(State.Parameters.Length + collectionSelector.Parameters.Count + 1);
+          .Append(outerParameter)
+          .ToArray(State.OuterParameters.Length + State.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(State) {
           OuterParameters = outerParameters,
               Parameters = Array.Empty<ParameterExpression>(),
