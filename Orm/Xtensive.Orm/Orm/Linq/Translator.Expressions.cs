@@ -1024,7 +1024,7 @@ namespace Xtensive.Orm.Linq
           expression = Expression.Convert(expression, WellKnownOrmInterfaces.Entity);
         keyExpression = Expression.Condition(
           isNullExpression,
-          nullKeyExpression,
+          NullKeyExpression,
           Expression.MakeMemberAccess(expression, WellKnownMembers.IEntityKey));
       }
       return GetKeyFields(keyExpression, keyFieldTypes);
