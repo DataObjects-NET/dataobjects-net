@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
       var comparer = StringComparer.OrdinalIgnoreCase;
       return base.Equals(other)
-        && other.Type==Type 
+        && other.Type==Type
         && comparer.Equals(other.FieldName, FieldName);
     }
 

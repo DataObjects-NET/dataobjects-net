@@ -22,7 +22,7 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
-    #region String patterns 
+    #region String patterns
 
     /// <summary>
     /// Node group comment (in action sequence).
@@ -572,7 +572,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <param name="accessor">The property accessor.</param>
-    /// <returns><see langword="true"/> if th specified property is immutable; 
+    /// <returns><see langword="true"/> if th specified property is immutable;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
@@ -586,7 +586,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <param name="accessor">The property accessor.</param>
-    /// <returns><see langword="true"/> if th specified property is mutable; 
+    /// <returns><see langword="true"/> if th specified property is mutable;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
@@ -638,8 +638,8 @@ namespace Xtensive.Modelling.Comparison
     protected static string GetPathWithoutName(Node node)
     {
       var path = node.Path;
-      return !path.Contains(Node.PathDelimiter) 
-        ? string.Empty 
+      return !path.Contains(Node.PathDelimiter)
+        ? string.Empty
         : path.Substring(0, path.LastIndexOf(Node.PathDelimiter) + 1);
     }
 

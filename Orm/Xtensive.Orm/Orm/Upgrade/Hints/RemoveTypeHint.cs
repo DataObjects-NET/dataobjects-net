@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return base.Equals(other) 
+      return base.Equals(other)
         && other.Type == Type;
     }
 

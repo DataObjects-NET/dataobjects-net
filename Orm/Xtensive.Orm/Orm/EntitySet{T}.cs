@@ -27,12 +27,12 @@ namespace Xtensive.Orm
   /// Use <see cref="EntitySet{TItem}"/> when you need to declare persistent property of entity set type.
   /// </para>
   /// <para>
-  /// <c>EntitySets</c> can be used as a <see cref="AssociationAttribute.PairTo">paired property</see> with reference 
+  /// <c>EntitySets</c> can be used as a <see cref="AssociationAttribute.PairTo">paired property</see> with reference
   /// (One-To-Many) or EntitySet (Many-To-Many) properties. In such case DataObjects.Net automatically
   /// modifies collection or it's paired property. If paired property is not specified, auxiliary table
   /// will be automatically created in database.
   /// </para>
-  /// <para>EntitySet class implements <see cref="IQueryable{T}"/> interface and fully supported by 
+  /// <para>EntitySet class implements <see cref="IQueryable{T}"/> interface and fully supported by
   /// DataObjects.Net LINQ translator.</para>
   /// </remarks>
   /// <example>In following example User entity has three EntitySet properties with different association kinds.
@@ -40,15 +40,15 @@ namespace Xtensive.Orm
   /// public class User : Entity
   /// {
   ///   ...
-  ///   
+  ///
   ///   // persistent collection with auxiliary table
   ///   [Field]
   ///   public EntitySet&lt;Photo&gt; Photos { get; private set; }
-  ///   
+  ///
   ///   // One-to-many association
   ///   [Field, Association(PairTo = "Author")]
   ///   public EntitySet&lt;BlogItem&gt; BlogItems { get; private set; }
-  ///   
+  ///
   ///   // Many-to-many association
   ///   [Field, Association(PairTo = "Friends")]
   ///   public EntitySet&lt;User&gt; Friends { get; private set; }
@@ -58,11 +58,11 @@ namespace Xtensive.Orm
   /// <seealso cref="Entity">Entity class</seealso>
   /// <seealso cref="AssociationAttribute.PairTo">Using EntitySets with paired associations</seealso>
   public class EntitySet<TItem> : EntitySetBase,
-    ICollection<TItem>, 
+    ICollection<TItem>,
     IQueryable<TItem>
     where TItem : IEntity
   {
-    private static readonly MemberExpression ownerPropertyExpression = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
+    private static readonly MemberExpression OwnerPropertyExpression = Expression.Property(Expression.Constant(ownerParameter), ownerParameter.GetType()
       .GetProperty("Value", WellKnownOrmTypes.Entity));
 
     private Expression expression;
@@ -72,14 +72,14 @@ namespace Xtensive.Orm
     /// </summary>
     /// <param name="item">The item to check for containment.</param>
     /// <returns>
-    /// <see langword="true"/> if this collection contains the specified item; 
+    /// <see langword="true"/> if this collection contains the specified item;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public bool Contains(TItem item)
     {
       return base.Contains(item);
     }
-    
+
     /// <summary>
     /// Adds the specified item to the collection.
     /// </summary>
@@ -224,7 +224,7 @@ namespace Xtensive.Orm
     public IQueryProvider Provider { get { return Session.Query.Provider; } }
 
     #endregion
-    
+
     /// <inheritdoc/>
     protected sealed override Func<QueryEndpoint,Int64> GetItemCountQueryDelegate(FieldInfo field)
     {
@@ -233,7 +233,7 @@ namespace Xtensive.Orm
 
     private static IQueryable<TItem> GetItemsQuery(QueryEndpoint qe, FieldInfo field)
     {
-      var queryExpression = QueryHelper.CreateEntitySetQuery(ownerPropertyExpression, field);
+      var queryExpression = QueryHelper.CreateEntitySetQuery(OwnerPropertyExpression, field);
       return qe.Provider.CreateQuery<TItem>(queryExpression);
     }
 
@@ -242,7 +242,7 @@ namespace Xtensive.Orm
       return new EntitySet<TItem>(owner, field);
     }
 
- 
+
     // Constructors
 
     /// <summary>

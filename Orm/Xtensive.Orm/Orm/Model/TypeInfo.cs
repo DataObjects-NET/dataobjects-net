@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return attributes; }
     }
-    
+
     /// <summary>
     /// Gets the columns contained in this instance.
     /// </summary>

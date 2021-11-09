@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Linq
       }
     }
 
-    private static readonly ParameterExpression paramContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
-    private static readonly MethodInfo selectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
+    private static readonly ParameterExpression ParamContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly MethodInfo SelectMethod = WellKnownMembers.Enumerable.Select.MakeGenericMethod(typeof(TItem), WellKnownOrmTypes.Tuple);
 
     private readonly Func<ParameterContext, IEnumerable<TItem>> enumerableFunc;
     private readonly DomainModel model;
@@ -64,9 +64,9 @@ namespace Xtensive.Orm.Linq
 
     public override Expression<Func<ParameterContext, IEnumerable<Tuple>>> GetEnumerable()
     {
-      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, paramContext);
-      var select = Expression.Call(selectMethod, call, Expression.Constant(converter));
-      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, paramContext);
+      var call = Expression.Call(Expression.Constant(enumerableFunc.Target), enumerableFunc.Method, ParamContext);
+      var select = Expression.Call(SelectMethod, call, Expression.Constant(converter));
+      return FastExpression.Lambda<Func<ParameterContext, IEnumerable<Tuple>>>(select, ParamContext);
     }
 
 
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Linq
     {
       // TODO: AG: Take info from storage!
       type = type.StripNullable();
-      return type.IsPrimitive || 
+      return type.IsPrimitive ||
         type.IsEnum ||
         type==WellKnownTypes.ByteArray ||
         type==WellKnownTypes.Decimal ||

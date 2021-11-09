@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -26,7 +26,7 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal class PartialIndexFilterBuilder : ExpressionVisitor
   {
-    private static readonly ParameterExpression parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+    private static readonly ParameterExpression Parameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
 
     private readonly TypeInfo declaringType;
     private readonly TypeInfo reflectedType;
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Building.Builders
       var builder = new PartialIndexFilterBuilder(index);
       var body = builder.Visit(index.FilterExpression.Body);
       var filter = new PartialIndexFilterInfo {
-        Expression = FastExpression.Lambda(body, parameter),
+        Expression = FastExpression.Lambda(body, Parameter),
         Fields = builder.usedFields,
       };
       index.Filter = filter;
@@ -123,7 +123,7 @@ namespace Xtensive.Orm.Building.Builders
       var fieldIndex = usedFields.Count;
       var valueType = addNullability ? field.ValueType.ToNullable() : field.ValueType;
       usedFields.Add(field);
-      return Expression.Call(parameter,
+      return Expression.Call(Parameter,
         WellKnownMembers.Tuple.GenericAccessor.CachedMakeGenericMethod(valueType),
         Expression.Constant(fieldIndex));
     }

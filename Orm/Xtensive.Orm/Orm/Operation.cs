@@ -22,7 +22,7 @@ namespace Xtensive.Orm
   [Serializable]
   public abstract class Operation : IOperation
   {
-    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities = 
+    private static readonly IReadOnlyDictionary<string, Key> EmptyIdentifiedEntities =
       new ReadOnlyDictionary<string, Key>(new Dictionary<string, Key>());
 
     private IReadOnlyDictionary<string, Key> identifiedEntities = EmptyIdentifiedEntities;
@@ -34,7 +34,7 @@ namespace Xtensive.Orm
     public abstract string Title { get; }
 
     /// <inheritdoc/>
-    public virtual string Description { 
+    public virtual string Description {
       get { return Title; }
     }
 

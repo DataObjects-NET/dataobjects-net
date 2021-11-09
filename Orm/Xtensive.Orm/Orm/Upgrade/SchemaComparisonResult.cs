@@ -91,12 +91,12 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="upgradeActions">The upgrade actions.</param>
     /// <param name="unsafeActions">The unsafe (breaking) actions.</param>
     public SchemaComparisonResult(
-      SchemaComparisonStatus schemaComparisonStatus, 
-      bool hasColumnTypeChanges, 
-      bool? isCompatibleInLegacyMode, 
-      HintSet hints, 
-      Difference difference, 
-      ActionSequence upgradeActions, 
+      SchemaComparisonStatus schemaComparisonStatus,
+      bool hasColumnTypeChanges,
+      bool? isCompatibleInLegacyMode,
+      HintSet hints,
+      Difference difference,
+      ActionSequence upgradeActions,
       IList<NodeAction> unsafeActions)
     {
       SchemaComparisonStatus = schemaComparisonStatus;
@@ -105,8 +105,8 @@ namespace Xtensive.Orm.Upgrade
       Hints = hints;
       Difference = difference;
       UpgradeActions = upgradeActions;
-      UnsafeActions = unsafeActions!=null 
-        ? new ReadOnlyCollection<NodeAction>(unsafeActions) 
+      UnsafeActions = unsafeActions!=null
+        ? new ReadOnlyCollection<NodeAction>(unsafeActions)
         : Array.Empty<NodeAction>();
       HasUnsafeActions = UnsafeActions.Any();
     }

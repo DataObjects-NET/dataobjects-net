@@ -35,11 +35,9 @@ namespace Xtensive.Orm.Linq
   {
     private static readonly ParameterExpression parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
-      nullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
-      falseBoolExpression = Expression.Constant(false, WellKnownTypes.Bool),
-      trueBoolExpression = Expression.Constant(true, WellKnownTypes.Bool),
-      falseExpression = Expression.Constant(false),
-      trueExpression = Expression.Constant(true);
+      NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
+      FalseExpression = Expression.Constant(false),
+      TrueExpression = Expression.Constant(true);
 
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
@@ -47,14 +45,14 @@ namespace Xtensive.Orm.Linq
       Type expressionType = expression.Type;
       Type operandType = tb.TypeOperand;
       if (operandType.IsAssignableFrom(expressionType)) {
-        return trueExpression;
+        return TrueExpression;
       }
 
       // Structure
       var memberType = expression.GetMemberType();
       if (memberType==MemberType.Structure
         && WellKnownOrmTypes.Structure.IsAssignableFrom(operandType)) {
-        return falseExpression;
+        return FalseExpression;
       }
 
       // Entity
@@ -687,9 +685,6 @@ namespace Xtensive.Orm.Linq
       return bindings;
     }
 
-    private static ConstantExpression SelectBoolConstantExpression(bool b) =>
-      b ? trueBoolExpression : falseBoolExpression;
-
     /// <exception cref="NotSupportedException"><c>NotSupportedException</c>.</exception>
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
     private Expression VisitBinaryRecursive(BinaryExpression binaryExpression, BinaryExpression originalBinaryExpression)
@@ -734,7 +729,7 @@ namespace Xtensive.Orm.Linq
           var rightEntitySetExpression = right as EntitySetExpression;
           if (leftEntitySetExpression != null && rightEntitySetExpression != null) {
             if (leftEntitySetExpression.Field != rightEntitySetExpression.Field) {
-              return falseBoolExpression;
+              return FalseExpression;
             }
             var binary = Expression.MakeBinary(binaryExpression.NodeType,
               (Expression) leftEntitySetExpression.Owner,
@@ -899,6 +894,9 @@ namespace Xtensive.Orm.Linq
       return resultExpression;
     }
 
+    private static ConstantExpression SelectBoolConstantExpression(bool b) =>
+      b ? TrueExpression : FalseExpression;
+
     private Expression VisitIndex(IndexExpression ie)
     {
       var objectExpression = Visit(ie.Object).StripCasts();
@@ -1044,7 +1042,7 @@ namespace Xtensive.Orm.Linq
       Expression keyExpression;
 
       if (expression.IsNull()) {
-        keyExpression = nullKeyExpression;
+        keyExpression = NullKeyExpression;
       }
       else if (IsConditionalOrWellknown(expression)) {
         return keyFieldTypes
@@ -1059,7 +1057,7 @@ namespace Xtensive.Orm.Linq
           expression = Expression.Convert(expression, WellKnownOrmInterfaces.Entity);
         keyExpression = Expression.Condition(
           isNullExpression,
-          nullKeyExpression,
+          NullKeyExpression,
           Expression.MakeMemberAccess(expression, WellKnownMembers.IEntityKey));
       }
       return GetKeyFields(keyExpression, keyFieldTypes);
