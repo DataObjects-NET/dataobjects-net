@@ -862,7 +862,7 @@ namespace Xtensive.Orm.Linq
     }
 
     private static ConstantExpression SelectBoolConstantExpression(bool b) =>
-      b ? trueExpression : falseExpression;
+      b ? TrueExpression : FalseExpression;
 
     private Expression VisitIndex(IndexExpression ie)
     {
