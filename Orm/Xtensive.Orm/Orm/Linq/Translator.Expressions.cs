@@ -696,7 +696,7 @@ namespace Xtensive.Orm.Linq
           var rightEntitySetExpression = right as EntitySetExpression;
           if (leftEntitySetExpression != null && rightEntitySetExpression != null) {
             if (leftEntitySetExpression.Field != rightEntitySetExpression.Field) {
-              return falseExpression;
+              return FalseExpression;
             }
             var binary = Expression.MakeBinary(binaryExpression.NodeType,
               (Expression) leftEntitySetExpression.Owner,
