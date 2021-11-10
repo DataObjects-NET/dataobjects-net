@@ -1039,7 +1039,7 @@ namespace Xtensive.Orm.Linq
               ExpressionType.AndAlso);
           });
 
-      var filter = FastExpression.Lambda(filterBody, tupleParameter);
+      var filter = FastExpression.Lambda(filterBody, TupleParameter);
       var subqueryProjection = sequence.Apply(new ItemProjectorExpression(
           sequence.ItemProjector.Item,
           groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>) filter),
