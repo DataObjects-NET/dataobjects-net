@@ -428,22 +428,6 @@ namespace Xtensive.Modelling.Comparison
       return indexComparison != 0 ? indexComparison : currType.CompareTo(otherType);
     }
 
-    // Sort by items only with source, then by (target ?? source).Index then with source and target and then only with target
-    private static int CompareNodeDifference(NodeDifference curr, NodeDifference other)
-    {
-      var currType = curr.Source != null && curr.Target != null ? 1 : curr.Source == null ? 3 : 0;
-      var otherType = other.Source != null && other.Target != null ? 1 : other.Source == null ? 3 : 0;
-      var typeIsNot0Comparison = (currType != 0).CompareTo(otherType != 0);
-      if (typeIsNot0Comparison != 0) {
-        return typeIsNot0Comparison;
-      }
-
-      var currIndex = (curr.Target ?? curr.Source)?.Index ?? 0;
-      var otherIndex = (other.Target ?? other.Source)?.Index ?? 0;
-      var indexComparison = currIndex.CompareTo(otherIndex);
-      return indexComparison != 0 ? indexComparison : currType.CompareTo(otherType);
-    }
-
     /// <summary>
     /// Visits specified objects.
     /// </summary>
