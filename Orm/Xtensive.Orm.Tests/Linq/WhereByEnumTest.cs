@@ -9,6 +9,7 @@ using System.Text;
 using NUnit.Framework;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Linq.WhereByEnumTestModel;
 
 namespace Xtensive.Orm.Tests.Linq.WhereByEnumTestModel
@@ -138,6 +139,30 @@ namespace Xtensive.Orm.Tests.Linq.WhereByEnumTestModel
     [Field]
     public ULongEnum ULongEnumField { get; set; }
 
+    [Field]
+    public ByteEnum? NByteEnumField { get; set; }
+
+    [Field]
+    public SByteEnum? NSByteEnumField { get; set; }
+
+    [Field]
+    public ShortEnum? NShortEnumField { get; set; }
+
+    [Field]
+    public UShortEnum? NUShortEnumField { get; set; }
+
+    [Field]
+    public IntEnum? NIntEnumField { get; set; }
+
+    [Field]
+    public UIntEnum? NUIntEnumField { get; set; }
+
+    [Field]
+    public LongEnum? NLongEnumField { get; set; }
+
+    [Field]
+    public ULongEnum? NULongEnumField { get; set; }
+
     public EnumContainer(Session session, string enumValue)
       : base(session)
     {
@@ -149,6 +174,15 @@ namespace Xtensive.Orm.Tests.Linq.WhereByEnumTestModel
       UIntEnumField = (UIntEnum) Enum.Parse(typeof(UIntEnum), enumValue);
       LongEnumField = (LongEnum) Enum.Parse(typeof(LongEnum), enumValue);
       ULongEnumField = (ULongEnum) Enum.Parse(typeof(ULongEnum), enumValue);
+
+      NByteEnumField = (ByteEnum) Enum.Parse(typeof(ByteEnum), enumValue);
+      NSByteEnumField = (SByteEnum) Enum.Parse(typeof(SByteEnum), enumValue);
+      NShortEnumField = (ShortEnum) Enum.Parse(typeof(ShortEnum), enumValue);
+      NUShortEnumField = (UShortEnum) Enum.Parse(typeof(UShortEnum), enumValue);
+      NIntEnumField = (IntEnum) Enum.Parse(typeof(IntEnum), enumValue);
+      NUIntEnumField = (UIntEnum) Enum.Parse(typeof(UIntEnum), enumValue);
+      NLongEnumField = (LongEnum) Enum.Parse(typeof(LongEnum), enumValue);
+      NULongEnumField = (ULongEnum) Enum.Parse(typeof(ULongEnum), enumValue);
     }
   }
 }
@@ -157,18 +191,23 @@ namespace Xtensive.Orm.Tests.Linq
 {
   public class WhereByEnumTest : AutoBuildTest
   {
-    private Session SharedSession;
+    private Session sharedSession;
+
+    private string castSign;
 
     public override void TestFixtureSetUp()
     {
       base.TestFixtureSetUp();
       CreateSessionAndTransaction();
-      SharedSession = Session.Current;
+      sharedSession = Session.Current;
+      castSign = StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.PostgreSql)
+        ? "::"
+        : "CAST";
     }
 
     public override void TestFixtureTearDown()
     {
-      SharedSession = null;
+      sharedSession = null;
       base.TestFixtureTearDown();
     }
 
@@ -197,117 +236,541 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void ByteTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Max).ToArray(1);
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
+      
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ByteEnumField == ByteEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NByteEnumField == ByteEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NByteEnumField == ByteEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NByteEnumField == ByteEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NByteEnumField == ByteEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NByteEnumField == ByteEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NByteEnumField == ByteEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
 
     [Test]
     public void SByteTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Max).ToArray(1);
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
+
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.SByteEnumField == SByteEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NSByteEnumField == SByteEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NSByteEnumField == SByteEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NSByteEnumField == SByteEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NSByteEnumField == SByteEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NSByteEnumField == SByteEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NSByteEnumField == SByteEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
 
     [Test]
     public void ShortTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Max).ToArray(1);
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
+
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NShortEnumField == ShortEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NShortEnumField == ShortEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ShortEnumField == ShortEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
 
     [Test]
     public void UShortTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
 
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Max).ToArray(1);
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
 
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUShortEnumField == UShortEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUShortEnumField == UShortEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUShortEnumField == UShortEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUShortEnumField == UShortEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UShortEnumField == UShortEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
 
     [Test]
     public void IntTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
 
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Max).ToArray(1);
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
 
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.IntEnumField == IntEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NIntEnumField == IntEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NIntEnumField == IntEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NIntEnumField == IntEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NIntEnumField == IntEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NIntEnumField == IntEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NIntEnumField == IntEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
 
     [Test]
     public void UIntTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
 
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Max).ToArray(1);
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
 
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.UIntEnumField == UIntEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUIntEnumField == UIntEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUIntEnumField == UIntEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUIntEnumField == UIntEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUIntEnumField == UIntEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUIntEnumField == UIntEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NUIntEnumField == UIntEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
 
     [Test]
     public void LongTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
 
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Max).ToArray(1);
+      var substractValue = StorageProviderInfo.Instance.CheckProviderIs(StorageProvider.SqlServer)
+        ? castSign.Length
+        : 0;
 
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.LongEnumField == LongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NLongEnumField == LongEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NLongEnumField == LongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NLongEnumField == LongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NLongEnumField == LongEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NLongEnumField == LongEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NLongEnumField == LongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length - substractValue));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
 
     [Test]
-    public void ULontTest()
+    public void ULongTest()
     {
-      SharedSession.Events.DbCommandExecuting += PrintCommandToConsole;
+      var queryFormatter = sharedSession.Services.Demand<QueryFormatter>();
 
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Zero).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.One).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Two).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Three).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Four).ToArray(1);
-      _ = SharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Max).ToArray(1);
+      var query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Zero);
+      var queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
 
-      SharedSession.Events.DbCommandExecuting -= PrintCommandToConsole;
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.ULongEnumField == ULongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Zero);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.One);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Two);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Three);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Four);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
+
+      query = sharedSession.Query.All<EnumContainer>().Where(e => e.NULongEnumField == ULongEnum.Max);
+      queryString = queryFormatter.ToSqlString(query);
+      Assert.That(queryString.Replace(castSign, "").Length, Is.EqualTo(queryString.Length));
+      Assert.That(query.Count(), Is.EqualTo(1));
     }
-
-    private static void PrintCommandToConsole(object sender, DbCommandEventArgs args) => Console.WriteLine(args.Command.CommandText);
   }
 }
