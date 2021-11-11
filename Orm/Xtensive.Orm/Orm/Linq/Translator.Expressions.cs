@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -206,6 +206,30 @@ namespace Xtensive.Orm.Linq
           left = Visit(binaryExpression.Left);
           right = Visit(binaryExpression.Right);
         }
+      }
+      // Following two checks for enums are here to improve result query
+      // performance because they let not to cast columns to integer.
+      else if (binaryExpression.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual)
+          && binaryExpression.Left.StripCasts().Type.StripNullable().IsEnum
+          && binaryExpression.Right.StripCasts().NodeType == ExpressionType.Constant) {
+        var rawEnum = binaryExpression.Left.StripCasts();
+
+        var typeToCast = (rawEnum.Type.IsNullable())
+          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
+          : rawEnum.Type.GetEnumUnderlyingType();
+        left = Visit(Expression.Convert(rawEnum, typeToCast));
+        right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
+      }
+      else if (binaryExpression.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual)
+          && binaryExpression.Right.StripCasts().Type.StripNullable().IsEnum
+          && binaryExpression.Left.StripCasts().NodeType == ExpressionType.Constant) {
+        var rawEnum = binaryExpression.Right.StripCasts();
+
+        var typeToCast = (rawEnum.Type.IsNullable())
+          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
+          : rawEnum.Type.GetEnumUnderlyingType();
+        left = Visit(Expression.Convert(rawEnum, typeToCast));
+        right = Visit(Expression.Convert(binaryExpression.Left, typeToCast));
       }
       else {
         left = Visit(binaryExpression.Left);
