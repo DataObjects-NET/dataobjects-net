@@ -21,8 +21,8 @@ namespace Xtensive.Core
     IComparable<Pair<TFirst, TSecond>>,
     IEquatable<Pair<TFirst, TSecond>>
   {
-    private static readonly AdvancedComparerStruct<TFirst> firstComparer = AdvancedComparerStruct<TFirst>.System;
-    private static readonly AdvancedComparerStruct<TSecond> secondComparer = AdvancedComparerStruct<TSecond>.System;
+    private static readonly AdvancedComparerStruct<TFirst> FirstComparer = AdvancedComparerStruct<TFirst>.System;
+    private static readonly AdvancedComparerStruct<TSecond> SecondComparer = AdvancedComparerStruct<TSecond>.System;
 
     /// <summary>
     /// A first value.
@@ -37,15 +37,15 @@ namespace Xtensive.Core
 
     /// <inheritdoc/>
     public bool Equals(Pair<TFirst, TSecond> other) =>
-      firstComparer.Equals(First, other.First) && secondComparer.Equals(Second, other.Second);
+      FirstComparer.Equals(First, other.First) && SecondComparer.Equals(Second, other.Second);
 
     /// <inheritdoc/>
     public int CompareTo(Pair<TFirst, TSecond> other)
     {
-      int result = firstComparer.Compare(First, other.First);
+      int result = FirstComparer.Compare(First, other.First);
       return result != 0
         ? result
-        : secondComparer.Compare(Second, other.Second);
+        : SecondComparer.Compare(Second, other.Second);
     }
 
     #endregion
