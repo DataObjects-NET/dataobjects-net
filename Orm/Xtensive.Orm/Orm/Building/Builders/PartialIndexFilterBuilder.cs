@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2011.10.07
 
@@ -46,6 +46,33 @@ namespace Xtensive.Orm.Building.Builders
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
+      if (b.Left.StripCasts().Type.StripNullable().IsEnum
+          && b.Right.StripCasts().NodeType == ExpressionType.Constant) {
+
+        var rawEnum = b.Left.StripCasts();
+        var typeToCast = (rawEnum.Type.IsNullable())
+          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
+          : rawEnum.Type.GetEnumUnderlyingType();
+
+        return base.VisitBinary(Expression.MakeBinary(
+          b.NodeType,
+          Expression.Convert(rawEnum, typeToCast),
+          Expression.Convert(b.Right, typeToCast)));
+      }
+      else if (b.Right.StripCasts().Type.StripNullable().IsEnum
+          && b.Left.StripCasts().NodeType == ExpressionType.Constant) {
+        
+        var rawEnum = b.Right.StripCasts();
+        var typeToCast = (rawEnum.Type.IsNullable())
+          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
+          : rawEnum.Type.GetEnumUnderlyingType();
+
+        return base.VisitBinary(Expression.MakeBinary(
+          b.NodeType,
+          Expression.Convert(rawEnum, typeToCast),
+          Expression.Convert(b.Left, typeToCast)));
+      }
+
       // Detect f!=null and f==null for entity fields
 
       if (!b.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual))
