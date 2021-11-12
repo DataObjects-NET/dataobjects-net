@@ -209,8 +209,7 @@ namespace Xtensive.Orm.Linq
       }
       // Following two checks for enums are here to improve result query
       // performance because they let not to cast columns to integer.
-      else if (binaryExpression.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual)
-          && binaryExpression.Left.StripCasts().Type.StripNullable().IsEnum
+      else if (binaryExpression.Left.StripCasts().Type.StripNullable().IsEnum
           && binaryExpression.Right.StripCasts().NodeType == ExpressionType.Constant) {
         var rawEnum = binaryExpression.Left.StripCasts();
 
@@ -220,8 +219,7 @@ namespace Xtensive.Orm.Linq
         left = Visit(Expression.Convert(rawEnum, typeToCast));
         right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
       }
-      else if (binaryExpression.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual)
-          && binaryExpression.Right.StripCasts().Type.StripNullable().IsEnum
+      else if (binaryExpression.Right.StripCasts().Type.StripNullable().IsEnum
           && binaryExpression.Left.StripCasts().NodeType == ExpressionType.Constant) {
         var rawEnum = binaryExpression.Right.StripCasts();
 
