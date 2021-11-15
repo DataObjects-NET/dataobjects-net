@@ -31,8 +31,54 @@ namespace Xtensive.Reflection
     private static readonly Dictionary<Type, OpCode> opCodeConv = new Dictionary<Type, OpCode>();
     private static readonly Dictionary<Type, Type> typeOnStack = new Dictionary<Type, Type>();
 
-    private static readonly Type[] ActionTypes;
-    private static readonly Type[] FuncTypes;
+    private static readonly Type[] ActionTypes = new[]
+      {
+        typeof (Action),
+        typeof (Action<>),
+        typeof (Action<,>),
+        typeof (Action<,,>),
+        typeof (Action<,,,>),
+
+        typeof (Action<,,,,>),
+        typeof (Action<,,,,,>),
+        typeof (Action<,,,,,,>),
+        typeof (Action<,,,,,,,>),
+
+        typeof (Action<,,,,,,,,>),
+        typeof (Action<,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,>),
+
+        typeof (Action<,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,>),
+        typeof (Action<,,,,,,,,,,,,,,,>),
+      };
+
+    private static readonly Type[] FuncTypes = new[]
+      {
+        typeof (Func<>),
+
+        typeof (Func<,>),
+        typeof (Func<,,>),
+        typeof (Func<,,,>),
+        typeof (Func<,,,,>),
+
+        typeof (Func<,,,,,>),
+        typeof (Func<,,,,,,>),
+        typeof (Func<,,,,,,,>),
+        typeof (Func<,,,,,,,,>),
+
+        typeof (Func<,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,>),
+
+        typeof (Func<,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,>),
+        typeof (Func<,,,,,,,,,,,,,,,,>),
+      };
 
     public const int MaxNumberOfGenericDelegateParameters = 16;
 
@@ -513,55 +559,6 @@ namespace Xtensive.Reflection
       typeOnStack.Add(WellKnownTypes.UInt64, WellKnownTypes.UInt64);
       typeOnStack.Add(WellKnownTypes.Single, WellKnownTypes.Single);
       typeOnStack.Add(WellKnownTypes.Double, WellKnownTypes.Double);
-
-      FuncTypes = new[]
-        {
-          typeof (Func<>),
-
-          typeof (Func<,>),
-          typeof (Func<,,>),
-          typeof (Func<,,,>),
-          typeof (Func<,,,,>),
-
-          typeof (Func<,,,,,>),
-          typeof (Func<,,,,,,>),
-          typeof (Func<,,,,,,,>),
-          typeof (Func<,,,,,,,,>),
-
-          typeof (Func<,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,>),
-
-          typeof (Func<,,,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,,,,>),
-          typeof (Func<,,,,,,,,,,,,,,,,>),
-        };
-
-      ActionTypes = new[]
-        {
-          typeof (Action),
-          typeof (Action<>),
-          typeof (Action<,>),
-          typeof (Action<,,>),
-          typeof (Action<,,,>),
-
-          typeof (Action<,,,,>),
-          typeof (Action<,,,,,>),
-          typeof (Action<,,,,,,>),
-          typeof (Action<,,,,,,,>),
-
-          typeof (Action<,,,,,,,,>),
-          typeof (Action<,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,>),
-
-          typeof (Action<,,,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,,,,>),
-          typeof (Action<,,,,,,,,,,,,,,,>),
-        };
     }
   }
 }

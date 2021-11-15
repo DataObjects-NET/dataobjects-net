@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -22,13 +22,26 @@ namespace Xtensive.Orm.Linq.Materialization
 {
   internal static class MaterializationHelper
   {
-    public static readonly MethodInfo MaterializeMethodInfo;
-    public static readonly MethodInfo GetDefaultMethodInfo;
-    public static readonly MethodInfo CreateItemMaterializerMethodInfo;
-    public static readonly MethodInfo CreateNullableItemMaterializerMethodInfo;
-    public static readonly MethodInfo IsNullMethodInfo;
-    public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo;
-    public static readonly MethodInfo PrefetchEntitySetMethodInfo;
+    public static readonly MethodInfo MaterializeMethodInfo = typeof(MaterializationHelper)
+        .GetMethod(nameof(Materialize), BindingFlags.Public | BindingFlags.Static);
+
+    public static readonly MethodInfo GetDefaultMethodInfo = typeof(MaterializationHelper)
+        .GetMethod(nameof(GetDefault), BindingFlags.Public | BindingFlags.Static);
+
+    public static readonly MethodInfo CreateItemMaterializerMethodInfo = typeof(MaterializationHelper)
+        .GetMethod(nameof(CreateItemMaterializer), BindingFlags.Public | BindingFlags.Static);
+
+    public static readonly MethodInfo CreateNullableItemMaterializerMethodInfo = typeof(MaterializationHelper)
+        .GetMethod(nameof(CreateNullableItemMaterializer), BindingFlags.Public | BindingFlags.Static);
+
+    public static readonly MethodInfo IsNullMethodInfo = typeof(MaterializationHelper)
+        .GetMethod(nameof(IsNull), BindingFlags.Public | BindingFlags.Static);
+
+    public static readonly MethodInfo ThrowEmptySequenceExceptionMethodInfo = typeof(MaterializationHelper)
+        .GetMethod(nameof(ThrowEmptySequenceException), BindingFlags.Public | BindingFlags.Static);
+
+    public static readonly MethodInfo PrefetchEntitySetMethodInfo = typeof(MaterializationHelper)
+        .GetMethod(nameof(PrefetechEntitySet), BindingFlags.Public | BindingFlags.Static);
 
     public static int[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<int>> remappedColumns)
     {
@@ -104,26 +117,6 @@ namespace Xtensive.Orm.Linq.Materialization
         entitySet.Owner.TypeInfo, 
         new List<PrefetchFieldDescriptor>{new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)});
       return entitySet;
-    }
-
-    // Type initializer
-
-    static MaterializationHelper()
-    {
-      MaterializeMethodInfo = typeof (MaterializationHelper)
-        .GetMethod(nameof(Materialize), BindingFlags.Public | BindingFlags.Static);
-      CreateItemMaterializerMethodInfo = typeof (MaterializationHelper)
-        .GetMethod(nameof(CreateItemMaterializer), BindingFlags.Public | BindingFlags.Static);
-      CreateNullableItemMaterializerMethodInfo = typeof (MaterializationHelper)
-        .GetMethod(nameof(CreateNullableItemMaterializer), BindingFlags.Public | BindingFlags.Static);
-      GetDefaultMethodInfo = typeof(MaterializationHelper)
-        .GetMethod(nameof(GetDefault), BindingFlags.Public | BindingFlags.Static);
-      IsNullMethodInfo = typeof(MaterializationHelper)
-        .GetMethod(nameof(IsNull), BindingFlags.Public | BindingFlags.Static);
-      ThrowEmptySequenceExceptionMethodInfo = typeof(MaterializationHelper)
-        .GetMethod(nameof(ThrowEmptySequenceException), BindingFlags.Public | BindingFlags.Static);
-      PrefetchEntitySetMethodInfo = typeof(MaterializationHelper)
-        .GetMethod(nameof(PrefetechEntitySet), BindingFlags.Public | BindingFlags.Static);
     }
   }
 }

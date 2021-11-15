@@ -21,9 +21,9 @@ namespace Xtensive.Comparison
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
   {
-    private static readonly ComparerProvider DefaultProvider;
-    private static readonly SystemComparerProvider SystemProvider;
-    private static readonly Type BaseComparerWrapperType;
+    private static readonly ComparerProvider DefaultProvider = new ComparerProvider();
+    private static readonly SystemComparerProvider SystemProvider = SystemComparerProvider.Instance;
+    private static readonly Type BaseComparerWrapperType = typeof(BaseComparerWrapper<,>);
 
     /// <summary>
     /// Gets default instance of this type.
@@ -120,13 +120,6 @@ namespace Xtensive.Comparison
     protected ComparerProvider(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-    }
-
-    static ComparerProvider()
-    {
-      BaseComparerWrapperType = typeof(BaseComparerWrapper<,>);
-      DefaultProvider = new ComparerProvider();
-      SystemProvider = SystemComparerProvider.Instance;
     }
   }
 }

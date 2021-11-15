@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    private static readonly ParameterExpression parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
       NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
       FalseExpression = Expression.Constant(false),
@@ -509,7 +509,7 @@ namespace Xtensive.Orm.Linq
         if (compiledQueryScope==null) {
           var originalSearchCriteria = (Expression<Func<string>>) searchCriteria;
           var body = originalSearchCriteria.Body;
-          var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, parameterContextParam);
+          var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, ParameterContextParam);
           compiledParameter = searchCriteriaLambda.CachingCompile();
         }
         else {
@@ -576,7 +576,7 @@ namespace Xtensive.Orm.Linq
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
 
       var preparedSearchCriteria = FastExpression.Lambda<Func<ParameterContext, string>>(
-        Expression.Constant(conditionCompiler.CurrentOutput), parameterContextParam);
+        Expression.Constant(conditionCompiler.CurrentOutput), ParameterContextParam);
 
       if (compiledQueryScope==null) {
         compiledParameter = preparedSearchCriteria.CachingCompile();
