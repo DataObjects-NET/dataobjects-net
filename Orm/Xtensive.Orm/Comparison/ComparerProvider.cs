@@ -21,9 +21,9 @@ namespace Xtensive.Comparison
   public class ComparerProvider : AssociateProvider,
     IComparerProvider
   {
+    private static readonly Type BaseComparerWrapperType = typeof(BaseComparerWrapper<,>);
     private static readonly ComparerProvider DefaultProvider = new ComparerProvider();
     private static readonly SystemComparerProvider SystemProvider = SystemComparerProvider.Instance;
-    private static readonly Type BaseComparerWrapperType = typeof(BaseComparerWrapper<,>);
 
     /// <summary>
     /// Gets default instance of this type.
