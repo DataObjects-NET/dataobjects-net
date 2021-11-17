@@ -41,7 +41,7 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> cachedPropertyAccessors = 
+    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors = 
       new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
     [NonSerialized]
     private Node model;
@@ -875,7 +875,7 @@ namespace Xtensive.Modelling
         });
       }
 
-      return cachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
+      return CachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
     private Node TryConstructor(IModel model, params object[] args)
