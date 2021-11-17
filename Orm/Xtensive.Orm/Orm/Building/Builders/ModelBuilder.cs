@@ -44,7 +44,14 @@ namespace Xtensive.Orm.Building.Builders
 
     private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
 
-    private static ConcurrentDictionary<TypeKey, Lazy<Type>> generatedTypes = new ConcurrentDictionary<TypeKey, Lazy<Type>>();
+    private static readonly ConcurrentDictionary<TypeKey, Lazy<Type>> GeneratedTypes = new ConcurrentDictionary<TypeKey, Lazy<Type>>();
+
+    private static readonly Func<TypeKey, Lazy<Type>> AuxiliaryTypeFactory = typeKey =>
+      new Lazy<Type>(() => {
+        var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(typeKey.OwnerType, typeKey.TargetType);
+        return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
+      });
+
 
     private readonly BuildingContext context;
     private readonly TypeBuilder typeBuilder;
@@ -428,14 +435,7 @@ namespace Xtensive.Orm.Building.Builders
         ownerType.Namespace,
         context.NameBuilder.BuildAssociationName(association));
 
-      static Lazy<Type> AuxiliaryTypeFactory(TypeKey typeKey) {
-        return new Lazy<Type>(() => {
-          var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(typeKey.OwnerType, typeKey.TargetType);
-          return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
-        });
-      };
-
-      return generatedTypes.GetOrAdd(new TypeKey(typeName, ownerType, targetType), AuxiliaryTypeFactory).Value;
+      return GeneratedTypes.GetOrAdd(new TypeKey(typeName, ownerType, targetType), AuxiliaryTypeFactory).Value;
     }
 
     private void FindAndMarkInboundAndOutboundTypes(BuildingContext context)
