@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -23,8 +23,6 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal sealed class ModelBuilder
   {
-    private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
-
     private readonly struct TypeKey: IEquatable<TypeKey>
     {
       public readonly string Name;
@@ -43,6 +41,9 @@ namespace Xtensive.Orm.Building.Builders
         TargetType = targetType;
       }
     }
+
+    private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
+
     private static ConcurrentDictionary<TypeKey, Lazy<Type>> generatedTypes = new ConcurrentDictionary<TypeKey, Lazy<Type>>();
 
     private readonly BuildingContext context;
