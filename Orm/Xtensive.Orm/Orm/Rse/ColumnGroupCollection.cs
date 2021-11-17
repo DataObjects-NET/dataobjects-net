@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public class ColumnGroupCollection : IReadOnlyList<ColumnGroup>
   {
-    private static Lazy<ColumnGroupCollection> cachedEmpty =
+    private static readonly Lazy<ColumnGroupCollection> CachedEmpty =
       new Lazy<ColumnGroupCollection>(() => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
 
     private readonly IReadOnlyList<ColumnGroup> items;
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Rse
     public static ColumnGroupCollection Empty {
       [DebuggerStepThrough]
       get {
-        return cachedEmpty.Value;
+        return CachedEmpty.Value;
       }
     }
 
