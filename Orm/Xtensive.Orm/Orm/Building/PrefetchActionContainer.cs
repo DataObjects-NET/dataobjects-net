@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Building
   {
     private readonly TypeInfo type;
     private List<AssociationInfo> associations;
-    private ReadOnlyCollection<PrefetchFieldDescriptor> fields;
+    private IReadOnlyList<PrefetchFieldDescriptor> fields;
 
     public Action<SessionHandler, IEnumerable<Key>> BuildPrefetchAction()
     {
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Building
     {
       this.type = type;
       this.associations = associations;
-      fields = Array.AsReadOnly(Array.Empty<PrefetchFieldDescriptor>());
+      fields = Array.Empty<PrefetchFieldDescriptor>();
     }
   }
 }
