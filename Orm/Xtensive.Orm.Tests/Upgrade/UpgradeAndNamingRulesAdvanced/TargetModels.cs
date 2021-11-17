@@ -1,11 +1,10 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2016-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2016.02.03
 
 using System.Collections.Generic;
-
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 
