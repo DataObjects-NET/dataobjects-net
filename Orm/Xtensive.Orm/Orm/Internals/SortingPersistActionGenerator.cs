@@ -195,7 +195,7 @@ namespace Xtensive.Orm.Internals
       }
 
       // Remove loop links
-      referencesToRestore = new List<(EntityState, FieldInfo, Entity)>();
+      referencesToRestore = new List<(EntityState, FieldInfo, Entity)>(result.BrokenEdges.Count);
       foreach (var edge in result.BrokenEdges) {
         var associationInfo = edge.Value;
         var owner = (EntityState) edge.Source.UntypedValue;
