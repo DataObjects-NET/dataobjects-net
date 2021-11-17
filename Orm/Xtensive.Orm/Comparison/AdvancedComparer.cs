@@ -21,7 +21,7 @@ namespace Xtensive.Comparison
   [Serializable]
   public sealed class AdvancedComparer<T>: MethodCacheBase<IAdvancedComparer<T>>
   {
-    private static Lazy<AdvancedComparer<T>> systemCached =
+    private static readonly Lazy<AdvancedComparer<T>> systemCached =
       new Lazy<AdvancedComparer<T>>(() => ComparerProvider.System.GetComparer<T>());
 
     private static Lazy<AdvancedComparer<T>> defaultCached =
