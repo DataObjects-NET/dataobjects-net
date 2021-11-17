@@ -20,10 +20,10 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public class ColumnGroupCollection : IReadOnlyList<ColumnGroup>
   {
-    private readonly IReadOnlyList<ColumnGroup> items;
-
     private static Lazy<ColumnGroupCollection> cachedEmpty =
       new Lazy<ColumnGroupCollection>(() => new ColumnGroupCollection(Array.Empty<ColumnGroup>()));
+
+    private readonly IReadOnlyList<ColumnGroup> items;
 
     /// <inheritdoc/>
     public int Count => items.Count;
