@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.08.07
 
@@ -33,12 +33,6 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     public ColumnGroup this[int groupIndex] => items[groupIndex];
 
-    /// <inheritdoc/>
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    /// <inheritdoc/>
-    public IEnumerator<ColumnGroup> GetEnumerator() => items.GetEnumerator();
-
     /// <summary>
     /// Gets the empty <see cref="ColumnGroupCollection"/>.
     /// </summary>    
@@ -48,6 +42,12 @@ namespace Xtensive.Orm.Rse
         return CachedEmpty.Value;
       }
     }
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    public IEnumerator<ColumnGroup> GetEnumerator() => items.GetEnumerator();
 
     // Constructors
 
