@@ -32,7 +32,7 @@ namespace Xtensive.Collections
     private readonly HashSet<TypeRegistration> actionSet = new HashSet<TypeRegistration>();
     private readonly ITypeRegistrationProcessor processor;
     private bool isProcessingPendingActions = false;
-    private System.Collections.Generic.ISet<Assembly> assemblies = new HashSet<Assembly>();
+    private ISet<Assembly> assemblies = new HashSet<Assembly>();
     protected ServiceRegistration[] serviceRegistrations;
 
     /// <summary>
