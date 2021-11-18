@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentException">Item was not found.</exception>
     public TypeInfo this[Type key] => TryGetValue(key, out var result)
       ? result
-      : throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
+      : throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetFullName()));
 
     /// <summary>
     /// An indexer that provides access to collection items by their <see cref="TypeInfo.TypeId"/>.
