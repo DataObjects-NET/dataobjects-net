@@ -209,9 +209,10 @@ namespace Xtensive.Orm.Linq
       }
       // Following two checks for enums are here to improve result query
       // performance because they let not to cast columns to integer.
-      else if (binaryExpression.Left.StripCasts().Type.StripNullable().IsEnum
-          && binaryExpression.Right.StripCasts().NodeType == ExpressionType.Constant) {
-        var rawEnum = binaryExpression.Left.StripCasts();
+      else if (EnumRewritableOperations(binaryExpression) 
+          && binaryExpression.Left.StripCasts() is var rawLeft1 &&  rawLeft1.Type.StripNullable().IsEnum
+          && binaryExpression.Right.StripCasts() is var rawRight1 && rawRight1.NodeType == ExpressionType.Constant) {
+        var rawEnum = rawLeft1;
 
         var typeToCast = (rawEnum.Type.IsNullable())
           ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
@@ -219,9 +220,10 @@ namespace Xtensive.Orm.Linq
         left = Visit(Expression.Convert(rawEnum, typeToCast));
         right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
       }
-      else if (binaryExpression.Right.StripCasts().Type.StripNullable().IsEnum
-          && binaryExpression.Left.StripCasts().NodeType == ExpressionType.Constant) {
-        var rawEnum = binaryExpression.Right.StripCasts();
+      else if (EnumRewritableOperations(binaryExpression)
+          && binaryExpression.Right.StripCasts() is var rawRight2 && rawRight2.Type.StripNullable().IsEnum
+          && binaryExpression.Left.StripCasts() is var rawLeft2 && rawLeft2.NodeType == ExpressionType.Constant) {
+        var rawEnum = rawRight2;
 
         var typeToCast = (rawEnum.Type.IsNullable())
           ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
@@ -253,6 +255,13 @@ namespace Xtensive.Orm.Linq
       }
 
       return resultBinaryExpression;
+
+      static bool EnumRewritableOperations(BinaryExpression b)
+      {
+        return b.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual,
+          ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual,
+          ExpressionType.LessThan, ExpressionType.LessThanOrEqual);
+      }
     }
 
     protected override Expression VisitConditional(ConditionalExpression c)
