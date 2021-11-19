@@ -46,31 +46,33 @@ namespace Xtensive.Orm.Building.Builders
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
-      if (b.Left.StripCasts().Type.StripNullable().IsEnum
-          && b.Right.StripCasts().NodeType == ExpressionType.Constant) {
+      if (EnumRewritableOperations(b)) {
+        if (b.Left.StripCasts().Type.StripNullable().IsEnum
+            && b.Right.StripCasts().NodeType == ExpressionType.Constant) {
 
-        var rawEnum = b.Left.StripCasts();
-        var typeToCast = (rawEnum.Type.IsNullable())
-          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
-          : rawEnum.Type.GetEnumUnderlyingType();
+          var rawEnum = b.Left.StripCasts();
+          var typeToCast = (rawEnum.Type.IsNullable())
+            ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
+            : rawEnum.Type.GetEnumUnderlyingType();
 
-        return base.VisitBinary(Expression.MakeBinary(
-          b.NodeType,
-          Expression.Convert(rawEnum, typeToCast),
-          Expression.Convert(b.Right, typeToCast)));
-      }
-      else if (b.Right.StripCasts().Type.StripNullable().IsEnum
-          && b.Left.StripCasts().NodeType == ExpressionType.Constant) {
-        
-        var rawEnum = b.Right.StripCasts();
-        var typeToCast = (rawEnum.Type.IsNullable())
-          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
-          : rawEnum.Type.GetEnumUnderlyingType();
+          return base.VisitBinary(Expression.MakeBinary(
+            b.NodeType,
+            Expression.Convert(rawEnum, typeToCast),
+            Expression.Convert(b.Right, typeToCast)));
+        }
+        else if (b.Right.StripCasts().Type.StripNullable().IsEnum
+            && b.Left.StripCasts().NodeType == ExpressionType.Constant) {
 
-        return base.VisitBinary(Expression.MakeBinary(
-          b.NodeType,
-          Expression.Convert(rawEnum, typeToCast),
-          Expression.Convert(b.Left, typeToCast)));
+          var rawEnum = b.Right.StripCasts();
+          var typeToCast = (rawEnum.Type.IsNullable())
+            ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
+            : rawEnum.Type.GetEnumUnderlyingType();
+
+          return base.VisitBinary(Expression.MakeBinary(
+            b.NodeType,
+            Expression.Convert(rawEnum, typeToCast),
+            Expression.Convert(b.Left, typeToCast)));
+        }
       }
 
       // Detect f!=null and f==null for entity fields
@@ -81,13 +83,19 @@ namespace Xtensive.Orm.Building.Builders
       var left = Visit(b.Left);
       var right = Visit(b.Right);
 
-      FieldInfo field;
-      if (entityAccessMap.TryGetValue(left, out field) && IsNull(right))
+      if (entityAccessMap.TryGetValue(left, out var field) && IsNull(right))
         return BuildEntityCheck(field, b.NodeType);
       if (entityAccessMap.TryGetValue(right, out field) && IsNull(left))
         return BuildEntityCheck(field, b.NodeType);
 
       return base.VisitBinary(b);
+
+      static bool EnumRewritableOperations(BinaryExpression b)
+      {
+        return b.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual,
+          ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual,
+          ExpressionType.LessThan, ExpressionType.LessThanOrEqual);
+      }
     }
 
     protected override Expression VisitMemberAccess(MemberExpression originalMemberAccess)
