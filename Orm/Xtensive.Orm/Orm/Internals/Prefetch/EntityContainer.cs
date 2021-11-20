@@ -16,7 +16,6 @@ namespace Xtensive.Orm.Internals.Prefetch
   [Serializable]
   internal abstract class EntityContainer
   {
-    private static readonly object indexSeekCachingRegion = new object();
     private static readonly Parameter<Tuple> seekParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
 
     private SortedDictionary<int, ColumnInfo> columns;
