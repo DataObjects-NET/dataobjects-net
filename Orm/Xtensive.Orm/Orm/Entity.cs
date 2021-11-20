@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -260,22 +260,22 @@ namespace Xtensive.Orm
       RemoveLaterInternal(EntityRemoveReason.User);
     }
 
+    private ExecutableProvider ExecutableProviderGenerator((TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior) t)
+    {
+      var index = t.typeInfo.Indexes.PrimaryIndex;
+      var query = index.GetQuery()
+        .Seek(context => context.GetValue(keyParameter))
+        .Lock(() => t.lockMode, () => t.lockBehavior)
+        .Select(Array.Empty<int>());
+      return Session.Compile(query);
+    }
+
     /// <inheritdoc/>
     public void Lock(LockMode lockMode, LockBehavior lockBehavior)
     {
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(keyParameter, Key.Value);
-      object key = (TypeInfo, lockMode, lockBehavior);
-      Func<object, object> generator = tripletObj => {
-        var triplet = ((TypeInfo, LockMode, LockBehavior)) tripletObj;
-        var index = triplet.Item1.Indexes.PrimaryIndex;
-        var query = index.GetQuery()
-          .Seek(context => context.GetValue(keyParameter))
-          .Lock(() => triplet.Item2, () => triplet.Item3)
-          .Select(Array.Empty<int>());
-        return Session.Compile(query);
-      };
-      var source = (ExecutableProvider) Session.StorageNode.InternalQueryCache.GetOrAdd(key, generator);
+      var source = Session.StorageNode.InternalExecutableProviderCache.GetOrAdd((TypeInfo, lockMode, lockBehavior), ExecutableProviderGenerator);
       using var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
       recordSetReader.MoveNext();
     }

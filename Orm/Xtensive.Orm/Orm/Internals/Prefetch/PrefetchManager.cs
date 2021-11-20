@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Internals.Prefetch
   {
     #region Nested classes
 
-    private struct RootContainerCacheKey : IEquatable<RootContainerCacheKey>
+    private readonly struct RootContainerCacheKey : IEquatable<RootContainerCacheKey>
     {
       private readonly int hashCode;
 
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       // Constructors
 
-      public RootContainerCacheEntry(RootContainerCacheKey key, SortedDictionary<int, ColumnInfo> columns,
+      public RootContainerCacheEntry(in RootContainerCacheKey key, SortedDictionary<int, ColumnInfo> columns,
         List<int> columnsToBeLoaded)
       {
         Key = key;

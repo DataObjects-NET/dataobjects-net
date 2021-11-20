@@ -1,4 +1,4 @@
-// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -14,6 +14,9 @@ using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Interfaces;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse.Providers;
+using Xtensive.Orm.Internals;
+using Xtensive.Orm.Internals.Prefetch;
 
 namespace Xtensive.Orm
 {
@@ -44,11 +47,25 @@ namespace Xtensive.Orm
     /// </summary>
     public TypeIdRegistry TypeIdRegistry { get; private set; }
 
-    internal ConcurrentDictionary<object, object> InternalQueryCache { get; private set; }
+    internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> InternalExecutableProviderCache { get; } =
+      new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
 
-    internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; private set; }
+    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> InternalRecordSetCache { get; } =
+      new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
 
-    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; private set; }
+    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> InternalItemsQueryCache { get; } =
+      new ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider>();
+
+    internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> InternalEntitySetCache { get; } =
+      new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
+
+    internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> InternalAssociationCache { get; } =
+      new ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)>();
+
+    internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; } = new ConcurrentDictionary<SequenceInfo, object>();
+
+    internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; }
+      = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
 
     /// <inheritdoc/>
     public Session OpenSession()
@@ -121,10 +138,6 @@ namespace Xtensive.Orm
       Configuration = configuration;
       Mapping = mapping;
       TypeIdRegistry = typeIdRegistry;
-
-      KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
-      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
-      InternalQueryCache = new ConcurrentDictionary<object, object>();
     }
   }
 }
