@@ -347,20 +347,6 @@ namespace Xtensive.Orm
 
     #region Private / internal members
 
-    // ReSharper disable UnusedMember.Local
-
-    private static IQueryable<TSource> CallTranslator<TSource>(MethodInfo methodInfo, IQueryable source, Expression fieldSelector, string errorMessage)
-    {
-
-      var providerType = source.Provider.GetType();
-      if (providerType!=WellKnownOrmTypes.QueryProvider)
-        throw new NotSupportedException(String.Format(errorMessage, providerType));
-
-      var genericMethod = methodInfo.CachedMakeGenericMethod(typeof(TSource));
-      var expression = Expression.Call(null, genericMethod, new[] {source.Expression, fieldSelector});
-      return source.Provider.CreateQuery<TSource>(expression);
-    }
-
     // ReSharper restore UnusedMember.Local
 
     private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
