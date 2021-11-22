@@ -47,30 +47,29 @@ namespace Xtensive.Orm.Building.Builders
     protected override Expression VisitBinary(BinaryExpression b)
     {
       if (EnumRewritableOperations(b)) {
-        if (b.Left.StripCasts().Type.StripNullable().IsEnum
-            && b.Right.StripCasts().NodeType == ExpressionType.Constant) {
+        var rawLeft = b.Left.StripCasts();
+        var rawLeftType = rawLeft.Type.StripNullable();
+        var rawRight = b.Right.StripCasts();
+        var rawRightType = rawRight.Type.StripNullable();
 
-          var rawEnum = b.Left.StripCasts();
-          var typeToCast = (rawEnum.Type.IsNullable())
-            ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
-            : rawEnum.Type.GetEnumUnderlyingType();
+        if (rawLeftType.IsEnum && rawRight.NodeType == ExpressionType.Constant) {
+          var typeToCast = rawLeft.Type.IsNullable()
+            ? rawLeftType.GetEnumUnderlyingType().ToNullable()
+            : rawLeft.Type.GetEnumUnderlyingType();
 
           return base.VisitBinary(Expression.MakeBinary(
             b.NodeType,
-            Expression.Convert(rawEnum, typeToCast),
+            Expression.Convert(rawLeft, typeToCast),
             Expression.Convert(b.Right, typeToCast)));
         }
-        else if (b.Right.StripCasts().Type.StripNullable().IsEnum
-            && b.Left.StripCasts().NodeType == ExpressionType.Constant) {
-
-          var rawEnum = b.Right.StripCasts();
-          var typeToCast = (rawEnum.Type.IsNullable())
-            ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
-            : rawEnum.Type.GetEnumUnderlyingType();
+        else if (rawRightType.IsEnum && rawLeft.NodeType == ExpressionType.Constant) {
+          var typeToCast = rawRight.Type.IsNullable()
+            ? rawRightType.GetEnumUnderlyingType().ToNullable()
+            : rawRight.Type.GetEnumUnderlyingType();
 
           return base.VisitBinary(Expression.MakeBinary(
             b.NodeType,
-            Expression.Convert(rawEnum, typeToCast),
+            Expression.Convert(rawRight, typeToCast),
             Expression.Convert(b.Left, typeToCast)));
         }
       }
@@ -92,9 +91,10 @@ namespace Xtensive.Orm.Building.Builders
 
       static bool EnumRewritableOperations(BinaryExpression b)
       {
-        return b.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual,
-          ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual,
-          ExpressionType.LessThan, ExpressionType.LessThanOrEqual);
+        var nt = b.NodeType;
+        return nt == ExpressionType.Equal || nt == ExpressionType.NotEqual
+          || nt == ExpressionType.GreaterThan || nt == ExpressionType.GreaterThanOrEqual
+          || nt == ExpressionType.LessThan || nt == ExpressionType.LessThanOrEqual;
       }
     }
 

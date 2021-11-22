@@ -258,9 +258,10 @@ namespace Xtensive.Orm.Linq
 
       static bool EnumRewritableOperations(BinaryExpression b)
       {
-        return b.NodeType.In(ExpressionType.Equal, ExpressionType.NotEqual,
-          ExpressionType.GreaterThan, ExpressionType.GreaterThanOrEqual,
-          ExpressionType.LessThan, ExpressionType.LessThanOrEqual);
+        var nt = b.NodeType;
+        return nt == ExpressionType.Equal || nt == ExpressionType.NotEqual
+          || nt == ExpressionType.GreaterThan || nt == ExpressionType.GreaterThanOrEqual
+          || nt == ExpressionType.LessThan || nt == ExpressionType.LessThanOrEqual;
       }
     }
 
