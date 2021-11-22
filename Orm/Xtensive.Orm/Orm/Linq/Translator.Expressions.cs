@@ -207,29 +207,33 @@ namespace Xtensive.Orm.Linq
           right = Visit(binaryExpression.Right);
         }
       }
-      // Following two checks for enums are here to improve result query
-      // performance because they let not to cast columns to integer.
-      else if (EnumRewritableOperations(binaryExpression) 
-          && binaryExpression.Left.StripCasts() is var rawLeft1 &&  rawLeft1.Type.StripNullable().IsEnum
-          && binaryExpression.Right.StripCasts() is var rawRight1 && rawRight1.NodeType == ExpressionType.Constant) {
-        var rawEnum = rawLeft1;
+      else if (EnumRewritableOperations(binaryExpression)) {
+        // Following two checks for enums are here to improve result query
+        // performance because they let not to cast columns to integer.
 
-        var typeToCast = (rawEnum.Type.IsNullable())
-          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
-          : rawEnum.Type.GetEnumUnderlyingType();
-        left = Visit(Expression.Convert(rawEnum, typeToCast));
-        right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
-      }
-      else if (EnumRewritableOperations(binaryExpression)
-          && binaryExpression.Right.StripCasts() is var rawRight2 && rawRight2.Type.StripNullable().IsEnum
-          && binaryExpression.Left.StripCasts() is var rawLeft2 && rawLeft2.NodeType == ExpressionType.Constant) {
-        var rawEnum = rawRight2;
+        var bareLeft = binaryExpression.Left.StripCasts();
+        var bareLeftType = bareLeft.Type.StripNullable();
+        var bareRight = binaryExpression.Right.StripCasts();
+        var bareRightType = bareRight.Type.StripNullable();
 
-        var typeToCast = (rawEnum.Type.IsNullable())
-          ? rawEnum.Type.StripNullable().GetEnumUnderlyingType().ToNullable()
-          : rawEnum.Type.GetEnumUnderlyingType();
-        left = Visit(Expression.Convert(rawEnum, typeToCast));
-        right = Visit(Expression.Convert(binaryExpression.Left, typeToCast));
+        if (bareLeftType.IsEnum && bareRight.NodeType == ExpressionType.Constant) {
+          var typeToCast = bareLeft.Type.IsNullable()
+            ? bareLeftType.GetEnumUnderlyingType().ToNullable()
+            : bareLeft.Type.GetEnumUnderlyingType();
+          left = Visit(Expression.Convert(bareLeft, typeToCast));
+          right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
+        }
+        else if (bareRightType.IsEnum && bareLeft.NodeType == ExpressionType.Constant) {
+          var typeToCast = (bareRight.Type.IsNullable())
+            ? bareRightType.GetEnumUnderlyingType().ToNullable()
+            : bareRight.Type.GetEnumUnderlyingType();
+          left = Visit(Expression.Convert(bareRight, typeToCast));
+          right = Visit(Expression.Convert(binaryExpression.Left, typeToCast));
+        }
+        else {
+          left = Visit(binaryExpression.Left);
+          right = Visit(binaryExpression.Right);
+        }
       }
       else {
         left = Visit(binaryExpression.Left);
