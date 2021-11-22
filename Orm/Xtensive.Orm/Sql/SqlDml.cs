@@ -21,8 +21,8 @@ namespace Xtensive.Sql
   public static class SqlDml
   {
     private static readonly Type
-      sqlArrayType = typeof(SqlArray<>),
-      sqlLiteralType = typeof(SqlLiteral<>);
+      SqlArrayType = typeof(SqlArray<>),
+      SqlLiteralType = typeof(SqlLiteral<>);
 
     public static readonly SqlDefaultValue DefaultValue = new SqlDefaultValue();
     public static readonly SqlNull Null = new SqlNull();
@@ -154,7 +154,7 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      var resultType = sqlArrayType.CachedMakeGenericType(itemType);
+      var resultType = SqlArrayType.CachedMakeGenericType(itemType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
@@ -974,7 +974,7 @@ namespace Xtensive.Sql
     public static SqlLiteral Literal(object value)
     {
       var valueType = value.GetType();
-      var resultType = sqlLiteralType.CachedMakeGenericType(valueType);
+      var resultType = SqlLiteralType.CachedMakeGenericType(valueType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
