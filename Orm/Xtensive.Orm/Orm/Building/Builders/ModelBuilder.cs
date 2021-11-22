@@ -49,6 +49,12 @@ namespace Xtensive.Orm.Building.Builders
 
     private static readonly ConcurrentDictionary<TypeKey, Lazy<Type>> GeneratedTypes = new ConcurrentDictionary<TypeKey, Lazy<Type>>();
 
+    private static readonly Func<TypeKey, Lazy<Type>> AuxiliaryTypeFactory = typeKey =>
+      new Lazy<Type>(() => {
+        var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.CachedMakeGenericType(typeKey.OwnerType, typeKey.TargetType);
+        return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
+      });
+
     private readonly BuildingContext context;
     private readonly TypeBuilder typeBuilder;
     private readonly ModelDefBuilder modelDefBuilder;
@@ -430,13 +436,6 @@ namespace Xtensive.Orm.Building.Builders
       var typeName = string.Format(GeneratedTypeNameFormat,
         ownerType.Namespace,
         context.NameBuilder.BuildAssociationName(association));
-
-      static Lazy<Type> AuxiliaryTypeFactory(TypeKey typeKey) {
-        return new Lazy<Type>(() => {
-          var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.CachedMakeGenericType(typeKey.OwnerType, typeKey.TargetType);
-          return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
-        });
-      };
 
       return GeneratedTypes.GetOrAdd(new TypeKey(typeName, ownerType, targetType), AuxiliaryTypeFactory).Value;
     }
