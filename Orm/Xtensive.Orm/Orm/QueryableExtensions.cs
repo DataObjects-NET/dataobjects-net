@@ -347,8 +347,6 @@ namespace Xtensive.Orm
 
     #region Private / internal members
 
-    // ReSharper restore UnusedMember.Local
-
     private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
     {
       var queryable = source as IQueryable<TSource>;
