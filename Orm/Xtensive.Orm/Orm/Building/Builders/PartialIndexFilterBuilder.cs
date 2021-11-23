@@ -47,29 +47,31 @@ namespace Xtensive.Orm.Building.Builders
     protected override Expression VisitBinary(BinaryExpression b)
     {
       if (EnumRewritableOperations(b)) {
-        var bareLeft = b.Left.StripCasts();
-        var bareLeftType = bareLeft.Type.StripNullable();
-        var bareRight = b.Right.StripCasts();
-        var bareRightType = bareRight.Type.StripNullable();
+        var leftNoCasts = b.Left.StripCasts();
+        var leftNoCastsType = leftNoCasts.Type;
+        var bareLeftType = leftNoCastsType.StripNullable();
+        var rightNoCasts = b.Right.StripCasts();
+        var rightNoCastsType = rightNoCasts.Type;
+        var bareRightType = rightNoCastsType.StripNullable();
 
-        if (bareLeftType.IsEnum && bareRight.NodeType == ExpressionType.Constant) {
-          var typeToCast = bareLeft.Type.IsNullable()
+        if (bareLeftType.IsEnum && rightNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = leftNoCastsType.IsNullable()
             ? bareLeftType.GetEnumUnderlyingType().ToNullable()
-            : bareLeft.Type.GetEnumUnderlyingType();
+            : leftNoCastsType.GetEnumUnderlyingType();
 
           return base.VisitBinary(Expression.MakeBinary(
             b.NodeType,
-            Expression.Convert(bareLeft, typeToCast),
+            Expression.Convert(leftNoCasts, typeToCast),
             Expression.Convert(b.Right, typeToCast)));
         }
-        else if (bareRightType.IsEnum && bareLeft.NodeType == ExpressionType.Constant) {
-          var typeToCast = bareRight.Type.IsNullable()
+        else if (bareRightType.IsEnum && leftNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = rightNoCastsType.IsNullable()
             ? bareRightType.GetEnumUnderlyingType().ToNullable()
-            : bareRight.Type.GetEnumUnderlyingType();
+            : rightNoCastsType.GetEnumUnderlyingType();
 
           return base.VisitBinary(Expression.MakeBinary(
             b.NodeType,
-            Expression.Convert(bareRight, typeToCast),
+            Expression.Convert(rightNoCasts, typeToCast),
             Expression.Convert(b.Left, typeToCast)));
         }
       }

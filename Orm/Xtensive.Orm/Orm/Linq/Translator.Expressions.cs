@@ -210,24 +210,25 @@ namespace Xtensive.Orm.Linq
       else if (EnumRewritableOperations(binaryExpression)) {
         // Following two checks for enums are here to improve result query
         // performance because they let not to cast columns to integer.
+        var leftNoCasts = binaryExpression.Left.StripCasts();
+        var leftNoCastsType = leftNoCasts.Type;
+        var bareLeftType = leftNoCastsType.StripNullable();
+        var rightNoCasts = binaryExpression.Right.StripCasts();
+        var rightNoCastsType = rightNoCasts.Type;
+        var bareRightType = rightNoCastsType.StripNullable();
 
-        var bareLeft = binaryExpression.Left.StripCasts();
-        var bareLeftType = bareLeft.Type.StripNullable();
-        var bareRight = binaryExpression.Right.StripCasts();
-        var bareRightType = bareRight.Type.StripNullable();
-
-        if (bareLeftType.IsEnum && bareRight.NodeType == ExpressionType.Constant) {
-          var typeToCast = bareLeft.Type.IsNullable()
+        if (bareLeftType.IsEnum && rightNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = leftNoCastsType.IsNullable()
             ? bareLeftType.GetEnumUnderlyingType().ToNullable()
-            : bareLeft.Type.GetEnumUnderlyingType();
-          left = Visit(Expression.Convert(bareLeft, typeToCast));
+            : leftNoCastsType.GetEnumUnderlyingType();
+          left = Visit(Expression.Convert(leftNoCasts, typeToCast));
           right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
         }
-        else if (bareRightType.IsEnum && bareLeft.NodeType == ExpressionType.Constant) {
-          var typeToCast = (bareRight.Type.IsNullable())
+        else if (bareRightType.IsEnum && leftNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = rightNoCastsType.IsNullable()
             ? bareRightType.GetEnumUnderlyingType().ToNullable()
-            : bareRight.Type.GetEnumUnderlyingType();
-          left = Visit(Expression.Convert(bareRight, typeToCast));
+            : rightNoCastsType.GetEnumUnderlyingType();
+          left = Visit(Expression.Convert(rightNoCasts, typeToCast));
           right = Visit(Expression.Convert(binaryExpression.Left, typeToCast));
         }
         else {
