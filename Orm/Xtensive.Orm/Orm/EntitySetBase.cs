@@ -42,8 +42,7 @@ namespace Xtensive.Orm
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     internal static readonly Parameter<Entity> ownerParameter = new Parameter<Entity>("Owner");
 
-    private static readonly Func<object, EntitySetBase, EntitySetTypeState> BuildEntitySetTypeState = (object key, EntitySetBase entitySet) => {
-      var field = ((Pair<object, FieldInfo>) key).Second;
+    private static readonly Func<FieldInfo, EntitySetBase, EntitySetTypeState> BuildEntitySetTypeState = (FieldInfo field, EntitySetBase entitySet) => {
       var association = field.Associations.Last();
       var query = association.UnderlyingIndex.GetQuery().Seek(context => context.GetValue(keyParameter));
       var seek = entitySet.Session.Compile(query);
