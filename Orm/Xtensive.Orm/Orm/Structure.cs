@@ -312,13 +312,8 @@ namespace Xtensive.Orm
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj==null || !(obj is Structure)) {
-        return false;
-      }
-      return Equals((Structure) obj);
-    }
+    public override bool Equals(object obj) =>
+      obj is Structure other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(Structure other)

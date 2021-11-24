@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public virtual Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
+    public virtual Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
     {
       // Don't check CanRemap - Remap always.
 

@@ -9,6 +9,7 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Tuples;
+using Xtensive.Reflection;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Model;
 
@@ -29,7 +30,7 @@ namespace Xtensive.Orm.Linq
     public static ItemToTupleConverter BuildConverter(Type type, Type storedEntityType, object enumerable, DomainModel model, Expression sourceExpression)
     {
       return (ItemToTupleConverter) ItemToTupleConverterType
-        .MakeGenericType(type)
+        .CachedMakeGenericType(type)
         .GetConstructors()[0]
         .Invoke(new[] { enumerable, model, sourceExpression, storedEntityType });
     }

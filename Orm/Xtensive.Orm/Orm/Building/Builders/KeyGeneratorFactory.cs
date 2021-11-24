@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -31,6 +31,12 @@ namespace Xtensive.Orm.Building.Builders
       .Concat(new[] { WellKnownTypes.Guid, WellKnownTypes.String })
       .ToArray();
 
+    private static readonly Type
+      StorageSequentalGeneratorType = typeof(StorageSequentalGenerator<>),
+      TemporarySequentalGeneratorType = typeof(TemporarySequentalGenerator<>),
+      GuidGeneratorType = typeof(GuidGenerator),
+      StringGeneratorType = typeof(StringGenerator);
+
     public static bool IsSupported(Type valueType) => SupportedTypes.Contains(valueType);
 
     public static bool IsSequenceBacked(Type valueType) => SupportedNumericTypes.Contains(valueType);
@@ -38,15 +44,15 @@ namespace Xtensive.Orm.Building.Builders
     private static Type GetGeneratorType(Type valueType)
     {
       if (IsSequenceBacked(valueType)) {
-        return typeof(StorageSequentalGenerator<>).MakeGenericType(valueType);
+        return StorageSequentalGeneratorType.CachedMakeGenericType(valueType);
       }
 
       if (valueType == WellKnownTypes.Guid) {
-        return typeof(GuidGenerator);
+        return GuidGeneratorType;
       }
 
       if (valueType == WellKnownTypes.String) {
-        return typeof(StringGenerator);
+        return StringGeneratorType;
       }
 
       throw TypeNotSupported(valueType);
@@ -55,15 +61,15 @@ namespace Xtensive.Orm.Building.Builders
     private static Type GetTemporaryGeneratorType(Type valueType)
     {
       if (IsSequenceBacked(valueType)) {
-        return typeof(TemporarySequentalGenerator<>).MakeGenericType(valueType);
+        return TemporarySequentalGeneratorType.CachedMakeGenericType(valueType);
       }
 
       if (valueType == WellKnownTypes.Guid) {
-        return typeof(GuidGenerator);
+        return GuidGeneratorType;
       }
 
       if (valueType == WellKnownTypes.String) {
-        return typeof(StringGenerator);
+        return StringGeneratorType;
       }
 
       throw TypeNotSupported(valueType);

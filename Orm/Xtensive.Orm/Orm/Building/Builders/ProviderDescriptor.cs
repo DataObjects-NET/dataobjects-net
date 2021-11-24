@@ -41,10 +41,10 @@ namespace Xtensive.Orm.Building.Builders
       var entry = providerAssembly.GetTypes()
         .Where(type => type.IsPublicNonAbstractInheritorOf(typeof (HandlerFactory)))
         .Where(type => type.IsDefined(typeof (ProviderAttribute), false))
-        .Select(type => new {HandlerFactory = type, Attribute = type.GetAttribute<ProviderAttribute>()})
-        .SingleOrDefault(e => e.Attribute.Name==providerName);
+        .Select(type => (HandlerFactory: type, Attribute: type.GetAttribute<ProviderAttribute>()))
+        .SingleOrDefault(e => e.Attribute.Name == providerName);
 
-      if (entry==null)
+      if (entry == default)
         throw new DomainBuilderException(string.Format(
           Strings.ExStorageProviderXIsNotFound, providerName));
 

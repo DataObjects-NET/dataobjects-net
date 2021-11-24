@@ -110,17 +110,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       return Key.Equals(other.Key);
     }
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      var otherType = obj.GetType();
-      if (otherType != (typeof(GraphContainer)))
-        return false;
-      return Equals((GraphContainer) obj);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is GraphContainer other && Equals(other);
 
     public override int GetHashCode()
     {

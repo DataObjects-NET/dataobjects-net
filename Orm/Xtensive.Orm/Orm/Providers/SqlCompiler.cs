@@ -74,20 +74,23 @@ namespace Xtensive.Orm.Providers
 
       SqlSelect sourceSelect = source.Request.Statement;
       var sqlSelect = sourceSelect.ShallowClone();
-      var columns = sqlSelect.Columns.ToList();
-      sqlSelect.Columns.Clear();
+      var sqlSelectColumns = sqlSelect.Columns;
+      var columns = sqlSelectColumns.ToList();
+      sqlSelectColumns.Clear();
       for (int i = 0; i < columns.Count; i++) {
         var columnName = provider.Header.Columns[i].Name;
         columnName = ProcessAliasedName(columnName);
-        var column = columns[i];
-        var columnRef = column as SqlColumnRef;
-        var columnStub = column as SqlColumnStub;
-        if (!ReferenceEquals(null, columnRef))
-          sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
-        else if (!ReferenceEquals(null, columnStub))
-          sqlSelect.Columns.Add(columnStub);
-        else
-          sqlSelect.Columns.Add(column, columnName);
+        switch (columns[i]) {
+          case SqlColumnRef columnRef:
+            sqlSelectColumns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
+            break;
+          case SqlColumnStub columnStub:
+            sqlSelectColumns.Add(columnStub);
+            break;
+          case var column:
+            sqlSelectColumns.Add(column, columnName);
+            break;
+        }
       }
       return CreateProvider(sqlSelect, provider, source);
     }

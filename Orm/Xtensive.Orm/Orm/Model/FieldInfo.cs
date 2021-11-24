@@ -726,14 +726,9 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType() != typeof(FieldInfo))
-        return false;
-      return Equals((FieldInfo) obj);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is FieldInfo other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

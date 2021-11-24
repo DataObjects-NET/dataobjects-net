@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var method = mc.Method;
       if (method.Name=="Contains" && mc.Object!=null) {
         var elementType = GetEntitySetElementType(mc.Object.Type);
-        var actualMethod = WellKnownMembers.Queryable.Contains.MakeGenericMethod(elementType);
+        var actualMethod = WellKnownMembers.Queryable.Contains.CachedMakeGenericMethod(elementType);
         return Expression.Call(actualMethod, Visit(mc.Object), Visit(mc.Arguments[0]));
       }
 
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       var member = m.Member;
       if (member.Name=="Count") {
         var elementType = GetEntitySetElementType(m.Expression.Type);
-        var actualMethod = WellKnownMembers.Queryable.LongCount.MakeGenericMethod(elementType);
+        var actualMethod = WellKnownMembers.Queryable.LongCount.CachedMakeGenericMethod(elementType);
         return Expression.Call(actualMethod, Visit(m.Expression));
       }
 

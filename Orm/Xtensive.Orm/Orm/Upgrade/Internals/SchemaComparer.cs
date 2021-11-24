@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="upgradeStage">A current <see cref="UpgradeStage"/>.</param>
     /// <returns>Comparison result.</returns>
     public static SchemaComparisonResult Compare(
-      StorageModel sourceSchema, StorageModel targetSchema, 
+      StorageModel sourceSchema, StorageModel targetSchema,
       HintSet schemaHints, SetSlim<UpgradeHint> upgradeHints,
       SchemaUpgradeMode schemaUpgradeMode, DomainModel model,
       bool briefExceptionFormat, UpgradeStage upgradeStage)
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Upgrade
                    || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
           })
         .ToList();
-      
+
 
       var isCompatibleInLegacyMode =
         createTableActions.Count==0
@@ -296,4 +296,3 @@ namespace Xtensive.Orm.Upgrade
     }
   }
 }
-  
