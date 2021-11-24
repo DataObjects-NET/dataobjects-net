@@ -45,18 +45,8 @@ namespace Xtensive.Orm.Internals.Prefetch
         return true;
       }
 
-      public override bool Equals(object obj)
-      {
-        if (ReferenceEquals(null, obj)) {
-          return false;
-        }
-
-        if (obj.GetType() != typeof(CacheKey)) {
-          return false;
-        }
-
-        return Equals((CacheKey) obj);
-      }
+      public override bool Equals(object obj) =>
+        obj is CacheKey other && Equals(other);
 
       public override int GetHashCode() => cachedHashCode;
 
@@ -132,18 +122,9 @@ namespace Xtensive.Orm.Internals.Prefetch
       return ReferenceEquals(this, other) || other.cacheKey.Equals(cacheKey);
     }
 
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj)) {
-        return false;
-      }
-
-      if (ReferenceEquals(this, obj)) {
-        return true;
-      }
-
-      return obj is EntityGroupTask entityGroupTask && Equals(entityGroupTask);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is EntityGroupTask other && Equals(other);
 
     public override int GetHashCode() => cacheKey.GetHashCode();
 

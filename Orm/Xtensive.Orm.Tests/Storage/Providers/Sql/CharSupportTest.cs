@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var rs = GetRseQuery<MyEntity>();
         var parameterContext = new ParameterContext();
         var result = rs
-          .Select(rs.Header.IndexOf(charColumn))
+          .Select(new[] { rs.Header.IndexOf(charColumn) })
           .GetRecordSetReader(Session.Current, parameterContext)
           .ToEnumerable()
           .Select(i => i.GetValueOrDefault<char>(0))
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var rs = GetRseQuery<MyEntity>();
         var parameterContext = new ParameterContext();
         var result = rs
-          .Select(rs.Header.IndexOf(charColumn))
+          .Select(new[] { rs.Header.IndexOf(charColumn) })
           .Filter(t => t.GetValueOrDefault<char>(0) == y)
           .GetRecordSetReader(Session.Current, parameterContext)
           .ToEnumerable()
@@ -108,7 +108,7 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         var rs = GetRseQuery<MyEntity>();
         var parameterContext = new ParameterContext();
         var result = rs
-          .Select(rs.Header.IndexOf(charColumn))
+          .Select(new[] { rs.Header.IndexOf(charColumn) })
           .Filter(t => t.GetValueOrDefault<char>(0)=='Y')
           .GetRecordSetReader(Session.Current, parameterContext)
           .ToEnumerable()

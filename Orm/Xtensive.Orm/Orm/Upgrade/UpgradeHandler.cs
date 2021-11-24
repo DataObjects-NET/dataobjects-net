@@ -346,7 +346,7 @@ namespace Xtensive.Orm.Upgrade
         from t in registeredTypes
         let a = t.GetAttribute<RecycledAttribute>()
         where a!=null
-        select new {Type = t, Attribute = a};
+        select (Type: t, Attribute: a);
 
       foreach (var r in recycledTypes) {
         var oldName = r.Attribute.OriginalName;
@@ -378,7 +378,7 @@ namespace Xtensive.Orm.Upgrade
         let pa = p.GetAttribute<FieldAttribute>()
         let ra = p.GetAttribute<RecycledAttribute>()
         where pa!=null && ra!=null
-        select new {Property = p, Attribute = ra};
+        select (Property: p, Attribute: ra);
 
       foreach (var r in recycledProperties) {
         var oldName = r.Attribute.OriginalName;

@@ -395,7 +395,7 @@ namespace Xtensive.Orm.Rse.Transformation
       }
 
       var columns = expectedColumns
-        .Select(originalIndex => new { OriginalIndex = originalIndex, NewIndex = returningColumns.IndexOf(originalIndex) })
+        .Select(originalIndex => (OriginalIndex: originalIndex, NewIndex: returningColumns.IndexOf(originalIndex)))
         .Select(x => x.NewIndex < 0 ? x.OriginalIndex : x.NewIndex).ToArray(expectedColumns.Count);
       return new SelectProvider(provider, columns);
     }

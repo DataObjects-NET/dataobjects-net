@@ -330,9 +330,9 @@ namespace Xtensive.Orm.Upgrade.Internals
       }
 
       //foreign keys are handled by special method
-      var foreignKey = sourceConstraint as ForeignKey;
-      if (foreignKey!=null)
+      if (sourceConstraint is ForeignKey) {
         return;
+      }
 
       var uniqueConstraint = sourceConstraint as UniqueConstraint;
       if (uniqueConstraint!=null) {

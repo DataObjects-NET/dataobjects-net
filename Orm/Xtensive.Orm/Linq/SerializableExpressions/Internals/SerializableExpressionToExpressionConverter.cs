@@ -148,16 +148,12 @@ namespace Xtensive.Linq.SerializableExpressions.Internals
     private Expression VisitMemberAccess(SerializableMemberExpression m)
     {
       var target = Visit(m.Expression);
-      var field = m.Member as FieldInfo;
-      if (field != null)
-        return Expression.Field(target, field);
-      var property = m.Member as PropertyInfo;
-      if (property != null)
-        return Expression.Property(target, property);
-      var method = m.Member as MethodInfo;
-      if (method != null)
-        return Expression.Property(target, method);
-      throw new ArgumentException();
+      return m.Member switch {
+        FieldInfo field => Expression.Field(target, field),
+        PropertyInfo property => Expression.Property(target, property),
+        MethodInfo method => Expression.Property(target, method),
+        _ => throw new ArgumentException()
+      };
     }
 
     private Expression VisitMethodCall(SerializableMethodCallExpression mc)

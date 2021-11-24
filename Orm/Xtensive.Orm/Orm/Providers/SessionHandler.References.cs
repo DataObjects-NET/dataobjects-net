@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Providers
           var index = association.OwnerType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i)=>new {Column = column, Index = i})
+            .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>a.Index)
             .ToArray();
@@ -122,7 +122,7 @@ namespace Xtensive.Orm.Providers
           var targetIndex = association.TargetType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i)=>new {Column = column, Index = i})
+            .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>targetIndex.Columns.Count + a.Index)
             .ToArray();
@@ -152,7 +152,7 @@ namespace Xtensive.Orm.Providers
           var targetIndex = association.AuxiliaryType.Indexes.PrimaryIndex;
           var nonLazyColumnsSelector = index
             .Columns
-            .Select((column, i)=>new {Column = column, Index = i})
+            .Select((column, i) => (Column: column, Index: i))
             .Where(a=>!a.Column.IsLazyLoad)
             .Select(a=>targetIndex.Columns.Count + a.Index)
             .ToArray();
