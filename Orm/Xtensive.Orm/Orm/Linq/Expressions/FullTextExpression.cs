@@ -10,6 +10,7 @@ using System.Linq.Expressions;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq.Expressions
 {
@@ -74,7 +75,7 @@ namespace Xtensive.Orm.Linq.Expressions
     }
 
     public FullTextExpression(FullTextIndexInfo fullTextIndex, EntityExpression entityExpression, ColumnExpression rankExpression, ParameterExpression parameter)
-      : base(ExtendedExpressionType.FullText, WellKnownOrmTypes.FullTextMatchOfT.MakeGenericType(fullTextIndex.PrimaryIndex.ReflectedType.UnderlyingType), parameter, false)
+      : base(ExtendedExpressionType.FullText, WellKnownOrmTypes.FullTextMatchOfT.CachedMakeGenericType(fullTextIndex.PrimaryIndex.ReflectedType.UnderlyingType), parameter, false)
     {
       FullTextIndex = fullTextIndex;
       RankExpression = rankExpression;

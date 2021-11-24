@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Linq
             ? parameterType.GetGenericArguments()[0]
             : WellKnownTypes.Object;
           return Expression.Call(parameterContextArgument,
-            GetParameterValueMethod.MakeGenericMethod(parameterValueType), ma.Expression);
+            GetParameterValueMethod.CachedMakeGenericMethod(parameterValueType), ma.Expression);
         }
 
         return base.VisitMemberAccess(ma);

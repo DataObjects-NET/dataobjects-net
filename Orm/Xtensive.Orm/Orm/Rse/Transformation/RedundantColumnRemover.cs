@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Rse.Transformation
       .GetMethods()
       .Single(methodInfo => methodInfo.Name == nameof(Enumerable.Select)
         && methodInfo.GetParameters()[1].ParameterType.GetGenericTypeDefinition() == WellKnownTypes.FuncOfTArgTResultType)
-      .MakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
+      .CachedMakeGenericMethod(WellKnownOrmTypes.Tuple, WellKnownOrmTypes.Tuple);
 
     protected override Pair<CompilableProvider, List<int>> OverrideRightApplySource(ApplyProvider applyProvider, CompilableProvider provider, List<int> requestedMapping)
     {

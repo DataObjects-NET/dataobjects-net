@@ -16,6 +16,7 @@ using Xtensive.Linq;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -199,7 +200,7 @@ namespace Xtensive.Orm.Providers
           throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
-        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.MakeGenericMethod(type).Invoke(null, null);
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethod(type).Invoke(null, null);
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }

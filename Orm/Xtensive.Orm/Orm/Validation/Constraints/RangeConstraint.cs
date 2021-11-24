@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Validation
 
       public static ValidationHandler Create(Type valueType, object min, object max)
       {
-        var validatorType = ValidationHandlerType.MakeGenericType(valueType);
+        var validatorType = ValidationHandlerType.CachedMakeGenericType(valueType);
         var result = (ValidationHandler) Activator.CreateInstance(validatorType);
         result.Configure(min, max);
         return result;

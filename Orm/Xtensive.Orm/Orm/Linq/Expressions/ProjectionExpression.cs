@@ -33,14 +33,14 @@ namespace Xtensive.Orm.Linq.Expressions
     public ProjectionExpression(
       Type type,
       ItemProjectorExpression itemProjectorExpression,
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
+      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings)
       : this(type, itemProjectorExpression, tupleParameterBindings, ResultAccessMethod.All)
     {}
 
     public ProjectionExpression(
       Type type, 
-      ItemProjectorExpression itemProjectorExpression, 
-      Dictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
+      ItemProjectorExpression itemProjectorExpression,
+      IReadOnlyDictionary<Parameter<Tuple>, Tuple> tupleParameterBindings, 
       ResultAccessMethod resultAccessMethod)
       : base(ExtendedExpressionType.Projection, type)
     {
