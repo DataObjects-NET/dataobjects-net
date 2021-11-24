@@ -23,15 +23,16 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
+    private static readonly MethodInfo VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
+        BindingFlags.NonPublic | BindingFlags.Instance,
+        new[] { "TItem" },
+        new object[] { WellKnownTypes.Expression });
+
     private static readonly ParameterExpression ParameterContext = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "parameterContext");
     private static readonly ParameterExpression TupleReader = Expression.Parameter(typeof(RecordSetReader), "tupleReader");
     private static readonly ParameterExpression Session = Expression.Parameter(typeof(Session), "session");
 
     private readonly CompiledQueryProcessingScope compiledQueryScope;
-    private static readonly MethodInfo VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
-        BindingFlags.NonPublic | BindingFlags.Instance,
-        new[] { "TItem" },
-        new object[] { WellKnownTypes.Expression });
 
     public TranslatedQuery Translate()
     {
@@ -84,8 +85,9 @@ namespace Xtensive.Orm.Linq
       if (usedColumns.Count == 0)
         usedColumns.Add(0);
       if (usedColumns.Count < origin.ItemProjector.DataSource.Header.Length) {
-        var resultProvider = new SelectProvider(originProvider, usedColumns.ToArray());
-        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumns);
+        var usedColumnsArray = usedColumns.ToArray();
+        var resultProvider = new SelectProvider(originProvider, usedColumnsArray);
+        var itemProjector = origin.ItemProjector.Remap(resultProvider, usedColumnsArray);
         var result = origin.Apply(itemProjector);
         return result;
       }

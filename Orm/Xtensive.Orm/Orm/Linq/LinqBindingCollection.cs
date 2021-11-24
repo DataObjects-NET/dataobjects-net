@@ -66,7 +66,7 @@ namespace Xtensive.Orm.Linq
           if (parameter!=key) {
             var projection = this[parameter];
             var newItemProjector = projection.ItemProjector.Remap(value.ItemProjector.DataSource, 0);
-            var newProjection = projection.Apply(newItemProjector); 
+            var newProjection = projection.Apply(newItemProjector);
             base.ReplaceBound(parameter, newProjection);
           }
         }

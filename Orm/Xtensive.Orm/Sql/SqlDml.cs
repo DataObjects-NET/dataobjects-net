@@ -21,8 +21,8 @@ namespace Xtensive.Sql
   public static class SqlDml
   {
     private static readonly Type
-      sqlArrayType = typeof(SqlArray<>),
-      sqlLiteralType = typeof(SqlLiteral<>);
+      SqlArrayType = typeof(SqlArray<>),
+      SqlLiteralType = typeof(SqlLiteral<>);
 
     public static readonly SqlDefaultValue DefaultValue = new SqlDefaultValue();
     public static readonly SqlNull Null = new SqlNull();
@@ -154,7 +154,7 @@ namespace Xtensive.Sql
         if (!itemType.IsAssignableFrom(t))
           throw new ArgumentException(Strings.ExTypesOfValuesAreDifferent);
       }
-      var resultType = sqlArrayType.CachedMakeGenericType(itemType);
+      var resultType = SqlArrayType.CachedMakeGenericType(itemType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
@@ -500,7 +500,7 @@ namespace Xtensive.Sql
     {
       return new SqlFunctionCall(SqlFunctionType.CurrentDate);
     }
-    
+
     /*
     public static SqlFunctionCall CurrentTime()
     {
@@ -543,7 +543,7 @@ namespace Xtensive.Sql
         throw new ArgumentException();
       return new SqlExtract(part, operand);
     }
-    
+
     public static SqlExtract Extract(SqlIntervalPart part, SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
@@ -620,13 +620,13 @@ namespace Xtensive.Sql
     public static SqlFunctionCall IntervalToMilliseconds(SqlExpression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source); 
+      return new SqlFunctionCall(SqlFunctionType.IntervalToMilliseconds, source);
     }
 
     public static SqlFunctionCall IntervalToNanoseconds(SqlExpression source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source); 
+      return new SqlFunctionCall(SqlFunctionType.IntervalToNanoseconds, source);
     }
 
     public static SqlFunctionCall IntervalAbs(SqlExpression source)
@@ -642,7 +642,7 @@ namespace Xtensive.Sql
     }
 
     #endregion
-    
+
     # region DateTimeOffset functions
 
     public static SqlFunctionCall CurrentDateTimeOffset()
@@ -974,7 +974,7 @@ namespace Xtensive.Sql
     public static SqlLiteral Literal(object value)
     {
       var valueType = value.GetType();
-      var resultType = sqlLiteralType.CachedMakeGenericType(valueType);
+      var resultType = SqlLiteralType.CachedMakeGenericType(valueType);
       var result = Activator.CreateInstance(
         resultType,
         BindingFlags.CreateInstance | BindingFlags.Instance | BindingFlags.NonPublic,
@@ -1179,7 +1179,7 @@ namespace Xtensive.Sql
       SqlValidator.EnsureIsArithmeticExpression(length);
       return new SqlFunctionCall(SqlFunctionType.Round, argument, length);
     }
-    
+
     public static SqlFunctionCall Round(SqlExpression argument)
     {
       ArgumentValidator.EnsureArgumentNotNull(argument, "argument");
@@ -1508,7 +1508,7 @@ namespace Xtensive.Sql
         SqlValidator.EnsureIsCharacterExpression(item);
       return new SqlConcat(items);
     }
-    
+
     /// <summary>
     /// Concates underlying expression without any sign between.
     /// </summary>
@@ -1864,7 +1864,7 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(topN, "topN");
       return new SqlFreeTextTable(dataTable, freeText, columnNames, targetColumNames, topN);
     }
-    
+
     public static SqlContainsTable ContainsTable(DataTable dataTable, SqlExpression searchText, IList<string> columnNames)
     {
       ArgumentValidator.EnsureArgumentNotNull(dataTable, "dataTable");

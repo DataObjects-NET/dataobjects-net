@@ -490,8 +490,8 @@ namespace Xtensive.Orm.Linq.Materialization
           fieldExpression = Expression.MakeMemberAccess(materializedOwner, field.Field.UnderlyingProperty);
         return defaultIfEmpty
           ? Expression.Condition(
-            Expression.Equal(materializedOwner, Expression.Constant(null, materializedOwner.Type)),
-              Expression.Call(MaterializationHelper.GetDefaultMethodInfo.MakeGenericMethod(field.Type)),
+              Expression.Equal(materializedOwner, Expression.Constant(null, materializedOwner.Type)),
+              Expression.Call(MaterializationHelper.GetDefaultMethodInfo.CachedMakeGenericMethod(field.Type)),
               fieldExpression)
           : fieldExpression;
       }

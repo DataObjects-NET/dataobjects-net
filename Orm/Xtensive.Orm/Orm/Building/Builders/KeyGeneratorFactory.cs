@@ -32,10 +32,10 @@ namespace Xtensive.Orm.Building.Builders
       .ToArray();
 
     private static readonly Type
-      storageSequentalGeneratorType = typeof(StorageSequentalGenerator<>),
-      temporarySequentalGeneratorType = typeof(TemporarySequentalGenerator<>),
-      guidGeneratorType = typeof(GuidGenerator),
-      stringGeneratorType = typeof(StringGenerator);
+      StorageSequentalGeneratorType = typeof(StorageSequentalGenerator<>),
+      TemporarySequentalGeneratorType = typeof(TemporarySequentalGenerator<>),
+      GuidGeneratorType = typeof(GuidGenerator),
+      StringGeneratorType = typeof(StringGenerator);
 
     public static bool IsSupported(Type valueType) => SupportedTypes.Contains(valueType);
 
@@ -44,15 +44,15 @@ namespace Xtensive.Orm.Building.Builders
     private static Type GetGeneratorType(Type valueType)
     {
       if (IsSequenceBacked(valueType)) {
-        return storageSequentalGeneratorType.CachedMakeGenericType(valueType);
+        return StorageSequentalGeneratorType.CachedMakeGenericType(valueType);
       }
 
       if (valueType == WellKnownTypes.Guid) {
-        return guidGeneratorType;
+        return GuidGeneratorType;
       }
 
       if (valueType == WellKnownTypes.String) {
-        return stringGeneratorType;
+        return StringGeneratorType;
       }
 
       throw TypeNotSupported(valueType);
@@ -61,15 +61,15 @@ namespace Xtensive.Orm.Building.Builders
     private static Type GetTemporaryGeneratorType(Type valueType)
     {
       if (IsSequenceBacked(valueType)) {
-        return temporarySequentalGeneratorType.CachedMakeGenericType(valueType);
+        return TemporarySequentalGeneratorType.CachedMakeGenericType(valueType);
       }
 
       if (valueType == WellKnownTypes.Guid) {
-        return guidGeneratorType;
+        return GuidGeneratorType;
       }
 
       if (valueType == WellKnownTypes.String) {
-        return stringGeneratorType;
+        return StringGeneratorType;
       }
 
       throw TypeNotSupported(valueType);

@@ -1654,7 +1654,7 @@ namespace Xtensive.Orm.Linq
         var itemType = QueryHelper.GetSequenceElementType(sequenceType);
         return (ProjectionExpression) VisitLocalCollectionSequenceMethod
           .CachedMakeGenericMethod(itemType)
-          .Invoke(this, new object[] {sequence});
+          .Invoke(this, new object[] { sequence });
       }
 
       var visitedExpression = Visit(sequenceExpression).StripCasts();
