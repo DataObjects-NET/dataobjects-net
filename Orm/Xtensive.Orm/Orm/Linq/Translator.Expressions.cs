@@ -1598,7 +1598,7 @@ namespace Xtensive.Orm.Linq
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
       if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
-      return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(itemType, itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     private Expression BuildInterfaceExpression(MemberExpression ma)
