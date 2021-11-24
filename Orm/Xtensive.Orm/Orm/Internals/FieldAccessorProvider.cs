@@ -8,6 +8,7 @@ using System;
 using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Orm.Internals.FieldAccessors;
+using Xtensive.Reflection;
 using System.Linq;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
@@ -55,7 +56,7 @@ namespace Xtensive.Orm.Internals
     {
       var accessor = (FieldAccessor)
         System.Activator.CreateInstance(
-          accessorType.MakeGenericType(field.ValueType),
+          accessorType.CachedMakeGenericType(field.ValueType),
           BindingFlags.CreateInstance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance,
           null, Array.Empty<object>(), null);
       accessor.Field = field;

@@ -20,7 +20,7 @@ namespace Xtensive.Reflection
     /// <param name="elementType">Type of the element.</param>
     public static Type GetSequenceType(Type elementType)
     {
-      return WellKnownInterfaces.EnumerableOfT.MakeGenericType(elementType);
+      return WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(elementType);
     }
 
     /// <summary>
@@ -40,10 +40,10 @@ namespace Xtensive.Reflection
       if (sequenceType == null || sequenceType == WellKnownTypes.String)
         return null;
       if (sequenceType.IsArray)
-        return WellKnownInterfaces.EnumerableOfT.MakeGenericType(sequenceType.GetElementType());
+        return WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(sequenceType.GetElementType());
       if (sequenceType.IsGenericType)
         foreach (Type arg in sequenceType.GetGenericArguments()) {
-          Type enumerable = WellKnownInterfaces.EnumerableOfT.MakeGenericType(arg);
+          Type enumerable = WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(arg);
           if (enumerable.IsAssignableFrom(sequenceType))
             return enumerable;
         }

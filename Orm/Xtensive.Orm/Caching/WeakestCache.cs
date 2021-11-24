@@ -131,33 +131,24 @@ namespace Xtensive.Caching
 
       public new bool Equals(object x, object y)
       {
-        TKey key;
-        var we = x as WeakEntry;
-        if (we!=null) {
+        if (x is WeakEntry we) {
           // x is WeakEntry
-          key = y as TKey;
-          if (key!=null)
+          if (y is TKey key)
             // x is WeakEntry, y is TKey
             return keyComparer.Equals(we.Key, key);
           else {
-            var we2 = y as WeakEntry;
-            if (we2==null)
-              return false;
-            // x is WeakEntry, y is WeakEntry
-            return keyComparer.Equals(we.Key, we2.Key);
+            return y is WeakEntry we2 && keyComparer.Equals(we.Key, we2.Key); // x is WeakEntry, y is WeakEntry
           }
         }
-        key = x as TKey;
-        if (key==null)
-          return false;
-        // x is TKey
-        we = y as WeakEntry;
-        if (we!=null)
-          // x is TKey, y is WeakEntry
-          return keyComparer.Equals(key, we.Key);
-        else
-          // x is TKey, y must be TKey
-          return keyComparer.Equals(key, y as TKey);
+        if (x is TKey keyX) {
+          if (y is WeakEntry weY)
+            // x is TKey, y is WeakEntry
+            return keyComparer.Equals(keyX, weY.Key);
+          else
+            // x is TKey, y must be TKey
+            return keyComparer.Equals(keyX, y as TKey);
+        }
+        return false;
       }
 
       public int GetHashCode(object obj)

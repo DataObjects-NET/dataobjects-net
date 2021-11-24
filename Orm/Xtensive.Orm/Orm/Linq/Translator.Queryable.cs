@@ -262,11 +262,7 @@ namespace Xtensive.Orm.Linq
       var newDataSource = visitedSource.ItemProjector.DataSource.Lock(lockMode, lockBehavior);
       var newItemProjector = new ItemProjectorExpression(
         visitedSource.ItemProjector.Item, newDataSource, visitedSource.ItemProjector.Context);
-      var projectionExpression = new ProjectionExpression(
-        visitedSource.Type,
-        newItemProjector,
-        visitedSource.TupleParameterBindings,
-        visitedSource.ResultAccessMethod);
+      var projectionExpression = visitedSource.Apply(newItemProjector);
       return projectionExpression;
     }
 
@@ -326,7 +322,7 @@ namespace Xtensive.Orm.Linq
         currentIndex++;
       }
 
-      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes.ToArray());
+      var recordSet = targetTypeInfo.Indexes.PrimaryIndex.GetQuery().Alias(context.GetNextAlias()).Select(indexes);
       var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
       var keyPairs = keySegment
         .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
@@ -351,8 +347,7 @@ namespace Xtensive.Orm.Linq
 
       var visitedSource = VisitSequence(source);
       var itemProjector = visitedSource.ItemProjector.EnsureEntityIsJoined();
-      var projection = new ProjectionExpression(visitedSource.Type, itemProjector, visitedSource.TupleParameterBindings,
-        visitedSource.ResultAccessMethod);
+      var projection = visitedSource.Apply(itemProjector);
       if (targetType == sourceType) {
         return projection;
       }
@@ -386,7 +381,7 @@ namespace Xtensive.Orm.Linq
       var replacer = new ExtendedExpressionReplacer(e => e == sourceEntity ? expression : null);
       var targetItem = replacer.Replace(projection.ItemProjector.Item);
       var targetItemProjector = new ItemProjectorExpression(targetItem, recordSet, context);
-      var targetProjectionType = WellKnownInterfaces.QueryableOfT.MakeGenericType(targetType);
+      var targetProjectionType = WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(targetType);
       return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings,
         projection.ResultAccessMethod);
       //      if (targetType.IsSubclassOf(sourceType)) {
@@ -769,20 +764,14 @@ namespace Xtensive.Orm.Linq
               commonOriginDataSource, groupingDataSource.GroupColumnIndexes,
               groupingDataSource.AggregateColumns.Select(c => c.Descriptor).Append(aggregateDescriptor).ToArray());
             var optimizedItemProjector = groupingProjection.ItemProjector.Remap(resultDataSource, 0);
-            groupingProjection = new ProjectionExpression(
-              groupingProjection.Type, optimizedItemProjector,
-              groupingProjection.TupleParameterBindings, groupingProjection.ResultAccessMethod);
+            groupingProjection = groupingProjection.Apply(optimizedItemProjector);
             context.Bindings.ReplaceBound(groupingParameter, groupingProjection);
             var isSubqueryParameter = State.OuterParameters.Contains(groupingParameter);
             if (isSubqueryParameter) {
               var newApplyParameter = context.GetApplyParameter(resultDataSource);
               foreach (var innerParameter in State.Parameters) {
                 var projectionExpression = context.Bindings[innerParameter];
-                var newProjectionExpression = new ProjectionExpression(
-                  projectionExpression.Type,
-                  projectionExpression.ItemProjector.RewriteApplyParameter(groupingFilterParameter, newApplyParameter),
-                  projectionExpression.TupleParameterBindings,
-                  projectionExpression.ResultAccessMethod);
+                var newProjectionExpression = projectionExpression.Apply(projectionExpression.ItemProjector.RewriteApplyParameter(groupingFilterParameter, newApplyParameter));
                 context.Bindings.ReplaceBound(innerParameter, newProjectionExpression);
               }
             }
@@ -870,7 +859,7 @@ namespace Xtensive.Orm.Linq
       sourceProjection = VisitSequence(source);
       if (aggregateParameter == null) {
         if (sourceProjection.ItemProjector.IsPrimitive) {
-          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+          columnList = sourceProjection.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey).ToList();
         }
         else {
           var lambdaType = sourceProjection.ItemProjector.Item.Type;
@@ -889,7 +878,7 @@ namespace Xtensive.Orm.Linq
               string.Format(Strings.ExAggregatesForNonPrimitiveTypesAreNotSupported, visitedExpression));
           }
 
-          columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+          columnList = result.GetColumns(ColumnExtractionModes.TreatEntityAsKey).ToList();
           sourceProjection = context.Bindings[aggregateParameter.Parameters[0]];
         }
       }
@@ -963,7 +952,7 @@ namespace Xtensive.Orm.Linq
       using (CreateScope(new TranslatorState(State) { CalculateExpressions = true, GroupingKey = true })) {
         var itemProjector = (ItemProjectorExpression) VisitLambda(keySelector);
         groupingSourceProjection = new ProjectionExpression(
-          WellKnownInterfaces.QueryableOfT.MakeGenericType(keySelector.Body.Type),
+          WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(keySelector.Body.Type),
           itemProjector,
           sequence.TupleParameterBindings);
       }
@@ -990,11 +979,11 @@ namespace Xtensive.Orm.Linq
       // subqueryIndex - values of array
       // groupIndex    - indexes of values of array
       var comparisonInfos = keyColumns
-        .Select((subqueryIndex, groupIndex) => new {
-          SubQueryIndex = subqueryIndex,
-          GroupIndex = groupIndex,
-          Type = keyDataSource.Header.Columns[groupIndex].Type.ToNullable()
-        })
+        .Select((subqueryIndex, groupIndex) => (
+          SubQueryIndex: subqueryIndex,
+          GroupIndex: groupIndex,
+          Type: keyDataSource.Header.Columns[groupIndex].Type.ToNullable()
+        ))
         .ToList();
       var applyParameter = context.GetApplyParameter(groupingProjection);
 
@@ -1051,15 +1040,10 @@ namespace Xtensive.Orm.Linq
           });
 
       var filter = FastExpression.Lambda(filterBody, TupleParameter);
-      var subqueryProjection = new ProjectionExpression(
-        sequence.Type,
-        new ItemProjectorExpression(
+      var subqueryProjection = sequence.Apply(new ItemProjectorExpression(
           sequence.ItemProjector.Item,
           groupingSourceProjection.ItemProjector.DataSource.Filter((Expression<Func<Tuple, bool>>) filter),
-          context),
-        sequence.TupleParameterBindings,
-        sequence.ResultAccessMethod
-      );
+          context));
       //      var groupingParameter = Expression.Parameter(groupingProjection.ItemProjector.Item.Type, "groupingParameter");
       //      var applyParameter = context.GetApplyParameter(groupingProjection);
       //      using (context.Bindings.Add(groupingParameter, groupingProjection))
@@ -1072,7 +1056,7 @@ namespace Xtensive.Orm.Linq
       var elementType = elementSelector == null
         ? keySelector.Parameters[0].Type
         : elementSelector.Type.GetGenericArguments()[1];
-      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.MakeGenericType(keyType, elementType);
+      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.CachedMakeGenericType(keyType, elementType);
 
       var realGroupingType =
         resultSelector != null
@@ -1219,9 +1203,9 @@ namespace Xtensive.Orm.Linq
       var visitedInnerSource = Visit(innerSource);
       var visitedOuterSource = Visit(outerSource);
       var innerItemType = visitedInnerSource.Type.GetGenericArguments()[0];
-      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.MakeGenericType(innerKey.Type, innerItemType);
-      var enumerableType = WellKnownInterfaces.EnumerableOfT.MakeGenericType(innerItemType);
-      var groupingResultType = WellKnownInterfaces.QueryableOfT.MakeGenericType(enumerableType);
+      var groupingType = WellKnownInterfaces.GroupingOfTKeyTElement.CachedMakeGenericType(innerKey.Type, innerItemType);
+      var enumerableType = WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(innerItemType);
+      var groupingResultType = WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(enumerableType);
 
       ProjectionExpression innerGrouping;
       using (CreateScope(new TranslatorState(State) { SkipNullableColumnsDetectionInGroupBy = true })) {
@@ -1244,11 +1228,7 @@ namespace Xtensive.Orm.Linq
           newGroupingExpression,
           innerGrouping.ItemProjector.DataSource,
           innerGrouping.ItemProjector.Context);
-        innerGrouping = new ProjectionExpression(
-          innerGrouping.Type,
-          newGroupingItemProjector,
-          innerGrouping.TupleParameterBindings,
-          innerGrouping.ResultAccessMethod);
+        innerGrouping = innerGrouping.Apply(newGroupingItemProjector);
       }
 
       var groupingKeyPropertyInfo = groupingType.GetProperty("Key");
@@ -1336,11 +1316,7 @@ namespace Xtensive.Orm.Linq
             innerItemProjector = innerItemProjector.SetDefaultIfEmpty();
           }
 
-          innerProjection = new ProjectionExpression(
-            projection.Type,
-            innerItemProjector,
-            projection.TupleParameterBindings,
-            projection.ResultAccessMethod);
+          innerProjection = projection.Apply(innerItemProjector);
         }
 
         var outerProjection = context.Bindings[outerParameter];
@@ -1360,11 +1336,7 @@ namespace Xtensive.Orm.Linq
 
         var resultProjection = CombineProjections(outerProjection, innerProjection, recordSet, resultSelector);
         var resultItemProjector = resultProjection.ItemProjector.RemoveOuterParameter();
-        resultProjection = new ProjectionExpression(
-          resultProjection.Type,
-          resultItemProjector,
-          resultProjection.TupleParameterBindings,
-          resultProjection.ResultAccessMethod);
+        resultProjection = resultProjection.Apply(resultItemProjector);
         return resultProjection;
       }
     }
@@ -1392,9 +1364,9 @@ namespace Xtensive.Orm.Linq
       using (CreateScope(new TranslatorState(State) { BuildingProjection = true })) {
         var itemProjector = (ItemProjectorExpression) VisitLambda(le);
         return new ProjectionExpression(
-          WellKnownInterfaces.QueryableOfT.MakeGenericType(le.Body.Type),
+          WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(le.Body.Type),
           itemProjector,
-          new Dictionary<Parameter<Tuple>, Tuple>());
+          TranslatedQuery.EmptyTupleParameterBindings);
       }
     }
 
@@ -1529,11 +1501,7 @@ namespace Xtensive.Orm.Linq
           .Include(State.IncludeAlgorithm, true, rawProvider.Source, context.GetNextAlias(), filteredColumns);
 
         var newItemProjector = outerResult.ItemProjector.Remap(newDataSource, 0);
-        var newOuterResult = new ProjectionExpression(
-          outerResult.Type,
-          newItemProjector,
-          outerResult.TupleParameterBindings,
-          outerResult.ResultAccessMethod);
+        var newOuterResult = outerResult.Apply(newItemProjector);
         context.Bindings.ReplaceBound(outerParameter, newOuterResult);
         Expression resultExpression = ColumnExpression.Create(WellKnownTypes.Bool, columnIndex);
         if (notExists) {
@@ -1589,19 +1557,18 @@ namespace Xtensive.Orm.Linq
 
       var outerItemProjector = outer.ItemProjector.RemoveOwner();
       var innerItemProjector = inner.ItemProjector.RemoveOwner();
-      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
-      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct);
+      var outerColumnList = outerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
+      var innerColumnList = innerItemProjector.GetColumns(ColumnExtractionModes.Distinct).ToList();
       if (!outerColumnList.Except(innerColumnList).Any() && outerColumnList.Count == innerColumnList.Count) {
         outerColumnList = outerColumnList.OrderBy(i => i).ToList();
         innerColumnList = innerColumnList.OrderBy(i => i).ToList();
       }
 
-      var outerColumns = outerColumnList.ToArray();
       var outerRecordSet = ShouldWrapDataSourceWithSelect(outerItemProjector, outerColumnList)
-        ? outerItemProjector.DataSource.Select(outerColumns)
+        ? outerItemProjector.DataSource.Select(outerColumnList)
         : outerItemProjector.DataSource;
       var innerRecordSet = ShouldWrapDataSourceWithSelect(innerItemProjector, innerColumnList)
-        ? innerItemProjector.DataSource.Select(innerColumnList.ToArray())
+        ? innerItemProjector.DataSource.Select(innerColumnList)
         : innerItemProjector.DataSource;
 
       var recordSet = outerItemProjector.DataSource;
@@ -1622,14 +1589,14 @@ namespace Xtensive.Orm.Linq
 
       var tupleParameterBindings = outer.TupleParameterBindings.Union(inner.TupleParameterBindings)
         .ToDictionary(pair => pair.Key, pair => pair.Value);
-      var itemProjector = outerItemProjector.Remap(recordSet, outerColumns);
+      var itemProjector = outerItemProjector.Remap(recordSet, outerColumnList);
       return new ProjectionExpression(outer.Type, itemProjector, tupleParameterBindings);
     }
 
-    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, ICollection<int> columns) =>
+    private bool ShouldWrapDataSourceWithSelect(ItemProjectorExpression expression, IReadOnlyList<int> columns) =>
       expression.DataSource.Type != ProviderType.Select
       || expression.DataSource.Header.Length != columns.Count
-      || columns.Select((c, i) => new { c, i }).Any(x => x.c != x.i);
+      || columns.Select((c, i) => (c, i)).Any(x => x.c != x.i);
 
     private Expression AddSubqueryColumn(Type columnType, CompilableProvider subquery)
     {
@@ -1686,7 +1653,7 @@ namespace Xtensive.Orm.Linq
 
         var itemType = QueryHelper.GetSequenceElementType(sequenceType);
         return (ProjectionExpression) VisitLocalCollectionSequenceMethod
-          .MakeGenericMethod(itemType)
+          .CachedMakeGenericMethod(itemType)
           .Invoke(this, new object[] { sequence });
       }
 
@@ -1711,11 +1678,7 @@ namespace Xtensive.Orm.Linq
       if (result != null) {
         var projectorExpression = result.ItemProjector.EnsureEntityIsJoined();
         if (projectorExpression != result.ItemProjector) {
-          result = new ProjectionExpression(
-            result.Type,
-            projectorExpression,
-            result.TupleParameterBindings,
-            result.ResultAccessMethod);
+          result = result.Apply(projectorExpression);
         }
 
         return result;
@@ -1748,7 +1711,7 @@ namespace Xtensive.Orm.Linq
 
       var setAIsQuery = setA.IsQuery();
       var parameter = Expression.Parameter(elementType, "a");
-      var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
+      var containsMethod = WellKnownMembers.Enumerable.Contains.CachedMakeGenericMethod(elementType);
 
       if (setAIsQuery) {
         var lambda = FastExpression.Lambda(Expression.Call(containsMethod, setB, parameter), parameter);
@@ -1766,7 +1729,7 @@ namespace Xtensive.Orm.Linq
       QueryHelper.TryAddConvarianceCast(ref setB, elementType);
 
       var parameter = Expression.Parameter(elementType, "a");
-      var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
+      var containsMethod = WellKnownMembers.Enumerable.Contains.CachedMakeGenericMethod(elementType);
 
       var lambda = FastExpression.Lambda(Expression.Call(containsMethod, setA, parameter), parameter);
       return VisitAll(setB, lambda, isRoot);
@@ -1779,7 +1742,7 @@ namespace Xtensive.Orm.Linq
 
       var setAIsQuery = setA.IsQuery();
       var parameter = Expression.Parameter(elementType, "a");
-      var containsMethod = WellKnownMembers.Enumerable.Contains.MakeGenericMethod(elementType);
+      var containsMethod = WellKnownMembers.Enumerable.Contains.CachedMakeGenericMethod(elementType);
       if (setAIsQuery) {
         var lambda = FastExpression.Lambda(Expression.Not(Expression.Call(containsMethod, setB, parameter)), parameter);
         return VisitAll(setA, lambda, isRoot);

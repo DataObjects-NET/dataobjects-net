@@ -48,10 +48,9 @@ namespace Xtensive.Orm.Building.Builders
 
     private static readonly Func<TypeKey, Lazy<Type>> AuxiliaryTypeFactory = typeKey =>
       new Lazy<Type>(() => {
-        var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.MakeGenericType(typeKey.OwnerType, typeKey.TargetType);
+        var baseType = WellKnownOrmTypes.EntitySetItemOfT1T2.CachedMakeGenericType(typeKey.OwnerType, typeKey.TargetType);
         return TypeHelper.CreateInheritedDummyType(typeKey.Name, baseType, true);
       });
-
 
     private readonly BuildingContext context;
     private readonly TypeBuilder typeBuilder;

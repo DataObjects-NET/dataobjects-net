@@ -12,6 +12,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -207,7 +208,7 @@ namespace Xtensive.Orm.BulkOperations
             ParameterExpression p = Expression.Parameter(info.UnderlyingType);
             LambdaExpression lambda =
               FastExpression.Lambda(
-                WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(info.UnderlyingType, field.ValueType),
+                WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(info.UnderlyingType, field.ValueType),
                 Expression.MakeMemberAccess(p, field.UnderlyingProperty),
                 p);
             IQueryable q =
@@ -246,7 +247,7 @@ namespace Xtensive.Orm.BulkOperations
           Descriptor = descriptor,
           Lambda =
             FastExpression.Lambda(
-              WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(typeof (T), descriptor.Expression.Type),
+              WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(typeof (T), descriptor.Expression.Type),
               descriptor.Expression,
               descriptor.Parameter),
           Statement = Statement

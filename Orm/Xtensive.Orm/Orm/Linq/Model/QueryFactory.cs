@@ -1,10 +1,11 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
 // Created:    2013.12.11
 
 using System.Linq.Expressions;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Linq.Model
 {
@@ -50,7 +51,7 @@ namespace Xtensive.Orm.Linq.Model
       }
       {
         var method = QueryableMethodInfo.GroupBy
-          .MakeGenericMethod(
+          .CachedMakeGenericMethod(
             itemType,
             groupBy.KeySelector.Body.Type);
         return Expression.Call(method, groupBy.Source, groupBy.KeySelector);

@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Upgrade
                    || sourceType.Type.ToNullable()!=targetType.Type.ToNullable();
           })
         .ToList();
-      
+
 
       var isCompatibleInLegacyMode =
         createTableActions.Count==0
@@ -296,4 +296,3 @@ namespace Xtensive.Orm.Upgrade
     }
   }
 }
-  

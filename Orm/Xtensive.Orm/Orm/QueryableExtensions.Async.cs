@@ -1503,7 +1503,7 @@ namespace Xtensive.Orm
       this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TSource));
+      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
       var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
@@ -1541,7 +1541,7 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TValue>> valueSelector,
       CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TValue));
+      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TValue));
       var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
@@ -1598,7 +1598,7 @@ namespace Xtensive.Orm
     public static async Task<ILookup<TKey, TSource>> ToLookupAsync<TKey, TSource>(this IQueryable<TSource> source,
       Expression<Func<TSource, TKey>> keySelector, CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TSource));
+      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TSource));
       var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
@@ -1631,7 +1631,7 @@ namespace Xtensive.Orm
       Expression<Func<TSource, TValue>> valueSelector,
       CancellationToken cancellationToken = default)
     {
-      var tupleFactoryMethod = TupleCreateMethod.MakeGenericMethod(typeof(TKey), typeof(TValue));
+      var tupleFactoryMethod = TupleCreateMethod.CachedMakeGenericMethod(typeof(TKey), typeof(TValue));
       var itemParam = new[] {Expression.Parameter(typeof(TSource), "item")};
       var body = Expression.Call(null, tupleFactoryMethod,
         ExpressionReplacer.ReplaceAll(keySelector.Body, keySelector.Parameters, itemParam),
@@ -1676,8 +1676,8 @@ namespace Xtensive.Orm
         if (operation.IsGenericMethod) {
           operation
             = operation.GetGenericArguments().Length == 2
-              ? operation.MakeGenericMethod(typeof(TSource), typeof(TResult))
-              : operation.MakeGenericMethod(typeof(TSource));
+              ? operation.CachedMakeGenericMethod(typeof(TSource), typeof(TResult))
+              : operation.CachedMakeGenericMethod(typeof(TSource));
         }
 
         var arguments = expression == null ? new[] {source.Expression} : new[] {source.Expression, expression};

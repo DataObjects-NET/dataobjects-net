@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Linq
       return result;
     }
 
-    public Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
+    public Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
     {
       Func<IMappedExpression, Expression> remapper = delegate(IMappedExpression mapped) {
         var parametrizedExpression = mapped as ParameterizedExpression;

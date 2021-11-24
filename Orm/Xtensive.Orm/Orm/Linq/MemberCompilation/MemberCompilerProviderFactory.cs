@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Reflection;
 using Activator = System.Activator;
 
 namespace Xtensive.Orm.Linq.MemberCompilation
@@ -22,7 +23,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public static IMemberCompilerProvider Create(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      var concreteType = typeof (MemberCompilerProvider<>).MakeGenericType(type);
+      var concreteType = typeof (MemberCompilerProvider<>).CachedMakeGenericType(type);
       return (IMemberCompilerProvider) Activator.CreateInstance(concreteType);
     }
 

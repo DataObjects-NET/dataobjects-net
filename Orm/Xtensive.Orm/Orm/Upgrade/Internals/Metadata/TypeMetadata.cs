@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.02.16
 
@@ -9,16 +9,14 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Upgrade
 {
-  internal sealed class TypeMetadata
+  internal readonly struct TypeMetadata
   {
-    public int Id { get; private set; }
+    public int Id { get; }
 
-    public string Name { get; set; }
+    public string Name { get; }
 
-    public override string ToString()
-    {
-      return string.Format(Strings.MetadataTypeFormat, Name, Id);
-    }
+    public override string ToString() =>
+      string.Format(Strings.MetadataTypeFormat, Name, Id);
 
     // Constructors
 

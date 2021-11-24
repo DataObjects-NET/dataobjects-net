@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Linq
           .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==WellKnownTypes.Int32);
         var containsTableMethods = typeof (Orm.Query).GetMethods()
           .Where(m => m.Name==nameof(Orm.Query.ContainsTable))
-          .Select(m => new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
+          .Select(m => (Method: m, ParameterTypes: m.GetParameterTypes())).ToArray();
         ContainsTableExpr = containsTableMethods
           .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>)).Method;
         ContainsTableExprWithColumns = containsTableMethods
@@ -113,7 +113,7 @@ namespace Xtensive.Orm.Linq
           .Single(ft => ft.GetParameters().Length==2 && ft.GetParameterTypes()[0]==typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1]==WellKnownTypes.Int32);
         var containsTableMethods = typeof (Orm.QueryEndpoint).GetMethods()
           .Where(m => m.Name==nameof(Orm.QueryEndpoint.ContainsTable))
-          .Select(m=> new {Method = m, ParameterTypes = m.GetParameterTypes()}).ToArray();
+          .Select(m=> (Method: m, ParameterTypes: m.GetParameterTypes())).ToArray();
         ContainsTableExpr = containsTableMethods
           .Single(g => g.ParameterTypes.Length==1 && g.ParameterTypes[0]==typeof (Expression<Func<ConditionEndpoint, IOperand>>)).Method;
         ContainsTableExprWithColumns = containsTableMethods
@@ -231,7 +231,7 @@ namespace Xtensive.Orm.Linq
         SingleOrDefault = typeof (System.Linq.Enumerable)
           .GetMethods(BindingFlags.Static | BindingFlags.Public)
           .First(m => m.Name==nameof(System.Linq.Enumerable.SingleOrDefault) && m.GetParameters().Length==1);
-        OfTuple = WellKnownInterfaces.EnumerableOfT.MakeGenericType(typeof (Xtensive.Tuples.Tuple));
+        OfTuple = WellKnownInterfaces.EnumerableOfT.CachedMakeGenericType(typeof (Xtensive.Tuples.Tuple));
         DefaultIfEmpty = typeof (System.Linq.Enumerable).GetMethods().First(m => m.Name==nameof(System.Linq.Enumerable.DefaultIfEmpty));
         Contains = GetMethod(typeof(System.Linq.Enumerable), nameof(System.Linq.Enumerable.Contains), 1, 2);
         Cast = GetMethod(typeof (System.Linq.Enumerable), nameof(System.Linq.Enumerable.Cast), 1, 1);

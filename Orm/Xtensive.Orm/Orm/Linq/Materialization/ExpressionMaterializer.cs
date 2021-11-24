@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var rankMaterializer = Visit(expression.RankExpression);
       var entityMaterializer = Visit(expression.EntityExpression);
       var constructorInfo = WellKnownOrmTypes.FullTextMatchOfT
-        .MakeGenericType(expression.EntityExpression.Type)
+        .CachedMakeGenericType(expression.EntityExpression.Type)
         .GetConstructor(BindingFlags.NonPublic | BindingFlags.Instance,
           new object[] {WellKnownTypes.Double, expression.EntityExpression.Type});
 
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var keyType = groupingExpression.KeyExpression.Type;
       var keyMaterializer = Visit(groupingExpression.KeyExpression);
       var groupingCtor = WellKnownOrmTypes.GroupingOfTKeyTElement
-        .MakeGenericType(keyType, elementType)
+        .CachedMakeGenericType(keyType, elementType)
         .GetConstructor(new[] {
           WellKnownOrmTypes.ProjectionExpression,
           WellKnownOrmTypes.TranslatedQuery,
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
       // 2. Create constructor
       var subQueryCtor = WellKnownOrmTypes.SubQueryOfT
-        .MakeGenericType(elementType)
+        .CachedMakeGenericType(elementType)
         .GetConstructor(SubQueryConstructorArgumentTypes);
 
       // 3. Create result expression.
@@ -161,9 +161,11 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private TranslatedQuery PrepareSubqueryParameters(SubQueryExpression subQueryExpression, out Parameter<Tuple> parameterOfTuple, out Type elementType, out ProjectionExpression projection)
     {
+      var projectionExpression = subQueryExpression.ProjectionExpression;
+
       // 1. Rewrite recordset and ItemProjector to parameter<tuple>
       var subqueryTupleParameter = context.GetTupleParameter(subQueryExpression.OuterParameter);
-      var dataSource = subQueryExpression.ProjectionExpression.ItemProjector.DataSource;
+      var dataSource = projectionExpression.ItemProjector.DataSource;
 
       var rootTags = context.GetAllTags();
       if (rootTags.Count > 0) {
@@ -176,27 +178,20 @@ namespace Xtensive.Orm.Linq.Materialization
         subQueryExpression.ApplyParameter);
 
       var newItemProjectorBody = ApplyParameterToTupleParameterRewriter.Rewrite(
-        subQueryExpression.ProjectionExpression.ItemProjector.Item,
+        projectionExpression.ItemProjector.Item,
         subqueryTupleParameter,
         subQueryExpression.ApplyParameter);
 
-      var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, subQueryExpression.ProjectionExpression.ItemProjector.Context);
+      var itemProjector = new ItemProjectorExpression(newItemProjectorBody, newDataSource, projectionExpression.ItemProjector.Context);
       parameterOfTuple = context.GetTupleParameter(subQueryExpression.OuterParameter);
 
       // 2. Add only parameter<tuple>. Tuple value will be assigned
       // at the moment of materialization in SubQuery constructor
-      projection = new ProjectionExpression(
-        subQueryExpression.ProjectionExpression.Type,
-        itemProjector,
-        subQueryExpression.ProjectionExpression.TupleParameterBindings,
-        subQueryExpression.ProjectionExpression.ResultAccessMethod);
+      projection = projectionExpression.Apply(itemProjector);
 
-      // 3. Make translation
-      elementType = subQueryExpression.ProjectionExpression.ItemProjector.Item.Type;
-      var translateMethod = Translator.TranslateMethod;
-      return (TranslatedQuery) translateMethod.Invoke(
-        context.Translator,
-        new object[] {projection, tupleParameters.Append(parameterOfTuple)});
+      // 3. Make translation 
+      elementType = projectionExpression.ItemProjector.Item.Type;
+      return context.Translator.Translate(projection, tupleParameters.Append(parameterOfTuple));
     }
 
     protected override Expression VisitFieldExpression(FieldExpression expression)
@@ -405,7 +400,7 @@ namespace Xtensive.Orm.Linq.Materialization
       var tupleExpression = GetTupleExpression(expression);
       var materializedEntitySetExpression = MaterializeThroughOwner(expression, tupleExpression);
       var prefetechMethodInfo = MaterializationHelper.PrefetchEntitySetMethodInfo
-        .MakeGenericMethod(expression.Type);
+        .CachedMakeGenericMethod(expression.Type);
       var prefetchEntitySetExpression = Expression.Call(
         prefetechMethodInfo,
         materializedEntitySetExpression,
@@ -459,7 +454,7 @@ namespace Xtensive.Orm.Linq.Materialization
             : WellKnownTypes.Object;
           return Expression.Call(
             Expression.MakeMemberAccess(itemMaterializationContextParameter, ParameterContextProperty),
-              GetParameterValueMethod.MakeGenericMethod(parameterValueType), m.Expression);
+              GetParameterValueMethod.CachedMakeGenericMethod(parameterValueType), m.Expression);
         }
       }
 
@@ -496,7 +491,7 @@ namespace Xtensive.Orm.Linq.Materialization
         return defaultIfEmpty
           ? Expression.Condition(
               Expression.Equal(materializedOwner, Expression.Constant(null, materializedOwner.Type)),
-              Expression.Call(MaterializationHelper.GetDefaultMethodInfo.MakeGenericMethod(field.Type)),
+              Expression.Call(MaterializationHelper.GetDefaultMethodInfo.CachedMakeGenericMethod(field.Type)),
               fieldExpression)
           : fieldExpression;
       }
@@ -557,7 +552,7 @@ namespace Xtensive.Orm.Linq.Materialization
       ParameterContextProperty =
         WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
       GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
-      GetTupleParameterValueMethod = GetParameterValueMethod.MakeGenericMethod(WellKnownOrmTypes.Tuple);
+      GetTupleParameterValueMethod = GetParameterValueMethod.CachedMakeGenericMethod(WellKnownOrmTypes.Tuple);
       BuildPersistentTupleMethod = thisType.GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
       GetTupleSegmentMethod = thisType.GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
     }

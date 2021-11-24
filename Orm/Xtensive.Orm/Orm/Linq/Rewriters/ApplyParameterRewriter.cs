@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -40,18 +40,15 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitGroupingExpression(GroupingExpression expression)
     {
-      var newProvider = Rewrite(expression.ProjectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
-      var newItemProjectorBody = Visit(expression.ProjectionExpression.ItemProjector.Item);
+      var projectionExpression = expression.ProjectionExpression;
+      var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
+      var newItemProjectorBody = Visit(projectionExpression.ItemProjector.Item);
       var newKeyExpression = Visit(expression.KeyExpression);
-      if (newProvider!=expression.ProjectionExpression.ItemProjector.DataSource
-        || newItemProjectorBody!=expression.ProjectionExpression.ItemProjector.Item
-          || newKeyExpression!=expression.KeyExpression) {
-        var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider, expression.ProjectionExpression.ItemProjector.Context);
-        var newProjectionExpression = new ProjectionExpression(
-          expression.ProjectionExpression.Type, 
-          newItemProjector, 
-          expression.ProjectionExpression.TupleParameterBindings, 
-          expression.ProjectionExpression.ResultAccessMethod);
+      if (newProvider != projectionExpression.ItemProjector.DataSource
+        || newItemProjectorBody != projectionExpression.ItemProjector.Item
+          || newKeyExpression != expression.KeyExpression) {
+        var newItemProjector = new ItemProjectorExpression(newItemProjectorBody, newProvider, projectionExpression.ItemProjector.Context);
+        var newProjectionExpression = projectionExpression.Apply(newItemProjector);
         return new GroupingExpression(
           expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression,
           expression.ApplyParameter, expression.KeyExpression, expression.SelectManyInfo);
@@ -61,17 +58,14 @@ namespace Xtensive.Orm.Linq.Rewriters
 
     protected override Expression VisitSubQueryExpression(SubQueryExpression expression)
     {
-      var newProvider = Rewrite(expression.ProjectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
-      var newItemProjectorBody = Visit(expression.ProjectionExpression.ItemProjector.Item);
-      if (newProvider!=expression.ProjectionExpression.ItemProjector.DataSource
-        || newItemProjectorBody!=expression.ProjectionExpression.ItemProjector.Item) {
+      var projectionExpression = expression.ProjectionExpression;
+      var newProvider = Rewrite(projectionExpression.ItemProjector.DataSource, oldApplyParameter, newApplyParameter);
+      var newItemProjectorBody = Visit(projectionExpression.ItemProjector.Item);
+      if (newProvider != projectionExpression.ItemProjector.DataSource
+        || newItemProjectorBody != projectionExpression.ItemProjector.Item) {
         var newItemProjector = new ItemProjectorExpression(
-          newItemProjectorBody, newProvider, expression.ProjectionExpression.ItemProjector.Context);
-        var newProjectionExpression = new ProjectionExpression(
-          expression.ProjectionExpression.Type, 
-          newItemProjector, 
-          expression.ProjectionExpression.TupleParameterBindings, 
-          expression.ProjectionExpression.ResultAccessMethod);
+          newItemProjectorBody, newProvider, projectionExpression.ItemProjector.Context);
+        var newProjectionExpression = projectionExpression.Apply(newItemProjector);
         return new SubQueryExpression(
           expression.Type, expression.OuterParameter, expression.DefaultIfEmpty, newProjectionExpression,
           expression.ApplyParameter, expression.ExtendedType);

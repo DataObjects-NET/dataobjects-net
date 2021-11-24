@@ -100,17 +100,9 @@ namespace Xtensive.Orm.Configuration
     #region Equality members
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      var scc = obj as SessionConfigurationCollection;
-      if (scc == null)
-        return false;
-      return Equals(scc);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is SessionConfigurationCollection other && Equals(other);
 
     /// <inheritdoc/>
     public bool Equals(SessionConfigurationCollection obj)

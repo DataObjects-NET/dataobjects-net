@@ -658,12 +658,12 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>A disposable deactivating the group.</returns>
     protected IDisposable OpenActionGroup(string comment)
     {
-      var oldActions = new {
+      var oldActions = (
         Context.PreConditions,
         Context.Actions,
         Context.Renames,
         Context.PostConditions
-      };
+      );
       Context.PreConditions = new GroupingNodeAction {
         Comment = PreConditionsGroupComment
       };

@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012-2020 Xtensive LLC.
+// Copyright (C) 2012-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -6,6 +6,7 @@
 
 using System;
 using System.Linq.Expressions;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm
 {
@@ -39,7 +40,7 @@ namespace Xtensive.Orm
 
     private Invoker CreateInvoker(Type entityType)
     {
-      return (Invoker) Activator.CreateInstance(InvokerOfTType.MakeGenericType(entityType));
+      return (Invoker) Activator.CreateInstance(InvokerOfTType.CachedMakeGenericType(entityType));
     }
 
     /// <summary>

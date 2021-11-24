@@ -15,6 +15,6 @@ namespace Xtensive.Orm.Linq.Expressions
     Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions);
     Expression RemoveOuterParameter(Dictionary<Expression, Expression> processedExpressions);
     Expression Remap(int offset, Dictionary<Expression, Expression> processedExpressions);
-    Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions);
+    Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions);
   }
 }

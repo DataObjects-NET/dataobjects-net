@@ -33,11 +33,13 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    private static readonly ParameterExpression parameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
+    private static readonly ParameterExpression ParameterContextParam = Expression.Parameter(WellKnownOrmTypes.ParameterContext, "context");
     private static readonly ConstantExpression
       NullKeyExpression = Expression.Constant(null, WellKnownOrmTypes.Key),
       FalseExpression = Expression.Constant(false),
       TrueExpression = Expression.Constant(true);
+
+    private static IReadOnlyDictionary<Parameter<Tuple>, Tuple> EmptyTupleParameterBindings { get; } = new Dictionary<Parameter<Tuple>, Tuple>();
 
     protected override Expression VisitTypeIs(TypeBinaryExpression tb)
     {
@@ -158,8 +160,8 @@ namespace Xtensive.Orm.Linq
         expression = Visit(ma.Expression);
       }
 
-      expression = expression.IsProjection() 
-        ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type) 
+      expression = expression.IsProjection()
+        ? BuildSubqueryResult((ProjectionExpression) expression, ma.Expression.Type)
         : ProcessProjectionElement(expression);
 
       if (expression!=ma.Expression)
@@ -509,7 +511,7 @@ namespace Xtensive.Orm.Linq
         if (compiledQueryScope==null) {
           var originalSearchCriteria = (Expression<Func<string>>) searchCriteria;
           var body = originalSearchCriteria.Body;
-          var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, parameterContextParam);
+          var searchCriteriaLambda = FastExpression.Lambda<Func<ParameterContext, string>>(body, ParameterContextParam);
           compiledParameter = searchCriteriaLambda.CachingCompile();
         }
         else {
@@ -536,13 +538,13 @@ namespace Xtensive.Orm.Linq
         var topNParameter = ParameterAccessorFactory.CreateAccessorExpression<int>(expressions[1]).CachingCompile();
         dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, topNParameter, fullFeatured);
       }
-      else 
+      else
         dataSource = new FreeTextProvider(fullTextIndex, compiledParameter, rankColumnAlias, fullFeatured);
 
       rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
     }
 
     private Expression ConstructContainsTableQueryRoot(Type elementType, System.Collections.ObjectModel.ReadOnlyCollection<Expression> parameters)
@@ -576,7 +578,7 @@ namespace Xtensive.Orm.Linq
       func.Invoke(SearchConditionNodeFactory.CreateConditonRoot()).AcceptVisitor(conditionCompiler);
 
       var preparedSearchCriteria = FastExpression.Lambda<Func<ParameterContext, string>>(
-        Expression.Constant(conditionCompiler.CurrentOutput), parameterContextParam);
+        Expression.Constant(conditionCompiler.CurrentOutput), ParameterContextParam);
 
       if (compiledQueryScope==null) {
         compiledParameter = preparedSearchCriteria.CachingCompile();
@@ -607,7 +609,7 @@ namespace Xtensive.Orm.Linq
       rankExpression = ColumnExpression.Create(WellKnownTypes.Double, dataSource.Header.Columns.Count - 1);
       freeTextExpression = new FullTextExpression(fullTextIndex, entityExpression, rankExpression, null);
       itemProjector = new ItemProjectorExpression(freeTextExpression, dataSource, context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
     }
 
     /// <exception cref="InvalidOperationException"><c>InvalidOperationException</c>.</exception>
@@ -1201,7 +1203,7 @@ namespace Xtensive.Orm.Linq
       var index = type.Indexes.PrimaryIndex;
       var entityExpression = EntityExpression.Create(type, 0, false);
       var itemProjector = new ItemProjectorExpression(entityExpression, index.GetQuery(), context);
-      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.MakeGenericType(elementType), itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(elementType), itemProjector, EmptyTupleParameterBindings);
     }
 
     private Expression BuildSubqueryResult(ProjectionExpression subQuery, Type resultType)
@@ -1228,7 +1230,7 @@ namespace Xtensive.Orm.Linq
         var newExpression = ((NewExpression) expression);
         IEnumerable<Expression> arguments = newExpression
           .Members
-          .Select((methodInfo, index) => new {methodInfo.Name, Argument = newExpression.Arguments[index]})
+          .Select((methodInfo, index) => (methodInfo.Name, Argument: newExpression.Arguments[index]))
           .OrderBy(a => a.Name)
           .Select(a => a.Argument);
         return arguments.ToList();
@@ -1533,7 +1535,7 @@ namespace Xtensive.Orm.Linq
         if (applyProvider!=null)
           shouldUseLeftJoin = applyProvider.ApplyType==JoinType.LeftOuter;
         else {
-          var joinProvider = filterProvider.Source as JoinProvider; 
+          var joinProvider = filterProvider.Source as JoinProvider;
           if (joinProvider!=null)
             shouldUseLeftJoin = joinProvider.JoinType==JoinType.LeftOuter;
         }
@@ -1596,7 +1598,7 @@ namespace Xtensive.Orm.Linq
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
       if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
-      return new ProjectionExpression(itemType, itemProjector, new Dictionary<Parameter<Tuple>, Tuple>());
+      return new ProjectionExpression(itemType, itemProjector, TranslatedQuery.EmptyTupleParameterBindings);
     }
 
     private Expression BuildInterfaceExpression(MemberExpression ma)

@@ -194,7 +194,7 @@ namespace Xtensive.Modelling.Comparison
           if ((difference.MovementInfo & recreated) != recreated) {
             var propertyAccessors = difference.PropertyChanges
               .Where(p => p.Value.Source != null && p.Value.Target != null)
-              .Select(p => new {Pair = p, NodeDifference = p.Value as NodeDifference})
+              .Select(p => (Pair: p, NodeDifference: p.Value as NodeDifference))
               .Where(a => a.NodeDifference != null && !a.NodeDifference.IsNameChanged)
               .Select(a => source.PropertyAccessors[a.Pair.Key])
               .ToList();
