@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -162,7 +163,8 @@ namespace Xtensive.Orm.Providers
     private async Task PrepareAsync(CancellationToken cancellationToken)
     {
       Session.EnsureNotDisposed();
-      await driver.OpenConnectionAsync(Session, connection, cancellationToken).ConfigureAwait(false);
+      if (connection.State != ConnectionState.Open)
+        await driver.OpenConnectionAsync(Session, connection, cancellationToken).ConfigureAwait(false);
 
       try {
         foreach (var initializationSqlScript in initializationSqlScripts)

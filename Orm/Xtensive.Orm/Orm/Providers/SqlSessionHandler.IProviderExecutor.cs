@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Orm.Rse.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Providers
@@ -43,6 +44,27 @@ namespace Xtensive.Orm.Providers
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
       using (var context = new CommandProcessorContext())
         commandProcessor.ExecuteTasks(context);
+    }
+
+
+
+    async Task IProviderExecutor.StoreAsync(EnumerationContext enumerationContext,IPersistDescriptor descriptor, IEnumerable<Tuple> tuples, CancellationToken token)
+    {
+      await PrepareAsync(token);
+
+      if (tuples is ExecutableRawProvider rawProvider) {
+        var enumerator = await rawProvider.GetEnumeratorAsync(enumerationContext, token);
+        while(enumerator.MoveNext()) {
+          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, enumerator.Current));
+        }
+      }
+      else {
+        foreach (var tuple in tuples)
+          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+      }
+
+      using (var context = new CommandProcessorContext())
+        await commandProcessor.ExecuteTasksAsync(context, token);
     }
 
     /// <inheritdoc/>

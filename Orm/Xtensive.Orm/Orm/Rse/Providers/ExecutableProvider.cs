@@ -41,6 +41,16 @@ namespace Xtensive.Orm.Rse.Providers
       }
     }
 
+    protected virtual async Task OnBeforeEnumerateAsync(EnumerationContext context, CancellationToken token)
+    {
+      token.ThrowIfCancellationRequested();
+      foreach (var source in Sources) {
+        var ep = source as ExecutableProvider;
+        if (ep != null)
+          await ep.OnBeforeEnumerateAsync(context, token);
+      }
+    }
+
     /// <summary>
     /// Called when enumeration is finished.
     /// </summary>
@@ -117,7 +127,7 @@ namespace Xtensive.Orm.Rse.Providers
       var enumerated = context.GetValue<bool>(this, enumerationMarker);
       bool onEnumerationExecuted = false;
       if (!enumerated)
-        OnBeforeEnumerate(context);
+        await OnBeforeEnumerateAsync(context, token);
       try {
         context.SetValue(this, enumerationMarker, true);
         var enumerator = (await OnEnumerateAsync(context, token).ConfigureAwait(false))

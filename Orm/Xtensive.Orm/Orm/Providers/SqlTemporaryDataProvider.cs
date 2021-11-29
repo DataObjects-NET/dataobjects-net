@@ -10,6 +10,8 @@ using System.Collections.Generic;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Rse.Providers;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Xtensive.Orm.Providers
 {
@@ -31,6 +33,17 @@ namespace Xtensive.Orm.Providers
       storageContext.SetValue(this, TemporaryTableLockName, tableLock);
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
       executor.Store(tableDescriptor, data);
+    }
+
+    protected async Task LockAndStoreAsync(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data, CancellationToken token)
+    {
+      var storageContext = (EnumerationContext) context;
+      var tableLock = DomainHandler.TemporaryTableManager.Acquire(storageContext, tableDescriptor);
+      if (tableLock == null)
+        return;
+      storageContext.SetValue(this, TemporaryTableLockName, tableLock);
+      var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
+      await executor.StoreAsync(storageContext, tableDescriptor, data, token);
     }
 
     protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)

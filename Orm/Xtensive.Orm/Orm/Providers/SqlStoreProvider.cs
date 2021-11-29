@@ -4,6 +4,8 @@
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Rse.Providers;
 
 namespace Xtensive.Orm.Providers
@@ -28,6 +30,12 @@ namespace Xtensive.Orm.Providers
     {
       base.OnBeforeEnumerate(context);
       LockAndStore(context, Source);
+    }
+
+    protected override async Task OnBeforeEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    {
+      await base.OnBeforeEnumerateAsync(context, token);
+      await LockAndStoreAsync(context, Source, token);
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)

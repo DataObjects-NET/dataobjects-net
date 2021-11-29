@@ -39,6 +39,13 @@ namespace Xtensive.Orm.Providers
     void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples);
 
     /// <summary>
+    /// Asynchronously stores the specified tuples in specified table.
+    /// </summary>
+    /// <param name="descriptor">Persist descriptor.</param>
+    /// <param name="tuples">The tuples to store.</param>
+    Task StoreAsync(EnumerationContext context, IPersistDescriptor descriptor, IEnumerable<Tuple> tuples, CancellationToken token);
+
+    /// <summary>
     /// Clears the specified table.
     /// </summary>
     /// <param name="descriptor">Persist descriptor.</param>
