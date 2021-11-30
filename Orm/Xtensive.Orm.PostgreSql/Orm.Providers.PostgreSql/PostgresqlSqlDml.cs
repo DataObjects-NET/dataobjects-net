@@ -10,9 +10,11 @@ using Xtensive.Sql.Dml;
 namespace Xtensive.Orm.Providers.PostgreSql
 {
   /// <summary>
-  /// Contains factory methods for SQL DML operations over Geometry types of the  Postgre SQL DBMS.
+  /// A factory for SQL DML operations for Postgresql DBMS.
+  /// Similarly to <see cref="Xtensive.Sql.SqlDml"/> it contains
+  /// factory methods for provider-specific <see cref="SqlExpression"/>s.
   /// </summary>
-  public class PostgresqlSqlGeometryDml
+  public class PostgresqlSqlDml
   {
     #region Spatial types
 
@@ -25,7 +27,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, nameof(operand));
       ArgumentValidator.EnsureArgumentNotNull(pointIndex, nameof(pointIndex));
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlTypeExtractPoint, operand, pointIndex);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlTypeExtractPoint, operand, pointIndex);
     }
 
     /// <summary>
@@ -36,7 +38,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlTypeOperatorEquality, left, right);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlTypeOperatorEquality, left, right);
     }
 
     #region NpgsqlPoint
@@ -48,7 +50,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       ArgumentValidator.EnsureArgumentNotNull(x, "x");
       ArgumentValidator.EnsureArgumentNotNull(y, "y");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlPointConstructor, x, y);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPointConstructor, x, y);
     }
 
     /// <summary>
@@ -57,7 +59,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlPointExtractX(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlPointExtractX, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPointExtractX, operand);
     }
 
     /// <summary>
@@ -66,7 +68,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlPointExtractY(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlPointExtractY, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPointExtractY, operand);
     }
 
     #endregion
@@ -82,7 +84,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       ArgumentValidator.EnsureArgumentNotNull(upperRight, "upperRight");
       ArgumentValidator.EnsureArgumentNotNull(lowerLeft, "lowerLeft");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlBoxConstructor, upperRight, lowerLeft);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlBoxConstructor, upperRight, lowerLeft);
     }
 
     /// <summary>
@@ -91,7 +93,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlBoxExtractHeight(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlBoxExtractHeight, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlBoxExtractHeight, operand);
     }
 
     /// <summary>
@@ -100,7 +102,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlBoxExtractWidth(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlBoxExtractWidth, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlBoxExtractWidth, operand);
     }
 
     #endregion
@@ -117,7 +119,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       ArgumentValidator.EnsureArgumentNotNull(center, "center");
       ArgumentValidator.EnsureArgumentNotNull(radius, "radius");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlCircleConstructor, center, radius);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlCircleConstructor, center, radius);
     }
 
     /// <summary>
@@ -127,7 +129,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlCircleExtractCenter(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlCircleExtractCenter, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlCircleExtractCenter, operand);
     }
 
     /// <summary>
@@ -137,7 +139,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlCircleExtractRadius(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlCircleExtractRadius, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlCircleExtractRadius, operand);
     }
 
     #endregion
@@ -153,7 +155,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       ArgumentValidator.EnsureArgumentNotNull(start, "start");
       ArgumentValidator.EnsureArgumentNotNull(end, "end");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlLSegConstructor, start, end);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlLSegConstructor, start, end);
     }
 
     #endregion
@@ -167,7 +169,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlPathAndPolygonCount(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlPathAndPolygonCount, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPathAndPolygonCount, operand);
     }
 
     /// <summary>
@@ -177,7 +179,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     public static SqlExpression NpgsqlPathAndPolygonOpen(SqlExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlPathAndPolygonOpen, operand);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPathAndPolygonOpen, operand);
     }
 
     /// <summary>
@@ -188,7 +190,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");
       ArgumentValidator.EnsureArgumentNotNull(point, "point");
-      return new SqlCustomFunctionCall(PostgresqlSqlGeometricFunctionType.NpgsqlPathAndPolygonContains, operand, point);
+      return new SqlCustomFunctionCall(PostgresqlSqlFunctionType.NpgsqlPathAndPolygonContains, operand, point);
     }
 
     #endregion

@@ -118,66 +118,66 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     public override void Visit(SqlCustomFunctionCall node)
     {
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlPointExtractX) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlPointExtractX) {
         NpgsqlPointExtractPart(node.Arguments[0], 0).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlPointExtractY) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlPointExtractY) {
         NpgsqlPointExtractPart(node.Arguments[0], 1).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlTypeExtractPoint) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlTypeExtractPoint) {
         NpgsqlTypeExtractPoint(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlBoxExtractHeight) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlBoxExtractHeight) {
         NpgsqlBoxExtractHeight(node.Arguments[0]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlBoxExtractWidth) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlBoxExtractWidth) {
         NpgsqlBoxExtractWidth(node.Arguments[0]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlCircleExtractCenter) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlCircleExtractCenter) {
         NpgsqlCircleExtractCenter(node.Arguments[0]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlCircleExtractRadius) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlCircleExtractRadius) {
         NpgsqlCircleExtractRadius(node.Arguments[0]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlPathAndPolygonCount) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonCount) {
         NpgsqlPathAndPolygonCount(node.Arguments[0]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlPathAndPolygonOpen) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonOpen) {
         NpgsqlPathAndPolygonOpen(node.Arguments[0]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlPathAndPolygonContains) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlPathAndPolygonContains) {
         NpgsqlPathAndPolygonContains(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlTypeOperatorEquality) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlTypeOperatorEquality) {
         NpgsqlTypeOperatorEquality(node.Arguments[0], node.Arguments[1]).AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlPointConstructor) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlPointConstructor) {
         var newNode = SqlDml.RawConcat(
           NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "point'"),
           SqlDml.Native("'"));
         newNode.AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlBoxConstructor) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlBoxConstructor) {
         NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "box").AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlCircleConstructor) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlCircleConstructor) {
         NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "circle").AcceptVisitor(this);
         return;
       }
-      if (node.FunctionType==PostgresqlSqlGeometricFunctionType.NpgsqlLSegConstructor) {
+      if (node.FunctionType==PostgresqlSqlFunctionType.NpgsqlLSegConstructor) {
         NpgsqlTypeConstructor(node.Arguments[0], node.Arguments[1], "lseg").AcceptVisitor(this);
         return;
       }
