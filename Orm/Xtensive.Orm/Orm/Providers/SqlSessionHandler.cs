@@ -1,12 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2008.05.20
 
 using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -148,39 +147,43 @@ namespace Xtensive.Orm.Providers
     {
       Session.EnsureNotDisposed();
       driver.EnsureConnectionIsOpen(Session, connection);
-      foreach (var script in initializationSqlScripts)
-        using (var command = connection.CreateCommand(script))
-          driver.ExecuteNonQuery(Session, command);
+      foreach (var script in initializationSqlScripts) {
+        using (var command = connection.CreateCommand(script)) {
+          _ = driver.ExecuteNonQuery(Session, command);
+        }
+      }
+
       initializationSqlScripts.Clear();
-      if (pendingTransaction==null)
+      if (pendingTransaction == null)
         return;
       var transaction = pendingTransaction;
       pendingTransaction = null;
-      if (connection.ActiveTransaction==null) // Handle external transactions
+      if (connection.ActiveTransaction == null) // Handle external transactions
         driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
     }
 
     private async Task PrepareAsync(CancellationToken cancellationToken)
     {
       Session.EnsureNotDisposed();
-      if (connection.State != ConnectionState.Open)
-        await driver.OpenConnectionAsync(Session, connection, cancellationToken).ConfigureAwait(false);
+      await driver.EnsureConnectionIsOpenAsync(Session, connection);
 
       try {
-        foreach (var initializationSqlScript in initializationSqlScripts)
-          using (var command = connection.CreateCommand(initializationSqlScript))
-            await driver.ExecuteNonQueryAsync(Session, command, cancellationToken).ConfigureAwait(false);
+        foreach (var initializationSqlScript in initializationSqlScripts) {
+          using (var command = connection.CreateCommand(initializationSqlScript)) {
+            _ = await driver.ExecuteNonQueryAsync(Session, command, cancellationToken).ConfigureAwait(false);
+          }
+        }
       }
       catch (OperationCanceledException) {
         connection.Close();
         throw;
       }
 
-      if (pendingTransaction==null)
+      if (pendingTransaction == null)
         return;
       var transaction = pendingTransaction;
       pendingTransaction = null;
-      if (connection.ActiveTransaction==null) // Handle external transactions
+      if (connection.ActiveTransaction == null) // Handle external transactions
         driver.BeginTransaction(Session, connection, IsolationLevelConverter.Convert(transaction.IsolationLevel));
     }
 

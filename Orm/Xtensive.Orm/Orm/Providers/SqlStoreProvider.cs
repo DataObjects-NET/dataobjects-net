@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.09.05
 
@@ -32,6 +32,7 @@ namespace Xtensive.Orm.Providers
       LockAndStore(context, Source);
     }
 
+    /// <inheritdoc/>
     protected override async Task OnBeforeEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
       await base.OnBeforeEnumerateAsync(context, token);
@@ -40,7 +41,7 @@ namespace Xtensive.Orm.Providers
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
     {
-      ClearAndUnlock(context);
+      _ = ClearAndUnlock(context);
       base.OnAfterEnumerate(context);
     }
 

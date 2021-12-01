@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.13
 
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Providers
         return;
       storageContext.SetValue(this, TemporaryTableLockName, tableLock);
       var executor = storageContext.Session.Services.Demand<IProviderExecutor>();
-      await executor.StoreAsync(storageContext, tableDescriptor, data, token);
+      await executor.StoreAsync(storageContext, tableDescriptor, data, token).ConfigureAwait(false);
     }
 
     protected bool ClearAndUnlock(Rse.Providers.EnumerationContext context)

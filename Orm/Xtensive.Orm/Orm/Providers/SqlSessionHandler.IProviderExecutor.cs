@@ -1,6 +1,6 @@
-// Copyright (C) 2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2010-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
@@ -40,31 +40,35 @@ namespace Xtensive.Orm.Providers
     void IProviderExecutor.Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       Prepare();
-      foreach (var tuple in tuples)
+      foreach (var tuple in tuples) {
         commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      using (var context = new CommandProcessorContext())
+      }
+
+      using (var context = new CommandProcessorContext()) {
         commandProcessor.ExecuteTasks(context);
+      }
     }
 
-
-
+    /// <inheritdoc/>
     async Task IProviderExecutor.StoreAsync(EnumerationContext enumerationContext,IPersistDescriptor descriptor, IEnumerable<Tuple> tuples, CancellationToken token)
     {
-      await PrepareAsync(token);
+      await PrepareAsync(token).ConfigureAwait(false);
 
       if (tuples is ExecutableRawProvider rawProvider) {
-        var enumerator = await rawProvider.GetEnumeratorAsync(enumerationContext, token);
+        var enumerator = await rawProvider.GetEnumeratorAsync(enumerationContext, token).ConfigureAwait(false);
         while(enumerator.MoveNext()) {
           commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, enumerator.Current));
         }
       }
       else {
-        foreach (var tuple in tuples)
+        foreach (var tuple in tuples) {
           commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+        }
       }
 
-      using (var context = new CommandProcessorContext())
-        await commandProcessor.ExecuteTasksAsync(context, token);
+      using (var context = new CommandProcessorContext()) {
+        await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
+      }
     }
 
     /// <inheritdoc/>
