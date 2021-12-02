@@ -14,6 +14,8 @@ using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Providers;
+using System.Threading.Tasks;
+using System.Threading;
 
 namespace Xtensive.Orm.Providers
 {
@@ -48,6 +50,29 @@ namespace Xtensive.Orm.Providers
         break;
       default:
         throw new ArgumentOutOfRangeException("Origin.Algorithm");
+      }
+    }
+
+    protected override async Task OnBeforeEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
+    {
+      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
+
+      switch (Origin.Algorithm) {
+        case IncludeAlgorithm.Auto:
+          var filterData = filterDataSource.Invoke().ToList();
+          if (filterData.Count > WellKnown.MaxNumberOfConditions)
+            await LockAndStoreAsync(context, filterData, token).ConfigureAwait(false);
+          else
+            context.SetValue(filterDataSource, RowFilterDataName, filterData);
+          break;
+        case IncludeAlgorithm.ComplexCondition:
+          // nothing
+          break;
+        case IncludeAlgorithm.TemporaryTable:
+          await LockAndStoreAsync(context, filterDataSource.Invoke(), token);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("Origin.Algorithm");
       }
     }
 
