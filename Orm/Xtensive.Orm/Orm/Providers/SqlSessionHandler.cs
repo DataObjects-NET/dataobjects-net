@@ -165,7 +165,7 @@ namespace Xtensive.Orm.Providers
     private async Task PrepareAsync(CancellationToken cancellationToken)
     {
       Session.EnsureNotDisposed();
-      await driver.EnsureConnectionIsOpenAsync(Session, connection);
+      await driver.EnsureConnectionIsOpenAsync(Session, connection, cancellationToken);
 
       try {
         foreach (var initializationSqlScript in initializationSqlScripts) {
