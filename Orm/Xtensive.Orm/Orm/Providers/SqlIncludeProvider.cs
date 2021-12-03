@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Providers
           // nothing
           break;
         case IncludeAlgorithm.TemporaryTable:
-          await LockAndStoreAsync(context, filterDataSource.Invoke(), token);
+          await LockAndStoreAsync(context, filterDataSource.Invoke(), token).ConfigureAwait(false);
           break;
         default:
           throw new ArgumentOutOfRangeException("Origin.Algorithm");

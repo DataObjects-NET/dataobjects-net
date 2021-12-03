@@ -129,7 +129,7 @@ namespace Xtensive.Orm.Providers
 
       token.ThrowIfCancellationRequested();
 
-      await ExecuteTasksAsync(context, token);
+      await ExecuteTasksAsync(context, token).ConfigureAwait(false);
       context.AllowPartialExecution = oldValue;
 
       var lastRequestCommand = Factory.CreateCommand();
@@ -137,7 +137,7 @@ namespace Xtensive.Orm.Providers
       ValidateCommandParameters(commandPart);
       lastRequestCommand.AddPart(commandPart);
       token.ThrowIfCancellationRequested();
-      await lastRequestCommand.ExecuteReaderAsync(token);
+      await lastRequestCommand.ExecuteReaderAsync(token).ConfigureAwait(false);
       return lastRequestCommand.AsReaderOf(lastRequest);
     }
 

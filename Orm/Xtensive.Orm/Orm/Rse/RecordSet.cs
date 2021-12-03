@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Rse
           completableScope.Complete();
           completableScope.Dispose();
         };
-        return GetTwoLevelEnumerator(batched, afterEnumerationAction, cs);
+      return GetTwoLevelEnumerator(batched, afterEnumerationAction, cs);
     }
 
     private static IEnumerator<Tuple> GetTwoLevelEnumerator(IEnumerable<IEnumerable<Tuple>> enumerable,

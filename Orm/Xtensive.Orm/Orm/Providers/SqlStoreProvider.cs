@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected override async Task OnBeforeEnumerateAsync(Rse.Providers.EnumerationContext context, CancellationToken token)
     {
-      await base.OnBeforeEnumerateAsync(context, token);
-      await LockAndStoreAsync(context, Source, token);
+      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
+      await LockAndStoreAsync(context, Source, token).ConfigureAwait(false);
     }
 
     protected override void OnAfterEnumerate(Rse.Providers.EnumerationContext context)
