@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Orm.Building;
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Tests.Model
     }
 
     private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
-      => serviceAccessor.Modules = new ReadOnlyList<IModule>(serviceContainer.GetAll<IModule>().ToList());
+      => serviceAccessor.Modules = serviceContainer.GetAll<IModule>().ToList().AsReadOnly();
 
     private static void BuildUpgradeHandlers(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Tests.Model
       serviceAccessor.UpgradeHandlers =
         new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
       serviceAccessor.OrderedUpgradeHandlers =
-        new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
+        sortedHandlers.ToList().AsReadOnly();
     }
 
     public sealed class ModelDefCapturer : IModule

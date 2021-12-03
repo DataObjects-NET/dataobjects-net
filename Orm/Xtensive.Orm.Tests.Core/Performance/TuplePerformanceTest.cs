@@ -17,7 +17,6 @@ namespace Xtensive.Orm.Tests.Core.Performance
   {
     public const int BaseCount = 10000000;
     private bool warmup  = false;
-    private bool profile = false;
 
     [Test]
     public void RegularTest()

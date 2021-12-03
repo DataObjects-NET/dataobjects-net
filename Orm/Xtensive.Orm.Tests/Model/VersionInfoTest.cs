@@ -205,7 +205,6 @@ namespace Xtensive.Orm.Tests.Model
     public void SerializeVersionInfoTest()
     {
       var domain = BuildDomain("Xtensive.Orm.Tests.Model.VersionInfoTests.ValidModel");
-      Key key;
       VersionInfo version;
 
       using (var session = domain.OpenSession()) {

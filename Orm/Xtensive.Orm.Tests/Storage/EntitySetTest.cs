@@ -469,7 +469,6 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var expectedCount = entitySet.Count;
       owner.Remove();
-      var actualCount = 0;
       entitySet.GetEnumerator().MoveNext();
     }
 

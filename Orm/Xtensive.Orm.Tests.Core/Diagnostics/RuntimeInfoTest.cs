@@ -13,8 +13,10 @@ namespace Xtensive.Orm.Tests.Core.Diagnostics
   public class RuntimeInfoTest
   {
     private sealed class Empty {
+#pragma warning disable CS0649
       public Empty Pointer1;
       public Empty Pointer2;
+#pragma warning restore CS0649
     }
 
     private static int GetDefaultStructLayoutPack()

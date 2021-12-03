@@ -34,7 +34,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue0371_ObjectEquals_Model
       return true;
     }
 
-    public new static bool Equals(Item a, Item b)
+    public static bool Equals(Item a, Item b)
     {
       return true;
     }

@@ -8,7 +8,7 @@ using System.IO;
 using System.Runtime.Serialization;
 using System.Runtime.Serialization.Formatters.Binary;
 
-namespace Xtensive.Core
+namespace Xtensive.Orm.Tests
 {
   /// <summary>
   /// Object cloning helper.

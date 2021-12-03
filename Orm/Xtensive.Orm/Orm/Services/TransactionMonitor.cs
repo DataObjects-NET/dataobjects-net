@@ -17,25 +17,24 @@ namespace Xtensive.Orm.Services
   public sealed class TransactionMonitor : SessionBound,
     ISessionService
   {
-    private readonly Dictionary<Transaction, SetSlim<IDisposable>> registry = new Dictionary<Transaction,SetSlim<IDisposable>>();
+    private readonly Dictionary<Transaction, HashSet<IDisposable>> registry = new Dictionary<Transaction, HashSet<IDisposable>>();
 
     public void SetValue(Disposable disposable)
     {
-      SetSlim<IDisposable> set;
-      if (!registry.TryGetValue(Session.Transaction, out set)) {
-        set = new SetSlim<IDisposable>();
+      if (!registry.TryGetValue(Session.Transaction, out var set)) {
+        set = new HashSet<IDisposable>();
         registry.Add(Session.Transaction, set);
       }
-      set.Add(disposable);
+      _ = set.Add(disposable);
     }
 
     private void EndTransaction(object sender, TransactionEventArgs e)
     {
-      SetSlim<IDisposable> set;
-      if (registry.TryGetValue(Session.Transaction, out set)) {
+      if (registry.TryGetValue(Session.Transaction, out var set)) {
         registry.Remove(Session.Transaction);
-        foreach (var disposable in set)
+        foreach (var disposable in set) {
           disposable.DisposeSafely();
+        }
       }
     }
 

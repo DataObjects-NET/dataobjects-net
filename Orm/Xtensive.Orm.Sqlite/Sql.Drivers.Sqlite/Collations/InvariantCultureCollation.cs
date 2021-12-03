@@ -9,9 +9,13 @@ using System.Data.SQLite;
 
 namespace Xtensive.Sql.Drivers.Sqlite.Collations
 {
+  /// <summary>
+  /// Provides custom implementation of the invariant culture collation.
+  /// </summary>
   [SQLiteFunction(FuncType = FunctionType.Collation, Name = "StringComparer_InvariantCulture")]
   public class InvariantCultureCollation : SQLiteFunction
   {
+    /// <inheritdoc/>
     public override int Compare(string param1, string param2)
     {
       return StringComparer.InvariantCulture.Compare(param1, param2);

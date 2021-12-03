@@ -14,8 +14,8 @@ namespace Xtensive.Sql.Compiler
   /// </summary>
   public sealed class SqlNodeActualizer
   {
-    private readonly IDictionary<string, string> databaseMapping;
-    private readonly IDictionary<string, string> schemaMapping;
+    private readonly IReadOnlyDictionary<string, string> databaseMapping;
+    private readonly IReadOnlyDictionary<string, string> schemaMapping;
 
     /// <summary>
     /// Gets actual <see cref="Catalog"/>'s name.
@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="databaseMapping">Database (or Catalog) mappings.</param>
     /// <param name="schemaMapping">Schema mappings.</param>
-    internal SqlNodeActualizer(IDictionary<string, string> databaseMapping, IDictionary<string, string> schemaMapping)
+    internal SqlNodeActualizer(IReadOnlyDictionary<string, string> databaseMapping, IReadOnlyDictionary<string, string> schemaMapping)
     {
       this.databaseMapping = databaseMapping;
       this.schemaMapping = schemaMapping;

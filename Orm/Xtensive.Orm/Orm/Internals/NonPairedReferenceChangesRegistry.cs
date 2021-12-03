@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Internals
       HashSet<EntityState> removedMap;
       if (removedReferences.TryGetValue(key, out removedMap))
         return removedMap;
-      return EnumerableUtils<EntityState>.Empty;
+      return Enumerable.Empty<EntityState>();
     }
 
     public IEnumerable<EntityState> GetAddedReferenceTo(EntityState target, AssociationInfo association)
@@ -91,7 +91,7 @@ namespace Xtensive.Orm.Internals
       HashSet<EntityState> removedMap;
       if (addedReferences.TryGetValue(key, out removedMap))
         return removedMap;
-      return EnumerableUtils<EntityState>.Empty;
+      return Enumerable.Empty<EntityState>();
     }
 
     public void Invalidate()
