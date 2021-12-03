@@ -379,12 +379,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     #region Static helpers
 
-    protected static SqlCast CastToLong(SqlExpression arg)
+    private static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
     }
 
-    protected static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
+    private static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
     {
       return SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
     }
