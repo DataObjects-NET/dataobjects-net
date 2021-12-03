@@ -606,7 +606,7 @@ namespace Xtensive.Orm.Upgrade
           throw Exceptions.InternalError(string.Format(
             Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), UpgradeLog.Instance);
       }
-      hint.AffectedTables = affectedTables.AsReadOnly();
+      hint.AffectedTables = new ReadOnlyList<string>(affectedTables);
     }
 
     private void UpdateAffectedColumns(ChangeFieldTypeHint hint)
@@ -625,7 +625,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var affectedColumns = GetAffectedColumns(currentType, currentField);
-      hint.AffectedColumns = affectedColumns.AsReadOnly();
+      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }
 
     private void UpdateAffectedColumns(RemoveFieldHint hint)
@@ -667,7 +667,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var affectedColumns = GetAffectedColumns(storedType, storedField);
-      hint.AffectedColumns = affectedColumns.AsReadOnly();
+      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
     }
 
     #endregion

@@ -22,7 +22,6 @@ namespace Xtensive.Orm.Providers.SqlServer
       return new SqlCompiler(Handlers, configuration);
     }
 
-    /// <inheritdoc/>
     protected override SearchConditionCompiler CreateSearchConditionVisitor()
     {
       if (Domain.StorageProviderInfo.StorageVersion.Major < 11)

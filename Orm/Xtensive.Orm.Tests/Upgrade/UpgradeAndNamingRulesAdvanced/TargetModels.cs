@@ -1,10 +1,9 @@
-// Copyright (C) 2016-2021 Xtensive LLC.
-// This code is distributed under MIT license terms.
-// See the License.txt file in the project root for more information.
+﻿// Copyright (C) 2016 Xtensive LLC.
+// All rights reserved.
+// For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
 // Created:    2016.02.03
 
-using System.Collections.Generic;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
 
@@ -207,7 +206,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
           return true;
         }
 
-        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
           hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.SingleTableHierarchyBase", "SingleTableRemovableField"));
           hints.Add(new RemoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveFieldModel.ConcreteTableHierarchyBase", "ConcreteTableRemovableField"));
@@ -334,7 +333,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
           return true;
         }
 
-        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
           hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.SingleTableDescendant12Removed"));
           hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RemoveTypeModel.SingleTableDescendant22Removed"));
@@ -419,7 +418,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
           return true;
         }
 
-        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
           hints.Add(new RenameFieldHint(typeof (SingleTableHierarchyBase), "FieldWithWrongName", "FieldWithRightName"));
           hints.Add(new RenameFieldHint(typeof (SingleTableDescendant), "AnotherFieldWithWrongName", "AnotherFieldWithRightName"));
@@ -484,7 +483,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
           return true;
         }
 
-        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
           hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RenameTypeModel.SingleTableDescendant1", typeof(SingleTableDescendant)));
           hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.RenameTypeModel.ClassTableDescendant1", typeof(ClassTableDescendant)));
@@ -589,7 +588,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
           return true;
         }
 
-        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
           hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ClassTableHierarchyBase", "MovableField", typeof(ClassTableDescendant2)));
           hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ConcreteTableHierarchyBase", "MovableField", typeof(ConcreteTableDescendant2)));
@@ -694,7 +693,7 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.TargetModels
           return true;
         }
 
-        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
         {
           hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ClassTableHierarchyBase", "MovableField", typeof(ClassTableDescendant1)));
           hints.Add(new MoveFieldHint("Xtensive.Orm.Tests.Upgrade.UpgradeAndNamingRulesAdvanced.SourceModels.MoveFieldModel.ConcreteTableHierarchyBase", "MovableField", typeof(ConcreteTableDescendant1)));

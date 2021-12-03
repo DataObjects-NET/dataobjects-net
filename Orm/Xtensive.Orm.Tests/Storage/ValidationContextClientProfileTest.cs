@@ -52,6 +52,7 @@ namespace Xtensive.Orm.Tests.Storage
     {
       using (var session = Domain.OpenSession()) {
         Validatable first = null;
+        Validatable second;
 
         AssertEx.Throws<ValidationFailedException>(() => {
           first = new Validatable(session);

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -53,12 +52,12 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the fields forming the key.
     /// </summary>
-    public IReadOnlyList<FieldInfo> Fields { get; private set; }
+    public ReadOnlyList<FieldInfo> Fields { get; private set; }
 
     /// <summary>
     /// Gets the columns forming the key.
     /// </summary>
-    public IReadOnlyList<ColumnInfo> Columns { get; private set; }
+    public ReadOnlyList<ColumnInfo> Columns { get; private set; }
 
     /// <summary>
     /// Gets the key generator name.
@@ -199,8 +198,8 @@ namespace Xtensive.Orm.Model
       TupleDescriptor tupleDescriptor, int typeIdColumnIndex)
       : base(name)
     {
-      Fields = new ReadOnlyCollection<FieldInfo>(fields);
-      Columns = new ReadOnlyCollection<ColumnInfo>(columns);
+      Fields = new ReadOnlyList<FieldInfo>(fields);
+      Columns = new ReadOnlyList<ColumnInfo>(columns);
 
       TupleDescriptor = tupleDescriptor;
       TypeIdColumnIndex = typeIdColumnIndex;

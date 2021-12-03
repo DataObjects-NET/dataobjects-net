@@ -13,7 +13,7 @@ using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Tuples;
-using System.Collections.ObjectModel;
+using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Model
 {
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Model
     private readonly IndexInfo declaringIndex;
     private double fillFactor;
     private string shortName;
-    private ReadOnlyCollection<ColumnInfo> columns;
+    private ReadOnlyList<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
     private IList<TypeInfo> filterByTypes;
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a collection of all the columns that are included into the index.
     /// </summary>
-    public IReadOnlyList<ColumnInfo> Columns {
+    public ReadOnlyList<ColumnInfo> Columns {
       [DebuggerStepThrough]
       get {
         return columns;
@@ -392,7 +392,7 @@ namespace Xtensive.Orm.Model
     {
       var result = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
       result.AddRange(valueColumns);
-      columns = result.AsReadOnly();
+      columns = new ReadOnlyList<ColumnInfo>(result);
     }
 
 

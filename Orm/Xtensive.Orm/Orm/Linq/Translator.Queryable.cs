@@ -965,7 +965,7 @@ namespace Xtensive.Orm.Linq
 
       var nullableKeyColumns = (!State.SkipNullableColumnsDetectionInGroupBy)
         ? GetNullableGroupingExpressions(keyFieldsRaw)
-        : Array.Empty<int>();
+        : ArrayUtils<int>.EmptyArray;
 
       var keyColumns = keyFieldsRaw.SelectToArray(pair => pair.First);
       var keyDataSource = groupingSourceProjection.ItemProjector.DataSource.Aggregate(keyColumns);

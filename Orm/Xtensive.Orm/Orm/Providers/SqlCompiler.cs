@@ -110,7 +110,7 @@ namespace Xtensive.Orm.Providers
         sqlSelect = ExtractSqlSelect(provider, source);
 
       var sourceColumns = ExtractColumnExpressions(sqlSelect);
-      var allBindings = Enumerable.Empty<QueryParameterBinding>();
+      var allBindings = EnumerableUtils<QueryParameterBinding>.Empty;
       foreach (var column in provider.CalculatedColumns) {
         var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;

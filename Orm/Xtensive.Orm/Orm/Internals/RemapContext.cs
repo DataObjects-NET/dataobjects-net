@@ -5,7 +5,7 @@
 // Created:    2014.04.07
 
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
+using Xtensive.Collections;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Internals
@@ -14,12 +14,13 @@ namespace Xtensive.Orm.Internals
   {
     private readonly EntityChangeRegistry registry;
     private readonly Dictionary<Key, Key> keyMap;
+    private readonly ReadOnlyDictionary<Key, Key> readOnlyKeyMap;
 
     /// <summary>
     /// Gets maps from local key to actual(storage) key.
     /// </summary>
     public KeyMapping KeyMapping {
-      get { return new KeyMapping(keyMap); }
+      get { return new KeyMapping(readOnlyKeyMap); }
     }
 
     /// <summary>
@@ -61,6 +62,7 @@ namespace Xtensive.Orm.Internals
       ArgumentValidator.EnsureArgumentNotNull(registry, "registry");
       this.registry = registry;
       keyMap = new Dictionary<Key, Key>();
+      readOnlyKeyMap = new ReadOnlyDictionary<Key, Key>(keyMap, false);
     }
   }
 }

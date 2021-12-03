@@ -5,7 +5,6 @@
 // Created:    2010.06.21
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
@@ -44,7 +43,7 @@ namespace Xtensive.Orm.Tests.Issues
         return true;
       }
 
-      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
       {
         hints.Add(new RenameTypeHint(typeof (InconsistentDefaultDateTimeValuesModel1.MyEntity).FullName, typeof (InconsistentDefaultDateTimeValuesModel2.MyEntity)));
       }

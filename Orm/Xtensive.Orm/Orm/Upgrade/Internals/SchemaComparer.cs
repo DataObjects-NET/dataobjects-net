@@ -38,8 +38,8 @@ namespace Xtensive.Orm.Upgrade
     /// <param name="upgradeStage">A current <see cref="UpgradeStage"/>.</param>
     /// <returns>Comparison result.</returns>
     public static SchemaComparisonResult Compare(
-      StorageModel sourceSchema, StorageModel targetSchema, 
-      HintSet schemaHints, IEnumerable<UpgradeHint> upgradeHints,
+      StorageModel sourceSchema, StorageModel targetSchema,
+      HintSet schemaHints, SetSlim<UpgradeHint> upgradeHints,
       SchemaUpgradeMode schemaUpgradeMode, DomainModel model,
       bool briefExceptionFormat, UpgradeStage upgradeStage)
     {
@@ -114,11 +114,11 @@ namespace Xtensive.Orm.Upgrade
     {
       var actions = difference!=null
         ? new Upgrader().GetUpgradeSequence(difference, hints, comparer)
-        : Enumerable.Empty<NodeAction>();
+        : EnumerableUtils<NodeAction>.Empty;
       return new ActionSequence {actions};
     }
 
-    private static IList<NodeAction> GetUnsafeActions(ICollection<NodeAction> actions, IEnumerable<UpgradeHint> hints)
+    private static IList<NodeAction> GetUnsafeActions(ICollection<NodeAction> actions, SetSlim<UpgradeHint> hints)
     {
       var unsafeActions = new List<NodeAction>();
 

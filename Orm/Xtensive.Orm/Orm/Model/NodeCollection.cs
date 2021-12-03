@@ -17,15 +17,10 @@ namespace Xtensive.Orm.Model
   /// </summary>
   /// <typeparam name="TNode">The type of the node.</typeparam>
   [Serializable]
-  public class NodeCollection<TNode> : CollectionBaseSlim<TNode>
+  public class NodeCollection<TNode>
+    : CollectionBase<TNode>
     where TNode: Node
   {
-    [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private EventHandler<ChangeNotifierEventArgs> itemChangedHandler;
-
-    [NonSerialized, DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private EventHandler<ChangeNotifierEventArgs> itemChangingHandler;
-
     protected Dictionary<string, TNode> NameIndex = new Dictionary<string, TNode>();
     
     /// <summary>
@@ -47,7 +42,8 @@ namespace Xtensive.Orm.Model
     /// Gets the full name.
     /// </summary>
     public string FullName {
-      get {
+      get
+      {
         return Owner==null 
           ? Name
           : string.Format(Strings.NodeCollectionFullNameFormat, Owner.Name, Name);
@@ -64,8 +60,6 @@ namespace Xtensive.Orm.Model
     {
       try {
         base.Add(item);
-        NameIndex.Add(item.Name, item);
-        TrySubscribe(item);
       }
       catch (ArgumentException e){
         throw new InvalidOperationException(
@@ -75,37 +69,6 @@ namespace Xtensive.Orm.Model
         throw new InvalidOperationException(
           string.Format(Strings.ExItemWithNameXAlreadyExistsInY, item.Name, FullName), e);
       }
-    }
-
-    /// <inheritdoc/>
-    public override void AddRange(IEnumerable<TNode> nodes)
-    {
-      this.EnsureNotLocked();
-      foreach (var node in nodes) {
-        Add(node);
-      }
-    }
-
-    /// <inheritdoc/>
-    public override bool Remove(TNode item)
-    {
-      if (base.Remove(item)) {
-        TryUnsubscribe(item);
-        NameIndex.Remove(item.Name);
-        return true;
-      }
-      return false;
-    }
-
-    /// <inheritdoc/>
-    public override void Clear()
-    {
-      this.EnsureNotLocked();
-      foreach(var item in this) {
-        TryUnsubscribe(item);
-      }
-      base.Clear();
-      NameIndex.Clear();
     }
 
     /// <inheritdoc/>
@@ -152,7 +115,8 @@ namespace Xtensive.Orm.Model
     public TNode this[string key]
     {
       [DebuggerStepThrough]
-      get {
+      get
+      {
         TNode result;
         if (!TryGetValue(key, out result))
           throw new KeyNotFoundException(GetExceptionMessage(key));
@@ -165,39 +129,33 @@ namespace Xtensive.Orm.Model
       return string.Format(Strings.ExItemWithKeyXWasNotFound, key);
     }
 
-    /// <summary>
-    /// Tries to subscribe the collection on 
-    /// change notifications from the specified item.
-    /// </summary>
-    /// <param name="item">The item to try.</param>
-    protected void TrySubscribe(TNode item)
+    protected override void OnInserted(TNode value, int index)
     {
-      if (item is IChangeNotifier notifier) {
-        notifier.Changing += itemChangingHandler;
-        notifier.Changed += itemChangedHandler;
-      }
+      base.OnInserted(value, index);
+      NameIndex.Add(value.Name, value);
     }
 
-    /// <summary>
-    /// Tries to unsubscribe the collection from
-    /// change notifications from the specified item.
-    /// </summary>
-    /// <param name="item">The item to try.</param>
-    protected void TryUnsubscribe(TNode item)
+    protected override void OnRemoved(TNode value, int index)
     {
-      if (item is IChangeNotifier notifier) {
-        notifier.Changing -= itemChangingHandler;
-        notifier.Changed -= itemChangedHandler;
-      }
+      base.OnRemoved(value, index);
+      NameIndex.Remove(value.Name);
     }
 
-    protected virtual void OnItemChanging(object sender, ChangeNotifierEventArgs e)
+    protected override void OnCleared()
     {
+      base.OnCleared();
+      NameIndex.Clear();
+    }
+
+    protected override void OnItemChanging(object sender, ChangeNotifierEventArgs e)
+    {
+      base.OnItemChanging(sender, e);
       NameIndex.Remove(((TNode) sender).Name);
     }
 
-    protected virtual void OnItemChanged(object sender, ChangeNotifierEventArgs e)
+    protected override void OnItemChanged(object sender, ChangeNotifierEventArgs e)
     {
+      base.OnItemChanged(sender, e);
       var tNode = (TNode)sender;
       NameIndex.Add(tNode.Name, tNode);
     }
@@ -206,12 +164,10 @@ namespace Xtensive.Orm.Model
     public override void Lock(bool recursive)
     {
       base.Lock(recursive);
-      if (recursive) {
-        foreach (var item in this) {
-          item.Lock(true);
-        }
-      }
+      foreach (var item in Items)
+        item.Lock(true);
     }
+
 
     // Constructors
 
@@ -225,8 +181,6 @@ namespace Xtensive.Orm.Model
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       Owner = owner;
       Name = name;
-      itemChangingHandler = OnItemChanging;
-      itemChangedHandler = OnItemChanged;
     }
 
     // Type initializer
@@ -234,7 +188,6 @@ namespace Xtensive.Orm.Model
     static NodeCollection()
     {
       Empty = new NodeCollection<TNode>(null, "Empty");
-      Empty.Lock(false);
     }
   }
 }

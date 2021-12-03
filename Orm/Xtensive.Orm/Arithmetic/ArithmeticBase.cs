@@ -5,7 +5,6 @@
 // Created:    2008.02.06
 
 using System;
-using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
@@ -26,8 +25,8 @@ namespace Xtensive.Arithmetic
     private IArithmeticProvider provider;
     
     [NonSerialized] 
-    private ConcurrentDictionary<(ArithmeticRules, ArithmeticBase<T>), Arithmetic<T>> cachedArithmetics =
-      new ConcurrentDictionary<(ArithmeticRules, ArithmeticBase<T>), Arithmetic<T>>();
+    private ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>> cachedArithmetics =
+      ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>>.Create(new object());
 
     /// <summary>
     /// Indicates whether overflow is allowed (doesn't lead to an exception)
@@ -84,11 +83,9 @@ namespace Xtensive.Arithmetic
     /// <returns>New instance of <see cref="IArithmetic{T}"/>.</returns>
     public Arithmetic<T> ApplyRules(ArithmeticRules rules)
     {
-      return cachedArithmetics.GetOrAdd((rules, this),
-        (key) => {
-          var (_rules, _this) = key;
-          return new Arithmetic<T>(_this.CreateNew(_rules));
-        });
+      return cachedArithmetics.GetValue(rules, 
+        (_rules, _this) => new Arithmetic<T>(_this.CreateNew(_rules)), 
+        this);
     }
 
     /// <summary>
@@ -134,7 +131,7 @@ namespace Xtensive.Arithmetic
         provider = ArithmeticProvider.Default;
       OverflowAllowed = (Rules.OverflowBehavior==OverflowBehavior.AllowOverflow);
       NullIsZero = (Rules.NullBehavior==NullBehavior.ThreatNullAsZero);
-      cachedArithmetics = new ConcurrentDictionary<(ArithmeticRules, ArithmeticBase<T>), Arithmetic<T>>();
+      cachedArithmetics = ThreadSafeDictionary<ArithmeticRules, Arithmetic<T>>.Create(new object());
     }
   }
 }

@@ -5,11 +5,12 @@
 // Created:    2010.08.30
 
 using System;
+using System.Diagnostics;
 using System.Reflection;
+using Xtensive.Collections;
 
 using ReflectionInterfaceMapping=System.Reflection.InterfaceMapping;
 using System.Linq;
-using System.Collections.Generic;
 
 namespace Xtensive.Reflection
 {
@@ -32,12 +33,12 @@ namespace Xtensive.Reflection
     /// <summary>
     /// Gets the type members of this mapping.
     /// </summary>
-    public IReadOnlyList<MethodInfo> TargetMethods { get; private set; }
+    public ReadOnlyList<MethodInfo> TargetMethods { get; private set; }
 
     /// <summary>
     /// Gets the interface members of this mapping.
     /// </summary>
-    public IReadOnlyList<MethodInfo> InterfaceMethods { get; private set; }
+    public ReadOnlyList<MethodInfo> InterfaceMethods { get; private set; }
 
     
     // Constructors
@@ -50,8 +51,8 @@ namespace Xtensive.Reflection
     {
       TargetType = source.TargetType;
       InterfaceType = source.InterfaceType;
-      TargetMethods = Array.AsReadOnly(source.TargetMethods);
-      InterfaceMethods = Array.AsReadOnly(source.InterfaceMethods);
+      TargetMethods = new ReadOnlyList<MethodInfo>(source.TargetMethods.ToList());
+      InterfaceMethods = new ReadOnlyList<MethodInfo>(source.InterfaceMethods.ToList());
     }
   }
 }

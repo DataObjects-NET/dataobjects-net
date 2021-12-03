@@ -9,8 +9,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
+using System.Security.Permissions;
 using System.Text;
+using Xtensive.Collections;
 using System.Linq;
+
+
 
 namespace Xtensive.Core
 {
@@ -20,12 +24,12 @@ namespace Xtensive.Core
   [Serializable]
   public class AggregateException : Exception
   {
-    private Exception[] exceptions;
+    private ReadOnlyList<Exception> exceptions;
 
     /// <summary>
     /// Gets the list of caught exceptions.
     /// </summary>
-    public IReadOnlyList<Exception> Exceptions
+    public ReadOnlyList<Exception> Exceptions
     {
       [DebuggerStepThrough]
       get { return exceptions; }
@@ -66,14 +70,17 @@ namespace Xtensive.Core
 
     #region Private \ internal methods
 
-    private void SetExceptions(Exception[] exceptions)
+    private void SetExceptions(IEnumerable<Exception> exceptions)
     {
-      this.exceptions = exceptions;
+      var list = exceptions as IList<Exception> ?? exceptions.ToList();
+      this.exceptions = new ReadOnlyList<Exception>(list);
     }
 
     private void SetExceptions(Exception exception)
     {
-      exceptions =  new Exception[] { exception };
+      var list = new List<Exception>();
+      list.Add(exception);
+      exceptions = new ReadOnlyList<Exception>(list);
     }
 
     #endregion
@@ -113,7 +120,7 @@ namespace Xtensive.Core
     /// Initializes a new instance of this type.
     /// </summary>
     /// <param name="exceptions">Inner exceptions.</param>
-    public AggregateException(Exception[] exceptions) 
+    public AggregateException(IEnumerable<Exception> exceptions) 
       : base(Strings.ExASetOfExceptionsIsCaught, exceptions.First())
     {
       SetExceptions(exceptions);
@@ -124,7 +131,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="message">Text of message.</param>
     /// <param name="exceptions">Inner exceptions.</param>
-    public AggregateException(string message, Exception[] exceptions) 
+    public AggregateException(string message, IEnumerable<Exception> exceptions) 
       : base(message, exceptions.First())
     {
       SetExceptions(exceptions);
@@ -141,7 +148,7 @@ namespace Xtensive.Core
     protected AggregateException(SerializationInfo info, StreamingContext context)
       : base(info, context)
     {
-      exceptions = (Exception[]) info.GetValue("Exceptions", typeof (Exception[]));
+      exceptions = (ReadOnlyList<Exception>)info.GetValue("Exceptions", typeof (ReadOnlyList<Exception>));
     }
 
     /// <summary>

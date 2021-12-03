@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -8,6 +8,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Building.Definitions;
 using Xtensive.Orm.Building.DependencyGraph;
@@ -23,7 +25,9 @@ namespace Xtensive.Orm.Building.Builders
 {
   internal sealed class ModelBuilder
   {
-    private readonly struct TypeKey: IEquatable<TypeKey>
+    private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
+
+    private readonly struct TypeKey : IEquatable<TypeKey>
     {
       public readonly string Name;
       public readonly Type OwnerType;
@@ -35,14 +39,13 @@ namespace Xtensive.Orm.Building.Builders
 
       public override int GetHashCode() => (Name ?? string.Empty).GetHashCode();
 
-      public TypeKey(string name, Type ownerType, Type targetType) {
+      public TypeKey(string name, Type ownerType, Type targetType)
+      {
         Name = name;
         OwnerType = ownerType;
         TargetType = targetType;
       }
     }
-
-    private const string GeneratedTypeNameFormat = "{0}.EntitySetItems.{1}";
 
     private static readonly ConcurrentDictionary<TypeKey, Lazy<Type>> GeneratedTypes = new ConcurrentDictionary<TypeKey, Lazy<Type>>();
 

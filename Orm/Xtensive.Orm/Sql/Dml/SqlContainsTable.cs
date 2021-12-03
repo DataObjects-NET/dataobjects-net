@@ -67,7 +67,7 @@ namespace Xtensive.Sql.Dml
 
 
     internal SqlContainsTable(DataTable dataTable, SqlExpression freeText, ICollection<string> columnNames)
-      : this(dataTable, freeText, columnNames, Array.Empty<string>(), null)
+      : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray, null)
     {
     }
 
@@ -77,7 +77,7 @@ namespace Xtensive.Sql.Dml
     }
 
     internal SqlContainsTable(DataTable dataTable, SqlExpression freeText, ICollection<string> columnNames, SqlExpression topN)
-      : this(dataTable, freeText, columnNames, Array.Empty<string>(), topN)
+      : this(dataTable, freeText, columnNames, ArrayUtils<string>.EmptyArray, topN)
     {
     }
 

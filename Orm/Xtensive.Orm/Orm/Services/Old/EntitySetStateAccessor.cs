@@ -7,7 +7,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using Xtensive.Collections;
 
 namespace Xtensive.Orm.Services
@@ -85,7 +84,7 @@ namespace Xtensive.Orm.Services
     public IEnumerator<Key> GetEnumerator()
     {
       var state = EntitySet.State;
-      return (state ?? Enumerable.Empty<Key>()).GetEnumerator();
+      return state==null ? EnumerableUtils<Key>.EmptyEnumerator : state.GetEnumerator();
     }
 
 

@@ -19,6 +19,11 @@ namespace Xtensive.Orm.Model
   public sealed class ColumnInfoCollection : NodeCollection<ColumnInfo>,
     IFilterable<ColumnAttributes, ColumnInfo>
   {
+    public override void Insert(int index, ColumnInfo item)
+    {
+      throw new NotSupportedException();
+    }
+
     #region IFilterable<ColumnAttributes,ColumnInfo> Members
 
     public ICollection<ColumnInfo> Find(ColumnAttributes criteria)
@@ -30,7 +35,7 @@ namespace Xtensive.Orm.Model
     {
       // We don't have any instance that has attributes == FieldAttributes.None
       if (criteria == ColumnAttributes.None)
-        return Array.Empty<ColumnInfo>();
+        return ArrayUtils<ColumnInfo>.EmptyArray;
 
       switch (matchType) {
         case MatchType.Partial:

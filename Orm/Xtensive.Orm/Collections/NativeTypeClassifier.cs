@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 using Xtensive.Reflection;
 using System.Linq;
@@ -18,7 +19,7 @@ namespace Xtensive.Collections
   /// </summary>
   /// <typeparam name="TItem">The type of the item.</typeparam>
   [Serializable]
-  public class NativeTypeClassifier<TItem> : ClassifiedCollection<Type, TItem>
+  public class NativeTypeClassifier<TItem> : TypeClassifier<TItem>
   {
     /// <summary>
     /// Gets all the items of the specified class.
@@ -27,14 +28,9 @@ namespace Xtensive.Collections
     /// <returns>
     /// A sequence of items of the specified class.
     /// </returns>
-    public IEnumerable<TClass> GetItems<TClass>()
+    public new IEnumerable<TClass> GetItems<TClass>()
     {
       return GetItems(typeof(TClass)).Cast<TClass>();
-    }
-
-    public int GetItemCount<TClass>()
-    {
-      return GetItemCount(typeof(TClass));
     }
 
     private static Func<TItem, Type[]> GetClassifier(bool exactType)

@@ -960,7 +960,7 @@ namespace Xtensive.Orm
       if (association.AuxiliaryType != null) {
         itemCtor = DelegateHelper.CreateDelegate<Func<Tuple, Entity>>(null,
           association.AuxiliaryType.UnderlyingType, DelegateHelper.AspectedFactoryMethodName,
-          Array.Empty<Type>());
+          ArrayUtils<Type>.EmptyArray);
       }
 
       return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
