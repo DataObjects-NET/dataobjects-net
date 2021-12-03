@@ -42,6 +42,7 @@ namespace Xtensive.Sql.Drivers.Firebird
         connectionString, GetVersionFromServerVersionString(connection.ServerVersion), defaultSchema);
     }
 
+    /// <inheritdoc/>
     protected override async Task<SqlDriver> CreateDriverAsync(
       string connectionString, SqlDriverConfiguration configuration, CancellationToken token)
     {

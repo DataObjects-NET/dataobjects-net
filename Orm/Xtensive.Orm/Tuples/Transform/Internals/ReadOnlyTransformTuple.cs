@@ -27,7 +27,7 @@ namespace Xtensive.Tuples.Transform.Internals
 
     /// <inheritdoc/>
     /// <remarks>
-    /// This method always returns <see cref="ArrayUtils{TItem}.EmptyArray"/> of <see cref="object"/>s
+    /// This method always returns an empty array of <see cref="object"/>s
     /// to block any access to the original tuple.
     /// </remarks>
     public override IReadOnlyList<object> Arguments {

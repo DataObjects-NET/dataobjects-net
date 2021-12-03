@@ -225,11 +225,19 @@ namespace Xtensive.Sql.Drivers.SqlServer
 
     // Constructors
 
+    /// <summary>
+    /// Creates a new instance of this type.
+    /// </summary>
     public ErrorMessageParser()
     {
       templates = new Dictionary<int, PreparedTemplate>();
     }
 
+    /// <summary>
+    /// Creates a new instance of this type.
+    /// </summary>
+    /// <param name="messageTemplates">A collection of the message templates with the correspondign unique ids.</param>
+    /// <param name="isEnglish">Indicates whether the provided <see paramref="messageTemplates"/> are in English.</param>
     public ErrorMessageParser(IEnumerable<KeyValuePair<int,string>> messageTemplates, bool isEnglish)
     {
       ArgumentValidator.EnsureArgumentNotNull(messageTemplates, "messageTemplates");

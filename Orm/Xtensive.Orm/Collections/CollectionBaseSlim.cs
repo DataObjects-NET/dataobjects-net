@@ -10,8 +10,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using Xtensive.Core;
 
-
-
 namespace Xtensive.Collections
 {
   /// <summary>
@@ -20,149 +18,40 @@ namespace Xtensive.Collections
   [Serializable]
   [DebuggerDisplay("Count = {Count}")]
   public class CollectionBaseSlim<TItem>: LockableBase,
-    IList<TItem>,
-    ICollection
+    ICollection<TItem>, IReadOnlyList<TItem>
   {
     [DebuggerBrowsable(DebuggerBrowsableState.RootHidden)]
     private readonly List<TItem> items;
 
-    #region Properties: IsReadOnly, SyncRoot, IsSyncronized
-
     /// <inheritdoc/>
-    public virtual bool IsReadOnly
-    {
+    public virtual bool IsReadOnly {
       [DebuggerStepThrough]
-      get { return IsLocked; }
-    }
-
-    /// <inheritdoc/>
-    public virtual object SyncRoot
-    {
-      [DebuggerStepThrough]
-      get { return this; }
-    }
-
-    /// <inheritdoc/>
-    public virtual bool IsSynchronized
-    {
-      [DebuggerStepThrough]
-      get { return false; }
-    }
-
-    #endregion
-
-    /// <summary>
-    /// Gets the items.
-    /// </summary>
-    /// <value>The items.</value>
-    protected List<TItem> Items
-    {
-      [DebuggerStepThrough]
-      get { return items; }
+      get => IsLocked;
     }
 
     /// <inheritdoc/>
     public int Count
     {
       [DebuggerStepThrough]
-      get { return Items.Count; }
-    }
-
-    /// <inheritdoc/>
-    int ICollection<TItem>.Count
-    {
-      [DebuggerStepThrough]
-      get { return Count; }
+      get => items.Count;
     }
 
     /// <inheritdoc/>
     public virtual TItem this[int index]
     {
-      get { return Items[index]; }
-      set
-      {
-        this.EnsureNotLocked();
-        Items[index] = value;
-      }
+      [DebuggerStepThrough]
+      get => items[index];
     }
 
     /// <inheritdoc/>
-    public virtual int IndexOf(TItem item)
-    {
-      return Items.IndexOf(item);
-    }
-
-    /// <inheritdoc/>
+    [DebuggerStepThrough]
     public virtual bool Contains(TItem item)
-    {
-      return Items.Contains(item);
-    }
-
-    #region Modification methods: Add, Remove, etc.
+      => items.Contains(item);
 
     /// <inheritdoc/>
-    public virtual void Add(TItem item)
-    {
-      this.EnsureNotLocked();
-      Items.Add(item);
-    }
-
-    /// <summary>
-    /// Adds the elements of the specified collection to the end of the <see cref="CollectionBaseSlim{TItem}"/>.
-    /// </summary>
-    /// <param name="collection">The collection whose elements should be added to the end of the <see cref="CollectionBaseSlim{TItem}"/>. The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
-    /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
-    public virtual void AddRange(IEnumerable<TItem> collection)
-    {
-      this.EnsureNotLocked();
-      items.AddRange(collection);
-    }
-
-    /// <inheritdoc/>
-    public virtual void Insert(int index, TItem item)
-    {
-      this.EnsureNotLocked();
-      Items.Insert(index, item);
-    }
-
-    /// <inheritdoc/>
-    public virtual bool Remove(TItem item)
-    {
-      this.EnsureNotLocked();
-      return Items.Remove(item);
-    }
-
-    /// <inheritdoc/>
-    public virtual void RemoveAt(int index)
-    {
-      this.EnsureNotLocked();
-      Items.RemoveAt(index);
-    }
-
-    /// <inheritdoc/>
-    public virtual void Clear()
-    {
-      this.EnsureNotLocked();
-      Items.Clear();
-    }
-
-    #endregion
-
-    #region CopyTo methods
-
-    /// <inheritdoc/>
-    public virtual void CopyTo(Array array, int index)
-    {
-      ((ICollection)Items).CopyTo(array, index);
-    }
-
-    /// <inheritdoc/>
+    [DebuggerStepThrough]
     public virtual void CopyTo(TItem[] array, int arrayIndex)
-    {
-      Items.CopyTo(array, arrayIndex);
-    }
-
-    #endregion
+      => items.CopyTo(array, arrayIndex);
 
     #region GetEnumerator<...> methods
 
@@ -183,15 +72,50 @@ namespace Xtensive.Collections
 
     #endregion
 
-   
+    #region Modification methods: Add, Remove, etc.
+
+    /// <inheritdoc/>
+    public virtual void Add(TItem item)
+    {
+      this.EnsureNotLocked();
+      items.Add(item);
+    }
+
+    /// <summary>
+    /// Adds the elements of the specified collection to the end of the <see cref="CollectionBaseSlim{TItem}"/>.
+    /// </summary>
+    /// <param name="collection">The collection whose elements should be added to the end of the <see cref="CollectionBaseSlim{TItem}"/>. The collection itself cannot be null, but it can contain elements that are null, if type T is a reference type.</param>
+    /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
+    public virtual void AddRange(IEnumerable<TItem> collection)
+    {
+      this.EnsureNotLocked();
+      items.AddRange(collection);
+    }
+
+    /// <inheritdoc/>
+    public virtual bool Remove(TItem item)
+    {
+      this.EnsureNotLocked();
+      return items.Remove(item);
+    }
+
+    /// <inheritdoc/>
+    public virtual void Clear()
+    {
+      this.EnsureNotLocked();
+      items.Clear();
+    }
+
+    #endregion
+
     // Constructors
 
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
     public CollectionBaseSlim()
-      : this(0)
     {
+      items = new List<TItem>();
     }
 
     /// <summary>

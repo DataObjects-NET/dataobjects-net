@@ -14,9 +14,6 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     private const int MaxIdentifierLength = 64;
     private const int DoNotKnow = int.MaxValue;
 
-    private readonly string databaseName;
-    private readonly string defaultSchemaName;
-
     /// <inheritdoc/>
     public override EntityInfo GetCollationInfo()
     {

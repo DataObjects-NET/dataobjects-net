@@ -704,7 +704,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var query = BuildExtractForeignKeysQuery(context);
 
-      int tableId = 0, constraintId = 0;
+      int tableId = 0;
       ColumnResolver referencingTable = null;
       ColumnResolver referencedTable = null;
       ForeignKey foreignKey = null;
@@ -719,7 +719,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var query = BuildExtractForeignKeysQuery(context);
 
-      int tableId = 0, constraintId = 0;
+      int tableId = 0;
       ColumnResolver referencingTable = null;
       ColumnResolver referencedTable = null;
       ForeignKey foreignKey = null;

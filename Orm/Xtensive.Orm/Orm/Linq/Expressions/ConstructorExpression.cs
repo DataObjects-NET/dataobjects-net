@@ -93,7 +93,7 @@ namespace Xtensive.Orm.Linq
     {
       Bindings = bindings ?? new Dictionary<MemberInfo, Expression>();
       NativeBindings = nativeBindings;
-      ConstructorArguments = constructorArguments ?? EnumerableUtils<Expression>.Empty;
+      ConstructorArguments = constructorArguments ?? Enumerable.Empty<Expression>();
       Constructor = constructor;
     }
   }

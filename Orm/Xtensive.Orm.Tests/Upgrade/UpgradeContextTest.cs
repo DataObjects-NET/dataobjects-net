@@ -130,13 +130,13 @@ namespace Xtensive.Orm.Tests.Upgrade.UpgradeContextTestModel
       return default;
     }
 
-    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       TryGather(MethodInfo.GetCurrentMethod());
       base.AddUpgradeHints(hints);
     }
 
-    protected override void AddAutoHints(Collections.ISet<UpgradeHint> hints)
+    protected override void AddAutoHints(ISet<UpgradeHint> hints)
     {
       TryGather(MethodInfo.GetCurrentMethod());
       base.AddAutoHints(hints);

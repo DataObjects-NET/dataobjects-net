@@ -500,7 +500,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ColumnTypeChangeInNewHiera
     {
       public override bool CanUpgradeFrom(string oldVersion) => true;
 
-      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
       {
         base.AddUpgradeHints(hints);
         var rootType = typeof(ClassTableNewRoot);
@@ -517,7 +517,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ColumnTypeChangeInNewHiera
     {
       public override bool CanUpgradeFrom(string oldVersion) => true;
 
-      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
       {
         base.AddUpgradeHints(hints);
         var rootType = typeof(ConcreteTableNewRoot);
@@ -534,7 +534,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ColumnTypeChangeInNewHiera
     {
       public override bool CanUpgradeFrom(string oldVersion) => true;
 
-      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
       {
         base.AddUpgradeHints(hints);
         var rootType = typeof(SingleTableNewRoot);
