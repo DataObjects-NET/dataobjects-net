@@ -5,7 +5,7 @@
 // Created:    2009.10.09
 
 using System;
-using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
@@ -157,9 +157,9 @@ namespace Xtensive.Orm.Internals
       var keyType = WellKnownOrmTypes.Key.Assembly.GetType(keyTypeName);
       keyType = keyType.MakeGenericType(descriptor.ToArray(descriptor.Count));
       var defaultConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(
-        null, keyType, "Create", Array.Empty<Type>());
-      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<int>, Key>>(
-        null, keyType, "Create", Array.Empty<Type>());
+        null, keyType, "Create", ArrayUtils<Type>.EmptyArray);
+      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key>>(
+        null, keyType, "Create", ArrayUtils<Type>.EmptyArray);
       return new GenericKeyFactory(keyType, defaultConstructor, keyIndexBasedConstructor);
     }
   }

@@ -5,9 +5,10 @@
 // Created:    2009.10.09
 
 using System;
-using System.Collections.Generic;
 using NUnit.Framework;
+using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;

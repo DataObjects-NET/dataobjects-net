@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 {
   internal sealed class Fetcher
   {
-    private readonly HashSet<EntityGroupTask> tasks = new HashSet<EntityGroupTask>();
+    private readonly SetSlim<EntityGroupTask> tasks = new SetSlim<EntityGroupTask>();
     private readonly HashSet<Key> foundKeys = new HashSet<Key>();
 
     private readonly PrefetchManager manager;
@@ -97,7 +97,8 @@ namespace Xtensive.Orm.Internals.Prefetch
     {
       var newTask = container.GetTask();
       if (newTask != null) {
-        if (!tasks.TryGetValue(newTask, out var existingTask)) {
+        var existingTask = tasks[newTask];
+        if (existingTask == null) {
           _ = tasks.Add(newTask);
           existingTask = newTask;
         }

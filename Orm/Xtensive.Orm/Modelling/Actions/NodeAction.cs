@@ -12,7 +12,6 @@ using Xtensive.Core;
 
 using Xtensive.Reflection;
 using Xtensive.Modelling.Comparison;
-using System.Linq;
 
 namespace Xtensive.Modelling.Actions
 {
@@ -125,7 +124,7 @@ namespace Xtensive.Modelling.Actions
     /// <returns>The sequence of nested actions.</returns>
     protected virtual IEnumerable<NodeAction> GetNestedActions()
     {
-      return Enumerable.Empty<NodeAction>();
+      return EnumerableUtils<NodeAction>.Empty;
     }
 
     #endregion

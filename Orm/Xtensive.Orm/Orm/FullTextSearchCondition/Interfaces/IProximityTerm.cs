@@ -16,6 +16,6 @@ namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
     /// <summary>
     /// Gets list of near terms.
     /// </summary>
-    IReadOnlyList<IProximityOperand> Terms { get; }
+    IList<IProximityOperand> Terms { get; }
   }
 }

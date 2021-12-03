@@ -6,11 +6,11 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.IoC;
 using Xtensive.Modelling.Comparison;
@@ -344,7 +344,7 @@ namespace Xtensive.Orm.Upgrade
 
     private static void BuildModules(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
     {
-      serviceAccessor.Modules = serviceContainer.GetAll<IModule>().ToList().AsReadOnly();
+      serviceAccessor.Modules = new ReadOnlyList<IModule>(serviceContainer.GetAll<IModule>().ToList());
     }
 
     private static void BuildUpgradeHandlers(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -389,8 +389,10 @@ namespace Xtensive.Orm.Upgrade
         .Select(pair => pair.Value);
 
       // Storing the result
-      serviceAccessor.UpgradeHandlers = new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
-      serviceAccessor.OrderedUpgradeHandlers = sortedHandlers.ToList().AsReadOnly();
+      serviceAccessor.UpgradeHandlers = 
+        new ReadOnlyDictionary<Assembly, IUpgradeHandler>(handlers);
+      serviceAccessor.OrderedUpgradeHandlers = 
+        new ReadOnlyList<IUpgradeHandler>(sortedHandlers.ToList());
     }
 
     private static void BuildFullTextCatalogResolver(UpgradeServiceAccessor serviceAccessor, IServiceContainer serviceContainer)
@@ -580,10 +582,10 @@ namespace Xtensive.Orm.Upgrade
 
         // Hints
         var triplet = BuildTargetModelAndHints(extractedSchema);
-        var hintProcessingResult = triplet.Item3;
-        targetSchema = triplet.Item1;
+        var hintProcessingResult = triplet.Third;
+        targetSchema = triplet.First;
         context.TargetStorageModel = targetSchema;
-        var hints = triplet.Item2;
+        var hints = triplet.Second;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
           UpgradeLog.Info(Strings.LogExtractedSchema);
@@ -665,10 +667,10 @@ namespace Xtensive.Orm.Upgrade
 
         // Hints
         var triplet = BuildTargetModelAndHints(extractedSchema);
-        var hintProcessingResult = triplet.Item3;
-        targetSchema = triplet.Item1;
+        var hintProcessingResult = triplet.Third;
+        targetSchema = triplet.First;
         context.TargetStorageModel = targetSchema;
-        var hints = triplet.Item2;
+        var hints = triplet.Second;
         if (UpgradeLog.IsLogged(LogLevel.Info))
         {
           UpgradeLog.Info(Strings.LogExtractedSchema);
@@ -725,7 +727,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    private (StorageModel, HintSet, UpgradeHintsProcessingResult) BuildTargetModelAndHints(StorageModel extractedSchema)
+    private Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult> BuildTargetModelAndHints(StorageModel extractedSchema)
     {
       var handlers = Domain.Demand().Handlers;
       var currentDomainModel = GetStoredDomainModel(handlers.Domain.Model);
@@ -733,10 +735,9 @@ namespace Xtensive.Orm.Upgrade
       var processedInfo = hintProcessor.Process(context.Hints);
       var targetModel = GetTargetModel(handlers.Domain, processedInfo.ReverseFieldMapping, processedInfo.CurrentModelTypes, extractedSchema);
       context.SchemaHints = new HintSet(extractedSchema, targetModel);
-      if (context.Stage == UpgradeStage.Upgrading) {
+      if (context.Stage == UpgradeStage.Upgrading)
         BuildSchemaHints(extractedSchema, processedInfo, currentDomainModel);
-      }
-      return (targetModel, context.SchemaHints, processedInfo);
+      return new Triplet<StorageModel, HintSet, UpgradeHintsProcessingResult>(targetModel, context.SchemaHints, processedInfo);
     }
 
 

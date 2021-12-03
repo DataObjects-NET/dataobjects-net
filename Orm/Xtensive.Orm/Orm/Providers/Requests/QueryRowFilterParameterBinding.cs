@@ -21,12 +21,12 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the complex type mapping.
     /// </summary>
-    public IReadOnlyList<TypeMapping> RowTypeMapping { get; private set; }
+    public ReadOnlyList<TypeMapping> RowTypeMapping { get; private set; }
 
     public QueryRowFilterParameterBinding(IEnumerable<TypeMapping> rowTypeMapping, Func<ParameterContext, object> valueAccessor)
       : base(null, valueAccessor, QueryParameterBindingType.RowFilter)
     {
-      RowTypeMapping = rowTypeMapping.ToList().AsReadOnly();
+      RowTypeMapping = new ReadOnlyList<TypeMapping>(rowTypeMapping.ToList());
     }
   }
 }

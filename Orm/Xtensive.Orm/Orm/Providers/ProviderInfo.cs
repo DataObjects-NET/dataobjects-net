@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets the supported types.
     /// </summary>
-    public IReadOnlySet<Type> SupportedTypes { get; private set; }
+    public ReadOnlyHashSet<Type> SupportedTypes { get; private set; }
 
     /// <summary>
     /// Gets max query parameter count.

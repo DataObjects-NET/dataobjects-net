@@ -33,6 +33,7 @@ namespace Xtensive.Orm.Tests.Issues
   public class IssueJira0571_MySqlKeyGenerationProblem : AutoBuildTest
   {
     private DomainConfiguration recreateConfiguration;
+    private DomainConfiguration performConfiguration;
     private Catalog extractedCatalog;
 
     [Test]

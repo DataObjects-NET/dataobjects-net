@@ -4,7 +4,9 @@
 // Created by: Alex Kofman
 // Created:    2009.11.12
 
-using System.Collections.Generic;
+using System;
+using Xtensive.Collections;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Manual.Upgrade.Model_3

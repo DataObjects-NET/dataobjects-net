@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using Xtensive.Collections;
@@ -22,7 +21,7 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
-    #region String patterns
+    #region String patterns 
 
     /// <summary>
     /// Node group comment (in action sequence).
@@ -110,19 +109,19 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
     /// is out of range.</exception>
-    public IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints) =>
+    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints) =>
       GetUpgradeSequence(difference, hints, new Comparer());
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
     /// is out of range.</exception>
     /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
-    public IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
+    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
     {
       ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
       ArgumentValidator.EnsureArgumentNotNull(comparer, nameof(comparer));
       if (difference == null) {
-        return Array.Empty<NodeAction>();
+        return ReadOnlyList<NodeAction>.Empty;
       }
 
       TemporaryRenames = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
@@ -173,7 +172,7 @@ namespace Xtensive.Modelling.Comparison
             throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }
 
-          return new ReadOnlyCollection<NodeAction>(actions.Actions.ToArray());
+          return new ReadOnlyList<NodeAction>(actions.Actions, true);
         }
         finally {
           currentAsync.Value = previous;
@@ -572,7 +571,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <param name="accessor">The property accessor.</param>
-    /// <returns><see langword="true"/> if th specified property is immutable;
+    /// <returns><see langword="true"/> if th specified property is immutable; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
@@ -586,7 +585,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <param name="accessor">The property accessor.</param>
-    /// <returns><see langword="true"/> if th specified property is mutable;
+    /// <returns><see langword="true"/> if th specified property is mutable; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
@@ -638,8 +637,8 @@ namespace Xtensive.Modelling.Comparison
     protected static string GetPathWithoutName(Node node)
     {
       var path = node.Path;
-      return !path.Contains(Node.PathDelimiter)
-        ? string.Empty
+      return !path.Contains(Node.PathDelimiter) 
+        ? string.Empty 
         : path.Substring(0, path.LastIndexOf(Node.PathDelimiter) + 1);
     }
 

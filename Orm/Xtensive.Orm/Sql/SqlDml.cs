@@ -148,7 +148,7 @@ namespace Xtensive.Sql
     {
       var valueList = values.ToList();
       if (valueList.Count==0)
-        return Array(System.Array.Empty<int>());
+        return Array(ArrayUtils<int>.EmptyArray);
       var itemType = valueList[0].GetType();
       foreach (var t in values.Select(value => value.GetType())) {
         if (!itemType.IsAssignableFrom(t))

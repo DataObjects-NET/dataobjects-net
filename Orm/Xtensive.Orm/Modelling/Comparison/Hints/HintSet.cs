@@ -24,18 +24,19 @@ namespace Xtensive.Modelling.Comparison.Hints
     IHintSet
   {
     [DebuggerBrowsable(DebuggerBrowsableState.Never)]
-    private static Lazy<HintSet> cachedEmpty = new Lazy<HintSet>(() => {
-      var hs = new HintSet();
-      hs.Lock(true);
-      return hs;
-    });
+    private static ThreadSafeCached<HintSet> cachedEmpty =
+      ThreadSafeCached<HintSet>.Create(new object());
 
     /// <summary>
     /// Gets the empty <see cref="HintSet"/>.
     /// </summary>
     public static HintSet Empty {
       get {
-        return cachedEmpty.Value;
+        return cachedEmpty.GetValue(() => {
+          var hs = new HintSet();
+          hs.Lock(true);
+          return hs;
+        });
       }
     }
 

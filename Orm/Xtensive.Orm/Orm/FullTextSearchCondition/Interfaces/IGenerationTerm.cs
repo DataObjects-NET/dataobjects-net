@@ -4,7 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2016.12.08
 
-using System.Collections.Generic;
+using Xtensive.Collections;
 
 namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
 {
@@ -21,6 +21,6 @@ namespace Xtensive.Orm.FullTextSearchCondition.Interfaces
     /// <summary>
     /// Gets words or phrases which are basis for variants' generation.
     /// </summary>
-    IReadOnlyList<string> Terms { get; } 
+    ReadOnlyList<string> Terms { get; } 
   }
 }

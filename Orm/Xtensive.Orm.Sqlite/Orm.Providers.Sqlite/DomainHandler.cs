@@ -14,7 +14,6 @@ namespace Xtensive.Orm.Providers.Sqlite
   /// </summary>
   public class DomainHandler : Providers.DomainHandler
   {
-    /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration)
     {
       return new SqlCompiler(Handlers, configuration);

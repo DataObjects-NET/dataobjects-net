@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
+using System.Linq;
 
 namespace Xtensive.Orm
 {
@@ -16,7 +17,7 @@ namespace Xtensive.Orm
   /// </summary>
   public sealed class EntityEventBroker
   {
-    private Dictionary<(Key, FieldInfo, object), Delegate> subscribers;
+    private Dictionary<Triplet<Key, FieldInfo, object>, Delegate> subscribers;
 
     #region Event keys
 
@@ -136,8 +137,8 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(eventKey, "eventKey");
       ArgumentValidator.EnsureArgumentNotNull(subscriber, "subscriber");
       if (subscribers == null)
-        subscribers = new Dictionary<(Key, FieldInfo, object), Delegate>();
-      var subscriberKey = (key, fieldInfo, eventKey);
+        subscribers = new Dictionary<Triplet<Key, FieldInfo, object>, Delegate>();
+      var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
       Delegate currentDelegate;
       if (subscribers.TryGetValue(subscriberKey, out currentDelegate))
         subscribers[subscriberKey] = Delegate.Combine(currentDelegate, subscriber);
@@ -171,7 +172,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(subscriber, "subscriber");
       if (subscribers == null)
         return;
-      var subscriberKey = (key, fieldInfo, eventKey);
+      var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
       Delegate currentDelegate;
       if (subscribers.TryGetValue(subscriberKey, out currentDelegate))
         subscribers[subscriberKey] = Delegate.Remove(currentDelegate, subscriber);
@@ -200,7 +201,7 @@ namespace Xtensive.Orm
     {
       if (subscribers == null)
         return null;
-      var subscriberKey = (key, fieldInfo, eventKey);
+      var subscriberKey = new Triplet<Key, FieldInfo, object>(key, fieldInfo, eventKey);
       Delegate subscriber;
       if (subscribers.TryGetValue(subscriberKey, out subscriber))
         return subscriber;
@@ -225,16 +226,15 @@ namespace Xtensive.Orm
     /// <returns>
     /// The sequence of subscribers for the specified <paramref name="eventKey"/>.
     /// </returns>
-    public IEnumerable<(Key, FieldInfo, Delegate)> GetSubscribers(object eventKey)
+    public IEnumerable<Triplet<Key, FieldInfo, Delegate>> GetSubscribers(object eventKey)
     {
       if (subscribers==null)
         yield break;
 
       foreach (var keyValuePair in subscribers) {
         var triplet = keyValuePair.Key;
-        if (triplet.Item3==eventKey) {
-          yield return (triplet.Item1, triplet.Item2, keyValuePair.Value);
-        }
+        if (triplet.Third==eventKey)
+          yield return new Triplet<Key, FieldInfo, Delegate>(triplet.First, triplet.Second, keyValuePair.Value);
       }
     }
 
@@ -246,15 +246,15 @@ namespace Xtensive.Orm
     {
       if (subscribers==null || subscribers.Count==0)
         return;
-      var copy = new Dictionary<(Key, FieldInfo, object), Delegate>(subscribers);
+      var copy = new Dictionary<Triplet<Key, FieldInfo, object>, Delegate>(subscribers);
       subscribers.Clear();
       foreach (var kvp in copy) {
         var triplet = kvp.Key;
         var subscriber = kvp.Value;
         if (subscriber==null) // Strange, but there is report is can be null: http://goo.gl/W6xo 
           continue;
-        var key = keyMapping.TryRemapKey(triplet.Item1);
-        AddSubscriber(key, triplet.Item2, triplet.Item3, kvp.Value);
+        var key = keyMapping.TryRemapKey(triplet.First);
+        AddSubscriber(key, triplet.Second, triplet.Third, kvp.Value);
       }
     }
   }

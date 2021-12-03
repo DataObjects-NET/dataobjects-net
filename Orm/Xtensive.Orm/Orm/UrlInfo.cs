@@ -6,13 +6,14 @@
 
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
+using System.Security.Permissions;
 using System.Text;
 using System.Text.RegularExpressions;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Comparison;
 
@@ -185,7 +186,7 @@ namespace Xtensive.Orm
     /// <para>The mentioned part of the <see cref="Url"/> is parsed
     /// and represented in a <see cref="Dictionary{String,String}"/> form.</para>
     /// </remarks>
-    public IReadOnlyDictionary<string, string> Params
+    public ReadOnlyDictionary<string, string> Params
     {
       [DebuggerStepThrough]
       get { return parameters; }

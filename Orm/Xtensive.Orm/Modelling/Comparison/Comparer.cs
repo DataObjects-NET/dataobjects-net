@@ -370,19 +370,18 @@ namespace Xtensive.Modelling.Comparison
         TryRegisterDifference(source, target, difference);
         difference.ItemChanges.Clear();
 
-        var sourceSize = source?.Count ?? 0;
-        var targetSize = target?.Count ?? 0;
-
-        if (sourceSize == 0 && targetSize == 0) {
+        if (source?.Count == 0 && target?.Count == 0) {
           return null;
         }
 
+        var sourceSize = source?.Count ?? 0;
         var sourceKeyMap = new Dictionary<string, Node>(sourceSize, StringComparer.OrdinalIgnoreCase);
         for (var index = sourceSize; index-- > 0;) {
           var node = source[index];
           sourceKeyMap.Add(GetNodeComparisonKey(node), node);
         }
 
+        var targetSize = target?.Count ?? 0;
         var targetKeyMap = new Dictionary<string, Node>(targetSize, StringComparer.OrdinalIgnoreCase);
         for (var index = targetSize; index-- > 0;) {
           var node = target[index];
@@ -399,12 +398,14 @@ namespace Xtensive.Modelling.Comparison
         }
 
         foreach (var targetItem in targetKeyMap) {
-          var (s, t) = (sourceKeyMap.GetValueOrDefault(targetItem.Key), targetKeyMap[targetItem.Key]);
+          var (s, t) = sourceKeyMap.ContainsKey(targetItem.Key)
+            ? (sourceKeyMap[targetItem.Key], targetKeyMap[targetItem.Key])
+            : (null, targetKeyMap[targetItem.Key]);
           var d = Visit(s, t);
           if (d != null) {
             difference.ItemChanges.Add((NodeDifference) d);
           }
-
+          
         }
         difference.ItemChanges.Sort(CompareNodeDifference);
 

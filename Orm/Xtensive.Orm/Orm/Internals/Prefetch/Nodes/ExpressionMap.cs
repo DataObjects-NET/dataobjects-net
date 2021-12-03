@@ -5,7 +5,6 @@
 // Created:    2012.02.24
 
 using System.Collections.Generic;
-using System.Linq;
 using System.Linq.Expressions;
 using Xtensive.Collections;
 
@@ -21,7 +20,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       HashSet<Expression> children;
       return childrenMap.TryGetValue(parent, out children)
         ? children
-        : Enumerable.Empty<Expression>();
+        : EnumerableUtils<Expression>.Empty;
     }
 
     public void RegisterChild(Expression parent, Expression child)

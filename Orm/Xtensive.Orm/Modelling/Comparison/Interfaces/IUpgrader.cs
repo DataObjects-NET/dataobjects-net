@@ -4,7 +4,7 @@
 // Created by: Alex Yakunin
 // Created:    2009.04.20
 
-using System.Collections.Generic;
+using Xtensive.Collections;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Comparison.Hints;
 
@@ -29,7 +29,7 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>
     /// Sequence of <see cref="NodeAction"/>s describing the upgrade.
     /// </returns>
-    IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer);
+    ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer);
 
     /// <summary>
     /// Gets the upgrade script (sequence of <see cref="NodeAction"/>s)
@@ -40,6 +40,6 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>
     /// Sequence of <see cref="NodeAction"/>s describing the upgrade.
     /// </returns>
-    IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints);
+    ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints);
   }
 }

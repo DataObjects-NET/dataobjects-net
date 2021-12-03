@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
 using System.Threading.Tasks;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -326,7 +325,7 @@ namespace Xtensive.Core
     public IEnumerator<Exception> GetEnumerator()
     {
       if (exceptions==null)
-        return Enumerable.Empty<Exception>().GetEnumerator();
+        return EnumerableUtils<Exception>.EmptyEnumerator;
       else 
         return exceptions.GetEnumerator();
     }
@@ -393,8 +392,8 @@ namespace Xtensive.Core
       isDisposed = true;
       if (isCompleted && exceptions!=null && exceptions.Count>0) {
         var exception = string.IsNullOrEmpty(exceptionMessage) 
-          ? new AggregateException(exceptions.ToArray()) 
-          : new AggregateException(exceptionMessage, exceptions.ToArray());
+          ? new AggregateException(exceptions) 
+          : new AggregateException(exceptionMessage, exceptions);
         throw exception;
       }
     }

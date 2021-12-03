@@ -9,6 +9,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
 
+using Xtensive.Modelling.Comparison.Hints;
+using Xtensive.Orm.Services;
 using Xtensive.Orm.Upgrade;
 using M1 = Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug4.Model.Version1;
 using M2 = Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug4.Model.Version2;
@@ -50,7 +52,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug4
       return true;
     }
 
-    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
     {
 #pragma warning disable 612,618
       // var hints = GetTypeRenameHints("Version1", "Version2");

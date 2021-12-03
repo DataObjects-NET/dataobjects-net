@@ -5,12 +5,12 @@
 // Created:    2009.03.16
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
+using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -41,8 +41,8 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors = 
-      new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
+    private static ThreadSafeDictionary<Type, PropertyAccessorDictionary> cachedPropertyAccessors = 
+      ThreadSafeDictionary<Type, PropertyAccessorDictionary>.Create(new object());
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -852,10 +852,8 @@ namespace Xtensive.Modelling
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-
-      static Lazy<PropertyAccessorDictionary> PropertyAccessorExtractor(Type entityType)
-      {
-        return new Lazy<PropertyAccessorDictionary>(() => {
+      return cachedPropertyAccessors.GetValue(type,
+        entityType => {
           var d = new Dictionary<string, PropertyAccessor>();
           if (entityType != WellKnownTypes.Object) {
             foreach (var pair in GetPropertyAccessors(entityType.BaseType)) {
@@ -871,11 +869,8 @@ namespace Xtensive.Modelling
             }
           }
 
-          return new PropertyAccessorDictionary(d);
+          return new PropertyAccessorDictionary(d, false);
         });
-      }
-
-      return CachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
     private Node TryConstructor(IModel model, params object[] args)
