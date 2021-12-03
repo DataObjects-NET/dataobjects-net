@@ -4,7 +4,6 @@
 // Created by: Alexis Kochetov
 // Created:    2009.10.21
 
-using System.Collections.Generic;
 using Xtensive.Collections;
 using Xtensive.Orm.Operations;
 
@@ -36,23 +35,23 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the list of preconditions.
     /// </summary>
-    IReadOnlyList<IOperation> PrecedingOperations { get; }
+    ReadOnlyList<IOperation> PrecedingOperations { get; }
 
     /// <summary>
     /// Gets the list of nested operations.
     /// </summary>
-    IReadOnlyList<IOperation> FollowingOperations { get; }
+    ReadOnlyList<IOperation> FollowingOperations { get; }
 
     /// <summary>
     /// Gets the list of undo operations.
     /// </summary>
-    IReadOnlyList<IOperation> UndoOperations { get; }
+    ReadOnlyList<IOperation> UndoOperations { get; }
 
-    /// <summary>
+   /// <summary>
     /// Gets or sets the identified entities.
     /// Value of this property can be assigned just once.
     /// </summary>
-    IReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; }
+    ReadOnlyDictionary<string, Key> IdentifiedEntities { get; set; }
 
     /// <summary>
     /// Prepares the operation using specified execution context.

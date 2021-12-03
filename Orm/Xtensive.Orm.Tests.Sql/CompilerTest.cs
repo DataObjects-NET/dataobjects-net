@@ -136,6 +136,7 @@ namespace Xtensive.Orm.Tests.Sql
     {
       var schema = catalog.DefaultSchema;
       Table table;
+      TableColumn column;
       var createBatch = SqlDml.Batch();
 
       table = schema.CreateTable("EmployeeAddress");

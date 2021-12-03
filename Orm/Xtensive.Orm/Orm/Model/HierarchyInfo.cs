@@ -6,6 +6,10 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using Xtensive.Core;
+using Xtensive.Collections;
+
 
 namespace Xtensive.Orm.Model
 {
@@ -28,7 +32,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the types of the current <see cref="HierarchyInfo"/>.
     /// </summary>
-    public IReadOnlyList<TypeInfo> Types { get; private set; }
+    public ReadOnlyList<TypeInfo> Types { get; private set; }
 
     /// <summary>
     /// Gets the <see cref="Key"/> for this instance.
@@ -47,7 +51,7 @@ namespace Xtensive.Orm.Model
       Key.UpdateState();
       var list = new List<TypeInfo> {Root};
       list.AddRange(Root.GetDescendants(true));
-      Types = list.AsReadOnly();
+      Types = new ReadOnlyList<TypeInfo>(list);
       if (Types.Count == 1)
         InheritanceSchema = InheritanceSchema.ConcreteTable;
       if (TypeDiscriminatorMap != null)

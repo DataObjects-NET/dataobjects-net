@@ -24,7 +24,7 @@ namespace Xtensive.Collections
         if (!Type.IsNullOrEmpty())
           return Type;
         else
-          return (Assembly, Namespace.IsNullOrEmpty() ? null : Namespace);
+          return new ObjectPair(Assembly, Namespace.IsNullOrEmpty() ? null : Namespace);
       }
     }
 

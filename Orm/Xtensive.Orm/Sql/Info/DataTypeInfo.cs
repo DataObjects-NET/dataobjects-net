@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Info
       {
         Type = SqlType.Unknown,
         Features = DataTypeFeatures.None,
-        NativeTypes = Array.Empty<string>()
+        NativeTypes = ArrayUtils<string>.EmptyArray
       };
     
     /// <summary>

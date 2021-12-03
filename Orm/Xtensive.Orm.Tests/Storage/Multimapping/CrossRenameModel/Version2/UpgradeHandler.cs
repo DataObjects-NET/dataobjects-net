@@ -4,7 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.03.16
 
-using System.Collections.Generic;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version2
@@ -16,7 +15,7 @@ namespace Xtensive.Orm.Tests.Storage.Multimapping.CrossRenameModel.Version2
       return true;
     }
 
-    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
     {
       hints.Add(new RenameTypeHint(
         typeof (Version1.Namespace1.Renamed1).FullName,

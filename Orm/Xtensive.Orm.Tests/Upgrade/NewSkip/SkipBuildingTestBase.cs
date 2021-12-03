@@ -81,6 +81,8 @@ namespace Xtensive.Orm.Tests.Upgrade.NewSkip
 
   public abstract class SkipBuildingTestBase : AutoBuildTest
   {
+    private bool isInitialBuildingFinished;
+
     private readonly List<SchemaExtractionKeeper> extractionResultKeepers = new List<SchemaExtractionKeeper>();
 
     internal ReadOnlyCollection<SchemaExtractionKeeper> ExtractionResultKeepers

@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Model.Stored
       foreach (var type in model.Types) {
         fieldMap = new Dictionary<string, StoredFieldInfo>();
         if (type.Fields == null)
-          type.Fields = Array.Empty<StoredFieldInfo>();
+          type.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
         UpdateTypeAllFields(type);
         foreach (var field in type.Fields) {
           fieldMap.Add(field.Name, field);
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Model.Stored
     private void UpdateNestedFields(StoredFieldInfo field)
     {
       if (field.Fields == null) {
-        field.Fields = Array.Empty<StoredFieldInfo>();
+        field.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
         return;
       }
 

@@ -4,6 +4,7 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.13
 
+using Xtensive.Collections;
 using Xtensive.Orm.Building.Definitions;
 
 namespace Xtensive.Orm.Building.Builders
@@ -14,22 +15,22 @@ namespace Xtensive.Orm.Building.Builders
 
     public void Attach()
     {
-      context.ModelDef.Hierarchies.Added += OnHierarchyAdded;
-      context.ModelDef.Types.Added += OnTypeAdded;
+      context.ModelDef.Hierarchies.Inserted += OnHierarchyAdded;
+      context.ModelDef.Types.Inserted += OnTypeAdded;
     }
 
     public void Detach()
     {
-      context.ModelDef.Hierarchies.Added -= OnHierarchyAdded;
-      context.ModelDef.Types.Added -= OnTypeAdded;
+      context.ModelDef.Hierarchies.Inserted -= OnHierarchyAdded;
+      context.ModelDef.Types.Inserted -= OnTypeAdded;
     }
 
-    private void OnHierarchyAdded(object sender, HierarchyDefCollectionChangedEventArgs e)
+    private void OnHierarchyAdded(object sender, CollectionChangeNotifierEventArgs<HierarchyDef> e)
     {
       context.ModelInspectionResult.GeneratedHierarchies.Add(e.Item);
     }
 
-    private void OnTypeAdded(object sender, TypeDefCollectionChangedEventArgs e)
+    private void OnTypeAdded(object sender, CollectionChangeNotifierEventArgs<TypeDef> e)
     {
       context.ModelInspectionResult.GeneratedTypes.Add(e.Item);
     }

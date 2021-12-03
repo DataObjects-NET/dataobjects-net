@@ -13,12 +13,12 @@ namespace Xtensive.Orm.FullTextSearchCondition
 {
   public sealed class ProximityOperandEndpoint : IProximityOperandsConstructionFlow
   {
-    private readonly List<IProximityOperand> operands;
+    private readonly IList<IProximityOperand> operands;
     private readonly IOperator rootOperator;
 
     IList<IProximityOperand> IProximityOperandsConstructionFlow.Operands
     {
-      get { return operands.AsReadOnly(); }
+      get { return new ReadOnlyList<IProximityOperand>(operands); }
     }
 
     public IProximityOperandsConstructionFlow SimpleTerm(string term)

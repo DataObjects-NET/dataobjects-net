@@ -911,6 +911,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             if (colIndex > 0)
               index.CreateIndexColumn(tableColumns[tableIdentifier][colIndex], true);
             else {
+              int z = 7;
               //column index is 0
               //this means that this index column is an expression
               //which is not possible with SqlDom tables

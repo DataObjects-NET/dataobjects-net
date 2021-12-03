@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using Xtensive.Core;
+using Xtensive.Collections;
 
 
 namespace Xtensive.Orm.Upgrade
@@ -34,7 +35,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets affected column paths.
     /// </summary>
-    public IReadOnlyList<string> AffectedColumns { get; internal set; }
+    public ReadOnlyList<string> AffectedColumns { get; internal set; }
 
     /// <inheritdoc/>
     public bool Equals(ChangeFieldTypeHint other)
@@ -45,7 +46,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
       var comparer = StringComparer.OrdinalIgnoreCase;
       return base.Equals(other)
-        && other.Type==Type
+        && other.Type==Type 
         && comparer.Equals(other.FieldName, FieldName);
     }
 
@@ -87,7 +88,7 @@ namespace Xtensive.Orm.Upgrade
 
       Type = type;
       FieldName = fieldName;
-      AffectedColumns = Array.Empty<string>();
+      AffectedColumns = ReadOnlyList<string>.Empty;
     }
 
     /// <summary>

@@ -72,7 +72,7 @@ namespace Xtensive.Orm.Tests.Model
       try {
         domain = Domain.Build(configuration);
       }
-      catch (DomainBuilderException) {
+      catch (DomainBuilderException e) {
       }
       return domain;
     }

@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Building.Definitions
   /// A collection of <see cref="FullTextIndexDef"/> items.
   /// </summary>
   [Serializable]
-  public class FullTextIndexDefCollection : CollectionBaseSlim<FullTextIndexDef>
+  public class FullTextIndexDefCollection : CollectionBase<FullTextIndexDef>
   {
     /// <summary>
     /// Gets the value associated with the specified key.

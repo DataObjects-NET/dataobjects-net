@@ -11,8 +11,8 @@ namespace Xtensive.Orm.Reprocessing
   /// </summary>
   public abstract class ExecuteActionStrategy : IExecuteActionStrategy
   {
-    private static readonly ConcurrentDictionary<Type, Lazy<IExecuteActionStrategy>> Singletons =
-      new ConcurrentDictionary<Type, Lazy<IExecuteActionStrategy>>();
+    private static readonly ConcurrentDictionary<Type, IExecuteActionStrategy> Singletons =
+      new ConcurrentDictionary<Type, IExecuteActionStrategy>();
 
     /// <summary>
     /// Gets singleton of the <see cref="HandleReprocessableExceptionStrategy"/>.
@@ -137,13 +137,7 @@ namespace Xtensive.Orm.Reprocessing
       if (type == typeof(NoReprocessStrategy)) {
         return NoReprocess;
       }
-
-      return Singletons.GetOrAdd(type, ActionStrategyFactory).Value;
-
-      static Lazy<IExecuteActionStrategy> ActionStrategyFactory(Type t)
-      {
-        return new Lazy<IExecuteActionStrategy>(() => (IExecuteActionStrategy) Activator.CreateInstance(t));
-      }
+      return Singletons.GetOrAdd(type, a => (IExecuteActionStrategy) Activator.CreateInstance(type));
     }
 
     #region Non-public methods

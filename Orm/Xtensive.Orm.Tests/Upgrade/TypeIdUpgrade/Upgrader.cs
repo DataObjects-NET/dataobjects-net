@@ -5,8 +5,10 @@
 // Created:    2009.12.29
 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics;
+using Xtensive.Collections;
 using Xtensive.Core;
+using Xtensive.Modelling.Comparison.Hints;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Upgrade.TypeIdUpgrade

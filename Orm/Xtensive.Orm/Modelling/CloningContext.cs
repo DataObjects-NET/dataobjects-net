@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 
@@ -26,7 +25,7 @@ namespace Xtensive.Modelling
     /// Gets all the added fixups.
     /// </summary>
     public IEnumerable<Action> Fixups {
-      get { return fixups ?? Enumerable.Empty<Action>(); }
+      get { return fixups ?? EnumerableUtils<Action>.Empty; }
     }
 
     /// <summary>

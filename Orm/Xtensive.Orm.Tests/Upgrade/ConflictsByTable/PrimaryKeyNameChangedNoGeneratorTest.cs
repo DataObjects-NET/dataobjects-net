@@ -407,7 +407,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.PrimaryKeyNameChangedNoGen
     {
       public override bool CanUpgradeFrom(string oldVersion) => true;
 
-      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
       {
         base.AddUpgradeHints(hints);
         var currentType = typeof(ClassTableNewRoot);
@@ -421,7 +421,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.PrimaryKeyNameChangedNoGen
     {
       public override bool CanUpgradeFrom(string oldVersion) => true;
 
-      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
       {
         base.AddUpgradeHints(hints);
         var currentType = typeof(ConcreteTableNewRoot);
@@ -435,7 +435,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable.PrimaryKeyNameChangedNoGen
     {
       public override bool CanUpgradeFrom(string oldVersion) => true;
 
-      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
       {
         base.AddUpgradeHints(hints);
         var currentType = typeof(SingleTableNewRoot);

@@ -5,7 +5,6 @@
 // Created:    2008.12.05
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -74,19 +73,17 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <inheritdoc/>
+    public override void Insert(int index, SessionConfiguration item)
+    {
+      EnsureItemIsValid(item);
+      base.Insert(index, item);
+    }
+
+    /// <inheritdoc/>
     public override void Add(SessionConfiguration item)
     {
       EnsureItemIsValid(item);
       base.Add(item);
-    }
-
-    /// <inheritdoc/>
-    public override void AddRange(IEnumerable<SessionConfiguration> items)
-    {
-      this.EnsureNotLocked();
-      foreach (var item in items) {
-        Add(item);
-      }
     }
 
     private void EnsureItemIsValid(SessionConfiguration item)

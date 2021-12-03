@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Internals
     private List<Node<EntityState>> sortedNodes;
     private List<EntityState> inboundOnlyStates;
     private List<EntityState> outboundOnlyStates;
-    private List<(EntityState, FieldInfo, Entity)> referencesToRestore;
+    private List<Triplet<EntityState, FieldInfo, Entity>> referencesToRestore;
     private readonly bool selfReferencingRowRemovalIsError;
 
     protected override IEnumerable<PersistAction> GetInsertSequence(IEnumerable<EntityState> entityStates)
@@ -40,15 +40,15 @@ namespace Xtensive.Orm.Internals
         yield return new PersistAction(Node, state, PersistActionKind.Insert);
 
       // Restore loop links
-      foreach (var tripletGroup in referencesToRestore.GroupBy(restoreData => restoreData.Item1)) {
+      foreach (var tripletGroup in referencesToRestore.GroupBy(restoreData => restoreData.First)) {
         var state = tripletGroup.Key;
         state.PersistenceState = PersistenceState.Synchronized;
         state.Entity.SystemBeforeTupleChange();
         foreach (var triplet in tripletGroup) {
-          var entity = triplet.Item1.Entity;
+          var entity = triplet.First.Entity;
           entity
-            .GetFieldAccessor(triplet.Item2)
-            .SetUntypedValue(entity, triplet.Item3);
+            .GetFieldAccessor(triplet.Second)
+            .SetUntypedValue(entity, triplet.Third);
         }
         yield return new PersistAction(Node, state, PersistActionKind.Update);
       }
@@ -86,11 +86,11 @@ namespace Xtensive.Orm.Internals
       // Restore loop links
       foreach (var triplet in referencesToRestore) {
         // No necessity to call Entity.SystemBeforeTupleChange, since it already is
-        var entity = triplet.Item1.Entity;
+        var entity = triplet.First.Entity;
         entity
-          .GetFieldAccessor(triplet.Item2)
+          .GetFieldAccessor(triplet.Second)
           .SetUntypedValue(entity, null);
-        yield return new PersistAction(Node, triplet.Item1, PersistActionKind.Update);
+        yield return new PersistAction(Node, triplet.First, PersistActionKind.Update);
       }
 
       // Remove entities that are not referenced by anything
@@ -182,26 +182,22 @@ namespace Xtensive.Orm.Internals
       if (result.HasLoops) {
         sortedNodes = result.SortedNodes.Union(result.LoopNodes).ToList();
         var loopNodes = result.LoopNodes.ToDictionary(el => el as Collections.Graphs.Node);
-        for (var i = notBreakedEdges.Count; i-- > 0;) {
-          var edge = notBreakedEdges[i];
-          if (loopNodes.ContainsKey(edge.Source) && loopNodes.ContainsKey(edge.Target)) {
-            result.BrokenEdges.Add(edge);
-            break;
-          }
-        }
+        notBreakedEdges.Reverse();
+        var loopEdgeForBreak = notBreakedEdges.First(edge => loopNodes.ContainsKey(edge.Source) && loopNodes.ContainsKey(edge.Target));
+        result.BrokenEdges.Add(loopEdgeForBreak);
       }
-      else {
+      else
         sortedNodes = result.SortedNodes;
-      }
 
       // Remove loop links
-      referencesToRestore = new List<(EntityState, FieldInfo, Entity)>(result.BrokenEdges.Count);
+      referencesToRestore = new List<Triplet<EntityState, FieldInfo, Entity>>();
       foreach (var edge in result.BrokenEdges) {
         var associationInfo = edge.Value;
         var owner = (EntityState) edge.Source.UntypedValue;
         var target = (EntityState) edge.Target.UntypedValue;
 
-        referencesToRestore.Add((owner, associationInfo.OwnerField, target.Entity));
+        referencesToRestore.Add(new Triplet<EntityState, FieldInfo, Entity>(
+          owner, associationInfo.OwnerField, target.Entity));
 
         var entity = owner.Entity;
         entity.SystemBeforeTupleChange();
