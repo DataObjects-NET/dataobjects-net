@@ -158,7 +158,7 @@ namespace Xtensive.Orm.Internals
       keyType = keyType.MakeGenericType(descriptor.ToArray(descriptor.Count));
       var defaultConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, Key>>(
         null, keyType, "Create", Array.Empty<Type>());
-      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, IReadOnlyList<int>, Key>>(
+      var keyIndexBasedConstructor = DelegateHelper.CreateDelegate<Func<string, TypeInfo, Tuple, TypeReferenceAccuracy, int[], Key>>(
         null, keyType, "Create", Array.Empty<Type>());
       return new GenericKeyFactory(keyType, defaultConstructor, keyIndexBasedConstructor);
     }
