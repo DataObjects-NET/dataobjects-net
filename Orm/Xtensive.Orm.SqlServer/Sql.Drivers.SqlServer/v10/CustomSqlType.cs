@@ -6,6 +6,9 @@
 
 namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
+  /// <summary>
+  /// Contains additional SQL column types supported by the MS SQL Server RDBMS.
+  /// </summary>
   public static class CustomSqlType
   {
     /// <summary>

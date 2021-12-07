@@ -380,7 +380,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var graphContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var graphContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(2, graphContainers.Count);
         foreach (var container in graphContainers)
           Assert.IsNull(container.ReferencedEntityContainers);
@@ -431,7 +431,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var taskContainers = (SetSlim<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var taskContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(1, taskContainers.Count);
         Assert.AreEqual(orderKey, taskContainers.Single().Key);
       }
@@ -532,7 +532,6 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
     {
       const int instanceCount = 40;
       Key bookKey;
-      Key titleKey;
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
         Action<Book, int> titlesGenerator = (b, seed) => {
@@ -571,13 +570,11 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       Key publisherKey1;
       Key publisherKey2;
       Key publisherKey3;
-      Key publisherKey4;
 
       Key bookShopKey0;
       Key bookShopKey1;
       Key bookShopKey2;
       Key bookShopKey3;
-      Key bookShopKey4;
 
       TypeInfo bookShopType;
       TypeInfo publisherType;

@@ -95,8 +95,6 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void ThreadFunction()
     {
-      string entityText = null;
-
       using (var session = Domain.OpenSession()) {
         var rnd = new Random();
         while (!stopThread) {

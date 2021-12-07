@@ -32,12 +32,15 @@
     <DoGeneratePackage Condition="$(MSBuildProjectName) == 'Xtensive.Orm.Manual'">false</DoGeneratePackage>
     <DoGeneratePackage Condition="$(MSBuildProjectName) == 'TestCommon'">false</DoGeneratePackage>
     <DoGeneratePackage Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</DoGeneratePackage>
+
+    <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
+    <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
   </PropertyGroup>
 
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <LangVersion>9.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>

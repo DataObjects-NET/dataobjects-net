@@ -51,7 +51,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
     /// </summary>
     /// <param name="optionName">The name of the option in lowercase</param>
     /// <param name="optionValue">The value of the option, maybe empty, but not null</param>
-    /// <returns></returns>
+    /// <param name="options"><see href="RelOptions"/> instance to be modified.</param>
     protected virtual void ReadRelOption(string optionName, string optionValue, RelOptions options)
     {
       if (optionName == "fillfactor") {

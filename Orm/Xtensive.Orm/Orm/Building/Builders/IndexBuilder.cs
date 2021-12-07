@@ -507,7 +507,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = realIndex.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Typed | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, realIndex, ArrayUtils<IndexInfo>.EmptyArray);
+      var result = new IndexInfo(reflectedType, attributes, realIndex, Array.Empty<IndexInfo>());
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in realIndex.KeyColumns) {
@@ -542,7 +542,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = indexToFilter.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.Filtered | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, indexToFilter, ArrayUtils<IndexInfo>.EmptyArray) {
+      var result = new IndexInfo(reflectedType, attributes, indexToFilter, Array.Empty<IndexInfo>()) {
         FilterByTypes = filterByTypes.ToList().AsReadOnly()
       };
 
@@ -693,7 +693,7 @@ namespace Xtensive.Orm.Building.Builders
       var attributes = indexToApplyView.Attributes
         & (IndexAttributes.Primary | IndexAttributes.Secondary | IndexAttributes.Unique | IndexAttributes.Abstract)
         | IndexAttributes.View | IndexAttributes.Virtual;
-      var result = new IndexInfo(reflectedType, attributes, indexToApplyView, ArrayUtils<IndexInfo>.EmptyArray);
+      var result = new IndexInfo(reflectedType, attributes, indexToApplyView, Array.Empty<IndexInfo>());
 
       // Adding key columns
       foreach (KeyValuePair<ColumnInfo, Direction> pair in indexToApplyView.KeyColumns) {

@@ -7,7 +7,6 @@
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.Issue0012_Model;
-using Xtensive.Orm.Tests.Issues.Issue0012_Model;
 
 namespace Xtensive.Orm.Tests.Issues
 {

@@ -91,10 +91,10 @@ namespace Xtensive.Orm.Tests.Core.Comparison
 
     private class TestClass
     {
-#pragma warning disable IDE0044, IDE0051 // Add readonly modifier + Remove unused private members
+#pragma warning disable IDE0044, IDE0051, CS0169 // Add readonly modifier + Remove unused private members
       private string x;
       private int y;
-#pragma warning restore IDE0044, IDE0051 // Add readonly modifier + Remove unused private members
+#pragma warning restore IDE0044, IDE0051, CS0169 // Add readonly modifier + Remove unused private members
     }
 
     [Test]

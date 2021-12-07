@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Operations
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Operations
     private bool isOperationRegistrationEnabled = true;
     private bool isUndoOperationRegistrationEnabled = true;
     private bool isSystemOperationRegistrationEnabled = true;
-    private Deque<ICompletableScope> scopes = new Deque<ICompletableScope>();
+    private Collections.Deque<ICompletableScope> scopes = new Collections.Deque<ICompletableScope>();
 
     /// <summary>
     /// Gets the session this instance is bound to.
@@ -289,11 +289,11 @@ namespace Xtensive.Orm.Operations
         }
 
         if (scope.PrecedingOperations!=null)
-          operation.PrecedingOperations = new ReadOnlyList<IOperation>(scope.PrecedingOperations);
+          operation.PrecedingOperations = scope.PrecedingOperations.AsReadOnly();
         if (scope.FollowingOperations!=null)
-          operation.FollowingOperations = new ReadOnlyList<IOperation>(scope.FollowingOperations);
+          operation.FollowingOperations = scope.FollowingOperations.AsReadOnly();
         if (scope.UndoOperations!=null)
-          operation.UndoOperations = new ReadOnlyList<IOperation>(scope.UndoOperations);
+          operation.UndoOperations = scope.UndoOperations.AsReadOnly();
         if (scope.KeyByIdentifier!=null)
           operation.IdentifiedEntities = new ReadOnlyDictionary<string, Key>(scope.KeyByIdentifier);
       }
