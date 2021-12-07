@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.10.30
 
@@ -37,6 +37,13 @@ namespace Xtensive.Orm.Providers
     /// <param name="descriptor">Persist descriptor.</param>
     /// <param name="tuples">The tuples to store.</param>
     void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples);
+
+    /// <summary>
+    /// Asynchronously stores the specified tuples in specified table.
+    /// </summary>
+    /// <param name="descriptor">Persist descriptor.</param>
+    /// <param name="tuples">The tuples to store.</param>
+    Task StoreAsync(EnumerationContext context, IPersistDescriptor descriptor, IEnumerable<Tuple> tuples, CancellationToken token);
 
     /// <summary>
     /// Clears the specified table.

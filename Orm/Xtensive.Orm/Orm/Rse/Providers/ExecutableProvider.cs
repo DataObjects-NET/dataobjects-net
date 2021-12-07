@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.07.07
 
@@ -35,9 +35,24 @@ namespace Xtensive.Orm.Rse.Providers
     protected virtual void OnBeforeEnumerate(EnumerationContext context)
     {
       foreach (var source in Sources) {
-        var ep = source as ExecutableProvider;
-        if (ep!=null)
+        if (source is ExecutableProvider ep) {
           ep.OnBeforeEnumerate(context);
+        }
+      }
+    }
+
+    /// <summary>
+    /// Called when enumerator is created on this provider.
+    /// </summary>
+    /// <param name="context">The enumeration context.</param>
+    /// <param name="token">The cancellation token for operation</param>
+    protected virtual async Task OnBeforeEnumerateAsync(EnumerationContext context, CancellationToken token)
+    {
+      token.ThrowIfCancellationRequested();
+      foreach (var source in Sources) {
+        if (source is ExecutableProvider ep) {
+          await ep.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
+        }
       }
     }
 
@@ -115,9 +130,10 @@ namespace Xtensive.Orm.Rse.Providers
     {
       const string enumerationMarker = "Enumerated";
       var enumerated = context.GetValue<bool>(this, enumerationMarker);
-      bool onEnumerationExecuted = false;
-      if (!enumerated)
-        OnBeforeEnumerate(context);
+      var onEnumerationExecuted = false;
+      if (!enumerated) {
+        await OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
+      }
       try {
         context.SetValue(this, enumerationMarker, true);
         var enumerator = (await OnEnumerateAsync(context, token).ConfigureAwait(false))
@@ -131,8 +147,9 @@ namespace Xtensive.Orm.Rse.Providers
         return enumerator;
       }
       finally {
-        if (!enumerated && !onEnumerationExecuted)
+        if (!enumerated && !onEnumerationExecuted) {
           OnAfterEnumerate(context);
+        }
       }
     }
 

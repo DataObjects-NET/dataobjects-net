@@ -111,8 +111,15 @@ namespace Xtensive.Orm.Rse
     /// </summary>
     private async Task<IEnumerator<Tuple>> GetBatchedEnumeratorAsync(CancellationToken token)
     {
-      EnumerationScope currentScope = null;
-      var enumerator = await Source.GetEnumeratorAsync(Context, token).ConfigureAwait(false);
+      var currentScope = Context.Activate();
+      IEnumerator<Tuple> enumerator = null;
+      try {
+        enumerator = await Source.GetEnumeratorAsync(Context, token).ConfigureAwait(false);
+      }
+      finally {
+        currentScope.DisposeSafely();
+      }
+        
       var batched = enumerator.ToEnumerable().Batch(2);
 
       var cs = Context.BeginEnumeration();
@@ -127,7 +134,8 @@ namespace Xtensive.Orm.Rse
       return GetTwoLevelEnumerator(batched, afterEnumerationAction, cs);
     }
 
-    private static IEnumerator<Tuple> GetTwoLevelEnumerator(IEnumerable<IEnumerable<Tuple>> enumerable, Action<object> afterEnumerationAction, object parameterForAction)
+    private static IEnumerator<Tuple> GetTwoLevelEnumerator(IEnumerable<IEnumerable<Tuple>> enumerable,
+      Action<object> afterEnumerationAction, ICompletableScope parameterForAction)
     {
       try {
         foreach (var batch in enumerable)
