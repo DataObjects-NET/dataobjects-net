@@ -21,9 +21,15 @@ namespace Xtensive.Orm.Tests.Issues
         var index = type.Indexes.PrimaryIndex;
         int currentIndex = -1;
         foreach (var indexColumn in index.Columns) {
-          var i = type.Columns.IndexOf(indexColumn);
-          Assert.That(i > currentIndex, Is.True);
-          currentIndex = i;
+          var typeColumnIndex = -1;
+          foreach (var typeColumn in type.Columns) {
+            typeColumnIndex++;
+            if (typeColumn==indexColumn) {
+              break;
+            }
+          }
+          Assert.That(typeColumnIndex > currentIndex, Is.True);
+          currentIndex = typeColumnIndex;
         }
       }
     }

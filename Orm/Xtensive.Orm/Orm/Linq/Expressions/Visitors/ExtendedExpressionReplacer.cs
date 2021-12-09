@@ -34,15 +34,11 @@ namespace Xtensive.Orm.Linq.Expressions.Visitors
     {
       var item = Visit(projectionExpression.ItemProjector.Item);
       var provider = providerVisitor.VisitCompilable(projectionExpression.ItemProjector.DataSource);
-      var providerChanged = provider!=projectionExpression.ItemProjector.DataSource;
-      var itemChanged = item!=projectionExpression.ItemProjector.Item;
+      var providerChanged = provider != projectionExpression.ItemProjector.DataSource;
+      var itemChanged = item != projectionExpression.ItemProjector.Item;
       if (providerChanged || itemChanged) {
         var itemProjector = new ItemProjectorExpression(item, provider, projectionExpression.ItemProjector.Context);
-        return new ProjectionExpression(
-          projectionExpression.Type,
-          itemProjector,
-          projectionExpression.TupleParameterBindings,
-          projectionExpression.ResultAccessMethod);
+        return projectionExpression.Apply(itemProjector);
       }
       return projectionExpression;
     }

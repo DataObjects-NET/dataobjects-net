@@ -20,6 +20,17 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
   public static class PrefetchTestHelper
   {
+    private static int IndexOf(this ColumnInfoCollection columns, ColumnInfo item) {
+      var index = columns.Count - 1;
+      for (; index>=0; index--) {
+        var current = columns[index];
+        if (current==item) {
+          break;
+        }
+      }
+      return index;
+    }
+
     public static void AssertOnlyDefaultColumnsAreLoaded(Key key, TypeInfo type, Session session)
     {
       AssertOnlySpecifiedColumnsAreLoaded(key, type, session, IsFieldToBeLoadedByDefault);

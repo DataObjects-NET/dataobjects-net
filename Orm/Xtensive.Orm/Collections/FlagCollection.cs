@@ -12,7 +12,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
-using System.Security.Permissions;
 using Xtensive.Conversion;
 using Xtensive.Core;
 
@@ -40,7 +39,7 @@ namespace Xtensive.Collections
     private const int MaxItemCount = 32;
     private readonly Biconverter<TFlag, bool> converter;
     private readonly List<TKey> keys;
-    private readonly ReadOnlyList<TKey> readOnlyKeys;
+    private readonly ReadOnlyCollection<TKey> readOnlyKeys;
     private BitVector32 flags;
 
     /// <summary>
@@ -144,7 +143,7 @@ namespace Xtensive.Collections
     /// Gets a list of keys.
     /// </summary>
     /// <returns>A list of keys.</returns>
-    public ReadOnlyList<TKey> Keys
+    public IReadOnlyList<TKey> Keys
     {
       get { return readOnlyKeys; }
     }
@@ -372,7 +371,7 @@ namespace Xtensive.Collections
     private FlagCollection()
     {
       keys = new List<TKey>();
-      readOnlyKeys = new ReadOnlyList<TKey>(keys);
+      readOnlyKeys = keys.AsReadOnly();
     }
 
     #region ISerializable members
@@ -388,7 +387,7 @@ namespace Xtensive.Collections
       converter = (Biconverter<TFlag, bool>)
         info.GetValue("AdvancedConverter", typeof(Biconverter<TFlag, bool>));
       keys = (List<TKey>)info.GetValue("Keys", typeof(List<TKey>));
-      readOnlyKeys = new ReadOnlyList<TKey>(keys);
+      readOnlyKeys = keys.AsReadOnly();
       flags = new BitVector32(info.GetInt32("Flags"));
     }
 

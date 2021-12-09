@@ -34,6 +34,7 @@ namespace Xtensive.Sql.Drivers.Oracle
       return new Version(items[0], items[1], items[2], items[3]);
     }
 
+    /// <inheritdoc/>
     protected override string BuildConnectionString(UrlInfo url)
     {
       SqlHelper.ValidateConnectionUrl(url);

@@ -5,9 +5,9 @@
 // Created:    2007.09.24
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -17,9 +17,20 @@ namespace Xtensive.Orm.Rse
   /// Collection of <see cref="Column"/> items.
   /// </summary>
   [Serializable]
-  public sealed class ColumnCollection : ReadOnlyList<Column>
+  public sealed class ColumnCollection : IReadOnlyList<Column>
   {
     private readonly Dictionary<string, int> nameIndex;
+    private readonly List<Column> columns;
+
+    /// <summary>
+    /// Gets the number of <see href="Column"/>s in the collection.
+    /// </summary>
+    public int Count => columns.Count;
+
+    /// <summary>
+    /// Gets a <see href="Column"/> instance by its index.
+    /// </summary>
+    public Column this[int index] => columns[index];
 
     /// <summary>
     /// Gets <see cref="Column"/> by provided <paramref name="fullName"/>.
@@ -58,6 +69,17 @@ namespace Xtensive.Orm.Rse
       return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)));
     }
 
+    /// <summary>
+    /// Returns an enumerator that iterates through the <see href="ColumnCollection"/>.
+    /// </summary>
+    public List<Column>.Enumerator GetEnumerator() => columns.GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator<Column> IEnumerable<Column>.GetEnumerator() => GetEnumerator();
+    
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
     // Constructors
 
     /// <summary>
@@ -72,13 +94,14 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="collection">Collection of items to add.</param>
-    public ColumnCollection(List<Column> collection)
-      : base(collection)
+    /// <param name="columns">Collection of items to add.</param>
+    public ColumnCollection(List<Column> columns)
     {
-      nameIndex = new Dictionary<string, int>(Count);
-      for (var index = 0; index < Count; index++) {
-        nameIndex.Add(this[index].Name, index);
+      this.columns = columns;
+      var count = columns.Count;
+      nameIndex = new Dictionary<string, int>(count);
+      for (var index = count; index-- > 0;) {
+        nameIndex.Add(columns[index].Name, index);
       }
     }
   }

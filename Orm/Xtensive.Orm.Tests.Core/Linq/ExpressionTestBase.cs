@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Tests.Core.Linq
 
           // Conditional + new array + static property of generic type
           // Stupid casts are required because otherwise expression won't construct at runtime
-          (Expression<Func<int, byte[]>>) (k => k <= 0 ? (byte[]) ArrayUtils<byte>.EmptyArray : (byte[]) new byte[k]),
+          (Expression<Func<int, byte[]>>) (k => k <= 0 ? (byte[])  Array.Empty<byte>() : (byte[]) new byte[k]),
 
           // TypeIs
           (Expression<Func<object, bool>>) (o => o is string),

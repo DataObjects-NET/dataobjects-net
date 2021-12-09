@@ -124,8 +124,6 @@ namespace Xtensive.Orm.Tests.Core.Caching
       _ = Assert.Throws<ArgumentNullException>(() => cache.Remove(test1));
     }
 
-    private static readonly bool canFinish = true;
-
     [Test]
     public void SynchronizationTest()
     {

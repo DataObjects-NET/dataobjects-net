@@ -10,7 +10,6 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using JetBrains.Annotations;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Tests
@@ -55,7 +54,7 @@ namespace Xtensive.Orm.Tests
       if (expected==null)
         Assert.IsNull(actual);
       else {
-        var expectedSet = new Set<T>(expected);
+        var expectedSet = new HashSet<T>(expected);
         var hasAll = actual.Aggregate(true, (result, current) => result && expectedSet.Contains(current));
         Assert.IsTrue(hasAll, "Collections do not have same elements");
       }

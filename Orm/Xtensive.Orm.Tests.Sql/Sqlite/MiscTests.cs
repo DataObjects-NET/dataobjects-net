@@ -23,8 +23,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
 
-    private Schema schema = null;
-
     #region Internals
 
     private bool CompareExecuteDataReader(string commandText, ISqlCompileUnit statement)

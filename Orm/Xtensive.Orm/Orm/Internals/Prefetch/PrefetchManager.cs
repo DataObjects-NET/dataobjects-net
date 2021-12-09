@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private const int MaxContainerCount = 120;
     private const int ColumnIndexesCacheSize = 256;
 
-    private readonly SetSlim<GraphContainer> graphContainers = new SetSlim<GraphContainer>();
+    private readonly HashSet<GraphContainer> graphContainers = new HashSet<GraphContainer>();
     private readonly ICache<RootContainerCacheKey,RootContainerCacheEntry> columnsCache;
     private readonly Fetcher fetcher;
     private readonly Session session;
@@ -94,21 +94,21 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public int TaskExecutionCount { get; private set; }
 
-    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
+    public StrongReferenceContainer Prefetch(Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors)
     {
       var prefetchTask = Prefetch(key, type, descriptors, false, default);
       return prefetchTask.GetAwaiter().GetResult();
     }
 
     public async Task<StrongReferenceContainer> PrefetchAsync(Key key, TypeInfo type,
-      IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+      IReadOnlyList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
     {
       var prefetchTask = Prefetch(key, type, descriptors, true, token);
       return await prefetchTask.ConfigureAwait(false);
     }
 
     private async ValueTask<StrongReferenceContainer> Prefetch(
-      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, bool isAsync, CancellationToken token)
+      Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors, bool isAsync, CancellationToken token)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, nameof(key));
       ArgumentValidator.EnsureArgumentNotNull(descriptors, nameof(descriptors));
@@ -211,7 +211,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     }
 
     public GraphContainer SetUpContainers(Key key, TypeInfo type,
-      IList<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state, bool canUseCache)
+      IReadOnlyList<PrefetchFieldDescriptor> descriptors, bool exactType, EntityState state, bool canUseCache)
     {
       var result = GetGraphContainer(key, type, exactType);
       var areAnyColumns = false;
@@ -302,7 +302,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       throw new ArgumentException(Strings.ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy);
     }
 
-    private static void EnsureAllFieldsBelongToSpecifiedType(IList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
+    private static void EnsureAllFieldsBelongToSpecifiedType(IReadOnlyList<PrefetchFieldDescriptor> descriptors, TypeInfo type)
     {
       for (var i = 0; i < descriptors.Count; i++) {
         var declaringType = descriptors[i].Field.DeclaringType;
@@ -316,8 +316,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private GraphContainer GetGraphContainer(Key key, TypeInfo type, bool exactType)
     {
       var newTaskContainer = new GraphContainer(key, type, exactType, this);
-      var registeredTaskContainer = graphContainers[newTaskContainer];
-      if (registeredTaskContainer == null) {
+      if (!graphContainers.TryGetValue(newTaskContainer, out var registeredTaskContainer)) {
         _ = graphContainers.Add(newTaskContainer);
         return newTaskContainer;
       }

@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0841_HintGeneratorBug3
       return true;
     }
 
-    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
 #pragma warning disable 612,618
       // var hints = GetTypeRenameHints("Version1", "Version2");

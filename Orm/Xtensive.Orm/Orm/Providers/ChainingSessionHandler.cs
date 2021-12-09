@@ -108,14 +108,14 @@ namespace Xtensive.Orm.Providers
       ChainedHandler.PersistAsync(registry, allowPartialExecution, token);
 
     /// <inheritdoc/>
-    public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors)
+    public override StrongReferenceContainer Prefetch(Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors)
     {
       return ChainedHandler.Prefetch(key, type, descriptors);
     }
 
     /// <inheritdoc/>
     public override Task<StrongReferenceContainer> PrefetchAsync(
-      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
+      Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default)
     {
       return ChainedHandler.PrefetchAsync(key, type, descriptors, token);
     }

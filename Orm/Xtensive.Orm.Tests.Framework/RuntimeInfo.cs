@@ -16,8 +16,8 @@ namespace Xtensive.Orm.Tests
   public static class RuntimeInfo
   {
     private sealed class TwoPointers {
-      public TwoPointers Pointer1;
-      public TwoPointers Pointer2;
+      public TwoPointers Pointer1 = null;
+      public TwoPointers Pointer2 = null;
     }
 
     private static int pointerSize;

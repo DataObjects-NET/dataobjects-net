@@ -6,6 +6,9 @@
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
+  /// <summary>
+  /// Contains additional SQL column types supported by the PostgreSQL RDBMS.
+  /// </summary>
   public static class CustomSqlType
   {
     /// <summary>
