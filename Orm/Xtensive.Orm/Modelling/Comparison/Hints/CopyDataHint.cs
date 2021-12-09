@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -23,7 +23,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets copied columns. The first value is source column path, 
     /// the second value is destination column path.
     /// </summary>
-    public ReadOnlyList<Pair<string>> CopiedColumns { get; private set; }
+    public IReadOnlyList<Pair<string>> CopiedColumns { get; private set; }
     
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
@@ -66,7 +66,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       : base(sourceTablePath, identities)
     {
       ArgumentValidator.EnsureArgumentNotNull(copiedColumns, "copiedColumns");
-      CopiedColumns = new ReadOnlyList<Pair<string>>(copiedColumns);
+      CopiedColumns = new ReadOnlyCollection<Pair<string>>(copiedColumns);
     }
 
     

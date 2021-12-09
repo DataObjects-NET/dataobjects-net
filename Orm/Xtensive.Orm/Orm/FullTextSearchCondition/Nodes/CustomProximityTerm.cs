@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.FullTextSearchCondition.Interfaces;
 
@@ -19,7 +18,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
   public sealed class CustomProximityTerm : Operand, ICustomProximityTerm
   {
     /// <inheritdoc/>
-    public IList<IProximityOperand> Terms { get; private set; }
+    public IReadOnlyList<IProximityOperand> Terms { get; private set; }
 
     /// <inheritdoc/>
     public long? MaxDistance { get; private set; }
@@ -51,7 +50,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       ArgumentValidator.EnsureArgumentNotNull(proximityTerms, "proximityTerms");
       ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(maxDistance, 0, "maxDistance");
 
-      Terms = new ReadOnlyList<IProximityOperand>(proximityTerms.ToList());
+      Terms = proximityTerms.ToList().AsReadOnly();
       MaxDistance = maxDistance;
       MatchOrder = matchOrder;
     }

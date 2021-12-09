@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Tests.Storage.AsyncSession
       try {
         session = await Domain.OpenSessionAsync(canellationTokenSource.Token);
       }
-      catch (OperationCanceledException exception) {
+      catch (OperationCanceledException) {
         Assert.That(session, Is.Null);
       }
     }

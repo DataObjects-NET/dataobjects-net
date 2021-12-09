@@ -119,7 +119,7 @@ namespace Xtensive.Orm
 
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
-    internal ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
+    internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
     
     internal ICache<object, Pair<object, ParameterizedQuery>> QueryCache { get; private set; }
 
@@ -420,7 +420,7 @@ namespace Xtensive.Orm
       GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
       EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
-      PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, ReadOnlyList<PrefetchFieldDescriptor>>();
+      PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();

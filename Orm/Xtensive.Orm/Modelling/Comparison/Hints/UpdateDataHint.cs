@@ -6,8 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -23,7 +23,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// Gets the update parameter. The first is updated column path, 
     /// the second is new value or null (default value).
     /// </summary>
-    public ReadOnlyList<Pair<string, object>> UpdateParameter { get; private set; }
+    public IReadOnlyList<Pair<string, object>> UpdateParameter { get; private set; }
 
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
@@ -61,7 +61,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       : base(sourceTablePath, identities)
     {
       ArgumentValidator.EnsureArgumentNotNull(updateParameters, "updateParameters");
-      UpdateParameter = new ReadOnlyList<Pair<string, object>>(updateParameters);
+      UpdateParameter = new ReadOnlyCollection<Pair<string, object>>(updateParameters);
     }
 
   }

@@ -5,8 +5,8 @@
 // Created:    2010.01.21
 
 using System;
+using System.Collections.Generic;
 using Xtensive.Core;
-using Xtensive.Collections;
 using Xtensive.Orm.Upgrade;
 
 namespace Xtensive.Orm.Tests.Upgrade.FullText.Model.Version1

@@ -5,6 +5,7 @@
 // Created:    2013.07.16
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
 using Xtensive.Orm.Tests.Storage.Multimapping;
@@ -61,7 +62,7 @@ namespace Xtensive.Orm.Tests.Upgrade
           return "2";
         }
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           hints.Add(new RenameTypeHint(typeof (V1.MyEntity1).FullName, typeof (MyEntity2)));
           hints.Add(new RenameFieldHint(typeof (MyEntity2), "Value", "Value2"));

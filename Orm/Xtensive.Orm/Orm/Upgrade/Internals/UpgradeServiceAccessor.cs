@@ -5,8 +5,9 @@
 // Created:    2012.03.14
 
 using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
@@ -28,9 +29,9 @@ namespace Xtensive.Orm.Upgrade
     private SqlConnection connection;
     private PartialIndexFilterCompiler indexFilterCompiler;
 
-    private ReadOnlyList<IModule> modules;
-    private ReadOnlyList<IUpgradeHandler> orderedUpgradeHandlers;
-    private ReadOnlyDictionary<Assembly, IUpgradeHandler> upgradeHandlers;
+    private IReadOnlyList<IModule> modules;
+    private IReadOnlyList<IUpgradeHandler> orderedUpgradeHandlers;
+    private IReadOnlyDictionary<Assembly, IUpgradeHandler> upgradeHandlers;
     private IFullTextCatalogNameBuilder catalogNameBuilder;
 
     public DomainConfiguration Configuration
@@ -95,7 +96,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public ReadOnlyList<IModule> Modules
+    public IReadOnlyList<IModule> Modules
     {
       get { return modules; }
       set
@@ -105,7 +106,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers
+    public IReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers
     {
       get { return orderedUpgradeHandlers; }
       set
@@ -115,7 +116,7 @@ namespace Xtensive.Orm.Upgrade
       }
     }
 
-    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers
+    public IReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers
     {
       get { return upgradeHandlers; }
       set

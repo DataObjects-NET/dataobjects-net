@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
   {
     T Value { get; set; }
     T GetValue();
-    void GenericMethod1<T>();
+    void GenericMethod1<T1>();
     void GenericMethod2<T1,T2>();
   }
 
@@ -28,7 +28,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
     public abstract T Value { get; set; }
     public abstract T GetValue();
     public abstract object BoxedValue { get; set; }
-    public abstract void GenericMethod1<T>();
+    public abstract void GenericMethod1<T1>();
     public abstract void GenericMethod2<T1,T2>();
   }
 

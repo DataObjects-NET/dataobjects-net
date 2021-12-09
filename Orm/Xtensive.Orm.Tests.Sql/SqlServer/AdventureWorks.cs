@@ -123,7 +123,6 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       Catalog.Schemas["Sales"].CreateCollation("SQL_Latin1_General_CP1_CI_AS");
 
       Table t;
-      View v;
       TableColumn c;
       Constraint cs;
 

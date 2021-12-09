@@ -5,10 +5,9 @@
 // Created:    2009.04.01
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Xtensive.Collections;
-
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace Xtensive.Modelling
@@ -18,50 +17,50 @@ namespace Xtensive.Modelling
   /// Items returned by its enumerator are ordered by item <see cref="PropertyAccessor.Priority"/>.
   /// </summary>
   [Serializable]
-  public sealed class PropertyAccessorDictionary : ReadOnlyDictionary<string, PropertyAccessor>,
-    IEnumerable<KeyValuePair<string, PropertyAccessor>>,
-    IEnumerable<PropertyAccessor>
+  public sealed class PropertyAccessorDictionary : IReadOnlyDictionary<string, PropertyAccessor>
   {
-    private KeyValuePair<string, PropertyAccessor>[] sequence;
+    private readonly IReadOnlyDictionary<string, PropertyAccessor> items;
+    private readonly List<KeyValuePair<string, PropertyAccessor>> sequence;
 
-    private void Initialize(IEnumerable<KeyValuePair<string, PropertyAccessor>> dictionary)
-    {
-      sequence = dictionary.OrderBy(p => p.Value.Priority).ToArray();
-    }
+    /// <inheritdoc/>
+    public IEnumerable<string> Keys => items.Keys;
+
+    /// <inheritdoc/>
+    public IEnumerable<PropertyAccessor> Values => items.Values;
+
+    /// <inheritdoc/>
+    public int Count => items.Count;
+
+    /// <inheritdoc/>
+    public PropertyAccessor this[string key] => items[key];
+
+    /// <inheritdoc/>
+    public bool ContainsKey(string key) => items.ContainsKey(key);
+
+    /// <inheritdoc/>
+    public bool TryGetValue(string key, [MaybeNullWhen(false)] out PropertyAccessor value) => items.TryGetValue(key, out value);
 
     #region IEnumerable methods
 
     /// <inheritdoc/>
-    public new IEnumerator<KeyValuePair<string, PropertyAccessor>> GetEnumerator()
-    {
-      foreach (var pair in sequence)
-        yield return pair;
-    }
+    public List<KeyValuePair<string, PropertyAccessor>>.Enumerator GetEnumerator() => sequence.GetEnumerator();
 
     /// <inheritdoc/>
-    IEnumerator<PropertyAccessor> IEnumerable<PropertyAccessor>.GetEnumerator()
-    {
-      foreach (var pair in sequence)
-        yield return pair.Value;
-    }
+    IEnumerator<KeyValuePair<string, PropertyAccessor>> IEnumerable<KeyValuePair<string, PropertyAccessor>>.GetEnumerator() => GetEnumerator();
+
+    /// <inheritdoc/>
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     #endregion
 
-    
+
     // Constructors
 
     /// <inheritdoc/>
-    public PropertyAccessorDictionary(IDictionary<string, PropertyAccessor> dictionary)
-      : base(dictionary)
+    public PropertyAccessorDictionary(IReadOnlyDictionary<string, PropertyAccessor> items)
     {
-      Initialize(dictionary);
-    }
-
-    /// <inheritdoc/>
-    public PropertyAccessorDictionary(IDictionary<string, PropertyAccessor> dictionary, bool copy)
-      : base(dictionary, copy)
-    {
-      Initialize(dictionary);
+      this.items = items;
+      sequence = items.OrderBy(p => p.Value.Priority).ToList();
     }
   }
 }
