@@ -65,13 +65,14 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static readonly Func<RecordSetCacheKey, CompilableProvider> CreateRecordSet = cachingKey => {
       var selectedColumnIndexes = cachingKey.ColumnIndexes;
-      var keyColumnsCount = cachingKey.Type.Indexes.PrimaryIndex.KeyColumns.Count;
+      var privaryIndex = cachingKey.Type.Indexes.PrimaryIndex;
+      var keyColumnsCount = privaryIndex.KeyColumns.Count;
       var keyColumnIndexes = new int[keyColumnsCount];
       foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
         keyColumnIndexes[index] = index;
       }
 
-      var columnCollectionLength = cachingKey.Type.Indexes.PrimaryIndex.Columns.Count;
+      var columnCollectionLength = privaryIndex.Columns.Count;
       return cachingKey.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
         true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
