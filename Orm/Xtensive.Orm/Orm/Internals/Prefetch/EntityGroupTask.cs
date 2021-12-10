@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       }
 
       var columnCollectionLength = privaryIndex.Columns.Count;
-      return cachingKey.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
+      return privaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
         true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     };
