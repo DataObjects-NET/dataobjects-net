@@ -143,7 +143,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(includeParameter, currentKeySet);
       var session = manager.Owner.Session;
-      Provider = session.StorageNode.InternalRecordSetCache.GetOrAdd(cacheKey, CreateRecordSet);
+      Provider = session.StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSet);
       var executableProvider = session.Compile(Provider);
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }

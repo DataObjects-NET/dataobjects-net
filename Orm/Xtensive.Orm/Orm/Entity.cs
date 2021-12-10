@@ -271,7 +271,7 @@ namespace Xtensive.Orm
     {
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(keyParameter, Key.Value);
-      var source = Session.StorageNode.InternalExecutableProviderCache.GetOrAdd((TypeInfo, lockMode, lockBehavior), ExecutableProviderGenerator, Session);
+      var source = Session.StorageNode.EntityLockProviderCache .GetOrAdd((TypeInfo, lockMode, lockBehavior), ExecutableProviderGenerator, Session);
       using var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
       recordSetReader.MoveNext();
     }

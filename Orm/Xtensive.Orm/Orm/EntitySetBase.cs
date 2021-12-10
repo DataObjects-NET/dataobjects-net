@@ -924,7 +924,7 @@ namespace Xtensive.Orm
     private EntitySetTypeState GetEntitySetTypeState()
     {
       EnsureOwnerIsNotRemoved();
-      return Session.StorageNode.InternalEntitySetCache.GetOrAdd(Field, EntitySetTypeStateFactory, this);
+      return Session.StorageNode.EntitySetTypeStateCache .GetOrAdd(Field, EntitySetTypeStateFactory, this);
     }
 
     private static EntitySetTypeState BuildEntitySetTypeState(FieldInfo field, EntitySetBase entitySet)
