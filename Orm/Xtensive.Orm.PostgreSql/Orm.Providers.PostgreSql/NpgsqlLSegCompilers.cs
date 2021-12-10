@@ -18,13 +18,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof(NpgsqlLSeg), "Start", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlLSegExtractStartPoint(SqlExpression _this)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 0);
+      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 0);
     }
 
     [Compiler(typeof(NpgsqlLSeg), "End", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlLSegExtractEndPoint(SqlExpression _this)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(_this, 1);
+      return PostgresqlSqlDml.NpgsqlTypeExtractPoint(_this, 1);
     }
 
     #endregion
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(NpgsqlPoint))] SqlExpression start,
       [Type(typeof(NpgsqlPoint))] SqlExpression end)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlLSegConstructor(start, end);
+      return PostgresqlSqlDml.NpgsqlLSegConstructor(start, end);
     }
 
     #endregion

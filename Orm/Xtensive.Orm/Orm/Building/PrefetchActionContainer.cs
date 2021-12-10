@@ -8,6 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using Xtensive.Core;
 using Xtensive.Orm.Internals.Prefetch;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Providers;
@@ -19,13 +20,12 @@ namespace Xtensive.Orm.Building
   {
     private readonly TypeInfo type;
     private List<AssociationInfo> associations;
-    private ReadOnlyCollection<PrefetchFieldDescriptor> fields;
+    private IReadOnlyList<PrefetchFieldDescriptor> fields;
 
     public Action<SessionHandler, IEnumerable<Key>> BuildPrefetchAction()
     {
       fields = associations
-          .Select(association => new PrefetchFieldDescriptor(association.OwnerField, true, false))
-          .ToList()
+          .SelectToList(association => new PrefetchFieldDescriptor(association.OwnerField, true, false))
           .AsReadOnly();
       return Prefetch;
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Building
     {
       this.type = type;
       this.associations = associations;
-      fields = Array.AsReadOnly(Array.Empty<PrefetchFieldDescriptor>());
+      fields = Array.Empty<PrefetchFieldDescriptor>();
     }
   }
 }

@@ -42,6 +42,7 @@ namespace Xtensive.Sql.Model
     /// <inheritdoc/>
     public override void AddRange(IEnumerable<TNode> items)
     {
+      this.EnsureNotLocked();
       foreach (var item in items) {
         Add(item);
       }

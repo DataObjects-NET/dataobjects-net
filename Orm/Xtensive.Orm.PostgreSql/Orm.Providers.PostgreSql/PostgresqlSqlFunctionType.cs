@@ -8,22 +8,25 @@ using Xtensive.Sql.Dml;
 
 namespace Xtensive.Orm.Providers.PostgreSql
 {
-  /// <summary>
-  /// Contains declaration of the Geometric type specific custom functions.
+ /// <summary>
+  /// Contains additional provider-specific SQL functions.
+  /// These functions are not presented in general set of supported SQL
+  /// functions and are used only within provider, e.g for operations on
+  /// provider-specific types.
   /// </summary>
-  public static class PostgresqlSqlGeometricFunctionType
+  public static class PostgresqlSqlFunctionType
   {
     // Npgsql
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlTypeExtractPoint(SqlExpression, SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlTypeExtractPoint(SqlExpression, SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlTypeExtractPoint = new SqlCustomFunctionType("NpgsqlTypeExtractPoint");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlTypeOperatorEquality(SqlExpression, SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlTypeOperatorEquality(SqlExpression, SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlTypeOperatorEquality = new SqlCustomFunctionType("NpgsqlTypeOperatorEquality");
 
@@ -31,19 +34,19 @@ namespace Xtensive.Orm.Providers.PostgreSql
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlPointConstructor(SqlExpression, SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlPointConstructor(SqlExpression, SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlPointConstructor = new SqlCustomFunctionType("NpgsqlPointConstructor");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlPointExtractX(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlPointExtractX(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlPointExtractX = new SqlCustomFunctionType("NpgsqlPointExtractX");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlPointExtractY(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlPointExtractY(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlPointExtractY = new SqlCustomFunctionType("NpgsqlPointExtractY");
 
@@ -51,19 +54,19 @@ namespace Xtensive.Orm.Providers.PostgreSql
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlBoxConstructor(SqlExpression, SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlBoxConstructor(SqlExpression, SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlBoxConstructor = new SqlCustomFunctionType("NpgsqlBoxConstructor");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlBoxExtractHeight(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlBoxExtractHeight(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlBoxExtractHeight = new SqlCustomFunctionType("NpgsqlBoxExtractHeight");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlBoxExtractWidth(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlBoxExtractWidth(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlBoxExtractWidth = new SqlCustomFunctionType("NpgsqlBoxExtractWidth");
 
@@ -71,19 +74,19 @@ namespace Xtensive.Orm.Providers.PostgreSql
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlCircleConstructor(SqlExpression, SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlCircleConstructor(SqlExpression, SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlCircleConstructor = new SqlCustomFunctionType("NpgsqlCircleConstructor");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlCircleExtractCenter(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlCircleExtractCenter(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlCircleExtractCenter = new SqlCustomFunctionType("NpgsqlCircleExtractCenter");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlCircleExtractRadius(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlCircleExtractRadius(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlCircleExtractRadius = new SqlCustomFunctionType("NpgsqlCircleExtractRadius");
 
@@ -91,7 +94,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlLSegConstructor(SqlExpression, SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlLSegConstructor(SqlExpression, SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlLSegConstructor = new SqlCustomFunctionType("NpgsqlLSegConstructor");
 
@@ -99,19 +102,19 @@ namespace Xtensive.Orm.Providers.PostgreSql
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlPathAndPolygonCount(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlPathAndPolygonCount(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlPathAndPolygonCount = new SqlCustomFunctionType("NpgsqlPathAndPolygonCount");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlPathAndPolygonOpen(SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlPathAndPolygonOpen(SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlPathAndPolygonOpen = new SqlCustomFunctionType("NpgsqlPathAndPolygonOpen");
 
     /// <summary>
     /// The <see cref="SqlCustomFunctionType"/> declaration for
-    /// the <see cref="PostgresqlSqlGeometryDml.NpgsqlPathAndPolygonContains(SqlExpression, SqlExpression)"/> function.
+    /// the <see cref="PostgresqlSqlDml.NpgsqlPathAndPolygonContains(SqlExpression, SqlExpression)"/> function.
     /// </summary>
     public static readonly SqlCustomFunctionType NpgsqlPathAndPolygonContains = new SqlCustomFunctionType("NpgsqlPathAndPolygonContains");
   }

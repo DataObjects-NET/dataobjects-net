@@ -41,7 +41,7 @@ namespace Xtensive.Modelling
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> cachedPropertyAccessors = 
+    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors =
       new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
     [NonSerialized]
     private Node model;
@@ -128,7 +128,7 @@ namespace Xtensive.Modelling
       get { return nesting; }
     }
 
-    /// <inheritdoc/>    
+    /// <inheritdoc/>
     public PropertyAccessorDictionary PropertyAccessors {
       [DebuggerStepThrough]
       get { return propertyAccessors; }
@@ -342,7 +342,7 @@ namespace Xtensive.Modelling
         }
 
         ArgumentValidator.EnsureArgumentNotNull(newName, nameof(newName));
-      
+
         // Cloning the instance
         var model = isModel ? null : (IModel) newParent.Model;
         Node node;
@@ -397,9 +397,9 @@ namespace Xtensive.Modelling
       else if (accessor.HasSetter) {
         var value = GetProperty(propertyName);
         if (value is IPathNode pathNode) {
-          CloningContext.Current.AddFixup(() => 
-            accessor.Setter(target, 
-              PathNodeReference.Resolve((IModel) target.Model, 
+          CloningContext.Current.AddFixup(() =>
+            accessor.Setter(target,
+              PathNodeReference.Resolve((IModel) target.Model,
                 new PathNodeReference(pathNode.Path))));
           return;
         }
@@ -421,7 +421,7 @@ namespace Xtensive.Modelling
     /// <param name="newName">The new name.</param>
     /// <param name="newIndex">The new index.</param>
     /// <exception cref="ArgumentException">Item already exists.</exception>
-    /// <exception cref="ArgumentOutOfRangeException"><paramref name="newIndex"/> is out of range, 
+    /// <exception cref="ArgumentOutOfRangeException"><paramref name="newIndex"/> is out of range,
     /// or <paramref name="newParent"/> belongs to a different <see cref="Model"/>.</exception>
     /// <exception cref="InvalidOperationException">newName!=newIndex for <see cref="IUnnamedNode"/>.</exception>
     protected virtual void ValidateMove(Node newParent, string newName, int newIndex)
@@ -628,7 +628,7 @@ namespace Xtensive.Modelling
     }
 
     /// <summary>
-    /// Performs "shift" operation 
+    /// Performs "shift" operation
     /// (induced by <see cref="Move"/> operation of another node).
     /// </summary>
     /// <param name="offset">Shift offset.</param>
@@ -716,7 +716,7 @@ namespace Xtensive.Modelling
       scope.Action = action;
       return scope;
     }
-    
+
     /// <summary>
     /// Begins registration of a new action.
     /// </summary>
@@ -875,7 +875,7 @@ namespace Xtensive.Modelling
         });
       }
 
-      return cachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
+      return CachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
     private Node TryConstructor(IModel model, params object[] args)

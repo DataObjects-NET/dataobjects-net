@@ -1,7 +1,7 @@
 // Copyright (C) 2007-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: 
+// Created by:
 // Created:    2007.10.25
 
 using System;
@@ -17,7 +17,7 @@ using Xtensive.Core;
 namespace Xtensive.Reflection
 {
   /// <summary>
-  /// Delegate helper \ extension methods. 
+  /// Delegate helper \ extension methods.
   /// Simplifies various delegate creation.
   /// </summary>
   public static class DelegateHelper
@@ -97,12 +97,12 @@ namespace Xtensive.Reflection
     /// <summary>
     /// Aspected factory method name.
     /// </summary>
-    public static readonly string AspectedFactoryMethodName = 
+    public static readonly string AspectedFactoryMethodName =
       "~Xtensive.Orm.CreateObject";
 
     #endregion
 
-    #region Nested type: MethodCallDelegateKey 
+    #region Nested type: MethodCallDelegateKey
 
     private readonly struct MethodCallDelegateKey: IEquatable<MethodCallDelegateKey>
     {
@@ -119,7 +119,7 @@ namespace Xtensive.Reflection
       public override bool Equals(object obj) => obj is MethodCallDelegateKey other && Equals(other);
 
       public override int GetHashCode() => hashCode;
-      
+
       // Constructors
 
       public MethodCallDelegateKey(string memberName)
@@ -139,7 +139,7 @@ namespace Xtensive.Reflection
 
     #endregion
 
-    private static ConcurrentDictionary<MethodCallDelegateKey, Lazy<Delegate>> cachedDelegates = 
+    private static ConcurrentDictionary<MethodCallDelegateKey, Lazy<Delegate>> cachedDelegates =
       new ConcurrentDictionary<MethodCallDelegateKey, Lazy<Delegate>>();
 
     /// <summary>
@@ -148,7 +148,7 @@ namespace Xtensive.Reflection
     /// <typeparam name="TObject">Declaring type.</typeparam>
     /// <typeparam name="TValue">Member type.</typeparam>
     /// <param name="memberName">Member name.</param>
-    /// <returns><see cref="Func{A,R}"/> delegate 
+    /// <returns><see cref="Func{A,R}"/> delegate
     /// that gets member value.</returns>
     public static Func<TObject, TValue> CreateGetMemberDelegate<TObject, TValue>(string memberName)
     {
@@ -175,7 +175,7 @@ namespace Xtensive.Reflection
             MethodInfo mi = pi.GetGetMethod(true);
             if (mi != null) {
               //  Calling a property's get accessor is faster/cleaner using
-              //  Delegate.CreateDelegate rather than Reflection.Emit 
+              //  Delegate.CreateDelegate rather than Reflection.Emit
               return Delegate.CreateDelegate(typeof(TDelegateType), mi);
             }
             else {
@@ -222,7 +222,7 @@ namespace Xtensive.Reflection
     /// <typeparam name="TObject">Declaring type.</typeparam>
     /// <typeparam name="TValue">Member type.</typeparam>
     /// <param name="memberName">Member name.</param>
-    /// <returns><see cref="Action{T,R}"/> delegate 
+    /// <returns><see cref="Action{T,R}"/> delegate
     /// that sets member value.</returns>
     public static Action<TObject, TValue> CreateSetMemberDelegate<TObject, TValue>(string memberName)
     {
@@ -242,7 +242,7 @@ namespace Xtensive.Reflection
             MethodInfo mi = pi.GetSetMethod(true);
             if (mi!=null) {
               //  Calling a property's get accessor is faster/cleaner using
-              //  Delegate.CreateDelegate rather than Reflection.Emit 
+              //  Delegate.CreateDelegate rather than Reflection.Emit
               // TODO: Check that type conversion is adequate.
               return Delegate.CreateDelegate(typeof (Action<TObject, TValue>), mi);
             }
@@ -371,8 +371,8 @@ namespace Xtensive.Reflection
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
-      
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, 
+
+      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
@@ -385,7 +385,7 @@ namespace Xtensive.Reflection
     }
 
     /// <summary>
-    /// Creates an array of generic method invocation delegates matching the method instance 
+    /// Creates an array of generic method invocation delegates matching the method instance
     /// with specified generic argument variants.
     /// </summary>
     /// <param name="callTarget">The delegate call target. <see langword="Null"/>, if static method should be called.</param>
@@ -417,12 +417,12 @@ namespace Xtensive.Reflection
         BindingFlags.ExactBinding;
       if (callTarget==null)
         bindingFlags |= BindingFlags.Static;
-      else 
+      else
         bindingFlags |= BindingFlags.Instance;
       string[] genericArgumentNames = new string[1]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
 
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags, 
+      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;

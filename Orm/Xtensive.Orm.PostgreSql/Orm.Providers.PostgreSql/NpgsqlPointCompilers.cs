@@ -18,13 +18,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof(NpgsqlPoint), "X", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractX(SqlExpression _this)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlPointExtractX(_this);
+      return PostgresqlSqlDml.NpgsqlPointExtractX(_this);
     }
 
     [Compiler(typeof(NpgsqlPoint), "Y", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlPointExtractY(SqlExpression _this)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlPointExtractY(_this);
+      return PostgresqlSqlDml.NpgsqlPointExtractY(_this);
     }
 
     #endregion
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(NpgsqlPoint))] SqlExpression left,
       [Type(typeof(NpgsqlPoint))] SqlExpression right)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlTypeOperatorEquality(left, right);
+      return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
     }
 
     [Compiler(typeof(NpgsqlPoint), Operator.Inequality, TargetKind.Operator)]
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(float))] SqlExpression x,
       [Type(typeof(float))] SqlExpression y)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlPointConstructor(x, y);
+      return PostgresqlSqlDml.NpgsqlPointConstructor(x, y);
     }
 
     #endregion

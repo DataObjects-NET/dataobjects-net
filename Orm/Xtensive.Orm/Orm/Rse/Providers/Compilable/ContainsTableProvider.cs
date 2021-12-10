@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     public Func<ParameterContext, int> TopN { get; private set; }
 
-    public IReadOnlyList<FullTextColumnInfo> TargetColumns { get; private set; } 
+    public IReadOnlyList<FullTextColumnInfo> TargetColumns { get; private set; }
 
     protected override RecordSetHeader BuildHeader()
     {
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Rse.Providers
     public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, bool fullFeatured)
       : this(index, searchCriteria, rankColumnName, targetColumns, null, fullFeatured)
     {
-      
+
     }
 
     public ContainsTableProvider(FullTextIndexInfo index, Func<ParameterContext, string> searchCriteria, string rankColumnName, IList<ColumnInfo> targetColumns, Func<ParameterContext, int> topNByRank, bool fullFeatured)
@@ -53,7 +53,9 @@ namespace Xtensive.Orm.Rse.Providers
       SearchCriteria = searchCriteria;
       FullFeatured = fullFeatured;
       PrimaryIndex = new IndexInfoRef(index.PrimaryIndex);
-      TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc)).ToList().AsReadOnly();
+      TargetColumns = targetColumns.Select(tc => index.Columns.First(c => c.Column == tc))
+        .ToList(targetColumns.Count)
+        .AsReadOnly();
       TopN = topNByRank;
       if (FullFeatured) {
         var primaryIndexRecordsetHeader =

@@ -138,12 +138,12 @@ namespace Xtensive.Orm.Reprocessing
         return NoReprocess;
       }
 
+      return Singletons.GetOrAdd(type, ActionStrategyFactory).Value;
+
       static Lazy<IExecuteActionStrategy> ActionStrategyFactory(Type t)
       {
         return new Lazy<IExecuteActionStrategy>(() => (IExecuteActionStrategy) Activator.CreateInstance(t));
       }
-
-      return Singletons.GetOrAdd(type, ActionStrategyFactory).Value;
     }
 
     #region Non-public methods

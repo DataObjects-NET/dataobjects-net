@@ -22,7 +22,7 @@ namespace Xtensive.Conversion
   [Serializable]
   public sealed class AdvancedConverter<TFrom, TTo> : MethodCacheBase<IAdvancedConverter<TFrom, TTo>>
   {
-    private static Lazy<AdvancedConverter<TFrom, TTo>> cachedConverter =
+    private static readonly Lazy<AdvancedConverter<TFrom, TTo>> CachedConverter =
       new Lazy<AdvancedConverter<TFrom, TTo>>(() => AdvancedConverterProvider.Default.GetConverter<TFrom, TTo>());
 
     /// <summary>
@@ -32,7 +32,7 @@ namespace Xtensive.Conversion
     public static AdvancedConverter<TFrom, TTo> Default {
       [DebuggerStepThrough]
       get {
-        return cachedConverter.Value;
+        return CachedConverter.Value;
       }
     }
 

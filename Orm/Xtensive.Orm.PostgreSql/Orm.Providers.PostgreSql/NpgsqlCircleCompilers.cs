@@ -18,13 +18,13 @@ namespace Xtensive.Orm.Providers.PostgreSql
     [Compiler(typeof(NpgsqlCircle), "Center", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlCircleExtractCenterPoint(SqlExpression _this)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlCircleExtractCenter(_this);
+      return PostgresqlSqlDml.NpgsqlCircleExtractCenter(_this);
     }
 
     [Compiler(typeof(NpgsqlCircle), "Radius", TargetKind.PropertyGet)]
     public static SqlExpression NpgsqlCircleExtractRadius(SqlExpression _this)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlCircleExtractRadius(_this);
+      return PostgresqlSqlDml.NpgsqlCircleExtractRadius(_this);
     }
 
     #endregion
@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(NpgsqlCircle))] SqlExpression left,
       [Type(typeof(NpgsqlCircle))] SqlExpression right)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlTypeOperatorEquality(left, right);
+      return PostgresqlSqlDml.NpgsqlTypeOperatorEquality(left, right);
     }
 
     [Compiler(typeof(NpgsqlCircle), Operator.Inequality, TargetKind.Operator)]
@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers.PostgreSql
       [Type(typeof(NpgsqlPoint))] SqlExpression center,
       [Type(typeof(double))] SqlExpression radius)
     {
-      return PostgresqlSqlGeometryDml.NpgsqlCircleConstructor(center, radius);
+      return PostgresqlSqlDml.NpgsqlCircleConstructor(center, radius);
     }
 
     #endregion

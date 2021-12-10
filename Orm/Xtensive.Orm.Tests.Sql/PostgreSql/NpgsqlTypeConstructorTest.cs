@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alena Mikshina
@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     public void NpgsqlPointConstructorTest()
     {
       SqlExpression point = SqlDml.Native("point'(0,1)'");
-      CheckInequality(PostgresqlSqlGeometryDml.NpgsqlPointConstructor(2, 3), point);
+      CheckInequality(PostgresqlSqlDml.NpgsqlPointConstructor(2, 3), point);
     }
 
     [Test]
@@ -32,13 +32,13 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       SqlExpression box = SqlDml.Native("box'(2,3),(0,1)'");
       CheckEquality(
-        PostgresqlSqlGeometryDml.NpgsqlBoxConstructor(
-          PostgresqlSqlGeometryDml.NpgsqlPointConstructor(2, 3),
-          PostgresqlSqlGeometryDml.NpgsqlPointConstructor(0, 1)),
+        PostgresqlSqlDml.NpgsqlBoxConstructor(
+          PostgresqlSqlDml.NpgsqlPointConstructor(2, 3),
+          PostgresqlSqlDml.NpgsqlPointConstructor(0, 1)),
         box);
 
       CheckEquality(
-        PostgresqlSqlGeometryDml.NpgsqlBoxConstructor(
+        PostgresqlSqlDml.NpgsqlBoxConstructor(
           SqlDml.Native("point'(2,3)'"),
           SqlDml.Native("point'(0,1)'")),
         box);
@@ -49,13 +49,13 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       SqlExpression lSeg = SqlDml.Native("lseg'[(0,1),(2,3)]'");
       CheckEquality(
-        PostgresqlSqlGeometryDml.NpgsqlLSegConstructor(
-          PostgresqlSqlGeometryDml.NpgsqlPointConstructor(0, 1),
-          PostgresqlSqlGeometryDml.NpgsqlPointConstructor(2, 3)),
+        PostgresqlSqlDml.NpgsqlLSegConstructor(
+          PostgresqlSqlDml.NpgsqlPointConstructor(0, 1),
+          PostgresqlSqlDml.NpgsqlPointConstructor(2, 3)),
         lSeg);
 
       CheckEquality(
-        PostgresqlSqlGeometryDml.NpgsqlLSegConstructor(
+        PostgresqlSqlDml.NpgsqlLSegConstructor(
           SqlDml.Native("point'(0,1)'"),
           SqlDml.Native("point'(2,3)'")),
         lSeg);
@@ -67,13 +67,13 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       SqlExpression circle = SqlDml.Native("circle'<(0,1),10>'");
 
       CheckEquality(
-        PostgresqlSqlGeometryDml.NpgsqlCircleConstructor(
-          PostgresqlSqlGeometryDml.NpgsqlPointConstructor(0, 1),
+        PostgresqlSqlDml.NpgsqlCircleConstructor(
+          PostgresqlSqlDml.NpgsqlPointConstructor(0, 1),
           10),
         circle);
 
       CheckEquality(
-        PostgresqlSqlGeometryDml.NpgsqlCircleConstructor(
+        PostgresqlSqlDml.NpgsqlCircleConstructor(
           SqlDml.Native("point'(0,1)'"),
           10),
         circle);
