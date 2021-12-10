@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2007.09.21
 
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Gets the reference that describes a column.
     /// </summary>    
-    public ColumnInfoRef ColumnInfoRef { get; private set; }
+    public ColumnInfoRef ColumnInfoRef { get; }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="columnInfoRef"><see cref="ColumnInfoRef"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(ColumnInfoRef columnInfoRef, int index, Type type)
+    public MappedColumn(in ColumnInfoRef columnInfoRef, int index, Type type)
       : this(columnInfoRef, columnInfoRef.ColumnName, index, type)
     {
     }
@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="name"><see cref="Column.Name"/> property value.</param>
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
-    public MappedColumn(ColumnInfoRef columnInfoRef, string name, int index, Type type)
+    public MappedColumn(in ColumnInfoRef columnInfoRef, string name, int index, Type type)
       : base(name, index, type, null)
     {
       ColumnInfoRef = columnInfoRef;

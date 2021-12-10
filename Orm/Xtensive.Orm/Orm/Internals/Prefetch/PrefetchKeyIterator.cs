@@ -51,8 +51,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
 
         if (unknownTypeQueue.Count > 0) {
-          while (unknownTypeQueue.Count > 0) {
-            var unknownKey = unknownTypeQueue.Dequeue();
+          while (unknownTypeQueue.TryDequeue(out var unknownKey)) {
             var unknownType = session.EntityStateCache[unknownKey, false].Type;
             var unknownDescriptors =
               PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
@@ -62,8 +61,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           session.Handler.ExecutePrefetchTasks();
         }
 
-        while (resultQueue.Count > 0) {
-          yield return (T) (IEntity) session.EntityStateCache[resultQueue.Dequeue(), true].Entity;
+        while (resultQueue.TryDequeue(out var item)) {
+          yield return (T) (IEntity) session.EntityStateCache[item, true].Entity;
         }
 
         taskCount = session.Handler.PrefetchTaskExecutionCount;
@@ -106,8 +105,7 @@ namespace Xtensive.Orm.Internals.Prefetch
         }
 
         if (unknownTypeQueue.Count > 0) {
-          while (unknownTypeQueue.Count > 0) {
-            var unknownKey = unknownTypeQueue.Dequeue();
+          while (unknownTypeQueue.TryDequeue(out var unknownKey)) {
             var unknownType = session.EntityStateCache[unknownKey, false].Type;
             var unknownDescriptors =
               PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
@@ -118,8 +116,8 @@ namespace Xtensive.Orm.Internals.Prefetch
           await session.Handler.ExecutePrefetchTasksAsync(token).ConfigureAwait(false);
         }
 
-        while (resultQueue.Count > 0) {
-          yield return (T) (IEntity) session.EntityStateCache[resultQueue.Dequeue(), true].Entity;
+        while (resultQueue.TryDequeue(out var item)) {
+          yield return (T) (IEntity) session.EntityStateCache[item, true].Entity;
         }
 
         taskCount = session.Handler.PrefetchTaskExecutionCount;

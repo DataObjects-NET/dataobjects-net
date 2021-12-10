@@ -925,11 +925,12 @@ namespace Xtensive.Orm
       if (keyValues.Length == 0)
         throw new ArgumentException(Strings.ExKeyValuesArrayIsEmpty, "keyValues");
       if (keyValues.Length == 1) {
-        var keyValue = keyValues[0];
-        if (keyValue is Key)
-          return keyValue as Key;
-        if (keyValue is Entity)
-          return (keyValue as Entity).Key;
+        switch (keyValues[0]) {
+          case Key key:
+            return key;
+          case Entity entity:
+            return entity.Key;
+        }
       }
       return Key.Create(session.Domain, session.StorageNodeId, typeof(T), TypeReferenceAccuracy.BaseType, keyValues);
     }

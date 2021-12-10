@@ -702,12 +702,12 @@ namespace Xtensive.Orm.Linq
       var leftIsConstant = context.Evaluator.CanBeEvaluated(left);
       bool leftOrRightIsIndex = false;
 
-      if (left is IndexExpression) {
-        left = VisitIndex((IndexExpression) left);
+      if (left is IndexExpression leftIndexExpression) {
+        left = VisitIndex(leftIndexExpression);
         leftOrRightIsIndex = true;
       }
-      if (right is IndexExpression) {
-        right = VisitIndex((IndexExpression) right);
+      if (right is IndexExpression rightIndexExpression) {
+        right = VisitIndex(rightIndexExpression);
         leftOrRightIsIndex = true;
       }
 
@@ -975,12 +975,13 @@ namespace Xtensive.Orm.Linq
       Type structureType)
     {
       expression = expression.StripCasts();
-      if (expression is IPersistentExpression)
-        return ((IPersistentExpression) expression)
+      if (expression is IPersistentExpression persistentExpression) {
+        return persistentExpression
           .Fields
           .Where(field => field.GetMemberType()==MemberType.Primitive)
           .Select(e => (Expression) e)
           .ToList();
+      }
 
       ConstantExpression nullExpression = Expression.Constant(null, structureType);
       BinaryExpression isNullExpression = Expression.Equal(expression, nullExpression);
@@ -1036,8 +1037,9 @@ namespace Xtensive.Orm.Linq
     private static IList<Expression> GetEntityFields(Expression expression, IEnumerable<Type> keyFieldTypes)
     {
       expression = expression.StripCasts();
-      if (expression is IEntityExpression)
-        return GetKeyFields(((IEntityExpression) expression).Key, null);
+      if (expression is IEntityExpression entityExpression) {
+        return GetKeyFields(entityExpression.Key, null);
+      }
 
 
       Expression keyExpression;

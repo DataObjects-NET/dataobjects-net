@@ -127,8 +127,7 @@ namespace Xtensive.Orm.Building.Builders
         ftid => model.Types[ftid.Type.UnderlyingType],
         ftid => new List<FullTextIndexDef>() {ftid});
 
-      while (processQueue.Count > 0) {
-        var type = processQueue.Dequeue();
+      while (processQueue.TryDequeue(out var type)) {
         List<FullTextIndexDef> indexes;
         List<FullTextIndexDef> parentIndexes;
         var typeHasIndexDef = indexDefs.TryGetValue(type, out indexes);

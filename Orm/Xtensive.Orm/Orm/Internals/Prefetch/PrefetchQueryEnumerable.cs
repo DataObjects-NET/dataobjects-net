@@ -46,16 +46,16 @@ namespace Xtensive.Orm.Internals.Prefetch
         while (container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks())) {
           _ = container.JoinIfPossible(ProcessFetchedElements(enumerationIdentifier));
         }
-        while (resultQueue.Count > 0) {
-          yield return resultQueue.Dequeue();
+        while (resultQueue.TryDequeue(out var queueElement)) {
+          yield return queueElement;
         }
         currentTaskCount = sessionHandler.PrefetchTaskExecutionCount;
       }
       while (container.JoinIfPossible(sessionHandler.ExecutePrefetchTasks())) {
         _ = container.JoinIfPossible(ProcessFetchedElements(enumerationIdentifier));
       }
-      while (resultQueue.Count > 0) {
-        yield return resultQueue.Dequeue();
+      while (resultQueue.TryDequeue(out var queueElement)) {
+        yield return queueElement;
       }
     }
 
@@ -96,8 +96,7 @@ namespace Xtensive.Orm.Internals.Prefetch
     private StrongReferenceContainer ProcessFetchedElements(Guid enumerationId)
     {
       var container = new StrongReferenceContainer(null);
-      while (unknownTypeQueue.Count > 0) {
-        var unknownKey = unknownTypeQueue.Dequeue();
+      while (unknownTypeQueue.TryDequeue(out var unknownKey)) {
         var unknownType = session.EntityStateCache[unknownKey, false].Type;
         var unknownDescriptors = PrefetchHelper.GetCachedDescriptorsForFieldsLoadedByDefault(session.Domain, unknownType);
         _ = sessionHandler.Prefetch(unknownKey, unknownType, unknownDescriptors);

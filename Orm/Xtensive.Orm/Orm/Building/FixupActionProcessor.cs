@@ -28,8 +28,7 @@ namespace Xtensive.Orm.Building
     private void ProcessAll()
     {
       using (BuildLog.InfoRegion(Strings.LogProcessingFixupActions))
-        while (context.ModelInspectionResult.Actions.Count > 0) {
-          var action = context.ModelInspectionResult.Actions.Dequeue();
+        while (context.ModelInspectionResult.Actions.TryDequeue(out var action)) {
           BuildLog.Info(string.Format(Strings.LogExecutingActionX, action));
           action.Run(this);
         }
@@ -103,8 +102,7 @@ namespace Xtensive.Orm.Building
           where !root.IsSystem && !root.IsAutoGenericInstance
           select root.UnderlyingType);
         var types = new List<Type>();
-        while (queue.Count > 0) {
-          var candidate = queue.Dequeue();
+        while (queue.TryDequeue(out var candidate)) {
           if (constraints.All(ct => ct.IsAssignableFrom(candidate)))
             // First suitable descendant is found
             types.Add(candidate);
@@ -146,8 +144,7 @@ namespace Xtensive.Orm.Building
       var queue = new Queue<TypeDef>();
       var interfaces = new HashSet<TypeDef>();
       queue.Enqueue(type);
-      while (queue.Count > 0) {
-        var item = queue.Dequeue();
+      while (queue.TryDequeue(out var item)) {
         foreach (var @interface in context.ModelDef.Types.FindInterfaces(item.UnderlyingType)) {
           queue.Enqueue(@interface);
           interfaces.Add(@interface);

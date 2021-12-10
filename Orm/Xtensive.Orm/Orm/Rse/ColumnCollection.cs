@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse
   public sealed class ColumnCollection : IReadOnlyList<Column>
   {
     private readonly Dictionary<string, int> nameIndex;
-    private readonly List<Column> columns;
+    private readonly IReadOnlyList<Column> columns;
 
     /// <summary>
     /// Gets the number of <see href="Column"/>s in the collection.
@@ -39,14 +39,8 @@ namespace Xtensive.Orm.Rse
     /// Returns <see cref="Column"/> if it was found; otherwise <see langword="null"/>.
     /// </remarks>
     /// <param name="fullName">Full name of the <see cref="Column"/> to find.</param>
-    public Column this[string fullName] {
-      get {
-        int index;
-        if (nameIndex.TryGetValue(fullName, out index))
-          return this[index];
-        return null;
-      }
-    }
+    public Column this[string fullName] =>
+      nameIndex.TryGetValue(fullName, out var index) ? columns[index] : null;
 
     /// <summary>
     /// Joins this collection with specified the column collection.
@@ -72,10 +66,7 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Returns an enumerator that iterates through the <see href="ColumnCollection"/>.
     /// </summary>
-    public List<Column>.Enumerator GetEnumerator() => columns.GetEnumerator();
-
-    /// <inheritdoc/>
-    IEnumerator<Column> IEnumerable<Column>.GetEnumerator() => GetEnumerator();
+    public IEnumerator<Column> GetEnumerator() => columns.GetEnumerator();
     
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
@@ -85,23 +76,14 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
-    /// <param name="collection">Collection of items to add.</param>
-    public ColumnCollection(IEnumerable<Column> collection)
-      : this(collection.ToList())
-    {
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
     /// <param name="columns">Collection of items to add.</param>
-    public ColumnCollection(List<Column> columns)
+    public ColumnCollection(IEnumerable<Column> columns)
     {
-      this.columns = columns;
-      var count = columns.Count;
+      this.columns = columns as IReadOnlyList<Column> ?? columns.ToList();
+      var count = this.columns.Count;
       nameIndex = new Dictionary<string, int>(count);
       for (var index = count; index-- > 0;) {
-        nameIndex.Add(columns[index].Name, index);
+        nameIndex.Add(this.columns[index].Name, index);
       }
     }
   }

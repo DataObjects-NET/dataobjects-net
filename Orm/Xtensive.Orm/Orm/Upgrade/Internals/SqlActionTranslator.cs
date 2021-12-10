@@ -116,9 +116,10 @@ namespace Xtensive.Orm.Upgrade
 
     private void VisitAction(NodeAction action)
     {
-      if (action is GroupingNodeAction)
-        foreach (var nodeAction in ((GroupingNodeAction) action).Actions)
+      if (action is GroupingNodeAction groupingNodeAction) {
+        foreach (var nodeAction in groupingNodeAction.Actions)
           VisitAction(nodeAction);
+      }
       else if (action is CreateNodeAction createNodeAction)
         VisitCreateAction(createNodeAction);
       else if (action is RemoveNodeAction removeNodeAction)

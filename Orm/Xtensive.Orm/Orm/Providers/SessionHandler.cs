@@ -38,8 +38,9 @@ namespace Xtensive.Orm.Providers
     public SessionHandler GetRealHandler()
     {
       var handler = this;
-      while (handler is ChainingSessionHandler)
-        handler = (handler as ChainingSessionHandler).ChainedHandler;
+      while (handler is ChainingSessionHandler chainingSessionHandler) {
+        handler = chainingSessionHandler.ChainedHandler;
+      }
       return handler;
     }
 

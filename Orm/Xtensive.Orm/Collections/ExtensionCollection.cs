@@ -153,12 +153,13 @@ namespace Xtensive.Collections
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       if (source.Count==0)
         return;
-      var sourceLikeMe = source as ExtensionCollection;
-      if (sourceLikeMe!=null)
+      if (source is ExtensionCollection sourceLikeMe) {
         extensions = new Dictionary<Type, object>(sourceLikeMe.extensions);
-      else
+      }
+      else {
         foreach (Type extensionType in source)
           Set(extensionType, source.Get(extensionType));
+      }
     }
   }
 }

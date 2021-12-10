@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Building.Definitions
   /// </summary>
   public sealed class TypeDefCollection : NodeCollection<TypeDef>
   {
-    private readonly Dictionary<Type, TypeDef> typeIndex;
+    private readonly Dictionary<Type, TypeDef> typeIndex = new Dictionary<Type, TypeDef>();
 
     public event EventHandler<TypeDefCollectionChangedEventArgs> Added;
 
@@ -62,12 +62,10 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or 
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
-    private TypeDef FindAncestor(Type type)
-    {
-      if (type == WellKnownTypes.Object || type.BaseType == null)
-        return null;
-      return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
-    }
+    private TypeDef FindAncestor(Type type) =>
+      type == WellKnownTypes.Object || type.BaseType == null
+        ? null
+        : TryGetValue(type.BaseType) ?? FindAncestor(type.BaseType);
 
     /// <summary>
     /// Find the <see cref="IEnumerable{T}"/> of interfaces that specified <paramref name="type"/> implements.
@@ -80,7 +78,7 @@ namespace Xtensive.Orm.Building.Definitions
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       var interfaces = type.GetInterfaces();
-      return interfaces.Select(t => TryGetValue(t)).Where(result => result != null);
+      return interfaces.Select(TryGetValue).Where(result => result != null);
     }
 
     /// <summary>
@@ -90,15 +88,8 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns>
     ///   <see langword="True"/> if the object is found; otherwise, <see langword="false"/>.
     /// </returns>
-    public override bool Contains(TypeDef item)
-    {
-      if (item==null)
-        return false;
-      TypeDef result = TryGetValue(item.UnderlyingType);
-      if (result == null)
-        return false;
-      return result==item;
-    }
+    public override bool Contains(TypeDef item) =>
+      item != null && TryGetValue(item.UnderlyingType) == item;
 
     /// <summary>
     /// Determines whether this instance contains an item with the specified key.
@@ -107,10 +98,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <returns>
     /// <see langword="true"/> if this instance contains the specified key; otherwise, <see langword="false"/>.
     /// </returns>
-    public bool Contains(Type key)
-    {
-      return typeIndex.ContainsKey(key);
-    }
+    public bool Contains(Type key) => typeIndex.ContainsKey(key);
 
     /// <summary>
     /// Gets the value associated with the specified key.
@@ -120,8 +108,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// if item was not found.</returns>
     public TypeDef TryGetValue(Type key)
     {
-      TypeDef result;
-      typeIndex.TryGetValue(key, out result);
+      typeIndex.TryGetValue(key, out var result);
       return result;
     }
 
@@ -129,17 +116,8 @@ namespace Xtensive.Orm.Building.Definitions
     /// An indexer that provides access to collection items.
     /// </summary>
     /// <exception cref="ArgumentException"> when item was not found.</exception>
-    public TypeDef this[Type key]
-    {
-      get
-      {
-        TypeDef result = TryGetValue(key);
-        if (result == null)
-          throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
-        return result;
-
-      }
-    }
+    public TypeDef this[Type key] =>
+      TryGetValue(key) ?? throw new ArgumentException(String.Format(Strings.ExItemByKeyXWasNotFound, key), "key");
 
     /// <inheritdoc/>
     public override void Add(TypeDef item) {
@@ -180,7 +158,6 @@ namespace Xtensive.Orm.Building.Definitions
     internal TypeDefCollection(Node owner, string name)
       : base(owner, name)
     {
-      typeIndex = new Dictionary<Type, TypeDef>();
     }
   }
 }

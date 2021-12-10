@@ -253,10 +253,8 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void Remove(K key)
     {
-      LinkedListNode<Pair<K, V>> valueContainer;
-      if (map.TryGetValue(key, out valueContainer)) {
+      if (map.Remove(key, out var valueContainer)) {
         list.Remove(valueContainer);
-        map.Remove(key);
       }
     }
 

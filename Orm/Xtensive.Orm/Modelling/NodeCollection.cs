@@ -252,8 +252,7 @@ namespace Xtensive.Modelling
       string name = node.Name;
       try {
         list.RemoveAt(index);
-        if (nameIndex.ContainsKey(name))
-          nameIndex.Remove(name);
+        nameIndex.Remove(name);
         OnCollectionChanged(new NotifyCollectionChangedEventArgs(
           NotifyCollectionChangedAction.Remove, index));
       }
@@ -309,21 +308,18 @@ namespace Xtensive.Modelling
     internal void AddName(Node node)
     {
       this.EnsureNotLocked();
-      string name = node.Name;
-      if (nameIndex.ContainsKey(name))
+      if (!nameIndex.TryAdd(node.Name, node)) {
         throw Exceptions.InternalError("Wrong NodeCollection.AddName arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
-      nameIndex.Add(name, node);
+      }
     }
 
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void CheckIntegrity()
     {
       foreach (var node in list) {
-        var name = node.Name;
-        if (!nameIndex.ContainsKey(name))
+        if (!nameIndex.TryGetValue(node.Name, out var value) || value != node) {
           throw Exceptions.InternalError("Integrity check failed.", CoreLog.Instance);
-        if (node!=nameIndex[name])
-          throw Exceptions.InternalError("Integrity check failed.", CoreLog.Instance);
+        }
       }
     }
 
