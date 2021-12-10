@@ -50,37 +50,29 @@ namespace Xtensive.Orm
     /// <summary>
     /// Caches providers that lock certain type of entity with certain <see cref="LockMode"/> and <see cref="LockBehavior"/>.
     /// </summary>
-    internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; } =
-      new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
+    internal ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider> EntityLockProviderCache { get; }
 
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch certain entities.
     /// </summary>
-    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; } =
-      new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
+    internal ConcurrentDictionary<RecordSetCacheKey, CompilableProvider> EntityFetchQueryCache { get; }
 
     /// <summary>
     /// Caches uncompiled queries used by <see cref="PrefetchManager"/> to fetch <see cref="EntitySet{TItem}"/> content.
     /// </summary>
-    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; } =
-      new ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider>();
+    internal ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider> EntitySetFetchQueryCache { get; }
 
     /// <summary>
     /// Caches certain info about EntitySet fields, e.g. queries to fetch current count or items.
     /// </summary>
-    internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; } =
-      new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
+    internal ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState> EntitySetTypeStateCache { get; }
 
     /// <summary>
     /// Caches queries that get references to entities for certain association.
     /// </summary>
-    internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; } =
-      new ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)>();
-
-    internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; } = new ConcurrentDictionary<SequenceInfo, object>();
-
+    internal ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)> RefsToEntityQueryCache { get; }
+    internal ConcurrentDictionary<SequenceInfo, object> KeySequencesCache { get; }
     internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; }
-      = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
 
     /// <inheritdoc/>
     public Session OpenSession()
@@ -148,6 +140,14 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       ArgumentValidator.EnsureArgumentNotNull(mapping, nameof(mapping));
       ArgumentValidator.EnsureArgumentNotNull(typeIdRegistry, nameof(typeIdRegistry));
+
+      EntityLockProviderCache = new ConcurrentDictionary<(TypeInfo, LockMode, LockBehavior), ExecutableProvider>();
+      EntityFetchQueryCache = new ConcurrentDictionary<RecordSetCacheKey, CompilableProvider>();
+      EntitySetFetchQueryCache = new ConcurrentDictionary<ItemsQueryCacheKey, CompilableProvider>();
+      EntitySetTypeStateCache = new ConcurrentDictionary<Xtensive.Orm.Model.FieldInfo, EntitySetTypeState>();
+      RefsToEntityQueryCache = new ConcurrentDictionary<AssociationInfo, (CompilableProvider, Parameter<Xtensive.Tuples.Tuple>)>();
+      KeySequencesCache = new ConcurrentDictionary<SequenceInfo, object>();
+      PersistRequestCache = new ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>>();
 
       this.domain = domain;
       Configuration = configuration;
