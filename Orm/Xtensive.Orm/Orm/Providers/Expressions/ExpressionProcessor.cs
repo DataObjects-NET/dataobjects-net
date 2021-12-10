@@ -253,13 +253,11 @@ namespace Xtensive.Orm.Providers
       }
 
       //handle wrapped enums
-      var container = left as SqlContainer;
-      if (container != null) {
-        left = TryUnwrapEnum(container);
+      if (left is SqlContainer leftContainer) {
+        left = TryUnwrapEnum(leftContainer);
       }
-      container = right as SqlContainer;
-      if (container != null) {
-        right = TryUnwrapEnum(container);
+      if (right is SqlContainer rightContainer) {
+        right = TryUnwrapEnum(rightContainer);
       }
 
       switch (expression.NodeType) {

@@ -61,12 +61,9 @@ namespace Xtensive.Collections
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
       if (!isProcessingPendingActions)
         Register(new TypeRegistration(type));
-      else {
-        if (typeSet.Contains(type))
-          return;
+      else if (typeSet.Add(type)) {
         serviceRegistrations = null;
         types.Add(type);
-        typeSet.Add(type);
         assemblies.Add(type.Assembly);
       }
     }

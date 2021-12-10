@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
+// Copyright (C) 2003-2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Yakunin
@@ -41,10 +41,8 @@ namespace Xtensive.Collections.Graphs
 
       public void Remove(T item)
       {
-        LinkedListNode<T> node;
-        if (map.TryGetValue(item, out node)) {
+        if (map.Remove(item, out var node)) {
           list.Remove(node);
-          map.Remove(item);
         }
       }
 
@@ -104,8 +102,7 @@ namespace Xtensive.Collections.Graphs
 
     restart:
       // Sorting
-      while (nodesWithoutIncomingEdges.Count!=0) {
-        var node = nodesWithoutIncomingEdges.Dequeue();
+      while (nodesWithoutIncomingEdges.TryDequeue(out var node)) {
         if (unsortedNodes!=null) // Break edges
           unsortedNodes.Remove(node);
         else
@@ -126,8 +123,7 @@ namespace Xtensive.Collections.Graphs
       if (unsortedNodes!=null) { // Break edges
         if (unsortedNodes.Count != 0) {
           // Trying to break edges (collection is always empty when breakEdges==false)
-          while (breakableEdges.Count != 0) {
-            var edge = breakableEdges.Dequeue();
+          while (breakableEdges.TryDequeue(out var edge)) {
             if (!edge.IsAttached || !edgeBreaker(edge))
               continue;
             result.BrokenEdges.Add(edge);

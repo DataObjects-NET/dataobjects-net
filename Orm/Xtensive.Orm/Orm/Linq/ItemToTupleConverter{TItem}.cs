@@ -112,44 +112,43 @@ namespace Xtensive.Orm.Linq
       if (item==null)
         return;
       // LocalCollectionExpression
-      if (expression is LocalCollectionExpression) {
-        var itemExpression = (LocalCollectionExpression) expression;
-        foreach (var field in itemExpression.Fields) {
-          var propertyInfo = field.Key as PropertyInfo;
-          object value = propertyInfo==null
-            ? ((FieldInfo) field.Key).GetValue(item)
-            : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
-          if (value!=null)
-            FillLocalCollectionField(value, tuple, (Expression) field.Value);
+      switch (expression) {
+        case LocalCollectionExpression itemExpression:
+          foreach (var field in itemExpression.Fields) {
+            var propertyInfo = field.Key as PropertyInfo;
+            object value = propertyInfo==null
+              ? ((FieldInfo) field.Key).GetValue(item)
+              : propertyInfo.GetValue(item, BindingFlags.InvokeMethod, null, null, null);
+            if (value!=null)
+              FillLocalCollectionField(value, tuple, (Expression) field.Value);
+          }
+          break;
+        case ColumnExpression columnExpression:
+          tuple.SetValue(columnExpression.Mapping.Offset, item);
+          break;
+        case StructureExpression structureExpression:
+          var structure = (Structure) item;
+          var typeInfo = structureExpression.PersistentType;
+          var tupleDescriptor = typeInfo.TupleDescriptor;
+          var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
+          var structureTuple = structure.Tuple.GetSegment(tupleSegment);
+          structureTuple.CopyTo(tuple, 0, structureExpression.Mapping.Offset, structureTuple.Count);
+          break;
+        case EntityExpression entityExpression: {
+          var entity = (Entity) item;
+          var keyTuple = entity.Key.Value;
+          keyTuple.CopyTo(tuple, 0, entityExpression.Key.Mapping.Offset, keyTuple.Count);
         }
+        break;
+        case KeyExpression keyExpression: {
+          var key = (Key) item;
+          var keyTuple = key.Value;
+          keyTuple.CopyTo(tuple, 0, keyExpression.Mapping.Offset, keyTuple.Count);
+        }
+        break;
+        default:
+          throw new NotSupportedException();
       }
-      else if (expression is ColumnExpression) {
-        var columnExpression = (ColumnExpression) expression;
-        tuple.SetValue(columnExpression.Mapping.Offset, item);
-      }
-      else if (expression is StructureExpression) {
-        var structureExpression = (StructureExpression) expression;
-        var structure = (Structure) item;
-        var typeInfo = structureExpression.PersistentType;
-        var tupleDescriptor = typeInfo.TupleDescriptor;
-        var tupleSegment = new Segment<int>(0, tupleDescriptor.Count);
-        var structureTuple = structure.Tuple.GetSegment(tupleSegment);
-        structureTuple.CopyTo(tuple, 0, structureExpression.Mapping.Offset, structureTuple.Count);
-      }
-      else if (expression is EntityExpression) {
-        var entityExpression = (EntityExpression) expression;
-        var entity = (Entity) item;
-        var keyTuple = entity.Key.Value;
-        keyTuple.CopyTo(tuple, 0, entityExpression.Key.Mapping.Offset, keyTuple.Count);
-      }
-      else if (expression is KeyExpression) {
-        var keyExpression = (KeyExpression) expression;
-        var key = (Key) item;
-        var keyTuple = key.Value;
-        keyTuple.CopyTo(tuple, 0, keyExpression.Mapping.Offset, keyTuple.Count);
-      }
-      else
-        throw new NotSupportedException();
     }
 
     private LocalCollectionExpression BuildLocalCollectionExpression(Type type, HashSet<Type> processedTypes, ref int columnIndex, MemberInfo parentMember, TupleTypeCollection types)

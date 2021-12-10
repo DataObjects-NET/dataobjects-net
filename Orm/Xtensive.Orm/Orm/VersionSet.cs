@@ -240,11 +240,7 @@ namespace Xtensive.Orm
     public bool Remove(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (Contains(key)) {
-        versions.Remove(key);
-        return true;
-      }
-      return false;
+      return versions.Remove(key);
     }
 
     /// <summary>

@@ -296,11 +296,13 @@ namespace Xtensive.Modelling.Comparison
             continue;
 
           if (any.Nesting.PropertyInfo != null && accessor.DependencyRootType==any.Nesting.PropertyInfo.PropertyType) {
-            if (propertyDifference is NodeDifference)
-              ((NodeDifference) propertyDifference).IsDependentOnParent = true;
-            else if (propertyDifference is NodeCollectionDifference)
-              ((NodeCollectionDifference) propertyDifference).ItemChanges
+            if (propertyDifference is NodeDifference nodeDifference) {
+              nodeDifference.IsDependentOnParent = true;
+            }
+            else if (propertyDifference is NodeCollectionDifference nodeCollectionDifference) {
+              nodeCollectionDifference.ItemChanges
                 .ForEach(item=>item.IsDependentOnParent = true);
+            }
           }
           difference.PropertyChanges.Add(property.Name, propertyDifference);
         }
@@ -590,10 +592,10 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>Comparison key for the specified node.</returns>
     protected virtual string GetNodeComparisonKey(Node node)
     {
-      if (!(node is INodeReference))
+      if (!(node is INodeReference nodeReference))
         return GetTargetName(node);
 
-      var targetNode = ((INodeReference) node).Value;
+      var targetNode = nodeReference.Value;
       return targetNode==null ? null : GetTargetPath(targetNode);
     }
 

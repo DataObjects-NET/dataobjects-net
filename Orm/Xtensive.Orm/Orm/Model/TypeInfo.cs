@@ -45,12 +45,12 @@ namespace Xtensive.Orm.Model
     private readonly NodeCollection<IndexInfo> affectedIndexes;
     private readonly DomainModel               model;
     private TypeAttributes                     attributes;
-    private ReadOnlyCollection<TypeInfo>             ancestors;
-    private ReadOnlyCollection<AssociationInfo>      targetAssociations;
-    private ReadOnlyCollection<AssociationInfo>      ownerAssociations;
+    private IReadOnlyList<TypeInfo>             ancestors;
+    private IReadOnlyList<AssociationInfo>      targetAssociations;
+    private IReadOnlyList<AssociationInfo>      ownerAssociations;
     private IReadOnlyList<AssociationInfo>      removalSequence;
-    private ReadOnlyCollection<FieldInfo>            versionFields;
-    private ReadOnlyCollection<ColumnInfo> versionColumns;
+    private IReadOnlyList<FieldInfo>            versionFields;
+    private IReadOnlyList<ColumnInfo> versionColumns;
     private IList<IObjectValidator> validators;
     private Type                               underlyingType;
     private HierarchyInfo                      hierarchy;
@@ -610,8 +610,8 @@ namespace Xtensive.Orm.Model
 
       if (IsEntity) {
         if (HasVersionRoots) {
-          versionFields = Array.AsReadOnly(Array.Empty<FieldInfo>());
-          versionColumns = Array.AsReadOnly(Array.Empty<ColumnInfo>());
+          versionFields = Array.Empty<FieldInfo>();
+          versionColumns = Array.Empty<ColumnInfo>();
         }
         else {
           versionFields = InnerGetVersionFields().AsReadOnly();

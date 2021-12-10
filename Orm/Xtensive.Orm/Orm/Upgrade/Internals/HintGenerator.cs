@@ -955,8 +955,7 @@ namespace Xtensive.Orm.Upgrade
         tasks.Enqueue(task);
       }
 
-      while (tasks.Count > 0) {
-        var task = tasks.Dequeue();
+      while (tasks.TryDequeue(out var task)) {
         var source = task.First;
         var target = task.Second;
         // both fields are primitive -> put to result is types match

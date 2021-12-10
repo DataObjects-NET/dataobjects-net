@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -1895,9 +1896,9 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="statements">The statements.</param>
     /// <returns>String containing the whole batch.</returns>
-    public virtual string BuildBatch(string[] statements)
+    public virtual string BuildBatch(IReadOnlyList<string> statements)
     {
-      if (statements.Length == 0)
+      if (statements.Count == 0)
         return string.Empty;
       var expectedLength = BatchBegin.Length + BatchEnd.Length +
         statements.Sum(statement => statement.Length + BatchItemDelimiter.Length + NewLine.Length);
