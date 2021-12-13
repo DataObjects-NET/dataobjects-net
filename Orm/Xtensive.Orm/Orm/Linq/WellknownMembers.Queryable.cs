@@ -78,14 +78,14 @@ namespace Xtensive.Orm.Linq
       public static readonly MethodInfo Where;
 
       // Queryable extensions
-      public static readonly MethodInfo ExtensionCount;
-      public static readonly MethodInfo ExtensionLeftJoin;
-      public static readonly MethodInfo ExtensionLock;
-      public static readonly MethodInfo ExtensionTake;
-      public static readonly MethodInfo ExtensionSkip;
-      public static readonly MethodInfo ExtensionElementAt;
-      public static readonly MethodInfo ExtensionElementAtOrDefault;
-      public static readonly MethodInfo ExtensionTag;
+      public static readonly MethodInfo ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
+      public static readonly MethodInfo ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
+      public static readonly MethodInfo ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
+      public static readonly MethodInfo ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
+      public static readonly MethodInfo ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
+      public static readonly MethodInfo ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
+      public static readonly MethodInfo ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
+      public static readonly MethodInfo ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
 
       static Queryable()
       {
@@ -446,16 +446,6 @@ namespace Xtensive.Orm.Linq
         AverageWithSelectorMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(averageWithSelectorMethodInfos);
         SumMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(sumMethodInfos);
         SumWithSelectorMethodInfos = new ReadOnlyDictionary<Type, MethodInfo>(sumWithSelectorMethodInfos);
-
-        // Queryable extensions
-        ExtensionCount = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Count), 0, 1);
-        ExtensionLeftJoin = GetQueryableExtensionsMethod(nameof(QueryableExtensions.LeftJoin), 4, 5);
-        ExtensionLock = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Lock), 1, 3);
-        ExtensionTake = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Take), 1, 2);
-        ExtensionSkip = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Skip), 1, 2);
-        ExtensionElementAt = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAt), 1, 2);
-        ExtensionElementAtOrDefault = GetQueryableExtensionsMethod(nameof(QueryableExtensions.ElementAtOrDefault), 1, 2);
-        ExtensionTag = GetQueryableExtensionsMethod(nameof(QueryableExtensions.Tag), 1, 2);
       }
 
       private static Type[] GetLambdaFuncGenericArguments(Type selectorType)

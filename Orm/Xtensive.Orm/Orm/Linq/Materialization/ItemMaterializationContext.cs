@@ -14,10 +14,10 @@ namespace Xtensive.Orm.Linq.Materialization
 {
   internal sealed class ItemMaterializationContext
   {
-    public static readonly MethodInfo IsMaterializedMethodInfo;
-    public static readonly MethodInfo GetEntityMethodInfo;
-    public static readonly MethodInfo MaterializeMethodInfo;
-    public static readonly System.Reflection.FieldInfo SessionFieldInfo;
+    public static readonly MethodInfo IsMaterializedMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(IsMaterialized));
+    public static readonly MethodInfo GetEntityMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(GetEntity));
+    public static readonly MethodInfo MaterializeMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(Materialize));
+    public static readonly System.Reflection.FieldInfo SessionFieldInfo = WellKnownOrmTypes.ItemMaterializationContext.GetField(nameof(Session));
 
     public readonly Session Session;
     public readonly MaterializationContext MaterializationContext;
@@ -76,14 +76,6 @@ namespace Xtensive.Orm.Linq.Materialization
 
       typeIdRegistry = Session.StorageNode.TypeIdRegistry;
       entities = new Entity[materializationContext.EntitiesInRow];
-    }
-
-    static ItemMaterializationContext()
-    {
-      IsMaterializedMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(IsMaterialized));
-      GetEntityMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(GetEntity));
-      MaterializeMethodInfo = WellKnownOrmTypes.ItemMaterializationContext.GetMethod(nameof(Materialize));
-      SessionFieldInfo = WellKnownOrmTypes.ItemMaterializationContext.GetField(nameof(Session));
     }
   }
 }
