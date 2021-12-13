@@ -609,7 +609,7 @@ namespace Xtensive.Orm
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
 
-    public TagContext Tag(string tag) => new TagContext(tags ??= new List<string>(), tag);
+    public TagScope Tag(string tag) => new TagScope(tags ??= new List<string>(), tag);
 
     // IDisposable implementation
 

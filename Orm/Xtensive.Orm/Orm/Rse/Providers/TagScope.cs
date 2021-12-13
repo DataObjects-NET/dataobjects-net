@@ -8,14 +8,14 @@ using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
 {
-  public readonly struct TagContext : IDisposable
+  public readonly struct TagScope : IDisposable
   {
     private readonly List<string> tags;
 
     public void Dispose() =>
       tags.RemoveAt(tags.Count - 1);
 
-    internal TagContext(List<string> tags, string tag)
+    internal TagScope(List<string> tags, string tag)
     {
       ArgumentValidator.EnsureArgumentNotNull(tags, nameof(tags));
       ArgumentValidator.EnsureArgumentNotNull(tag, nameof(tag));
