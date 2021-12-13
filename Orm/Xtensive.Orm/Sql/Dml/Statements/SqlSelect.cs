@@ -217,7 +217,7 @@ namespace Xtensive.Sql.Dml
       clone.Limit = Limit;
       clone.Offset = Offset;
       clone.Lock = Lock;
-      clone.Comment = (SqlComment)Comment.Clone(context);
+      clone.Comment = (SqlComment) Comment?.Clone(context);
 
       if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)

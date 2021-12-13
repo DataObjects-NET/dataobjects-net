@@ -113,8 +113,8 @@ namespace Xtensive.Orm.Linq.Materialization
       where TEntitySet : EntitySetBase
     {
       context.Session.Handler.Prefetch(
-        entitySet.Owner.Key, 
-        entitySet.Owner.TypeInfo, 
+        entitySet.Owner.Key,
+        entitySet.Owner.TypeInfo,
         new List<PrefetchFieldDescriptor>{new PrefetchFieldDescriptor(entitySet.Field, WellKnown.EntitySetPreloadCount)});
       return entitySet;
     }
