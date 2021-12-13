@@ -512,7 +512,7 @@ namespace Xtensive.Orm.Tests.Linq
         allCommands.Clear();
 
         _ = session.Query.All<BusinessUnit>().ToArray();
-        session.Events.DbCommandExecuting += SqlCapturer;
+        session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
         Assert.IsTrue(allCommands[0].Contains("/*outermost*/"));
@@ -534,7 +534,7 @@ namespace Xtensive.Orm.Tests.Linq
           allCommands.Clear();
 
           _ = session.Query.All<BusinessUnit>().ToArray();
-          session.Events.DbCommandExecuting += SqlCapturer;
+          session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
           Assert.IsTrue(allCommands[0].Contains("/*outermost in-between*/"));
@@ -557,7 +557,7 @@ namespace Xtensive.Orm.Tests.Linq
             allCommands.Clear();
 
             _ = session.Query.All<BusinessUnit>().ToArray();
-            session.Events.DbCommandExecuting += SqlCapturer;
+            session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
             Assert.IsTrue(allCommands[0].Contains("/*outermost in-between deepest*/"));
@@ -584,7 +584,7 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         _ = session.Query.Execute(q => q.All<BusinessUnit>()).ToArray();
-        session.Events.DbCommandExecuting += SqlCapturer;
+        session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
         Assert.IsTrue(allCommands[0].Contains("/*outermost*/"));
@@ -599,7 +599,7 @@ namespace Xtensive.Orm.Tests.Linq
 
           session.Events.DbCommandExecuting += SqlCapturer;
           _ = session.Query.Execute(q => q.All<BusinessUnit>()).ToArray();
-          session.Events.DbCommandExecuting += SqlCapturer;
+          session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
           Assert.IsTrue(allCommands[0].Contains("/*outermost in-between*/"));
@@ -615,7 +615,7 @@ namespace Xtensive.Orm.Tests.Linq
 
             session.Events.DbCommandExecuting += SqlCapturer;
             _ = session.Query.Execute(q => q.All<BusinessUnit>()).ToArray();
-            session.Events.DbCommandExecuting += SqlCapturer;
+            session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
             Assert.IsTrue(allCommands[0].Contains("/*outermost in-between deepest*/"));
@@ -651,7 +651,7 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         _ = session.Query.Single<BusinessUnit>(id);
-        session.Events.DbCommandExecuting += SqlCapturer;
+        session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
         Assert.IsTrue(allCommands[0].StartsWith("/*outermost*/"));
@@ -671,7 +671,7 @@ namespace Xtensive.Orm.Tests.Linq
 
           session.Events.DbCommandExecuting += SqlCapturer;
           _ = session.Query.Single<BusinessUnit>(id);
-          session.Events.DbCommandExecuting += SqlCapturer;
+          session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
           Assert.IsTrue(allCommands[0].StartsWith("/*outermost in-between*/"));
@@ -688,7 +688,7 @@ namespace Xtensive.Orm.Tests.Linq
 
             session.Events.DbCommandExecuting += SqlCapturer;
             _ = session.Query.Single<BusinessUnit>(id);
-            session.Events.DbCommandExecuting += SqlCapturer;
+            session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
             Assert.IsTrue(allCommands[0].StartsWith("/*outermost in-between deepest*/"));
@@ -723,7 +723,7 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         _ = session.Query.SingleOrDefault<BusinessUnit>(id);
-        session.Events.DbCommandExecuting += SqlCapturer;
+        session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(1));
         Assert.IsTrue(allCommands[0].StartsWith("/*outermost*/"));
@@ -742,7 +742,7 @@ namespace Xtensive.Orm.Tests.Linq
 
           session.Events.DbCommandExecuting += SqlCapturer;
           _ = session.Query.SingleOrDefault<BusinessUnit>(id);
-          session.Events.DbCommandExecuting += SqlCapturer;
+          session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(1));
           Assert.IsTrue(allCommands[0].StartsWith("/*outermost in-between*/"));
@@ -759,7 +759,7 @@ namespace Xtensive.Orm.Tests.Linq
 
             session.Events.DbCommandExecuting += SqlCapturer;
             _ = session.Query.SingleOrDefault<BusinessUnit>(id);
-            session.Events.DbCommandExecuting += SqlCapturer;
+            session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(1));
             Assert.IsTrue(allCommands[0].StartsWith("/*outermost in-between deepest*/"));
@@ -799,7 +799,7 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         _ = session.Query.All<Property>().Prefetch(p => p.Owner).ToArray();
-        session.Events.DbCommandExecuting += SqlCapturer;
+        session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(2));
         Assert.IsTrue(allCommands[1].StartsWith("/*outermost*/"));
@@ -819,7 +819,7 @@ namespace Xtensive.Orm.Tests.Linq
 
           session.Events.DbCommandExecuting += SqlCapturer;
           _ = session.Query.All<Property>().Prefetch(p => p.Owner).ToArray();
-          session.Events.DbCommandExecuting += SqlCapturer;
+          session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(2));
           Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between*/"));
@@ -836,7 +836,7 @@ namespace Xtensive.Orm.Tests.Linq
 
             session.Events.DbCommandExecuting += SqlCapturer;
             _ = session.Query.All<Property>().Prefetch(p => p.Owner).ToArray();
-            session.Events.DbCommandExecuting += SqlCapturer;
+            session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(2));
             Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between deepest*/"));
@@ -877,7 +877,7 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         _ = session.Query.All<Author>().Prefetch(a => a.Books).ToArray();
-        session.Events.DbCommandExecuting += SqlCapturer;
+        session.Events.DbCommandExecuting -= SqlCapturer;
 
         Assert.That(allCommands.Count, Is.EqualTo(2));
         Assert.IsTrue(allCommands[1].StartsWith("/*outermost*/"));
@@ -892,7 +892,7 @@ namespace Xtensive.Orm.Tests.Linq
 
           session.Events.DbCommandExecuting += SqlCapturer;
           _ = session.Query.All<Author>().Prefetch(a => a.Books).ToArray();
-          session.Events.DbCommandExecuting += SqlCapturer;
+          session.Events.DbCommandExecuting -= SqlCapturer;
 
           Assert.That(allCommands.Count, Is.EqualTo(2));
           Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between*/"));
@@ -909,7 +909,7 @@ namespace Xtensive.Orm.Tests.Linq
 
             session.Events.DbCommandExecuting += SqlCapturer;
             _ = session.Query.All<Author>().Prefetch(a => a.Books).ToArray();
-            session.Events.DbCommandExecuting += SqlCapturer;
+            session.Events.DbCommandExecuting -= SqlCapturer;
 
             Assert.That(allCommands.Count, Is.EqualTo(2));
             Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between deepest*/"));
