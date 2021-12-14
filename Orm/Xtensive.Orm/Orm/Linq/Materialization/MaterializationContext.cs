@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Linq.Materialization
         cache.SingleItem = result;
       else
         cache.Items.Add(typeId, result);
-      
+
       return result;
     }
 
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return TypeIdRegistry[typeInfo];
     }
 
-    
+
     // Constructors
 
     public MaterializationContext(Session session, int entityCount)
