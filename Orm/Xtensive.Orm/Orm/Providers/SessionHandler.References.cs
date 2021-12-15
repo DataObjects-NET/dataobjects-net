@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Providers
     {
       if (association.IsPaired)
         return FindReferences(target, association, true);
-      var (recordSet, parameter) = Session.StorageNode.InternalAssociationCache.GetOrAdd(association, BuildReferencingQuery);
+      var (recordSet, parameter) = Session.StorageNode.RefsToEntityQueryCache .GetOrAdd(association, BuildReferencingQuery);
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(parameter, target.Key.Value);
       ExecutableProvider executableProvider = Session.Compile(recordSet);
@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Providers
               parameter))
             .Alias("a")
             .Join(
-              index.GetQuery(), 
+              index.GetQuery(),
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
                 .Select((l,r) => new Pair<int>(l,r))

@@ -65,3 +65,4 @@
 [main] Node's IncomingConnections and OutgoingConnections properties changed types to IReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>>
 [main] SqlCompilerConfiguration's SchemaMapping and DatabaseMapping changed return types to IReadOnlyDictionary<string, string>
 [main] TypeMappingRegistry.Mappings and .ReverseMappings changed return types to IReadOnlyDictionary<TKey, TValue>
+[sqlserver] Microsoft.Data.SqlClient is updated to verson 4.0.0

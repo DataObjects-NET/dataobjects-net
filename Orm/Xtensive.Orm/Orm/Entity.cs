@@ -66,6 +66,12 @@ namespace Xtensive.Orm
     ISerializable,
     IDeserializationCallback
   {
+    private static readonly Func<(TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior), Session, ExecutableProvider> ExecutableProviderGenerator = ((TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior) t, Session session) =>
+      session.Compile(t.typeInfo.Indexes.PrimaryIndex.GetQuery()
+        .Seek(context => context.GetValue(keyParameter))
+        .Lock(() => t.lockMode, () => t.lockBehavior)
+        .Select(Array.Empty<int>()));
+
     private static readonly Parameter<Tuple> keyParameter = new Parameter<Tuple>(WellKnown.KeyFieldName);
     private readonly bool changeVersionOnSetAttempt;
     private EntityState state;
@@ -260,22 +266,12 @@ namespace Xtensive.Orm
       RemoveLaterInternal(EntityRemoveReason.User);
     }
 
-    private ExecutableProvider ExecutableProviderGenerator((TypeInfo typeInfo, LockMode lockMode, LockBehavior lockBehavior) t)
-    {
-      var index = t.typeInfo.Indexes.PrimaryIndex;
-      var query = index.GetQuery()
-        .Seek(context => context.GetValue(keyParameter))
-        .Lock(() => t.lockMode, () => t.lockBehavior)
-        .Select(Array.Empty<int>());
-      return Session.Compile(query);
-    }
-
     /// <inheritdoc/>
     public void Lock(LockMode lockMode, LockBehavior lockBehavior)
     {
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(keyParameter, Key.Value);
-      var source = Session.StorageNode.InternalExecutableProviderCache.GetOrAdd((TypeInfo, lockMode, lockBehavior), ExecutableProviderGenerator);
+      var source = Session.StorageNode.EntityLockProviderCache.GetOrAdd((TypeInfo, lockMode, lockBehavior), ExecutableProviderGenerator, Session);
       using var recordSetReader = source.GetRecordSetReader(Session, parameterContext);
       recordSetReader.MoveNext();
     }

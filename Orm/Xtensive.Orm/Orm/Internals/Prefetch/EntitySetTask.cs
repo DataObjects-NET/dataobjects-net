@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
       var session = manager.Owner.Session;
       var scope = new CompiledQueryProcessingScope(null, null, parameterContext, false);
-      QueryProvider = session.StorageNode.InternalItemsQueryCache.GetOrAdd(cacheKey, CreateRecordSetLoadingItems);
+      QueryProvider = session.StorageNode.EntitySetFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSetLoadingItems);
       ExecutableProvider executableProvider;
       using (scope.Enter()) {
         executableProvider = session.Compile(QueryProvider);

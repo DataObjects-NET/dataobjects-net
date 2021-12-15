@@ -65,14 +65,15 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private static readonly Func<RecordSetCacheKey, CompilableProvider> CreateRecordSet = cachingKey => {
       var selectedColumnIndexes = cachingKey.ColumnIndexes;
-      var keyColumnsCount = cachingKey.Type.Indexes.PrimaryIndex.KeyColumns.Count;
+      var primaryIndex = cachingKey.Type.Indexes.PrimaryIndex;
+      var keyColumnsCount = primaryIndex.KeyColumns.Count;
       var keyColumnIndexes = new int[keyColumnsCount];
       foreach (var index in Enumerable.Range(0, keyColumnsCount)) {
         keyColumnIndexes[index] = index;
       }
 
-      var columnCollectionLength = cachingKey.Type.Indexes.PrimaryIndex.Columns.Count;
-      return cachingKey.Type.Indexes.PrimaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
+      var columnCollectionLength = primaryIndex.Columns.Count;
+      return primaryIndex.GetQuery().Include(IncludeAlgorithm.ComplexCondition,
         true, context => context.GetValue(includeParameter), $"includeColumnName-{Guid.NewGuid()}",
         keyColumnIndexes).Filter(t => t.GetValue<bool>(columnCollectionLength)).Select(selectedColumnIndexes);
     };
@@ -142,7 +143,7 @@ namespace Xtensive.Orm.Internals.Prefetch
       var parameterContext = new ParameterContext();
       parameterContext.SetValue(includeParameter, currentKeySet);
       var session = manager.Owner.Session;
-      Provider = session.StorageNode.InternalRecordSetCache.GetOrAdd(cacheKey, CreateRecordSet);
+      Provider = session.StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSet);
       if (session.Tags != null) {
         foreach (var tag in session.Tags) {
           Provider = new TagProvider(Provider, tag);
