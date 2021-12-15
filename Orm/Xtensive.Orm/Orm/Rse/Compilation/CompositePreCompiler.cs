@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.03.30
 
@@ -12,29 +12,31 @@ namespace Xtensive.Orm.Rse.Compilation
 {
   public sealed class CompositePreCompiler : IPreCompiler
   {
-    public List<IPreCompiler> Items { get; private set; }
-    public IReadOnlyList<string> Tags { get; init; }
+    public IReadOnlyList<IPreCompiler> items { get; }
+    public IReadOnlyList<string> tags { get; }
 
     public CompilableProvider Process(CompilableProvider rootProvider)
     {
       var provider = rootProvider;
-      if (Tags != null) {
-        foreach (var tag in Tags) {
+      if (tags != null) {
+        foreach (var tag in tags) {
           provider = new TagProvider(provider, tag);
         }
       }
 
-      foreach (var item in Items)
+      foreach (var item in items) {
         provider = item.Process(provider);
+      }
       return provider;
     }
 
 
     // Constructors
 
-    public CompositePreCompiler(params IPreCompiler[] preCompilers)
+    public CompositePreCompiler(IReadOnlyList<string> tags, params IPreCompiler[] preCompilers)
     {
-      Items = preCompilers.ToList();
+      this.tags = tags;
+      items = preCompilers;
     }
   }
 }
