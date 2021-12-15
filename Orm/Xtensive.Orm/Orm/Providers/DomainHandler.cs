@@ -98,7 +98,9 @@ namespace Xtensive.Orm.Providers
         applyCorrector,
         skipTakeCorrector,
         new RedundantColumnOptimizer(),
-        new OrderingCorrector(ResolveOrderingDescriptor));
+        new OrderingCorrector(ResolveOrderingDescriptor)) {
+          Tags = configuration.Tags
+      };
     }
 
     /// <summary>

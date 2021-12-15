@@ -63,13 +63,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      var result = Provider.CreateQuery<T>(BuildRootExpression(typeof(T)));
-      if (session.Tags != null) {
-        foreach (var tag in session.Tags) {
-          result = result.Tag(tag);
-        }
-      }
-      return result;
+      return Provider.CreateQuery<T>(BuildRootExpression(typeof(T)));
     }
 
     /// <summary>
@@ -84,13 +78,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IQueryable All(Type elementType)
     {
-      var result = ((IQueryProvider) Provider).CreateQuery(BuildRootExpression(elementType));
-      if (session.Tags != null) {
-        foreach (var tag in session.Tags) {
-          result = result.Tag(tag);
-        }
-      }
-      return result;
+      return ((IQueryProvider) Provider).CreateQuery(BuildRootExpression(elementType));
     }
 
     #region Full-text related

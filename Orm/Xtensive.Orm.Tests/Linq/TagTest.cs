@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
@@ -48,7 +49,7 @@ namespace Xtensive.Orm.Tests.Linq.TagTestModel
     [Field(Length = 55, Nullable = false)]
     public string Name { get; set; }
 
-    [Field] 
+    [Field]
     public bool Active { get; set; }
   }
 
@@ -386,7 +387,8 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         foreach (var group in query)
-          foreach (var groupItem in group.Items);
+          foreach (var groupItem in group.Items)
+            ;
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
@@ -403,7 +405,8 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         foreach (var group in query)
-          foreach (var groupItem in group.Items);
+          foreach (var groupItem in group.Items)
+            ;
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
@@ -420,7 +423,8 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         foreach (var group in query)
-          foreach (var groupItem in group.Items);
+          foreach (var groupItem in group.Items)
+            ;
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
@@ -438,7 +442,8 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         foreach (var group in query)
-          foreach (var groupItem in group.Items);
+          foreach (var groupItem in group.Items)
+            ;
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
@@ -456,7 +461,8 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         foreach (var group in query)
-          foreach (var groupItem in group.Items);
+          foreach (var groupItem in group.Items)
+            ;
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
@@ -477,7 +483,8 @@ namespace Xtensive.Orm.Tests.Linq
 
         session.Events.DbCommandExecuting += SqlCapturer;
         foreach (var group in query1)
-          foreach (var groupItem in group.Items);
+          foreach (var groupItem in group.Items)
+            ;
         session.Events.DbCommandExecuting -= SqlCapturer;
 
         PrintList(allCommands);
@@ -923,6 +930,29 @@ namespace Xtensive.Orm.Tests.Linq
       {
         allCommands.Add(args.Command.CommandText);
       }
+    }
+
+    [Test]
+    public void SessionTagInUnion()
+    {
+      var allCommands = new List<string>();
+
+      var session = Session.Demand();
+      using var outermost = session.Tag("outermost");
+
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        session.Events.DbCommandExecuting += SqlCapturer;
+        var left = session.Query.All<BusinessUnit>();
+        var right = session.Query.All<BusinessUnit>();
+        var result = left.Union(right).ToArray();
+        session.Events.DbCommandExecuting -= SqlCapturer;
+
+        Assert.That(allCommands.Count, Is.EqualTo(1));
+        Assert.AreEqual(Regex.Matches(allCommands[0], "outermost").Count, 1);
+      }
+
+      void SqlCapturer(object sender, DbCommandEventArgs args) =>
+        allCommands.Add(args.Command.CommandText);
     }
 
     private static bool CheckTag(string query, string expectedComment, TagsLocation place)
