@@ -1,0 +1,2 @@
+[sqlserver] Replaced usage of DATEDIFF with DATEDIFF_BIG for v13 and newer
+[sqlserver] Improved extraction of Milliseconds for result of DateTime/DateTimeOffset substraction for v13 and newer
