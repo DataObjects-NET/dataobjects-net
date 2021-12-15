@@ -12,8 +12,8 @@ namespace Xtensive.Orm.Rse.Compilation
 {
   public sealed class CompositePreCompiler : IPreCompiler
   {
-    public IReadOnlyList<IPreCompiler> items { get; }
-    public IReadOnlyList<string> tags { get; }
+    private readonly IPreCompiler[] items;
+    private readonly IReadOnlyList<string> tags;
 
     public CompilableProvider Process(CompilableProvider rootProvider)
     {
