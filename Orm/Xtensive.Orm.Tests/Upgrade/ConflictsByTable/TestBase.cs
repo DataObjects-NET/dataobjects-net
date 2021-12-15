@@ -3,19 +3,13 @@
 // See the License.txt file in the project root for more information.
 
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Core;
-using Xtensive.Modelling.Actions;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
 using Xtensive.Orm.Upgrade;
-using V1 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureNoGeneratorTestModel.Before;
-using V2 = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureNoGeneratorTestModel.After;
-using TheTestHelper = Xtensive.Orm.Tests.Upgrade.ConflictsByTable.ExactTableStructureNoGeneratorTestModel.TestHelper;
 
 namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 {
@@ -35,8 +29,8 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 
       var upgradeDomainTypes = GetTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) ; })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) ; });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) {}})
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) {}});
 
       CheckComparisonResult(inheritanceSchema, ex.ComparisonResult);
 
