@@ -113,10 +113,9 @@ namespace Xtensive.Orm.Linq
       var currentProjection = origin;
       foreach (var tag in tags) {
         var projector = currentProjection.ItemProjector;
-        var newDataSource = currentProjection.ItemProjector.DataSource.Tag(tag);
+        var newDataSource = projector.DataSource.Tag(tag);
         var newItemProjector = new ItemProjectorExpression(projector.Item, newDataSource, projector.Context);
-        currentProjection = new ProjectionExpression(currentProjection.Type, newItemProjector,
-          currentProjection.TupleParameterBindings, currentProjection.ResultAccessMethod);
+        currentProjection = currentProjection.Apply(newItemProjector);
       }
       return currentProjection;
     }
