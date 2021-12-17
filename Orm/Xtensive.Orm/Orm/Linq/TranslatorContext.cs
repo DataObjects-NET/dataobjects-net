@@ -89,13 +89,10 @@ namespace Xtensive.Orm.Linq
       return parameter;
     }
 
-    public IReadOnlyList<string> GetMainQueryTags()
-    {
-      if (Domain.TagsEnabled)
-        return Array.Empty<string>();
-
-      return applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList();
-    }
+    public IReadOnlyList<string> GetMainQueryTags() =>
+      Domain.TagsEnabled
+        ? applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList()
+        : Array.Empty<string>();
 
     public IDisposable DisableSessionTags()
     {
