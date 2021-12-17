@@ -54,6 +54,8 @@ namespace Xtensive.Orm.Linq
 
     public LinqBindingCollection Bindings { get; }
 
+    public IReadOnlyList<string> SessionTags { get; private set; }
+
     public bool IsRoot(Expression expression)
     {
       return Query==expression;
@@ -87,12 +89,19 @@ namespace Xtensive.Orm.Linq
       return parameter;
     }
 
-    public IReadOnlyList<string> GetAllTags()
+    public IReadOnlyList<string> GetMainQueryTags()
     {
-      if (Domain.Configuration.TagsLocation == TagsLocation.Nowhere)
+      if (Domain.TagsEnabled)
         return Array.Empty<string>();
 
       return applyParameters.Keys.OfType<TagProvider>().Select(p => p.Tag).ToList();
+    }
+
+    public IDisposable DisableSessionTags()
+    {
+      var originalTags = SessionTags;
+      SessionTags = null;
+      return new Disposable((b) => SessionTags = originalTags);
     }
 
     public void RebindApplyParameter(CompilableProvider old, CompilableProvider @new)
@@ -142,6 +151,7 @@ namespace Xtensive.Orm.Linq
 
       Domain = session.Domain;
       RseCompilerConfiguration = rseCompilerConfiguration;
+      SessionTags = (Domain.TagsEnabled) ? session.Tags : null;
 
       // Applying query preprocessors
       query = Domain.Handler.QueryPreprocessors

@@ -82,6 +82,7 @@ namespace Xtensive.Orm
     private DisposableSet disposableSet;
     private ExtensionCollection extensions;
     private StorageNode storageNode;
+    private List<string> tags;
 
     private readonly bool allowSwitching;
     private readonly long identifier;
@@ -240,7 +241,6 @@ namespace Xtensive.Orm
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
 
-    private List<string> tags;
     internal IReadOnlyList<string> Tags => tags;
 
     internal void EnsureNotDisposed()

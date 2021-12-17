@@ -93,7 +93,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the information about provider's capabilities.
     /// </summary>
-    public ProviderInfo StorageProviderInfo { get { return Handlers.ProviderInfo; } }
+    public ProviderInfo StorageProviderInfo => Handlers.ProviderInfo;
 
     /// <summary>
     /// Gets the domain-level service container.
@@ -104,6 +104,13 @@ namespace Xtensive.Orm
     /// Gets storage node manager.
     /// </summary>
     public StorageNodeManager StorageNodeManager { get; private set; }
+
+    /// <summary>
+    /// Indicated whether query tagging is enabled by domain configuration
+    /// by <see cref="DomainConfiguration.TagsLocation"/> proprety set to something
+    /// other than <see cref="TagsLocation.Nowhere"/>.
+    /// </summary>
+    public bool TagsEnabled { get; }
 
     #region Private / internal members
 
@@ -428,6 +435,7 @@ namespace Xtensive.Orm
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
+      TagsEnabled = configuration.TagsLocation != TagsLocation.Nowhere;
       isDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
     }
 

@@ -96,12 +96,11 @@ namespace Xtensive.Orm.Providers
       var skipTakeCorrector = new SkipTakeCorrector(
         providerInfo.Supports(ProviderFeatures.NativeTake),
         providerInfo.Supports(ProviderFeatures.NativeSkip));
-      return new CompositePreCompiler(configuration.Tags,
+      return new CompositePreCompiler(
         applyCorrector,
         skipTakeCorrector,
         RedundantColumnOptimizer.Instance,
-        OrderingCorrector
-        );
+        OrderingCorrector);
     }
 
     /// <summary>
