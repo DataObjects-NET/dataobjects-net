@@ -888,7 +888,6 @@ namespace Xtensive.Orm.Tests.Linq
 
         Assert.That(allCommands.Count, Is.EqualTo(2));
         Assert.IsTrue(allCommands[1].StartsWith("/*outermost*/"));
-        Assert.AreEqual(Regex.Matches(allCommands[0], "outermost").Count, 1);
 
         allCommands.Clear();
       }
