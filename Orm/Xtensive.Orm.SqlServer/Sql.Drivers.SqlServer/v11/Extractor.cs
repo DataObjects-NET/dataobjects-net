@@ -50,8 +50,9 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
           var sequence = currentSchema.CreateSequence(reader.GetString(1));
           var descriptor = sequence.SequenceDescriptor;
 
-          if (!valueReaders.TryGetValue(reader.GetInt32(2), out var valueReader))
-            throw new ArgumentOutOfRangeException($"Type of sequence '{reader.GetString(1)}' is not supported");
+          if (!valueReaders.TryGetValue(reader.GetInt32(2), out var valueReader)) {
+            throw new ArgumentOutOfRangeException($"Type of sequence '{reader.GetString(1)}' is not supported.");
+          }
 
           descriptor.StartValue = valueReader(reader, 3);
           descriptor.Increment = valueReader(reader, 4);
