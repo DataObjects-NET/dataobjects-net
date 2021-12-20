@@ -1,0 +1,2 @@
+[sqlserver] Fixed Full-text indexes extraction for Azure SQL provider
+[sqlserver] Correct extraction of custom sequences based on types other than BIGINT
