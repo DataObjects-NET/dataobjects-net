@@ -520,6 +520,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractInt32SequenceTest()
     {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
+
       var createSequence = @"CREATE SEQUENCE dbo.IntSeq
                                 AS int
                                 START WITH 12 INCREMENT BY 3
@@ -546,6 +548,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractInt16SequenceTest()
     {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
+
       var createSequence = @"CREATE SEQUENCE dbo.SmallIntSeq
                                 AS smallint
                                 START WITH 12 INCREMENT BY 3
@@ -572,6 +576,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractByteSequenceTest()
     {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
+
       var createSequence = @"CREATE SEQUENCE dbo.TinyIntSeq
                                 AS tinyint
                                 START WITH 12 INCREMENT BY 3
