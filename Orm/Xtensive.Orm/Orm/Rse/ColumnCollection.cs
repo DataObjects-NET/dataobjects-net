@@ -19,6 +19,46 @@ namespace Xtensive.Orm.Rse
   [Serializable]
   public sealed class ColumnCollection : IReadOnlyList<Column>
   {
+    public struct Enumerator : IEnumerator<Column>, IEnumerator
+    {
+      private readonly IReadOnlyList<Column> list;
+      private int index;
+      public Column Current { get; private set; }
+
+      object IEnumerator.Current =>
+        index == 0 || index == list.Count + 1
+          ? throw new InvalidOperationException("Enumeration cannot happen")
+          : Current;
+
+      public void Dispose()
+      {
+      }
+
+      public bool MoveNext()
+      {
+        if (index < list.Count) {
+          Current = list[index++];
+          return true;
+        }
+        index = list.Count + 1;
+        Current = default;
+        return false;
+      }
+
+      void IEnumerator.Reset()
+      {
+        index = 0;
+        Current = default;
+      }
+
+      internal Enumerator(IReadOnlyList<Column> list)
+      {
+        this.list = list;
+        index = 0;
+        Current = default;
+      }
+    }
+
     private readonly Dictionary<string, int> nameIndex;
     private readonly IReadOnlyList<Column> columns;
 
@@ -66,8 +106,13 @@ namespace Xtensive.Orm.Rse
     /// <summary>
     /// Returns an enumerator that iterates through the <see href="ColumnCollection"/>.
     /// </summary>
-    public IEnumerator<Column> GetEnumerator() => columns.GetEnumerator();
-    
+    public Enumerator GetEnumerator() => new Enumerator(this);
+
+    /// <summary>
+    /// Returns an enumerator that iterates through the <see href="ColumnCollection"/>.
+    /// </summary>
+    IEnumerator<Column> IEnumerable<Column>.GetEnumerator() => GetEnumerator();
+
     /// <inheritdoc/>
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
