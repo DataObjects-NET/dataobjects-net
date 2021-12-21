@@ -47,11 +47,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       using (var reader = cmd.ExecuteReader())
         while (reader.Read()) {
           var currentSchema = GetSchema(reader.GetInt32(0));
-          var sequence = currentSchema.CreateSequence(reader.GetString(1));
+          var sequenceName = reader.GetString(1);
+          var sequence = currentSchema.CreateSequence(sequenceName);
           var descriptor = sequence.SequenceDescriptor;
 
           if (!valueReaders.TryGetValue(reader.GetInt32(2), out var valueReader)) {
-            throw new ArgumentOutOfRangeException($"Type of sequence '{reader.GetString(1)}' is not supported.");
+            throw new ArgumentOutOfRangeException($"Type of sequence '{sequenceName}' is not supported.");
           }
 
           descriptor.StartValue = valueReader(reader, 3);
