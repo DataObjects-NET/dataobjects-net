@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -90,8 +90,8 @@ namespace Xtensive.Orm.Linq.Materialization
         typeColumnMap = newColumns;
       }
 
-      int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      int[] keyIndexes = allIndexes.Take(keyInfo.TupleDescriptor.Count).ToArray();
+      ArraySegment<int> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
+      ArraySegment<int> keyIndexes = allIndexes.Slice(0, keyInfo.TupleDescriptor.Count);
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);

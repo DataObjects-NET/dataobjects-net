@@ -46,9 +46,7 @@ namespace Xtensive.Orm.Linq.Materialization
     public static int[] CreateSingleSourceMap(int targetLength, IReadOnlyList<Pair<int>> remappedColumns)
     {
       var map = new int[targetLength];
-      for (var i = 0; i < map.Length; i++) {
-        map[i] = MapTransform.NoMapping;
-      }
+      Array.Fill(map, MapTransform.NoMapping);
 
       for (var i = 0; i < remappedColumns.Count; i++) {
         var remappedColumn = remappedColumns[i];
