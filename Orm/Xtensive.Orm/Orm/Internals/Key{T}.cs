@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Internals
   [Serializable]
   internal sealed class Key<T> : Key
   {
-    private static readonly Predicate<T, T> equalityComparer1 =
+    private static readonly Predicate<T, T> EqualityComparer1 =
       ComparerProvider.Default.GetComparer<T>().Equals;
 
     private readonly T value1;
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Internals
       if (otherKey == null)
         return false;
       return
-        equalityComparer1.Invoke(value1, otherKey.value1);
+        EqualityComparer1.Invoke(value1, otherKey.value1);
     }
 
     protected override int CalculateHashCode()
