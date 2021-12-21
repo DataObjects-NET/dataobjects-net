@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="index"><see cref="Column.Index"/> property value.</param>
     /// <param name="type"><see cref="Column.Type"/> property value.</param>
     public MappedColumn(string name, int index, Type type)
-      : this(null, name, index, type)
+      : this(default, name, index, type)
     {
     }
 

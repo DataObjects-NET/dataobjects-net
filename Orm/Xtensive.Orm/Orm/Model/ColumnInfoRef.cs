@@ -51,12 +51,6 @@ namespace Xtensive.Orm.Model
           ? throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "field", FieldName))
           : field.Column ?? throw new InvalidOperationException(string.Format(Strings.ExCouldNotResolveXYWithinDomain, "column", ColumnName));
 
-    /// <summary>
-    /// Creates reference for <see cref="ColumnInfo"/>.
-    /// </summary>
-    public static implicit operator ColumnInfoRef(ColumnInfo columnInfo) => 
-      new ColumnInfoRef(columnInfo);
-
     #region Equality members, ==, !=
 
     /// <summary>
