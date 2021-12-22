@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Runtime.Serialization;
 using System.Security;
@@ -27,8 +28,8 @@ namespace Xtensive.Comparison
   {
     private static Arithmetic<T> cachedArithmetic;
     [NonSerialized]
-    private ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>> cachedComparers = 
-      ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create(new object());
+    private ConcurrentDictionary<(ComparisonRules, AdvancedComparerBase<T>), AdvancedComparer<T>> cachedComparers = 
+      new ConcurrentDictionary<(ComparisonRules, AdvancedComparerBase<T>), AdvancedComparer<T>>();
 
     private IComparerProvider provider;
     private ValueRangeInfo<T> valueRangeInfo;
@@ -72,9 +73,11 @@ namespace Xtensive.Comparison
     /// <inheritdoc/>
     public AdvancedComparer<T> ApplyRules(ComparisonRules rules)
     {
-      return cachedComparers.GetValue(rules, 
-        (_rules, _this) => new AdvancedComparer<T>(_this.CreateNew(_rules)), 
-        this);
+      return cachedComparers.GetOrAdd((rules, this),
+        key => {
+          var (_rules, _this) = key;
+          return new AdvancedComparer<T>(_this.CreateNew(_rules));
+        });
     }
 
     /// <inheritdoc/>
@@ -184,7 +187,7 @@ namespace Xtensive.Comparison
       else if (provider is SystemComparerProvider) {
         provider = ComparerProvider.System;
       }
-      cachedComparers = ThreadSafeDictionary<ComparisonRules, AdvancedComparer<T>>.Create(new object());
+      cachedComparers = new ConcurrentDictionary<(ComparisonRules, AdvancedComparerBase<T>), AdvancedComparer<T>>();
     }
 
     [SecurityCritical]

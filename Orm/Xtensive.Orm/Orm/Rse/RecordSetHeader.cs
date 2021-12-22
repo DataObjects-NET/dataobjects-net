@@ -37,22 +37,22 @@ namespace Xtensive.Orm.Rse
     /// Gets the <see cref="Provider"/> keys.
     /// </summary>
     /// <value>The keys.</value>
-    public ColumnGroupCollection ColumnGroups { get; private set; }
+    public ColumnGroupCollection ColumnGroups { get; }
 
     /// <summary>
     /// Gets the <see cref="Provider"/> columns.
     /// </summary>
-    public ColumnCollection Columns { get; private set; }
+    public ColumnCollection Columns { get; }
 
     /// <summary>
     /// Gets the <see cref="Provider"/> tuple descriptor.
     /// </summary>
-    public TupleDescriptor TupleDescriptor { get; private set; }
+    public TupleDescriptor TupleDescriptor { get; }
 
     /// <summary>
     /// Gets the indexes of columns <see cref="Provider"/> is ordered by.
     /// </summary>
-    public DirectionCollection<int> Order { get; private set; }
+    public DirectionCollection<int> Order { get; }
 
     /// <summary>
     /// Gets the tuple descriptor describing

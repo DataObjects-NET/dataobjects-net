@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Upgrade
   /// </summary>
   public static class TypeConversionVerifier
   {
-    private static readonly Dictionary<Type, IList<Type>> supportedConversions;
+    private static readonly Dictionary<Type, IList<Type>> supportedConversions = new Dictionary<Type, IList<Type>>();
 
     /// <summary>
     /// Verifies whether the source type can be converted to the target type. 
@@ -141,7 +141,6 @@ namespace Xtensive.Orm.Upgrade
 
     static TypeConversionVerifier()
     {
-      supportedConversions = new Dictionary<Type, IList<Type>>();
       AddConverter<bool>(
         WellKnownTypes.Int16, WellKnownTypes.UInt16,
         WellKnownTypes.Int32, WellKnownTypes.UInt32,

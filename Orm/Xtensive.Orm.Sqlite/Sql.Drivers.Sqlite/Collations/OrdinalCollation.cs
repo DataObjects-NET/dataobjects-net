@@ -9,9 +9,13 @@ using System.Data.SQLite;
 
 namespace Xtensive.Sql.Drivers.Sqlite.Collations
 {
+  /// <summary>
+  /// Provides custom implementation of the ordinal collation.
+  /// </summary>
   [SQLiteFunction(FuncType = FunctionType.Collation, Name = "StringComparer_Ordinal")]
   public class OrdinalCollation : SQLiteFunction
   {
+    /// <inheritdoc/>
     public override int Compare(string param1, string param2)
     {
       return StringComparer.Ordinal.Compare(param1, param2);

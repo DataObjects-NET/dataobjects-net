@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Tests.Linq
       var selectExpression = Expression.Call(genericSelectMethodInfo, queryAllExpression, lambda);
 
       return (IQueryable) FastExpression
-        .Lambda(selectExpression, EnumerableUtils<ParameterExpression>.Empty)
+        .Lambda(selectExpression, Enumerable.Empty<ParameterExpression>())
         .Compile()
         .DynamicInvoke();
     }

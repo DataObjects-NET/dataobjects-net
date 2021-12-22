@@ -162,7 +162,6 @@ namespace Xtensive.Orm.Tests.Linq
       var customerKey = Session.Query.All<Customer>().First().Key;
       var invoiceKey = Session.Query.All<Invoice>().Where(i => i.Customer.Key == customerKey).First().Key;
       Exception firstThreadException = null;
-      Exception result = null;
       var firstEvent = new ManualResetEvent(false);
       var secondEvent = new ManualResetEvent(false);
       var firstThread = new Thread(() => {

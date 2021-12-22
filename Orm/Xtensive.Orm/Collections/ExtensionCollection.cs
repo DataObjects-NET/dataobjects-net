@@ -8,6 +8,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -125,7 +126,7 @@ namespace Xtensive.Collections
     public IEnumerator<Type> GetEnumerator()
     {
       if (extensions==null)
-        return EnumerableUtils<Type>.EmptyEnumerator;
+        return Enumerable.Empty<Type>().GetEnumerator();
       else
         return extensions.Keys.GetEnumerator();
     }

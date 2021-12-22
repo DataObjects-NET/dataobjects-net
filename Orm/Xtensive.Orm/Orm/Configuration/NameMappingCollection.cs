@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -21,7 +21,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets empty <see cref="NameMappingCollection"/>.
     /// </summary>
-    public static readonly NameMappingCollection Empty;
+    public static readonly NameMappingCollection Empty = new NameMappingCollection();
 
     private readonly Dictionary<string, string> items = new Dictionary<string, string>();
 
@@ -125,7 +125,6 @@ namespace Xtensive.Orm.Configuration
 
     static NameMappingCollection()
     {
-      Empty = new NameMappingCollection();
       Empty.Lock();
     }
   }

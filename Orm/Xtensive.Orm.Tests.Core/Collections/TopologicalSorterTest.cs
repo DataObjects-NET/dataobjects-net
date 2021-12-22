@@ -72,7 +72,6 @@ namespace Xtensive.Orm.Tests.Core.Collections
             var edge = new Edge<int>(node, node, 1);
             var graph = new Graph<Node<int>, Edge<int>>(EnumerableUtils.One(node));
 
-            List<Edge<int>> removedEdges;
             var result = TopologicalSorter.Sort(graph, e => e.Source==e.Target);
             Assert.AreEqual(1, result.SortedNodes.Count);
             Assert.AreSame(node, result.SortedNodes[0]);

@@ -5,6 +5,7 @@
 // Created:    2008.01.22
 
 using System;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.Serialization;
 using Xtensive.Collections;
@@ -18,32 +19,31 @@ namespace Xtensive.Comparison
     ISystemComparer<Type>
   {
     [NonSerialized]
-    private ThreadSafeDictionary<Pair<Type>, int> results;
+    private ConcurrentDictionary<(Type, Type, TypeComparer), int> results;
 
     protected override IAdvancedComparer<Type> CreateNew(ComparisonRules rules)
       => new TypeComparer(Provider, ComparisonRules.Combine(rules));
 
     public override int Compare(Type x, Type y)
     {
-      return x == y
-        ? 0
-        : results.GetValue(new Pair<Type>(x, y), generator, this);
-
-      static int generator(Pair<Type> pair, TypeComparer _this)
+      static int TypeComparison((Type, Type, TypeComparer) tuple)
       {
-        var result = _this.BaseComparer1.Compare(pair.First.FullName, pair.Second.FullName);
+        var (type1, type2, typeComparer) = tuple;
+        var result = typeComparer.BaseComparer1.Compare(type1.FullName, type2.FullName);
         if (result == 0) {
-          result = _this.BaseComparer2.Compare(pair.First.Assembly, pair.Second.Assembly);
+          result = typeComparer.BaseComparer2.Compare(type1.Assembly, type2.Assembly);
         }
         return result;
       }
+
+      return x == y ? 0 : results.GetOrAdd((x, y, this), TypeComparison);
     }
 
     public override bool Equals(Type x, Type y) => x == y;
 
     public override int GetHashCode(Type obj) => AdvancedComparerStruct<Type>.System.GetHashCode(obj);
 
-    private void Initialize() => results = ThreadSafeDictionary<Pair<Type>, int>.Create(new object());
+    private void Initialize() => results = new ConcurrentDictionary<(Type, Type, TypeComparer), int>();
 
 
     // Constructors

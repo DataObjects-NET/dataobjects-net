@@ -46,9 +46,9 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
       
       if (genericArgumentNames==null)
-        genericArgumentNames = ArrayUtils<string>.EmptyArray;
+        genericArgumentNames = Array.Empty<string>();
       if (parameterTypes==null)
-        parameterTypes = ArrayUtils<object>.EmptyArray;
+        parameterTypes = Array.Empty<object>();
       bool parameterTypesAreFullyDefined = true;
       for (int i = 0; i<parameterTypes.Length; i++) {
         var parameterType = parameterTypes[i] as Type;
@@ -97,13 +97,13 @@ namespace Xtensive.Reflection
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
 
       if (parameterTypes == null)
-        parameterTypes = ArrayUtils<object>.EmptyArray;
+        parameterTypes = Array.Empty<object>();
 
       if (parameterTypes.All(o => o is Type))
         return type.GetConstructor(bindingFlags, null,
           parameterTypes.Select(o => (Type) o).ToArray(), null);
 
-      var genericArgumentNames = ArrayUtils<string>.EmptyArray;
+      var genericArgumentNames = Array.Empty<string>();
       ConstructorInfo lastMatch = null;
 
       foreach (ConstructorInfo ci in type.GetConstructors(bindingFlags)) {

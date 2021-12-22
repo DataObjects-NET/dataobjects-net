@@ -228,7 +228,15 @@ namespace Xtensive.Orm.Providers
         WellKnown.TypeIdFieldName);
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       if (discriminatorMap != null) {
-        var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
+        var discriminatorColumnIndex = 0;
+        var discriminatorColumnInfo = discriminatorMap.Column;
+        var underlyingColumns = underlyingIndex.Columns; 
+        for (var columnCount = underlyingColumns.Count; discriminatorColumnIndex < columnCount; discriminatorColumnIndex++) {
+          var column = underlyingColumns[discriminatorColumnIndex];
+          if (column.Equals(discriminatorColumnInfo)) {
+            break;
+          }
+        }
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var sqlCase = SqlDml.Case(discriminatorColumn);
         foreach (var pair in discriminatorMap) {

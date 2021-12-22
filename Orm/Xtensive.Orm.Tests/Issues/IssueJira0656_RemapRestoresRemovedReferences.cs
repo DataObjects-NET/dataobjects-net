@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void SetSyncObjectAsReferenceFormNewObject()
     {
-      int nullReferenceId, referencingId, referencedId;
+      int referencedId;
       using (var populateSession = Domain.OpenSession())
       using (var transaction = populateSession.OpenTransaction()){
         var testB = new TestB { Text = "Test B" };

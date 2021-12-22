@@ -5,6 +5,7 @@
 // Created:    2012.08.20
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
@@ -58,7 +59,7 @@ namespace Xtensive.Orm.Tests.Upgrade
       {
         protected override string DetectAssemblyVersion() => "2";
 
-        protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+        protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
         {
           _ = hints.Add(new RemoveFieldHint(typeof(Model1.Owner).FullName, "T"));
           _ = hints.Add(new RemoveTypeHint(typeof(Model1.Target).FullName));

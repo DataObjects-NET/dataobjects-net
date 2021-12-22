@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2010 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -13,7 +13,27 @@ namespace Xtensive.Sql
 {
   internal static class SqlValidator
   {
-    private static readonly HashSet<Type> supportedTypes;
+    private static readonly IReadOnlySet<Type> supportedTypes = new HashSet<Type> {
+        WellKnownTypes.Bool,
+        WellKnownTypes.Char,
+        WellKnownTypes.SByte,
+        WellKnownTypes.Byte,
+        WellKnownTypes.Int16,
+        WellKnownTypes.UInt16,
+        WellKnownTypes.Int32,
+        WellKnownTypes.UInt32,
+        WellKnownTypes.Int64,
+        WellKnownTypes.UInt64,
+        WellKnownTypes.String,
+        WellKnownTypes.Single,
+        WellKnownTypes.Double,
+        WellKnownTypes.Decimal,
+        WellKnownTypes.DateTime,
+        WellKnownTypes.DateTimeOffset,
+        WellKnownTypes.TimeSpan,
+        WellKnownTypes.ByteArray,
+        WellKnownTypes.Guid
+    };
 
     public static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
     {
@@ -212,34 +232,6 @@ namespace Xtensive.Sql
     public static bool IsLiteralTypeSupported(Type type)
     {
       return supportedTypes.Contains(type);
-    }
-    
-    // Static constructor
-
-    static SqlValidator()
-    {
-      supportedTypes = new[]
-        {
-          WellKnownTypes.Bool,
-          WellKnownTypes.Char,
-          WellKnownTypes.SByte,
-          WellKnownTypes.Byte,
-          WellKnownTypes.Int16,
-          WellKnownTypes.UInt16,
-          WellKnownTypes.Int32,
-          WellKnownTypes.UInt32,
-          WellKnownTypes.Int64,
-          WellKnownTypes.UInt64,
-          WellKnownTypes.String,
-          WellKnownTypes.Single,
-          WellKnownTypes.Double,
-          WellKnownTypes.Decimal,
-          WellKnownTypes.DateTime,
-          WellKnownTypes.DateTimeOffset,
-          WellKnownTypes.TimeSpan,
-          WellKnownTypes.ByteArray,
-          WellKnownTypes.Guid
-        }.ToHashSet();
-    }
+    }    
   }
 }

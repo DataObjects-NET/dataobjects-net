@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0180_ChangeNullabilityViaUpgradeHin
       return true;
     }
 
-    protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));

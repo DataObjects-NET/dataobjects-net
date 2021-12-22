@@ -153,6 +153,7 @@ namespace Xtensive.Orm.Tests.Linq
     [TestCase(TagsLocation.AfterStatement, TestName = nameof(TagsLocation.AfterStatement))]
     public void VariousPlacements(TagsLocation tagsLocation)
     {
+      Require.ProviderIsNot(StorageProvider.Sqlite | StorageProvider.Firebird);
       var config = Domain.Configuration.Clone();
       config.TagsLocation = tagsLocation;
       config.UpgradeMode = DomainUpgradeMode.Skip;
@@ -297,6 +298,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInExcept()
     {
+      Require.ProviderIsNot(StorageProvider.MySql | StorageProvider.Firebird);
+
       var session = Session.Demand();
 
       using (var tagScope = session.Tag("sessionTag"))
@@ -318,6 +321,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void TagInIntersect()
     {
+      Require.ProviderIsNot(StorageProvider.MySql | StorageProvider.Firebird);
       var session = Session.Demand();
 
       using (var tagScope = session.Tag("sessionTag"))

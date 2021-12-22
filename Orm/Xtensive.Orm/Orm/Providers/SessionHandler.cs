@@ -19,8 +19,6 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract partial class SessionHandler : IDisposable, IAsyncDisposable
   {
-    private static readonly object CachingRegion = new object();
-
     /// <summary>
     /// Gets <see cref="HandlerAccessor"/>.
     /// </summary>

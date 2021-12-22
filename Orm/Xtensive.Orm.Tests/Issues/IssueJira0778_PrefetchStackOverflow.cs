@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Tests.Issues
         ValidateTestData(domain);
         return domain;
       }
-      catch (SchemaSynchronizationException exception) {
+      catch (SchemaSynchronizationException) {
         //schemas differ
         isSchemaRecreated = true;
         domain.DisposeSafely();

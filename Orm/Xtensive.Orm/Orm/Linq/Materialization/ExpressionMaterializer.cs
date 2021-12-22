@@ -28,11 +28,11 @@ namespace Xtensive.Orm.Linq.Materialization
   {
     private const string RootQueryTagsPrefix = "Root query tags ->";
 
-    private static readonly MethodInfo BuildPersistentTupleMethod;
-    private static readonly MethodInfo GetTupleSegmentMethod;
-    private static readonly MethodInfo GetParameterValueMethod;
-    private static readonly PropertyInfo ParameterContextProperty;
-    private static readonly MethodInfo GetTupleParameterValueMethod;
+    private static readonly MethodInfo BuildPersistentTupleMethod = typeof(ExpressionMaterializer).GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo GetTupleSegmentMethod = typeof(ExpressionMaterializer).GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
+    private static readonly MethodInfo GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
+    private static readonly PropertyInfo ParameterContextProperty = WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
+    private static readonly MethodInfo GetTupleParameterValueMethod = GetParameterValueMethod.CachedMakeGenericMethod(WellKnownOrmTypes.Tuple);
     private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
     private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
     private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
@@ -546,18 +546,6 @@ namespace Xtensive.Orm.Linq.Materialization
       this.itemMaterializationContextParameter = itemMaterializationContextParameter;
       this.context = context;
       this.tupleParameters = new HashSet<Parameter<Tuple>>(tupleParameters);
-    }
-
-    static ExpressionMaterializer()
-    {
-      var thisType = typeof(ExpressionMaterializer);
-
-      ParameterContextProperty =
-        WellKnownOrmTypes.ItemMaterializationContext.GetProperty(nameof(ItemMaterializationContext.ParameterContext));
-      GetParameterValueMethod = WellKnownOrmTypes.ParameterContext.GetMethod(nameof(ParameterContext.GetValue));
-      GetTupleParameterValueMethod = GetParameterValueMethod.CachedMakeGenericMethod(WellKnownOrmTypes.Tuple);
-      BuildPersistentTupleMethod = thisType.GetMethod(nameof(BuildPersistentTuple), BindingFlags.NonPublic | BindingFlags.Static);
-      GetTupleSegmentMethod = thisType.GetMethod(nameof(GetTupleSegment), BindingFlags.NonPublic | BindingFlags.Static);
     }
   }
 }
