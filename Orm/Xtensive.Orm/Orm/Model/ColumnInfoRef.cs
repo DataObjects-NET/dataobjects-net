@@ -40,6 +40,8 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public CultureInfo CultureInfo { get; }
 
+    public bool HasValue => TypeName != null;
+
     /// <summary>
     /// Resolves this instance to <see cref="ColumnInfo"/> object within specified <paramref name="model"/>.
     /// </summary>
