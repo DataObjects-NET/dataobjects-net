@@ -149,19 +149,15 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    public static void CopyTo(this FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
+    internal static void CopyTo(this in FixedReadOnlyList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
-      var haveSlowSource = false;
-      var packedSources = new FixedList3<PackedTuple>();
-
-      for (int i = 0; i < sources.Count; i++) {
-        var packedSource = sources[i] as PackedTuple;
-        if (packedSource==null) {
-          haveSlowSource = true;
-          break;
-        }
-        packedSources.Push(packedSource);
-      }
+      var (packedSources, haveSlowSource) = sources.Count switch {
+        1 => sources[0] is PackedTuple first ? (new FixedReadOnlyList3<PackedTuple>(first), false) : (default, true),
+        2 => sources[0] is PackedTuple first && sources[1] is PackedTuple second ? (new FixedReadOnlyList3<PackedTuple>(first, second), false) : (default, true),
+        3 => sources[0] is PackedTuple first && sources[1] is PackedTuple second && sources[2] is PackedTuple third
+          ? (new FixedReadOnlyList3<PackedTuple>(first, second, third), false) : (default, true),
+        _ => (default, false)
+      };
 
       if (!haveSlowSource) {
         var packedTarget = target as PackedTuple;
@@ -499,25 +495,27 @@ namespace Xtensive.Tuples
       }
     }
 
-    private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
+    private static void Copy3TuplesWithMappingSlow(in FixedReadOnlyList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
       for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
-        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
+        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0) {
           CopyValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
+        }
       }
     }
 
-    private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, Pair<int, int>[] map)
+    private static void Copy3TuplesWithMappingFast(in FixedReadOnlyList3<PackedTuple> sources, PackedTuple target, Pair<int, int>[] map)
     {
       for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
-        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0)
+        if (sourceTupleIndex >= 0 && sourceFieldIndex >= 0) {
           CopyPackedValue(sources[sourceTupleIndex], sourceFieldIndex, target, targetIndex);
+        }
       }
     }
 

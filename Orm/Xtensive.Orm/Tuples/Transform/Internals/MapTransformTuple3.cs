@@ -17,7 +17,7 @@ namespace Xtensive.Tuples.Transform.Internals
   [Serializable]
   internal sealed class MapTransformTuple3 : TransformedTuple<MapTransform>
   {
-    private readonly FixedList3<Tuple> tuples;
+    private readonly FixedReadOnlyList3<Tuple> tuples;
 
     #region GetFieldState, GetValue, SetValue methods
 
@@ -74,7 +74,7 @@ namespace Xtensive.Tuples.Transform.Internals
     public MapTransformTuple3(MapTransform transform, Tuple source1, Tuple source2)
       : base(transform)
     {
-      tuples = new FixedList3<Tuple>(source1, source2);
+      tuples = new FixedReadOnlyList3<Tuple>(source1, source2);
     }
 
     /// <summary>
@@ -87,7 +87,7 @@ namespace Xtensive.Tuples.Transform.Internals
     public MapTransformTuple3(MapTransform transform, Tuple source1, Tuple source2, Tuple source3)
       : base(transform)
     {
-      tuples = new FixedList3<Tuple>(source1, source2, source3);
+      tuples = new FixedReadOnlyList3<Tuple>(source1, source2, source3);
     }
   }
 }

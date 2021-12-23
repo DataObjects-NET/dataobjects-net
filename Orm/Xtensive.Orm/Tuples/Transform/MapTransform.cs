@@ -139,7 +139,7 @@ namespace Xtensive.Tuples.Transform
         case TupleTransformType.TransformedTuple:
           return new MapTransformTuple3(this, source1, source2);
         case TupleTransformType.Tuple:
-          FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2);
+          var sources = new FixedReadOnlyList3<Tuple>(source1, source2);
           Tuple result = Tuple.Create(Descriptor);
           sources.CopyTo(result, map);
           return result;
@@ -175,7 +175,7 @@ namespace Xtensive.Tuples.Transform
         case TupleTransformType.TransformedTuple:
           return new MapTransformTuple3(this, source1, source2, source3);
         case TupleTransformType.Tuple:
-          FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2, source3);
+          var sources = new FixedReadOnlyList3<Tuple>(source1, source2, source3);
           Tuple result = Tuple.Create(Descriptor);
           sources.CopyTo(result, map);
           return result;
