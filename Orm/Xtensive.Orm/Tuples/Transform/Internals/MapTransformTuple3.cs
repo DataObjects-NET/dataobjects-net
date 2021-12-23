@@ -15,9 +15,9 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="MapTransform"/> result tuple mapping up to 3 source tuples to a single one (this).
   /// </summary>
   [Serializable]
-  public sealed class MapTransformTuple3 : TransformedTuple<MapTransform>
+  internal sealed class MapTransformTuple3 : TransformedTuple<MapTransform>
   {
-    private FixedList3<Tuple> tuples;
+    private readonly FixedList3<Tuple> tuples;
 
     #region GetFieldState, GetValue, SetValue methods
 
@@ -37,16 +37,17 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      var indexes = TypedTransform.map[fieldIndex];
       return tuples[indexes.First].GetValue(indexes.Second, out fieldState);
     }
 
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TypedTransform.IsReadOnly)
+      if (TypedTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
-      Pair<int, int> indexes = TypedTransform.map[fieldIndex];
+      }
+      var indexes = TypedTransform.map[fieldIndex];
       tuples[indexes.First].SetValue(indexes.Second, fieldValue);
     }
 
@@ -54,8 +55,9 @@ namespace Xtensive.Tuples.Transform.Internals
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && TypedTransform.IsReadOnly)
+      if (isWriting && TypedTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
+      }
       var map = TypedTransform.map[fieldIndex];
       return tuples[map.First].GetMappedContainer(map.Second, isWriting);
     }
