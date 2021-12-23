@@ -23,7 +23,6 @@ namespace Xtensive.Tuples.Transform
   [Serializable]
   public class MapTransform : TupleTransformBase
   {
-    private readonly bool isReadOnly;
     private int sourceCount;
     internal IReadOnlyList<int> singleSourceMap;
     internal Pair<int, int>[] map;
@@ -32,12 +31,6 @@ namespace Xtensive.Tuples.Transform
     /// Means that no mapping is available for the specified field index.
     /// </summary>
     public const int NoMapping = int.MinValue;
-
-    /// <inheritdoc/>
-    public override bool IsReadOnly {
-      [DebuggerStepThrough]
-      get { return isReadOnly; }
-    }
 
     /// <summary>
     /// Gets the count of source <see cref="Tuples"/> this transform maps to the target one.
@@ -239,7 +232,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = $"{SourceCount}: {(SourceCount == 1 ? singleSourceMap.ToCommaDelimitedString() : map.ToCommaDelimitedString())}, {(isReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
+      string description = $"{SourceCount}: {(SourceCount == 1 ? singleSourceMap.ToCommaDelimitedString() : map.ToCommaDelimitedString())}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat, 
         GetType().GetShortName(), 
         description);
@@ -251,7 +244,7 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="Map"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, Pair<int, int>[] map)
@@ -263,7 +256,7 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="SingleSourceMap"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
@@ -275,13 +268,11 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
     protected MapTransform(bool isReadOnly, TupleDescriptor descriptor)
-      : base(descriptor)
+      : base(descriptor, isReadOnly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
-      this.isReadOnly = isReadOnly;
     }   
   }
 }

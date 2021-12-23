@@ -347,19 +347,6 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// Converts <paramref name="source"/> tuple to read-only one.
-    /// </summary>
-    /// <param name="source">The tuple to convert to read-only.</param>
-    /// <param name="transformType">The type of transformation to perform.</param>
-    /// <returns>Read-only version of <paramref name="source"/> tuple.</returns>
-    public static Tuple ToReadOnly(this Tuple source, TupleTransformType transformType)
-    {
-      if (source==null)
-        return null;
-      return ReadOnlyTransform.Instance.Apply(transformType, source);
-    }
-
-    /// <summary>
     /// Converts <paramref name="source"/> tuple to fast read-only one.
     /// </summary>
     /// <param name="source">The tuple to convert to fast read-only.</param>

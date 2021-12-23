@@ -5,7 +5,6 @@
 // Created:    2008.06.04
 
 using System;
-using System.Collections.Generic;
 using Xtensive.Core;
 
 
@@ -18,6 +17,14 @@ namespace Xtensive.Tuples.Transform.Internals
   public sealed class MapTransformTuple1 : TransformedTuple<MapTransform>
   {
     private Tuple tuple;
+
+    private Tuple defaultResult;
+    /// <summary>
+    /// Gets the default result tuple.
+    /// Can be used to get default values for the result tuple fields.
+    /// Must be a read-only tuple.
+    /// </summary>
+    private Tuple DefaultResult => defaultResult ??= Tuple.Create(TypedTransform.Descriptor);
 
     #region GetFieldState, GetValue, SetValue methods
 
@@ -40,9 +47,9 @@ namespace Xtensive.Tuples.Transform.Internals
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       int index = GetMappedFieldIndex(fieldIndex);
-      if (index==MapTransform.NoMapping)
-        return TypedTransform.DefaultResult.GetValue(fieldIndex, out fieldState);
-      return tuple.GetValue(index, out fieldState);
+      return index == MapTransform.NoMapping
+        ? DefaultResult.GetValue(fieldIndex, out fieldState)
+        : tuple.GetValue(index, out fieldState);
     }
 
     /// <inheritdoc/>

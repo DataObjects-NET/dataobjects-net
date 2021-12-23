@@ -75,7 +75,7 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
     /// <param name="sources">Source tuple descriptors.</param>
     public CombineTransform(bool isReadOnly, params TupleDescriptor[] sources)
       : base(isReadOnly, CreateDescriptorAndMap(sources, out var map), map)

@@ -5,6 +5,7 @@
 // Created:    2008.04.30
 
 using System;
+using Xtensive.Core;
 using Xtensive.Reflection;
 
 namespace Xtensive.Tuples.Transform
@@ -15,35 +16,25 @@ namespace Xtensive.Tuples.Transform
   [Serializable]
   public abstract class TupleTransformBase
   {
-    private Tuple defaultResult;
-
     /// <summary>
     /// Gets <see cref="TupleDescriptor"/> describing the tuples
     /// this transform may produce.
-    /// <see langword="Null"/> means "any" (i.e. transform definition 
-    /// is not descriptor-dependent).
     /// </summary>
     public TupleDescriptor Descriptor { get; }
 
     /// <summary>
-    /// Gets the default result tuple.
-    /// Can be used to get default values for the result tuple fields.
-    /// Must be a read-only tuple.
-    /// </summary>
-    public Tuple DefaultResult =>
-      Descriptor == null ? null : defaultResult ??= Tuple.Create(Descriptor).ToReadOnly(TupleTransformType.Tuple);
-
-    /// <summary>
     /// Indicates whether transform always produces read-only tuples or not.
     /// </summary>
-    public virtual bool IsReadOnly => false;
+    public bool IsReadOnly { get; }
 
     /// <inheritdoc/>
-    public override string ToString() => GetType().GetShortName();
+    public override string ToString() => $"[{GetType().GetShortName()}, {(IsReadOnly ? "readOnly" : string.Empty)}]";
 
-    protected TupleTransformBase(TupleDescriptor descriptor)
+    protected TupleTransformBase(TupleDescriptor descriptor, bool isReadOnly)
     {
+      ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
       Descriptor = descriptor;
+      IsReadOnly = isReadOnly;
     }
   }
 }
