@@ -160,9 +160,9 @@ namespace Xtensive.Orm.Tests.Upgrade.DataUpgrade
         c1.RefA = a1;
         c1.RefB = b1;
         c2.RefA = b1;
-        d1.RefA.Add(a1);
-        d1.RefA.Add(b1);
-        d1.RefA.Add(c1);
+        _ = d1.RefA.Add(a1);
+        _ = d1.RefA.Add(b1);
+        _ = d1.RefA.Add(c1);
         t.Complete();
       }
     }

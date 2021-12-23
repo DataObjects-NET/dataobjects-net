@@ -21,66 +21,61 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3
   [TestFixture, Category("Upgrade")]
   public class Sample3UpgradeTest
   {
-    private Domain domain;
-
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
-      FillData();
+      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate)) {
+        FillData(domain);
+      }
     }
     
     [Test]
     public void UpgradeToVersion2Test()
     {
-      BuildDomain("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          Assert.AreEqual(1, session.Query.All<Employee>().Count());
-          var emp = session.Query.All<Employee>().FirstOrDefault();
-          Assert.AreEqual("Sales", emp.DepartmentName);
-          var order = session.Query.All<Order>().FirstOrDefault();
-          var productNames = order.Items.Select(item => item.ProductName).ToCommaDelimitedString();
-          Console.WriteLine(string.Format("Order {{\tSeller = {0}\n\tProducts = {1}\n}}",
-            order.Seller.FullName, productNames));
-          // Console.WriteLine(order);
-          Assert.AreEqual(1, order.Items.Count);
-        }
+      using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
+        Assert.AreEqual(1, session.Query.All<Employee>().Count());
+        var emp = session.Query.All<Employee>().FirstOrDefault();
+        Assert.AreEqual("Sales", emp.DepartmentName);
+        var order = session.Query.All<Order>().FirstOrDefault();
+        var productNames = order.Items.Select(item => item.ProductName).ToCommaDelimitedString();
+        Console.WriteLine($"Order {{\tSeller = {order.Seller.FullName}\n\tProducts = {productNames}\n}}");
+        // Console.WriteLine(order);
+        Assert.AreEqual(1, order.Items.Count);
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
-
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.Sample3.Model.Version" + version);
       configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
-        domain = Domain.Build(configuration);
+        return Domain.Build(configuration);
       }
     }
 
     #region Data filler
 
-    private void FillData()
+    private void FillData(Domain domain)
     {
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          var e1 =new Model.Version1.Employee {
-            FirstName = "Andrew",
-            LastName = "Fuller",
-            Department = "Sales",
-            IsHead = false
-          };
-          new Model.Version1.Order {
-            Amount = 1, ProductName = "P1", Seller = e1
-          };
-          transactionScope.Complete();
-        }
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        var e1 = new Model.Version1.Employee {
+          FirstName = "Andrew",
+          LastName = "Fuller",
+          Department = "Sales",
+          IsHead = false
+        };
+        _ = new Model.Version1.Order {
+          Amount = 1,
+          ProductName = "P1",
+          Seller = e1
+        };
+        transactionScope.Complete();
       }
     }
 

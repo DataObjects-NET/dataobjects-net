@@ -56,8 +56,8 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
 
     private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      string ns = typeof(Person).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
+      var ns = typeof(Person).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
@@ -65,15 +65,14 @@ namespace Xtensive.Orm.Tests.Upgrade.EntitySetUpgradeTest
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {
-        var domain = Domain.Build(configuration);
-        return domain;
+        return Domain.Build(configuration);
       }
     }
 
     private async Task<Domain> BuildDomainAsync(string version, DomainUpgradeMode upgradeMode)
     {
-      string ns = typeof(Person).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
+      var ns = typeof(Person).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
