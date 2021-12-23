@@ -52,7 +52,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="transformType">The type of transformation to perform.</param>
     /// <param name="sources">Transformation sources.</param>
     /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
+    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, params Tuple[] sources)
     {
@@ -71,7 +71,7 @@ namespace Xtensive.Tuples.Transform
           switch (transformType) {
             case TupleTransformType.Auto:
               foreach (Tuple tuple in sources)
-                if (tuple is TransformedTuple)
+                if (tuple is ITransformedTuple)
                   goto case TupleTransformType.Tuple;
               goto case TupleTransformType.TransformedTuple;
             case TupleTransformType.TransformedTuple:
@@ -92,7 +92,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="transformType">The type of transformation to perform.</param>
     /// <param name="source">Transformation source.</param>
     /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
+    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source)
     {
@@ -101,7 +101,7 @@ namespace Xtensive.Tuples.Transform
       }
       switch (transformType) {
         case TupleTransformType.Auto:
-          if (source is TransformedTuple)
+          if (source is ITransformedTuple)
             goto case TupleTransformType.Tuple;
           goto case TupleTransformType.TransformedTuple;
         case TupleTransformType.TransformedTuple:
@@ -122,7 +122,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="source1">First transformation source.</param>
     /// <param name="source2">Second transformation source.</param>
     /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
+    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
     {
@@ -131,9 +131,9 @@ namespace Xtensive.Tuples.Transform
       }
       switch (transformType) {
         case TupleTransformType.Auto:
-          if (source1 is TransformedTuple)
+          if (source1 is ITransformedTuple)
             goto case TupleTransformType.Tuple;
-          if (source2 is TransformedTuple)
+          if (source2 is ITransformedTuple)
             goto case TupleTransformType.Tuple;
           goto case TupleTransformType.TransformedTuple;
         case TupleTransformType.TransformedTuple:
@@ -156,7 +156,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="source2">Second transformation source.</param>
     /// <param name="source3">Third transformation source.</param>
     /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
+    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2, Tuple source3)
     {
@@ -165,11 +165,11 @@ namespace Xtensive.Tuples.Transform
       }
       switch (transformType) {
         case TupleTransformType.Auto:
-          if (source1 is TransformedTuple)
+          if (source1 is ITransformedTuple)
             goto case TupleTransformType.Tuple;
-          if (source2 is TransformedTuple)
+          if (source2 is ITransformedTuple)
             goto case TupleTransformType.Tuple;
-          if (source3 is TransformedTuple)
+          if (source3 is ITransformedTuple)
             goto case TupleTransformType.Tuple;
           goto case TupleTransformType.TransformedTuple;
         case TupleTransformType.TransformedTuple:

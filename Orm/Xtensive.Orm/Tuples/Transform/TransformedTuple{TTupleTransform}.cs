@@ -14,7 +14,7 @@ namespace Xtensive.Tuples.Transform
   /// Base class for all transformed tuples.
   /// </summary>
   [Serializable]
-  public abstract class TransformedTuple<TTupleTransform> : TransformedTuple
+  public abstract class TransformedTuple<TTupleTransform> : Tuple, ITransformedTuple
     where TTupleTransform : TupleTransformBase
   {
     private TTupleTransform transform;
