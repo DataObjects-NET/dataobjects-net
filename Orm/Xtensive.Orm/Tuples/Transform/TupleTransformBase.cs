@@ -5,7 +5,6 @@
 // Created:    2008.04.30
 
 using System;
-using System.Diagnostics;
 using Xtensive.Reflection;
 
 namespace Xtensive.Tuples.Transform
@@ -14,43 +13,37 @@ namespace Xtensive.Tuples.Transform
   /// Base class for any tuple transform.
   /// </summary>
   [Serializable]
-  public abstract class TupleTransformBase : ITupleTransform
+  public abstract class TupleTransformBase
   {
-    private TupleDescriptor descriptor;
     private Tuple defaultResult;
 
+    /// <summary>
+    /// Gets <see cref="TupleDescriptor"/> describing the tuples
+    /// this transform may produce.
+    /// <see langword="Null"/> means "any" (i.e. transform definition 
+    /// is not descriptor-dependent).
+    /// </summary>
+    public TupleDescriptor Descriptor { get; }
+
+    /// <summary>
+    /// Gets the default result tuple.
+    /// Can be used to get default values for the result tuple fields.
+    /// Must be a read-only tuple.
+    /// </summary>
+    public Tuple DefaultResult =>
+      Descriptor == null ? null : defaultResult ??= Tuple.Create(Descriptor).ToReadOnly(TupleTransformType.Tuple);
+
+    /// <summary>
+    /// Indicates whether transform always produces read-only tuples or not.
+    /// </summary>
+    public virtual bool IsReadOnly => false;
+
     /// <inheritdoc/>
-    public TupleDescriptor Descriptor
+    public override string ToString() => GetType().GetShortName();
+
+    protected TupleTransformBase(TupleDescriptor descriptor)
     {
-      get { return descriptor; }
-      protected set {
-        descriptor = value;
-        defaultResult = null;
-      }
-    }
-
-    /// <inheritdoc/>
-    public Tuple DefaultResult {
-      get {
-        if (defaultResult==null && descriptor!=null)
-          defaultResult = Tuple.Create(descriptor).ToReadOnly(TupleTransformType.Tuple);
-        return defaultResult;
-      }
-    }
-
-    /// <inheritdoc/>
-    public virtual bool IsReadOnly {
-      [DebuggerStepThrough]
-      get { return false; }
-    }
-
-    /// <inheritdoc/>
-    public abstract Tuple Apply(TupleTransformType transformType, params object[] arguments);
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return GetType().GetShortName();
+      Descriptor = descriptor;
     }
   }
 }

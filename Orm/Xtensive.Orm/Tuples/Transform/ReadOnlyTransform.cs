@@ -40,15 +40,8 @@ namespace Xtensive.Tuples.Transform
       }
     }
 
-    /// <inheritdoc/>
-    public override Tuple Apply(TupleTransformType transformType, params object[] arguments)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(arguments, "arguments");
-      return Apply(transformType, arguments[0]);
-    }
-
     /// <summary>
-    /// Typed version of <see cref="Apply(TupleTransformType,object[])"/>.
+    /// Applies the transformation.
     /// </summary>
     /// <param name="transformType">The type of transformation to perform.</param>
     /// <param name="source">Transformation argument.</param>
@@ -58,24 +51,25 @@ namespace Xtensive.Tuples.Transform
     public Tuple Apply(TupleTransformType transformType, Tuple source)
     {
       switch (transformType) {
-      case TupleTransformType.Auto:
+        case TupleTransformType.Auto:
         // TODO: Implement "Auto" for generated read-only tuples, when they'll be ready
-      case TupleTransformType.TransformedTuple:
-        if (source is ReadOnlyTransformTuple)
-          return source;
-        return new ReadOnlyTransformTuple(source);
-      case TupleTransformType.Tuple:
-        // TODO: Return generated read-only tuple copy
-        return new ReadOnlyTransformTuple(source.ToRegular());
-      default:
-        throw new ArgumentOutOfRangeException("transformType");
+        case TupleTransformType.TransformedTuple:
+          if (source is ReadOnlyTransformTuple)
+            return source;
+          return new ReadOnlyTransformTuple(source);
+        case TupleTransformType.Tuple:
+          // TODO: Return generated read-only tuple copy
+          return new ReadOnlyTransformTuple(source.ToRegular());
+        default:
+          throw new ArgumentOutOfRangeException(nameof(transformType));
       }
     }
 
-    
+
     // Constructors
-    
+
     private ReadOnlyTransform()
+      : base(null)
     {
     }
   }

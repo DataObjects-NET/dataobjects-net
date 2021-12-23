@@ -20,13 +20,6 @@ namespace Xtensive.Tuples.Transform.Internals
   {
     private readonly Tuple[] tuples;
 
-    /// <inheritdoc/>
-    public override IReadOnlyList<object> Arguments
-    {
-      [DebuggerStepThrough]
-      get => Array.AsReadOnly(tuples);
-    }
-
     #region GetFieldState, GetValue, SetValue methods
 
     /// <inheritdoc/>
@@ -52,7 +45,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (Transform.IsReadOnly)
+      if (TypedTransform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
       var indexes = TypedTransform.map[fieldIndex];
       tuples[indexes.First].SetValue(indexes.Second, fieldValue);
@@ -62,7 +55,7 @@ namespace Xtensive.Tuples.Transform.Internals
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && Transform.IsReadOnly)
+      if (isWriting && TypedTransform.IsReadOnly)
         throw Exceptions.ObjectIsReadOnly(null);
       var map = TypedTransform.map[fieldIndex];
       return tuples[map.First].GetMappedContainer(map.Second, isWriting);

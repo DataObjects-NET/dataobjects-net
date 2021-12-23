@@ -18,32 +18,12 @@ namespace Xtensive.Tuples.Transform
   [Serializable]
   public abstract class TransformedTuple : Tuple
   {
-    /// <summary>
-    /// Gets the transform used to produce this instance.
-    /// </summary>
-    public abstract ITupleTransform Transform { get; }
-
-    /// <summary>
-    /// Gets a list of arguments used in <see cref="ITupleTransform.Apply"/> method
-    /// to produce this tuple.
-    /// <see langword="Null"/> means arguments are unknown an this stage.
-    /// </summary>
-    public abstract IReadOnlyList<object> Arguments { get; }
+    // /// <summary>
+    // /// Gets the transform used to produce this instance.
+    // /// </summary>
+    // public abstract bool IsReadOnly { get; }
 
     /// <inheritdoc/>
-    public override TupleDescriptor Descriptor
-    {
-      [DebuggerStepThrough]
-      get { return Transform.Descriptor; }
-    }
-
-    /// <inheritdoc/>
-    public override string ToString()
-    {
-      return string.Format(Strings.TransformedTupleFormat, 
-        base.ToString(), 
-        Transform, 
-        Arguments.ToCommaDelimitedString());
-    }
+    public abstract override TupleDescriptor Descriptor { get; }
   }
 }

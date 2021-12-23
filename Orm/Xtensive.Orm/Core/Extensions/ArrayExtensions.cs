@@ -60,22 +60,22 @@ namespace Xtensive.Core
 //        target[targetIndex++] = source[i];
     }
 
-    /// <summary>
-    /// Clones <paramref name="source"/> array with type case.
-    /// </summary>
-    /// <typeparam name="TItem">The type of source array items.</typeparam>
-    /// <typeparam name="TNewItem">The type of result array items.</typeparam>
-    /// <param name="source">Collection to convert.</param>
-    /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
-    public static TNewItem[] Cast<TItem, TNewItem>(this TItem[] source)
-      where TNewItem: TItem
-    {
-      var items = new TNewItem[source.Length];
-      int i = 0;
-      foreach (TItem item in source)
-        items[i++] = (TNewItem)item;
-      return items;
-    }
+    // /// <summary>
+    // /// Clones <paramref name="source"/> array with type case.
+    // /// </summary>
+    // /// <typeparam name="TItem">The type of source array items.</typeparam>
+    // /// <typeparam name="TNewItem">The type of result array items.</typeparam>
+    // /// <param name="source">Collection to convert.</param>
+    // /// <returns>An array containing all the items from the <paramref name="source"/>.</returns>
+    // public static TNewItem[] Cast<TItem, TNewItem>(this TItem[] source)
+    //   where TNewItem: TItem
+    // {
+    //   var items = new TNewItem[source.Length];
+    //   int i = 0;
+    //   foreach (TItem item in source)
+    //     items[i++] = (TNewItem)item;
+    //   return items;
+    // }
 
     /// <summary>
     /// Clones <paramref name="source"/> array with element conversion.

@@ -55,17 +55,11 @@ namespace Xtensive.Tuples.Transform
 
     // Constructors
     
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
-    /// <param name="sources">Source tuple descriptors.</param>
-    public CombineTransform(bool isReadOnly, params TupleDescriptor[] sources)
-      : base(isReadOnly)
+    private static TupleDescriptor CreateDescriptorAndMap(TupleDescriptor[] sources, out Pair<int, int>[] map)
     {
       int totalLength = sources.Sum(s => s.Count);
       var types = new Type[totalLength];
-      var map = new Pair<int, int>[totalLength];
+      map = new Pair<int, int>[totalLength];
       int index = 0;
       for (int i = 0; i<sources.Length; i++) {
         TupleDescriptor currentDescriptor = sources[i];
@@ -75,9 +69,18 @@ namespace Xtensive.Tuples.Transform
           map[index++] = new Pair<int, int>(i, j);
         }
       }
+      return TupleDescriptor.Create(types);
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this type.
+    /// </summary>
+    /// <param name="isReadOnly"><see cref="MapTransform.IsReadOnly"/> property value.</param>
+    /// <param name="sources">Source tuple descriptors.</param>
+    public CombineTransform(bool isReadOnly, params TupleDescriptor[] sources)
+      : base(isReadOnly, CreateDescriptorAndMap(sources, out var map), map)
+    {
       this.sources = sources;
-      Descriptor = TupleDescriptor.Create(types);
-      SetMap(map);
     }
   }
 }

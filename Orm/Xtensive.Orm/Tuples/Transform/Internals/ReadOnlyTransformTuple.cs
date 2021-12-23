@@ -5,8 +5,6 @@
 // Created:    2007.06.15
 
 using System;
-using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -16,43 +14,39 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A tuple wrapper for <see cref="ReadOnlyTransform"/>.
   /// </summary>
   [Serializable]
-  public sealed class ReadOnlyTransformTuple : WrappingTransformTupleBase
+  public sealed class ReadOnlyTransformTuple : TransformedTuple
   {
-    /// <inheritdoc/>
-    public override ITupleTransform Transform {
-      get {
-        return ReadOnlyTransform.Instance;
-      }
-    }
+    private readonly Tuple origin;
 
     /// <inheritdoc/>
-    /// <remarks>
-    /// This method always returns an empty array of <see cref="object"/>s
-    /// to block any access to the original tuple.
-    /// </remarks>
-    public override IReadOnlyList<object> Arguments {
-      get {
-        return Array.Empty<object>();
-      }
-    }
-
-    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
-    {
-      throw Exceptions.ObjectIsReadOnly(null);
-    }
+    public override TupleDescriptor Descriptor => origin.Descriptor;
 
     /// <inheritdoc />
-    public override void SetValue(int fieldIndex, object fieldValue)
-    {
-      throw Exceptions.ObjectIsReadOnly(null);
-    }
+    public override int Count => origin.Count;
+
+    /// <inheritdoc/>
+    public override TupleFieldState GetFieldState(int fieldIndex) => origin.GetFieldState(fieldIndex);
+
+    /// <inheritdoc/>
+    public override object GetValue(int fieldIndex, out TupleFieldState fieldState) => origin.GetValue(fieldIndex, out fieldState);
+
+    protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState) => Exceptions.ObjectIsReadOnly(null);
+
+    /// <inheritdoc />
+    public override void SetValue(int fieldIndex, object fieldValue) => throw Exceptions.ObjectIsReadOnly(null);
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && Transform.IsReadOnly)
+      if (isWriting)
         throw Exceptions.ObjectIsReadOnly(null);
       return origin.GetMappedContainer(fieldIndex, isWriting);
     }
+
+    /// <inheritdoc/>
+    public override bool Equals(Tuple other) => origin.Equals(other);
+
+    /// <inheritdoc/>
+    public override int GetHashCode() => origin.GetHashCode();
 
 
     // Constructors
@@ -62,8 +56,9 @@ namespace Xtensive.Tuples.Transform.Internals
     /// </summary>
     /// <param name="tuple">Tuple to provide read-only wrapper for.</param>
     public ReadOnlyTransformTuple(Tuple tuple)
-      : base(tuple)
     {
+      ArgumentValidator.EnsureArgumentNotNull(tuple, nameof(tuple));
+      origin = tuple;
     }
   }
 }

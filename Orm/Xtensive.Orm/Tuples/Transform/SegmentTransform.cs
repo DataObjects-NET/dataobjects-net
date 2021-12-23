@@ -47,6 +47,17 @@ namespace Xtensive.Tuples.Transform
 
     // Constructors
 
+    private static TupleDescriptor CreateDescriptorAndMap(TupleDescriptor sourceDescriptor, in Segment<int> segment, out int[] map)
+    {
+      var fields = new Type[segment.Length];
+      map = new int[segment.Length];
+      for (int i = 0, j = segment.Offset; i < segment.Length; i++, j++) {
+        fields[i] = sourceDescriptor[j];
+        map[i] = j;
+      }
+      return TupleDescriptor.Create(fields);
+    }
+
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
@@ -54,17 +65,9 @@ namespace Xtensive.Tuples.Transform
     /// <param name="sourceDescriptor">Source tuple descriptor.</param>
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
-      : base(isReadOnly)
+      : base(isReadOnly, CreateDescriptorAndMap(sourceDescriptor, segment, out var map), map)
     {
       this.segment = segment;
-      Type[] fields = new Type[segment.Length];
-      int[] map = new int[segment.Length];
-      for (int i = 0, j = segment.Offset; i < segment.Length; i++, j++) {
-        fields[i] = sourceDescriptor[j];
-        map[i] = j;
-      }
-      Descriptor = TupleDescriptor.Create(fields);
-      SetSingleSourceMap(map);
     }
   }
 }

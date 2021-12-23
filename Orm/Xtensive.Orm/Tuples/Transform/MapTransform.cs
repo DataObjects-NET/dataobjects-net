@@ -102,22 +102,6 @@ namespace Xtensive.Tuples.Transform
       sourceCount = newSourceCount;
     }
 
-    /// <inheritdoc/>
-    public override Tuple Apply(TupleTransformType transformType, params object[] arguments)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(arguments, "arguments");
-      switch (sourceCount) {
-      case 1:
-        return Apply(transformType, (Tuple)arguments[0]);
-      case 2:
-        return Apply(transformType, (Tuple)arguments[0], (Tuple)arguments[1]);
-      case 3:
-        return Apply(transformType, (Tuple)arguments[0], (Tuple)arguments[1], (Tuple)arguments[2]);
-      default:
-        return Apply(transformType, arguments.Cast<object, Tuple>());
-      }
-    }
-
     /// <summary>
     /// Applies the transformation.
     /// </summary>
@@ -294,20 +278,10 @@ namespace Xtensive.Tuples.Transform
     /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
     protected MapTransform(bool isReadOnly, TupleDescriptor descriptor)
-      : this(isReadOnly)
+      : base(descriptor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(descriptor, "descriptor");
-      Descriptor = descriptor;
+      ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
       this.isReadOnly = isReadOnly;
-    }
-    
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="isReadOnly"><see cref="IsReadOnly"/> property value.</param>
-    protected MapTransform(bool isReadOnly)
-    {
-      this.isReadOnly = isReadOnly;
-    }
+    }   
   }
 }

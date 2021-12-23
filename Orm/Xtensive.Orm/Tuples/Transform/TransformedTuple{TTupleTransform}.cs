@@ -15,16 +15,12 @@ namespace Xtensive.Tuples.Transform
   /// </summary>
   [Serializable]
   public abstract class TransformedTuple<TTupleTransform> : TransformedTuple
-    where TTupleTransform : ITupleTransform
+    where TTupleTransform : TupleTransformBase
   {
     private TTupleTransform transform;
 
     /// <inheritdoc/>
-    public override ITupleTransform Transform
-    {
-      [DebuggerStepThrough]
-      get { return transform; }
-    }
+    public override TupleDescriptor Descriptor => transform.Descriptor;
 
     /// <summary>
     /// Gets or sets the transform used to produce this instance.
@@ -36,6 +32,13 @@ namespace Xtensive.Tuples.Transform
       }
     }
 
+    /// <inheritdoc/>
+    public override string ToString()
+    {
+      return string.Format(Strings.TransformedTupleFormat, 
+        base.ToString(), 
+        transform, string.Empty);
+    }
 
     // Constructors
 
