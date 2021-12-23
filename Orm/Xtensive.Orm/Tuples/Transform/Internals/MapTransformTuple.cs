@@ -14,7 +14,7 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="MapTransform"/> result tuple mapping arbitrary count of source tuples to a single one (this).
   /// </summary>
   [Serializable]
-  public sealed class MapTransformTuple : TransformedTuple<MapTransform>
+  internal sealed class MapTransformTuple : TransformedTuple<MapTransform>
   {
     private readonly Tuple[] tuples;
 
@@ -43,8 +43,9 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TypedTransform.IsReadOnly)
+      if (TypedTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
+      }
       var indexes = TypedTransform.map[fieldIndex];
       tuples[indexes.First].SetValue(indexes.Second, fieldValue);
     }
@@ -53,8 +54,9 @@ namespace Xtensive.Tuples.Transform.Internals
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && TypedTransform.IsReadOnly)
+      if (isWriting && TypedTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
+      }
       var map = TypedTransform.map[fieldIndex];
       return tuples[map.First].GetMappedContainer(map.Second, isWriting);
     }
