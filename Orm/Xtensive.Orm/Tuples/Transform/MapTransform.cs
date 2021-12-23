@@ -44,7 +44,8 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Gets or sets destination-to-source field map for the first source only.
     /// </summary>
-    public IReadOnlyList<int> SingleSourceMap {
+    public IReadOnlyList<int> SingleSourceMap
+    {
       [DebuggerStepThrough]
       get => singleSourceMap;
     }
@@ -58,43 +59,6 @@ namespace Xtensive.Tuples.Transform
       get { return Array.AsReadOnly(map); }
     }
 
-    protected void SetSingleSourceMap(IReadOnlyList<int> singleSourceMap)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(singleSourceMap, nameof(singleSourceMap));
-      var newMap = new Pair<int, int>[Descriptor.Count];
-      var index = 0;
-      for (; index < newMap.Length && index < singleSourceMap.Count; index++) {
-        newMap[index] = new Pair<int, int>(0, singleSourceMap[index]);
-      }
-      while (index < newMap.Length) {
-        newMap[index++] = new Pair<int, int>(0, NoMapping);
-      }
-
-      map = newMap;
-      this.singleSourceMap = singleSourceMap;
-      sourceCount = 1;
-    }
-
-    protected void SetMap(Pair<int, int>[] map)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
-      int[] newFirstSourceMap = new int[map.Length];
-      int index = 0;
-      int newSourceCount = -1;
-      foreach (var mappedTo in map) {
-        if (mappedTo.First>newSourceCount)
-          newSourceCount = mappedTo.First;
-        newFirstSourceMap[index++] = mappedTo.First==0 ? mappedTo.Second : -1;
-      }
-      newSourceCount++;
-      this.map = map;
-      if (newSourceCount==1)
-        singleSourceMap = newFirstSourceMap;
-      else
-        singleSourceMap = null;
-      sourceCount = newSourceCount;
-    }
-
     /// <summary>
     /// Applies the transformation.
     /// </summary>
@@ -105,32 +69,33 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, params Tuple[] sources)
     {
-      ArgumentValidator.EnsureArgumentNotNull(sources, "sources");
-      if (sourceCount>sources.Length)
+      ArgumentValidator.EnsureArgumentNotNull(sources, nameof(sources));
+      if (sourceCount > sources.Length) {
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+      }
       switch (sourceCount) {
-      case 1:
-        return Apply(transformType, sources[0]);
-      case 2:
-        return Apply(transformType, sources[0], sources[1]);
-      case 3:
-        return Apply(transformType, sources[0], sources[1], sources[2]);
-      default:
-        switch (transformType) {
-        case TupleTransformType.Auto:
-          foreach (Tuple tuple in sources)
-            if (tuple is TransformedTuple)
-              goto case TupleTransformType.Tuple;
-          goto case TupleTransformType.TransformedTuple;
-        case TupleTransformType.TransformedTuple:
-          return new MapTransformTuple(this, sources);
-        case TupleTransformType.Tuple:
-          Tuple result = Tuple.Create(Descriptor);
-          sources.CopyTo(result, map);
-          return result;
+        case 1:
+          return Apply(transformType, sources[0]);
+        case 2:
+          return Apply(transformType, sources[0], sources[1]);
+        case 3:
+          return Apply(transformType, sources[0], sources[1], sources[2]);
         default:
-          throw new ArgumentOutOfRangeException("transformType");
-        }
+          switch (transformType) {
+            case TupleTransformType.Auto:
+              foreach (Tuple tuple in sources)
+                if (tuple is TransformedTuple)
+                  goto case TupleTransformType.Tuple;
+              goto case TupleTransformType.TransformedTuple;
+            case TupleTransformType.TransformedTuple:
+              return new MapTransformTuple(this, sources);
+            case TupleTransformType.Tuple:
+              Tuple result = Tuple.Create(Descriptor);
+              sources.CopyTo(result, map);
+              return result;
+            default:
+              throw new ArgumentOutOfRangeException(nameof(transformType));
+          }
       }
     }
 
@@ -144,21 +109,21 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     protected Tuple Apply(TupleTransformType transformType, Tuple source)
     {
-      if (sourceCount>1)
+      if (sourceCount > 1)
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (transformType) {
-      case TupleTransformType.Auto:
-        if (source is TransformedTuple)
-          goto case TupleTransformType.Tuple;
-        goto case TupleTransformType.TransformedTuple;
-      case TupleTransformType.TransformedTuple:
-        return new MapTransformTuple1(this, source);
-      case TupleTransformType.Tuple:
-        Tuple result = Tuple.Create(Descriptor);
-        source.CopyTo(result, singleSourceMap);
-        return result;
-      default:
-        throw new ArgumentOutOfRangeException("transformType");
+        case TupleTransformType.Auto:
+          if (source is TransformedTuple)
+            goto case TupleTransformType.Tuple;
+          goto case TupleTransformType.TransformedTuple;
+        case TupleTransformType.TransformedTuple:
+          return new MapTransformTuple1(this, source);
+        case TupleTransformType.Tuple:
+          Tuple result = Tuple.Create(Descriptor);
+          source.CopyTo(result, singleSourceMap);
+          return result;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(transformType));
       }
     }
 
@@ -173,24 +138,24 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     protected Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
     {
-      if (sourceCount>2)
+      if (sourceCount > 2)
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
       switch (transformType) {
-      case TupleTransformType.Auto:
-        if (source1 is TransformedTuple)
-          goto case TupleTransformType.Tuple;
-        if (source2 is TransformedTuple)
-          goto case TupleTransformType.Tuple;
-        goto case TupleTransformType.TransformedTuple;
-      case TupleTransformType.TransformedTuple:
-        return new MapTransformTuple3(this, source1, source2);
-      case TupleTransformType.Tuple:
-        FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2);
-        Tuple result = Tuple.Create(Descriptor);
-        sources.CopyTo(result, map);
-        return result;
-      default:
-        throw new ArgumentOutOfRangeException("transformType");
+        case TupleTransformType.Auto:
+          if (source1 is TransformedTuple)
+            goto case TupleTransformType.Tuple;
+          if (source2 is TransformedTuple)
+            goto case TupleTransformType.Tuple;
+          goto case TupleTransformType.TransformedTuple;
+        case TupleTransformType.TransformedTuple:
+          return new MapTransformTuple3(this, source1, source2);
+        case TupleTransformType.Tuple:
+          FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2);
+          Tuple result = Tuple.Create(Descriptor);
+          sources.CopyTo(result, map);
+          return result;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(transformType));
       }
     }
 
@@ -206,26 +171,27 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     protected Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2, Tuple source3)
     {
-      if (sourceCount>3)
+      if (sourceCount > 3) {
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+      }
       switch (transformType) {
-      case TupleTransformType.Auto:
-        if (source1 is TransformedTuple)
-          goto case TupleTransformType.Tuple;
-        if (source2 is TransformedTuple)
-          goto case TupleTransformType.Tuple;
-        if (source3 is TransformedTuple)
-          goto case TupleTransformType.Tuple;
-        goto case TupleTransformType.TransformedTuple;
-      case TupleTransformType.TransformedTuple:
-        return new MapTransformTuple3(this, source1, source2, source3);
-      case TupleTransformType.Tuple:
-        FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2, source3);
-        Tuple result = Tuple.Create(Descriptor);
-        sources.CopyTo(result, map);
-        return result;
-      default:
-        throw new ArgumentOutOfRangeException("transformType");
+        case TupleTransformType.Auto:
+          if (source1 is TransformedTuple)
+            goto case TupleTransformType.Tuple;
+          if (source2 is TransformedTuple)
+            goto case TupleTransformType.Tuple;
+          if (source3 is TransformedTuple)
+            goto case TupleTransformType.Tuple;
+          goto case TupleTransformType.TransformedTuple;
+        case TupleTransformType.TransformedTuple:
+          return new MapTransformTuple3(this, source1, source2, source3);
+        case TupleTransformType.Tuple:
+          FixedList3<Tuple> sources = new FixedList3<Tuple>(source1, source2, source3);
+          Tuple result = Tuple.Create(Descriptor);
+          sources.CopyTo(result, map);
+          return result;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(transformType));
       }
     }
 
@@ -233,12 +199,12 @@ namespace Xtensive.Tuples.Transform
     public override string ToString()
     {
       string description = $"{SourceCount}: {(SourceCount == 1 ? singleSourceMap.ToCommaDelimitedString() : map.ToCommaDelimitedString())}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
-      return string.Format(Strings.TupleTransformFormat, 
-        GetType().GetShortName(), 
+      return string.Format(Strings.TupleTransformFormat,
+        GetType().GetShortName(),
         description);
     }
 
-    
+
     // Constructors
 
     /// <summary>
@@ -248,31 +214,47 @@ namespace Xtensive.Tuples.Transform
     /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="Map"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, Pair<int, int>[] map)
-      : this(isReadOnly, descriptor)
-    {
-      SetMap(map);
-    }
-    
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
-    /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
-    /// <param name="map"><see cref="SingleSourceMap"/> property value.</param>
-    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
-      : this(isReadOnly, descriptor)
-    {
-      SetSingleSourceMap(map);
-    }
-    
-    /// <summary>
-    /// Initializes a new instance of this type.
-    /// </summary>
-    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
-    /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
-    protected MapTransform(bool isReadOnly, TupleDescriptor descriptor)
       : base(descriptor, isReadOnly)
     {
-    }   
+      ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
+      var newFirstSourceMap = new int[map.Length];
+      var index = 0;
+      var newSourceCount = -1;
+      foreach (var mappedTo in map) {
+        if (mappedTo.First > newSourceCount) {
+          newSourceCount = mappedTo.First;
+        }
+        newFirstSourceMap[index++] = mappedTo.First == 0 ? mappedTo.Second : -1;
+      }
+      newSourceCount++;
+
+      this.map = map;
+      singleSourceMap = newSourceCount == 1 ? newFirstSourceMap : null;
+      sourceCount = newSourceCount;
+    }
+
+    /// <summary>
+    /// Initializes a new instance of this type.
+    /// </summary>
+    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
+    /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
+    /// <param name="singleSourceMap"><see cref="SingleSourceMap"/> property value.</param>
+    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> singleSourceMap)
+      : base(descriptor, isReadOnly)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(singleSourceMap, nameof(singleSourceMap));
+      var newMap = new Pair<int, int>[Descriptor.Count];
+      var index = 0;
+      for (; index < newMap.Length && index < singleSourceMap.Count; index++) {
+        newMap[index] = new Pair<int, int>(0, singleSourceMap[index]);
+      }
+      while (index < newMap.Length) {
+        newMap[index++] = new Pair<int, int>(0, NoMapping);
+      }
+
+      map = newMap;
+      this.singleSourceMap = singleSourceMap;
+      sourceCount = 1;
+    }
   }
 }
