@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -35,29 +34,17 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Gets the count of source <see cref="Tuples"/> this transform maps to the target one.
     /// </summary>
-    public int SourceCount
-    {
-      [DebuggerStepThrough]
-      get { return sourceCount; }
-    }
+    public int SourceCount => sourceCount;
 
     /// <summary>
     /// Gets or sets destination-to-source field map for the first source only.
     /// </summary>
-    public IReadOnlyList<int> SingleSourceMap
-    {
-      [DebuggerStepThrough]
-      get => singleSourceMap;
-    }
+    public IReadOnlyList<int> SingleSourceMap => singleSourceMap;
 
     /// <summary>
     /// Gets or sets destination-to-source field map.
     /// </summary>
-    public IReadOnlyList<Pair<int, int>> Map
-    {
-      [DebuggerStepThrough]
-      get { return Array.AsReadOnly(map); }
-    }
+    public IReadOnlyList<Pair<int, int>> Map => map;
 
     /// <summary>
     /// Applies the transformation.
@@ -107,10 +94,11 @@ namespace Xtensive.Tuples.Transform
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
-    protected Tuple Apply(TupleTransformType transformType, Tuple source)
+    public Tuple Apply(TupleTransformType transformType, Tuple source)
     {
-      if (sourceCount > 1)
+      if (sourceCount > 1) {
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+      }
       switch (transformType) {
         case TupleTransformType.Auto:
           if (source is TransformedTuple)
@@ -136,10 +124,11 @@ namespace Xtensive.Tuples.Transform
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
-    protected Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
+    public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
     {
-      if (sourceCount > 2)
+      if (sourceCount > 2) {
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
+      }
       switch (transformType) {
         case TupleTransformType.Auto:
           if (source1 is TransformedTuple)
@@ -169,7 +158,7 @@ namespace Xtensive.Tuples.Transform
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
-    protected Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2, Tuple source3)
+    public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2, Tuple source3)
     {
       if (sourceCount > 3) {
         throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
