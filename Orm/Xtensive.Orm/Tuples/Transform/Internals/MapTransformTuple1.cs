@@ -14,15 +14,14 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  public sealed class MapTransformTuple1 : TransformedTuple<MapTransform>
+  internal sealed class MapTransformTuple1 : TransformedTuple<MapTransform>
   {
-    private Tuple tuple;
-
+    private readonly Tuple source;
     private Tuple defaultResult;
+
     /// <summary>
     /// Gets the default result tuple.
     /// Can be used to get default values for the result tuple fields.
-    /// Must be a read-only tuple.
     /// </summary>
     private Tuple DefaultResult => defaultResult ??= Tuple.Create(TypedTransform.Descriptor);
 
@@ -31,16 +30,17 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      int index = GetMappedFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping ? TupleFieldState.Default : tuple.GetFieldState(index);
+      var index = GetMappedFieldIndex(fieldIndex);
+      return index == MapTransform.NoMapping ? TupleFieldState.Default : source.GetFieldState(index);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
-      int index = GetMappedFieldIndex(fieldIndex);
-      if (index == MapTransform.NoMapping) 
+      var index = GetMappedFieldIndex(fieldIndex);
+      if (index == MapTransform.NoMapping) {
         return;
-      tuple.SetFieldState(index, fieldState);
+      }
+      source.SetFieldState(index, fieldState);
     }
 
     /// <inheritdoc/>
@@ -49,33 +49,33 @@ namespace Xtensive.Tuples.Transform.Internals
       int index = GetMappedFieldIndex(fieldIndex);
       return index == MapTransform.NoMapping
         ? DefaultResult.GetValue(fieldIndex, out fieldState)
-        : tuple.GetValue(index, out fieldState);
+        : source.GetValue(index, out fieldState);
     }
 
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TypedTransform.IsReadOnly)
+      if (TypedTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
-      tuple.SetValue(GetMappedFieldIndex(fieldIndex), fieldValue);
+      }
+      source.SetValue(GetMappedFieldIndex(fieldIndex), fieldValue);
     }
 
     #endregion
 
     private int GetMappedFieldIndex(int fieldIndex)
     {
-      int mappedIndex = TypedTransform.singleSourceMap[fieldIndex];
-      return mappedIndex < 0 ? MapTransform.NoMapping :mappedIndex;
+      var mappedIndex = TypedTransform.singleSourceMap[fieldIndex];
+      return mappedIndex < 0 ? MapTransform.NoMapping : mappedIndex;
     }
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && TypedTransform.IsReadOnly)
+      if (isWriting && TypedTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
+      }
       var index = GetMappedFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping 
-        ? new Pair<Tuple, int>() 
-        : tuple.GetMappedContainer(index, isWriting);
+      return index == MapTransform.NoMapping ? default : source.GetMappedContainer(index, isWriting);
     }
 
 
@@ -89,7 +89,7 @@ namespace Xtensive.Tuples.Transform.Internals
     public MapTransformTuple1(MapTransform transform, Tuple source)
       : base(transform)
     {
-      tuple = source;
+      this.source = source;
     }
   }
 }
