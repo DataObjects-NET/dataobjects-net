@@ -17,27 +17,18 @@ namespace Xtensive.Tuples.Transform
   public abstract class TransformedTuple<TTupleTransform> : Tuple, ITransformedTuple
     where TTupleTransform : TupleTransformBase
   {
-    private TTupleTransform transform;
-
-    /// <inheritdoc/>
-    public override TupleDescriptor Descriptor => transform.Descriptor;
-
     /// <summary>
     /// Gets or sets the transform used to produce this instance.
     /// </summary>
-    public TTupleTransform TypedTransform {
-      get { return transform; }
-      protected set {
-        transform = value;
-      }
-    }
+    public TTupleTransform TupleTransform { get; }
+
+    /// <inheritdoc/>
+    public override TupleDescriptor Descriptor => TupleTransform.Descriptor;
 
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Format(Strings.TransformedTupleFormat, 
-        base.ToString(), 
-        transform, string.Empty);
+      return string.Format(Strings.TransformedTupleFormat, base.ToString(), TupleTransform, string.Empty);
     }
 
     // Constructors
@@ -48,7 +39,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="transform">Tuple transform.</param>
     protected TransformedTuple(TTupleTransform transform)
     {
-      this.transform = transform;
+      TupleTransform = transform;
     }
   }
 }

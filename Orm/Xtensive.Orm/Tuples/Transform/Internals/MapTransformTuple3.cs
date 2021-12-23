@@ -24,30 +24,30 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      var indexes = TypedTransform.map[fieldIndex];
+      var indexes = TupleTransform.map[fieldIndex];
       return tuples[indexes.First].GetFieldState(indexes.Second);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
-      var indexes = TypedTransform.map[fieldIndex];
+      var indexes = TupleTransform.map[fieldIndex];
       tuples[indexes.First].SetFieldState(indexes.Second, fieldState);
     }
 
     /// <inheritdoc/>
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      var indexes = TypedTransform.map[fieldIndex];
+      var indexes = TupleTransform.map[fieldIndex];
       return tuples[indexes.First].GetValue(indexes.Second, out fieldState);
     }
 
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TypedTransform.IsReadOnly) {
+      if (TupleTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
-      var indexes = TypedTransform.map[fieldIndex];
+      var indexes = TupleTransform.map[fieldIndex];
       tuples[indexes.First].SetValue(indexes.Second, fieldValue);
     }
 
@@ -55,10 +55,10 @@ namespace Xtensive.Tuples.Transform.Internals
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && TypedTransform.IsReadOnly) {
+      if (isWriting && TupleTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
-      var map = TypedTransform.map[fieldIndex];
+      var map = TupleTransform.map[fieldIndex];
       return tuples[map.First].GetMappedContainer(map.Second, isWriting);
     }
 

@@ -23,7 +23,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// Gets the default result tuple.
     /// Can be used to get default values for the result tuple fields.
     /// </summary>
-    private Tuple DefaultResult => defaultResult ??= Tuple.Create(TypedTransform.Descriptor);
+    private Tuple DefaultResult => defaultResult ??= Tuple.Create(TupleTransform.Descriptor);
 
     #region GetFieldState, GetValue, SetValue methods
 
@@ -55,7 +55,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TypedTransform.IsReadOnly) {
+      if (TupleTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
       source.SetValue(GetMappedFieldIndex(fieldIndex), fieldValue);
@@ -65,13 +65,13 @@ namespace Xtensive.Tuples.Transform.Internals
 
     private int GetMappedFieldIndex(int fieldIndex)
     {
-      var mappedIndex = TypedTransform.singleSourceMap[fieldIndex];
+      var mappedIndex = TupleTransform.singleSourceMap[fieldIndex];
       return mappedIndex < 0 ? MapTransform.NoMapping : mappedIndex;
     }
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && TypedTransform.IsReadOnly) {
+      if (isWriting && TupleTransform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
       var index = GetMappedFieldIndex(fieldIndex);
