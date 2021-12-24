@@ -35,13 +35,12 @@ namespace Xtensive.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
     {
-      var packedSource = source as PackedTuple;
-      var packedTarget = target as PackedTuple;
-
-      if (packedSource!=null && packedTarget!=null)
+      if (source is PackedTuple packedSource && target is PackedTuple packedTarget) {
         PartiallyCopyTupleFast(packedSource, packedTarget, startIndex, targetStartIndex, length);
-      else
+      }
+      else {
         PartiallyCopyTupleSlow(source, target, startIndex, targetStartIndex, length);
+      }
     }
 
     /// <summary>
@@ -97,13 +96,12 @@ namespace Xtensive.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple source, Tuple target, IReadOnlyList<int> map)
     {
-      var packedSource = source as PackedTuple;
-      var packedTarget = target as PackedTuple;
-
-      if (packedSource!=null && packedTarget!=null)
+      if (source is PackedTuple packedSource && target is PackedTuple packedTarget) {
         CopyTupleWithMappingFast(packedSource, packedTarget, map);
-      else
+      }
+      else {
         CopyTupleWithMappingSlow(source, target, map);
+      }
     }
 
     /// <summary>
@@ -117,21 +115,21 @@ namespace Xtensive.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple[] sources, Tuple target, Pair<int, int>[] map)
     {
-      var haveSlowSource = false;
-      var packedSources = new PackedTuple[sources.Length];
+      if (target is PackedTuple packedTarget) {
+        var haveSlowSource = false;
+        var packedSources = new PackedTuple[sources.Length];
 
-      for (int i = 0; i < sources.Length; i++) {
-        var packedSource = sources[i] as PackedTuple;
-        if (packedSource==null) {
-          haveSlowSource = true;
-          break;
+        for (int i = 0; i < sources.Length; i++) {
+          if (sources[i] is PackedTuple packedSource) {
+            packedSources[i] = packedSource;
+          }
+          else {
+            haveSlowSource = true;
+            break;
+          }
         }
-        packedSources[i] = packedSource;
-      }
 
-      if (!haveSlowSource) {
-        var packedTarget = target as PackedTuple;
-        if (packedTarget!=null) {
+        if (!haveSlowSource) {
           CopyTupleArrayWithMappingFast(packedSources, packedTarget, map);
           return;
         }
@@ -149,20 +147,25 @@ namespace Xtensive.Tuples
     /// <param name="target">Tuple that receives the data.</param>
     /// <param name="map">Target-to-source field index map.
     /// Negative value in this map means "skip this element".</param>
-    internal static void CopyTo(this in FixedReadOnlyList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
+    internal static void CopyTo(in this FixedReadOnlyList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
       if (target is PackedTuple packedTarget) {
-        var (packedSources, haveSlowSource) = sources.Count switch {
-          1 => sources[0] is PackedTuple first ? (new FixedReadOnlyList3<PackedTuple>(first), false) : (default, true),
-          2 => sources[0] is PackedTuple first && sources[1] is PackedTuple second ? (new FixedReadOnlyList3<PackedTuple>(first, second), false) : (default, true),
-          3 => sources[0] is PackedTuple first && sources[1] is PackedTuple second && sources[2] is PackedTuple third
-            ? (new FixedReadOnlyList3<PackedTuple>(first, second, third), false) : (default, true),
-          _ => (default, false)
-        };
-
-        if (!haveSlowSource) {
-          Copy3TuplesWithMappingFast(packedSources, packedTarget, map);
-          return;
+        var count = sources.Count;
+        if (count > 0 && sources[0] is PackedTuple packedFirst) {
+          if (count==1) {
+            Copy3TuplesWithMappingFast(new FixedReadOnlyList3<PackedTuple>(packedFirst), packedTarget, map);
+            return;
+          }
+          else if (sources[1] is PackedTuple packedSecond) {
+            if (count==2) {
+              Copy3TuplesWithMappingFast(new FixedReadOnlyList3<PackedTuple>(packedFirst, packedSecond), packedTarget, map);
+              return;
+            }
+            else if (sources[2] is PackedTuple packedThird) {
+              Copy3TuplesWithMappingFast(new FixedReadOnlyList3<PackedTuple>(packedFirst, packedSecond, packedThird), packedTarget, map);
+              return;
+            }
+          }
         }
       }
 
@@ -181,7 +184,7 @@ namespace Xtensive.Tuples
     /// <returns></returns>
     public static Tuple Combine(this Tuple left, Tuple right)
     {
-      var transform = new CombineTransform(false, new[] {left.Descriptor, right.Descriptor});
+      var transform = new CombineTransform(false, left.Descriptor, right.Descriptor);
       return transform.Apply(TupleTransformType.TransformedTuple, left, right);
     }
 
