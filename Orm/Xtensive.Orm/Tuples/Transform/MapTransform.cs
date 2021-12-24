@@ -61,46 +61,6 @@ namespace Xtensive.Tuples.Transform
     /// Applies the transformation.
     /// </summary>
     /// <param name="transformType">The type of transformation to perform.</param>
-    /// <param name="sources">Transformation sources.</param>
-    /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
-    /// dependently on specified <paramref name="transformType"/>.</returns>
-    public Tuple Apply(TupleTransformType transformType, params Tuple[] sources)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(sources, nameof(sources));
-      if (sourceCount > sources.Length) {
-        throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
-      }
-      switch (sourceCount) {
-        case 1:
-          return Apply(transformType, sources[0]);
-        case 2:
-          return Apply(transformType, sources[0], sources[1]);
-        case 3:
-          return Apply(transformType, sources[0], sources[1], sources[2]);
-        default:
-          switch (transformType) {
-            case TupleTransformType.Auto:
-              foreach (Tuple tuple in sources)
-                if (tuple is ITransformedTuple)
-                  goto case TupleTransformType.Tuple;
-              goto case TupleTransformType.TransformedTuple;
-            case TupleTransformType.TransformedTuple:
-              return new MapTransformTuple(this, sources);
-            case TupleTransformType.Tuple:
-              Tuple result = Tuple.Create(Descriptor);
-              sources.CopyTo(result, map);
-              return result;
-            default:
-              throw new ArgumentOutOfRangeException(nameof(transformType));
-          }
-      }
-    }
-
-    /// <summary>
-    /// Applies the transformation.
-    /// </summary>
-    /// <param name="transformType">The type of transformation to perform.</param>
     /// <param name="source">Transformation source.</param>
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
@@ -151,42 +111,6 @@ namespace Xtensive.Tuples.Transform
           return new MapTransformTuple3(this, source1, source2);
         case TupleTransformType.Tuple:
           var sources = new FixedReadOnlyList3<Tuple>(source1, source2);
-          Tuple result = Tuple.Create(Descriptor);
-          sources.CopyTo(result, map);
-          return result;
-        default:
-          throw new ArgumentOutOfRangeException(nameof(transformType));
-      }
-    }
-
-    /// <summary>
-    /// Applies the transformation.
-    /// </summary>
-    /// <param name="transformType">The type of transformation to perform.</param>
-    /// <param name="source1">First transformation source.</param>
-    /// <param name="source2">Second transformation source.</param>
-    /// <param name="source3">Third transformation source.</param>
-    /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
-    /// dependently on specified <paramref name="transformType"/>.</returns>
-    public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2, Tuple source3)
-    {
-      if (sourceCount > 3) {
-        throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
-      }
-      switch (transformType) {
-        case TupleTransformType.Auto:
-          if (source1 is ITransformedTuple)
-            goto case TupleTransformType.Tuple;
-          if (source2 is ITransformedTuple)
-            goto case TupleTransformType.Tuple;
-          if (source3 is ITransformedTuple)
-            goto case TupleTransformType.Tuple;
-          goto case TupleTransformType.TransformedTuple;
-        case TupleTransformType.TransformedTuple:
-          return new MapTransformTuple3(this, source1, source2, source3);
-        case TupleTransformType.Tuple:
-          var sources = new FixedReadOnlyList3<Tuple>(source1, source2, source3);
           Tuple result = Tuple.Create(Descriptor);
           sources.CopyTo(result, map);
           return result;
