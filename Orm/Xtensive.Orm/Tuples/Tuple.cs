@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
@@ -112,17 +112,17 @@ namespace Xtensive.Tuples
 
       if (this is PackedTuple packedTuple) {
         ref readonly var descriptor = ref packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-        return descriptor.Accessor.GetValue<T>(packedTuple, descriptor, isNullable, out fieldState);
+        return descriptor.GetAccessor().GetValue<T>(packedTuple, descriptor, isNullable, out fieldState);
       }
 
       var mappedContainer = GetMappedContainer(fieldIndex, false);
       if (mappedContainer.First is PackedTuple mappedTuple) {
         ref readonly var descriptor = ref mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
-        return descriptor.Accessor.GetValue<T>(mappedTuple, descriptor, isNullable, out fieldState);
+        return descriptor.GetAccessor().GetValue<T>(mappedTuple, descriptor, isNullable, out fieldState);
       }
 
       var value = GetValue(fieldIndex, out fieldState);
-      return value!=null ? (T) value : default(T);
+      return value != null ? (T) value : default(T);
     }
 
     /// <summary>
@@ -187,14 +187,14 @@ namespace Xtensive.Tuples
 
       if (this is PackedTuple packedTuple) {
         ref readonly var descriptor = ref packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-        descriptor.Accessor.SetValue(packedTuple, descriptor, isNullable, fieldValue);
+        descriptor.GetAccessor().SetValue(packedTuple, descriptor, isNullable, fieldValue);
         return;
       }
 
       var mappedContainer = GetMappedContainer(fieldIndex, true);
       if (mappedContainer.First is PackedTuple mappedTuple) {
         ref readonly var descriptor = ref mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
-        descriptor.Accessor.SetValue(mappedTuple, descriptor, isNullable, fieldValue);
+        descriptor.GetAccessor().SetValue(mappedTuple, descriptor, isNullable, fieldValue);
         return;
       }
 
