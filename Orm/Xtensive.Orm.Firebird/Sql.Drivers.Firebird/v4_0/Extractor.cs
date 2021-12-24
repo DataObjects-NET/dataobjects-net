@@ -1,3 +1,7 @@
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -666,6 +670,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
               : "BIGINT";
         case 27:
           return "DOUBLE PRECISION";
+        case 29:
+          return "TIMESTAMP WITH WITH TIME ZONE";
         case 35:
           return "TIMESTAMP";
         case 37:
