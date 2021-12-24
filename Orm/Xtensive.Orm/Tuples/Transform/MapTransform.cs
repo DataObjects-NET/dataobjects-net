@@ -20,12 +20,23 @@ namespace Xtensive.Tuples.Transform
   /// Maps fields of destination tuple to fields of a set of source tuples.
   /// </summary>
   [Serializable]
-  public class MapTransform : TupleTransformBase
+  public class MapTransform : ITupleTransform
   {
     private int sourceCount;
     internal IReadOnlyList<int> singleSourceMap;
     internal Pair<int, int>[] map;
 
+    /// <summary>
+    /// Gets <see cref="TupleDescriptor"/> describing the tuples
+    /// this transform may produce.
+    /// </summary>
+    public TupleDescriptor Descriptor { get; }
+
+    /// <summary>
+    /// Indicates whether transform always produces read-only tuples or not.
+    /// </summary>>
+    public bool IsReadOnly { get; }
+    
     /// <summary>
     /// Means that no mapping is available for the specified field index.
     /// </summary>
@@ -199,13 +210,16 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
-    /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
+    /// <param name="descriptor">Initial <see cref="ITupleTransform.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="Map"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, Pair<int, int>[] map)
-      : base(descriptor, isReadOnly)
     {
+      ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
       ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
+      
+      IsReadOnly = isReadOnly;
+      Descriptor = descriptor;
       var newFirstSourceMap = new int[map.Length];
       var index = 0;
       var newSourceCount = -1;
@@ -225,13 +239,16 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
-    /// <param name="descriptor">Initial <see cref="TupleTransformBase.Descriptor"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
+    /// <param name="descriptor">Initial <see cref="ITupleTransform.Descriptor"/> property value.</param>
     /// <param name="singleSourceMap"><see cref="SingleSourceMap"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> singleSourceMap)
-      : base(descriptor, isReadOnly)
     {
-      ArgumentValidator.EnsureArgumentNotNull(singleSourceMap, nameof(singleSourceMap));
+      ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
+      ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
+      
+      IsReadOnly = isReadOnly;
+      Descriptor = descriptor;
       var newMap = new Pair<int, int>[Descriptor.Count];
       var index = 0;
       for (; index < newMap.Length && index < singleSourceMap.Count; index++) {

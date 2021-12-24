@@ -61,7 +61,7 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
     /// <param name="sourceDescriptor">Source tuple descriptor.</param>
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)

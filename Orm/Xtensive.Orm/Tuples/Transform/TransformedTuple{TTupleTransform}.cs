@@ -15,7 +15,7 @@ namespace Xtensive.Tuples.Transform
   /// </summary>
   [Serializable]
   public abstract class TransformedTuple<TTupleTransform> : Tuple, ITransformedTuple
-    where TTupleTransform : TupleTransformBase
+    where TTupleTransform : ITupleTransform
   {
     /// <summary>
     /// Gets or sets the transform used to produce this instance.

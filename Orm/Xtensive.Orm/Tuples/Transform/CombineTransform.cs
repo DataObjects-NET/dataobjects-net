@@ -49,7 +49,7 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="TupleTransformBase.IsReadOnly"/> property value.</param>
+    /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
     /// <param name="first">First tuple descriptor to combine.</param>
     /// <param name="second">Second tuple descriptor to combine.</param>
     public CombineTransform(bool isReadOnly, TupleDescriptor first, TupleDescriptor second)
