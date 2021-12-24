@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.09.17
 
@@ -16,7 +16,7 @@ namespace Xtensive.Tuples
   /// <param name="descriptor">Field descriptor.</param>
   /// <param name="fieldState">State of a field.</param>
   /// <returns></returns>
-  internal delegate TValue GetValueDelegate<TValue>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
+  internal delegate TValue GetValueDelegate<TValue>(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
 
   /// <summary>
   /// Incapsulates <see cref="Tuple.SetValue{T}"/> method.
@@ -25,5 +25,5 @@ namespace Xtensive.Tuples
   /// <param name="tuple">Tuple to use.</param>
   /// <param name="descriptor">Field descriptor.</param>
   /// <param name="value">A value.</param>
-  internal delegate void SetValueDelegate<TValue>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, TValue value);
+  internal delegate void SetValueDelegate<TValue>(PackedTuple tuple, in PackedFieldDescriptor descriptor, TValue value);
 }

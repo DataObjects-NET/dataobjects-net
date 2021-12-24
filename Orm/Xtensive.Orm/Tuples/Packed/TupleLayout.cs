@@ -146,7 +146,7 @@ namespace Xtensive.Tuples.Packed
           valuesLength = 1;
           return;
         case 1: {
-          if (descriptor1.IsObjectField) {
+          if (descriptor1.IsObjectField()) {
             descriptor2.DataPosition = Val064BitCount;
             val1BitCount = descriptor2.Accessor.ValueBitCount;
           }
@@ -212,7 +212,7 @@ namespace Xtensive.Tuples.Packed
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         ref var descriptor = ref fieldDescriptors[fieldIndex];
-        if (descriptor.IsObjectField) {
+        if (descriptor.IsObjectField()) {
           continue;
         }
 

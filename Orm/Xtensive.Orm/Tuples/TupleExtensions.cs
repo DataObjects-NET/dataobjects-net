@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -151,17 +151,16 @@ namespace Xtensive.Tuples
     /// Negative value in this map means "skip this element".</param>
     internal static void CopyTo(this in FixedReadOnlyList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
-      var (packedSources, haveSlowSource) = sources.Count switch {
-        1 => sources[0] is PackedTuple first ? (new FixedReadOnlyList3<PackedTuple>(first), false) : (default, true),
-        2 => sources[0] is PackedTuple first && sources[1] is PackedTuple second ? (new FixedReadOnlyList3<PackedTuple>(first, second), false) : (default, true),
-        3 => sources[0] is PackedTuple first && sources[1] is PackedTuple second && sources[2] is PackedTuple third
-          ? (new FixedReadOnlyList3<PackedTuple>(first, second, third), false) : (default, true),
-        _ => (default, false)
-      };
+      if (target is PackedTuple packedTarget) {
+        var (packedSources, haveSlowSource) = sources.Count switch {
+          1 => sources[0] is PackedTuple first ? (new FixedReadOnlyList3<PackedTuple>(first), false) : (default, true),
+          2 => sources[0] is PackedTuple first && sources[1] is PackedTuple second ? (new FixedReadOnlyList3<PackedTuple>(first, second), false) : (default, true),
+          3 => sources[0] is PackedTuple first && sources[1] is PackedTuple second && sources[2] is PackedTuple third
+            ? (new FixedReadOnlyList3<PackedTuple>(first, second, third), false) : (default, true),
+          _ => (default, false)
+        };
 
-      if (!haveSlowSource) {
-        var packedTarget = target as PackedTuple;
-        if (packedTarget!=null) {
+        if (!haveSlowSource) {
           Copy3TuplesWithMappingFast(packedSources, packedTarget, map);
           return;
         }
@@ -418,10 +417,10 @@ namespace Xtensive.Tuples
 
     private static void CopyPackedValue(PackedTuple source, int sourceIndex, PackedTuple target, int targetIndex)
     {
-      ref var sourceDescriptor = ref source.PackedDescriptor.FieldDescriptors[sourceIndex];
-      ref var targetDescriptor = ref target.PackedDescriptor.FieldDescriptors[targetIndex];
+      ref readonly var sourceDescriptor = ref source.PackedDescriptor.FieldDescriptors[sourceIndex];
+      ref readonly var targetDescriptor = ref target.PackedDescriptor.FieldDescriptors[targetIndex];
 
-      var fieldState = source.GetFieldState(ref sourceDescriptor);
+      var fieldState = source.GetFieldState(sourceDescriptor);
       if (!fieldState.IsAvailable()) {
         return;
       }
@@ -440,7 +439,7 @@ namespace Xtensive.Tuples
       }
 
       target.SetFieldState(targetIndex, TupleFieldState.Available);
-      accessor.CopyValue(source, ref sourceDescriptor, target, ref targetDescriptor);
+      accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
     }
 
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)
