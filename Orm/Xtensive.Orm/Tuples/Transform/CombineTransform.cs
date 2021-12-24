@@ -14,9 +14,28 @@ namespace Xtensive.Tuples.Transform
   /// This class is used for source <see cref="Tuple"/>s combining.
   /// </summary>
   [Serializable]
-  public sealed class CombineTransform : MapTransform
+  public sealed class CombineTransform : ITupleTransform
   {
+    private MapTransform mapTransform;
     private readonly (TupleDescriptor first, TupleDescriptor second) sources;
+
+    /// <inheritdoc/>
+    public TupleDescriptor Descriptor => mapTransform.Descriptor;
+
+    /// <inheritdoc/>
+    public bool IsReadOnly => mapTransform.IsReadOnly;
+
+    /// <summary>
+    /// Applies the transformation.
+    /// </summary>
+    /// <param name="transformType">The type of transformation to perform.</param>
+    /// <param name="source1">First transformation source.</param>
+    /// <param name="source2">Second transformation source.</param>
+    /// <returns>Transformation result - 
+    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
+    /// dependently on specified <paramref name="transformType"/>.</returns>
+    public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
+      => mapTransform.Apply(transformType, source1, source2);
 
     /// <inheritdoc/>
     public override string ToString()
@@ -53,8 +72,8 @@ namespace Xtensive.Tuples.Transform
     /// <param name="first">First tuple descriptor to combine.</param>
     /// <param name="second">Second tuple descriptor to combine.</param>
     public CombineTransform(bool isReadOnly, TupleDescriptor first, TupleDescriptor second)
-      : base(isReadOnly, CreateDescriptorAndMap((first, second), out var map), map)
     {
+      mapTransform = new MapTransform(isReadOnly, CreateDescriptorAndMap((first, second), out var map), map);
       this.sources = (first, second);
     }
   }
