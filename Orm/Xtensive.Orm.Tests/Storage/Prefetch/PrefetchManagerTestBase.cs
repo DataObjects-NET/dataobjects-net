@@ -17,6 +17,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
 using FieldInfo=Xtensive.Orm.Model.FieldInfo;
 using TypeInfo = Xtensive.Orm.Model.TypeInfo;
+using GraphContainerDictionary = System.Collections.Generic.Dictionary<(Xtensive.Orm.Key key, Xtensive.Orm.Model.TypeInfo type), Xtensive.Orm.Internals.Prefetch.GraphContainer>;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
@@ -103,7 +104,7 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
 
     internal GraphContainer GetSingleGraphContainer(PrefetchManager prefetchManager)
     {
-      return ((IEnumerable<GraphContainer>) GraphContainersField.GetValue(prefetchManager)).Single();
+      return ((GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager)).Values.Single();
     }
 
     internal static bool IsFieldKeyOrSystem(FieldInfo field)
