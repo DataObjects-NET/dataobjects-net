@@ -17,12 +17,12 @@ namespace Xtensive.Orm
   public readonly struct TypeReference
   {
     /// <summary>
-    /// Gets or sets the referenced type.
+    /// Gets the referenced type.
     /// </summary>
     public TypeInfo Type { get; }
 
     /// <summary>
-    /// Gets or sets the type reference accuracy.
+    /// Gets the type reference accuracy.
     /// </summary>
     public TypeReferenceAccuracy Accuracy { get; }
 

@@ -17,12 +17,12 @@ namespace Xtensive.Orm.Services
   public readonly struct QueryTranslationResult
   {
     /// <summary>
-    /// Gets or sets SQL DOM query.
+    /// Gets <see cref="SqlSelect"/> query.
     /// </summary>
     public SqlSelect Query { get; }
 
     /// <summary>
-    /// Gets or sets parameter bindings for translated query.
+    /// Gets parameter bindings for translated query.
     /// </summary>
     public IReadOnlyList<QueryParameterBinding> ParameterBindings { get; }
 
