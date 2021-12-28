@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the key extractor transform.
     /// </summary>
-    public MapTransform OrderKeyExtractorTransform { get; private set; }
+    public SingleSourceMapTransform OrderKeyExtractorTransform { get; private set; }
 
     /// <summary>
     /// Extracts the key part from <paramref name="tuple"/> using <see cref="OrderKeyExtractorTransform"/>.
@@ -82,7 +82,7 @@ namespace Xtensive.Orm.Rse.Providers
         map[i] = p.Key;
       }
       var orderKeyDescriptor = TupleDescriptor.Create(fieldTypes);
-      OrderKeyExtractorTransform = new MapTransform(true, orderKeyDescriptor, map);
+      OrderKeyExtractorTransform = new SingleSourceMapTransform(true, orderKeyDescriptor, map);
     }
 
 

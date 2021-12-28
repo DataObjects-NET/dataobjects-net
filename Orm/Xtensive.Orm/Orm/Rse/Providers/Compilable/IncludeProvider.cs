@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public Expression<Func<ParameterContext, IEnumerable<Tuple>>> FilterDataSource { get; private set; }
 
-    public MapTransform FilteredColumnsExtractionTransform { get; private set; }
+    public SingleSourceMapTransform FilteredColumnsExtractionTransform { get; private set; }
 
     public CombineTransform ResultTransform { get; private set; }
 
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Rse.Providers
         fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;
       }
       var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-      FilteredColumnsExtractionTransform = new MapTransform(true, tupleDescriptor, FilteredColumns);
+      FilteredColumnsExtractionTransform = new SingleSourceMapTransform(true, tupleDescriptor, FilteredColumns);
       ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, BoolTupleDescriptor);
       return newHeader;
     }

@@ -342,7 +342,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the version tuple extractor.
     /// </summary>
-    public MapTransform VersionExtractor { get; private set; }
+    public SingleSourceMapTransform VersionExtractor { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether this instance has version fields.
@@ -818,7 +818,7 @@ namespace Xtensive.Orm.Model
       var types = versionColumns.Select(c => c.ValueType).ToArray(versionColumnsCount);
       var map = versionColumns.Select(c => c.Field.MappingInfo.Offset).ToArray(versionColumnsCount);
       var versionTupleDescriptor = TupleDescriptor.Create(types);
-      VersionExtractor = new MapTransform(true, versionTupleDescriptor, map);
+      VersionExtractor = new SingleSourceMapTransform(true, versionTupleDescriptor, map);
     }
 
     private IDictionary<Pair<FieldInfo>, FieldInfo> BuildStructureFieldMapping()

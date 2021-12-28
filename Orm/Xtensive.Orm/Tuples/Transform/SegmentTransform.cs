@@ -18,15 +18,14 @@ namespace Xtensive.Tuples.Transform
   /// </summary>
   public sealed class SegmentTransform : ITupleTransform
   {
-    private MapTransform mapTransform;
+    private readonly SingleSourceMapTransform mapTransform;
+    private readonly Segment<int> segment;
 
     /// <inheritdoc/>
     public TupleDescriptor Descriptor => mapTransform.Descriptor;
 
     /// <inheritdoc/>
     public bool IsReadOnly => mapTransform.IsReadOnly;
-
-    private Segment<int> segment;
 
     /// <summary>
     /// Gets the segment this transform extracts.
@@ -37,7 +36,14 @@ namespace Xtensive.Tuples.Transform
       get { return segment; }
     }
 
-    /// <see cref="MapTransform.Apply(TupleTransformType,Tuple)" copy="true" />
+    /// <summary>
+    /// Applies the transformation.
+    /// </summary>
+    /// <param name="transformType">The type of transformation to perform.</param>
+    /// <param name="source">Transformation source.</param>
+    /// <returns>Transformation result - 
+    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
+    /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source)
     {
       return mapTransform.Apply(transformType, source);
@@ -74,7 +80,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
     {
-      mapTransform = new MapTransform(isReadOnly, CreateDescriptorAndMap(sourceDescriptor, segment, out var map), map);
+      mapTransform = new SingleSourceMapTransform(isReadOnly, CreateDescriptorAndMap(sourceDescriptor, segment, out var map), map);
       this.segment = segment;
     }
   }

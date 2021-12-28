@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets header resize transform.
     /// </summary>
-    public MapTransform ResizeTransform { get; private set; }
+    public SingleSourceMapTransform ResizeTransform { get; private set; }
 
 
     /// <inheritdoc/>
@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Rse.Providers
       var columnIndexes = new int[Header.Length];
       for (int i = 0; i < columnIndexes.Length; i++)
         columnIndexes[i] = (i < Source.Header.Length) ? i : MapTransform.NoMapping;
-      ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
+      ResizeTransform = new SingleSourceMapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
 

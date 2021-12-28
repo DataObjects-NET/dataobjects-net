@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 
@@ -16,14 +15,12 @@ using Xtensive.Tuples.Transform.Internals;
 namespace Xtensive.Tuples.Transform
 {
   /// <summary>
-  /// Base class for any tuple field mapping transform.
-  /// Maps fields of destination tuple to fields of a set of source tuples.
+  /// Maps fields of a destination tuple to the specified fields of of the source tuple.
   /// </summary>
   [Serializable]
-  public class MapTransform : ITupleTransform
+  public class SingleSourceMapTransform : ITupleTransform
   {
-    private int sourceCount;
-    internal Pair<int, int>[] map;
+    private IReadOnlyList<int> map;
 
     /// <summary>
     /// Gets <see cref="TupleDescriptor"/> describing the tuples
@@ -42,37 +39,30 @@ namespace Xtensive.Tuples.Transform
     public const int NoMapping = int.MinValue;
 
     /// <summary>
-    /// Gets or sets destination-to-source field map.
+    /// Gets or sets destination-to-source field map for the first source only.
     /// </summary>
-    public IReadOnlyList<Pair<int, int>> Map => map;
+    public IReadOnlyList<int> Map => map;
 
     /// <summary>
     /// Applies the transformation.
     /// </summary>
     /// <param name="transformType">The type of transformation to perform.</param>
-    /// <param name="source1">First transformation source.</param>
-    /// <param name="source2">Second transformation source.</param>
+    /// <param name="source">Transformation source.</param>
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
-    public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
+    public Tuple Apply(TupleTransformType transformType, Tuple source)
     {
-      if (sourceCount > 2) {
-        throw new InvalidOperationException(string.Format(Strings.ExTheNumberOfSourcesIsTooSmallExpected, sourceCount));
-      }
       switch (transformType) {
         case TupleTransformType.Auto:
-          if (source1 is ITransformedTuple)
-            goto case TupleTransformType.Tuple;
-          if (source2 is ITransformedTuple)
+          if (source is ITransformedTuple)
             goto case TupleTransformType.Tuple;
           goto case TupleTransformType.TransformedTuple;
         case TupleTransformType.TransformedTuple:
-          return new MapTransformTuple3(this, source1, source2);
+          return new MapTransformTuple1(this, source);
         case TupleTransformType.Tuple:
-          var sources = new FixedReadOnlyList3<Tuple>(source1, source2);
           Tuple result = Tuple.Create(Descriptor);
-          sources.CopyTo(result, map);
+          source.CopyTo(result, map);
           return result;
         default:
           throw new ArgumentOutOfRangeException(nameof(transformType));
@@ -82,7 +72,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = $"{sourceCount}: {map.ToCommaDelimitedString()}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
+      string description = $"1: {map.ToCommaDelimitedString()}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat,
         GetType().GetShortName(),
         description);
@@ -97,26 +87,15 @@ namespace Xtensive.Tuples.Transform
     /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="ITupleTransform.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="Map"/> property value.</param>
-    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, Pair<int, int>[] map)
+    public SingleSourceMapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
     {
       ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
       ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));
       
       IsReadOnly = isReadOnly;
       Descriptor = descriptor;
-      var newFirstSourceMap = new int[map.Length];
-      var index = 0;
-      var newSourceCount = -1;
-      foreach (var mappedTo in map) {
-        if (mappedTo.First > newSourceCount) {
-          newSourceCount = mappedTo.First;
-        }
-        newFirstSourceMap[index++] = mappedTo.First == 0 ? mappedTo.Second : -1;
-      }
-      newSourceCount++;
 
       this.map = map;
-      sourceCount = newSourceCount;
     }
   }
 }

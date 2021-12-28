@@ -196,16 +196,7 @@ namespace Xtensive.Tuples
     /// <returns></returns>
     public static Tuple GetSegment(this Tuple tuple, in Segment<int> segment)
     {
-      var length = segment.Length;
-      var map = new int[length];
-      var fieldTypes = new Type[length];
-      for (var index = 0; index < map.Length; index++) {
-        var sourceIndex = segment.Offset + index;
-        map[index] = sourceIndex;
-        fieldTypes[index] = tuple.Descriptor[sourceIndex];
-      }
-      var descriptor = TupleDescriptor.Create(fieldTypes);
-      var transform = new MapTransform(false, descriptor, map);
+      var transform = new SegmentTransform(false, tuple.Descriptor, segment);
       return transform.Apply(TupleTransformType.TransformedTuple, tuple);
     }
 

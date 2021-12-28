@@ -14,7 +14,7 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class MapTransformTuple1 : TransformedTuple<MapTransform>
+  internal sealed class MapTransformTuple1 : TransformedTuple<SingleSourceMapTransform>
   {
     private readonly Tuple source;
     private Tuple defaultResult;
@@ -65,7 +65,7 @@ namespace Xtensive.Tuples.Transform.Internals
 
     private int GetMappedFieldIndex(int fieldIndex)
     {
-      var mappedIndex = TupleTransform.singleSourceMap[fieldIndex];
+      var mappedIndex = TupleTransform.Map[fieldIndex];
       return mappedIndex < 0 ? MapTransform.NoMapping : mappedIndex;
     }
 
@@ -86,7 +86,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// </summary>
     /// <param name="transform">The transform.</param>
     /// <param name="source">Source tuple.</param>
-    public MapTransformTuple1(MapTransform transform, Tuple source)
+    public MapTransformTuple1(SingleSourceMapTransform transform, Tuple source)
       : base(transform)
     {
       this.source = source;
