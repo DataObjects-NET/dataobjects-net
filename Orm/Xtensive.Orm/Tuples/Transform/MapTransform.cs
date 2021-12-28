@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -104,19 +105,9 @@ namespace Xtensive.Tuples.Transform
       
       IsReadOnly = isReadOnly;
       Descriptor = descriptor;
-      var newFirstSourceMap = new int[map.Length];
-      var index = 0;
-      var newSourceCount = -1;
-      foreach (var mappedTo in map) {
-        if (mappedTo.First > newSourceCount) {
-          newSourceCount = mappedTo.First;
-        }
-        newFirstSourceMap[index++] = mappedTo.First == 0 ? mappedTo.Second : -1;
-      }
-      newSourceCount++;
 
       this.map = map;
-      sourceCount = newSourceCount;
+      sourceCount = map.Max(item => item.First) + 1;
     }
   }
 }
