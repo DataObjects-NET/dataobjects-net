@@ -1,12 +1,9 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alex Yakunin
-// Created:    2008.06.04
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Core;
-
 
 namespace Xtensive.Tuples.Transform.Internals
 {
@@ -14,7 +11,7 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class MapTransformTuple1 : TransformedTuple<SingleSourceMapTransform>
+  internal sealed class SegmentTransformTuple : TransformedTuple<SegmentTransform>
   {
     private readonly Tuple source;
     private Tuple defaultResult;
@@ -65,28 +62,12 @@ namespace Xtensive.Tuples.Transform.Internals
 
     private int GetSourceFieldIndex(int fieldIndex)
     {
-      var mappedIndex = TupleTransform.Map[fieldIndex];
-      return mappedIndex < 0 ? MapTransform.NoMapping : mappedIndex;
+      var sourceIndex = TupleTransform.Segment.Offset + fieldIndex;
+      return sourceIndex < 0 || sourceIndex >= source.Count ? MapTransform.NoMapping : sourceIndex;
     }
-
-    protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
-    {
-      if (isWriting && TupleTransform.IsReadOnly) {
-        throw Exceptions.ObjectIsReadOnly(null);
-      }
-      var index = GetSourceFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping ? default : source.GetMappedContainer(index, isWriting);
-    }
-
 
     // Constructors
-
-    /// <summary>
-    /// Initializes new instance of this type.
-    /// </summary>
-    /// <param name="transform">The transform.</param>
-    /// <param name="source">Source tuple.</param>
-    public MapTransformTuple1(SingleSourceMapTransform transform, Tuple source)
+    public SegmentTransformTuple(SegmentTransform transform, Tuple source)
       : base(transform)
     {
       this.source = source;

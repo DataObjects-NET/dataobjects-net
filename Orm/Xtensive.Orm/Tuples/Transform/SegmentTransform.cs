@@ -5,11 +5,9 @@
 // Created:    2008.05.20
 
 using System;
-using System.Diagnostics;
 using Xtensive.Core;
 using Xtensive.Reflection;
-
-
+using Xtensive.Tuples.Transform.Internals;
 
 namespace Xtensive.Tuples.Transform
 {
@@ -18,22 +16,20 @@ namespace Xtensive.Tuples.Transform
   /// </summary>
   public sealed class SegmentTransform : ITupleTransform
   {
-    private readonly SingleSourceMapTransform mapTransform;
     private readonly Segment<int> segment;
 
     /// <inheritdoc/>
-    public TupleDescriptor Descriptor => mapTransform.Descriptor;
+    public TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc/>
-    public bool IsReadOnly => mapTransform.IsReadOnly;
+    public bool IsReadOnly { get; }
 
     /// <summary>
     /// Gets the segment this transform extracts.
     /// </summary>
-    public Segment<int> Segment
+    public ref readonly Segment<int> Segment
     {
-      [DebuggerStepThrough]
-      get { return segment; }
+      get { return ref segment; }
     }
 
     /// <summary>
@@ -46,7 +42,20 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source)
     {
-      return mapTransform.Apply(transformType, source);
+      switch (transformType) {
+        case TupleTransformType.Auto:
+          if (source is ITransformedTuple)
+            goto case TupleTransformType.Tuple;
+          goto case TupleTransformType.TransformedTuple;
+        case TupleTransformType.TransformedTuple:
+          return new SegmentTransformTuple(this, source);
+        case TupleTransformType.Tuple:
+          Tuple result = Tuple.Create(Descriptor);
+          source.CopyTo(result, segment.Offset, segment.Length);
+          return result;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(transformType));
+      }
     }
 
     /// <inheritdoc/>
@@ -61,17 +70,6 @@ namespace Xtensive.Tuples.Transform
 
     // Constructors
 
-    private static TupleDescriptor CreateDescriptorAndMap(TupleDescriptor sourceDescriptor, in Segment<int> segment, out int[] map)
-    {
-      var fields = new Type[segment.Length];
-      map = new int[segment.Length];
-      for (int i = 0, j = segment.Offset; i < segment.Length; i++, j++) {
-        fields[i] = sourceDescriptor[j];
-        map[i] = j;
-      }
-      return TupleDescriptor.Create(fields);
-    }
-
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
@@ -80,7 +78,13 @@ namespace Xtensive.Tuples.Transform
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
     {
-      mapTransform = new SingleSourceMapTransform(isReadOnly, CreateDescriptorAndMap(sourceDescriptor, segment, out var map), map);
+      IsReadOnly = isReadOnly;
+
+      var fields = new Type[segment.Length];
+      for (int i = 0, j = segment.Offset; i < segment.Length; i++, j++) {
+        fields[i] = sourceDescriptor[j];
+      }
+      Descriptor = TupleDescriptor.Create(fields);
       this.segment = segment;
     }
   }
