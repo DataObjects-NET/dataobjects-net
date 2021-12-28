@@ -42,19 +42,18 @@ namespace Xtensive.Tuples.Transform
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source)
     {
-      switch (transformType) {
-        case TupleTransformType.Auto:
-          if (source is ITransformedTuple)
-            goto case TupleTransformType.Tuple;
-          goto case TupleTransformType.TransformedTuple;
-        case TupleTransformType.TransformedTuple:
-          return new SegmentTransformTuple(this, source);
-        case TupleTransformType.Tuple:
-          Tuple result = Tuple.Create(Descriptor);
-          source.CopyTo(result, segment.Offset, segment.Length);
-          return result;
-        default:
-          throw new ArgumentOutOfRangeException(nameof(transformType));
+      return transformType switch {
+        TupleTransformType.Auto when source is ITransformedTuple => CopySourceSegment(source),
+        TupleTransformType.Auto => new SegmentTransformTuple(this, source),
+        TupleTransformType.Tuple => CopySourceSegment(source),
+        TupleTransformType.TransformedTuple => new SegmentTransformTuple(this, source),
+        _ => throw new ArgumentOutOfRangeException(nameof(transformType))
+      };
+
+      Tuple CopySourceSegment(Tuple source) {
+        var result = Tuple.Create(Descriptor);
+        source.CopyTo(result, segment.Offset, segment.Length);
+        return result;
       }
     }
 
