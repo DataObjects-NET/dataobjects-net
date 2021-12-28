@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Internals
       var fieldOwnerKey = context.TryRemapKey(info.FieldOwner);
       var fieldValueKey = context.TryRemapKey(info.FieldValue);
 
-      var transformer = new CombineTransform(false, fieldOwnerKey.Value.Descriptor, fieldValueKey.Value.Descriptor);
+      var transformer = new ConcatTransform(false, fieldOwnerKey.Value.Descriptor, fieldValueKey.Value.Descriptor);
       var combinedTuple = transformer.Apply(TupleTransformType.Tuple, fieldOwnerKey.Value, fieldValueKey.Value);
 
       var newCombinedKey = Key.Create(Session.Domain, Session.StorageNodeId, fieldAssociation.AuxiliaryType, TypeReferenceAccuracy.ExactType, combinedTuple);

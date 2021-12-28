@@ -182,9 +182,9 @@ namespace Xtensive.Tuples
     /// <param name="left">The first <see cref="Tuple"/> to combine.</param>
     /// <param name="right">The second <see cref="Tuple"/> to combine.</param>
     /// <returns></returns>
-    public static Tuple Combine(this Tuple left, Tuple right)
+    public static Tuple Concat(this Tuple left, Tuple right)
     {
-      var transform = new CombineTransform(false, left.Descriptor, right.Descriptor);
+      var transform = new ConcatTransform(false, left.Descriptor, right.Descriptor);
       return transform.Apply(TupleTransformType.TransformedTuple, left, right);
     }
 

@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Rse.Providers
 
     public SingleSourceMapTransform FilteredColumnsExtractionTransform { get; private set; }
 
-    public CombineTransform ResultTransform { get; private set; }
+    public ConcatTransform ResultTransform { get; private set; }
 
     private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
 
@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Rse.Providers
       }
       var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
       FilteredColumnsExtractionTransform = new SingleSourceMapTransform(true, tupleDescriptor, FilteredColumns);
-      ResultTransform = new CombineTransform(true, Source.Header.TupleDescriptor, BoolTupleDescriptor);
+      ResultTransform = new ConcatTransform(true, Source.Header.TupleDescriptor, BoolTupleDescriptor);
       return newHeader;
     }
 

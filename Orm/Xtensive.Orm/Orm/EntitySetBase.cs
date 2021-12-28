@@ -45,7 +45,7 @@ namespace Xtensive.Orm
     private static readonly Func<FieldInfo, EntitySetBase, EntitySetTypeState> EntitySetTypeStateFactory = BuildEntitySetTypeState;
 
     private readonly Entity owner;
-    private readonly CombineTransform auxilaryTypeKeyTransform;
+    private readonly ConcatTransform auxilaryTypeKeyTransform;
     private readonly bool skipOwnerVersionChange;
     private bool isInitialized;
 
@@ -1033,7 +1033,7 @@ namespace Xtensive.Orm
       if (association.AuxiliaryType != null && association.IsMaster) {
         var domain = Session.Domain;
         var itemType = domain.Model.Types[Field.ItemType];
-        auxilaryTypeKeyTransform = new CombineTransform(
+        auxilaryTypeKeyTransform = new ConcatTransform(
           false,
           owner.TypeInfo.Key.TupleDescriptor,
           itemType.Key.TupleDescriptor);

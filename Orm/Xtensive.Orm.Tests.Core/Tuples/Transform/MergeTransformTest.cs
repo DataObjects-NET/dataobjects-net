@@ -23,8 +23,8 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
       Xtensive.Tuples.Tuple t2 = Xtensive.Tuples.Tuple.Create(3, 4.0, "5");
       TestLog.Info("Originals: {0}, {1}", t1, t2);
 
-      CombineTransform mt   = new CombineTransform(false, t1.Descriptor, t2.Descriptor);
-      CombineTransform mtro = new CombineTransform(true,  t1.Descriptor, t2.Descriptor);
+      ConcatTransform mt   = new ConcatTransform(false, t1.Descriptor, t2.Descriptor);
+      ConcatTransform mtro = new ConcatTransform(true,  t1.Descriptor, t2.Descriptor);
 
       Xtensive.Tuples.Tuple wt1 = mt.Apply(TupleTransformType.TransformedTuple, t1, t2);
       TestLog.Info("Wrapper:   {0}", wt1);
@@ -62,7 +62,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     {
       AdvancedComparerStruct<Xtensive.Tuples.Tuple> comparer = AdvancedComparerStruct<Xtensive.Tuples.Tuple>.Default;
       Xtensive.Tuples.Tuple t   = Xtensive.Tuples.Tuple.Create(1);
-      CombineTransform mt = new CombineTransform(false, t.Descriptor, t.Descriptor);
+      ConcatTransform mt = new ConcatTransform(false, t.Descriptor, t.Descriptor);
       Xtensive.Tuples.Tuple wt1 = mt.Apply(TupleTransformType.TransformedTuple, t, t);
       Xtensive.Tuples.Tuple wt2 = mt.Apply(TupleTransformType.TransformedTuple, t, t);
       Xtensive.Tuples.Tuple ct1 = mt.Apply(TupleTransformType.Tuple, t, t);
