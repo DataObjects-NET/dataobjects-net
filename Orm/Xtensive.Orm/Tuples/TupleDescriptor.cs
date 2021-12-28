@@ -35,7 +35,7 @@ namespace Xtensive.Tuples
     internal readonly PackedFieldDescriptor[] FieldDescriptors;
     
     [field: NonSerialized]
-    private Type[] FieldTypes { get; }
+    internal Type[] FieldTypes { get; }
 
     /// <summary>
     /// Gets the empty tuple descriptor.

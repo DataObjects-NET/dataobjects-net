@@ -79,11 +79,8 @@ namespace Xtensive.Tuples.Transform
     {
       IsReadOnly = isReadOnly;
 
-      var fields = new Type[segment.Length];
-      for (int i = 0, j = segment.Offset; i < segment.Length; i++, j++) {
-        fields[i] = sourceDescriptor[j];
-      }
-      Descriptor = TupleDescriptor.Create(fields);
+      var fields = new ArraySegment<Type>(sourceDescriptor.FieldTypes, segment.Offset, segment.Length);
+      Descriptor = TupleDescriptor.Create(fields.ToArray());
       this.segment = segment;
     }
   }
