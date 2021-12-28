@@ -5,8 +5,8 @@
 // Created:    2008.04.30
 
 using System;
-using Xtensive.Core;
 using Xtensive.Reflection;
+using Xtensive.Tuples.Transform.Internals;
 
 namespace Xtensive.Tuples.Transform
 {
@@ -16,14 +16,13 @@ namespace Xtensive.Tuples.Transform
   [Serializable]
   public sealed class ConcatTransform : ITupleTransform
   {
-    private MapTransform mapTransform;
     private readonly (TupleDescriptor first, TupleDescriptor second) sources;
 
     /// <inheritdoc/>
-    public TupleDescriptor Descriptor => mapTransform.Descriptor;
+    public TupleDescriptor Descriptor { get; }
 
     /// <inheritdoc/>
-    public bool IsReadOnly => mapTransform.IsReadOnly;
+    public bool IsReadOnly { get; }
 
     /// <summary>
     /// Applies the transformation.
@@ -34,8 +33,22 @@ namespace Xtensive.Tuples.Transform
     /// <returns>Transformation result - 
     /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
-    public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2)
-      => mapTransform.Apply(transformType, source1, source2);
+    public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2) {
+      return transformType switch {
+        TupleTransformType.Auto when source1 is ITransformedTuple || source2 is ITransformedTuple => CopySourceTuples(source1, source2),
+        TupleTransformType.Auto => new ConcatTransformTuple(this, source1, source2),
+        TupleTransformType.Tuple => CopySourceTuples(source1, source2),
+        TupleTransformType.TransformedTuple => new ConcatTransformTuple(this, source1, source2),
+        _ => throw new ArgumentOutOfRangeException(nameof(transformType))
+      };
+
+      Tuple CopySourceTuples(Tuple source1, Tuple source2) {
+        var result = Tuple.Create(Descriptor);
+        source1.CopyTo(result);
+        source2.CopyTo(result, 0, source1.Count, source2.Count);
+        return result;
+      }
+    }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -46,24 +59,8 @@ namespace Xtensive.Tuples.Transform
         description);
     }
 
-    // Constructors
 
-    private static TupleDescriptor CreateDescriptorAndMap(in (TupleDescriptor first, TupleDescriptor second) sources, out Pair<int, int>[] map)
-    {
-      int totalLength = sources.first.Count + sources.second.Count;
-      var types = new Type[totalLength];
-      map = new Pair<int, int>[totalLength];
-      int index = 0;
-      for (int i = 0; i < 2; i++) {
-        var currentDescriptor = i == 0 ? sources.first : sources.second;
-        int currentCount = currentDescriptor.Count;
-        for (int j = 0; j < currentCount; j++) {
-          types[index] = currentDescriptor[j];
-          map[index++] = new Pair<int, int>(i, j);
-        }
-      }
-      return TupleDescriptor.Create(types);
-    }
+    // Constructors
 
     /// <summary>
     /// Initializes a new instance of this type.
@@ -73,7 +70,13 @@ namespace Xtensive.Tuples.Transform
     /// <param name="second">Second tuple descriptor to combine.</param>
     public ConcatTransform(bool isReadOnly, TupleDescriptor first, TupleDescriptor second)
     {
-      mapTransform = new MapTransform(isReadOnly, CreateDescriptorAndMap((first, second), out var map), map);
+      var (firstCount, secondCount) = (first.Count, second.Count);
+      var types = new Type[firstCount + secondCount];
+      Array.Copy(first.FieldTypes, types, firstCount);
+      Array.Copy(second.FieldTypes, 0, types, firstCount, secondCount);
+
+      IsReadOnly = isReadOnly;
+      Descriptor = TupleDescriptor.Create(types);
       this.sources = (first, second);
     }
   }
