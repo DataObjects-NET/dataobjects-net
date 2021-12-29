@@ -7,9 +7,6 @@
 using System;
 using Xtensive.Core;
 
-using Xtensive.Tuples.Transform;
-using Xtensive.Collections;
-
 namespace Xtensive.Orm.Rse.Providers
 {
   /// <summary>
@@ -22,18 +19,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets a value indicating whether calculated columns should be inlined.
     /// </summary>
-    public bool IsInlined { get; private set; }
+    public bool IsInlined { get; }
 
     /// <summary>
     /// Gets the calculated columns.
     /// </summary>
-    public CalculatedColumn[] CalculatedColumns { get; private set; }
-
-    /// <summary>
-    /// Gets header resize transform.
-    /// </summary>
-    public MapTransform ResizeTransform { get; private set; }
-
+    public CalculatedColumn[] CalculatedColumns { get; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -45,16 +36,6 @@ namespace Xtensive.Orm.Rse.Providers
     protected override string ParametersToString()
     {
       return CalculatedColumns.ToCommaDelimitedString();
-    }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      var columnIndexes = new int[Header.Length];
-      for (int i = 0; i < columnIndexes.Length; i++)
-        columnIndexes[i] = (i < Source.Header.Length) ? i : TransformUtil.NoMapping;
-      ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 
 
@@ -80,10 +61,10 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Calculate, source)
     {
       IsInlined = isInlined;
+      var sourceHeaderLength = Source.Header.Length;
       var columns = new CalculatedColumn[columnDescriptors.Length];
       for (int i = 0; i < columnDescriptors.Length; i++) {
-        var col = new CalculatedColumn(columnDescriptors[i], Source.Header.Length + i);
-        columns.SetValue(col, i);
+        columns[i] = new CalculatedColumn(columnDescriptors[i], sourceHeaderLength + i);
       }
       CalculatedColumns = columns;
       Initialize();
