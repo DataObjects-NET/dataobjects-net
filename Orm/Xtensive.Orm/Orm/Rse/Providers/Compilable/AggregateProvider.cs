@@ -5,15 +5,9 @@
 // Created:    2008.09.18
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 using Xtensive.Reflection;
-using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -30,17 +24,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the aggregate columns.
     /// </summary>
-    public AggregateColumn[] AggregateColumns { get; private set; }
+    public AggregateColumn[] AggregateColumns { get; }
 
     /// <summary>
     /// Gets column indexes to group by.
     /// </summary>
-    public int[] GroupColumnIndexes { get; private set; }
-
-    /// <summary>
-    /// Gets header resize transform.
-    /// </summary>
-    public MapTransform Transform { get; private set; }
+    public int[] GroupColumnIndexes { get; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -67,21 +56,6 @@ namespace Xtensive.Orm.Rse.Providers
         ToStringFormatFull,
         AggregateColumns.ToCommaDelimitedString(),
         GroupColumnIndexes.ToCommaDelimitedString());
-    }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      var fieldTypes = new Type[GroupColumnIndexes.Length];
-      var columnIndexes = new int[GroupColumnIndexes.Length];
-      var i = 0;
-      foreach (var index in GroupColumnIndexes) {
-        fieldTypes[i] = Source.Header.Columns[index].Type;
-        columnIndexes[i] = index;
-        i++;
-      }
-      Transform = new MapTransform(false, TupleDescriptor.Create(fieldTypes), columnIndexes);
     }
 
     /// <summary>
