@@ -14,7 +14,7 @@ namespace Xtensive.Tuples.Transform
   /// This class is used for concatenation of two <see cref="Tuple"/>s.
   /// </summary>
   [Serializable]
-  public sealed class ConcatTransform : ITupleTransform
+  public sealed class ConcatTransform
   {
     private readonly (TupleDescriptor first, TupleDescriptor second) sources;
 
@@ -65,9 +65,9 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
-    /// <param name="first">First tuple descriptor to combine.</param>
-    /// <param name="second">Second tuple descriptor to combine.</param>
+    /// <param name="isReadOnly">Indicates whethere the transformed <see cref="Tuple"/> is read only.</param>
+    /// <param name="first">The <see cref="TupleDescriptor"/> of the first source <see cref="Tuple"/>.</param>
+    /// <param name="second">The <see cref="TupleDescriptor"/> of the second source <see cref="Tuple"/>.</param>
     public ConcatTransform(bool isReadOnly, TupleDescriptor first, TupleDescriptor second)
     {
       var (firstCount, secondCount) = (first.Count, second.Count);

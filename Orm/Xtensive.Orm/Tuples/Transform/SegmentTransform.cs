@@ -14,7 +14,7 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Extracts specified <see cref="Segment"/> from the <see cref="Tuple"/>.
   /// </summary>
-  public sealed class SegmentTransform : ITupleTransform
+  public sealed class SegmentTransform// : ITupleTransform
   {
     private readonly Segment<int> segment;
 
@@ -72,8 +72,8 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
-    /// <param name="sourceDescriptor">Source tuple descriptor.</param>
+    /// <param name="isReadOnly">Indicates whethere the transformed <see cref="Tuple"/> is read only.</param>
+    /// <param name="sourceDescriptor">The <see cref="TupleDescriptor"/> of the source <see cref="Tuple"/>.</param>
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
     {

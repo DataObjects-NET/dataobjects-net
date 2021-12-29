@@ -18,7 +18,7 @@ namespace Xtensive.Tuples.Transform
   /// Maps fields of a destination tuple to the specified fields of of the source tuple.
   /// </summary>
   [Serializable]
-  public class MapTransform : ITupleTransform
+  public class MapTransform
   {
     private IReadOnlyList<int> map;
 
@@ -79,8 +79,8 @@ namespace Xtensive.Tuples.Transform
     /// <summary>
     /// Initializes a new instance of this type.
     /// </summary>
-    /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
-    /// <param name="descriptor">Initial <see cref="ITupleTransform.Descriptor"/> property value.</param>
+    /// <param name="isReadOnly">Indicates whethere the transformed <see cref="Tuple"/> is read only.</param>
+    /// <param name="descriptor">The <see cref="TupleDescriptor"/> of the target <see cref="Tuple"/>.</param>
     /// <param name="map"><see cref="Map"/> property value.</param>
     public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
     {
