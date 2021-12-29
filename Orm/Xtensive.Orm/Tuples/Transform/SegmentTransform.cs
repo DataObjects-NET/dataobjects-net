@@ -14,7 +14,7 @@ namespace Xtensive.Tuples.Transform
   /// <summary>
   /// Extracts specified <see cref="Segment"/> from the <see cref="Tuple"/>.
   /// </summary>
-  public sealed class SegmentTransform// : ITupleTransform
+  public sealed class SegmentTransform
   {
     private readonly Segment<int> segment;
 
