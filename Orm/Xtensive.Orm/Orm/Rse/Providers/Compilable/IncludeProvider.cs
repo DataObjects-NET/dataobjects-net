@@ -13,7 +13,6 @@ using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
-using System.Linq;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -53,26 +52,25 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public Expression<Func<ParameterContext, IEnumerable<Tuple>>> FilterDataSource { get; private set; }
 
-    public MapTransform FilteredColumnsExtractionTransform { get; private set; }
-
-    public ConcatTransform ResultTransform { get; private set; }
+    public TupleDescriptor FilteredTupleDescriptor { get; private set; }
 
     private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
     {
-      var newHeader = Source.Header.Add(new SystemColumn(ResultColumnName, 0, WellKnownTypes.Bool));
-      var fieldTypes = new Type[FilteredColumns.Count];
-      for (var index = 0; index < fieldTypes.Length; index++) {
-        fieldTypes[index] = newHeader.Columns[FilteredColumns[index]].Type;
-      }
-      var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
-      FilteredColumnsExtractionTransform = new MapTransform(true, tupleDescriptor, FilteredColumns);
-      ResultTransform = new ConcatTransform(true, Source.Header.TupleDescriptor, BoolTupleDescriptor);
-      return newHeader;
+      return Source.Header.Add(new SystemColumn(ResultColumnName, 0, WellKnownTypes.Bool));
     }
 
+    protected override void Initialize()
+    {
+      base.Initialize();
+      var fieldTypes = new Type[FilteredColumns.Count];
+      for (var index = 0; index < fieldTypes.Length; index++) {
+        fieldTypes[index] = Header.Columns[FilteredColumns[index]].Type;
+      }
+      FilteredTupleDescriptor = TupleDescriptor.Create(fieldTypes);
+    }
 
     // Constructors
 

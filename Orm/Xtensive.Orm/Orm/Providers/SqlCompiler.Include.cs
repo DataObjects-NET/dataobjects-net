@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Providers
       IncludeProvider provider, Func<ParameterContext, object> valueAccessor,
       IList<SqlExpression> sourceColumns, out QueryParameterBinding binding)
     {
-      var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
+      var filterTupleDescriptor = provider.FilteredTupleDescriptor;
       var mappings = filterTupleDescriptor.Select(type => Driver.GetTypeMapping(type));
       binding = new QueryRowFilterParameterBinding(mappings, valueAccessor);
       var resultExpression = SqlDml.DynamicFilter(binding);
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Providers
       IncludeProvider provider, IList<SqlExpression> sourceColumns,
       out TemporaryTableDescriptor tableDescriptor)
     {
-      var filterTupleDescriptor = provider.FilteredColumnsExtractionTransform.Descriptor;
+      var filterTupleDescriptor = provider.FilteredTupleDescriptor;
       var filteredColumns = provider.FilteredColumns.Select(index => sourceColumns[index]).ToList();
       tableDescriptor = DomainHandler.TemporaryTableManager
         .BuildDescriptor(Mapping, Guid.NewGuid().ToString(), filterTupleDescriptor);
