@@ -77,6 +77,8 @@ namespace Xtensive.Tuples.Transform
     /// <param name="segment">The segment to extract.</param>
     public SegmentTransform(bool isReadOnly, TupleDescriptor sourceDescriptor, in Segment<int> segment)
     {
+      ArgumentValidator.EnsureArgumentNotNull(sourceDescriptor, nameof(sourceDescriptor));
+
       IsReadOnly = isReadOnly;
 
       var fields = new ArraySegment<Type>(sourceDescriptor.FieldTypes, segment.Offset, segment.Length);

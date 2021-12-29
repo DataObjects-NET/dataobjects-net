@@ -5,6 +5,7 @@
 // Created:    2008.04.30
 
 using System;
+using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Tuples.Transform.Internals;
 
@@ -70,6 +71,9 @@ namespace Xtensive.Tuples.Transform
     /// <param name="second">The <see cref="TupleDescriptor"/> of the second source <see cref="Tuple"/>.</param>
     public ConcatTransform(bool isReadOnly, TupleDescriptor first, TupleDescriptor second)
     {
+      ArgumentValidator.EnsureArgumentNotNull(first, nameof(first));
+      ArgumentValidator.EnsureArgumentNotNull(second, nameof(second));
+
       var (firstCount, secondCount) = (first.Count, second.Count);
       var types = new Type[firstCount + secondCount];
       Array.Copy(first.FieldTypes, types, firstCount);
