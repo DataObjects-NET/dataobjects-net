@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Rse.Providers
       base.Initialize();
       var columnIndexes = new int[Header.Length];
       for (int i = 0; i < columnIndexes.Length; i++)
-        columnIndexes[i] = (i < Source.Header.Length) ? i : MapTransform.NoMapping;
+        columnIndexes[i] = (i < Source.Header.Length) ? i : TransformUtil.NoMapping;
       ResizeTransform = new SingleSourceMapTransform(false, Header.TupleDescriptor, columnIndexes);
     }
 

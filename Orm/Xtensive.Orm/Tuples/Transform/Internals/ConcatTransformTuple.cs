@@ -8,7 +8,7 @@ using Xtensive.Core;
 namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
-  /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
+  /// A <see cref="ConcatTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
   internal sealed class ConcatTransformTuple : TransformedTuple<ConcatTransform>
@@ -30,13 +30,13 @@ namespace Xtensive.Tuples.Transform.Internals
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       var (source, index) = GetSourceAndFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping ? TupleFieldState.Default : source.GetFieldState(index);
+      return index == TransformUtil.NoMapping ? TupleFieldState.Default : source.GetFieldState(index);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       var (source, index) = GetSourceAndFieldIndex(fieldIndex);
-      if (index == MapTransform.NoMapping) {
+      if (index == TransformUtil.NoMapping) {
         return;
       }
       source.SetFieldState(index, fieldState);
@@ -46,7 +46,7 @@ namespace Xtensive.Tuples.Transform.Internals
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       var (source, index) = GetSourceAndFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping
+      return index == TransformUtil.NoMapping
         ? DefaultResult.GetValue(fieldIndex, out fieldState)
         : source.GetValue(index, out fieldState);
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Tuples.Transform.Internals
     private (Tuple source, int index) GetSourceAndFieldIndex(int fieldIndex)
     {
       if (fieldIndex < 0 || fieldIndex > totalCount) {
-        return (null, MapTransform.NoMapping);
+        return (null, TransformUtil.NoMapping);
       }
       var source2Index = fieldIndex - source1.Count;
       return source2Index < 0 ? (source1, fieldIndex) : (source2, source2Index);

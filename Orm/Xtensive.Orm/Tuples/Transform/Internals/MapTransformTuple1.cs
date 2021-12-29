@@ -11,7 +11,7 @@ using Xtensive.Core;
 namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
-  /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
+  /// A <see cref="SingleSourceMapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
   internal sealed class MapTransformTuple1 : TransformedTuple<SingleSourceMapTransform>
@@ -31,13 +31,13 @@ namespace Xtensive.Tuples.Transform.Internals
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
       var index = GetSourceFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping ? TupleFieldState.Default : source.GetFieldState(index);
+      return index == TransformUtil.NoMapping ? TupleFieldState.Default : source.GetFieldState(index);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
       var index = GetSourceFieldIndex(fieldIndex);
-      if (index == MapTransform.NoMapping) {
+      if (index == TransformUtil.NoMapping) {
         return;
       }
       source.SetFieldState(index, fieldState);
@@ -47,7 +47,7 @@ namespace Xtensive.Tuples.Transform.Internals
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       int index = GetSourceFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping
+      return index == TransformUtil.NoMapping
         ? DefaultResult.GetValue(fieldIndex, out fieldState)
         : source.GetValue(index, out fieldState);
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Tuples.Transform.Internals
     private int GetSourceFieldIndex(int fieldIndex)
     {
       var mappedIndex = TupleTransform.Map[fieldIndex];
-      return mappedIndex < 0 ? MapTransform.NoMapping : mappedIndex;
+      return mappedIndex < 0 ? TransformUtil.NoMapping : mappedIndex;
     }
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
@@ -75,7 +75,7 @@ namespace Xtensive.Tuples.Transform.Internals
         throw Exceptions.ObjectIsReadOnly(null);
       }
       var index = GetSourceFieldIndex(fieldIndex);
-      return index == MapTransform.NoMapping ? default : source.GetMappedContainer(index, isWriting);
+      return index == TransformUtil.NoMapping ? default : source.GetMappedContainer(index, isWriting);
     }
 
 
