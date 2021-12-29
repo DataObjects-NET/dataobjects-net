@@ -1,13 +1,11 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
 // Created:    2009.03.05
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Reflection;
-using Xtensive.Tuples.Transform;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -21,21 +19,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// Gets the row number column.
     /// </summary>
     public SystemColumn SystemColumn { get; private set; }
-
-    /// <summary>
-    /// Gets header resize transform.
-    /// </summary>
-    public MapTransform ResizeTransform { get; private set; }
-
-    /// <inheritdoc/>
-    protected override void Initialize()
-    {
-      base.Initialize();
-      var columnIndexes = new int[Header.Length];
-      for (int i = 0; i < columnIndexes.Length; i++)
-        columnIndexes[i] = (i < Source.Header.Length) ? i : TransformUtil.NoMapping;
-      ResizeTransform = new MapTransform(false, Header.TupleDescriptor, columnIndexes);
-    }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
