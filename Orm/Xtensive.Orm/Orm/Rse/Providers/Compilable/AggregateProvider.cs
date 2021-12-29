@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets header resize transform.
     /// </summary>
-    public SingleSourceMapTransform Transform { get; private set; }
+    public MapTransform Transform { get; private set; }
 
     /// <inheritdoc/>
     protected override RecordSetHeader BuildHeader()
@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Rse.Providers
         columnIndexes[i] = index;
         i++;
       }
-      Transform = new SingleSourceMapTransform(false, TupleDescriptor.Create(fieldTypes), columnIndexes);
+      Transform = new MapTransform(false, TupleDescriptor.Create(fieldTypes), columnIndexes);
     }
 
     /// <summary>

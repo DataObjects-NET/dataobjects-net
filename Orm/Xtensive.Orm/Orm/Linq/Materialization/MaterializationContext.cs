@@ -93,8 +93,8 @@ namespace Xtensive.Orm.Linq.Materialization
       ArraySegment<int> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
       ArraySegment<int> keyIndexes = allIndexes.Slice(0, keyInfo.TupleDescriptor.Count);
 
-      var transform    = new SingleSourceMapTransform(true, descriptor, allIndexes);
-      var keyTransform = new SingleSourceMapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
+      var transform    = new MapTransform(true, descriptor, allIndexes);
+      var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
 
       result = new TypeMapping(type, keyTransform, transform, keyIndexes);
 

@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples.Transform
     public void MainTest()
     {
       var source = Tuple.Create(1);
-      var transform = new SingleSourceMapTransform(true, TupleDescriptor.Create<byte, int, string>(), new[] {-1, 0});
+      var transform = new MapTransform(true, TupleDescriptor.Create<byte, int, string>(), new[] {-1, 0});
       var result = transform.Apply(TupleTransformType.TransformedTuple, source);
       Assert.AreEqual(TupleFieldState.Default, result.GetFieldState(0));
       Assert.AreEqual(TupleFieldState.Available, result.GetFieldState(1));

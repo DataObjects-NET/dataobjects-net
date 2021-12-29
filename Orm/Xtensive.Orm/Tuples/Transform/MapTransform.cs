@@ -18,7 +18,7 @@ namespace Xtensive.Tuples.Transform
   /// Maps fields of a destination tuple to the specified fields of of the source tuple.
   /// </summary>
   [Serializable]
-  public class SingleSourceMapTransform : ITupleTransform
+  public class MapTransform : ITupleTransform
   {
     private IReadOnlyList<int> map;
 
@@ -33,11 +33,6 @@ namespace Xtensive.Tuples.Transform
     /// </summary>>
     public bool IsReadOnly { get; }
     
-    /// <summary>
-    /// Means that no mapping is available for the specified field index.
-    /// </summary>
-    public const int NoMapping = int.MinValue;
-
     /// <summary>
     /// Gets or sets destination-to-source field map for the first source only.
     /// </summary>
@@ -59,7 +54,7 @@ namespace Xtensive.Tuples.Transform
             goto case TupleTransformType.Tuple;
           goto case TupleTransformType.TransformedTuple;
         case TupleTransformType.TransformedTuple:
-          return new MapTransformTuple1(this, source);
+          return new MapTransformTuple(this, source);
         case TupleTransformType.Tuple:
           Tuple result = Tuple.Create(Descriptor);
           source.CopyTo(result, map);
@@ -87,7 +82,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="isReadOnly"><see cref="ITupleTransform.IsReadOnly"/> property value.</param>
     /// <param name="descriptor">Initial <see cref="ITupleTransform.Descriptor"/> property value.</param>
     /// <param name="map"><see cref="Map"/> property value.</param>
-    public SingleSourceMapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
+    public MapTransform(bool isReadOnly, TupleDescriptor descriptor, IReadOnlyList<int> map)
     {
       ArgumentValidator.EnsureArgumentNotNull(descriptor, nameof(descriptor));
       ArgumentValidator.EnsureArgumentNotNull(map, nameof(map));

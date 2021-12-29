@@ -13,14 +13,14 @@ namespace Xtensive.Orm.Internals
   internal readonly struct TypeMapping
   {
     public readonly TypeInfo Type;
-    public readonly SingleSourceMapTransform KeyTransform;
-    public readonly SingleSourceMapTransform Transform;
+    public readonly MapTransform KeyTransform;
+    public readonly MapTransform Transform;
     public readonly IReadOnlyList<int> KeyIndexes;
 
 
     // Constructors
 
-    public TypeMapping(TypeInfo type, SingleSourceMapTransform keyTransform, SingleSourceMapTransform transform, IReadOnlyList<int> keyIndexes)
+    public TypeMapping(TypeInfo type, MapTransform keyTransform, MapTransform transform, IReadOnlyList<int> keyIndexes)
     {
       Type = type;
       KeyTransform = keyTransform;

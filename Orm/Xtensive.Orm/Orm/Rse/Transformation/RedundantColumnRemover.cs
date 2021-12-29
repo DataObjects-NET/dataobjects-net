@@ -41,13 +41,13 @@ namespace Xtensive.Orm.Rse.Transformation
       var mapping = mappings[provider];
       if (mapping.SequenceEqual(Enumerable.Range(0, provider.Header.Length)))
         return provider;
-      var mappingTransform = new SingleSourceMapTransform(true, provider.Header.TupleDescriptor, mapping);
+      var mappingTransform = new MapTransform(true, provider.Header.TupleDescriptor, mapping);
       var newExpression = RemapRawProviderSource(provider.Source, mappingTransform);
       return new RawProvider(provider.Header.Select(mapping), newExpression);
     }
 
     private static Expression<Func<ParameterContext, IEnumerable<Tuple>>> RemapRawProviderSource(
-      Expression<Func<ParameterContext, IEnumerable<Tuple>>> source, SingleSourceMapTransform mappingTransform)
+      Expression<Func<ParameterContext, IEnumerable<Tuple>>> source, MapTransform mappingTransform)
     {
       Func<Tuple, Tuple> selector = tuple => mappingTransform.Apply(TupleTransformType.Auto, tuple);
       var newExpression = Expression.Call(SelectMethodInfo, source.Body, Expression.Constant(selector));

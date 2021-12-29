@@ -11,10 +11,10 @@ using Xtensive.Core;
 namespace Xtensive.Tuples.Transform.Internals
 {
   /// <summary>
-  /// A <see cref="SingleSourceMapTransform"/> result tuple mapping 1 source tuple to a single one (this).
+  /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class MapTransformTuple1 : TransformedTuple<SingleSourceMapTransform>
+  internal sealed class MapTransformTuple : TransformedTuple<MapTransform>
   {
     private readonly Tuple source;
     private Tuple defaultResult;
@@ -86,7 +86,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// </summary>
     /// <param name="transform">The transform.</param>
     /// <param name="source">Source tuple.</param>
-    public MapTransformTuple1(SingleSourceMapTransform transform, Tuple source)
+    public MapTransformTuple(MapTransform transform, Tuple source)
       : base(transform)
     {
       this.source = source;
