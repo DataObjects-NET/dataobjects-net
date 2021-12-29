@@ -67,7 +67,7 @@ namespace Xtensive.Tuples.Transform
     /// <inheritdoc/>
     public override string ToString()
     {
-      string description = $"1: {map.ToCommaDelimitedString()}, {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
+      string description = $"[{map.ToCommaDelimitedString()}], {(IsReadOnly ? Strings.ReadOnlyShort : Strings.ReadWriteShort)}";
       return string.Format(Strings.TupleTransformFormat,
         GetType().GetShortName(),
         description);
