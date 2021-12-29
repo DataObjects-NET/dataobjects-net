@@ -56,7 +56,6 @@ namespace Xtensive.Orm.Model
     private HierarchyInfo                      hierarchy;
     private int                                typeId = NoTypeId;
     private object                             typeDiscriminatorValue;
-    private MapTransform                       primaryKeyInjector;
     private bool                               isLeaf;
     private bool                               isOutboundOnly;
     private bool                               isInboundOnly;
@@ -409,9 +408,10 @@ namespace Xtensive.Orm.Model
     /// </returns>
     public Tuple CreateEntityTuple(Tuple primaryKey, int typeIdValue)
     {
-      var result = primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, TuplePrototype);
-      if (typeIdField!=null)
+      var result = InjectPrimaryKey(TuplePrototype, primaryKey);
+      if (typeIdField!=null) {
         result.SetValue(typeIdField.MappingInfo.Offset, typeIdValue);
+      }
       return result;
     }
 
@@ -426,7 +426,11 @@ namespace Xtensive.Orm.Model
     /// </returns>
     public Tuple InjectPrimaryKey(Tuple entityTuple, Tuple primaryKey)
     {
-      return primaryKeyInjector.Apply(TupleTransformType.Tuple, primaryKey, entityTuple);
+      var result = Tuple.Create(TupleDescriptor);
+      var primaryKeyCount = primaryKey.Count;
+      primaryKey.CopyTo(result, 0, primaryKeyCount);
+      entityTuple.CopyTo(result, primaryKeyCount, primaryKeyCount, entityTuple.Count - primaryKeyCount);
+      return result;
     }
 
     /// <summary>
@@ -795,13 +799,6 @@ namespace Xtensive.Orm.Model
         if (Hierarchy.TypeDiscriminatorMap!=null)
           tuple.SetValue(Hierarchy.TypeDiscriminatorMap.Field.MappingInfo.Offset, typeDiscriminatorValue);
 
-        // Building primary key injector
-        var fieldCount = TupleDescriptor.Count;
-        var keyFieldCount = Key.TupleDescriptor.Count;
-        var keyFieldMap = new Pair<int, int>[fieldCount];
-        for (i = 0; i < fieldCount; i++)
-          keyFieldMap[i] = new Pair<int, int>((i < keyFieldCount) ? 0 : 1, i);
-        primaryKeyInjector = new MapTransform(false, TupleDescriptor, keyFieldMap);
       }
       TuplePrototype = IsEntity ? tuple.ToFastReadOnly() : tuple;
     }
