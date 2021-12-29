@@ -903,8 +903,7 @@ namespace Xtensive.Orm
       var entitySetTypeState = GetEntitySetTypeState();
 
       var parameterContext = new ParameterContext();
-      parameterContext.SetValue(keyParameter, entitySetTypeState.SeekTransform
-        .Apply(TupleTransformType.TransformedTuple, Owner.Key.Value, key.Value));
+      parameterContext.SetValue(keyParameter, entitySetTypeState.SeekKeyBuilder.Invoke(Owner.Key.Value, key.Value));
       using (var recordSetReader = entitySetTypeState.SeekProvider.GetRecordSetReader(Session, parameterContext)) {
         foundInDatabase = recordSetReader.MoveNext();
       }
@@ -934,25 +933,35 @@ namespace Xtensive.Orm
       var seek = entitySet.Session.Compile(query);
       var ownerDescriptor = association.OwnerType.Key.TupleDescriptor;
       var targetDescriptor = association.TargetType.Key.TupleDescriptor;
+      var ownerFieldCount = ownerDescriptor.Count;
 
-      var itemColumnOffsets = association.AuxiliaryType == null
-        ? association.UnderlyingIndex.ValueColumns
+      Type[] keyFieldTypes;
+      IReadOnlyList<int> itemColumnOffsets;
+      if (association.AuxiliaryType == null) {
+        itemColumnOffsets = Enumerable.Repeat(-1, ownerFieldCount).Concat(
+        association.UnderlyingIndex.ValueColumns
             .Where(ci => ci.IsPrimaryKey)
-            .Select(ci => ci.Field.MappingInfo.Offset)
-            .ToList()
-        : Enumerable.Range(0, targetDescriptor.Count).ToList();
+            .Select(ci => ci.Field.MappingInfo.Offset)).ToList();
+        var keyFieldCount = itemColumnOffsets.Count;
+        keyFieldTypes = new Type[keyFieldCount];
+        Array.Copy(ownerDescriptor.FieldTypes, keyFieldTypes, ownerFieldCount);
+        for (var index=ownerFieldCount; index<keyFieldCount; index++) {
+          keyFieldTypes[index] = targetDescriptor[itemColumnOffsets[index]];
+        }
+      }
+      else {
+        var keyFieldCount = ownerDescriptor.Count + targetDescriptor.Count;
+        keyFieldTypes = new Type[keyFieldCount];
+        Array.Copy(ownerDescriptor.FieldTypes, keyFieldTypes, ownerFieldCount);
+        Array.Copy(targetDescriptor.FieldTypes, 0, keyFieldTypes, ownerFieldCount, targetDescriptor.Count);
+        var offsetMap = new int[keyFieldCount];
+        for (var index=0; index < keyFieldCount; index++) {
+          offsetMap[index] = index - ownerFieldCount;
+        }
+        itemColumnOffsets = offsetMap;
+      }
 
-      var keyFieldCount = ownerDescriptor.Count + itemColumnOffsets.Count;
-      var keyFieldTypes = ownerDescriptor
-        .Concat(itemColumnOffsets.Select(i => targetDescriptor[i]))
-        .ToArray(keyFieldCount);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
-
-      var map = Enumerable.Range(0, ownerDescriptor.Count)
-        .Select(i => new Pair<int, int>(0, i))
-        .Concat(itemColumnOffsets.Select(i => new Pair<int, int>(1, i)))
-        .ToArray(keyFieldCount);
-      var seekTransform = new MapTransform(true, keyDescriptor, map);
 
       Func<Tuple, Entity> itemCtor = null;
       if (association.AuxiliaryType != null) {
@@ -961,7 +970,28 @@ namespace Xtensive.Orm
           Array.Empty<Type>());
       }
 
-      return new EntitySetTypeState(seek, seekTransform, itemCtor, entitySet.GetItemCountQueryDelegate(field));
+      var seekKeyTupleBuilder = new SeekKeyTupleBuilder(keyDescriptor, itemColumnOffsets);
+      return new EntitySetTypeState(seek, seekKeyTupleBuilder.Build, itemCtor, entitySet.GetItemCountQueryDelegate(field));
+    }
+
+    private class SeekKeyTupleBuilder
+    {
+      private readonly TupleDescriptor keyDescriptor;
+      private readonly IReadOnlyList<int> itemColumnOffsets;
+
+      public Tuple Build(Tuple ownerKeyTuple, Tuple itemTuple)
+      {
+        var result = Tuple.Create(keyDescriptor);
+        ownerKeyTuple.CopyTo(result);
+        itemTuple.CopyTo(result, itemColumnOffsets);
+        return result;
+      }
+
+      public SeekKeyTupleBuilder(TupleDescriptor keyDescriptor, IReadOnlyList<int> itemColumnOffsets)
+      {
+        this.keyDescriptor = keyDescriptor;
+        this.itemColumnOffsets = itemColumnOffsets;
+      }
     }
 
     private int? GetItemIndex(EntitySetState state, Key key)
