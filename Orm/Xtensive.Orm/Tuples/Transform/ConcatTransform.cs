@@ -31,7 +31,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="source1">First transformation source.</param>
     /// <param name="source2">Second transformation source.</param>
     /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
+    /// either <see cref="ConcatTransformTuple"/> instance or the <see cref="RegularTuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source1, Tuple source2) {
       return transformType switch {

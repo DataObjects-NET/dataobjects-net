@@ -11,8 +11,9 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="ConcatTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class ConcatTransformTuple : TransformedTuple<ConcatTransform>
+  internal sealed class ConcatTransformTuple : Tuple, ITransformedTuple
   {
+    private readonly ConcatTransform transform;
     private readonly Tuple source1;
     private readonly Tuple source2;
     private readonly int totalCount;
@@ -22,7 +23,10 @@ namespace Xtensive.Tuples.Transform.Internals
     /// Gets the default result tuple.
     /// Can be used to get default values for the result tuple fields.
     /// </summary>
-    private Tuple DefaultResult => defaultResult ??= Tuple.Create(TupleTransform.Descriptor);
+    private Tuple DefaultResult => defaultResult ??= Tuple.Create(transform.Descriptor);
+
+    /// <inheritdoc/>
+    public override TupleDescriptor Descriptor => transform.Descriptor;
 
     #region GetFieldState, GetValue, SetValue methods
 
@@ -54,7 +58,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TupleTransform.IsReadOnly) {
+      if (transform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
       var (source, index) = GetSourceAndFieldIndex(fieldIndex);
@@ -72,10 +76,16 @@ namespace Xtensive.Tuples.Transform.Internals
       return source2Index < 0 ? (source1, fieldIndex) : (source2, source2Index);
     }
 
+    /// <inheritdoc/>
+    public override string ToString() =>
+      string.Format(Strings.TransformedTupleFormat, base.ToString(), transform, $"{source1}, {source2}");
+
+
     // Constructors
+
     public ConcatTransformTuple(ConcatTransform transform, Tuple source1, Tuple source2)
-      : base(transform)
     {
+      this.transform = transform;
       this.source1 = source1;
       this.source2 = source2;
       totalCount = source1.Count + source2.Count;

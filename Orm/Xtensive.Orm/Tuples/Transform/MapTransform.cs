@@ -44,7 +44,7 @@ namespace Xtensive.Tuples.Transform
     /// <param name="transformType">The type of transformation to perform.</param>
     /// <param name="source">Transformation source.</param>
     /// <returns>Transformation result - 
-    /// either <see cref="TransformedTuple{TTupleTransform}"/> or <see cref="Tuple"/> descendant,
+    /// either <see cref="MapTransformTuple"/> instance or the <see cref="RegularTuple"/> descendant,
     /// dependently on specified <paramref name="transformType"/>.</returns>
     public Tuple Apply(TupleTransformType transformType, Tuple source)
     {

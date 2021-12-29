@@ -14,8 +14,9 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="MapTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class MapTransformTuple : TransformedTuple<MapTransform>
+  internal sealed class MapTransformTuple : Tuple, ITransformedTuple
   {
+    private readonly MapTransform transform;
     private readonly Tuple source;
     private Tuple defaultResult;
 
@@ -23,7 +24,10 @@ namespace Xtensive.Tuples.Transform.Internals
     /// Gets the default result tuple.
     /// Can be used to get default values for the result tuple fields.
     /// </summary>
-    private Tuple DefaultResult => defaultResult ??= Tuple.Create(TupleTransform.Descriptor);
+    private Tuple DefaultResult => defaultResult ??= Tuple.Create(transform.Descriptor);
+
+    /// <inheritdoc/>
+    public override TupleDescriptor Descriptor => transform.Descriptor;
 
     #region GetFieldState, GetValue, SetValue methods
 
@@ -55,7 +59,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TupleTransform.IsReadOnly) {
+      if (transform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
       source.SetValue(GetSourceFieldIndex(fieldIndex), fieldValue);
@@ -65,18 +69,22 @@ namespace Xtensive.Tuples.Transform.Internals
 
     private int GetSourceFieldIndex(int fieldIndex)
     {
-      var mappedIndex = TupleTransform.Map[fieldIndex];
+      var mappedIndex = transform.Map[fieldIndex];
       return mappedIndex < 0 ? TransformUtil.NoMapping : mappedIndex;
     }
 
     protected internal override Pair<Tuple, int> GetMappedContainer(int fieldIndex, bool isWriting)
     {
-      if (isWriting && TupleTransform.IsReadOnly) {
+      if (isWriting && transform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
       var index = GetSourceFieldIndex(fieldIndex);
       return index == TransformUtil.NoMapping ? default : source.GetMappedContainer(index, isWriting);
     }
+
+    /// <inheritdoc/>
+    public override string ToString() =>
+      string.Format(Strings.TransformedTupleFormat, base.ToString(), transform, source);
 
 
     // Constructors
@@ -87,8 +95,8 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <param name="transform">The transform.</param>
     /// <param name="source">Source tuple.</param>
     public MapTransformTuple(MapTransform transform, Tuple source)
-      : base(transform)
     {
+      this.transform = transform;
       this.source = source;
     }
   }

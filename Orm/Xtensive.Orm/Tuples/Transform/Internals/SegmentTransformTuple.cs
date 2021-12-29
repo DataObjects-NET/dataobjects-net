@@ -11,8 +11,9 @@ namespace Xtensive.Tuples.Transform.Internals
   /// A <see cref="SegmentTransform"/> result tuple mapping 1 source tuple to a single one (this).
   /// </summary>
   [Serializable]
-  internal sealed class SegmentTransformTuple : TransformedTuple<SegmentTransform>
+  internal sealed class SegmentTransformTuple : Tuple, ITransformedTuple
   {
+    private readonly SegmentTransform transform;
     private readonly Tuple source;
     private Tuple defaultResult;
 
@@ -20,7 +21,10 @@ namespace Xtensive.Tuples.Transform.Internals
     /// Gets the default result tuple.
     /// Can be used to get default values for the result tuple fields.
     /// </summary>
-    private Tuple DefaultResult => defaultResult ??= Tuple.Create(TupleTransform.Descriptor);
+    private Tuple DefaultResult => defaultResult ??= Tuple.Create(transform.Descriptor);
+
+    /// <inheritdoc/>
+    public override TupleDescriptor Descriptor => transform.Descriptor;
 
     #region GetFieldState, GetValue, SetValue methods
 
@@ -52,7 +56,7 @@ namespace Xtensive.Tuples.Transform.Internals
     /// <inheritdoc/>
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      if (TupleTransform.IsReadOnly) {
+      if (transform.IsReadOnly) {
         throw Exceptions.ObjectIsReadOnly(null);
       }
       source.SetValue(GetSourceFieldIndex(fieldIndex), fieldValue);
@@ -62,14 +66,20 @@ namespace Xtensive.Tuples.Transform.Internals
 
     private int GetSourceFieldIndex(int fieldIndex)
     {
-      var sourceIndex = TupleTransform.Segment.Offset + fieldIndex;
+      var sourceIndex = transform.Segment.Offset + fieldIndex;
       return sourceIndex < 0 || sourceIndex >= source.Count ? TransformUtil.NoMapping : sourceIndex;
     }
 
+    /// <inheritdoc/>
+    public override string ToString() =>
+      string.Format(Strings.TransformedTupleFormat, base.ToString(), transform, source);
+
+
     // Constructors
+
     public SegmentTransformTuple(SegmentTransform transform, Tuple source)
-      : base(transform)
     {
+      this.transform = transform;
       this.source = source;
     }
   }
