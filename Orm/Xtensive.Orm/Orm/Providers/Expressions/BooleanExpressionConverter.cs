@@ -35,17 +35,17 @@ namespace Xtensive.Orm.Providers
         }
       }
 
-      return SqlDml.Equals(expression, 1);
+      return SqlDml.NotEquals(expression, 0);
     }
 
     public SqlExpression BooleanToInt(SqlExpression expression)
     {
       // optimization: omitting BooleanToInt(IntToBoolean(x)) sequences
-      if (expression.NodeType==SqlNodeType.Equals) {
+      if (expression.NodeType==SqlNodeType.NotEquals) {
         var binary = (SqlBinary) expression;
         var left = binary.Left;
         var right = binary.Right as SqlLiteral<int>;
-        if (!ReferenceEquals(right, null) && right.Value==1)
+        if (!ReferenceEquals(right, null) && right.Value==0)
           return left;
       }
 
