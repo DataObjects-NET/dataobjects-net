@@ -345,6 +345,7 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     protected override SqlProvider VisitSort(SortProvider provider)
     {
+      using var _ = booleanExpressionConverter?.DisableEqualInt1Optimization();
       var compiledSource = Compile(provider.Source);
 
       var query = ExtractSqlSelect(provider, compiledSource);
