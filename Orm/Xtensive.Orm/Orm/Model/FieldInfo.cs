@@ -5,16 +5,13 @@
 // Created:    2007.09.10
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Diagnostics;
 using System.Reflection;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Validation;
 using Xtensive.Reflection;
-using Xtensive.Sorting;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Tuples.Transform;
 

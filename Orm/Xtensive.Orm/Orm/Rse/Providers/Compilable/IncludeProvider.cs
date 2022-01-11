@@ -12,7 +12,6 @@ using Xtensive.Core;
 
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Rse.Providers

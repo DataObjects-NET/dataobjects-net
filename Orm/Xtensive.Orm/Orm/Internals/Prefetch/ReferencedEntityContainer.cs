@@ -10,7 +10,6 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Tuples.Transform;
 using Xtensive.Orm.Model;
 
 
