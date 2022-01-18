@@ -1242,6 +1242,12 @@ namespace Xtensive.Sql
       return new SqlNative(value);
     }
 
+    public static SqlMetadata Metadata(SqlExpression expression, object value)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(expression, nameof(expression));
+      return new SqlMetadata(expression, value);
+    }
+
     public static SqlSubQuery SubQuery(ISqlQueryExpression operand)
     {
       ArgumentValidator.EnsureArgumentNotNull(operand, "operand");

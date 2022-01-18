@@ -493,6 +493,11 @@ namespace Xtensive.Orm.Providers
         Visit(node.Operand);
     }
 
+    public void Visit(SqlMetadata node)
+    {
+      Visit(node.Expression);
+    }
+
     public void Visit(SqlUpdate node)
     {
       if (node.From!=null)

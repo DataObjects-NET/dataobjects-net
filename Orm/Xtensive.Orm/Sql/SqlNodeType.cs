@@ -111,5 +111,6 @@ namespace Xtensive.Sql
     DeclareVariable,
     While,
     Fragment,
+    Metadata,
   }
 }
