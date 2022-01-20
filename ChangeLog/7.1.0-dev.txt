@@ -20,6 +20,8 @@
 [main] ThreadSafeCached type is removed
 [main] Triplet<T> and Triplet<TFirst,TSecond,TThird> are removed
 [main] Introduced IQueryable<T>.Tag() extensions allowing to add tags to result SQL statement
+[main] Introduced Session.Tag() method for being able to tag queries within returned TagScope
+[main] Domain.TagsEnabled is introduced as faster alternative to DomainConfiguration.TagLocation!=TagLocation.Nowhere check
 [main] ReadOnlyHashSet<T> now implements .Net ISet and IReadOnlySet instead of removed ISet and IReadOnly
 [main] NativeTypeClassifier collection now inherits ClassifiedCollection directly
 [main] FlagCollection.Keys return type has changed from removed ReadOnlyList<T> to .Net IReadOnlyList<T>
@@ -63,6 +65,7 @@
 [main] KeyMapping.Map changed type to IReadOnlyDictionary<Key, Key>
 [main] InterfaceMapping's properties of ReadOnlyList<T> type changed the type to IReadOnlyList<T>
 [main] Node's IncomingConnections and OutgoingConnections properties changed types to IReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>>
+[main] CompositePreCompiler.Items became readonly field and changed its type to IReadOnlyList<IPreCompiler>
 [main] SqlCompilerConfiguration's SchemaMapping and DatabaseMapping changed return types to IReadOnlyDictionary<string, string>
 [main] TypeMappingRegistry.Mappings and .ReverseMappings changed return types to IReadOnlyDictionary<TKey, TValue>
 [sqlserver] Microsoft.Data.SqlClient is updated to verson 4.0.0
