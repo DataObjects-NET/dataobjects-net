@@ -144,6 +144,11 @@ namespace Xtensive.Orm.Internals.Prefetch
       parameterContext.SetValue(includeParameter, currentKeySet);
       var session = manager.Owner.Session;
       Provider = session.StorageNode.EntityFetchQueryCache.GetOrAdd(cacheKey, CreateRecordSet);
+      if (session.Domain.TagsEnabled && session.Tags != null) {
+        foreach (var tag in session.Tags) {
+          Provider = new TagProvider(Provider, tag);
+        }
+      }
       var executableProvider = session.Compile(Provider);
       return new QueryTask(executableProvider, session.GetLifetimeToken(), parameterContext);
     }

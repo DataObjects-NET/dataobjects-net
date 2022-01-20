@@ -43,8 +43,12 @@ namespace Xtensive.Orm.Linq
     internal TranslatedQuery Translate(ProjectionExpression projection,
       IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
-      var newItemProjector = projection.ItemProjector.EnsureEntityIsJoined();
-      var result = projection.Apply(newItemProjector);
+      var result = projection;
+      if (context.SessionTags != null)
+        result = ApplySessionTags(result, context.SessionTags);
+      var newItemProjector = result.ItemProjector.EnsureEntityIsJoined();
+      result = result.Apply(newItemProjector);
+
       var optimized = Optimize(result);
 
       // Prepare cached query, if required
@@ -60,7 +64,7 @@ namespace Xtensive.Orm.Linq
       var materializer = BuildMaterializer(prepared, tupleParameterBindings);
       var translatedQuery = new TranslatedQuery(
         compiled, materializer, prepared.ResultAccessMethod,
-        projection.TupleParameterBindings, tupleParameterBindings);
+        result.TupleParameterBindings, tupleParameterBindings);
 
       // Providing the result to caching layer, if required
       if (compiledQueryScope != null && !translatedQuery.TupleParameters.Any()) {
@@ -102,6 +106,18 @@ namespace Xtensive.Orm.Linq
         return (ProjectionExpression) result;
       }
       return origin;
+    }
+
+    private static ProjectionExpression ApplySessionTags(ProjectionExpression origin, IReadOnlyList<string> tags)
+    {
+      var currentProjection = origin;
+      foreach (var tag in tags) {
+        var projector = currentProjection.ItemProjector;
+        var newDataSource = projector.DataSource.Tag(tag);
+        var newItemProjector = new ItemProjectorExpression(projector.Item, newDataSource, projector.Context);
+        currentProjection = currentProjection.Apply(newItemProjector);
+      }
+      return currentProjection;
     }
 
     private Materializer
@@ -194,7 +210,7 @@ namespace Xtensive.Orm.Linq
     {
       this.compiledQueryScope = compiledQueryScope;
       this.context = context;
-      tagsEnabled = context.Domain.Configuration.TagsLocation != TagsLocation.Nowhere;
+      tagsEnabled = context.Domain.TagsEnabled;
     }
   }
 }

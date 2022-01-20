@@ -82,6 +82,7 @@ namespace Xtensive.Orm
     private DisposableSet disposableSet;
     private ExtensionCollection extensions;
     private StorageNode storageNode;
+    private List<string> tags;
 
     private readonly bool allowSwitching;
     private readonly long identifier;
@@ -239,6 +240,8 @@ namespace Xtensive.Orm
     internal RemovalProcessor RemovalProcessor { get; private set; }
 
     internal CompilationService CompilationService { get { return Handlers.DomainHandler.CompilationService; } }
+
+    internal IReadOnlyList<string> Tags => tags;
 
     internal void EnsureNotDisposed()
     {
@@ -605,6 +608,8 @@ namespace Xtensive.Orm
       // Query endpoint
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
+
+    public TagScope Tag(string tag) => new TagScope(tags ??= new List<string>(), tag);
 
     // IDisposable implementation
 
