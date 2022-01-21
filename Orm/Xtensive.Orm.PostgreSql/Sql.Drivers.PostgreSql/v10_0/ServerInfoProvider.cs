@@ -13,7 +13,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
     public override QueryInfo GetQueryInfo()
     {
       var info = base.GetQueryInfo();
-      info.Features |= QueryFeatures.CrossApply;
+      info.Features |= QueryFeatures.CrossApplyForSubqueriesOnly;
       return info;
     }
 

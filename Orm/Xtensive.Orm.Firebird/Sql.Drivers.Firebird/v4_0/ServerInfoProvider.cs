@@ -11,7 +11,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
     public override QueryInfo GetQueryInfo()
     {
       var info = base.GetQueryInfo();
-      info.Features |= QueryFeatures.CrossApply;
+      info.Features |= QueryFeatures.CrossApplyForSubqueriesOnly;
       return info;
     }
 
