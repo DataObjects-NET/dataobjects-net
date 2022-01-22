@@ -5,9 +5,7 @@
 // Created:    2008.07.03
 
 using System;
-using Xtensive.Collections;
 using Xtensive.Orm.Model;
-using Xtensive.Orm.Rse.Compilation;
 using IndexInfo = Xtensive.Orm.Model.IndexInfo;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -18,18 +16,10 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class IndexProvider : CompilableProvider
   {
-    private readonly RecordSetHeader indexHeader;
-
     /// <summary>
     /// Reference to the <see cref="IndexInfo"/> instance within the domain.
     /// </summary>
-    public IndexInfoRef Index { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return indexHeader;
-    }
+    public IndexInfoRef Index { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -41,11 +31,9 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     public IndexProvider(IndexInfo index)
-      : base(ProviderType.Index)
+      : base(ProviderType.Index, index.GetRecordSetHeader())
     {
-      indexHeader = index.GetRecordSetHeader();
       Index = new IndexInfoRef(index);
-      Initialize();
     }
   }
 }

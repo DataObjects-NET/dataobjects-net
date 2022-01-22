@@ -8,7 +8,6 @@ using System;
 using System.Linq.Expressions;
 using Xtensive.Core;
 
-using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -57,7 +56,6 @@ namespace Xtensive.Orm.Rse.Providers
       : base(ProviderType.Filter, source)
     {
       Predicate = predicate;
-      Initialize();
     }
   }
 }

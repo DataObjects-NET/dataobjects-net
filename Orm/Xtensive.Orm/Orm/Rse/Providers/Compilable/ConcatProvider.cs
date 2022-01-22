@@ -6,9 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
-
-
 using System.Linq;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -20,48 +17,51 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ConcatProvider : BinaryProvider
   {
-    protected override RecordSetHeader BuildHeader()
+
+
+    // Constructors
+
+    private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
-      EnsureConcatIsPossible();
+      var leftHeader = left.Header;
+      var rightHeader = right.Header;
+      EnsureConcatIsPossible(leftHeader, rightHeader);
       var mappedColumnIndexes = new List<int>();
       var columns = new List<Column>();
-      for (int i = 0; i < Left.Header.Columns.Count; i++) {
-        var leftColumn = Left.Header.Columns[i];
-        var rightColumn = Right.Header.Columns[i];
-        if (leftColumn is MappedColumn && rightColumn is MappedColumn) {
-          var leftMappedColumn = (MappedColumn) leftColumn;
-          var rightMappedColumn = (MappedColumn) rightColumn;
+      for (int i = 0; i < leftHeader.Columns.Count; i++) {
+        var leftColumn = leftHeader.Columns[i];
+        var rightColumn = rightHeader.Columns[i];
+        if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
           if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
             columns.Add(leftMappedColumn);
             mappedColumnIndexes.Add(i);
-            }
-          else
+          }
+          else {
             columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+          }
         }
-        else
+        else {
           columns.Add(new SystemColumn(leftColumn.Name, leftColumn.Index, leftColumn.Type));
+        }
       }
-      var columnGroups = Left.Header.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
+      var columnGroups = leftHeader.ColumnGroups.Where(cg => cg.Keys.All(mappedColumnIndexes.Contains)).ToList();
 
       return new RecordSetHeader(
-        Left.Header.TupleDescriptor, 
-        columns, 
+        leftHeader.TupleDescriptor,
+        columns,
         columnGroups,
         null,
         null);
     }
 
-    /// <exception cref="InvalidOperationException">Something went wrong.</exception>
-    private void EnsureConcatIsPossible()
+    private static void EnsureConcatIsPossible(RecordSetHeader leftHeader, RecordSetHeader rightHeader)
     {
-      var left = Left.Header.TupleDescriptor;
-      var right = Right.Header.TupleDescriptor;
-      if (!left.Equals(right))
+      var left = leftHeader.TupleDescriptor;
+      var right = rightHeader.TupleDescriptor;
+      if (!left.Equals(right)) {
         throw new InvalidOperationException(String.Format(Strings.ExXCantBeExecuted, "Concatenation"));
+      }
     }
-
-
-    // Constructors
 
     /// <summary>
     ///  Initializes a new instance of this class.
@@ -69,9 +69,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="left">The left provider to intersect.</param>
     /// <param name="right">The right provider to intersect.</param>
     public ConcatProvider(CompilableProvider left, CompilableProvider right)
-      : base(ProviderType.Concat, left, right)
+      : base(ProviderType.Concat, BuildHeader(left, right), left, right)
     {
-      Initialize();
     }
   }
 }

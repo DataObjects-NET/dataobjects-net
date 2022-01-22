@@ -16,23 +16,15 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class StoreProvider : CompilableProvider
   {
-    private readonly RecordSetHeader header;
-
     /// <summary>
     /// Gets the name of saved data.
     /// </summary>
-    public string Name { get; private set; }
+    public string Name { get; }
 
     /// <summary>
     /// Source provider.
     /// </summary>
-    public Provider Source { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return header;
-    }
+    public Provider Source { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -49,16 +41,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     public StoreProvider(RecordSetHeader header, string name)
-      : base (ProviderType.Store)
+      : base (ProviderType.Store, header)
     {
       ArgumentValidator.EnsureArgumentNotNull(header, "header");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       Name = name;
-
-      this.header = header;
-
-      Initialize();
     }
 
     /// <summary>
@@ -67,17 +55,13 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="Source"/> property value.</param>
     /// <param name="name">The <see cref="Name"/> property value.</param>
     public StoreProvider(Provider source, string name)
-      : base(ProviderType.Store, source)
+      : base(ProviderType.Store, source.Header, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
 
       Name = name;
       Source = source;
-
-      header = source.Header;
-
-      Initialize();
     }
 
     /// <summary>
@@ -85,16 +69,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public StoreProvider(Provider source)
-      : base(ProviderType.Store, source)
+      : base(ProviderType.Store, source.Header, source)
     {
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
 
       Name = Guid.NewGuid().ToString();
       Source = source;
-
-      header = source.Header;
-
-      Initialize();
     }
   }
 }

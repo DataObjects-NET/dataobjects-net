@@ -7,13 +7,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using Xtensive.Collections;
 using Xtensive.Core;
 
-using Xtensive.Linq;
 using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
-using Xtensive.Orm.Rse.Compilation;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -23,7 +20,6 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class RawProvider : CompilableProvider
   {
-    private readonly RecordSetHeader header;
     private Func<ParameterContext, IEnumerable<Tuple>> compiledSource;
 
     /// <summary>
@@ -43,12 +39,6 @@ namespace Xtensive.Orm.Rse.Providers
     }
 
     /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return header;
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return Source.ToString(true);
@@ -63,11 +53,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public RawProvider(RecordSetHeader header, Expression<Func<ParameterContext, IEnumerable<Tuple>>> source)
-      : base(ProviderType.Raw)
+      : base(ProviderType.Raw, header)
     {
       Source = source;
-      this.header = header;
-      Initialize();
     }
   }
 }

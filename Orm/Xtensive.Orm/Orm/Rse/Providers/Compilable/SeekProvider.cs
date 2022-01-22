@@ -5,11 +5,7 @@
 // Created:    2008.08.14
 
 using System;
-using System.Linq.Expressions;
 using Xtensive.Core;
-
-using Xtensive.Linq;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
@@ -38,24 +34,21 @@ namespace Xtensive.Orm.Rse.Providers
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="key">The <see cref="Key"/> property value.</param>
-    public SeekProvider(CompilableProvider source, Func<ParameterContext, Tuple> key)
-      : base(ProviderType.Seek, source)
+    /// <param name="key">Wrapped to <see cref="Key"/> property value.</param>
+    public SeekProvider(CompilableProvider source, Tuple key)
+      : this(source, context => key)
     {
-      Key = key;
-      Initialize();
     }
 
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="key">Wrapped to <see cref="Key"/> property value.</param>
-    public SeekProvider(CompilableProvider source, Tuple key)
+    /// <param name="key">The <see cref="Key"/> property value.</param>
+    public SeekProvider(CompilableProvider source, Func<ParameterContext, Tuple> key)
       : base(ProviderType.Seek, source)
     {
-      Key = context => key;
-      Initialize();
+      Key = key;
     }
   }
 }

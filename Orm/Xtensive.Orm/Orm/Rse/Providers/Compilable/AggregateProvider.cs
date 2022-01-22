@@ -32,14 +32,6 @@ namespace Xtensive.Orm.Rse.Providers
     public int[] GroupColumnIndexes { get; }
 
     /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header
-        .Select(GroupColumnIndexes)
-        .Add(AggregateColumns);
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       if (AggregateColumns.Length==0)
@@ -160,6 +152,22 @@ namespace Xtensive.Orm.Rse.Providers
 
     #endregion
 
+    private static RecordSetHeader BuildHeaderAndColumns(
+      CompilableProvider source, ref int[] groupIndexes, AggregateColumnDescriptor[] columnDescriptors, out AggregateColumn[] aggregateColumns)
+    {
+      groupIndexes ??= Array.Empty<int>();
+      aggregateColumns = new AggregateColumn[columnDescriptors.Length];
+      var sourceHeader = source.Header;
+      var sourceHeaderColumns = sourceHeader.Columns;
+      for (int i = 0; i < columnDescriptors.Length; i++) {
+        AggregateColumnDescriptor descriptor = columnDescriptors[i];
+        var type = GetAggregateColumnType(sourceHeaderColumns[descriptor.SourceIndex].Type, descriptor.AggregateType);
+        aggregateColumns[i] = new AggregateColumn(descriptor, groupIndexes.Length + i, type);
+      }
+
+      return sourceHeader.Select(groupIndexes).Add(aggregateColumns);
+    }
+
     // Constructors
 
     /// <summary>
@@ -169,18 +177,11 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="columnDescriptors">The descriptors of <see cref="AggregateColumns"/>.</param>
     /// <param name="groupIndexes">The column indexes to group by.</param>
     public AggregateProvider(CompilableProvider source, int[] groupIndexes, params AggregateColumnDescriptor[] columnDescriptors)
-      : base(ProviderType.Aggregate, source)
+      : base(ProviderType.Aggregate, BuildHeaderAndColumns(source, ref groupIndexes, columnDescriptors, out var columns), source)
     {
       groupIndexes = groupIndexes ?? Array.Empty<int>();
-      var columns = new AggregateColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++) {
-        AggregateColumnDescriptor descriptor = columnDescriptors[i];
-        var type = GetAggregateColumnType(Source.Header.Columns[descriptor.SourceIndex].Type, descriptor.AggregateType);
-        columns[i] = new AggregateColumn(descriptor, groupIndexes.Length + i, type);
-      }
       AggregateColumns = columns;
       GroupColumnIndexes = groupIndexes;
-      Initialize();
     }
   }
 }

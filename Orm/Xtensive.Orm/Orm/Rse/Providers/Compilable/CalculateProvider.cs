@@ -27,12 +27,6 @@ namespace Xtensive.Orm.Rse.Providers
     public CalculatedColumn[] CalculatedColumns { get; }
 
     /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header.Add(CalculatedColumns);
-    }
-
-    /// <inheritdoc/>
     protected override string ParametersToString()
     {
       return CalculatedColumns.ToCommaDelimitedString();
@@ -40,6 +34,19 @@ namespace Xtensive.Orm.Rse.Providers
 
 
     // Constructors
+
+    private static RecordSetHeader BuildHeaderAndColumns(
+      CompilableProvider source, CalculatedColumnDescriptor[] columnDescriptors, out CalculatedColumn[] calculatedColumns)
+    {
+      var sourceHeader = source.Header;
+      var sourceHeaderLength = sourceHeader.Length;
+      calculatedColumns = new CalculatedColumn[columnDescriptors.Length];
+      for (int i = 0; i < columnDescriptors.Length; i++) {
+        calculatedColumns[i] = new CalculatedColumn(columnDescriptors[i], sourceHeaderLength + i);
+      }
+
+      return sourceHeader.Add(calculatedColumns);
+    }
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -58,16 +65,10 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="isInlined">The <see cref="IsInlined"/> property value.</param>
     /// <param name="columnDescriptors">The descriptors of <see cref="CalculatedColumns"/>.</param>
     public CalculateProvider(CompilableProvider source, bool isInlined, params CalculatedColumnDescriptor[] columnDescriptors)
-      : base(ProviderType.Calculate, source)
+      : base(ProviderType.Calculate, BuildHeaderAndColumns(source, columnDescriptors, out var calculatedColumns), source)
     {
       IsInlined = isInlined;
-      var sourceHeaderLength = Source.Header.Length;
-      var columns = new CalculatedColumn[columnDescriptors.Length];
-      for (int i = 0; i < columnDescriptors.Length; i++) {
-        columns[i] = new CalculatedColumn(columnDescriptors[i], sourceHeaderLength + i);
-      }
-      CalculatedColumns = columns;
-      Initialize();
+      CalculatedColumns = calculatedColumns;
     }
   }
 }

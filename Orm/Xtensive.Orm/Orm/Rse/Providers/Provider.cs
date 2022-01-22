@@ -24,7 +24,6 @@ namespace Xtensive.Orm.Rse.Providers
     private const int    ToString_IndentSize = 2;
 
     private Provider[] sources;
-    private RecordSetHeader header;
 
     /// <summary>
     /// Gets <see cref="ProviderType"/> of the current instance.
@@ -49,35 +48,10 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets or sets the header of the record sequence this provide produces.
     /// </summary>
-    public RecordSetHeader Header
-    {
-      [DebuggerStepThrough]
-      get { return header; }
-      [DebuggerStepThrough]
-      private set {
-        if (header!=null)
-          throw Exceptions.AlreadyInitialized("Header");
-        header = value;
-      }
-    }
-
-    /// <summary>
-    /// Builds the <see cref="Header"/>.
-    /// This method is invoked just once on each provider.
-    /// </summary>
-    /// <returns>Newly created <see cref="RecordSetHeader"/> to assign to <see cref="Header"/> property.</returns>
-    protected abstract RecordSetHeader BuildHeader();
+    public RecordSetHeader Header { get; }
 
     private string DebuggerDisplayName {
       get { return GetType().GetShortName(); }
-    }
-
-    /// <summary>
-    /// Performs initialization of the provider.
-    /// </summary>
-    protected virtual void Initialize()
-    {
-      Header = BuildHeader();
     }
 
     #region ToString method
@@ -135,10 +109,12 @@ namespace Xtensive.Orm.Rse.Providers
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="type">The type of the provider.</param>
+    /// <param name="header">The header of the produced sequence of records.</param>
     /// <param name="sources"><see cref="Sources"/> property value.</param>
-    protected Provider(ProviderType type, params Provider[] sources)
+    protected Provider(ProviderType type, RecordSetHeader header, params Provider[] sources)
     {
       Type = type;
+      Header = header;
       Sources = sources;
     }
   }

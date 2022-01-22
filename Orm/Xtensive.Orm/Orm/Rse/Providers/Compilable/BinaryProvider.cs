@@ -20,18 +20,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Left source.
     /// </summary>
-    public CompilableProvider Left { get; private set; }
+    public CompilableProvider Left { get; }
 
     /// <summary>
     /// Right source.
     /// </summary>
-    public CompilableProvider Right { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Left.Header.Join(Right.Header);
-    }
+    public CompilableProvider Right { get; }
 
 
     // Constructors
@@ -41,12 +35,25 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="type">The type of provider.</param>
     /// <param name="left">The <see cref="Left"/> provider.</param>
-    /// <param name="right">The <see cref="Left"/> provider.</param>
+    /// <param name="right">The <see cref="Right"/> provider.</param>
     protected BinaryProvider(ProviderType type, CompilableProvider left, CompilableProvider right)
-      : base(type, left, right)
+      : this(type, left.Header.Join(right.Header), left, right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, "left");
-      ArgumentValidator.EnsureArgumentNotNull(right, "right");
+    }
+
+    /// <summary>
+    ///   Initializes a new instance of this class.
+    /// </summary>
+    /// <param name="type">The type of provider.</param>
+    /// <param name="header">The header of the resulting record set.</param>
+    /// <param name="left">The <see cref="Left"/> provider.</param>
+    /// <param name="right">The <see cref="Right"/> provider.</param>
+    protected BinaryProvider(ProviderType type, RecordSetHeader header, CompilableProvider left, CompilableProvider right)
+      : base(type, header, left, right)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(header, nameof(header));
+      ArgumentValidator.EnsureArgumentNotNull(left, nameof(left));
+      ArgumentValidator.EnsureArgumentNotNull(right, nameof(right));
       Left = left;
       Right = right;
     }

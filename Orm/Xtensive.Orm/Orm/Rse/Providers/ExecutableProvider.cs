@@ -25,8 +25,6 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public CompilableProvider Origin { get; private set; }
 
-    /// <exception cref="InvalidOperationException"><see cref="Origin"/> is <see langword="null" />.</exception>
-    protected override RecordSetHeader BuildHeader() => Origin.Header;
 
     #region OnXxxEnumerate methods (to override)
 
@@ -159,7 +157,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="origin">The <see cref="Origin"/> property value.</param>
     /// <param name="sources">The <see cref="Provider.Sources"/> property value.</param>
     protected ExecutableProvider(CompilableProvider origin, params ExecutableProvider[] sources)
-      : base(origin.Type, sources)
+      : base(origin.Type, origin.Header, sources)
     {
       Origin = origin;
     }

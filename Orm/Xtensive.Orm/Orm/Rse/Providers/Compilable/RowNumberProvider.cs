@@ -20,14 +20,14 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     public SystemColumn SystemColumn { get; private set; }
 
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header.Add(SystemColumn);
-    }
-
-
     // Constructors
+
+    private static RecordSetHeader CreateHeaderAndColumn(CompilableProvider source, string columnName, out SystemColumn systemColumn)
+    {
+      var sourceHeader = source.Header;
+      systemColumn = new SystemColumn(columnName, sourceHeader.Length, WellKnownTypes.Int64);
+      return sourceHeader.Add(systemColumn);
+    }
 
     /// <summary>
     /// Initializes a new instance of this class.
@@ -35,10 +35,9 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="columnName">The name of <see cref="SystemColumn"/>.</param>
     public RowNumberProvider(CompilableProvider source, string columnName)
-      : base(ProviderType.RowNumber, source)
+      : base(ProviderType.RowNumber, CreateHeaderAndColumn(source, columnName, out var systemColumn), source)
     {
-      SystemColumn = new SystemColumn(columnName, Source.Header.Length, WellKnownTypes.Int64);
-      Initialize();
+      SystemColumn = systemColumn;
     }
   }
 }

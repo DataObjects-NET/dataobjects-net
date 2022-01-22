@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Take amount function.
     /// </summary>
-    public Func<ParameterContext, int> Count { get; private set; }
+    public Func<ParameterContext, int> Count { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -33,24 +33,21 @@ namespace Xtensive.Orm.Rse.Providers
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="count">The <see cref="Count"/> property value.</param>
-    public TakeProvider(CompilableProvider provider, Func<ParameterContext, int> count)
-      : base(ProviderType.Take, provider)
+    /// <param name="count">The value for <see cref="Count"/> function property.</param>
+    public TakeProvider(CompilableProvider provider, int count)
+      : this(provider, context => count)
     {
-      Count = count;
-      Initialize();
     }
 
     /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The <see cref="UnaryProvider.Source"/> property value.</param>
-    /// <param name="count">The value for <see cref="Count"/> function property.</param>
-    public TakeProvider(CompilableProvider provider, int count)
+    /// <param name="count">The <see cref="Count"/> property value.</param>
+    public TakeProvider(CompilableProvider provider, Func<ParameterContext, int> count)
       : base(ProviderType.Take, provider)
     {
-      Count = context => count;
-      Initialize();
+      Count = count;
     }
   }
 }

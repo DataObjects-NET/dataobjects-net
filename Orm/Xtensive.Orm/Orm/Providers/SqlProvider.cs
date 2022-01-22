@@ -92,23 +92,6 @@ namespace Xtensive.Orm.Providers
     {
       this.handlers = handlers;
       Request = request;
-      if (typeof (SqlProvider)==GetType())
-        Initialize();
-    }
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="provider">The provider.</param>
-    /// <param name="permanentReference">The permanent reference.</param>
-    public SqlProvider(SqlProvider provider, SqlTable permanentReference)
-      : base(provider.Origin, provider.Sources.Cast<ExecutableProvider>().ToArray())
-    {
-      this.permanentReference = permanentReference;
-      handlers = provider.handlers;
-      Request = provider.Request;
-      if (typeof (SqlProvider)==GetType())
-        Initialize();
     }
   }
 }

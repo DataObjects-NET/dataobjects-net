@@ -24,34 +24,22 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the apply parameter.
     /// </summary>
-    public ApplyParameter ApplyParameter { get; private set; }
+    public ApplyParameter ApplyParameter { get; }
 
     /// <summary>
     /// Gets a value indicating whether columns of this provider should be inlined.
     /// </summary>
-    public bool IsInlined { get; private set; }
+    public bool IsInlined { get; }
 
     /// <summary>
     /// Gets apply type.
     /// </summary>
-    public JoinType ApplyType { get; private set; }
+    public JoinType ApplyType { get; }
 
     /// <summary>
     /// Gets a value indicating whether applying of single or first row expected.
     /// </summary>
-    public ApplySequenceType SequenceType { get; private set;}
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      switch (ApplyType) {
-        case JoinType.Inner:
-        case JoinType.LeftOuter:
-          return base.BuildHeader();
-        default:
-          throw new ArgumentOutOfRangeException();
-      }
-    }
+    public ApplySequenceType SequenceType { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -77,11 +65,13 @@ namespace Xtensive.Orm.Rse.Providers
     public ApplyProvider(ApplyParameter applyParameter, CompilableProvider left, CompilableProvider right, bool isInlined, ApplySequenceType applySequenceType, JoinType applyType)
       : base(ProviderType.Apply, left, right)
     {
+      if (applyType is not JoinType.Inner and not JoinType.LeftOuter) {
+        throw new ArgumentOutOfRangeException(nameof(applyType));
+      }
       ApplyParameter = applyParameter;
       IsInlined = isInlined;
       SequenceType = applySequenceType;
       ApplyType = applyType;
-      Initialize();
     }
   }
 }

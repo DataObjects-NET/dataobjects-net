@@ -20,13 +20,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Sort order of the index.
     /// </summary>
-    public DirectionCollection<int> Order { get; private set; }
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return Source.Header.Sort(Order);
-    }
+    public DirectionCollection<int> Order { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()
@@ -46,7 +40,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="source">The <see cref="UnaryProvider.Source"/> property value.</param>
     /// <param name="order">The <see cref="Order"/> property value.</param>
     protected OrderProviderBase(ProviderType providerType, CompilableProvider source, DirectionCollection<int> order)
-      : base(providerType, source)
+      : base(providerType, source.Header.Sort(order), source)
     {
       Order = order;
     }

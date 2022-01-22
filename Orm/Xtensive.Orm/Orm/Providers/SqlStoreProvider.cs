@@ -52,7 +52,6 @@ namespace Xtensive.Orm.Providers
       StoreProvider origin, ExecutableProvider source)
       : base(handlers, request, descriptor, origin, new[] {source})
     {
-      Initialize();
     }
   }
 }

@@ -5,11 +5,8 @@
 // Created:    2009.03.20
 
 using System;
-using System.Diagnostics;
-using Xtensive.Collections;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
-using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -23,28 +20,26 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the name of the existence column.
     /// </summary>
-    public string ExistenceColumnName { get; private set; }
+    public string ExistenceColumnName { get; }
 
     private static readonly TupleDescriptor BoolTupleDescriptor = TupleDescriptor.Create(new[] {WellKnownTypes.Bool});
-
-    /// <inheritdoc/>
-    protected override RecordSetHeader BuildHeader()
-    {
-      return new RecordSetHeader(
-        BoolTupleDescriptor, new[] { new SystemColumn(ExistenceColumnName, 0, WellKnownTypes.Bool) });
-    }
 
 
     // Constructors
 
+    private static RecordSetHeader BuildHeader(string existenceColumnName)
+    {
+      return new RecordSetHeader(
+        BoolTupleDescriptor, new[] { new SystemColumn(existenceColumnName, 0, WellKnownTypes.Bool) });
+    }
+ 
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     public ExistenceProvider(CompilableProvider source, string existenceColumnName)
-      : base(ProviderType.Existence, source)
+      : base(ProviderType.Existence, BuildHeader(existenceColumnName), source)
     {
       ExistenceColumnName = existenceColumnName;
-      Initialize();
     }
   }
 }
