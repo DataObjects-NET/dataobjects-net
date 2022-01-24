@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -89,7 +89,7 @@ namespace Xtensive.Orm.Rse
     /// <returns>The joined collection.</returns>
     public ColumnCollection Join(IEnumerable<Column> joined)
     {
-      return new ColumnCollection(this.Concat(joined));
+      return new ColumnCollection(this.Concat(joined).ToList());
     }
 
     /// <summary>
@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Rse
     public ColumnCollection Alias(string alias)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(alias, "alias");
-      return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)));
+      return new ColumnCollection(this.Select(column => column.Clone(alias + "." + column.Name)).ToArray(Count));
     }
 
     /// <summary>
@@ -122,9 +122,9 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="columns">Collection of items to add.</param>
-    public ColumnCollection(IEnumerable<Column> columns)
+    public ColumnCollection(IReadOnlyList<Column> columns)
     {
-      this.columns = columns as IReadOnlyList<Column> ?? columns.ToList();
+      this.columns = columns;
       var count = this.columns.Count;
       nameIndex = new Dictionary<string, int>(count);
       for (var index = count; index-- > 0;) {

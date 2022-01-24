@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Rse
           .Select(o => new KeyValuePair<int, Direction>(columnsMap[o.Key], o.Value))
           .TakeWhile(o => o.Key >= 0));
 
-      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone(newIndex));
+      var resultColumns = columns.Select((oldIndex, newIndex) => Columns[oldIndex].Clone(newIndex)).ToArray(columns.Count);
 
       var resultGroups = ColumnGroups
         .Where(g => g.Keys.All(k => columnsMap[k]>=0))
@@ -251,7 +251,7 @@ namespace Xtensive.Orm.Rse
         .ToArray(indexInfoKeyColumns.Count);
       var keyDescriptor = TupleDescriptor.Create(keyFieldTypes);
 
-      var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i,c.ValueType));
+      var resultColumns = indexInfoColumns.Select((c,i) => (Column) new MappedColumn(new ColumnInfoRef(c), i,c.ValueType)).ToArray(indexInfoColumns.Count);
       var resultGroups = new[]{indexInfo.Group};
 
       return new RecordSetHeader(
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="columns">Result columns.</param>
     public RecordSetHeader(
       TupleDescriptor tupleDescriptor,
-      IEnumerable<Column> columns)
+      IReadOnlyList<Column> columns)
       : this(tupleDescriptor, columns, null, null, null)
     {
     }
@@ -291,7 +291,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="columnGroups">Column groups.</param>
     public RecordSetHeader(
       TupleDescriptor tupleDescriptor,
-      IEnumerable<Column> columns,
+      IReadOnlyList<Column> columns,
       IReadOnlyList<ColumnGroup> columnGroups)
       : this(tupleDescriptor, columns, columnGroups, null, null)
     {
@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Rse
     /// <param name="order">Result sort order.</param>
     public RecordSetHeader(
       TupleDescriptor tupleDescriptor,
-      IEnumerable<Column> columns,
+      IReadOnlyList<Column> columns,
       TupleDescriptor orderKeyDescriptor,
       DirectionCollection<int> order)
       : this(tupleDescriptor, columns, null, orderKeyDescriptor, order)
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Rse
     /// <exception cref="ArgumentOutOfRangeException"><c>columns.Count</c> is out of range.</exception>
     public RecordSetHeader(
       TupleDescriptor tupleDescriptor,
-      IEnumerable<Column> columns,
+      IReadOnlyList<Column> columns,
       IReadOnlyList<ColumnGroup> columnGroups,
       TupleDescriptor orderKeyDescriptor,
       DirectionCollection<int> order)

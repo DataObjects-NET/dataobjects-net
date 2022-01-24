@@ -1594,7 +1594,10 @@ namespace Xtensive.Orm.Linq
     {
       var storedEntityType = translator.State.TypeOfEntityStoredInKey;
       var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translator.context.Model, sourceExpression);
-      var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
+      var rsHeader = new RecordSetHeader(
+        itemToTupleConverter.TupleDescriptor,
+        itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>().ToArray(itemToTupleConverter.TupleDescriptor.Count)
+      );
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider);
       var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
