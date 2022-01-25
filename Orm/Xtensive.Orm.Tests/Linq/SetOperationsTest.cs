@@ -237,6 +237,8 @@ namespace Xtensive.Orm.Tests.Linq
     public void IntersectWithoutOneOfSelect()
     {
       Require.AllFeaturesSupported(ProviderFeatures.Apply);
+      Require.ProviderIsNot(StorageProvider.Firebird);
+
       var actual = from c in Session.Query.All<Customer>()
       from r in (c.Invoices)
         .Intersect(c.Invoices).Select(o => o.PaymentDate)
