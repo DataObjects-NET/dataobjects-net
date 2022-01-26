@@ -85,8 +85,6 @@ namespace Xtensive.Orm.Tests.Storage
     {
       var expectedAuthorsCount = 5;
       var booksPerAuthor = 2;
-      var commentsPerBook = 1;
-      var expectedStoresCount = 1;
 
       using (var session = Domain.OpenSession()) {
         using (var transaction = session.OpenTransaction()) {

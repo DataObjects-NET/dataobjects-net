@@ -53,12 +53,8 @@ namespace Xtensive.Conversion
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj.GetType()!=typeof (Biconverter<TFrom, TTo>))
-        return false;
-      return Equals((Biconverter<TFrom, TTo>) obj);
-    }
+    public override bool Equals(object obj) =>
+      obj is Biconverter<TFrom, TTo> other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

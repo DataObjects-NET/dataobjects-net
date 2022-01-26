@@ -6,7 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
+using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 namespace Xtensive.Orm.Configuration

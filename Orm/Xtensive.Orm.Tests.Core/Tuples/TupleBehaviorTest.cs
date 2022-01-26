@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Tests.Core.Tuples
     }
 
     [Test]
-    public new void CopyTest()
+    public void CopyTest()
     {
       Random random = RandomManager.CreateRandom(SeedVariatorType.CallingMethod);
       int loopCount = 10;

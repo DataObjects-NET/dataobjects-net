@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -19,9 +19,9 @@ namespace Xtensive.Orm.Linq.Expressions
   internal class SubQueryExpression : ParameterizedExpression,
     IMappedExpression
   {
-    public ProjectionExpression ProjectionExpression { get; private set; }
+    public ProjectionExpression ProjectionExpression { get; }
 
-    public ApplyParameter ApplyParameter { get; private set; }
+    public ApplyParameter ApplyParameter { get; }
 
     public virtual Expression BindParameter(ParameterExpression parameter, Dictionary<Expression, Expression> processedExpressions)
     {
@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return result;
     }
 
-    public virtual Expression Remap(int[] map, Dictionary<Expression, Expression> processedExpressions)
+    public virtual Expression Remap(IReadOnlyList<int> map, Dictionary<Expression, Expression> processedExpressions)
     {
       // Don't check CanRemap - Remap always.
 
@@ -105,15 +105,11 @@ namespace Xtensive.Orm.Linq.Expressions
 
     public virtual Expression ReplaceApplyParameter(ApplyParameter newApplyParameter)
     {
-      if (newApplyParameter==ApplyParameter)
+      if (newApplyParameter == ApplyParameter)
         return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, ProjectionExpression, ApplyParameter);
       
       var newItemProjector = ProjectionExpression.ItemProjector.RewriteApplyParameter(ApplyParameter, newApplyParameter);
-      var newProjectionExpression = new ProjectionExpression(
-        ProjectionExpression.Type, 
-        newItemProjector, 
-        ProjectionExpression.TupleParameterBindings, 
-        ProjectionExpression.ResultAccessMethod);
+      var newProjectionExpression = ProjectionExpression.Apply(newItemProjector);
       return new SubQueryExpression(Type, OuterParameter, DefaultIfEmpty, newProjectionExpression, newApplyParameter);
     }
 

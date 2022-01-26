@@ -17,9 +17,11 @@ namespace Xtensive.Orm.Providers.PostgreSql
   /// </summary>
   public class DomainHandler : Providers.DomainHandler
   {
+    /// <inheritdoc/>
     protected override ICompiler CreateCompiler(CompilerConfiguration configuration) =>
       new SqlCompiler(Handlers, configuration);
 
+    /// <inheritdoc/>
     protected override IEnumerable<Type> GetProviderCompilerContainers()
     {
       return base.GetProviderCompilerContainers()

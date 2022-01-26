@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading;
 using Xtensive.Collections;
@@ -21,7 +22,7 @@ namespace Xtensive.Modelling.Comparison
   /// </summary>
   public class Upgrader : IUpgrader
   {
-    #region String patterns 
+    #region String patterns
 
     /// <summary>
     /// Node group comment (in action sequence).
@@ -109,19 +110,19 @@ namespace Xtensive.Modelling.Comparison
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
     /// is out of range.</exception>
-    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints) =>
+    public IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints) =>
       GetUpgradeSequence(difference, hints, new Comparer());
 
     /// <inheritdoc/>
     /// <exception cref="ArgumentOutOfRangeException"><c>hints.SourceModel</c> or <c>hints.TargetModel</c>
     /// is out of range.</exception>
     /// <exception cref="InvalidOperationException">Upgrade sequence validation has failed.</exception>
-    public ReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
+    public IReadOnlyList<NodeAction> GetUpgradeSequence(Difference difference, HintSet hints, IComparer comparer)
     {
       ArgumentValidator.EnsureArgumentNotNull(hints, nameof(hints));
       ArgumentValidator.EnsureArgumentNotNull(comparer, nameof(comparer));
       if (difference == null) {
-        return new ReadOnlyList<NodeAction>(Enumerable.Empty<NodeAction>().ToList());
+        return Array.Empty<NodeAction>();
       }
 
       TemporaryRenames = new Dictionary<string, Node>(StringComparer.OrdinalIgnoreCase);
@@ -172,7 +173,7 @@ namespace Xtensive.Modelling.Comparison
             throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }
 
-          return new ReadOnlyList<NodeAction>(actions.Actions, true);
+          return new ReadOnlyCollection<NodeAction>(actions.Actions.ToArray());
         }
         finally {
           currentAsync.Value = previous;
@@ -294,7 +295,7 @@ namespace Xtensive.Modelling.Comparison
               .ForEach(hint => AddAction(UpgradeActionType.Regular,
                 new DataAction {DataHint = hint}));
             Hints.GetHints<DeleteDataHint>(difference.Source)
-              .Where(hint => !hint.PostCopy)
+              .Where(hint => !hint.IsPostCopyCleanup)
               .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
               .ForEach(hint => AddAction(UpgradeActionType.Regular,
                 new DataAction {DataHint = hint}));
@@ -337,7 +338,7 @@ namespace Xtensive.Modelling.Comparison
         case UpgradeStage.PostCopyData:
           if (difference.IsDataChanged) {
             Hints.GetHints<DeleteDataHint>(difference.Source)
-              .Where(hint => hint.PostCopy)
+              .Where(hint => hint.IsPostCopyCleanup)
               .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
               .ForEach(hint => AddAction(UpgradeActionType.Regular,
                 new DataAction {DataHint = hint}));
@@ -571,7 +572,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <param name="accessor">The property accessor.</param>
-    /// <returns><see langword="true"/> if th specified property is immutable; 
+    /// <returns><see langword="true"/> if th specified property is immutable;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
@@ -585,7 +586,7 @@ namespace Xtensive.Modelling.Comparison
     /// </summary>
     /// <param name="difference">The difference.</param>
     /// <param name="accessor">The property accessor.</param>
-    /// <returns><see langword="true"/> if th specified property is mutable; 
+    /// <returns><see langword="true"/> if th specified property is mutable;
     /// otherwise, <see langword="false"/>.
     /// </returns>
     /// <remarks>
@@ -637,8 +638,8 @@ namespace Xtensive.Modelling.Comparison
     protected static string GetPathWithoutName(Node node)
     {
       var path = node.Path;
-      return !path.Contains(Node.PathDelimiter) 
-        ? string.Empty 
+      return !path.Contains(Node.PathDelimiter)
+        ? string.Empty
         : path.Substring(0, path.LastIndexOf(Node.PathDelimiter) + 1);
     }
 
@@ -657,12 +658,12 @@ namespace Xtensive.Modelling.Comparison
     /// <returns>A disposable deactivating the group.</returns>
     protected IDisposable OpenActionGroup(string comment)
     {
-      var oldActions = new {
+      var oldActions = (
         Context.PreConditions,
         Context.Actions,
         Context.Renames,
         Context.PostConditions
-      };
+      );
       Context.PreConditions = new GroupingNodeAction {
         Comment = PreConditionsGroupComment
       };
@@ -782,7 +783,7 @@ namespace Xtensive.Modelling.Comparison
 
       // Process DeleteDataHints
       foreach (var deleteDataHint in originalHints.OfType<DeleteDataHint>()) {
-        if (!deleteDataHint.PostCopy) {
+        if (!deleteDataHint.IsPostCopyCleanup) {
           continue; // It's not necessary to copy this hint
         }
 
@@ -790,7 +791,7 @@ namespace Xtensive.Modelling.Comparison
         var identities = deleteDataHint.Identities.Select(pair =>
             new IdentityPair(GetActualPath(pair.Source), pair.Target, pair.IsIdentifiedByConstant))
           .ToList();
-        var newDeleteDataHint = new DeleteDataHint(sourceTablePath, identities, true);
+        var newDeleteDataHint = new DeleteDataHint(sourceTablePath, identities, deleteDataHint.State);
         Hints.Add(newDeleteDataHint);
       }
 

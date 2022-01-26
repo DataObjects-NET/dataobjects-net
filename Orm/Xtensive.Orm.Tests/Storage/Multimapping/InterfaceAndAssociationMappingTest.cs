@@ -5,8 +5,8 @@
 // Created:    2012.11.14
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
-using Xtensive.Collections;
 using Xtensive.Orm.Tests.Storage.Multimapping.InterfaceAndAssociationMappingTestModel.Entities;
 using Xtensive.Orm.Tests.Storage.Multimapping.InterfaceAndAssociationMappingTestModel.Interfaces;
 using Xtensive.Orm.Tests.Storage.Multimapping.InterfaceAndAssociationMappingTestModel.Upgrade;

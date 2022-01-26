@@ -175,7 +175,7 @@ namespace Xtensive.Modelling
         compareCaseInsensitive = tProperty == WellKnownTypes.String && pa.CaseInsensitiveComparison;
       }
       InnerInitializeMethodDefinition
-        .MakeGenericMethod(new[] {tType, tProperty})
+        .CachedMakeGenericMethod(tType, tProperty)
         .Invoke(this, null);
     }
 

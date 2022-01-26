@@ -13,12 +13,30 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Definitions
 {
+  public sealed class TypeDefCollectionChangedEventArgs: EventArgs
+  {
+    public TypeDef Item { get; }
+
+    public TypeDefCollectionChangedEventArgs(TypeDef item)
+    {
+      Item = item;
+    }
+  }
+
+  public sealed class TypeDefCollectionClearedEventArgs: EventArgs {}
+
   /// <summary>
   /// A collection of <see cref="TypeDef"/> items.
   /// </summary>
   public sealed class TypeDefCollection : NodeCollection<TypeDef>
   {
     private readonly Dictionary<Type, TypeDef> typeIndex;
+
+    public event EventHandler<TypeDefCollectionChangedEventArgs> Added;
+
+    public event EventHandler<TypeDefCollectionChangedEventArgs> Removed;
+
+    public event EventHandler<TypeDefCollectionClearedEventArgs> Cleared;
 
     /// <summary>
     /// Finds the ancestor of the specified <paramref name="item"/>.
@@ -123,24 +141,39 @@ namespace Xtensive.Orm.Building.Definitions
       }
     }
 
-    protected override void OnInserted(TypeDef value, int index)
-    {
-      base.OnInserted(value, index);
-      typeIndex[value.UnderlyingType] = value;
+    /// <inheritdoc/>
+    public override void Add(TypeDef item) {
+      base.Add(item);
+      typeIndex[item.UnderlyingType] = item;
+      Added?.Invoke(this, new TypeDefCollectionChangedEventArgs(item));
     }
 
-    protected override void OnCleared()
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TypeDef> items)
     {
-      base.OnCleared();
+      this.EnsureNotLocked();
+      foreach (var item in items) {
+        Add(item);
+      }
+    }
+
+    /// <inheritdoc/>
+    public override bool Remove(TypeDef item)
+    {
+      if (base.Remove(item)) {
+        typeIndex.Remove(item.UnderlyingType);
+        Removed?.Invoke(this, new TypeDefCollectionChangedEventArgs(item));
+        return true;
+      }
+      return false;
+    }
+
+    /// <inheritdoc/>
+    public override void Clear() {
+      base.Clear();
       typeIndex.Clear();
+      Cleared?.Invoke(this, new TypeDefCollectionClearedEventArgs());
     }
-
-    protected override void OnRemoved(TypeDef value, int index)
-    {
-      base.OnRemoved(value, index);
-      typeIndex.Remove(value.UnderlyingType);
-    }
-
 
     // Constructors
 

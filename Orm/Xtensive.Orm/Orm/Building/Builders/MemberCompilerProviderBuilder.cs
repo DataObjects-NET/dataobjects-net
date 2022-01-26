@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -56,10 +56,10 @@ namespace Xtensive.Orm.Building.Builders
     private void RegisterContainers(IEnumerable<Type> containers)
     {
       var groupings = containers
-        .Select(container => new {
-          Container = container,
-          Attribute = GetCompilerContainerAttribute(container)
-        })
+        .Select(container => (
+          Container: container,
+          Attribute: GetCompilerContainerAttribute(container)
+        ))
         .GroupBy(item => item.Attribute.TargetType);
 
       foreach (var grouping in groupings) {

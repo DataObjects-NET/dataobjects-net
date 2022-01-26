@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Linq.Materialization
 
     private struct EntityMappingCache
     {
-      public TypeMapping SingleItem;
+      public TypeMapping? SingleItem;
       public Dictionary<int, TypeMapping> Items;
     }
 
@@ -58,36 +58,40 @@ namespace Xtensive.Orm.Linq.Materialization
     /// </summary>
     public Queue<Action> MaterializationQueue { get; set; }
 
-    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, Pair<int>[] columns)
+    public TypeMapping GetTypeMapping(int entityIndex, TypeInfo approximateType, int typeId, IReadOnlyList<Pair<int>> columns)
     {
       TypeMapping result;
-      var cache = entityMappings[entityIndex];
-      if (cache.SingleItem!=null) {
-        if (typeId!=ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem.Type))
+      ref var cache = ref entityMappings[entityIndex];
+      if (cache.SingleItem != null) {
+        if (typeId != ResolveTypeToNodeSpecificTypeIdentifier(cache.SingleItem?.Type)) {
           throw new ArgumentOutOfRangeException("typeId");
-        return cache.SingleItem;
+        }
+        return cache.SingleItem.Value;
       }
       if (cache.Items.TryGetValue(typeId, out result))
         return result;
 
-      var type       = TypeIdRegistry[typeId];
-      var keyInfo    = type.Key;
+      var type = TypeIdRegistry[typeId];
+      var keyInfo = type.Key;
       var descriptor = type.TupleDescriptor;
 
-      var typeColumnMap = columns.ToArray();
-      if (approximateType.IsInterface)
+      var typeColumnMap = columns;
+      if (approximateType.IsInterface) {
         // fixup target index
-        for (int i = 0; i < columns.Length; i++) {
-          var pair = typeColumnMap[i];
+        var newColumns = new Pair<int>[columns.Count];
+        for (int i = columns.Count; i-- > 0;) {
+          var pair = columns[i];
           var approxTargetIndex = pair.First;
           var interfaceField = approximateType.Columns[approxTargetIndex].Field;
           var field = type.FieldMap[interfaceField];
           var targetIndex = field.MappingInfo.Offset;
-          typeColumnMap[i] = new Pair<int>(targetIndex, pair.Second);
+          newColumns[i] = new Pair<int>(targetIndex, pair.Second);
         }
+        typeColumnMap = newColumns;
+      }
 
-      int[] allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
-      int[] keyIndexes = allIndexes.Take(keyInfo.TupleDescriptor.Count).ToArray();
+      ArraySegment<int> allIndexes = MaterializationHelper.CreateSingleSourceMap(descriptor.Count, typeColumnMap);
+      ArraySegment<int> keyIndexes = allIndexes.Slice(0, keyInfo.TupleDescriptor.Count);
 
       var transform    = new MapTransform(true, descriptor, allIndexes);
       var keyTransform = new MapTransform(true, keyInfo.TupleDescriptor, keyIndexes);
@@ -98,8 +102,7 @@ namespace Xtensive.Orm.Linq.Materialization
         cache.SingleItem = result;
       else
         cache.Items.Add(typeId, result);
-      entityMappings[entityIndex] = cache;
-      
+
       return result;
     }
 
@@ -109,7 +112,7 @@ namespace Xtensive.Orm.Linq.Materialization
       return TypeIdRegistry[typeInfo];
     }
 
-    
+
     // Constructors
 
     public MaterializationContext(Session session, int entityCount)

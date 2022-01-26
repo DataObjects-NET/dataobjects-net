@@ -45,21 +45,19 @@ namespace Xtensive.Orm.Providers
     /// <inheritdoc/>
     public override bool Equals(object obj)
     {
-      if (obj==null)
-        return false;
       if (ReferenceEquals(this, obj))
         return true;
-      var other = obj as PersistRequestBuilderTask;
-      if (other==null)
-        return false;
-      if (Type!=other.Type)
-        return false;
-      if (Kind!=other.Kind)
-        return false;
-      if (ValidateVersion!=other.ValidateVersion)
-        return false;
-      return CompareBits(AvailableFields, other.AvailableFields)
-        && CompareBits(ChangedFields, other.ChangedFields);
+      if (obj is PersistRequestBuilderTask other) {
+        if (Type != other.Type)
+          return false;
+        if (Kind != other.Kind)
+          return false;
+        if (ValidateVersion != other.ValidateVersion)
+          return false;
+        return CompareBits(AvailableFields, other.AvailableFields)
+          && CompareBits(ChangedFields, other.ChangedFields);
+      }
+      return false;
     }
 
     /// <inheritdoc/>

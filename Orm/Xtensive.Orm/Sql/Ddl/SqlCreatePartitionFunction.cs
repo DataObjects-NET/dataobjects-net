@@ -18,16 +18,10 @@ namespace Xtensive.Sql.Ddl
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.ContainsKey(this))
-        return context.NodeMapping[this];
-
-      SqlCreatePartitionFunction clone = new SqlCreatePartitionFunction(partitionFunction);
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+    internal override object Clone(SqlNodeCloneContext context) =>
+      context.NodeMapping.TryGetValue(this, out var clone)
+        ? clone
+        : context.NodeMapping[this] = new SqlCreatePartitionFunction(partitionFunction);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

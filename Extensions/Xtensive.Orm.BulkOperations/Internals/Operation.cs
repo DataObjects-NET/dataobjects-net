@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2019-2020 Xtensive LLC.
+// Copyright (C) 2019-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -11,6 +11,7 @@ using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Services;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using QueryParameterBinding = Xtensive.Orm.Services.QueryParameterBinding;
@@ -50,10 +51,14 @@ namespace Xtensive.Orm.BulkOperations
       return value;
     }
 
-    private void EnsureTransactionIsStarted()
+    protected void EnsureTransactionIsStarted()
     {
-      var accessor = QueryProvider.Session.Services.Demand<DirectSqlAccessor>();
-      _ = accessor.Transaction;
+      Transaction.Require(QueryProvider.Session);
+#pragma warning disable 168
+      // this prepares connection which ensures that connection is opened
+      // this is weird way but it is required for some scenarios.
+      _ = QueryProvider.Session.Services.Demand<DirectSqlAccessor>().Transaction;
+#pragma warning restore 168
     }
 
     protected abstract int ExecuteInternal();
@@ -64,7 +69,7 @@ namespace Xtensive.Orm.BulkOperations
 
     public QueryTranslationResult GetRequest(Type type, IQueryable query)
     {
-      var translateQueryMethod = WellKnownMembers.TranslateQueryMethod.MakeGenericMethod(type);
+      var translateQueryMethod = WellKnownMembers.TranslateQueryMethod.CachedMakeGenericMethod(type);
       return (QueryTranslationResult) translateQueryMethod.Invoke(QueryBuilder, new object[] {query});
     }
 

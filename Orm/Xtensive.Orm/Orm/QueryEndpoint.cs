@@ -63,7 +63,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      return Provider.CreateQuery<T>(BuildRootExpression(typeof (T)));
+      return Provider.CreateQuery<T>(BuildRootExpression(typeof(T)));
     }
 
     /// <summary>
@@ -78,8 +78,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IQueryable All(Type elementType)
     {
-      var provider = (IQueryProvider) Provider;
-      return provider.CreateQuery(BuildRootExpression(elementType));
+      return ((IQueryProvider) Provider).CreateQuery(BuildRootExpression(elementType));
     }
 
     #region Full-text related
@@ -97,7 +96,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.FreeTextString.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.FreeTextString.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -118,7 +117,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
-      var method = WellKnownMembers.Query.FreeTextStringTopNByRank.MakeGenericMethod(typeof (T));
+      var method = WellKnownMembers.Query.FreeTextStringTopNByRank.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(method, Expression.Constant(searchCriteria), Expression.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -136,7 +135,7 @@ namespace Xtensive.Orm
       where T : Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.FreeTextExpression.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.FreeTextExpression.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, new[] { searchCriteria });
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -157,7 +156,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
-      var method = WellKnownMembers.Query.FreeTextExpressionTopNByRank.MakeGenericMethod(typeof (T));
+      var method = WellKnownMembers.Query.FreeTextExpressionTopNByRank.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -175,7 +174,7 @@ namespace Xtensive.Orm
       where T: Entity
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
-      var method = WellKnownMembers.Query.ContainsTableExpr.MakeGenericMethod(typeof (T));
+      var method = WellKnownMembers.Query.ContainsTableExpr.CachedMakeGenericMethod(typeof (T));
       var expression = Expression.Call(null, method, searchCriteria);
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -197,7 +196,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
-      var method = WellKnownMembers.Query.ContainsTableExprWithColumns.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.ContainsTableExprWithColumns.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -220,7 +219,7 @@ namespace Xtensive.Orm
     {
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
-      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -248,7 +247,7 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(searchCriteria, "searchCriteria");
       ArgumentValidator.EnsureArgumentNotNull(targetFields, "targetFields");
       ArgumentValidator.EnsureArgumentIsGreaterThan(topNByRank, 0, "topNByRank");
-      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.MakeGenericMethod(typeof(T));
+      var method = WellKnownMembers.Query.ContainsTableExprTopNByRank.CachedMakeGenericMethod(typeof(T));
       var expression = Expression.Call(null, method, searchCriteria, Expression.Constant(targetFields), Expression.Constant(topNByRank));
       return Provider.CreateQuery<FullTextMatch<T>>(expression);
     }
@@ -895,7 +894,7 @@ namespace Xtensive.Orm
     /// <returns>Query for stored items.</returns>
     public IQueryable<TElement> Store<TElement>(IEnumerable<TElement> source)
     {
-      var method = WellKnownMembers.Queryable.AsQueryable.MakeGenericMethod(typeof(TElement));
+      var method = WellKnownMembers.Queryable.AsQueryable.CachedMakeGenericMethod(typeof(TElement));
       var expression = Expression.Call(method, Expression.Constant(source));
       return Provider.CreateQuery<TElement>(expression);
     }
@@ -938,7 +937,7 @@ namespace Xtensive.Orm
     {
       return RootBuilder!=null
         ? RootBuilder.BuildRootExpression(elementType)
-        : Expression.Call(null, WellKnownMembers.Query.All.MakeGenericMethod(elementType));
+        : Expression.Call(null, WellKnownMembers.Query.All.CachedMakeGenericMethod(elementType));
     }
 
     #endregion

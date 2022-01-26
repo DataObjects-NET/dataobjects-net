@@ -296,13 +296,13 @@ namespace Xtensive.Orm.Building.Builders
           }
 
           currentIndex.Fields.AddRange(structureFullTextIndex.Fields
-            .Select(f => new {
+            .Select(f => (
               fieldInfo.DeclaringType
                 .StructureFieldMapping[new Pair<FieldInfo>(fieldInfo, structureTypeInfo.Fields[f.Name])].Name,
               f.IsAnalyzed,
               f.Configuration,
               f.TypeFieldName
-            })
+            ))
             .Select(g => new FullTextFieldDef(g.Name, g.IsAnalyzed) {
               Configuration = g.Configuration, TypeFieldName = g.TypeFieldName
             }));

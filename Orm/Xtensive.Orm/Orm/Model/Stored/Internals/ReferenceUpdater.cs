@@ -65,7 +65,7 @@ namespace Xtensive.Orm.Model.Stored
       foreach (var type in model.Types) {
         fieldMap = new Dictionary<string, StoredFieldInfo>();
         if (type.Fields == null)
-          type.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
+          type.Fields = Array.Empty<StoredFieldInfo>();
         UpdateTypeAllFields(type);
         foreach (var field in type.Fields) {
           fieldMap.Add(field.Name, field);
@@ -88,11 +88,10 @@ namespace Xtensive.Orm.Model.Stored
           //   we need to be able to upgrade from database created by this version.
           //   Thus we skip duplicated associtations here.
           //
-          if (associations.ContainsKey(association.Name))
-            continue;
-          associations.Add(association.Name, association);
-          UpdateAssociationMultiplicity(association);
-          UpdateAssociationReferencingField(association);
+          if (associations.TryAdd(association.Name, association)) {
+            UpdateAssociationMultiplicity(association);
+            UpdateAssociationReferencingField(association);
+          }
         }
       }
 
@@ -177,7 +176,7 @@ namespace Xtensive.Orm.Model.Stored
     private void UpdateNestedFields(StoredFieldInfo field)
     {
       if (field.Fields == null) {
-        field.Fields = ArrayUtils<StoredFieldInfo>.EmptyArray;
+        field.Fields = Array.Empty<StoredFieldInfo>();
         return;
       }
 

@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
 using Xtensive.Core;
 
 
@@ -29,7 +28,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets affected column paths.
     /// </summary>
-    public ReadOnlyList<string> AffectedTables { get; internal set; }
+    public IReadOnlyList<string> AffectedTables { get; internal set; }
 
     /// <inheritdoc/>
     public bool Equals(RemoveTypeHint other)
@@ -38,7 +37,7 @@ namespace Xtensive.Orm.Upgrade
         return false;
       if (ReferenceEquals(this, other))
         return true;
-      return base.Equals(other) 
+      return base.Equals(other)
         && other.Type == Type;
     }
 
@@ -75,7 +74,7 @@ namespace Xtensive.Orm.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(type, "sourceType");
       Type = type;
-      AffectedTables = new ReadOnlyList<string>(new List<string>());
+      AffectedTables = Array.Empty<string>();
     }
   }
 }

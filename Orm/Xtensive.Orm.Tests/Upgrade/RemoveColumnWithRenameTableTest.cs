@@ -5,6 +5,7 @@
 // Created:    2012.07.05
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Upgrade;
@@ -53,7 +54,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 
       public override bool CanUpgradeFrom(string oldVersion) => true;
 
-      protected override void AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
       {
         _ = hints.Add(new RenameTypeHint(typeof(Version1.EntityWithFieldToRemove).FullName, typeof(EntityWithRemovedField)));
         _ = hints.Add(new RemoveTypeHint(typeof(Version1.EntityToRemove).FullName));

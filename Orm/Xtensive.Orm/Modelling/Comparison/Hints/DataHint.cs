@@ -6,8 +6,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using Xtensive.Collections;
+using System.Collections.ObjectModel;
 using Xtensive.Core;
 
 
@@ -27,7 +26,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <summary>
     /// Gets the identities for data operation.
     /// </summary>
-    public ReadOnlyList<IdentityPair> Identities { get; private set; }
+    public IReadOnlyList<IdentityPair> Identities { get; private set; }
     
     /// <inheritdoc/>
     public override IEnumerable<HintTarget> GetTargets()
@@ -54,7 +53,7 @@ namespace Xtensive.Modelling.Comparison.Hints
       ArgumentValidator.EnsureArgumentNotNull(identities, "pairs");
       
       SourceTablePath = sourceTablePath;
-      Identities = new ReadOnlyList<IdentityPair>(identities);
+      Identities = new ReadOnlyCollection<IdentityPair>(identities);
     }
   }
 }

@@ -20,8 +20,8 @@ using Tuple = Xtensive.Tuples.Tuple;
 namespace Xtensive.Orm.Linq
 {
   [Serializable]
-  internal class SubQuery<TElement> : 
-    IOrderedQueryable<TElement>, 
+  internal class SubQuery<TElement> :
+    IOrderedQueryable<TElement>,
     IOrderedEnumerable<TElement>
   {
     private readonly ProjectionExpression projectionExpression;
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Linq
 
     private void MaterializeSelf()
     {
-      if (materializedSequence != null) 
+      if (materializedSequence != null)
         return;
       materializedSequence = delayedQuery.ToList();
       delayedQuery = null;
@@ -91,16 +91,16 @@ namespace Xtensive.Orm.Linq
       }
 
       this.projectionExpression = new ProjectionExpression(
-        projectionExpression.Type, 
-        projectionExpression.ItemProjector, 
-        tupleParameterBindings, 
+        projectionExpression.Type,
+        projectionExpression.ItemProjector,
+        tupleParameterBindings,
         projectionExpression.ResultAccessMethod);
       var translatedQuery = new TranslatedQuery(
         query.DataSource,
         query.Materializer,
         query.ResultAccessMethod,
         tupleParameterBindings,
-        EnumerableUtils<Parameter<Tuple>>.Empty);
+        Array.Empty<Parameter<Tuple>>());
       delayedQuery = new DelayedQuery<TElement>(context.Session, translatedQuery, parameterContext);
       context.Session.RegisterUserDefinedDelayedQuery(delayedQuery.Task);
       context.MaterializationContext.MaterializationQueue.Enqueue(MaterializeSelf);

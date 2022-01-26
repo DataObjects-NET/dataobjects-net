@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -34,14 +34,9 @@ namespace Xtensive.Orm.Model
     /// An indexer that provides access to collection items.
     /// </summary>
     /// <exception cref="ArgumentException">Item was not found.</exception>
-    public TypeInfo this[Type key] {
-      get {
-        TypeInfo result;
-        if (!TryGetValue(key, out result))
-          throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
-        return result;
-      }
-    }
+    public TypeInfo this[Type key] => TryGetValue(key, out var result)
+      ? result
+      : throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
 
     /// <summary>
     /// An indexer that provides access to collection items by their <see cref="TypeInfo.TypeId"/>.
@@ -116,23 +111,29 @@ namespace Xtensive.Orm.Model
       return typeTable.TryGetValue(key, out value);
     }
 
+
+    /// <inheritdoc/>
+    public override void Add(TypeInfo item)
+    {
+      base.Add(item);
+      typeTable.Add(item.UnderlyingType, item);
+      fullNameTable.Add(item.UnderlyingType.FullName, item);
+    }
+
+    /// <inheritdoc/>
+    public override void AddRange(IEnumerable<TypeInfo> items)
+    {
+      foreach (var item in items) {
+        Add(item);
+      }
+    }
+
     /// <summary>
     /// Removes element from the the collection.
     /// </summary>
     /// <param name="value">Item to remove.</param>
     /// <exception cref="NotSupportedException">Always</exception>
     public override bool Remove(TypeInfo value)
-    {
-      throw new NotSupportedException();
-    }
-
-    /// <summary>
-    /// Removes the element at the specified index of the
-    /// collection instance.
-    /// </summary>
-    /// <param name="index">The zero-based index of the element to remove.</param>
-    /// <exception cref="NotSupportedException">Always</exception>
-    public override void RemoveAt(int index)
     {
       throw new NotSupportedException();
     }
@@ -217,15 +218,13 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      HashSet<TypeInfo> result;
-      if (!descendantTable.TryGetValue(item, out result))
-        result = new HashSet<TypeInfo>();
-
-      foreach (var item1 in result) {
-        yield return item1;
-        if (recursive)
-          foreach (var item2 in FindDescendants(item1, true))
-            yield return item2;
+      if (descendantTable.TryGetValue(item, out var result)) {
+        foreach (var item1 in result) {
+          yield return item1;
+          if (recursive)
+            foreach (var item2 in FindDescendants(item1, true))
+              yield return item2;
+        }
       }
     }
 
@@ -251,12 +250,10 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      HashSet<TypeInfo> result;
-      if (!interfaceTable.TryGetValue(item, out result))
-        result = new HashSet<TypeInfo>();
-
-      foreach (var item1 in result)
-        yield return item1;
+      if (interfaceTable.TryGetValue(item, out var result)) {
+        foreach (var item1 in result)
+          yield return item1;
+      }
 
       if (!recursive || item.IsInterface)
         yield break;
@@ -293,15 +290,13 @@ namespace Xtensive.Orm.Model
     {
       ArgumentValidator.EnsureArgumentNotNull(item, "item");
 
-      HashSet<TypeInfo> result;
-      if (!implementorTable.TryGetValue(item, out result))
-        result = new HashSet<TypeInfo>();
-
-      foreach (var item1 in result) {
-        yield return item1;
-        if (recursive && !item1.IsInterface)
-          foreach (var item2 in FindDescendants(item1, true))
-            yield return item2;
+      if (implementorTable.TryGetValue(item, out var result)) {
+        foreach (var item1 in result) {
+          yield return item1;
+          if (recursive && !item1.IsInterface)
+            foreach (var item2 in FindDescendants(item1, true))
+              yield return item2;
+        }
       }
     }
 
@@ -336,9 +331,13 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private TypeInfo FindAncestor(Type type)
     {
-      if (type == WellKnownTypes.Object || type.BaseType == null)
+      if (type == WellKnownTypes.Object) {
         return null;
-      return Contains(type.BaseType) ? this[type.BaseType] : FindAncestor(type.BaseType);
+      }
+      return type.BaseType switch {
+        null => null,
+        var baseType => TryGetValue(baseType, out var typeInfo) ? typeInfo : FindAncestor(baseType)
+      };
     }
 
     #endregion
@@ -354,7 +353,7 @@ namespace Xtensive.Orm.Model
     {
       // We don't have any instance that has attributes == TypeAttributes.None
       if (criteria == TypeAttributes.None)
-        return ArrayUtils<TypeInfo>.EmptyArray;
+        return Array.Empty<TypeInfo>();
 
       return Find(criteria, MatchType.Partial);
     }
@@ -362,7 +361,7 @@ namespace Xtensive.Orm.Model
     public ICollection<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
     {
       if (criteria==TypeAttributes.None)
-        return ArrayUtils<TypeInfo>.EmptyArray;
+        return Array.Empty<TypeInfo>();
       switch (matchType) {
       case MatchType.Partial:
         return this.Where(f => (f.Attributes & criteria) > 0).ToList();
@@ -374,14 +373,6 @@ namespace Xtensive.Orm.Model
     }
 
     #endregion
-
-    /// <inheritdoc/>
-    protected override void OnInserted(TypeInfo value, int index)
-    {
-      base.OnInserted(value, index);
-      typeTable.Add(value.UnderlyingType, value);
-      fullNameTable.Add(value.UnderlyingType.FullName, value);
-    }
 
     /// <summary>
     /// Registers the connection between ancestor &amp; descendant.

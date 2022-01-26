@@ -1,22 +1,18 @@
-// Copyright (C) 2013-2021 Xtensive LLC.
+﻿// Copyright (C) 2013-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.12.30
 
-using System;
 using System.Collections.Generic;
-using System.Data.SqlClient;
 using System.Linq;
 using System.Text;
 using NUnit.Framework;
-using Xtensive.Orm;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Upgrade;
 using Xtensive.Sql;
 using Xtensive.Sql.Drivers.SqlServer;
-using Xtensive.Sql.Drivers.SqlServer.v09;
 using Xtensive.Sql.Model;
 using Model1 = Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1;
 using Model2 = Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel2;
@@ -34,10 +30,10 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestMo
 
     [Field(Nullable = false)]
     public bool BoolField { get; set; }
-    
+
     [Field(Nullable = false)]
     public char CharField { get; set; }
-    
+
     [Field(Nullable = false)]
     public sbyte SbyteField { get; set; }
 
@@ -193,7 +189,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestMo
 
       [Field]
       public uint UIntField { get; set; }
-      
+
       [Field]
       public long LongField { get; set; }
 
@@ -258,7 +254,7 @@ namespace Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestMo
   {
     public override bool CanUpgradeFrom(string oldVersion) => true;
 
-    protected override void  AddUpgradeHints(Collections.ISet<UpgradeHint> hints)
+    protected override void  AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.StoredObject", typeof(WMS.StoredObject)));
       _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Issues.IssueJira0537_DropDefaultConstraintBugTestModel1.Area", typeof(Core.Area)));
@@ -406,7 +402,7 @@ namespace Xtensive.Orm.Tests.Issues
 
     private void InitializeConnectionStrings()
     {
-      
+
       connectionInfo = TestConfiguration.Instance.GetConnectionInfo(TestConfiguration.Instance.Storage);
 
       var connectionUrl = connectionInfo.ConnectionUrl;

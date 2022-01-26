@@ -16,6 +16,7 @@ using Xtensive.Linq;
 using Xtensive.Orm.Logging;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Model;
+using Xtensive.Reflection;
 using Xtensive.Sql;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -81,19 +82,19 @@ namespace Xtensive.Orm.Providers
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       var options = new SqlCompilerConfiguration {
-        DatabaseQualifiedObjects = configuration.IsMultidatabase
+        DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        CommentLocation = configuration.TagsLocation.ToCommentLocation(),
       };
       return underlyingDriver.Compile(statement, options);
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit statement, NodeConfiguration nodeConfiguration)
     {
-      SqlCompilerConfiguration options;
-      if (configuration.ShareStorageSchemaOverNodes)
-        options = new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping());
-      else
-        options = new SqlCompilerConfiguration();
+      var options = configuration.ShareStorageSchemaOverNodes
+        ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
+        : new SqlCompilerConfiguration();
       options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
+      options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
       return underlyingDriver.Compile(statement, options);
     }
 
@@ -199,7 +200,7 @@ namespace Xtensive.Orm.Providers
           throw new NotSupportedException(string.Format(Strings.ExConnectionAccessorXHasNoParameterlessConstructor, type));
         }
 
-        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.MakeGenericMethod(type).Invoke(null, null);
+        var accessorFactory = (Func<IDbConnectionAccessor>) FactoryCreatorMethod.CachedMakeGenericMethod(type).Invoke(null, null);
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }

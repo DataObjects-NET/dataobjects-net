@@ -156,7 +156,7 @@ namespace Xtensive.Orm.Internals
       }
 
       var closureType = queryTarget.GetType();
-      var parameterType = WellKnownOrmTypes.ParameterOfT.MakeGenericType(closureType);
+      var parameterType = WellKnownOrmTypes.ParameterOfT.CachedMakeGenericType(closureType);
       var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
@@ -175,13 +175,13 @@ namespace Xtensive.Orm.Internals
           }
 
           if (closureType.DeclaringType == null) {
-            if (expression.Type == closureType)
+            if (expression.Type.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
           else {
-            if (expression.Type == closureType)
+            if (expression.Type.IsAssignableFrom(closureType))
               return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            if (expression.Type == closureType.DeclaringType) {
+            if (expression.Type.IsAssignableFrom(closureType.DeclaringType)) {
               var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
               if (memberInfo != null)
                 return Expression.MakeMemberAccess(

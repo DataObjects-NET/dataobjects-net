@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2008.05.19
 
@@ -20,6 +20,8 @@ namespace Xtensive.Orm.Providers
   /// </summary>
   public abstract class DomainHandler : DomainBoundHandler
   {
+    private static readonly OrderingCorrector OrderingCorrector = new OrderingCorrector(ResolveOrderingDescriptor);
+
     private Dictionary<Type, IMemberCompilerProvider> memberCompilerProviders;
 
     /// <summary>
@@ -97,8 +99,8 @@ namespace Xtensive.Orm.Providers
       return new CompositePreCompiler(
         applyCorrector,
         skipTakeCorrector,
-        new RedundantColumnOptimizer(),
-        new OrderingCorrector(ResolveOrderingDescriptor));
+        RedundantColumnOptimizer.Instance,
+        OrderingCorrector);
     }
 
     /// <summary>

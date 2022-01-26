@@ -83,12 +83,8 @@ namespace Xtensive.Comparison
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj is ComparisonRule)
-        return Equals((ComparisonRule)obj);
-      return false;
-    }
+    public override bool Equals(object obj) =>
+      obj is ComparisonRule other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

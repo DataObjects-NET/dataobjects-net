@@ -36,10 +36,6 @@ namespace Xtensive.Orm.Tests.Issues
   [TestFixture]
   class IssueJira0557_RollbackOfDifferentialTupleDifferenceWhenPersistFailed : AutoBuildTest
   {
-    private bool conflictAlreadyCatched;
-    private object locableObject = new object();
-    private DifferentialTuple globalTupleToTest;
-
     [Test]
     public void RestoringModifiedEntityWhenPersistFailedTest()
     {
@@ -53,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues
         try {
           session.SaveChanges();
         }
-        catch(Exception exception) {
+        catch(Exception) {
           exceptionCatched = true;
         }
         Assert.IsTrue(exceptionCatched);
@@ -75,7 +71,7 @@ namespace Xtensive.Orm.Tests.Issues
         try {
           session.SaveChanges();
         }
-        catch (Exception exception) {
+        catch (Exception) {
           exceptionCatched = true;
         }
         Assert.IsTrue(exceptionCatched);
@@ -98,7 +94,7 @@ namespace Xtensive.Orm.Tests.Issues
         try {
           session.SaveChanges();
         }
-        catch (Exception exception) {
+        catch (Exception) {
           exceptionCatched = true;
         }
         Assert.IsTrue(exceptionCatched);
@@ -123,7 +119,7 @@ namespace Xtensive.Orm.Tests.Issues
         try {
           session.SaveChanges();
         }
-        catch (Exception exception) {
+        catch (Exception) {
           exceptionCatched = true;
         }
         Assert.IsTrue(exceptionCatched);
@@ -150,7 +146,7 @@ namespace Xtensive.Orm.Tests.Issues
         try {
           session.SaveChanges();
         }
-        catch (Exception exception) {
+        catch (Exception) {
           exceptionCatched = true;
         }
         Assert.IsTrue(exceptionCatched);

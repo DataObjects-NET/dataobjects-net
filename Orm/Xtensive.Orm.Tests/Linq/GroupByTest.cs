@@ -1031,7 +1031,7 @@ namespace Xtensive.Orm.Tests.Linq
       // Just enumerate
       foreach (IGrouping<TKey, TValue> grouping in result) {
         foreach (var group in grouping) {
-          int i = 10;
+          Assert.IsNotNull(group);
         }
       }
 

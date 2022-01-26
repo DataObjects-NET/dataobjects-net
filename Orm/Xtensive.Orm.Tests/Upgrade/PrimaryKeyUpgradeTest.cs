@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Tests.Upgrade
 #pragma warning restore 612,618
       }
 
-      protected override void AddUpgradeHints(Xtensive.Collections.ISet<UpgradeHint> hints)
+      protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
       {
         _ = hints.Add(new RenameTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Book", typeof(PrimaryKeyModel.Version2PerformSafely.Book)));
         _ = hints.Add(new RemoveTypeHint("Xtensive.Orm.Tests.Upgrade.PrimaryKeyModel.Version1.Category"));

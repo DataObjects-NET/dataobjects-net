@@ -22,14 +22,9 @@ namespace Xtensive.Orm.Upgrade
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(null, obj))
-        return false;
-      if (ReferenceEquals(this, obj))
-        return true;
-      return obj is UpgradeHint otherHint && Equals(otherHint);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is UpgradeHint other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
 
     public TypeInfo Type { get; private set; }
 
-    public ReadOnlyList<IndexInfo> AffectedIndexes { get; private set;}
+    public IReadOnlyList<IndexInfo> AffectedIndexes { get; private set;}
 
     public IndexInfo PrimaryIndex { get; private set; }
 
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers
           return -1;
         return 0;
       });
-      AffectedIndexes = new ReadOnlyList<IndexInfo>(affectedIndexes);
+      AffectedIndexes = affectedIndexes.AsReadOnly();
 
       PrimaryIndex = Task.Type.Indexes.PrimaryIndex;
       ParameterBindings = new Dictionary<ColumnInfo, PersistParameterBinding>();

@@ -4,11 +4,14 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.02.26
 
+using System.Collections.Generic;
+
 namespace Xtensive.Orm.Providers
 {
   public sealed class CompilerConfiguration
   {
     public bool PrepareRequest { get; set; }
+    public IReadOnlyList<string> Tags { get; init; }
 
     internal StorageNode StorageNode { get; set; }
 

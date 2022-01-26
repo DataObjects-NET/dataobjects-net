@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Operations
     /// <summary>
     /// Gets the key set.
     /// </summary>
-    public ReadOnlySet<Key> Keys { get; private set; }
+    public IReadOnlySet<Key> Keys { get; private set; }
 
     /// <inheritdoc/>
     protected override void PrepareSelf(OperationExecutionContext context)
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Operations
     /// <param name="keys">The sequence of keys.</param>
     public KeySetOperation(IEnumerable<Key> keys)
     {
-      Keys = new ReadOnlySet<Key>(new Set<Key>(keys));
+      Keys = new ReadOnlyHashSet<Key>(new HashSet<Key>(keys));
     }
 
     // Serialization
@@ -68,13 +68,13 @@ namespace Xtensive.Orm.Operations
     protected KeySetOperation(SerializationInfo info, StreamingContext context)
     {
       var formattedKeys = info.GetString("Keys");
-      var keys = new Set<Key>();
+      var keys = new HashSet<Key>();
       foreach (var formattedKey in formattedKeys.RevertibleSplit('\\', ';')) {
         var key = Key.Parse(Domain.Demand(), formattedKey);
 //        key.TypeReference = new TypeReference(key.TypeReference.Type, TypeReferenceAccuracy.ExactType);
         keys.Add(key);
       }
-      Keys = new ReadOnlySet<Key>(keys);
+      Keys = new ReadOnlyHashSet<Key>(keys);
     }
 
     [SecurityCritical]

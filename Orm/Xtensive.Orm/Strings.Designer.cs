@@ -557,6 +557,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Invalid argument: Argument {0} cannot contain &apos;{1}&apos; characters..
+        /// </summary>
+        internal static string ExArgumentContainsInvalidCharacters {
+            get {
+                return ResourceManager.GetString("ExArgumentContainsInvalidCharacters", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Argument must be greater than &apos;{0}&apos;.
         /// </summary>
         internal static string ExArgumentMustBeGreaterThanX {
@@ -5304,11 +5313,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Recursive constructor paremeter dependency is detected..
+        ///   Looks up a localized string similar to Recursive constructor parameter dependency is detected..
         /// </summary>
-        internal static string ExRecursiveConstructorParemeterDependencyIsDetected {
+        internal static string ExRecursiveConstructorParameterDependencyIsDetected {
             get {
-                return ResourceManager.GetString("ExRecursiveConstructorParemeterDependencyIsDetected", resourceCulture);
+                return ResourceManager.GetString("ExRecursiveConstructorParameterDependencyIsDetected", resourceCulture);
             }
         }
         
@@ -7860,6 +7869,15 @@ namespace Xtensive {
         internal static string ExXDoesNotSupportX {
             get {
                 return ResourceManager.GetString("ExXDoesNotSupportX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to {0} expressions with constant values of {1} type are not supported..
+        /// </summary>
+        internal static string ExXExpressionsWithConstantValuesOfYTypeNotSupported {
+            get {
+                return ResourceManager.GetString("ExXExpressionsWithConstantValuesOfYTypeNotSupported", resourceCulture);
             }
         }
         

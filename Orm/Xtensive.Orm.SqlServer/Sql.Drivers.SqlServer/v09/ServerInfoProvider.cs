@@ -1,19 +1,16 @@
-// Copyright (C) 2003-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using System;
 using Xtensive.Sql.Info;
-using SqlServerConnection = System.Data.SqlClient.SqlConnection;
+using SqlServerConnection = Microsoft.Data.SqlClient.SqlConnection;
 
 namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class ServerInfoProvider : Info.ServerInfoProvider
   {
     protected const int MaxIdentifierLength = 128;
-
-    private readonly string databaseName;
-    private readonly string defaultSchemaName;
 
     public override EntityInfo GetCollationInfo()
     {

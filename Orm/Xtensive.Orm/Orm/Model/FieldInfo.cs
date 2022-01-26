@@ -674,7 +674,7 @@ namespace Xtensive.Orm.Model
       base.Lock(recursive);
       if (!recursive)
         return;
-      validators = new ReadOnlyList<IPropertyValidator>(validators.ToList());
+      validators = Array.AsReadOnly(validators.ToArray());
       Fields.Lock(true);
       if (column != null)
         column.Lock(true);
@@ -726,14 +726,9 @@ namespace Xtensive.Orm.Model
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (ReferenceEquals(this, obj))
-        return true;
-      if (obj.GetType() != typeof(FieldInfo))
-        return false;
-      return Equals((FieldInfo) obj);
-    }
+    public override bool Equals(object obj) =>
+      ReferenceEquals(this, obj)
+        || obj is FieldInfo other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

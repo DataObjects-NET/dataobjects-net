@@ -22,7 +22,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
     public GenerationType GenerationType { get; private set; }
 
     /// <inheritdoc/>
-    public ReadOnlyList<string> Terms { get; private set; }
+    public IReadOnlyList<string> Terms { get; private set; }
 
     protected override void AcceptVisitorInternal(ISearchConditionNodeVisitor visitor)
     {
@@ -39,7 +39,7 @@ namespace Xtensive.Orm.FullTextSearchCondition.Nodes
       if (terms.Any(c=>c.IsNullOrEmpty() || c.Trim().IsNullOrEmpty()))
         throw new ArgumentException(Strings.ExCollectionCannotContainAnyNeitherNullOrEmptyStringValues, "terms");
       GenerationType = generationType;
-      Terms = new ReadOnlyList<string>(terms.ToList());
+      Terms = terms.ToList().AsReadOnly();
     }
   }
 }

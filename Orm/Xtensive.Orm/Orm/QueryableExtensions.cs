@@ -6,9 +6,11 @@
 
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -20,10 +22,57 @@ using Xtensive.Reflection;
 namespace Xtensive.Orm
 {
   /// <summary>
-  /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries. 
+  /// Extends LINQ methods for <see cref="Xtensive.Orm.Linq"/> queries.
   /// </summary>
   public static partial class QueryableExtensions
   {
+    /// <summary>
+    /// Tags query with given <paramref name="tag"/> string 
+    /// (inserts string as comment in SQL statement) for 
+    /// further query identification.
+    /// </summary>
+    /// <typeparam name="TSource">The type of the source element.</typeparam>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="tag">The unique tag to insert.</param>
+    /// <returns>The same sequence, but with "comment" applied to query.</returns>
+    public static IQueryable<TSource> Tag<TSource>(this IQueryable<TSource> source, string tag)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
+
+      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider)
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { typeof(TSource) });
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag)});
+      return source.Provider.CreateQuery<TSource>(expression);
+    }
+
+    /// <summary>
+    /// Tags query with given <paramref name="tag"/> string 
+    /// (inserts string as comment in SQL statement) for 
+    /// further query identification.
+    /// </summary>
+    /// <param name="source">The source sequence.</param>
+    /// <param name="tag">The unique tag to insert.</param>
+    /// <returns>The same sequence, but with "comment" applied to query.</returns>
+    public static IQueryable Tag(this IQueryable source, string tag)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
+
+      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+      var providerType = source.Provider.GetType();
+      if (providerType != WellKnownOrmTypes.QueryProvider)
+        throw new NotSupportedException(string.Format(errorMessage, providerType));
+
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { source.ElementType });
+      var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });
+      return source.Provider.CreateQuery(expression);
+    }
+
     /// <summary>
     /// Returns the number of elements in <paramref name="source"/> sequence.
     /// </summary>
@@ -38,7 +87,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Version of <see cref="Queryable.Take{TSource}"/>, where <paramref name="count"/> is specified as 
+    /// Version of <see cref="Queryable.Take{TSource}"/>, where <paramref name="count"/> is specified as
     /// <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -56,13 +105,13 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionTake.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionTake.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
       return source.Provider.CreateQuery<TSource>(expression);
     }
 
     /// <summary>
-    /// Version of <see cref="Queryable.Skip{TSource}"/>, where <paramref name="count"/> is specified as 
+    /// Version of <see cref="Queryable.Skip{TSource}"/>, where <paramref name="count"/> is specified as
     /// <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -80,7 +129,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionSkip.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionSkip.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, count});
       return source.Provider.CreateQuery<TSource>(expression);
     }
@@ -104,7 +153,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAt.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAt.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
       return source.Provider.Execute<TSource>(expression);
     }
@@ -128,7 +177,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionElementAtOrDefault.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, index});
       return source.Provider.Execute<TSource>(expression);
     }
@@ -153,7 +202,7 @@ namespace Xtensive.Orm
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
-      var genericMethod = WellKnownMembers.Queryable.ExtensionLock.MakeGenericMethod(new[] {typeof (TSource)});
+      var genericMethod = WellKnownMembers.Queryable.ExtensionLock.CachedMakeGenericMethod(typeof(TSource));
       var expression = Expression.Call(null, genericMethod, new[] {source.Expression, Expression.Constant(lockMode), Expression.Constant(lockBehavior)});
       return source.Provider.CreateQuery<TSource>(expression);
     }
@@ -207,7 +256,7 @@ namespace Xtensive.Orm
 #pragma warning restore IDE0060 // Remove unused parameter
 
     /// <summary>
-    /// Correlates the elements of two sequences based on matching keys. 
+    /// Correlates the elements of two sequences based on matching keys.
     /// </summary>
     /// <typeparam name="TOuter">The type of the elements of the first sequence.</typeparam>
     /// <typeparam name="TInner">The type of the elements of the second sequence.</typeparam>

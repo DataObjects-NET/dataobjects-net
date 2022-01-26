@@ -193,12 +193,8 @@ namespace Xtensive.Comparison
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      if (obj is ComparisonRules)
-        return Equals((ComparisonRules)obj);
-      return false;
-    }
+    public override bool Equals(object obj) =>
+      obj is ComparisonRules other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()

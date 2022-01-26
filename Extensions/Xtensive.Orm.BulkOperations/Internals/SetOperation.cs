@@ -12,6 +12,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Reflection;
 
 namespace Xtensive.Orm.BulkOperations
 {
@@ -72,16 +73,18 @@ namespace Xtensive.Orm.BulkOperations
         ex = Expression.Call(
             typeof (Queryable), "Select", new[] {parameter.Type, f.ValueType}, ex, lambda);
         ex = Expression.Call(typeof (Queryable), call.Method.Name, new[] {f.ValueType}, ex);*/
-              else
-              {
+              else {
                 //ex = Expression.Convert(ex, typeof(Structure));
-                var list = new List<FieldInfo> { f };
-                while (list.Last().Parent != setDescriptor.Field)
-                  list.Add(f.Parent);
-                list.Reverse();
+                var last = f;
+                var fields = new List<FieldInfo> { last };
+                while (last.Parent != setDescriptor.Field) {
+                  last = f.Parent;
+                  fields.Add(last);
+                }
                 Expression member = ex;
-                foreach (FieldInfo f2 in list)
-                  member = Expression.MakeMemberAccess(member, f2.UnderlyingProperty);
+                for (var i = fields.Count; i-- > 0;) {
+                  member = Expression.MakeMemberAccess(member, fields[i].UnderlyingProperty);
+                }
                 ex = member;
               }
               Descriptors.Add(new SetDescriptor(f, setDescriptor.Parameter, ex));
@@ -205,7 +208,7 @@ namespace Xtensive.Orm.BulkOperations
             ParameterExpression p = Expression.Parameter(info.UnderlyingType);
             LambdaExpression lambda =
               FastExpression.Lambda(
-                WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(info.UnderlyingType, field.ValueType),
+                WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(info.UnderlyingType, field.ValueType),
                 Expression.MakeMemberAccess(p, field.UnderlyingProperty),
                 p);
             IQueryable q =
@@ -244,7 +247,7 @@ namespace Xtensive.Orm.BulkOperations
           Descriptor = descriptor,
           Lambda =
             FastExpression.Lambda(
-              WellKnownMembers.FuncOfTArgTResultType.MakeGenericType(typeof (T), descriptor.Expression.Type),
+              WellKnownMembers.FuncOfTArgTResultType.CachedMakeGenericType(typeof (T), descriptor.Expression.Type),
               descriptor.Expression,
               descriptor.Parameter),
           Statement = Statement

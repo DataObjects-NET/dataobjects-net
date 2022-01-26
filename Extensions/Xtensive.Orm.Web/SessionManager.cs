@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Web
     /// </summary>
     public bool HasSession
     {
-      get { return sessionAndTransactionPair.Value != null && sessionAndTransactionPair.Value.First != null; }
+      get { return sessionAndTransactionPair.Value.First != null; }
     }
 
     /// <summary>
@@ -92,7 +92,7 @@ namespace Xtensive.Orm.Web
     }
 
     /// <summary>
-    /// Gets or sets value indicating whether an error has occurred 
+    /// Gets or sets value indicating whether an error has occurred
     /// on execution of the current request and transaction should be rollbacked.
     /// </summary>
     public bool HasErrors
@@ -115,7 +115,6 @@ namespace Xtensive.Orm.Web
           await nextMiddlewareRunner.Invoke(context);
         }
         catch (Exception) {
-          var 
           HasErrors = true;
           throw;
         }
