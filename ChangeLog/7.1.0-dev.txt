@@ -68,4 +68,5 @@
 [main] CompositePreCompiler.Items became readonly field and changed its type to IReadOnlyList<IPreCompiler>
 [main] SqlCompilerConfiguration's SchemaMapping and DatabaseMapping changed return types to IReadOnlyDictionary<string, string>
 [main] TypeMappingRegistry.Mappings and .ReverseMappings changed return types to IReadOnlyDictionary<TKey, TValue>
+[firebird] Add support for Firebird 4
 [sqlserver] Microsoft.Data.SqlClient is updated to verson 4.0.0
