@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016-2020 Xtensive LLC.
+// Copyright (C) 2016-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -74,7 +74,8 @@ namespace Xtensive.Orm.Rse.Providers
         var tupleDescriptor = TupleDescriptor.Create(fieldTypes);
         var columns = primaryIndexKeyColumns
           .Select((c, i) => (Column) new MappedColumn("KEY", i, c.Key.ValueType))
-          .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double));
+          .Append(new MappedColumn("RANK", tupleDescriptor.Count, WellKnownTypes.Double))
+          .ToArray(primaryIndexKeyColumns.Count + 1);;
         indexHeader = new RecordSetHeader(tupleDescriptor, columns);
       }
       Initialize();

@@ -103,7 +103,7 @@ namespace Xtensive.Orm.BulkOperations
         all,
         addContext.Lambda);
       QueryTranslationResult request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
-      var sqlSelect = ((SqlSelect)request.Query);
+      var sqlSelect = request.Query;
       SqlExpression ex = sqlSelect.OrderBy[0].Expression;
       var placeholder = ex as SqlPlaceholder;
       if (placeholder == null)
@@ -133,7 +133,7 @@ namespace Xtensive.Orm.BulkOperations
         all,
         addContext.Lambda);
       QueryTranslationResult request = parent.GetRequest(parent.QueryProvider.CreateQuery<T>(selectExpression));
-      var sqlSelect = ((SqlSelect) request.Query);
+      var sqlSelect = request.Query;
       SqlExpression ex = sqlSelect.OrderBy[0].Expression;
       parent.Bindings.AddRange(request.ParameterBindings);
       
@@ -217,7 +217,7 @@ namespace Xtensive.Orm.BulkOperations
             QueryTranslationResult request = parent.GetRequest(field.ValueType, q);
             parent.Bindings.AddRange(request.ParameterBindings);
             SqlTableColumn c = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Columns[i].Name);
-            addContext.Statement.AddValue(c, SqlDml.SubQuery((ISqlQueryExpression) request.Query));
+            addContext.Statement.AddValue(c, SqlDml.SubQuery(request.Query));
           }
           return;
         }

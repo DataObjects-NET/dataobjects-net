@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Rse
 
     /// <summary>
     /// Gets the empty <see cref="ColumnGroupCollection"/>.
-    /// </summary>    
+    /// </summary>
     public static ColumnGroupCollection Empty {
       [DebuggerStepThrough]
       get {
@@ -50,15 +50,6 @@ namespace Xtensive.Orm.Rse
     public IEnumerator<ColumnGroup> GetEnumerator() => items.GetEnumerator();
 
     // Constructors
-
-    /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="items">The collection items.</param>
-    public ColumnGroupCollection(IEnumerable<ColumnGroup> items)
-    {
-      this.items = items.ToList();
-    }
 
     /// <summary>
     /// Initializes a new instance of this class.

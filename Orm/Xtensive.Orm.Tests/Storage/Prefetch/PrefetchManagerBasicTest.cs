@@ -20,6 +20,7 @@ using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Services;
 using Xtensive.Orm.Tests.Storage.Prefetch.Model;
+using GraphContainerDictionary = System.Collections.Generic.Dictionary<(Xtensive.Orm.Key key, Xtensive.Orm.Model.TypeInfo type), Xtensive.Orm.Internals.Prefetch.GraphContainer>;
 
 namespace Xtensive.Orm.Tests.Storage.Prefetch
 {
@@ -380,12 +381,12 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
 
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var graphContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var graphContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(2, graphContainers.Count);
-        foreach (var container in graphContainers)
+        foreach (var container in graphContainers.Values)
           Assert.IsNull(container.ReferencedEntityContainers);
-        var orderContainer = graphContainers.Where(container => container.Key==orderKey).SingleOrDefault();
-        var employeeContainer = graphContainers.Where(container => container.Key!=orderKey).SingleOrDefault();
+        var orderContainer = graphContainers.Values.Where(container => container.Key==orderKey).SingleOrDefault();
+        var employeeContainer = graphContainers.Values.Where(container => container.Key!=orderKey).SingleOrDefault();
         Assert.IsNotNull(orderContainer);
         Assert.IsNotNull(employeeContainer);
         prefetchManager.ExecuteTasks();
@@ -431,9 +432,9 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
         var prefetchManager = (PrefetchManager) PrefetchProcessorField.GetValue(session.Handler);
         session.Handler.FetchEntityState(orderKey);
         prefetchManager.InvokePrefetch(orderKey, null, new PrefetchFieldDescriptor(EmployeeField, true, true));
-        var taskContainers = (HashSet<GraphContainer>) GraphContainersField.GetValue(prefetchManager);
+        var taskContainers = (GraphContainerDictionary) GraphContainersField.GetValue(prefetchManager);
         Assert.AreEqual(1, taskContainers.Count);
-        Assert.AreEqual(orderKey, taskContainers.Single().Key);
+        Assert.AreEqual(orderKey, taskContainers.Values.Single().Key);
       }
     }
 

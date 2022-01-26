@@ -28,9 +28,7 @@ namespace Xtensive.Orm.Rse.Providers
       for (int i = 0; i < Left.Header.Columns.Count; i++) {
         var leftColumn = Left.Header.Columns[i];
         var rightColumn = Right.Header.Columns[i];
-        if (leftColumn is MappedColumn && rightColumn is MappedColumn) {
-          var leftMappedColumn = (MappedColumn) leftColumn;
-          var rightMappedColumn = (MappedColumn) rightColumn;
+        if (leftColumn is MappedColumn leftMappedColumn && rightColumn is MappedColumn rightMappedColumn) {
           if (leftMappedColumn.ColumnInfoRef.Equals(rightMappedColumn.ColumnInfoRef)) {
             columns.Add(leftMappedColumn);
             mappedColumnIndexes.Add(i);

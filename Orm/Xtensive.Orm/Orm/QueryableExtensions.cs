@@ -40,10 +40,11 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
 
-      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType != WellKnownOrmTypes.QueryProvider)
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { typeof(TSource) });
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag)});
@@ -63,10 +64,11 @@ namespace Xtensive.Orm
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(tag, "tag");
 
-      var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
       var providerType = source.Provider.GetType();
-      if (providerType != WellKnownOrmTypes.QueryProvider)
+      if (providerType != WellKnownOrmTypes.QueryProvider) {
+        var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
+      }
 
       var genericMethod = WellKnownMembers.Queryable.ExtensionTag.MakeGenericMethod(new[] { source.ElementType });
       var expression = Expression.Call(null, genericMethod, new[] { source.Expression, Expression.Constant(tag) });

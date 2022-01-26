@@ -28,8 +28,7 @@ namespace Xtensive.Orm.Building.Builders
       var closedGenericTypes = new List<Type>();
       var openGenericTypes = new List<Type>();
 
-      while (types.Count != 0) {
-        var type = types.Dequeue();
+      while (types.TryDequeue(out var type)) {
         if (!IsTypeAvailable(type)) {
           continue;
         }

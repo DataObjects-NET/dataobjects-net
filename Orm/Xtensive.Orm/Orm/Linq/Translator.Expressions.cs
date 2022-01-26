@@ -702,12 +702,12 @@ namespace Xtensive.Orm.Linq
       var leftIsConstant = context.Evaluator.CanBeEvaluated(left);
       bool leftOrRightIsIndex = false;
 
-      if (left is IndexExpression) {
-        left = VisitIndex((IndexExpression) left);
+      if (left is IndexExpression leftIndexExpression) {
+        left = VisitIndex(leftIndexExpression);
         leftOrRightIsIndex = true;
       }
-      if (right is IndexExpression) {
-        right = VisitIndex((IndexExpression) right);
+      if (right is IndexExpression rightIndexExpression) {
+        right = VisitIndex(rightIndexExpression);
         leftOrRightIsIndex = true;
       }
 
@@ -975,12 +975,13 @@ namespace Xtensive.Orm.Linq
       Type structureType)
     {
       expression = expression.StripCasts();
-      if (expression is IPersistentExpression)
-        return ((IPersistentExpression) expression)
+      if (expression is IPersistentExpression persistentExpression) {
+        return persistentExpression
           .Fields
           .Where(field => field.GetMemberType()==MemberType.Primitive)
           .Select(e => (Expression) e)
           .ToList();
+      }
 
       ConstantExpression nullExpression = Expression.Constant(null, structureType);
       BinaryExpression isNullExpression = Expression.Equal(expression, nullExpression);
@@ -1036,8 +1037,9 @@ namespace Xtensive.Orm.Linq
     private static IList<Expression> GetEntityFields(Expression expression, IEnumerable<Type> keyFieldTypes)
     {
       expression = expression.StripCasts();
-      if (expression is IEntityExpression)
-        return GetKeyFields(((IEntityExpression) expression).Key, null);
+      if (expression is IEntityExpression entityExpression) {
+        return GetKeyFields(entityExpression.Key, null);
+      }
 
 
       Expression keyExpression;
@@ -1591,11 +1593,17 @@ namespace Xtensive.Orm.Linq
     private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator, Expression sourceExpression)
     {
       var storedEntityType = translator.State.TypeOfEntityStoredInKey;
-      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translator.context.Model, sourceExpression);
-      var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
+      var translatorContext = translator.context;
+      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translatorContext.Model, sourceExpression);
+      var tupleDescriptor = itemToTupleConverter.TupleDescriptor;
+      var columns = tupleDescriptor
+        .Select(x => new SystemColumn(translatorContext.GetNextColumnAlias(), 0, x))
+        .Cast<Column>()
+        .ToArray(tupleDescriptor.Count);
+      var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider);
-      var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
+      var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translatorContext);
       if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
       return new ProjectionExpression(itemType, itemProjector, TranslatedQuery.EmptyTupleParameterBindings);

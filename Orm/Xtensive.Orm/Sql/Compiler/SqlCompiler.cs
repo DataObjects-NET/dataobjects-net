@@ -23,10 +23,10 @@ namespace Xtensive.Sql.Compiler
   {
     protected readonly SqlValueType decimalType;
     protected readonly SqlTranslator translator;
-    
+
     protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
-    
+
     public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
@@ -46,7 +46,7 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
       }
     }
-    
+
     public virtual void Visit(SqlAlterDomain node)
     {
       using (context.EnterScope(node)) {
@@ -571,7 +571,7 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, node, NodeSection.Exit));
       }
     }
-    
+
     public virtual void Visit(SqlCreateSequence node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.Sequence.SequenceDescriptor, "SequenceDescriptor");
@@ -1211,7 +1211,7 @@ namespace Xtensive.Sql.Compiler
           var cr = item as SqlColumnRef;
           if (!cr.IsNullReference() && cr.SqlColumn is SqlColumnStub)
             continue;
-            
+
           if (!context.IsEmpty)
             context.Output.AppendDelimiter(translator.ColumnDelimiter);
           if (!cr.IsNullReference()) {
@@ -1558,7 +1558,7 @@ namespace Xtensive.Sql.Compiler
         context.Output.AppendText(translator.Translate(context, column, TableColumnSection.NotNull));
       context.Output.AppendText(translator.Translate(context, column, TableColumnSection.Exit));
     }
-    
+
     private void Visit(TableConstraint constraint)
     {
       using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
