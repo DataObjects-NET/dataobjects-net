@@ -122,8 +122,16 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="columns">Collection of items to add.</param>
+    /// <remarks>
+    /// <paramref name="columns"/> is used to initialize inner field directly
+    /// to save time on avoiding collection copy. If you pass an <see cref="IReadOnlyList{Column}"/>
+    /// implementor that, in fact, can be changed, make sure the passed collection doesn't change afterwards.
+    /// Ideally, use arrays instead of <see cref="List{T}"/> or similar collections.
+    /// Changing the passed collection afterwards will lead to unpredictable results.
+    /// </remarks>
     public ColumnCollection(IReadOnlyList<Column> columns)
     {
+      //!!! Direct initialization by parameter is unsafe performance optimization: See remarks in ctor summary!
       this.columns = columns;
       var count = this.columns.Count;
       nameIndex = new Dictionary<string, int>(count);
