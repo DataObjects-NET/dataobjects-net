@@ -3479,4 +3479,7 @@ Error: {1}</value>
   <data name="ExArgumentContainsInvalidCharacters" xml:space="preserve">
     <value>Invalid argument: Argument {0} cannot contain '{1}' characters.</value>
   </data>
+  <data name="ExTagDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
+    <value>'Tag' does not support query provider of type '{0}'.</value>
+  </data>
 </root>

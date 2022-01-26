@@ -6096,6 +6096,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;Tag&apos; does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExTagDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExTagDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;Take&apos; does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExTakeDoesNotSupportQueryProviderOfTypeX {
