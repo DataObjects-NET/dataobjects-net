@@ -14,7 +14,7 @@ namespace Xtensive.Orm.Providers
 {
   internal sealed class SimpleCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
-    private readonly Queue<SqlTask> tasks;
+    private Queue<SqlTask> tasks = new();
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
@@ -51,8 +51,8 @@ namespace Xtensive.Orm.Providers
 
     public override void ExecuteTasks(CommandProcessorContext context)
     {
-      context.ProcessingTasks = new Queue<SqlTask>(tasks);
-      tasks.Clear();
+      context.ProcessingTasks = tasks;
+      tasks = new Queue<SqlTask>();
 
       while (context.ProcessingTasks.Count > 0) {
         AllocateCommand(context);
@@ -79,8 +79,8 @@ namespace Xtensive.Orm.Providers
 
     public override async Task ExecuteTasksAsync(CommandProcessorContext context, CancellationToken token)
     {
-      context.ProcessingTasks = new Queue<SqlTask>(tasks);
-      tasks.Clear();
+      context.ProcessingTasks = tasks;
+      tasks = new Queue<SqlTask>();
 
       while (context.ProcessingTasks.Count > 0) {
         AllocateCommand(context);
@@ -152,7 +152,6 @@ namespace Xtensive.Orm.Providers
     public SimpleCommandProcessor(CommandFactory factory, int maxQueryParameterCount)
       : base(factory, maxQueryParameterCount)
     {
-      tasks = new Queue<SqlTask>();
     }
   }
 }
