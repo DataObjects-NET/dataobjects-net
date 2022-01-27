@@ -51,9 +51,6 @@ namespace Xtensive.Orm.Rse.Providers
     protected BinaryProvider(ProviderType type, RecordSetHeader header, CompilableProvider left, CompilableProvider right)
       : base(type, header, left, right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(header, nameof(header));
-      ArgumentValidator.EnsureArgumentNotNull(left, nameof(left));
-      ArgumentValidator.EnsureArgumentNotNull(right, nameof(right));
       Left = left;
       Right = right;
     }

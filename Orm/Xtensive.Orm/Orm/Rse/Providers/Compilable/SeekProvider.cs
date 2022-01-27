@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Seek parameter.
     /// </summary>
-    public Func<ParameterContext, Tuple> Key { get; private set; }
+    public Func<ParameterContext, Tuple> Key { get; }
 
     /// <inheritdoc/>
     protected override string ParametersToString()

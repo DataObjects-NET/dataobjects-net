@@ -58,10 +58,6 @@ namespace Xtensive.Orm.Rse.Providers
     private static RecordSetHeader BuildHeaderAndFilteredTupleDescriptor(
       CompilableProvider source, IReadOnlyList<int> filteredColumns, string resultColumnName, out TupleDescriptor filteredTupleDescriptor)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, nameof(source));
-      ArgumentValidator.EnsureArgumentNotNull(filteredColumns, nameof(filteredColumns));
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(resultColumnName, nameof(resultColumnName));
-
       var header = source.Header.Add(new SystemColumn(resultColumnName, 0, WellKnownTypes.Bool));
       var columnCount = filteredColumns.Count;
       var fieldTypes = new Type[columnCount];
@@ -85,7 +81,6 @@ namespace Xtensive.Orm.Rse.Providers
       Expression<Func<ParameterContext, IEnumerable<Tuple>>> filterDataSource, string resultColumnName, IReadOnlyList<int> filteredColumns)
       : base(ProviderType.Include, BuildHeaderAndFilteredTupleDescriptor(source, filteredColumns, resultColumnName, out var filteredTupleDescriptor), source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(filterDataSource, nameof(FilterDataSource));
       Algorithm = algorithm;
       IsInlined = isInlined;
       FilterDataSource = filterDataSource;

@@ -7,7 +7,6 @@
 using System;
 using Xtensive.Core;
 using System.Collections.Generic;
-using Xtensive.Tuples;
 using Tuple = Xtensive.Tuples.Tuple;
 using Xtensive.Orm.Rse.Providers;
 
@@ -25,7 +24,7 @@ namespace Xtensive.Orm.Providers
     protected void LockAndStore(Rse.Providers.EnumerationContext context, IEnumerable<Tuple> data)
     {
       var storageContext = (EnumerationContext) context;
-      var tableLock = DomainHandler.TemporaryTableManager.Acquire(storageContext, tableDescriptor);
+      var tableLock = handlers.DomainHandler.TemporaryTableManager.Acquire(storageContext, tableDescriptor);
       if (tableLock == null) 
         return;
       storageContext.SetValue(this, TemporaryTableLockName, tableLock);

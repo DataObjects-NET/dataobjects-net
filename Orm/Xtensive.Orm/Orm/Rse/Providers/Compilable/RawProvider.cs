@@ -25,18 +25,12 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Raw data source - an array of tuples.
     /// </summary>
-    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> Source { get; private set; }
+    public Expression<Func<ParameterContext, IEnumerable<Tuple>>> Source { get; }
 
     /// <summary>
     /// Gets the compiled <see cref="Source"/>.
     /// </summary>
-    public Func<ParameterContext, IEnumerable<Tuple>> CompiledSource {
-      get {
-        if (compiledSource==null)
-          compiledSource = Source.CachingCompile();
-        return compiledSource;
-      }
-    }
+    public Func<ParameterContext, IEnumerable<Tuple>> CompiledSource => compiledSource ??= Source.CachingCompile();
 
     /// <inheritdoc/>
     protected override string ParametersToString()

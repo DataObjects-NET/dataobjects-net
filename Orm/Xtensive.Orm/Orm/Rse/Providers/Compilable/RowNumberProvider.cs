@@ -18,7 +18,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the row number column.
     /// </summary>
-    public SystemColumn SystemColumn { get; private set; }
+    public SystemColumn SystemColumn { get; }
 
     // Constructors
 

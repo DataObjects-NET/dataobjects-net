@@ -100,7 +100,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <param name="type">The type of the provider.</param>
     /// <param name="header">The header of the produced sequence of records.</param>
     /// <param name="sources"><see cref="Sources"/> property value.</param>
-    protected Provider(ProviderType type, RecordSetHeader header, params Provider[] sources)
+    protected Provider(ProviderType type, RecordSetHeader header, Provider[] sources)
     {
       Type = type;
       Header = header;

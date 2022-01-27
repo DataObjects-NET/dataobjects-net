@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -17,11 +17,7 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ExecutableRawProvider : ExecutableProvider<Providers.RawProvider>
   {
-    #region Cached properties
-
     private const string CachedSourceName = "CachedSource";
-
-    #endregion
 
     /// <inheritdoc/>
     protected internal override void OnBeforeEnumerate(EnumerationContext context)

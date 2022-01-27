@@ -22,9 +22,6 @@ namespace Xtensive.Orm.Rse.Providers
 
     private static RecordSetHeader BuildHeader(CompilableProvider left, CompilableProvider right)
     {
-      ArgumentValidator.EnsureArgumentNotNull(left, nameof(left));
-      ArgumentValidator.EnsureArgumentNotNull(right, nameof(right));
-
       var leftHeader = left.Header;
       var leftDescriptor = leftHeader.TupleDescriptor;
       var rightDescriptor = right.Header.TupleDescriptor;

@@ -41,9 +41,7 @@ namespace Xtensive.Orm.Rse.Providers
     protected UnaryProvider(ProviderType type, RecordSetHeader header, CompilableProvider source)
       : base(type, header, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
       Source = source;
     }
-
   }
 }

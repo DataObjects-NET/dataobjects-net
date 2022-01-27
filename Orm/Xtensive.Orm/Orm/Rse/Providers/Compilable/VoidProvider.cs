@@ -4,8 +4,6 @@
 // Created by: Denis Krjuchkov
 // Created:    2012.01.29
 
-using Xtensive.Core;
-
 namespace Xtensive.Orm.Rse.Providers
 {
   public sealed class VoidProvider : CompilableProvider
@@ -14,7 +12,6 @@ namespace Xtensive.Orm.Rse.Providers
     public VoidProvider(RecordSetHeader header)
       : base(ProviderType.Void, header)
     {
-      ArgumentValidator.EnsureArgumentNotNull(header, "header");
     }
   }
 }

@@ -5,7 +5,6 @@
 // Created:    2008.09.05
 
 using System;
-using Xtensive.Core;
 
 namespace Xtensive.Orm.Rse.Providers
 {
@@ -36,20 +35,6 @@ namespace Xtensive.Orm.Rse.Providers
     // Constructors
 
     /// <summary>
-    /// Initializes a new instance of this class.
-    /// </summary>
-    /// <param name="header">The <see cref="Provider.Header"/> property value.</param>
-    /// <param name="name">The <see cref="Name"/> property value.</param>
-    public StoreProvider(RecordSetHeader header, string name)
-      : base (ProviderType.Store, header)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(header, "header");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-
-      Name = name;
-    }
-
-    /// <summary>
     ///   Initializes a new instance of this class.
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
@@ -57,9 +42,6 @@ namespace Xtensive.Orm.Rse.Providers
     public StoreProvider(Provider source, string name)
       : base(ProviderType.Store, source.Header, source)
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-      ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-
       Name = name;
       Source = source;
     }
@@ -69,12 +51,8 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="source">The <see cref="Source"/> property value.</param>
     public StoreProvider(Provider source)
-      : base(ProviderType.Store, source.Header, source)
+      : this(source, Guid.NewGuid().ToString())
     {
-      ArgumentValidator.EnsureArgumentNotNull(source, "source");
-
-      Name = Guid.NewGuid().ToString();
-      Source = source;
     }
   }
 }

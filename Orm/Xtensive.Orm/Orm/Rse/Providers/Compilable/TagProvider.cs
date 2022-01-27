@@ -5,7 +5,6 @@
 // Created:    2021.09.13
 
 using System;
-using Xtensive.Core;
 
 
 namespace Xtensive.Orm.Rse.Providers
@@ -23,7 +22,6 @@ namespace Xtensive.Orm.Rse.Providers
     public TagProvider(CompilableProvider source, string tag)
       : base(ProviderType.Tag, source)
     {
-      ArgumentValidator.EnsureArgumentNotNullOrEmptyOrWhiteSpace(tag, nameof(tag));
       Tag = tag;
     }
   }

@@ -4,7 +4,6 @@
 // Created by: Alexey Kochetov
 // Created:    2008.07.11
 
-using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -21,30 +20,17 @@ namespace Xtensive.Orm.Providers
   {
     protected readonly HandlerAccessor handlers;
 
-    private const string ParameterNamePrefix = "@p";
-    private const string ToStringFormat = "[Command: \"{0}\"]";
     private SqlTable permanentReference;
 
     /// <summary>
     /// Gets <see cref="QueryRequest"/> associated with this provider.
     /// </summary>
-    public QueryRequest Request { get; private set; }
+    public QueryRequest Request { get; }
 
     /// <summary>
     /// Gets the permanent reference (<see cref="SqlQueryRef"/>) for <see cref="SqlSelect"/> associated with this provider.
     /// </summary>
-    public SqlTable PermanentReference {
-      get {
-        if (ReferenceEquals(null, permanentReference))
-          permanentReference = SqlDml.QueryRef(Request.Statement);
-        return permanentReference;
-      }
-    }
-
-    /// <summary>
-    /// Gets the domain handler this provider is bound to.
-    /// </summary>
-    protected Providers.DomainHandler DomainHandler { get { return handlers.DomainHandler; } }
+    public SqlTable PermanentReference => permanentReference ??= SqlDml.QueryRef(Request.Statement);
 
     /// <inheritdoc/>
     protected internal override DataReader OnEnumerate(Rse.Providers.EnumerationContext context)
