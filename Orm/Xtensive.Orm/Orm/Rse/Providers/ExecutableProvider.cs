@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// <summary>
     /// Gets the provider this provider is compiled from.
     /// </summary>
-    public CompilableProvider Origin { get; private set; }
+    public CompilableProvider Origin { get; }
 
 
     #region OnXxxEnumerate methods (to override)
