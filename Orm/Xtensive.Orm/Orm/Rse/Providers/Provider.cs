@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -23,36 +23,23 @@ namespace Xtensive.Orm.Rse.Providers
     private const string ToString_Parameters = " ({0})";
     private const int    ToString_IndentSize = 2;
 
-    private Provider[] sources;
-
     /// <summary>
     /// Gets <see cref="ProviderType"/> of the current instance.
     /// </summary>
-    public ProviderType Type { get; private set; }
+    public ProviderType Type { get; }
 
     /// <summary>
     /// Gets or sets the source providers 
     /// "consumed" by this provider to produce results of current provider.
     /// </summary>
-    public Provider[] Sources {
-      [DebuggerStepThrough]
-      get { return sources; }
-      [DebuggerStepThrough]
-      private set {
-        if (sources!=null)
-          throw Exceptions.AlreadyInitialized("Sources");
-        sources = value;
-      }
-    }
+    public Provider[] Sources { get; }
 
     /// <summary>
     /// Gets or sets the header of the record sequence this provide produces.
     /// </summary>
     public RecordSetHeader Header { get; }
 
-    private string DebuggerDisplayName {
-      get { return GetType().GetShortName(); }
-    }
+    private string DebuggerDisplayName => GetType().GetShortName();
 
     #region ToString method
 
@@ -67,9 +54,10 @@ namespace Xtensive.Orm.Rse.Providers
     private void AppendBodyTo(StringBuilder sb, int indent)
     {
       AppendTitleTo(sb, indent);
-      indent = indent + ToString_IndentSize;
-      foreach (var source in Sources)
+      indent += ToString_IndentSize;
+      foreach (var source in Sources) {
         source.AppendBodyTo(sb, indent);
+      }
     }
 
     private void AppendTitleTo(StringBuilder sb, int indent)
@@ -85,8 +73,9 @@ namespace Xtensive.Orm.Rse.Providers
       string parameters = ParametersToString();
 
       sb.Append(providerName);
-      if (!parameters.IsNullOrEmpty())
+      if (!parameters.IsNullOrEmpty()) {
         sb.AppendFormat(ToString_Parameters, parameters);
+      }
       return sb.ToString();
     }
 
