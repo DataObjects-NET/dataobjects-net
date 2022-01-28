@@ -19,104 +19,98 @@ namespace Xtensive.Orm.Tests.Upgrade.Recycled
   [TestFixture, Category("Upgrade")]
   public class RecycledUpgradeTest
   {
-    private Domain domain;
-
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
-      FillData();
+      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate)) {
+        FillData(domain);
+      }
     }
     
     [Test]
     public void UpgradeToVersion2Test()
     {
-      BuildDomain("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          Assert.AreEqual(4, session.Query.All<Person>().Count());
-          Assert.AreEqual(2, session.Query.All<Employee>().Count());
-          Assert.AreEqual(2, session.Query.All<Customer>().Count());
+      using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
+        Assert.AreEqual(4, session.Query.All<Person>().Count());
+        Assert.AreEqual(2, session.Query.All<Employee>().Count());
+        Assert.AreEqual(2, session.Query.All<Customer>().Count());
 
-          Assert.AreEqual("Island Trading", session.Query.All<Employee>()
-            .First(employee => employee.Name=="Nancy Davolio").CompanyName);
-          Assert.AreEqual("Cowes, UK", session.Query.All<Customer>()
-            .First(customer => customer.Name=="Helen Bennett").Address);
-          
-          Assert.AreEqual(4, session.Query.All<Order>().Count());
-          Assert.AreEqual("Maxilaku", session.Query.All<Order>().First(order =>
-            order.Employee.Name=="Michael Suyama" && order.Customer.Name=="Helen Bennett")
-            .ProductName);
-        }
+        Assert.AreEqual("Island Trading", session.Query.All<Employee>()
+          .First(employee => employee.Name == "Nancy Davolio").CompanyName);
+        Assert.AreEqual("Cowes, UK", session.Query.All<Customer>()
+          .First(customer => customer.Name == "Helen Bennett").Address);
+
+        Assert.AreEqual(4, session.Query.All<Order>().Count());
+        Assert.AreEqual("Maxilaku", session.Query.All<Order>().First(order =>
+          order.Employee.Name == "Michael Suyama" && order.Customer.Name == "Helen Bennett")
+          .ProductName);
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
-
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(),
         "Xtensive.Orm.Tests.Upgrade.Recycled.Model.Version" + version);
       configuration.Types.Register(typeof(Upgrader));
       using (Upgrader.Enable(version)) {
-        domain = Domain.Build(configuration);
+        return Domain.Build(configuration);
       }
     }
 
     #region Data filler
 
-    private void FillData()
+    private void FillData(Domain domain)
     {
-      using (var session = domain.OpenSession()) {
-        using (var transactionScope = session.OpenTransaction()) {
-          // BusinessContacts
-          var helen = new Model.Version1.Customer() {
-            Address = "Cowes, UK",
-            Name = "Helen Bennett"
-          };
-          var philip = new Model.Version1.Customer {
-            Address = "Brandenburg, Germany",
-            Name = "Philip Cramer"
-          };
+      using (var session = domain.OpenSession())
+      using (var transactionScope = session.OpenTransaction()) {
+        // BusinessContacts
+        var helen = new Model.Version1.Customer() {
+          Address = "Cowes, UK",
+          Name = "Helen Bennett"
+        };
+        var philip = new Model.Version1.Customer {
+          Address = "Brandenburg, Germany",
+          Name = "Philip Cramer"
+        };
 
-          // Employies
-          var nancy = new Model.Version1.Employee {
-            CompanyName = "Island Trading",
-            Name = "Nancy Davolio",
-          };
-          var michael = new Model.Version1.Employee {
-            CompanyName = "Koniglich Essen",
-            Name = "Michael Suyama",
-          };
+        // Employies
+        var nancy = new Model.Version1.Employee {
+          CompanyName = "Island Trading",
+          Name = "Nancy Davolio",
+        };
+        var michael = new Model.Version1.Employee {
+          CompanyName = "Koniglich Essen",
+          Name = "Michael Suyama",
+        };
 
-          // Orders
-          new Model.Version1.Order {
-            Customer = helen,
-            Employee = michael,
-            ProductName = "Maxilaku"
-          };
-          new Model.Version1.Order {
-            Customer = helen,
-            Employee = nancy,
-            ProductName = "Filo Mix"
-          };
-          new Model.Version1.Order {
-            Customer = philip,
-            Employee = michael,
-            ProductName = "Tourtiere"
-          };
-          new Model.Version1.Order {
-            Customer = philip,
-            Employee = nancy,
-            ProductName = "Pate chinois"
-          };
-          
-          // Commiting changes
-          transactionScope.Complete();
-        }
+        // Orders
+        _ = new Model.Version1.Order {
+          Customer = helen,
+          Employee = michael,
+          ProductName = "Maxilaku"
+        };
+        _ = new Model.Version1.Order {
+          Customer = helen,
+          Employee = nancy,
+          ProductName = "Filo Mix"
+        };
+        _ = new Model.Version1.Order {
+          Customer = philip,
+          Employee = michael,
+          ProductName = "Tourtiere"
+        };
+        _ = new Model.Version1.Order {
+          Customer = philip,
+          Employee = nancy,
+          ProductName = "Pate chinois"
+        };
+
+        // Commiting changes
+        transactionScope.Complete();
       }
     }
 

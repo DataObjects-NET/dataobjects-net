@@ -69,15 +69,12 @@ namespace Xtensive.Sql.Drivers.Firebird
         DefaultSchemaName = defaultSchema.Schema,
       };
 
-      if (coreServerInfo.ServerVersion < new Version(2, 5)) {
-        throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported);
-      }
-
-      if (coreServerInfo.ServerVersion.Major == 2 && coreServerInfo.ServerVersion.Minor == 5) {
-        return new v2_5.Driver(coreServerInfo);
-      }
-
-      return null;
+      return coreServerInfo.ServerVersion switch {
+        ({ Major: 2 } and { Minor: < 5 }) or { Major: < 2 } => throw new NotSupportedException(Strings.ExFirebirdBelow25IsNotSupported),
+        { Major: 2 } and { Minor: 5 } => new v2_5.Driver(coreServerInfo),
+        { Major: 4 }                  => new v4_0.Driver(coreServerInfo),
+        _ => throw new NotSupportedException()
+      };
     }
 
     /// <inheritdoc/>

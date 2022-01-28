@@ -17,48 +17,41 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
   [TestFixture]
   public class UpgradeTest
   {
-    private Domain domain;
-
     [OneTimeSetUp]
-    public void TestSetUp()
-    {
-      Require.ProviderIsNot(StorageProvider.Firebird);
-    }
+    public void TestSetUp() => Require.ProviderIsNot(StorageProvider.Firebird);
 
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (var session = domain.OpenSession()) {
-        using (var tx = session.OpenTransaction()) {
-          var person = new Person {
-            Name = "Person",
-            Bytes = new byte[] {1, 2, 3}
-          };
+      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var person = new Person {
+          Name = "Person",
+          Bytes = new byte[] { 1, 2, 3 }
+        };
 
-          var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
-          var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
-          var expected = driver.TypeMappings[typeof (byte[])].MapType().Length;
-          Assert.AreEqual(expected, bytesColumn.Type.Length);
+        var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
+        var driver = TestSqlDriver.Create(domain.Configuration.ConnectionInfo);
+        var expected = driver.TypeMappings[typeof(byte[])].MapType().Length;
+        Assert.AreEqual(expected, bytesColumn.Type.Length);
 
-          tx.Complete();
-        }
+        tx.Complete();
       }
     }
     
     [Test]
     public void UpgradeToVersion2Test()
     {
-      BuildDomain("2", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          var person = session.Query.All<Model.Version2.Person>().Single();
-          AssertEx.HasSameElements("Person", person.Name);
-          AssertEx.HasSameElements(new byte[] {1, 2, 3}, person.Bytes);
+      using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
+        var person = session.Query.All<Model.Version2.Person>().Single();
+        AssertEx.HasSameElements("Person", person.Name);
+        AssertEx.HasSameElements(new byte[] { 1, 2, 3 }, person.Bytes);
 
-          var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
-          Assert.AreEqual(null, bytesColumn.Type.Length);
-        }
+        var bytesColumn = GetColumnInfo(Upgrader.TargetStorageModel, person.TypeInfo, "Bytes");
+        Assert.AreEqual(null, bytesColumn.Type.Length);
       }
     }
 
@@ -70,21 +63,19 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0769_ByteArrayColumnUpgrade
       return table.Columns[field.MappingName];
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain!=null)
-        domain.DisposeSafely();
-
-      string ns = typeof (Person).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
+      var ns = typeof (Person).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
       configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof (Upgrader));
 
-      using (Upgrader.Enable(version))
-        domain = Domain.Build(configuration);
+      using (Upgrader.Enable(version)) {
+        return Domain.Build(configuration);
+      }
     }
   }
 }
