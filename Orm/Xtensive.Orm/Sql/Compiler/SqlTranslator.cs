@@ -3,6 +3,7 @@
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -34,7 +35,7 @@ namespace Xtensive.Sql.Compiler
     public virtual string BatchBegin { get { return string.Empty; } }
     public virtual string BatchEnd { get { return string.Empty; } }
     public virtual string BatchItemDelimiter { get { return ";"; } }
-    
+
     public virtual string RowBegin { get { return "("; } }
     public virtual string RowEnd { get { return ")"; } }
     public virtual string RowItemDelimiter { get { return ","; } }
@@ -50,7 +51,7 @@ namespace Xtensive.Sql.Compiler
     /// See <see cref="double.ToString(string)"/> for details.
     /// </summary>
     public virtual string FloatFormatString { get { return "0.0######"; } }
-    
+
     /// <summary>
     /// Gets the double format string.
     /// See <see cref="double.ToString(string)"/> for details.
@@ -68,7 +69,7 @@ namespace Xtensive.Sql.Compiler
     /// See <see cref="SqlHelper.TimeSpanToString"/> for details.
     /// </summary>
     public abstract string TimeSpanFormatString { get; }
-    
+
     /// <summary>
     /// Gets the parameter prefix.
     /// </summary>
@@ -838,7 +839,7 @@ namespace Xtensive.Sql.Compiler
     {
       if (!node.Index.IsFullText)
         return "DROP INDEX " + QuoteIdentifier(node.Index.DbName) + " ON " + Translate(context, node.Index.DataTable);
-      else 
+      else
         return "DROP FULLTEXT INDEX ON " + Translate(context, node.Index.DataTable);
     }
 
@@ -1027,7 +1028,7 @@ namespace Xtensive.Sql.Compiler
         return string.Empty;
       }
     }
-    
+
     public virtual string Translate(SqlCompilerContext context, object literalValue)
     {
       var literalType = literalValue.GetType();
@@ -1059,7 +1060,7 @@ namespace Xtensive.Sql.Compiler
           Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
       return literalValue.ToString();
     }
-    
+
     public virtual string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {
       switch (section) {
@@ -1801,7 +1802,7 @@ namespace Xtensive.Sql.Compiler
     {
       if (comment?.Text == null)
         return string.Empty;
-      
+
       if (comment.Text.IndexOfAny(new char[] { '*', '/' }) != -1)
         throw new ArgumentException(string.Format(Strings.ExArgumentContainsInvalidCharacters, nameof(comment), "*/"));
 
@@ -1833,9 +1834,9 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="statements">The statements.</param>
     /// <returns>String containing the whole batch.</returns>
-    public virtual string BuildBatch(string[] statements)
+    public virtual string BuildBatch(IReadOnlyList<string> statements)
     {
-      if (statements.Length==0)
+      if (statements.Count == 0)
         return string.Empty;
       var expectedLength = BatchBegin.Length + BatchEnd.Length +
         statements.Sum(statement => statement.Length + BatchItemDelimiter.Length + NewLine.Length);

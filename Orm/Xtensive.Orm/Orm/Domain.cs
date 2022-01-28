@@ -126,8 +126,8 @@ namespace Xtensive.Orm
 
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
-    internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; private set; }
-    
+    internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; }
+
     internal ICache<object, Pair<object, ParameterizedQuery>> QueryCache { get; private set; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }

@@ -22,8 +22,7 @@ namespace Xtensive.Orm.Building.Builders
         var queue = new Queue<TypeInfo>();
         var clusteredIndexesMap = new Dictionary<TypeInfo, IndexInfo>();
         queue.Enqueue(hierarchy.Root);
-        while (queue.Count > 0) {
-          var type = queue.Dequeue();
+        while (queue.TryDequeue(out var type)) {
           foreach (var decendant in type.GetDescendants())
             queue.Enqueue(decendant);
           var clusteredIndexes = type.Indexes

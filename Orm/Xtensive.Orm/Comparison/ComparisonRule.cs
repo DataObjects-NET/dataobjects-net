@@ -16,7 +16,7 @@ namespace Xtensive.Comparison
   /// Describes how to compare values of comparable objects.
   /// </summary>
   [Serializable]
-  public struct ComparisonRule :
+  public readonly struct ComparisonRule :
     IEquatable<ComparisonRule>,
     ISerializable
   {
@@ -75,12 +75,8 @@ namespace Xtensive.Comparison
     #region Equals, GetHashCode
 
     /// <inheritdoc/>
-    public bool Equals(ComparisonRule other)
-    {
-      if (Direction != other.Direction)
-        return false;
-      return Equals(Culture, other.Culture);
-    }
+    public bool Equals(ComparisonRule other) =>
+      Direction == other.Direction && Equals(Culture, other.Culture);
 
     /// <inheritdoc/>
     public override bool Equals(object obj) =>

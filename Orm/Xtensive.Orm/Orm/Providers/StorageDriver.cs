@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Providers
 
     public ServerInfo ServerInfo { get; private set; }
 
-    public string BuildBatch(string[] statements)
+    public string BuildBatch(IReadOnlyList<string> statements)
     {
       return translator.BuildBatch(statements);
     }

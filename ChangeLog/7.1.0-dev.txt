@@ -68,5 +68,13 @@
 [main] CompositePreCompiler.Items became readonly field and changed its type to IReadOnlyList<IPreCompiler>
 [main] SqlCompilerConfiguration's SchemaMapping and DatabaseMapping changed return types to IReadOnlyDictionary<string, string>
 [main] TypeMappingRegistry.Mappings and .ReverseMappings changed return types to IReadOnlyDictionary<TKey, TValue>
+[main] Xtensive.Orm.Services.QueryTranslationResult became read-only structure
+[main] Query and ParameterBindings properties of Xtensive.Orm.Services.QueryTranslationResult changed their types and became read-only
+[main] SqlTranslator.BuildBatch method changed its parameter from string[] to IReadOnlyList<string>
+[main] TypeReference, QueryRequest QueryParameterBinding types became read-only structures
+[main] TypeInfoRef, ColumnInfoRef, ColumnGroup and ComparisonRule types became read-only structures
+[main] RecordSetHeader constructors changed IEnumerable<T> paremters to IReadOnlyList<T>
+[main] ColumnGroupCollection no longer takes IEnumerable<T> as parameter of constructor
+[main] ColumnCollection no longer takes IEnumerable<T> as parameter of constructor, only constructor with IReadOnlyList<T> is available now
 [firebird] Add support for Firebird 4
 [sqlserver] Microsoft.Data.SqlClient is updated to verson 4.0.0

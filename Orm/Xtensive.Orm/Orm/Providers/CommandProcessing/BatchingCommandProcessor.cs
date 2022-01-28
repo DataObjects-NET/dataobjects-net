@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers
   internal sealed class BatchingCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
     private readonly int batchSize;
-    private readonly Queue<SqlTask> tasks;
+    private Queue<SqlTask> tasks = new Queue<SqlTask>();
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
@@ -282,20 +282,15 @@ namespace Xtensive.Orm.Providers
     private void PutTasksForExecution(CommandProcessorContext context)
     {
       if (context.AllowPartialExecution) {
-        context.ProcessingTasks = new Queue<SqlTask>();
-        var batchesCount = tasks.Count / batchSize;
-        if (batchesCount == 0) {
-          return;
-        }
-
-        context.ProcessingTasks = new Queue<SqlTask>();
-        while (context.ProcessingTasks.Count < batchesCount * batchSize) {
+        var processingTasksCount = tasks.Count / batchSize * batchSize;
+        context.ProcessingTasks = new Queue<SqlTask>(processingTasksCount);
+        while (context.ProcessingTasks.Count < processingTasksCount) {
           context.ProcessingTasks.Enqueue(tasks.Dequeue());
         }
       }
       else {
-        context.ProcessingTasks = new Queue<SqlTask>(tasks);
-        tasks.Clear();
+        context.ProcessingTasks = tasks;
+        tasks = new Queue<SqlTask>();
       }
     }
 
@@ -333,7 +328,6 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, nameof(batchSize));
       this.batchSize = batchSize;
-      tasks = new Queue<SqlTask>();
     }
   }
 }

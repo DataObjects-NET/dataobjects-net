@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -321,8 +321,8 @@ namespace Xtensive.Orm.Linq.MemberCompilation
         else if (canonicalMember is MethodInfo methodInfo) {
           canonicalMember = GetCanonicalMethod(methodInfo, targetType.GetMethods());
         }
-        else if (canonicalMember is ConstructorInfo)
-          canonicalMember = GetCanonicalMethod((ConstructorInfo) canonicalMember, targetType.GetConstructors());
+        else if (canonicalMember is ConstructorInfo constructorInfo)
+          canonicalMember = GetCanonicalMethod(constructorInfo, targetType.GetConstructors());
         else
           canonicalMember = null;
       }
