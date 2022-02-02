@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Rse;
@@ -24,17 +25,43 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = new List<string> {"Michelle", "Jack"};
       var query1 = from c in Session.Query.All<Customer>()
-      where !c.FirstName.In(list)
-      select c.Invoices;
+                   where !c.FirstName.In(list)
+                   select c.Invoices;
       var query2 = from c in Session.Query.All<Customer>()
-      where !c.FirstName.In("Michelle", "Jack")
-      select c.Invoices;
+                   where !c.FirstName.In("Michelle", "Jack")
+                   select c.Invoices;
       var expected1 = from c in Customers
-      where !list.Contains(c.FirstName)
-      select c.Invoices;
+                      where !list.Contains(c.FirstName)
+                      select c.Invoices;
       var expected2 = from c in Customers
-      where !c.FirstName.In(list)
-      select c.Invoices;
+                      where !c.FirstName.In(list)
+                      select c.Invoices;
+      Assert.That(query1, Is.Not.Empty);
+      Assert.That(query2, Is.Not.Empty);
+      Assert.AreEqual(0, expected1.Except(query1).Count());
+      Assert.AreEqual(0, expected2.Except(query1).Count());
+      Assert.AreEqual(0, expected1.Except(query2).Count());
+      Assert.AreEqual(0, expected2.Except(query2).Count());
+      QueryDumper.Dump(query1);
+      QueryDumper.Dump(query2);
+    }
+
+    [Test]
+    public async Task StringContainsAsyncTest()
+    {
+      var list = new List<string> { "Michelle", "Jack" };
+      var query1 = (await (from c in Session.Query.All<Customer>()
+                   where !c.FirstName.In(list)
+                   select c.Invoices).AsAsync()).ToList();
+      var query2 = (await (from c in Session.Query.All<Customer>()
+                   where !c.FirstName.In("Michelle", "Jack")
+                   select c.Invoices).AsAsync()).ToList();
+      var expected1 = from c in Customers
+                      where !list.Contains(c.FirstName)
+                      select c.Invoices;
+      var expected2 = from c in Customers
+                      where !c.FirstName.In(list)
+                      select c.Invoices;
       Assert.That(query1, Is.Not.Empty);
       Assert.That(query2, Is.Not.Empty);
       Assert.AreEqual(0, expected1.Except(query1).Count());
@@ -48,10 +75,10 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void MartinTest()
     {
-      Session.Query.All<Customer>()
-        .LeftJoin(Session.Query.All<Invoice>(), c => c, i => i.Customer, (c, i) => new {Customer = c, Invoice = i})
-        .GroupBy(i => new {i.Customer.FirstName, i.Customer.LastName})
-        .Select(g => new {Key = g.Key, Count = g.Count(j => j.Invoice!=null)})
+      _ = Session.Query.All<Customer>()
+        .LeftJoin(Session.Query.All<Invoice>(), c => c, i => i.Customer, (c, i) => new { Customer = c, Invoice = i })
+        .GroupBy(i => new { i.Customer.FirstName, i.Customer.LastName })
+        .Select(g => new { Key = g.Key, Count = g.Count(j => j.Invoice != null) })
         .ToList();
     }
 
@@ -64,14 +91,37 @@ namespace Xtensive.Orm.Tests.Linq
       for (var i = 0; i < 100; i++) 
         list2.AddRange(list1);
       var query1 = from invoice in Session.Query.All<Invoice>()
-      where (invoice.Commission).In(list1)
-      select invoice;
+                   where (invoice.Commission).In(list1)
+                   select invoice;
       var query2 = from invoice in Session.Query.All<Invoice>()
-      where (invoice.Commission).In(list2)
-      select invoice;
+                   where (invoice.Commission).In(list2)
+                   select invoice;
       var expected = from invoice in Invoices
-      where (invoice.Commission).In(list1)
-      select invoice;
+                     where (invoice.Commission).In(list1)
+                     select invoice;
+      Assert.That(query1, Is.Not.Empty);
+      Assert.That(query2, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query1).Count());
+      Assert.AreEqual(0, expected.Except(query2).Count());
+    }
+
+    [Test]
+    public async Task LongSequenceIntAsyncTest()
+    {
+      // Wrong JOIN mapping for temptable version of .In
+      var list1 = new List<decimal?> { 0.05m, 0.18m, 0.41m };
+      var list2 = new List<decimal?>();
+      for (var i = 0; i < 100; i++)
+        list2.AddRange(list1);
+      var query1 = (await (from invoice in Session.Query.All<Invoice>()
+                   where (invoice.Commission).In(list1)
+                   select invoice).AsAsync()).ToList();
+      var query2 = (await (from invoice in Session.Query.All<Invoice>()
+                   where (invoice.Commission).In(list2)
+                   select invoice).AsAsync()).ToList();
+      var expected = from invoice in Invoices
+                     where (invoice.Commission).In(list1)
+                     select invoice;
       Assert.That(query1, Is.Not.Empty);
       Assert.That(query2, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query1).Count());
@@ -84,11 +134,27 @@ namespace Xtensive.Orm.Tests.Linq
       // casts int to decimal
       var list = new List<int> {5, 18, 41};
       var query = from invoice in Session.Query.All<Invoice>()
-      where !((int) invoice.Commission).In(list)
-      select invoice;
+                  where !((int) invoice.Commission).In(list)
+                  select invoice;
       var expected = from invoice in Invoices
-      where !((int) invoice.Commission).In(list)
-      select invoice;
+                     where !((int) invoice.Commission).In(list)
+                     select invoice;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task IntAndDecimalContains1AsyncTest()
+    {
+      // casts int to decimal
+      var list = new List<int> { 5, 18, 41 };
+      var query = (await (from invoice in Session.Query.All<Invoice>()
+                  where !((int) invoice.Commission).In(list)
+                  select invoice).AsAsync()).ToList();
+      var expected = from invoice in Invoices
+                     where !((int) invoice.Commission).In(list)
+                     select invoice;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -99,11 +165,26 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = new List<int> {276192, 349492, 232463};
       var query = from track in Session.Query.All<Track>()
-      where track.Milliseconds.In(list)
-      select track;
+                  where track.Milliseconds.In(list)
+                  select track;
       var expected = from track in Tracks
-      where track.Milliseconds.In(list)
-      select track;
+                     where track.Milliseconds.In(list)
+                     select track;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task SimpleIntContainsAsyncTest()
+    {
+      var list = new List<int> { 276192, 349492, 232463 };
+      var query = (await (from track in Session.Query.All<Track>()
+                  where track.Milliseconds.In(list)
+                  select track).AsAsync()).ToList();
+      var expected = from track in Tracks
+                     where track.Milliseconds.In(list)
+                     select track;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -138,11 +219,27 @@ namespace Xtensive.Orm.Tests.Linq
       // casts decimal to int
       var list = new List<decimal> {7, 22, 46};
       var query = from invoice in Session.Query.All<Invoice>()
-      where !((decimal) invoice.InvoiceId).In(list)
-      select invoice;
+                  where !((decimal) invoice.InvoiceId).In(list)
+                  select invoice;
       var expected = from invoice in Invoices
-      where !((decimal) invoice.InvoiceId).In(list)
-      select invoice;
+                     where !((decimal) invoice.InvoiceId).In(list)
+                     select invoice;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task IntAndDecimalContains2AsyncTest()
+    {
+      // casts decimal to int
+      var list = new List<decimal> { 7, 22, 46 };
+      var query = (await (from invoice in Session.Query.All<Invoice>()
+                  where !((decimal) invoice.InvoiceId).In(list)
+                  select invoice).AsAsync()).ToList();
+      var expected = from invoice in Invoices
+                     where !((decimal) invoice.InvoiceId).In(list)
+                     select invoice;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -153,11 +250,26 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = Session.Query.All<Customer>().Take(5).ToList();
       var query = from c in Session.Query.All<Customer>()
-      where !c.In(list)
-      select c.Invoices;
+                  where !c.In(list)
+                  select c.Invoices;
       var expected = from c in Customers
-      where !c.In(list)
-      select c.Invoices;
+                     where !c.In(list)
+                     select c.Invoices;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task EntityContainsAsyncTest()
+    {
+      var list = Session.Query.All<Customer>().Take(5).ToList();
+      var query = (await (from c in Session.Query.All<Customer>()
+                  where !c.In(list)
+                  select c.Invoices).AsAsync()).ToList();
+      var expected = from c in Customers
+                     where !c.In(list)
+                     select c.Invoices;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -168,11 +280,26 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = Session.Query.All<Customer>().Take(5).Select(c => c.Address).ToList();
       var query = from c in Session.Query.All<Customer>()
-      where !c.Address.In(list)
-      select c.Invoices;
+                  where !c.Address.In(list)
+                  select c.Invoices;
       var expected = from c in Customers
-      where !c.Address.In(list)
-      select c.Invoices;
+                     where !c.Address.In(list)
+                     select c.Invoices;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task StructContainsAsyncTest()
+    {
+      var list = Session.Query.All<Customer>().Take(5).Select(c => c.Address).ToList();
+      var query = (await (from c in Session.Query.All<Customer>()
+                  where !c.Address.In(list)
+                  select c.Invoices).AsAsync()).ToList();
+      var expected = from c in Customers
+                     where !c.Address.In(list)
+                     select c.Invoices;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -187,11 +314,33 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public async Task StructSimpleContainsAsyncTest()
+    {
+      var list = (await Session.Query.All<Customer>().Take(5).Select(c => c.Address).AsAsync()).ToList();
+      var query = Session.Query.All<Customer>().Select(c => c.Address).Where(c => c.In(list));
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
     public void AnonimousContainsTest()
     {
       var list = new[] {new {FirstName = "Michelle"}, new {FirstName = "Jack"}};
       var query = Session.Query.All<Customer>().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       var expected = Customers.Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task AnonimousContainsAsyncTest()
+    {
+      var list = new[] { new { FirstName = "Michelle" }, new { FirstName = "Jack" } };
+      var query = (await Session.Query.All<Customer>()
+        .Where(c => new { c.FirstName }.In(list))
+        .Select(c => c.Invoices)
+        .AsAsync()).ToList();
+      var expected = Customers.Where(c => new { c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -209,6 +358,20 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public async Task AnonimousContains2AsyncTest()
+    {
+      var list = new[] { new { Id1 = "Michelle", Id2 = "Michelle" }, new { Id1 = "Jack", Id2 = "Jack" } };
+      var query = (await Session.Query.All<Customer>()
+        .Where(c => new { Id1 = c.FirstName, Id2 = c.FirstName }.In(list))
+        .Select(c => c.Invoices)
+        .AsAsync()).ToList();
+      var expected = Customers.Where(c => new { Id1 = c.FirstName, Id2 = c.FirstName }.In(list)).Select(c => c.Invoices);
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
     public void QueryableDoubleContainsTest()
     {
       var list = Session.Query.All<Invoice>()
@@ -216,11 +379,29 @@ namespace Xtensive.Orm.Tests.Linq
         .Distinct()
         .Take(10);
       var query = from invoice in Session.Query.All<Invoice>()
-      where !invoice.Commission.In(list)
-      select invoice;
+                  where !invoice.Commission.In(list)
+                  select invoice;
       var expected = from invoice in Invoices
-      where !invoice.Commission.In(list)
-      select invoice;
+                     where !invoice.Commission.In(list)
+                     select invoice;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task QueryableDoubleContainsAsyncTest()
+    {
+      var list = Session.Query.All<Invoice>()
+        .Select(o => o.Commission)
+        .Distinct()
+        .Take(10);
+      var query = (await (from invoice in Session.Query.All<Invoice>()
+                  where !invoice.Commission.In(list)
+                  select invoice).AsAsync()).ToList();
+      var expected = from invoice in Invoices
+                     where !invoice.Commission.In(list)
+                     select invoice;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -231,11 +412,26 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var list = Session.Query.All<Customer>().Take(5);
       var query = from c in Session.Query.All<Customer>()
-      where !c.In(list)
-      select c.Invoices;
+                  where !c.In(list)
+                  select c.Invoices;
       var expected = from c in Customers
-      where !c.In(list)
-      select c.Invoices;
+                     where !c.In(list)
+                     select c.Invoices;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task QueryableEntityContainsAsyncTest()
+    {
+      var list = Session.Query.All<Customer>().Take(5);
+      var query = (await (from c in Session.Query.All<Customer>()
+                  where !c.In(list)
+                  select c.Invoices).AsAsync()).ToList();
+      var expected = from c in Customers
+                     where !c.In(list)
+                     select c.Invoices;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -248,11 +444,28 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(5)
         .Select(c => c.Address);
       var query = from c in Session.Query.All<Customer>()
-      where !c.Address.In(list)
-      select c.Invoices;
+                  where !c.Address.In(list)
+                  select c.Invoices;
       var expected = from c in Customers
-      where !c.Address.In(list)
-      select c.Invoices;
+                     where !c.Address.In(list)
+                     select c.Invoices;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task QueryableStructContainsAsyncTest()
+    {
+      var list = Session.Query.All<Customer>()
+        .Take(5)
+        .Select(c => c.Address);
+      var query = (await (from c in Session.Query.All<Customer>()
+                  where !c.Address.In(list)
+                  select c.Invoices).AsAsync()).ToList();
+      var expected = from c in Customers
+                     where !c.Address.In(list)
+                     select c.Invoices;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -264,6 +477,20 @@ namespace Xtensive.Orm.Tests.Linq
       var list = Session.Query.All<Customer>().Take(10).Select(c => new {c.FirstName});
       var query = Session.Query.All<Customer>().Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
       var expected = Customers.Where(c => new {c.FirstName}.In(list)).Select(c => c.Invoices);
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task QueryableAnonimousContainsAsyncTest()
+    {
+      var list = Session.Query.All<Customer>().Take(10).Select(c => new { c.FirstName });
+      var query = (await Session.Query.All<Customer>()
+        .Where(c => new { c.FirstName }.In(list))
+        .Select(c => c.Invoices)
+        .AsAsync()).ToList();
+      var expected = Customers.Where(c => new { c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -283,11 +510,27 @@ namespace Xtensive.Orm.Tests.Linq
       var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
       var list = new List<int> {276192, 349492, 232463};
       var query = from track in Session.Query.All<Track>()
-      where track.Milliseconds.In(includeAlgorithm, list)
-      select track;
+                  where track.Milliseconds.In(includeAlgorithm, list)
+                  select track;
       var expected = from track in Tracks
-      where track.Milliseconds.In(includeAlgorithm, list)
-      select track;
+                     where track.Milliseconds.In(includeAlgorithm, list)
+                     select track;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task ComplexCondition1AsyncTest()
+    {
+      var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
+      var list = new List<int> { 276192, 349492, 232463 };
+      var query = (await (from track in Session.Query.All<Track>()
+                  where track.Milliseconds.In(includeAlgorithm, list)
+                  select track).AsAsync()).ToList();
+      var expected = from track in Tracks
+                     where track.Milliseconds.In(includeAlgorithm, list)
+                     select track;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
@@ -298,11 +541,26 @@ namespace Xtensive.Orm.Tests.Linq
     {
       var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
       var query = from track in Session.Query.All<Track>()
-      where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
-      select track;
+                  where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
+                  select track;
       var expected = from track in Tracks
-      where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
-      select track;
+                     where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
+                     select track;
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+      QueryDumper.Dump(query);
+    }
+
+    [Test]
+    public async Task ComplexCondition2AsyncTest()
+    {
+      var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
+      var query = (await (from track in Session.Query.All<Track>()
+                  where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
+                  select track).AsAsync()).ToList();
+      var expected = from track in Tracks
+                     where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
+                     select track;
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
       QueryDumper.Dump(query);
