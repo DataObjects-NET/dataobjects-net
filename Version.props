@@ -3,7 +3,7 @@
 
 <PropertyGroup>
     <DoVersion>6.0.9</DoVersion>
-    <DoVersionSuffix>dev</DoVersionSuffix>
+    <DoVersionSuffix></DoVersionSuffix>
 </PropertyGroup>
 
 </Project>
