@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2021-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Edgar Isajanyan
@@ -884,6 +884,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void SessionTagPrefetchEntitySet()
     {
       var allCommands = new List<string>();
+      var batchesSupported = Domain.Handlers.ProviderInfo.Supports(Providers.ProviderFeatures.Batches);
 
       using (var session = Domain.OpenSession())
       using (var tx = session.OpenTransaction()) {
@@ -907,8 +908,15 @@ namespace Xtensive.Orm.Tests.Linq
         _ = session.Query.All<Author>().Prefetch(a => a.Books).ToArray();
         session.Events.DbCommandExecuting -= SqlCapturer;
 
-        Assert.That(allCommands.Count, Is.EqualTo(2));
-        Assert.IsTrue(allCommands[1].StartsWith("/*outermost*/"));
+        if (batchesSupported) {
+          Assert.That(allCommands.Count, Is.EqualTo(2));
+          Assert.IsTrue(allCommands[1].StartsWith("/*outermost*/"));
+        }
+        else {
+          Assert.That(allCommands.Count, Is.EqualTo(3));
+          Assert.IsTrue(allCommands[1].StartsWith("/*outermost*/"));
+          Assert.IsTrue(allCommands[2].StartsWith("/*outermost*/"));
+        }
 
         allCommands.Clear();
       }
@@ -922,8 +930,15 @@ namespace Xtensive.Orm.Tests.Linq
           _ = session.Query.All<Author>().Prefetch(a => a.Books).ToArray();
           session.Events.DbCommandExecuting -= SqlCapturer;
 
-          Assert.That(allCommands.Count, Is.EqualTo(2));
-          Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between*/"));
+          if (batchesSupported) {
+            Assert.That(allCommands.Count, Is.EqualTo(2));
+            Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between*/"));
+          }
+          else {
+            Assert.That(allCommands.Count, Is.EqualTo(3));
+            Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between*/"));
+            Assert.IsTrue(allCommands[2].StartsWith("/*outermost in-between*/"));
+          }
 
           allCommands.Clear();
         }
@@ -939,8 +954,15 @@ namespace Xtensive.Orm.Tests.Linq
             _ = session.Query.All<Author>().Prefetch(a => a.Books).ToArray();
             session.Events.DbCommandExecuting -= SqlCapturer;
 
-            Assert.That(allCommands.Count, Is.EqualTo(2));
-            Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between deepest*/"));
+            if (batchesSupported) {
+              Assert.That(allCommands.Count, Is.EqualTo(2));
+              Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between deepest*/"));
+            }
+            else {
+              Assert.That(allCommands.Count, Is.EqualTo(3));
+              Assert.IsTrue(allCommands[1].StartsWith("/*outermost in-between deepest*/"));
+              Assert.IsTrue(allCommands[2].StartsWith("/*outermost in-between deepest*/"));
+            }
 
             allCommands.Clear();
           }

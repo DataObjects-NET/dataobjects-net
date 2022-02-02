@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
@@ -578,7 +578,7 @@ namespace Xtensive.Orm.Providers
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
-      forceApplyViaReference = handlers.ProviderInfo.ProviderName.Equals(WellKnown.Provider.PostgreSql);
+      forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
