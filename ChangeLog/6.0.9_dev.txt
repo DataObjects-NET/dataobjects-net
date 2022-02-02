@@ -1,4 +1,4 @@
-[main] Improved enum comparison in queries so result SQL queries won't lead to table scan
+[main] Improved enum comparison in queries so result SQL queries won't break index seek if any exists
 [main] Improved enum comparison in partial indexes
 [main] Addressed certain issues with with async queries containing .Store() and .In() via temporary table
 [sqlserver] Fixed Full-text indexes extraction for Azure SQL provider
