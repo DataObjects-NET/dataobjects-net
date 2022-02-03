@@ -9,30 +9,36 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
 {
   internal class Translator : v2_5.Translator
   {
-    public override string Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
+    public override void Translate(SqlCompilerContext context, SqlJoinExpression node, JoinSection section)
     {
+      var output = context.Output;
       switch (section) {
-        case JoinSection.Specification: {
+        case JoinSection.Specification:
           if (node.Expression == null) {
             switch (node.JoinType) {
               case SqlJoinType.CrossApply:
-                return "CROSS JOIN LATERAL";
+                output.Append("CROSS JOIN LATERAL");
+                break;
               case SqlJoinType.LeftOuterApply:
-                return "LEFT JOIN LATERAL";
+                output.Append("LEFT JOIN LATERAL");
+                break;
               default:
-                return base.Translate(context, node, section);
+                base.Translate(context, node, section);
+                break;
             }
+            return;
           }
-          return Translate(node.JoinType) + " JOIN";
-        }
-        case JoinSection.Exit: {
+          output.Append(Translate(node.JoinType) + " JOIN");
+          break;
+        case JoinSection.Exit:
           if (node.JoinType == SqlJoinType.LeftOuterApply) {
-            return "ON TRUE";
+            output.Append("ON TRUE");
           }
-          return string.Empty;
-        }
+          break;
+        default:
+          base.Translate(context, node, section);
+          break;
       }
-      return base.Translate(context, node, section);
     }
 
     // Constructors
