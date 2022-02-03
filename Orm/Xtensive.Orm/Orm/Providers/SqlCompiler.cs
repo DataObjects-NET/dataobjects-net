@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Vakhtina Elena
@@ -74,20 +74,23 @@ namespace Xtensive.Orm.Providers
 
       SqlSelect sourceSelect = source.Request.Statement;
       var sqlSelect = sourceSelect.ShallowClone();
-      var columns = sqlSelect.Columns.ToList();
-      sqlSelect.Columns.Clear();
+      var sqlSelectColumns = sqlSelect.Columns;
+      var columns = sqlSelectColumns.ToList();
+      sqlSelectColumns.Clear();
       for (int i = 0; i < columns.Count; i++) {
         var columnName = provider.Header.Columns[i].Name;
         columnName = ProcessAliasedName(columnName);
-        var column = columns[i];
-        var columnRef = column as SqlColumnRef;
-        var columnStub = column as SqlColumnStub;
-        if (!ReferenceEquals(null, columnRef))
-          sqlSelect.Columns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
-        else if (!ReferenceEquals(null, columnStub))
-          sqlSelect.Columns.Add(columnStub);
-        else
-          sqlSelect.Columns.Add(column, columnName);
+        switch (columns[i]) {
+          case SqlColumnRef columnRef:
+            sqlSelectColumns.Add(SqlDml.ColumnRef(columnRef.SqlColumn, columnName));
+            break;
+          case SqlColumnStub columnStub:
+            sqlSelectColumns.Add(columnStub);
+            break;
+          case var column:
+            sqlSelectColumns.Add(column, columnName);
+            break;
+        }
       }
       return CreateProvider(sqlSelect, provider, source);
     }
@@ -107,7 +110,7 @@ namespace Xtensive.Orm.Providers
         sqlSelect = ExtractSqlSelect(provider, source);
 
       var sourceColumns = ExtractColumnExpressions(sqlSelect);
-      var allBindings = EnumerableUtils<QueryParameterBinding>.Empty;
+      var allBindings = Enumerable.Empty<QueryParameterBinding>();
       foreach (var column in provider.CalculatedColumns) {
         var result = ProcessExpression(column.Expression, sourceColumns);
         var predicate = result.First;
@@ -575,7 +578,7 @@ namespace Xtensive.Orm.Providers
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
-      forceApplyViaReference = handlers.ProviderInfo.ProviderName.Equals(WellKnown.Provider.PostgreSql);
+      forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
 
       if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);

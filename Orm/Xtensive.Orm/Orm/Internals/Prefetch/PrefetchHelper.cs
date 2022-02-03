@@ -7,26 +7,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals.Prefetch
 {
   internal static class PrefetchHelper
   {
+    private static readonly Func<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> CreateDescriptorsForFieldsLoadedByDefault = type =>
+      type.Fields
+        .Where(field => field.Parent == null && IsFieldToBeLoadedByDefault(field))
+        .Select(field => new PrefetchFieldDescriptor(field, false, false))
+        .ToList()
+        .AsReadOnly();
+
     public static bool IsFieldToBeLoadedByDefault(FieldInfo field)
     {
       return field.IsPrimaryKey || field.IsSystem || (!field.IsLazyLoad && !field.IsEntitySet);
     }
 
-    public static ReadOnlyList<PrefetchFieldDescriptor> CreateDescriptorsForFieldsLoadedByDefault(TypeInfo type)
-    {
-      return new ReadOnlyList<PrefetchFieldDescriptor>(type.Fields
-        .Where(field => field.Parent == null && IsFieldToBeLoadedByDefault(field))
-        .Select(field => new PrefetchFieldDescriptor(field, false, false)).ToList());
-    }
-
-    public static ReadOnlyList<PrefetchFieldDescriptor> GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain, TypeInfo type)
+    public static IReadOnlyList<PrefetchFieldDescriptor> GetCachedDescriptorsForFieldsLoadedByDefault(Domain domain, TypeInfo type)
     {
       return domain.PrefetchFieldDescriptorCache.GetOrAdd(type, CreateDescriptorsForFieldsLoadedByDefault);
     }

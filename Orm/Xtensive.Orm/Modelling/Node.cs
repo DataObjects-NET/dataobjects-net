@@ -5,12 +5,12 @@
 // Created:    2009.03.16
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.Serialization;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Modelling.Actions;
 using Xtensive.Modelling.Attributes;
@@ -34,14 +34,15 @@ namespace Xtensive.Modelling
     /// Path delimiter character.
     /// </summary>
     public static readonly char PathDelimiter = '/';
+    public static readonly string PathDelimiterString = PathDelimiter.ToString();
     /// <summary>
     /// Path escape character.
     /// </summary>
     public static readonly char PathEscape = '\\';
 
     [NonSerialized]
-    private static ThreadSafeDictionary<Type, PropertyAccessorDictionary> cachedPropertyAccessors = 
-      ThreadSafeDictionary<Type, PropertyAccessorDictionary>.Create(new object());
+    private static readonly ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>> CachedPropertyAccessors = 
+      new ConcurrentDictionary<Type, Lazy<PropertyAccessorDictionary>>();
     [NonSerialized]
     private Node model;
     [NonSerialized]
@@ -185,18 +186,24 @@ namespace Xtensive.Modelling
     public string Path {
       [DebuggerStepThrough]
       get {
-        if (cachedPath!=null)
+        if (cachedPath!=null) {
           return cachedPath;
-        if (Parent==null)
+        }
+
+        if (Parent==null) {
           return string.Empty;
-        string parentPath = Parent.Path;
-        if (parentPath.Length!=0)
-          parentPath += PathDelimiter;
+        }
+
+        var parentPath = Parent.Path;
+        if (parentPath.Length!=0) {
+          parentPath += PathDelimiterString;
+        }
+
         return string.Concat(
           parentPath,
           Nesting.EscapedPropertyName,
-          Nesting.IsNestedToCollection ? PathDelimiter.ToString() : string.Empty,
-          Nesting.IsNestedToCollection ? EscapedName : string.Empty);
+          Nesting.IsNestedToCollection ? PathDelimiterString : null,
+          Nesting.IsNestedToCollection ? EscapedName : null);
       }
     }
 
@@ -845,8 +852,10 @@ namespace Xtensive.Modelling
     private static PropertyAccessorDictionary GetPropertyAccessors(Type type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
-      return cachedPropertyAccessors.GetValue(type,
-        entityType => {
+
+      static Lazy<PropertyAccessorDictionary> PropertyAccessorExtractor(Type entityType)
+      {
+        return new Lazy<PropertyAccessorDictionary>(() => {
           var d = new Dictionary<string, PropertyAccessor>();
           if (entityType != WellKnownTypes.Object) {
             foreach (var pair in GetPropertyAccessors(entityType.BaseType)) {
@@ -862,8 +871,11 @@ namespace Xtensive.Modelling
             }
           }
 
-          return new PropertyAccessorDictionary(d, false);
+          return new PropertyAccessorDictionary(d);
         });
+      }
+
+      return CachedPropertyAccessors.GetOrAdd(type, PropertyAccessorExtractor).Value;
     }
 
     private Node TryConstructor(IModel model, params object[] args)
@@ -972,7 +984,7 @@ namespace Xtensive.Modelling
       var m = Model;
       var fullName = Path;
       if (m != null) {
-        fullName = string.Concat(m.EscapedName, PathDelimiter, fullName);
+        fullName = string.Concat(m.EscapedName, PathDelimiterString, fullName);
       }
 
       if (!Nesting.IsNestedToCollection && !(this is IModel)) {

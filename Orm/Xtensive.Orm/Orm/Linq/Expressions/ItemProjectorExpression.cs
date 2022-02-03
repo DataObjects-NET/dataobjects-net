@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Linq.Expressions
       }
     }
 
-    public List<int> GetColumns(ColumnExtractionModes columnExtractionModes) =>
+    public IEnumerable<int> GetColumns(ColumnExtractionModes columnExtractionModes) =>
       ColumnGatherer.GetColumns(Item, columnExtractionModes);
 
     public List<Pair<int, Expression>> GetColumnsAndExpressions(ColumnExtractionModes columnExtractionModes) =>
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Linq.Expressions
       return new ItemProjectorExpression(item, dataSource, Context, AggregateType);
     }
 
-    public ItemProjectorExpression Remap(CompilableProvider dataSource, int[] columnMap)
+    public ItemProjectorExpression Remap(CompilableProvider dataSource, IReadOnlyList<int> columnMap)
     {
       var item = GenericExpressionVisitor<IMappedExpression>
         .Process(Item, mapped => mapped.Remap(columnMap, new Dictionary<Expression, Expression>()));

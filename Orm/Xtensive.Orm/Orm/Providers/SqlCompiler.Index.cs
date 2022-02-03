@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Providers
         var columnType = discriminatorMap.Column.ValueType;
         var discriminatorColumnIndex = underlyingIndex.Columns
           .Where(c => !c.Field.IsTypeId)
-          .Select((c,i) => new {c,i})
+          .Select((c, i) => (c, i))
           .Where(p => p.c == discriminatorMap.Column)
           .Single().i;
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.Providers
 
       var baseColumns = baseQuery.Columns.ToList();
       var typeIdColumnIndex = index.Columns
-        .Select((c, i) => new {c.Field, i})
+        .Select((c, i) => (c.Field, i))
         .Single(p => p.Field.IsTypeId && p.Field.IsSystem).i;
       var type = index.ReflectedType;
       var typeIdColumn = SqlDml.ColumnRef(
@@ -228,7 +228,15 @@ namespace Xtensive.Orm.Providers
         WellKnown.TypeIdFieldName);
       var discriminatorMap = type.Hierarchy.TypeDiscriminatorMap;
       if (discriminatorMap != null) {
-        var discriminatorColumnIndex = underlyingIndex.Columns.IndexOf(discriminatorMap.Column);
+        var discriminatorColumnIndex = 0;
+        var discriminatorColumnInfo = discriminatorMap.Column;
+        var underlyingColumns = underlyingIndex.Columns; 
+        for (var columnCount = underlyingColumns.Count; discriminatorColumnIndex < columnCount; discriminatorColumnIndex++) {
+          var column = underlyingColumns[discriminatorColumnIndex];
+          if (column.Equals(discriminatorColumnInfo)) {
+            break;
+          }
+        }
         var discriminatorColumn = baseQuery.From.Columns[discriminatorColumnIndex];
         var sqlCase = SqlDml.Case(discriminatorColumn);
         foreach (var pair in discriminatorMap) {

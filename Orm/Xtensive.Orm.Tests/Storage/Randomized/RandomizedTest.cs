@@ -28,8 +28,6 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     private Random randomProvider;
     private bool isSettingUp;
     private readonly List<Key> entitySetCache = new List<Key>();
-    private bool isProtocolMemory;
-    
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();

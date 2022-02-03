@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0716_UpgradeFailsInValidateMode
       return true;
     }
 
-    protected override void AddUpgradeHints(global::Xtensive.Collections.ISet<UpgradeHint> hints)
+    protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
         Version1To2Hints.ForEach(hint => hints.Add(hint));

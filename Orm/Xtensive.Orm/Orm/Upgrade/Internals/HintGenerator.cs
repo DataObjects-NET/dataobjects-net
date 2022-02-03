@@ -373,7 +373,7 @@ namespace Xtensive.Orm.Upgrade
           // X.EntitySet<Y>, where X is in removedTypeAndAncestors,
           // connectorType.X must be cleaned up as well
           requiresInverseCleanup
-        select new {association, requiresInverseCleanup}
+        select (association, requiresInverseCleanup)
         ).ToList();
       foreach (var pair in affectedAssociations) {
         var association = pair.association;
@@ -606,7 +606,7 @@ namespace Xtensive.Orm.Upgrade
           throw Exceptions.InternalError(string.Format(
             Strings.ExInheritanceSchemaIsInvalid, inheritanceSchema), UpgradeLog.Instance);
       }
-      hint.AffectedTables = new ReadOnlyList<string>(affectedTables);
+      hint.AffectedTables = affectedTables.AsReadOnly();
     }
 
     private void UpdateAffectedColumns(ChangeFieldTypeHint hint)
@@ -625,7 +625,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var affectedColumns = GetAffectedColumns(currentType, currentField);
-      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
+      hint.AffectedColumns = affectedColumns.AsReadOnly();
     }
 
     private void UpdateAffectedColumns(RemoveFieldHint hint)
@@ -667,7 +667,7 @@ namespace Xtensive.Orm.Upgrade
       }
 
       var affectedColumns = GetAffectedColumns(storedType, storedField);
-      hint.AffectedColumns = new ReadOnlyList<string>(affectedColumns);
+      hint.AffectedColumns = affectedColumns.AsReadOnly();
     }
 
     #endregion
@@ -955,8 +955,7 @@ namespace Xtensive.Orm.Upgrade
         tasks.Enqueue(task);
       }
 
-      while (tasks.Count > 0) {
-        var task = tasks.Dequeue();
+      while (tasks.TryDequeue(out var task)) {
         var source = task.First;
         var target = task.Second;
         // both fields are primitive -> put to result is types match

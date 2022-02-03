@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Security
   public abstract class Role : Entity, IRole
   {
     private List<Permission> permissions;
-    private ReadOnlyList<Permission> readOnlyPermissions;
+    private IList<Permission> readOnlyPermissions;
 
     /// <inheritdoc/>
     [NotNullConstraint(IsImmediate = true)]
@@ -57,7 +57,7 @@ namespace Xtensive.Orm.Security
     {
       base.OnInitialize();
       permissions = new List<Permission>();
-      readOnlyPermissions = new ReadOnlyList<Permission>(permissions);
+      readOnlyPermissions = permissions.AsReadOnly();
       RegisterPermissions();
     }
 

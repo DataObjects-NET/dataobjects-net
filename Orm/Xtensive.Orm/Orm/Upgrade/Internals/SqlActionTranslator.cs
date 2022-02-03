@@ -116,9 +116,10 @@ namespace Xtensive.Orm.Upgrade
 
     private void VisitAction(NodeAction action)
     {
-      if (action is GroupingNodeAction)
-        foreach (var nodeAction in ((GroupingNodeAction) action).Actions)
+      if (action is GroupingNodeAction groupingNodeAction) {
+        foreach (var nodeAction in groupingNodeAction.Actions)
           VisitAction(nodeAction);
+      }
       else if (action is CreateNodeAction createNodeAction)
         VisitCreateAction(createNodeAction);
       else if (action is RemoveNodeAction removeNodeAction)
@@ -847,11 +848,11 @@ namespace Xtensive.Orm.Upgrade
       }
       List<NodeConnection<TableInfo, ForeignKeyInfo>> edges;
       var sortedTables = TopologicalSorter.Sort(nodes, out edges);
-      sortedTables.Reverse();
       // TODO: Process removed edges
 
       // Build DML commands
-      foreach (var table in sortedTables) {
+      for (var i = sortedTables.Count; i-- > 0;) {
+        var table = sortedTables[i];
         var tableRef = SqlDml.TableRef(FindTable(table));
         var delete = SqlDml.Delete(tableRef);
         var typeIds = deleteActions[table];

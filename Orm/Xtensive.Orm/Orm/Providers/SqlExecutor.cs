@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Providers
     {
       var groups = SplitOnEmptyEntries(statements);
       foreach (var group in groups) {
-        var batch = driver.BuildBatch(group.ToArray());
+        var batch = driver.BuildBatch(group);
         if (string.IsNullOrEmpty(batch)) {
           return;
         }
@@ -208,7 +208,7 @@ namespace Xtensive.Orm.Providers
     {
       var groups = SplitOnEmptyEntries(statements);
       foreach (var group in groups) {
-        var batch = driver.BuildBatch(group.ToArray());
+        var batch = driver.BuildBatch(group);
         if (string.IsNullOrEmpty(batch)) {
           return;
         }
@@ -220,7 +220,7 @@ namespace Xtensive.Orm.Providers
       }
     }
 
-    private static IEnumerable<IEnumerable<string>> SplitOnEmptyEntries(IEnumerable<string> items)
+    private static IEnumerable<IReadOnlyList<string>> SplitOnEmptyEntries(IEnumerable<string> items)
     {
       var group = new List<string>();
       foreach (var item in items) {

@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="descriptors">The descriptors of fields which values will be loaded.</param>
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save 
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
-    public abstract StrongReferenceContainer Prefetch(Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors);
+    public abstract StrongReferenceContainer Prefetch(Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors);
 
     /// <summary>
     /// Registers a task prefetching field values of the <see cref="Entity"/> with the specified key.
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
     /// <returns>A <see cref="StrongReferenceContainer"/> which can be used to save
     /// a strong reference to a fetched <see cref="Entity"/>.</returns>
     public abstract Task<StrongReferenceContainer> PrefetchAsync(
-      Key key, TypeInfo type, IList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default);
+      Key key, TypeInfo type, IReadOnlyList<PrefetchFieldDescriptor> descriptors, CancellationToken token = default);
 
     /// <summary>
     /// Executes registered prefetch tasks.

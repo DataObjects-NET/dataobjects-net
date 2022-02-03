@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Rse
       return new FilterProvider(source, predicate);
     }
 
-    public static CompilableProvider Select(this CompilableProvider source, params int[] columnIndexes)
+    public static CompilableProvider Select(this CompilableProvider source, IReadOnlyList<int> columnIndexes)
     {
       ArgumentValidator.EnsureArgumentNotNull(columnIndexes, "columnIndexes");
       return new SelectProvider(source, columnIndexes);

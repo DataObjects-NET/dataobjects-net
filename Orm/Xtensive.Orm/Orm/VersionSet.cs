@@ -8,7 +8,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Logging;
 
@@ -241,11 +240,7 @@ namespace Xtensive.Orm
     public bool Remove(Key key)
     {
       ArgumentValidator.EnsureArgumentNotNull(key, "key");
-      if (Contains(key)) {
-        versions.Remove(key);
-        return true;
-      }
-      return false;
+      return versions.Remove(key);
     }
 
     /// <summary>

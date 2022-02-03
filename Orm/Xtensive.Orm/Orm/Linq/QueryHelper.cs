@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -33,17 +33,18 @@ namespace Xtensive.Orm.Linq
       }
     }
 
+    private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
+
     public static Expression<Func<Tuple, bool>> BuildFilterLambda(int startIndex, IReadOnlyList<Type> keyColumnTypes, Parameter<Tuple> keyParameter)
     {
       Expression filterExpression = null;
-      var tupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
       var valueProperty = WellKnownOrmTypes.ParameterOfTuple
         .GetProperty(nameof(Parameter<Tuple>.Value), WellKnownOrmTypes.Tuple);
       var keyValue = Expression.Property(Expression.Constant(keyParameter), valueProperty);
       for (var i = 0; i < keyColumnTypes.Count; i++) {
-        var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.MakeGenericMethod(keyColumnTypes[i]);
+        var getValueMethod = WellKnownMembers.Tuple.GenericAccessor.CachedMakeGenericMethod(keyColumnTypes[i]);
         var tupleParameterFieldAccess = Expression.Call(
-          tupleParameter,
+          TupleParameter,
           getValueMethod,
           Expression.Constant(startIndex + i));
         var keyParameterFieldAccess = Expression.Call(
@@ -56,12 +57,12 @@ namespace Xtensive.Orm.Linq
           filterExpression = Expression.And(filterExpression,
             Expression.Equal(tupleParameterFieldAccess, keyParameterFieldAccess));
       }
-      return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, tupleParameter);
+      return FastExpression.Lambda<Func<Tuple, bool>>(filterExpression, TupleParameter);
     }
 
     private static Expression CreateEntityQuery(Type elementType)
     {
-      var queryAll = WellKnownMembers.Query.All.MakeGenericMethod(elementType);
+      var queryAll = WellKnownMembers.Query.All.CachedMakeGenericMethod(elementType);
       return Expression.Call(null, queryAll);
     }
 
@@ -84,7 +85,7 @@ namespace Xtensive.Orm.Linq
       // (ParameterExtractor.IsParameter => true)
       var owner = entitySet.Owner;
       var wrapper = Activator.CreateInstance(
-        typeof (OwnerWrapper<>).MakeGenericType(owner.GetType()), owner);
+        typeof (OwnerWrapper<>).CachedMakeGenericType(owner.GetType()), owner);
       var wrappedOwner = Expression.Property(Expression.Constant(wrapper), "Owner");
       if (!entitySet.Field.IsDynamicallyDefined) {
         return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
@@ -119,7 +120,7 @@ namespace Xtensive.Orm.Linq
             WellKnownMembers.IEntityKey)
           );
         return Expression.Call(
-          WellKnownMembers.Queryable.Where.MakeGenericMethod(elementType),
+          WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(elementType),
           CreateEntityQuery(elementType),
           FastExpression.Lambda(whereExpression, whereParameter)
           );
@@ -144,7 +145,7 @@ namespace Xtensive.Orm.Linq
         );
 
       var outerQuery = Expression.Call(
-        WellKnownMembers.Queryable.Where.MakeGenericMethod(connectorType),
+        WellKnownMembers.Queryable.Where.CachedMakeGenericMethod(connectorType),
         CreateEntityQuery(connectorType),
         FastExpression.Lambda(filterExpression, filterParameter)
         );
@@ -184,7 +185,7 @@ namespace Xtensive.Orm.Linq
       var castMethod = source.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT)
         ? WellKnownMembers.Queryable.Cast
         : WellKnownMembers.Enumerable.Cast;
-      source = Expression.Call(castMethod.MakeGenericMethod(baseType), source);
+      source = Expression.Call(castMethod.CachedMakeGenericMethod(baseType), source);
     }
 
     public static Type GetSequenceElementType(Type type)

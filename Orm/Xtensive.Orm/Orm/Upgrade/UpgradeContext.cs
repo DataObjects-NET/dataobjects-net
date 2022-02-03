@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the upgrade hints.
     /// </summary>
-    public SetSlim<UpgradeHint> Hints { get; private set; }
+    public ISet<UpgradeHint> Hints { get; private set; }
     
     /// <summary>
     /// Gets the recycled definitions.
@@ -146,17 +146,17 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets the map of upgrade handlers.
     /// </summary>
-    public ReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get { return Services.UpgradeHandlers; } }
+    public IReadOnlyDictionary<Assembly, IUpgradeHandler> UpgradeHandlers { get { return Services.UpgradeHandlers; } }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get { return Services.OrderedUpgradeHandlers; } }
+    public IReadOnlyList<IUpgradeHandler> OrderedUpgradeHandlers { get { return Services.OrderedUpgradeHandlers; } }
 
     /// <summary>
     /// Gets the ordered collection of upgrade handlers.
     /// </summary>
-    public ReadOnlyList<IModule> Modules { get { return Services.Modules; } }
+    public IReadOnlyList<IModule> Modules { get { return Services.Modules; } }
 
     /// <summary>
     /// Gets <see cref="Session"/> that is used for upgrade.
@@ -176,7 +176,7 @@ namespace Xtensive.Orm.Upgrade
     /// <summary>
     /// Gets <see cref="DbTransaction"/> that is used for upgrade.
     /// You should not modify transaction state by calling <see cref="DbTransaction.Commit"/>,
-    /// <see cref="DbTransaction.Rollback"/> or similar methods. Transaction state is controlled by DataObjects.Net.
+    /// <see cref="DbTransaction.Rollback()"/> or similar methods. Transaction state is controlled by DataObjects.Net.
     /// </summary>
     public DbTransaction Transaction { get { return Services.Connection.ActiveTransaction; } }
 
@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Upgrade
     private void Initialize()
     {
       Stage = UpgradeMode.IsMultistage() ? UpgradeStage.Upgrading : UpgradeStage.Final;
-      Hints = new SetSlim<UpgradeHint>();
+      Hints = new HashSet<UpgradeHint>();
       RecycledDefinitions = new List<RecycledDefinition>();
       Services = new UpgradeServiceAccessor();
     }

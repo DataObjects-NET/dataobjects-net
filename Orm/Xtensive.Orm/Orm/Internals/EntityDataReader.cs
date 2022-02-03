@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Internals
 {
   internal class EntityDataReader : DomainBound
   {
-    private class RecordPartMapping
+    private readonly struct RecordPartMapping
     {
-      public int TypeIdColumnIndex { get; private set; }
-      public Pair<int>[] Columns { get; private set; }
-      public TypeInfo ApproximateType { get; private set; }
+      public int TypeIdColumnIndex { get; }
+      public IReadOnlyList<Pair<int>> Columns { get; }
+      public TypeInfo ApproximateType { get; }
 
-      public RecordPartMapping(int typeIdColumnIndex, Pair<int>[] columns, TypeInfo approximateType)
+      public RecordPartMapping(int typeIdColumnIndex, IReadOnlyList<Pair<int>> columns, TypeInfo approximateType)
       {
         TypeIdColumnIndex = typeIdColumnIndex;
         Columns = columns;
@@ -33,10 +33,10 @@ namespace Xtensive.Orm.Internals
       }
     }
 
-    private class CacheItem
+    private readonly struct CacheItem
     {
-      public RecordSetHeader Header { get; private set; }
-      public RecordPartMapping[] Mappings { get; private set; }
+      public RecordSetHeader Header { get; }
+      public RecordPartMapping[] Mappings { get; }
 
       public CacheItem(RecordSetHeader header, RecordPartMapping[] mappings)
       {
@@ -46,77 +46,70 @@ namespace Xtensive.Orm.Internals
     }
 
     private readonly ICache<RecordSetHeader, CacheItem> cache;
-    private readonly object _lock = new object();
-    
+
     public IEnumerable<Record> Read(IEnumerable<Tuple> source, RecordSetHeader header, Session session)
     {
-      CacheItem cacheItem;
-      var recordPartCount = header.ColumnGroups.Count;
+      var columns = header.Columns;
+      var columnGroups = header.ColumnGroups;
+      var recordPartCount = columnGroups.Count;
       var context = new MaterializationContext(session, recordPartCount);
-      lock (_lock) {
-        if (!cache.TryGetItem(header, false, out cacheItem)) {
-          var typeIdColumnName = Domain.Handlers.NameBuilder.TypeIdColumnName;
-          var model = context.Model;
-          var mappings = new RecordPartMapping[recordPartCount];
-          for (int i = 0; i < recordPartCount; i++) {
-            var columnGroup = header.ColumnGroups[i];
-            var approximateType = columnGroup.TypeInfoRef.Resolve(model);
-            var columnMapping = new List<Pair<int>>();
-            var typeIdColumnIndex = -1;
-            foreach (var columnIndex in columnGroup.Columns) {
-              var column = (MappedColumn) header.Columns[columnIndex];
-              var columnInfo = column.ColumnInfoRef.Resolve(model);
-              FieldInfo fieldInfo;
-              if (!approximateType.Fields.TryGetValue(columnInfo.Field.Name, out fieldInfo))
-                continue;
+      if (!cache.TryGetItem(header, false, out var cacheItem)) {
+        var typeIdColumnName = Domain.Handlers.NameBuilder.TypeIdColumnName;
+        var model = context.Model;
+        var mappings = new RecordPartMapping[recordPartCount];
+        for (int i = 0; i < recordPartCount; i++) {
+          var columnGroup = columnGroups[i];
+          var approximateType = columnGroup.TypeInfoRef.Resolve(model);
+          var columnMapping = new List<Pair<int>>(columnGroup.Columns.Count);
+          var typeIdColumnIndex = -1;
+          foreach (var columnIndex in columnGroup.Columns) {
+            var column = (MappedColumn) columns[columnIndex];
+            var columnInfo = column.ColumnInfoRef.Resolve(model);
+            if (approximateType.Fields.TryGetValue(columnInfo.Field.Name, out var fieldInfo)) {
               var targetColumnIndex = fieldInfo.MappingInfo.Offset;
-              if (columnInfo.Name==typeIdColumnName)
+              if (columnInfo.Name == typeIdColumnName) {
                 typeIdColumnIndex = column.Index;
+              }
               columnMapping.Add(new Pair<int>(targetColumnIndex, columnIndex));
             }
-            mappings[i] = new RecordPartMapping(typeIdColumnIndex, columnMapping.ToArray(), approximateType);
           }
-          cacheItem = new CacheItem(header, mappings);
-          cache.Add(cacheItem);
+          mappings[i] = new RecordPartMapping(typeIdColumnIndex, columnMapping, approximateType);
         }
+        cacheItem = new CacheItem(header, mappings);
+        cache.Add(cacheItem);
       }
       return source.Select(tuple => ParseRow(tuple, context, cacheItem.Mappings));
     }
 
-    private Record ParseRow(Tuple tuple, MaterializationContext context, RecordPartMapping[] recordPartMappings)
+    private Record ParseRow(Tuple tuple, MaterializationContext context, RecordPartMapping[] recordPartMappings) =>
+      recordPartMappings.Length == 1
+        ? new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]))
+        : new Record(tuple, recordPartMappings.Select(
+            (recordPartMapping, i) => ParseColumnGroup(tuple, context, i, recordPartMapping))
+          );
+
+    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, in RecordPartMapping mapping)
     {
-      var count = recordPartMappings.Length;
-
-      if (count==1)
-        return new Record(tuple, ParseColumnGroup(tuple, context, 0, recordPartMappings[0]));
-
-      var pairs = new List<Pair<Key, Tuple>>(
-        recordPartMappings
-          .Select((recordPartMapping, i) => ParseColumnGroup(tuple, context, i, recordPartMapping)));
-      return new Record(tuple, pairs);
-    }
-
-    private Pair<Key, Tuple> ParseColumnGroup(Tuple tuple, MaterializationContext context, int groupIndex, RecordPartMapping mapping)
-    {
-      TypeReferenceAccuracy accuracy;
-      int typeId = ExtractTypeId(mapping.ApproximateType, context.TypeIdRegistry, tuple, mapping.TypeIdColumnIndex, out accuracy);
-      var typeMapping = typeId==TypeInfo.NoTypeId ? null : context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
-      if (typeMapping==null)
+      int typeId = ExtractTypeId(mapping.ApproximateType, context.TypeIdRegistry, tuple, mapping.TypeIdColumnIndex, out var accuracy);
+      if (typeId == TypeInfo.NoTypeId) {
         return new Pair<Key, Tuple>(null, null);
+      }
+      var typeMapping = context.GetTypeMapping(groupIndex, mapping.ApproximateType, typeId, mapping.Columns);
 
-      bool canCache = accuracy==TypeReferenceAccuracy.ExactType;
-      Key key;
-      if (typeMapping.KeyTransform.Descriptor.Count <= WellKnown.MaxGenericKeyLength)
-        key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, tuple, accuracy, canCache, typeMapping.KeyIndexes);
-      else {
-        var keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
-        key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, keyTuple, accuracy, canCache, null);
+      bool canCache = accuracy == TypeReferenceAccuracy.ExactType;
+      var keyTuple = tuple;
+      var keyIndexes = typeMapping.KeyIndexes;
+      if (typeMapping.KeyTransform.Descriptor.Count > WellKnown.MaxGenericKeyLength) {
+        keyTuple = typeMapping.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
+        keyIndexes = null;
       }
-      if (accuracy == TypeReferenceAccuracy.ExactType) {
-        var entityTuple = typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple);
-        return new Pair<Key, Tuple>(key, entityTuple);
-      }
-      return new Pair<Key, Tuple>(key, null);
+      var key = KeyFactory.Materialize(Domain, context.Session.StorageNodeId, typeMapping.Type, keyTuple, accuracy, canCache, keyIndexes);
+      return new Pair<Key, Tuple>(
+        key,
+        accuracy == TypeReferenceAccuracy.ExactType
+          ? typeMapping.Transform.Apply(TupleTransformType.Tuple, tuple)
+          : null
+      );
     }
 
     public static int ExtractTypeId(TypeInfo type, TypeIdRegistry typeIdRegistry, Tuple tuple, int typeIdIndex, out TypeReferenceAccuracy accuracy)
@@ -146,8 +139,10 @@ namespace Xtensive.Orm.Internals
     internal EntityDataReader(Domain domain)
       : base(domain)
     {
-      cache = new LruCache<RecordSetHeader, CacheItem>(domain.Configuration.RecordSetMappingCacheSize,
-          m => m.Header, new WeakestCache<RecordSetHeader, CacheItem>(false, false, m => m.Header));
+      cache = new FastConcurrentLruCache<RecordSetHeader, CacheItem>(
+        domain.Configuration.RecordSetMappingCacheSize,
+        m => m.Header
+      );
     }
   }
 }
