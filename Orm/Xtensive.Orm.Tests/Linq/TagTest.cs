@@ -662,8 +662,9 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SessionTagSingle()
     {
-      var allCommands = new List<string>();
+      Require.ProviderIsNot(StorageProvider.MySql);
 
+      var allCommands = new List<string>();
       var id = 0L;
 
       using (var populateSession = Domain.OpenSession())
@@ -735,6 +736,8 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SessionTagSingleOrDefault()
     {
+      Require.ProviderIsNot(StorageProvider.MySql);
+
       var allCommands = new List<string>();
       var id = 0L;
 
@@ -806,6 +809,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public void SessionTagPrefetchEntity()
     {
+      Require.ProviderIsNot(StorageProvider.MySql);
       var allCommands = new List<string>();
 
       using (var populateSession = Domain.OpenSession())
