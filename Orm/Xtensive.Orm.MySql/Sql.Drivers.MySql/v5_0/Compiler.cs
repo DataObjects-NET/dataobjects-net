@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -124,8 +124,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     public override void Visit(SqlQueryExpression node)
     {
       using (context.EnterScope(node)) {
-        bool needOpeningParenthesis = false;
-        bool needClosingParenthesis = false;
+        var needOpeningParenthesis = node.NodeType == SqlNodeType.Union;
+        var needClosingParenthesis = needOpeningParenthesis;
         context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
         if (needOpeningParenthesis)
           context.Output.AppendText("(");
