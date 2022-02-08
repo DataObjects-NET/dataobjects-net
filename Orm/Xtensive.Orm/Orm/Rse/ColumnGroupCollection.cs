@@ -55,8 +55,16 @@ namespace Xtensive.Orm.Rse
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="items">The collection items.</param>
+    /// <remarks>
+    /// <paramref name="items"/> is used to initialize inner field directly
+    /// to save time on avoiding collection copy. If you pass an <see cref="IReadOnlyList{ColumnGroup}"/>
+    /// implementor that, in fact, can be changed, make sure the passed collection doesn't change afterwards.
+    /// Ideally, use arrays instead of <see cref="List{T}"/> or similar collections.
+    /// Changing the passed collection afterwards will lead to unpredictable results.
+    /// </remarks>
     public ColumnGroupCollection(IReadOnlyList<ColumnGroup> items)
     {
+      //!!! Direct initialization by parameter is unsafe performance optimization: See remark in ctor summary!
       this.items = items;
     }
   }
