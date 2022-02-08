@@ -6,6 +6,7 @@
 
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Collections;
 using Xtensive.Core;
@@ -120,6 +121,29 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public async Task Store1AsyncTest()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
+      var localCustomers = Session.Query.All<Customer>().Take(10).ToList();
+      var query = (await Session.Query.All<Customer>()
+        .Join(
+          Session.Query.Store(localCustomers),
+          customer => customer,
+          localCustomer => localCustomer,
+          (customer, localCustomer) => new { customer, localCustomer }).AsAsync()).ToList();
+      var expected = Session.Query.All<Customer>().AsEnumerable()
+        .Join(
+          Session.Query.Store(localCustomers),
+          customer => customer,
+          localCustomer => localCustomer,
+          (customer, localCustomer) => new { customer, localCustomer });
+
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    [Test]
     public void Store2Test()
     {
       Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
@@ -136,6 +160,28 @@ namespace Xtensive.Orm.Tests.Linq
           customer => customer,
           localCustomer => localCustomer,
           (customer, localCustomer) => new {customer, localCustomer});
+
+      Assert.That(query, Is.Not.Empty);
+      Assert.AreEqual(0, expected.Except(query).Count());
+    }
+
+    [Test]
+    public async Task Store2AsyncTest()
+    {
+      Require.AllFeaturesSupported(ProviderFeatures.TemporaryTables);
+
+      var query = (await Session.Query.All<Customer>()
+        .Join(
+          Session.Query.Store(Session.Query.All<Customer>().Take(10)),
+          customer => customer,
+          localCustomer => localCustomer,
+          (customer, localCustomer) => new { customer, localCustomer }).AsAsync()).ToList();
+      var expected = Session.Query.All<Customer>().AsEnumerable()
+        .Join(
+          Session.Query.Store(Session.Query.All<Customer>().Take(10)),
+          customer => customer,
+          localCustomer => localCustomer,
+          (customer, localCustomer) => new { customer, localCustomer });
 
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());

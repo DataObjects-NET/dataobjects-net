@@ -130,7 +130,12 @@ namespace Xtensive.Orm.Rse
       enumerationScope = context.BeginEnumeration();
       enumerated = context.GetValue<bool>(provider, enumerationMarker);
       if (!enumerated) {
-        provider.OnBeforeEnumerate(context);
+        if (executeAsync) {
+          await provider.OnBeforeEnumerateAsync(context, token);
+        }
+        else {
+          provider.OnBeforeEnumerate(context);
+        }
         context.SetValue(provider, enumerationMarker, true);
       }
 

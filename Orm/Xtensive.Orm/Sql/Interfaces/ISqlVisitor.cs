@@ -98,6 +98,7 @@ namespace Xtensive.Sql
     void Visit(SqlSelect node);
     void Visit(SqlSubQuery node);
     void Visit(SqlUnary node);
+    void Visit(SqlMetadata node);
     void Visit(SqlUpdate node);
     void Visit(SqlUserColumn node);
     void Visit(SqlUserFunctionCall node);
