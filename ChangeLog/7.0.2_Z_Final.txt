@@ -1,0 +1,3 @@
+[main] Addressed certain issues of enum equality expressions translation that appeared in v7.0.0
+[sqlserver] Replaced usage of DATEDIFF with DATEDIFF_BIG for v13 and newer
+[sqlserver] Improved certain operations based on DateTime/DateTimeOffset subtraction for v13 and newer

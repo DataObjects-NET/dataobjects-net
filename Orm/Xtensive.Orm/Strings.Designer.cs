@@ -106,70 +106,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Applying [{0}] to property &apos;{1}&apos; failed. {2}.
-        /// </summary>
-        internal static string AspectExApplyingXToPropertyYFailedZ {
-            get {
-                return ResourceManager.GetString("AspectExApplyingXToPropertyYFailedZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Both localizable message resource and not localizable message can not be specified at once (location: {0})..
-        /// </summary>
-        internal static string AspectExBothLocalizableMessageResourceAndNotLocalizableMessageCanNotBeSpecifiedAtOnceLocationX {
-            get {
-                return ResourceManager.GetString("AspectExBothLocalizableMessageResourceAndNotLocalizableMessageCanNotBeSpecifiedAt" +
-                        "OnceLocationX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Field constraint can not be applied to read only property {0}..
-        /// </summary>
-        internal static string AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX {
-            get {
-                return ResourceManager.GetString("AspectExFieldConstraintCanNotBeAppliedToReadOnlyPropertyX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: multiple attributes of type &apos;{1}&apos; are not allowed here..
-        /// </summary>
-        internal static string AspectExMultipleAttributesOfTypeXAreNotAllowedHere {
-            get {
-                return ResourceManager.GetString("AspectExMultipleAttributesOfTypeXAreNotAllowedHere", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [{0}] attribute on &apos;{1}&apos; requires a comparer for type &apos;{2}&apos;..
-        /// </summary>
-        internal static string AspectExNoComparer {
-            get {
-                return ResourceManager.GetString("AspectExNoComparer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; and &apos;{1}&apos; properties must be used together (location: {2})..
-        /// </summary>
-        internal static string AspectExXAndYPropertiesMustBeUsedTogetherLocationZ {
-            get {
-                return ResourceManager.GetString("AspectExXAndYPropertiesMustBeUsedTogetherLocationZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; does not support &apos;{1}&apos; value type (location: {2})..
-        /// </summary>
-        internal static string AspectExXDoesNotSupportYValueTypeLocationZ {
-            get {
-                return ResourceManager.GetString("AspectExXDoesNotSupportYValueTypeLocationZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Associations.
         /// </summary>
         internal static string Associations {
@@ -193,51 +129,6 @@ namespace Xtensive {
         internal static string CachedFormat {
             get {
                 return ResourceManager.GetString("CachedFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t access member &apos;{0}&apos;.
-        /// </summary>
-        internal static string CantAccessMemberX {
-            get {
-                return ResourceManager.GetString("CantAccessMemberX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to  (can&apos;t change type of column &apos;{0}&apos;).
-        /// </summary>
-        internal static string CantChangeTypeOfColumnX {
-            get {
-                return ResourceManager.GetString("CantChangeTypeOfColumnX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to  (can&apos;t remove column &apos;{0}&apos;).
-        /// </summary>
-        internal static string CantRemoveColumnX {
-            get {
-                return ResourceManager.GetString("CantRemoveColumnX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to  (can&apos;t remove table &apos;{0}&apos;).
-        /// </summary>
-        internal static string CantRemoveTableX {
-            get {
-                return ResourceManager.GetString("CantRemoveTableX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Columns.
-        /// </summary>
-        internal static string Columns {
-            get {
-                return ResourceManager.GetString("Columns", resourceCulture);
             }
         }
         
@@ -314,15 +205,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Date must be in the past..
-        /// </summary>
-        internal static string DateMustBeInThePast {
-            get {
-                return ResourceManager.GetString("DateMustBeInThePast", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Difference.
         /// </summary>
         internal static string Difference {
@@ -395,33 +277,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The accessed member is not a property..
-        /// </summary>
-        internal static string ExAccessedMemberIsNotProperty {
-            get {
-                return ResourceManager.GetString("ExAccessedMemberIsNotProperty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The access to a type&apos;s member can not be extracted from the specified expression..
-        /// </summary>
-        internal static string ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression {
-            get {
-                return ResourceManager.GetString("ExAccessToTypeMemberCanNotBeExtractedFromSpecifiedExpression", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Active serialization context is not found..
-        /// </summary>
-        internal static string ExActiveSerializationContextIsNotFound {
-            get {
-                return ResourceManager.GetString("ExActiveSerializationContextIsNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Active Session is required for this operation. Use Session.Open(...) to open it..
         /// </summary>
         internal static string ExActiveSessionIsRequiredForThisOperation {
@@ -445,24 +300,6 @@ namespace Xtensive {
         internal static string ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt {
             get {
                 return ResourceManager.GetString("ExActiveTransactionIsRequiredForThisOperationUseSessionOpenTransactionToOpenIt", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Actual conjunction operand count greater than MaxConjunctionOperandCount..
-        /// </summary>
-        internal static string ExActualConjunctionOperandCountGreaterThanExpected {
-            get {
-                return ResourceManager.GetString("ExActualConjunctionOperandCountGreaterThanExpected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Actual schema version of assembly &apos;{0}&apos; is expected to be &apos;{1}&apos;, but currently it is &apos;{2}&apos;..
-        /// </summary>
-        internal static string ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ {
-            get {
-                return ResourceManager.GetString("ExActualSchemaVersionOfAssemblyXIsExpectedToBeYButCurrentlyItIsZ", resourceCulture);
             }
         }
         
@@ -499,15 +336,6 @@ namespace Xtensive {
         internal static string ExAllMethodIsOnlySupportedForRootExpressionsOrSubqueries {
             get {
                 return ResourceManager.GetString("ExAllMethodIsOnlySupportedForRootExpressionsOrSubqueries", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to UndoDescriptor is already completed..
-        /// </summary>
-        internal static string ExAlreadyCompleted {
-            get {
-                return ResourceManager.GetString("ExAlreadyCompleted", resourceCulture);
             }
         }
         
@@ -701,15 +529,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Association multiplicity &apos;{0}&apos; is not valid for field &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExAssociationMultiplicityIsNotValidForField {
-            get {
-                return ResourceManager.GetString("ExAssociationMultiplicityIsNotValidForField", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to At least one column index pair must be specified..
         /// </summary>
         internal static string ExAtLeastOneColumnIndexPairMustBeSpecified {
@@ -728,15 +547,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to AtomicContext is suspended..
-        /// </summary>
-        internal static string ExAtomicContextIsSuspended {
-            get {
-                return ResourceManager.GetString("ExAtomicContextIsSuspended", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to An attempt to automatically activate Session &apos;{0}&apos; inside Session &apos;{1}&apos; (Session switching) is blocked. 
         ///Most likely, mixed usage of objects from different Sessions is a result of a bug in your code. 
         ///Use manual Session activation (Session.Deactivate(), Session.Activate()) or 
@@ -745,15 +555,6 @@ namespace Xtensive {
         internal static string ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked {
             get {
                 return ResourceManager.GetString("ExAttemptToAutomaticallyActivateSessionXInsideSessionYIsBlocked", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to BatchingCommandProcessor does not support validation of number of affected rows..
-        /// </summary>
-        internal static string ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows {
-            get {
-                return ResourceManager.GetString("ExBatchingCommandProcessorDoesNotSupportValidationOfNumberOfAffectedRows", resourceCulture);
             }
         }
         
@@ -809,15 +610,6 @@ namespace Xtensive {
         internal static string ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression {
             get {
                 return ResourceManager.GetString("ExBothLeftAndRightPartOfBinaryExpressionXAreNULLOrNotStructureExpression", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Both measurements have no value..
-        /// </summary>
-        internal static string ExBothMeasurementsHaveNoValue {
-            get {
-                return ResourceManager.GetString("ExBothMeasurementsHaveNoValue", resourceCulture);
             }
         }
         
@@ -885,38 +677,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not commit a transaction: ValidationContext is in inconsistent state..
-        /// </summary>
-        internal static string ExCanNotCommitATransactionValidationContextIsInInconsistentState {
-            get {
-                return ResourceManager.GetString("ExCanNotCommitATransactionValidationContextIsInInconsistentState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can not commit a transaction. Validation context is in invalid state..
-        /// </summary>
-        internal static string ExCanNotCommitATransactionValidationContextIsInInvalidState {
-            get {
-                return ResourceManager.GetString("ExCanNotCommitATransactionValidationContextIsInInvalidState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t compile - active CompilationContext has no Compiler (Compiler is null)..
         /// </summary>
         internal static string ExCanNotCompileNoCompiler {
             get {
                 return ResourceManager.GetString("ExCanNotCompileNoCompiler", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t compile - no active EnumerationContext exists..
-        /// </summary>
-        internal static string ExCanNotCompileNoEnumerationContext {
-            get {
-                return ResourceManager.GetString("ExCanNotCompileNoEnumerationContext", resourceCulture);
             }
         }
         
@@ -957,74 +722,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Can not find reference to column &quot;{0}&quot;..
-        /// </summary>
-        internal static string ExCanNotFindReferenceToColumnX {
-            get {
-                return ResourceManager.GetString("ExCanNotFindReferenceToColumnX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t generate next version value of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExCannotGenerateNextVersionValueOfTypeX {
             get {
                 return ResourceManager.GetString("ExCannotGenerateNextVersionValueOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can not get validation context: there is no active transaction..
-        /// </summary>
-        internal static string ExCanNotGetValidationContextThereIsNoActiveTransaction {
-            get {
-                return ResourceManager.GetString("ExCanNotGetValidationContextThereIsNoActiveTransaction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can not mark state as modified: it is not valid in current transaction..
-        /// </summary>
-        internal static string ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction {
-            get {
-                return ResourceManager.GetString("ExCanNotMarkStateAsModifiedItIsNotValidInCurrentTransaction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t merge the state..
-        /// </summary>
-        internal static string ExCanNotMergeTheState {
-            get {
-                return ResourceManager.GetString("ExCanNotMergeTheState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can not open more than one inner transaction..
-        /// </summary>
-        internal static string ExCanNotOpenMoreThanOneInnerTransaction {
-            get {
-                return ResourceManager.GetString("ExCanNotOpenMoreThanOneInnerTransaction", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can not open a transaction: there is no current Session..
-        /// </summary>
-        internal static string ExCanNotOpenTransactionNoCurrentSession {
-            get {
-                return ResourceManager.GetString("ExCanNotOpenTransactionNoCurrentSession", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t parse the call to the comparison method..
-        /// </summary>
-        internal static string ExCannotParseCallToComparisonMethod {
-            get {
-                return ResourceManager.GetString("ExCannotParseCallToComparisonMethod", resourceCulture);
             }
         }
         
@@ -1061,34 +763,6 @@ namespace Xtensive {
         internal static string ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent {
             get {
                 return ResourceManager.GetString("ExCanNotReuseOpenedTransactionRequestedIsolationLevelIsDifferent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot upgrade schema safely. Details:
-        ///{0}.
-        /// </summary>
-        internal static string ExCanNotUpgradeSchemaSafely_DetailsX {
-            get {
-                return ResourceManager.GetString("ExCanNotUpgradeSchemaSafely_DetailsX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Cannot use default generator for complex (multicolumn) Keys..
-        /// </summary>
-        internal static string ExCannotUseDefaultGeneratorForComplexKeys {
-            get {
-                return ResourceManager.GetString("ExCannotUseDefaultGeneratorForComplexKeys", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t access member of type &apos;EntitySet&lt;&gt;&apos;..
-        /// </summary>
-        internal static string ExCantAccessMemberOfTypeEntitySet {
-            get {
-                return ResourceManager.GetString("ExCantAccessMemberOfTypeEntitySet", resourceCulture);
             }
         }
         
@@ -1138,47 +812,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Blocking descriptor can&apos;t be invoked..
-        /// </summary>
-        internal static string ExCantInvokeBlockingDescriptor {
-            get {
-                return ResourceManager.GetString("ExCantInvokeBlockingDescriptor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t merge state..
-        /// </summary>
-        internal static string ExCantMergeState {
-            get {
-                return ResourceManager.GetString("ExCantMergeState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Can&apos;t modify Active or Disposed scope..
         /// </summary>
         internal static string ExCantModifyActiveOrDisposedScope {
             get {
                 return ResourceManager.GetString("ExCantModifyActiveOrDisposedScope", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Can&apos;t open EnumerationScope, since there is no current CompilationContext..
-        /// </summary>
-        internal static string ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext {
-            get {
-                return ResourceManager.GetString("ExCantOpenEnumerationScopeSinceThereIsNoCurrentCompilationContext", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to InfinityType.None can&apos;t be passed to this constructor..
-        /// </summary>
-        internal static string ExCantPassNoInfinityToThisConstructor {
-            get {
-                return ResourceManager.GetString("ExCantPassNoInfinityToThisConstructor", resourceCulture);
             }
         }
         
@@ -1282,24 +920,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Item should be either an ICollection or ICountable..
-        /// </summary>
-        internal static string ExCollectionOrCoutableExcpected {
-            get {
-                return ResourceManager.GetString("ExCollectionOrCoutableExcpected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The collection property {0} is bound to the property {1} that isn&apos;t collection..
-        /// </summary>
-        internal static string ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection {
-            get {
-                return ResourceManager.GetString("ExCollectionPropertyXIsBoundToPropertyYThatIsNotCollection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Collection should contain at least {0} elements..
         /// </summary>
         internal static string ExCollectionShouldContainAtLeastXElements {
@@ -1323,15 +943,6 @@ namespace Xtensive {
         internal static string ExColumnBelongsToOtherTable {
             get {
                 return ResourceManager.GetString("ExColumnBelongsToOtherTable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Column group could not be found..
-        /// </summary>
-        internal static string ExColumnGroupCouldNotBeFound {
-            get {
-                return ResourceManager.GetString("ExColumnGroupCouldNotBeFound", resourceCulture);
             }
         }
         
@@ -1435,15 +1046,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Compiler {0} has invalid target member..
-        /// </summary>
-        internal static string ExCompilerXHasInvalidTargetMember {
-            get {
-                return ResourceManager.GetString("ExCompilerXHasInvalidTargetMember", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Compiler {0} has invalid target type: target type should be either non-generic or generic type definition..
         /// </summary>
         internal static string ExCompilerXHasInvalidTargetType {
@@ -1498,24 +1100,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Complete method must be called just once..
-        /// </summary>
-        internal static string ExCompleteMustBeCalledJustOnce {
-            get {
-                return ResourceManager.GetString("ExCompleteMustBeCalledJustOnce", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Concurrency conflict..
-        /// </summary>
-        internal static string ExConcurrencyConflict {
-            get {
-                return ResourceManager.GetString("ExConcurrencyConflict", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Configuration for Domain with name &apos;{0}&apos; is not found in application configuration file (section &apos;{1}&apos;)..
         /// </summary>
         internal static string ExConfigurationForDomainIsNotFoundInApplicationConfigurationFile {
@@ -1552,40 +1136,12 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ConnectionInfo is wrong. You should set either  &apos;connectionUrl&apos; element or &apos;connectionString&apos; element..
-        /// </summary>
-        internal static string ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringElement {
-            get {
-                return ResourceManager.GetString("ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrConnectionStringEl" +
-                        "ement", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ConnectionInfo is wrong. You should set either &apos;connectionUrl&apos; element or &apos;provider&apos; and &apos;connectionString&apos; elements..
         /// </summary>
         internal static string ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnectionStringElements {
             get {
                 return ResourceManager.GetString("ExConnectionInfoIsWrongYouShouldSetEitherConnectionUrlElementOrProviderAndConnect" +
                         "ionStringElements", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Connection is not open..
-        /// </summary>
-        internal static string ExConnectionIsNotOpen {
-            get {
-                return ResourceManager.GetString("ExConnectionIsNotOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Connection is required..
-        /// </summary>
-        internal static string ExConnectionIsRequired {
-            get {
-                return ResourceManager.GetString("ExConnectionIsRequired", resourceCulture);
             }
         }
         
@@ -1626,15 +1182,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Constraint violation: constraint {0} on field &apos;{1}.{2}&apos; of object &apos;{3}&apos; failed on value {4}..
-        /// </summary>
-        internal static string ExConstraintViolation {
-            get {
-                return ResourceManager.GetString("ExConstraintViolation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Container type does not provide a suitable constructor..
         /// </summary>
         internal static string ExContainerTypeDoesNotProvideASuitableConstructor {
@@ -1662,15 +1209,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Context is not activated..
-        /// </summary>
-        internal static string ExContextMustBeActivated {
-            get {
-                return ResourceManager.GetString("ExContextMustBeActivated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0} is required. Use {1} to set it..
         /// </summary>
         internal static string ExContextRequired {
@@ -1689,65 +1227,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to copy a part of the stream to itself. Use StreamExtensions.Copy method instead..
-        /// </summary>
-        internal static string ExCopyToMustOperateWithDifferentStreams {
-            get {
-                return ResourceManager.GetString("ExCopyToMustOperateWithDifferentStreams", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Could not construct new Key instance. Type &apos;{0}&apos; is not an entity..
         /// </summary>
         internal static string ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity {
             get {
                 return ResourceManager.GetString("ExCouldNotConstructNewKeyInstanceTypeXIsNotAnEntity", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not find anonymous mapping for field &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExCouldNotFindAnonymousMappingForFieldX {
-            get {
-                return ResourceManager.GetString("ExCouldNotFindAnonymousMappingForFieldX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not find entity mapping for field &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExCouldNotFindEntityMappingForFieldX {
-            get {
-                return ResourceManager.GetString("ExCouldNotFindEntityMappingForFieldX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not find field segment for field &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExCouldNotFindFieldSegmentForFieldX {
-            get {
-                return ResourceManager.GetString("ExCouldNotFindFieldSegmentForFieldX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not find grouping mapping for field &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExCouldNotFindGroupingMappingForFieldX {
-            get {
-                return ResourceManager.GetString("ExCouldNotFindGroupingMappingForFieldX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Could not find subquery mapping for field &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExCouldNotFindSubqueryMappingForFieldX {
-            get {
-                return ResourceManager.GetString("ExCouldNotFindSubqueryMappingForFieldX", resourceCulture);
             }
         }
         
@@ -1788,38 +1272,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Current compiler is not suitable for this operation, most likely there is no active Session..
-        /// </summary>
-        internal static string ExCurrentCompilerIsNotSuitableForThisOperationMostLikelyThereIsNoActiveSession {
-            get {
-                return ResourceManager.GetString("ExCurrentCompilerIsNotSuitableForThisOperationMostLikelyThereIsNoActiveSession", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Current provider does not support ContainsTable functionality..
         /// </summary>
         internal static string ExCurrentProviderDoesNotSupportContainsTableFunctionality {
             get {
                 return ResourceManager.GetString("ExCurrentProviderDoesNotSupportContainsTableFunctionality", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current session getter is already assigned..
-        /// </summary>
-        internal static string ExCurrentSessionGetterIsAlreadyAssigned {
-            get {
-                return ResourceManager.GetString("ExCurrentSessionGetterIsAlreadyAssigned", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Current storage does not support changing column types.
-        /// </summary>
-        internal static string ExCurrentStorageDoesNotSupportChangingColumnTypes {
-            get {
-                return ResourceManager.GetString("ExCurrentStorageDoesNotSupportChangingColumnTypes", resourceCulture);
             }
         }
         
@@ -1968,42 +1425,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Dependency operation with full name &quot;{0}&quot; is already registered..
-        /// </summary>
-        internal static string ExDependencyOperationIsAlreadyRegistered {
-            get {
-                return ResourceManager.GetString("ExDependencyOperationIsAlreadyRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Descriptor is in invalid state..
-        /// </summary>
-        internal static string ExDescriptorIsInInvalidState {
-            get {
-                return ResourceManager.GetString("ExDescriptorIsInInvalidState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Deserialization error: some SerializationData slots were not recognized, thus the format of the serialized data differs from the supported one..
-        /// </summary>
-        internal static string ExDeserializationErrorUnrecognizedSlotsAreFound {
-            get {
-                return ResourceManager.GetString("ExDeserializationErrorUnrecognizedSlotsAreFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Stream length not enough to deserialize object of specified type..
-        /// </summary>
-        internal static string ExDeserializationStreamLengthIncorrect {
-            get {
-                return ResourceManager.GetString("ExDeserializationStreamLengthIncorrect", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Destionation array is too small..
         /// </summary>
         internal static string ExDestionationArrayIsTooSmall {
@@ -2013,29 +1434,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The detection of changes in user structure collection isn&apos;t supported..
-        /// </summary>
-        internal static string ExDetectionOfChangesInUserStructureCollectionIsNotSupported {
-            get {
-                return ResourceManager.GetString("ExDetectionOfChangesInUserStructureCollectionIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Difference related to {0} type is not found on the UpgradeContext stack..
         /// </summary>
         internal static string ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack {
             get {
                 return ResourceManager.GetString("ExDifferenceRelatedToXTypeIsNotFoundOnTheUpgradeContextStack", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Different TupleDescriptors are not valid here: {0} and {1}..
-        /// </summary>
-        internal static string ExDifferentTupleDescriptors {
-            get {
-                return ResourceManager.GetString("ExDifferentTupleDescriptors", resourceCulture);
             }
         }
         
@@ -2050,38 +1453,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to DisconnectedState is already attached to session..
-        /// </summary>
-        internal static string ExDisconnectedStateIsAlreadyAttachedToSession {
-            get {
-                return ResourceManager.GetString("ExDisconnectedStateIsAlreadyAttachedToSession", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to DisconnectedState is detached..
-        /// </summary>
-        internal static string ExDisconnectedStateIsDetached {
-            get {
-                return ResourceManager.GetString("ExDisconnectedStateIsDetached", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to translate &apos;{0}&apos; expression. Downcast from &apos;{1}&apos; to &apos;{2}&apos; not supported. Use &apos;OfType&apos; or &apos;as&apos; operator instead..
         /// </summary>
         internal static string ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead {
             get {
                 return ResourceManager.GetString("ExDowncastFromXToXNotSupportedUseOfTypeOrAsOperatorInstead", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Duplicate assembly name: &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExDuplicateAssemblyNameX {
-            get {
-                return ResourceManager.GetString("ExDuplicateAssemblyNameX", resourceCulture);
             }
         }
         
@@ -2140,24 +1516,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Element with name &apos;{0}&apos; is contained in this instance already..
-        /// </summary>
-        internal static string ExElementWithNameContainedInThisInstanceAlready {
-            get {
-                return ResourceManager.GetString("ExElementWithNameContainedInThisInstanceAlready", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Element with type &apos;{0}&apos; is already contained in this instance..
-        /// </summary>
-        internal static string ExElementWithTypeIsContainedInThisInstanceAlready {
-            get {
-                return ResourceManager.GetString("ExElementWithTypeIsContainedInThisInstanceAlready", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Columns collection is empty..
         /// </summary>
         internal static string ExEmptyColumnsCollection {
@@ -2172,15 +1530,6 @@ namespace Xtensive {
         internal static string ExEmptyKeyColumnsCollection {
             get {
                 return ResourceManager.GetString("ExEmptyKeyColumnsCollection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to EndPoints order of both ranges must be equal..
-        /// </summary>
-        internal static string ExEndPointOrderMustBeEqual {
-            get {
-                return ResourceManager.GetString("ExEndPointOrderMustBeEqual", resourceCulture);
             }
         }
         
@@ -2212,29 +1561,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Entity is in inconsistent state..
-        /// </summary>
-        internal static string ExEntityIsInInconsistentState {
-            get {
-                return ResourceManager.GetString("ExEntityIsInInconsistentState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Entity is removed..
         /// </summary>
         internal static string ExEntityIsRemoved {
             get {
                 return ResourceManager.GetString("ExEntityIsRemoved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Entity of type &apos;{0}&apos; is incompatible with this EntitySet..
-        /// </summary>
-        internal static string ExEntityOfTypeXIsIncompatibleWithThisEntitySet {
-            get {
-                return ResourceManager.GetString("ExEntityOfTypeXIsIncompatibleWithThisEntitySet", resourceCulture);
             }
         }
         
@@ -2284,51 +1615,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Enumeration is already finished..
-        /// </summary>
-        internal static string ExEnumerationIsAlreadyFinished {
-            get {
-                return ResourceManager.GetString("ExEnumerationIsAlreadyFinished", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Enumeration is not started..
-        /// </summary>
-        internal static string ExEnumerationIsNotStarted {
-            get {
-                return ResourceManager.GetString("ExEnumerationIsNotStarted", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to insert instance of type &apos;{0}&apos; with specified key. Query affected {1} tables, but expected {2} tables..
-        /// </summary>
-        internal static string ExErrorOnInsert {
-            get {
-                return ResourceManager.GetString("ExErrorOnInsert", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to update instance of type {0} with specified key. Query affected {1} tables, but expecrted {2} tables..
-        /// </summary>
-        internal static string ExErrorOnUpdate {
-            get {
-                return ResourceManager.GetString("ExErrorOnUpdate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Some errors have been occurred during storage build. See error log for details..
-        /// </summary>
-        internal static string ExErrorsDuringStorageBuild {
-            get {
-                return ResourceManager.GetString("ExErrorsDuringStorageBuild", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Escape character must differ from delimiter character..
         /// </summary>
         internal static string ExEscapeCharacterMustDifferFromDelimiterCharacter {
@@ -2352,33 +1638,6 @@ namespace Xtensive {
         internal static string ExExceptionHasBeenThrownByTheUserMemberCompiler {
             get {
                 return ResourceManager.GetString("ExExceptionHasBeenThrownByTheUserMemberCompiler", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The exception was thrown during the task&apos;s execution..
-        /// </summary>
-        internal static string ExExceptionWasThrownDuringTaskExecution {
-            get {
-                return ResourceManager.GetString("ExExceptionWasThrownDuringTaskExecution", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ExcludeFields does not support query provider of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX {
-            get {
-                return ResourceManager.GetString("ExExcludeFieldsDoesNotSupportQueryProviderOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The expected value of the parameter is already set..
-        /// </summary>
-        internal static string ExExpectedValueOfParameterIsAlreadySet {
-            get {
-                return ResourceManager.GetString("ExExpectedValueOfParameterIsAlreadySet", resourceCulture);
             }
         }
         
@@ -2410,33 +1669,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The expression having the different normal form must not be a root expression..
-        /// </summary>
-        internal static string ExExpressionHavingDifferentNormalFormMustNotBeRoot {
-            get {
-                return ResourceManager.GetString("ExExpressionHavingDifferentNormalFormMustNotBeRoot", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The expression having the equal normal form must be a root expression..
-        /// </summary>
-        internal static string ExExpressionHavingEqualNormalFormMustBeRoot {
-            get {
-                return ResourceManager.GetString("ExExpressionHavingEqualNormalFormMustBeRoot", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The expression must return a value of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExExpressionMustReturnValueOfTypeX {
-            get {
-                return ResourceManager.GetString("ExExpressionMustReturnValueOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Expression &apos;{0}&apos; is not a sequence..
         /// </summary>
         internal static string ExExpressionXIsNotASequence {
@@ -2451,16 +1683,6 @@ namespace Xtensive {
         internal static string ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet {
             get {
                 return ResourceManager.GetString("ExExtractedAndTargetSchemasAreEqualButThereAreChangesInTypeIdentifiersSet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Extracted schema is not compatible with the target schema. Details:
-        ///{0}.
-        /// </summary>
-        internal static string ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX {
-            get {
-                return ResourceManager.GetString("ExExtractedSchemaIsNotCompatibleWithTheTargetSchema_DetailsX", resourceCulture);
             }
         }
         
@@ -2489,15 +1711,6 @@ namespace Xtensive {
         internal static string ExFieldBelongsToADifferentType {
             get {
                 return ResourceManager.GetString("ExFieldBelongsToADifferentType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Field with index &apos;{0}&apos; is infinite..
-        /// </summary>
-        internal static string ExFieldIsInfinite {
-            get {
-                return ResourceManager.GetString("ExFieldIsInfinite", resourceCulture);
             }
         }
         
@@ -2583,24 +1796,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; cannot be Nullable as it is included into primary key..
-        /// </summary>
-        internal static string ExFieldXCannotBeNullableAsItIsIncludedInPrimaryKey {
-            get {
-                return ResourceManager.GetString("ExFieldXCannotBeNullableAsItIsIncludedInPrimaryKey", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; has &apos;{1}&apos; type but is marked as not nullable..
-        /// </summary>
-        internal static string ExFieldXHasYTypeButIsMarkedAsNotNullable {
-            get {
-                return ResourceManager.GetString("ExFieldXHasYTypeButIsMarkedAsNotNullable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Field &apos;{0}&apos; is already defined in type &apos;{1}&apos; or in its ancestor..
         /// </summary>
         internal static string ExFieldXIsAlreadyDefinedInTypeXOrItsAncestor {
@@ -2615,15 +1810,6 @@ namespace Xtensive {
         internal static string ExFieldXIsNotAnEntityReferenceNorEntitySet {
             get {
                 return ResourceManager.GetString("ExFieldXIsNotAnEntityReferenceNorEntitySet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; is not an entity set..
-        /// </summary>
-        internal static string ExFieldXIsNotAnEntitySet {
-            get {
-                return ResourceManager.GetString("ExFieldXIsNotAnEntitySet", resourceCulture);
             }
         }
         
@@ -2691,15 +1877,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Filter tuple descriptor mistmatches with source mapping descriptor..
-        /// </summary>
-        internal static string ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor {
-            get {
-                return ResourceManager.GetString("ExFilterTupleDescriptorMistmatchesWithSourceMappingDescriptor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The foreign key&apos;s value have not been loaded..
         /// </summary>
         internal static string ExForeignKeyValueHaveNotBeenLoaded {
@@ -2736,15 +1913,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The given key was not present in the dictionary..
-        /// </summary>
-        internal static string ExGivenKeyNotPresent {
-            get {
-                return ResourceManager.GetString("ExGivenKeyNotPresent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to GroupBy overload &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExGroupByOverloadXIsNotSupported {
@@ -2759,15 +1927,6 @@ namespace Xtensive {
         internal static string ExHierarchyIsNotFoundForTypeX {
             get {
                 return ResourceManager.GetString("ExHierarchyIsNotFoundForTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hierarchy root is not registered..
-        /// </summary>
-        internal static string ExHierarchyRootIsNotRegistered {
-            get {
-                return ResourceManager.GetString("ExHierarchyRootIsNotRegistered", resourceCulture);
             }
         }
         
@@ -2818,65 +1977,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Conversion from type {0} to type {1} is inadmissible..
-        /// </summary>
-        internal static string ExInadmissibleTypeConversion {
-            get {
-                return ResourceManager.GetString("ExInadmissibleTypeConversion", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to IncludeFields does not support query provider of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExIncludeFieldsDoesNotSupportQueryProviderOfTypeX {
-            get {
-                return ResourceManager.GetString("ExIncludeFieldsDoesNotSupportQueryProviderOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Incompatible array type..
-        /// </summary>
-        internal static string ExIncompatibleArrayType {
-            get {
-                return ResourceManager.GetString("ExIncompatibleArrayType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The two collections cannot be combined because they use different comparison operations..
-        /// </summary>
-        internal static string ExInconsistentComparisons {
-            get {
-                return ResourceManager.GetString("ExInconsistentComparisons", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Incorrect command parameters..
         /// </summary>
         internal static string ExIncorrectCommandParameters {
             get {
                 return ResourceManager.GetString("ExIncorrectCommandParameters", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Incorrect namespace synonyms..
-        /// </summary>
-        internal static string ExIncorrectNamespaceSynonyms {
-            get {
-                return ResourceManager.GetString("ExIncorrectNamespaceSynonyms", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Incorrect Stage value: &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExIncorrectStageValue {
-            get {
-                return ResourceManager.GetString("ExIncorrectStageValue", resourceCulture);
             }
         }
         
@@ -2904,33 +2009,6 @@ namespace Xtensive {
         internal static string ExIndexedPropertiesAreNotSupported {
             get {
                 return ResourceManager.GetString("ExIndexedPropertiesAreNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Indexes of columns to be loaded are not specified..
-        /// </summary>
-        internal static string ExIndexesOfColumnsToBeLoadedAreNotSpecified {
-            get {
-                return ResourceManager.GetString("ExIndexesOfColumnsToBeLoadedAreNotSpecified", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Index field &apos;{0}&apos; is incorrect..
-        /// </summary>
-        internal static string ExIndexFieldXIsIncorrect {
-            get {
-                return ResourceManager.GetString("ExIndexFieldXIsIncorrect", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Index &apos;{0}&apos; is changed..
-        /// </summary>
-        internal static string ExIndexIsChanged {
-            get {
-                return ResourceManager.GetString("ExIndexIsChanged", resourceCulture);
             }
         }
         
@@ -3034,51 +2112,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Multiple instances of type &apos;{0}&apos; with specified key are found..
-        /// </summary>
-        internal static string ExInstanceMultipleResults {
-            get {
-                return ResourceManager.GetString("ExInstanceMultipleResults", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Instance must be locked before this operation..
-        /// </summary>
-        internal static string ExInstanceMustBeLockedBeforeThisOperation {
-            get {
-                return ResourceManager.GetString("ExInstanceMustBeLockedBeforeThisOperation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A instance must have non-null IHasSyncRoot.SyncRoot property value..
-        /// </summary>
-        internal static string ExInstanceMustHaveSyncRoot {
-            get {
-                return ResourceManager.GetString("ExInstanceMustHaveSyncRoot", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Instance of type &apos;{0}&apos; with specified key is not found..
-        /// </summary>
-        internal static string ExInstanceNotFound {
-            get {
-                return ResourceManager.GetString("ExInstanceNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Interface &apos;{0}&apos; does not belong to &apos;{1}&apos; hierarchy..
-        /// </summary>
-        internal static string ExInterfaceXDoesNotBelongToXHierarchy {
-            get {
-                return ResourceManager.GetString("ExInterfaceXDoesNotBelongToXHierarchy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Interface &apos;{0}&apos; is implemented by types mapped to different databases: {1}, {2}.
         /// </summary>
         internal static string ExInterfaceXIsImplementedByTypesMappedToDifferentDatabasesYZ {
@@ -3102,24 +2135,6 @@ namespace Xtensive {
         internal static string ExInvalidActionType {
             get {
                 return ResourceManager.GetString("ExInvalidActionType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Active scope is invalid - it differs from the expected one. Probably you have forgot to dispose some nested scope..
-        /// </summary>
-        internal static string ExInvalidActiveScope {
-            get {
-                return ResourceManager.GetString("ExInvalidActiveScope", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid AfterPath property value..
-        /// </summary>
-        internal static string ExInvalidAfterPathPropertyValue {
-            get {
-                return ResourceManager.GetString("ExInvalidAfterPathPropertyValue", resourceCulture);
             }
         }
         
@@ -3250,24 +2265,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid field name &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExInvalidFieldNameX {
-            get {
-                return ResourceManager.GetString("ExInvalidFieldNameX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid field value, constraint {0} is violated..
-        /// </summary>
-        internal static string ExInvalidFieldValueConstraintXIsViolated {
-            get {
-                return ResourceManager.GetString("ExInvalidFieldValueConstraintXIsViolated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid fill factor &apos;{0}&apos;. Value must be between 0 and 1..
         /// </summary>
         internal static string ExInvalidFillFactorXValueMustBeBetween0And1 {
@@ -3286,29 +2283,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; formatter process type is invalid for the current operation..
-        /// </summary>
-        internal static string ExInvalidFormatterProcessType {
-            get {
-                return ResourceManager.GetString("ExInvalidFormatterProcessType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to IncludedColumns collection is invalid..
         /// </summary>
         internal static string ExInvalidIncludedColumnsCollection {
             get {
                 return ResourceManager.GetString("ExInvalidIncludedColumnsCollection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to create Key. Key params do not correspond to its structure..
-        /// </summary>
-        internal static string ExInvalidKeyParams {
-            get {
-                return ResourceManager.GetString("ExInvalidKeyParams", resourceCulture);
             }
         }
         
@@ -3327,15 +2306,6 @@ namespace Xtensive {
         internal static string ExInvalidLengthAttributeOnXField {
             get {
                 return ResourceManager.GetString("ExInvalidLengthAttributeOnXField", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid mapping name &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExInvalidMappingNameX {
-            get {
-                return ResourceManager.GetString("ExInvalidMappingNameX", resourceCulture);
             }
         }
         
@@ -3376,38 +2346,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Object serializer is invalid, since similar value serializer exists..
-        /// </summary>
-        internal static string ExInvalidObjectSerializerSimilarValueSerializerExists {
-            get {
-                return ResourceManager.GetString("ExInvalidObjectSerializerSimilarValueSerializerExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid Parent value..
-        /// </summary>
-        internal static string ExInvalidParentValue {
-            get {
-                return ResourceManager.GetString("ExInvalidParentValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid Precision attribute on field &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidPrecisionAttributeOnFieldX {
             get {
                 return ResourceManager.GetString("ExInvalidPrecisionAttributeOnFieldX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid prefetch selector &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExInvalidPrefetchSelectorX {
-            get {
-                return ResourceManager.GetString("ExInvalidPrefetchSelectorX", resourceCulture);
             }
         }
         
@@ -3430,15 +2373,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Record with invalid (possibly - unspecified) type is found..
-        /// </summary>
-        internal static string ExInvalidRecordType {
-            get {
-                return ResourceManager.GetString("ExInvalidRecordType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid Scale attribute on field &apos;{0}&apos;..
         /// </summary>
         internal static string ExInvalidScaleAttributeOnFieldX {
@@ -3457,33 +2391,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;{0}&apos; can&apos;t be an IsReferable serializer, since it serializes IReference type..
-        /// </summary>
-        internal static string ExInvalidSerializerBehaviorMustNotBeReferable {
-            get {
-                return ResourceManager.GetString("ExInvalidSerializerBehaviorMustNotBeReferable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Generic parameter T is resolved to associated &apos;{0}&apos;, although &apos;{1}&apos; is expected..
-        /// </summary>
-        internal static string ExInvalidSerializerType {
-            get {
-                return ResourceManager.GetString("ExInvalidSerializerType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The Session of specified ISessionBound object is invalid..
-        /// </summary>
-        internal static string ExInvalidSession {
-            get {
-                return ResourceManager.GetString("ExInvalidSession", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid sort expression &apos;{0}&apos;.
         /// </summary>
         internal static string ExInvalidSortExpressionX {
@@ -3493,29 +2400,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Invalid transaction state (&apos;{0}&apos;). Expected state(s) is (are) &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExInvalidTransactionState {
-            get {
-                return ResourceManager.GetString("ExInvalidTransactionState", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Invalid TupleDescriptor. Expected descriptor is {0}..
         /// </summary>
         internal static string ExInvalidTupleDescriptorExpectedDescriptorIs {
             get {
                 return ResourceManager.GetString("ExInvalidTupleDescriptorExpectedDescriptorIs", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid upgrader version..
-        /// </summary>
-        internal static string ExInvalidUpgraderVersion {
-            get {
-                return ResourceManager.GetString("ExInvalidUpgraderVersion", resourceCulture);
             }
         }
         
@@ -3574,65 +2463,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified item cannot be cached because its type is incompatible with underlying storage format..
-        /// </summary>
-        internal static string ExItemCantBeCachedIncompatibleType {
-            get {
-                return ResourceManager.GetString("ExItemCantBeCachedIncompatibleType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified item cannot be cached because its type is incompatible with ITuple..
-        /// </summary>
-        internal static string ExItemCantBeComparedIncompatibleType {
-            get {
-                return ResourceManager.GetString("ExItemCantBeComparedIncompatibleType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified item is already in use..
-        /// </summary>
-        internal static string ExItemIsInUse {
-            get {
-                return ResourceManager.GetString("ExItemIsInUse", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified item is not in use..
-        /// </summary>
-        internal static string ExItemIsNotInUse {
-            get {
-                return ResourceManager.GetString("ExItemIsNotInUse", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified item isn&apos;t pooled..
-        /// </summary>
-        internal static string ExItemIsNotPooled {
-            get {
-                return ResourceManager.GetString("ExItemIsNotPooled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Specified item isn&apos;t found..
         /// </summary>
         internal static string ExItemNotFound {
             get {
                 return ResourceManager.GetString("ExItemNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item is not found in EntitySet..
-        /// </summary>
-        internal static string ExItemNotFoundInEntitySet {
-            get {
-                return ResourceManager.GetString("ExItemNotFoundInEntitySet", resourceCulture);
             }
         }
         
@@ -3709,15 +2544,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key already exists..
-        /// </summary>
-        internal static string ExKeyAlreadyExists {
-            get {
-                return ResourceManager.GetString("ExKeyAlreadyExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The Key belongs to different storage node..
         /// </summary>
         internal static string ExKeyBelongsToDifferentStorageNode {
@@ -3745,15 +2571,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key contains multiple fields with IsTypeId==true flag..
-        /// </summary>
-        internal static string ExKeyContainsMultipleFieldsWithIsTypeIdTrueFlag {
-            get {
-                return ResourceManager.GetString("ExKeyContainsMultipleFieldsWithIsTypeIdTrueFlag", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Key field can&apos;t be of &apos;{0}&apos; type..
         /// </summary>
         internal static string ExKeyFieldCantBeOfXType {
@@ -3777,15 +2594,6 @@ namespace Xtensive {
         internal static string ExKeyFieldXInTypeYShouldNotHaveSetAccessor {
             get {
                 return ResourceManager.GetString("ExKeyFieldXInTypeYShouldNotHaveSetAccessor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Key field &apos;{0}&apos; was not found in type &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExKeyFieldXWasNotFoundInTypeY {
-            get {
-                return ResourceManager.GetString("ExKeyFieldXWasNotFoundInTypeY", resourceCulture);
             }
         }
         
@@ -3835,38 +2643,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key of specified type cannot be generated by this KeyGenerator..
-        /// </summary>
-        internal static string ExKeyOfSpecifiedTypeCannotBeGeneratedByThisKeyGenerator {
-            get {
-                return ResourceManager.GetString("ExKeyOfSpecifiedTypeCannotBeGeneratedByThisKeyGenerator", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Key of &apos;{0}&apos; does not match key of &apos;{1}&apos;..
         /// </summary>
         internal static string ExKeyOfXDoesNotMatchKeyOfY {
             get {
                 return ResourceManager.GetString("ExKeyOfXDoesNotMatchKeyOfY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Key provider &apos;{0}&apos; and hierarchy {1} key field amount mismatch..
-        /// </summary>
-        internal static string ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch {
-            get {
-                return ResourceManager.GetString("ExKeyProviderXAndHierarchyYKeyFieldAmountMismatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Key provider &apos;{0}&apos; should define at least one key field..
-        /// </summary>
-        internal static string ExKeyProviderXShouldDefineAtLeastOneKeyField {
-            get {
-                return ResourceManager.GetString("ExKeyProviderXShouldDefineAtLeastOneKeyField", resourceCulture);
             }
         }
         
@@ -3916,15 +2697,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Key &apos;{0}&apos; was not found in storage..
-        /// </summary>
-        internal static string ExKeyXWasNotFoundInStorage {
-            get {
-                return ResourceManager.GetString("ExKeyXWasNotFoundInStorage", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to LambdaExpression returned by &apos;{0}&apos; should return value that is assignable to &apos;{1}&apos;.
         /// </summary>
         internal static string ExLambdaExpressionReturnedByXShouldReturnValueThatIsAssignableToY {
@@ -3961,39 +2733,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Lambda &apos;{0}&apos; must have only one parameter..
-        /// </summary>
-        internal static string ExLambdaXMustHaveOnlyOneParameter {
-            get {
-                return ResourceManager.GetString("ExLambdaXMustHaveOnlyOneParameter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to LeftJoin does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExLeftJoinDoesNotSupportQueryProviderOfTypeX {
             get {
                 return ResourceManager.GetString("ExLeftJoinDoesNotSupportQueryProviderOfTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Legacy schema is not compatible. Details: 
-        ///{0}.
-        /// </summary>
-        internal static string ExLegacySchemaIsNotCompatible_DetailsX {
-            get {
-                return ResourceManager.GetString("ExLegacySchemaIsNotCompatible_DetailsX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to &apos;Length&apos; constraint violation on field &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExLengthConstraintViolationOnFieldX {
-            get {
-                return ResourceManager.GetString("ExLengthConstraintViolationOnFieldX", resourceCulture);
             }
         }
         
@@ -4007,47 +2751,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The limit of the graph depth is exceeded..
-        /// </summary>
-        internal static string ExLimitOfGraphDepthIsExceeded {
-            get {
-                return ResourceManager.GetString("ExLimitOfGraphDepthIsExceeded", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Linked operation for property {0} missing..
-        /// </summary>
-        internal static string ExLinkedOperationMissingFormat {
-            get {
-                return ResourceManager.GetString("ExLinkedOperationMissingFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to translate expression &apos;{0}&apos;. LINQ translator does not support method &apos;{1}&apos;..
         /// </summary>
         internal static string ExLinqTranslatorDoesNotSupportMethodX {
             get {
                 return ResourceManager.GetString("ExLinqTranslatorDoesNotSupportMethodX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Literal type &apos;{0}&apos; is not supported..
-        /// </summary>
-        internal static string ExLiteralTypeXIsNotSupported {
-            get {
-                return ResourceManager.GetString("ExLiteralTypeXIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Local collection should not be query root..
-        /// </summary>
-        internal static string ExLocalCollectionShouldNotBeQueryRoot {
-            get {
-                return ResourceManager.GetString("ExLocalCollectionShouldNotBeQueryRoot", resourceCulture);
             }
         }
         
@@ -4088,29 +2796,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Loop in action dependency chain is detected..
-        /// </summary>
-        internal static string ExLoopInActionDependencyChain {
-            get {
-                return ResourceManager.GetString("ExLoopInActionDependencyChain", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The mapping for the property {0} has already been registered..
         /// </summary>
         internal static string ExMappingForPropertyXHasAlreadyBeenRegistered {
             get {
                 return ResourceManager.GetString("ExMappingForPropertyXHasAlreadyBeenRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Materialization error: Entity&apos;s TypeId column does not exist in the underlying RecordSet..
-        /// </summary>
-        internal static string ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet {
-            get {
-                return ResourceManager.GetString("ExMaterializationErrorTypeIdColumnDoesNotExistsInTheUnderlyingRecordSet", resourceCulture);
             }
         }
         
@@ -4188,15 +2878,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Merge operation require intersection of operands..
-        /// </summary>
-        internal static string ExMergeOperationRequireIntersectionOfOperands {
-            get {
-                return ResourceManager.GetString("ExMergeOperationRequireIntersectionOfOperands", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to MethodCall expression &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExMethodCallExpressionXIsNotSupported {
@@ -4220,15 +2901,6 @@ namespace Xtensive {
         internal static string ExMethodXNotFound {
             get {
                 return ResourceManager.GetString("ExMethodXNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to MinMaxValues aren&apos;t supported for TupleFieldAdvancedComparer..
-        /// </summary>
-        internal static string ExMinMaxValuesAreNotSupportedForTupleFieldAdvancedComparer {
-            get {
-                return ResourceManager.GetString("ExMinMaxValuesAreNotSupportedForTupleFieldAdvancedComparer", resourceCulture);
             }
         }
         
@@ -4287,15 +2959,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to ValueColumns collection contains more then one reference to column &quot;{0}&quot;..
-        /// </summary>
-        internal static string ExMoreThenOneValueColumnReferenceToColumnX {
-            get {
-                return ResourceManager.GetString("ExMoreThenOneValueColumnReferenceToColumnX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Multi-database mode is active, but no database specified for &apos;{0}&apos;.
         /// </summary>
         internal static string ExMultidatabaseModeIsActiveButNoDatabaseSpecifiedForX {
@@ -4328,24 +2991,6 @@ namespace Xtensive {
         internal static string ExMultipleHintsFound {
             get {
                 return ResourceManager.GetString("ExMultipleHintsFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Multiple languages not supported for fulltext column {0} of index {1}..
-        /// </summary>
-        internal static string ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY {
-            get {
-                return ResourceManager.GetString("ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified query returns multiple results..
-        /// </summary>
-        internal static string ExMultipleResults {
-            get {
-                return ResourceManager.GetString("ExMultipleResults", resourceCulture);
             }
         }
         
@@ -4395,24 +3040,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Name &apos;{0}&apos; is invalid..
-        /// </summary>
-        internal static string ExNameXIsInvalid {
-            get {
-                return ResourceManager.GetString("ExNameXIsInvalid", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Nested collection is not supported..
-        /// </summary>
-        internal static string ExNestedCollectionIsNotSupported {
-            get {
-                return ResourceManager.GetString("ExNestedCollectionIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Nested field &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExNestedFieldXIsNotSupported {
@@ -4422,29 +3049,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There are no more available items..
-        /// </summary>
-        internal static string ExNoAvailableItems {
-            get {
-                return ResourceManager.GetString("ExNoAvailableItems", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Comparer.Current is null..
         /// </summary>
         internal static string ExNoCurrentComparer {
             get {
                 return ResourceManager.GetString("ExNoCurrentComparer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There is no current Session..
-        /// </summary>
-        internal static string ExNoCurrentSession {
-            get {
-                return ResourceManager.GetString("ExNoCurrentSession", resourceCulture);
             }
         }
         
@@ -4476,15 +3085,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to No message template is registered for code: {0}.
-        /// </summary>
-        internal static string ExNoMessageTemplateIsRegisteredForCodeX {
-            get {
-                return ResourceManager.GetString("ExNoMessageTemplateIsRegisteredForCodeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Non-enum parameters for Enum.HasFlag are not supported.
         /// </summary>
         internal static string ExNonEnumParametersForEnumHasFlagAreNotSupported {
@@ -4512,15 +3112,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Non-temporary keys must be generated by descendants..
-        /// </summary>
-        internal static string ExNonTemporaryKeysMustBeGeneratedByDescendants {
-            get {
-                return ResourceManager.GetString("ExNonTemporaryKeysMustBeGeneratedByDescendants", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to There is no object with specified key..
         /// </summary>
         internal static string ExNoObjectWithSpecifiedKey {
@@ -4539,33 +3130,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The normalized boolean expression must be the root expression..
-        /// </summary>
-        internal static string ExNormalizedExpressionMustBeRoot {
-            get {
-                return ResourceManager.GetString("ExNormalizedExpressionMustBeRoot", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The normalized boolean expression must have the &apos;{0}&apos; form..
-        /// </summary>
-        internal static string ExNormalizedExpressionMustHaveXForm {
-            get {
-                return ResourceManager.GetString("ExNormalizedExpressionMustHaveXForm", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The normalized boolean expression must not be the root expression..
-        /// </summary>
-        internal static string ExNormalizedExpressionMustNotBeRoot {
-            get {
-                return ResourceManager.GetString("ExNormalizedExpressionMustNotBeRoot", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Instance is not initialized (or not initialized properly)..
         /// </summary>
         internal static string ExNotInitialized {
@@ -4575,38 +3139,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to &apos;NotNullable&apos; constraint violation on field &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExNotNullableConstraintViolationOnFieldX {
-            get {
-                return ResourceManager.GetString("ExNotNullableConstraintViolationOnFieldX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to No upgrade handler is found for assembly &apos;{0}&apos;, version &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExNoUpgradeHandlerIsFoundForAssemblyXVersionY {
-            get {
-                return ResourceManager.GetString("ExNoUpgradeHandlerIsFoundForAssemblyXVersionY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Nullable and NullableOnUpgrade flags can&apos;t be used with &apos;{0}&apos; field. They can be used only with reference-typed fields (except Structure descendants)..
         /// </summary>
         internal static string ExNullableAndNullableOnUpgradeCannotBeUsedWithXField {
             get {
                 return ResourceManager.GetString("ExNullableAndNullableOnUpgradeCannotBeUsedWithXField", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The nullable property {0} is bound to the property {1} that isn&apos;t nullable..
-        /// </summary>
-        internal static string ExNullablePropertyXIsBoundToPropertyYThatIsNotNullable {
-            get {
-                return ResourceManager.GetString("ExNullablePropertyXIsBoundToPropertyYThatIsNotNullable", resourceCulture);
             }
         }
         
@@ -4638,47 +3175,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to You can&apos;t Activate new operation, since old ActiveOperation is still running..
-        /// </summary>
-        internal static string ExOldActiveOperationIsStillRunning {
-            get {
-                return ResourceManager.GetString("ExOldActiveOperationIsStillRunning", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Only breakable nodes :(.
         /// </summary>
         internal static string ExOnlyBreakableNodesSadSmile {
             get {
                 return ResourceManager.GetString("ExOnlyBreakableNodesSadSmile", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only entities could be hierarchy roots..
-        /// </summary>
-        internal static string ExOnlyEntitiesCouldBeHierarchyRoots {
-            get {
-                return ResourceManager.GetString("ExOnlyEntitiesCouldBeHierarchyRoots", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only equality ranges are supported..
-        /// </summary>
-        internal static string ExOnlyEqualityRangesAreSupported {
-            get {
-                return ResourceManager.GetString("ExOnlyEqualityRangesAreSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only the normalized expression having the different normal form can be added as the immediate descendant to the root expression..
-        /// </summary>
-        internal static string ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot {
-            get {
-                return ResourceManager.GetString("ExOnlyNormalizedExpressionCanBeAddedAsChildToRoot", resourceCulture);
             }
         }
         
@@ -4697,15 +3198,6 @@ namespace Xtensive {
         internal static string ExOnlyOneOperationCanBeRegisteredInEachScope {
             get {
                 return ResourceManager.GetString("ExOnlyOneOperationCanBeRegisteredInEachScope", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Only one primary operation can be logged by each OperationContext instance..
-        /// </summary>
-        internal static string ExOnlyOnePrimaryOperationCanBeLogged {
-            get {
-                return ResourceManager.GetString("ExOnlyOnePrimaryOperationCanBeLogged", resourceCulture);
             }
         }
         
@@ -4782,33 +3274,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Operation LinkType should be defined before it can be registered in OperationDictionary..
-        /// </summary>
-        internal static string ExOperationLinkTypeUndefined {
-            get {
-                return ResourceManager.GetString("ExOperationLinkTypeUndefined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Operation must be locked before it can be registered in OperationDictionary..
-        /// </summary>
-        internal static string ExOperationMustBeLocked {
-            get {
-                return ResourceManager.GetString("ExOperationMustBeLocked", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Operation PropertyName must be specified before it can be registered in OperationDictionary..
-        /// </summary>
-        internal static string ExOperationPropertyNameUndefined {
-            get {
-                return ResourceManager.GetString("ExOperationPropertyNameUndefined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to OperatonStarted is alerady called for this operation..
         /// </summary>
         internal static string ExOperationStartedIsAlreadyCalledForThisOperation {
@@ -4854,38 +3319,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Origin is not null..
-        /// </summary>
-        internal static string ExOriginIsNotNull {
-            get {
-                return ResourceManager.GetString("ExOriginIsNotNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Origin is null..
-        /// </summary>
-        internal static string ExOriginIsNull {
-            get {
-                return ResourceManager.GetString("ExOriginIsNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Outer parameter reference found, but no SqlCompiler provided.
         /// </summary>
         internal static string ExOuterParameterReferenceFoundButNoSqlCompilerProvided {
             get {
                 return ResourceManager.GetString("ExOuterParameterReferenceFoundButNoSqlCompilerProvided", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Object is outside of initial transaction scope..
-        /// </summary>
-        internal static string ExOutOfTransactionScope {
-            get {
-                return ResourceManager.GetString("ExOutOfTransactionScope", resourceCulture);
             }
         }
         
@@ -4913,15 +3351,6 @@ namespace Xtensive {
         internal static string ExPairedIdentityColumnsForTypesXAndXNotFound {
             get {
                 return ResourceManager.GetString("ExPairedIdentityColumnsForTypesXAndXNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to [Association] attribute with PairTo can not be use with field &apos;{0}&apos; of type &apos;{1}&apos;. It is already applied to field &apos;{2}&apos; of type &apos;{3}&apos;..
-        /// </summary>
-        internal static string ExPairToAttributeCanNotBeAppliedToXField {
-            get {
-                return ResourceManager.GetString("ExPairToAttributeCanNotBeAppliedToXField", resourceCulture);
             }
         }
         
@@ -4998,33 +3427,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Pool should be in syncronized mode to utilize AutoCleanup feature..
-        /// </summary>
-        internal static string ExPoolMustBeSyncronized {
-            get {
-                return ResourceManager.GetString("ExPoolMustBeSyncronized", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Item already exists in the pool with another key..
-        /// </summary>
-        internal static string ExPoolWrongKey {
-            get {
-                return ResourceManager.GetString("ExPoolWrongKey", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Port value must be in [0,65535] range..
-        /// </summary>
-        internal static string ExPortOutOfRange {
-            get {
-                return ResourceManager.GetString("ExPortOutOfRange", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Position value should be greater than zero..
         /// </summary>
         internal static string ExPositionValueShouldBeGreaterThanZero {
@@ -5034,29 +3436,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Precision should be non-negative value..
-        /// </summary>
-        internal static string ExPrecisionShouldBeNonNegativeValue {
-            get {
-                return ResourceManager.GetString("ExPrecisionShouldBeNonNegativeValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Predicate contains accesses to different ApplyParameters..
         /// </summary>
         internal static string ExPredicateContainsAccessesToDifferentApplyParameters {
             get {
                 return ResourceManager.GetString("ExPredicateContainsAccessesToDifferentApplyParameters", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Prefetch does not support query provider of type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExPrefetchDoesNotSupportQueryProviderOfTypeX {
-            get {
-                return ResourceManager.GetString("ExPrefetchDoesNotSupportQueryProviderOfTypeX", resourceCulture);
             }
         }
         
@@ -5097,15 +3481,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Field &apos;{0}&apos; is a part of primary key. It can&apos;t be changed..
-        /// </summary>
-        internal static string ExPrimaryKeyFieldCantBeChanged {
-            get {
-                return ResourceManager.GetString("ExPrimaryKeyFieldCantBeChanged", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Primary key field &apos;{0}&apos; can&apos;t be marked as Version..
         /// </summary>
         internal static string ExPrimaryKeyFieldXCanTBeMarkedAsVersion {
@@ -5115,38 +3490,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The primitive property {0} is bound to the property {1} that isn&apos;t primitive..
-        /// </summary>
-        internal static string ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive {
-            get {
-                return ResourceManager.GetString("ExPrimitivePropertyXIsBoundToPropertyYThatIsNotPrimitive", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Processing of VoidProvider is not supported..
         /// </summary>
         internal static string ExProcessingOfVoidProviderIsNotSupported {
             get {
                 return ResourceManager.GetString("ExProcessingOfVoidProviderIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The properties {0} and {1} have different primitive types..
-        /// </summary>
-        internal static string ExPropertiesXAndYHaveDifferentPrimitiveTypes {
-            get {
-                return ResourceManager.GetString("ExPropertiesXAndYHaveDifferentPrimitiveTypes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The properties &quot;{0}&quot; and &quot;{1}&quot; have incompatible types..
-        /// </summary>
-        internal static string ExPropertiesXAndYHaveIncompatibleTypes {
-            get {
-                return ResourceManager.GetString("ExPropertiesXAndYHaveIncompatibleTypes", resourceCulture);
             }
         }
         
@@ -5196,38 +3544,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Property &apos;{0}&apos; doesn&apos;t have public setter..
-        /// </summary>
-        internal static string ExPropertyXDoesnTHavePublicSetter {
-            get {
-                return ResourceManager.GetString("ExPropertyXDoesnTHavePublicSetter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Property &apos;{0}&apos; must be declared in type &apos;{1}&apos;..
         /// </summary>
         internal static string ExPropertyXMustBeDeclaredInTypeY {
             get {
                 return ResourceManager.GetString("ExPropertyXMustBeDeclaredInTypeY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Property &apos;{0}.{1}&apos; doesn&apos;t have public getter..
-        /// </summary>
-        internal static string ExPropertyXYDoesnTHavePublicGetter {
-            get {
-                return ResourceManager.GetString("ExPropertyXYDoesnTHavePublicGetter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Property &quot;{0}.{1}&quot; is not found..
-        /// </summary>
-        internal static string ExPropertyXYIsNotFound {
-            get {
-                return ResourceManager.GetString("ExPropertyXYIsNotFound", resourceCulture);
             }
         }
         
@@ -5259,15 +3580,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The query contains closures of different types..
-        /// </summary>
-        internal static string ExQueryContainsClosuresOfDifferentTypes {
-            get {
-                return ResourceManager.GetString("ExQueryContainsClosuresOfDifferentTypes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The SQL query has too many parameters. The server supports a maximum of {0} parameters..
         /// </summary>
         internal static string ExQueryHasTooManyParametersMaxCountOfParametersIsX {
@@ -5282,24 +3594,6 @@ namespace Xtensive {
         internal static string ExQueryTaskIsNotExecutedYet {
             get {
                 return ResourceManager.GetString("ExQueryTaskIsNotExecutedYet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Range is empty..
-        /// </summary>
-        internal static string ExRangeIsEmpty {
-            get {
-                return ResourceManager.GetString("ExRangeIsEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reader is not in consistent state..
-        /// </summary>
-        internal static string ExReaderIsNotInConsistentState {
-            get {
-                return ResourceManager.GetString("ExReaderIsNotInConsistentState", resourceCulture);
             }
         }
         
@@ -5327,60 +3621,6 @@ namespace Xtensive {
         internal static string ExReferencedColumnsCountCantBeLessThenOne {
             get {
                 return ResourceManager.GetString("ExReferencedColumnsCountCantBeLessThenOne", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Referenced column &quot;{0}&quot; does not belong to index &quot;{1}&quot;..
-        /// </summary>
-        internal static string ExReferencedColumnXDoesNotBelongToIndexY {
-            get {
-                return ResourceManager.GetString("ExReferencedColumnXDoesNotBelongToIndexY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Referenced field &apos;{0}&apos; and paired field are equal..
-        /// </summary>
-        internal static string ExReferencedFieldXAndPairedFieldAreEqual {
-            get {
-                return ResourceManager.GetString("ExReferencedFieldXAndPairedFieldAreEqual", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reference &apos;{0}&apos; is already defined..
-        /// </summary>
-        internal static string ExReferenceIsAlreadyDefined {
-            get {
-                return ResourceManager.GetString("ExReferenceIsAlreadyDefined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reference &apos;{0}&apos; is not resolved yet..
-        /// </summary>
-        internal static string ExReferenceIsNotResolvedYet {
-            get {
-                return ResourceManager.GetString("ExReferenceIsNotResolvedYet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Reference points to null..
-        /// </summary>
-        internal static string ExReferenceIsNull {
-            get {
-                return ResourceManager.GetString("ExReferenceIsNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The reference property {0} is bound to the property {1} that isn&apos;t reference..
-        /// </summary>
-        internal static string ExReferencePropertyXIsBoundToPropertyYThatIsNotReference {
-            get {
-                return ResourceManager.GetString("ExReferencePropertyXIsBoundToPropertyYThatIsNotReference", resourceCulture);
             }
         }
         
@@ -5430,15 +3670,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Referential integrity violation..
-        /// </summary>
-        internal static string ExReferentialIntegrityViolation {
-            get {
-                return ResourceManager.GetString("ExReferentialIntegrityViolation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Request is not prepared.
         /// </summary>
         internal static string ExRequestIsNotPrepared {
@@ -5475,15 +3706,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Row amount should be positive number..
-        /// </summary>
-        internal static string ExRowAmountShouldBePositiveNumber {
-            get {
-                return ResourceManager.GetString("ExRowAmountShouldBePositiveNumber", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to ROW_NUMBER window function is not supported on this version of PostgreSQL.
         /// </summary>
         internal static string ExRowNumberWindowFunctionIsNotSupportedOnThisVersionOfPostgreSql {
@@ -5502,15 +3724,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Scale should be non-negative value..
-        /// </summary>
-        internal static string ExScaleShouldBeNonNegativeValue {
-            get {
-                return ResourceManager.GetString("ExScaleShouldBeNonNegativeValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Schema mapping requires multischema domain configuration. Please provide at least DefaultSchema setting..
         /// </summary>
         internal static string ExSchemaMappingRequiresMultischemaDomainConfiguration {
@@ -5525,15 +3738,6 @@ namespace Xtensive {
         internal static string ExSchemaMustBeNotNull {
             get {
                 return ResourceManager.GetString("ExSchemaMustBeNotNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Scope-bound transaction can be committed only by its scope. Use TransactionScopeBase.Complete() \  Dispose() methods of  appropriate TransactionScopeBase descendant instance to do this..
-        /// </summary>
-        internal static string ExScopeBoundTransactionCanBeCommittedOnlyByItsScope {
-            get {
-                return ResourceManager.GetString("ExScopeBoundTransactionCanBeCommittedOnlyByItsScope", resourceCulture);
             }
         }
         
@@ -5570,15 +3774,6 @@ namespace Xtensive {
         internal static string ExSegmentIsOutOfRange {
             get {
                 return ResourceManager.GetString("ExSegmentIsOutOfRange", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SelectMany collection selector &apos;{0}&apos; must have only one lambda parameter..
-        /// </summary>
-        internal static string ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter {
-            get {
-                return ResourceManager.GetString("ExSelectManyCollectionSelector0MustHaveOnlyOneLambdaParameter", resourceCulture);
             }
         }
         
@@ -5646,15 +3841,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Service with name &apos;{0}&apos; already exists in StorageInfo.Services collection..
-        /// </summary>
-        internal static string ExServiceWithNameAlreadyExistsInStorageInfoServicesCollection {
-            get {
-                return ResourceManager.GetString("ExServiceWithNameAlreadyExistsInStorageInfoServicesCollection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Service with name &quot;{0}&quot; of type &apos;{1}&apos; is not available..
         /// </summary>
         internal static string ExServiceWithNameXOfTypeYIsNotAvailable {
@@ -5669,15 +3855,6 @@ namespace Xtensive {
         internal static string ExServiceXIsNotSupported {
             get {
                 return ResourceManager.GetString("ExServiceXIsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Session bound object is out of session scope..
-        /// </summary>
-        internal static string ExSessionBoundObjectOutOfSessionScope {
-            get {
-                return ResourceManager.GetString("ExSessionBoundObjectOutOfSessionScope", resourceCulture);
             }
         }
         
@@ -5736,15 +3913,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Size should be not negative value..
-        /// </summary>
-        internal static string ExSizeShouldBeNotNegativeValue {
-            get {
-                return ResourceManager.GetString("ExSizeShouldBeNotNegativeValue", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &apos;Skip&apos; does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExSkipDoesNotSupportQueryProviderOfTypeX {
@@ -5759,15 +3927,6 @@ namespace Xtensive {
         internal static string ExSkipNotSupportedInCompiledQueries {
             get {
                 return ResourceManager.GetString("ExSkipNotSupportedInCompiledQueries", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Some operands are not Expressions  of type &apos;System.Boolean&apos;..
-        /// </summary>
-        internal static string ExSomeOperandsAreNotExpressionsOfTypeBoolean {
-            get {
-                return ResourceManager.GetString("ExSomeOperandsAreNotExpressionsOfTypeBoolean", resourceCulture);
             }
         }
         
@@ -5808,33 +3967,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified expression can&apos;t be parsed..
-        /// </summary>
-        internal static string ExSpecifiedExpressionCanNotBeParsed {
-            get {
-                return ResourceManager.GetString("ExSpecifiedExpressionCanNotBeParsed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The specified expression is not a MemberExpression..
-        /// </summary>
-        internal static string ExSpecifiedExpressionIsNotMemberExpression {
-            get {
-                return ResourceManager.GetString("ExSpecifiedExpressionIsNotMemberExpression", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified key field type is not supported by this temporary key generator..
-        /// </summary>
-        internal static string ExSpecifiedKeyFieldTypeIsNotSupportedByThisTemporaryKeyGenerator {
-            get {
-                return ResourceManager.GetString("ExSpecifiedKeyFieldTypeIsNotSupportedByThisTemporaryKeyGenerator", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Specified precision ({0}) is greater than maximum supported by storage ({1})..
         /// </summary>
         internal static string ExSpecifiedPrecisionXIsGreaterThanMaximumSupportedByStorageY {
@@ -5844,38 +3976,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The specified property {0} is not persistent..
-        /// </summary>
-        internal static string ExSpecifiedPropertyXIsNotPersistent {
-            get {
-                return ResourceManager.GetString("ExSpecifiedPropertyXIsNotPersistent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified RedoDescriptor can&apos;t be logged..
-        /// </summary>
-        internal static string ExSpecifiedRedoDescriptorCantBeLogged {
-            get {
-                return ResourceManager.GetString("ExSpecifiedRedoDescriptorCantBeLogged", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The specified type&apos;s hierarchy is different from the key&apos;s hierarchy..
         /// </summary>
         internal static string ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy {
             get {
                 return ResourceManager.GetString("ExSpecifiedTypeHierarchyIsDifferentFromKeyHierarchy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Specified type should be either GeneratedTupleDescriptor or its descendant..
-        /// </summary>
-        internal static string ExSpecifiedTypeShouldBeGeneratedTupleDescriptorOrItsDescendant {
-            get {
-                return ResourceManager.GetString("ExSpecifiedTypeShouldBeGeneratedTupleDescriptorOrItsDescendant", resourceCulture);
             }
         }
         
@@ -5894,60 +3999,6 @@ namespace Xtensive {
         internal static string ExSqlContainerExpressionCanNotBeCompiled {
             get {
                 return ResourceManager.GetString("ExSqlContainerExpressionCanNotBeCompiled", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SQL Server below 2005 is not supported..
-        /// </summary>
-        internal static string ExSqlServerBelow2005IsNotSupported {
-            get {
-                return ResourceManager.GetString("ExSqlServerBelow2005IsNotSupported", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to SQL Server supports trimming of space characters only..
-        /// </summary>
-        internal static string ExSqlServerSupportsTrimmingOfSpaceCharactersOnly {
-            get {
-                return ResourceManager.GetString("ExSqlServerSupportsTrimmingOfSpaceCharactersOnly", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to State is not loaded..
-        /// </summary>
-        internal static string ExStateIsNotLoaded {
-            get {
-                return ResourceManager.GetString("ExStateIsNotLoaded", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to State is removed..
-        /// </summary>
-        internal static string ExStateIsRemoved {
-            get {
-                return ResourceManager.GetString("ExStateIsRemoved", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to StateTransaction property value differs from the current transaction..
-        /// </summary>
-        internal static string ExStateTransactionIsDifferent {
-            get {
-                return ResourceManager.GetString("ExStateTransactionIsDifferent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to State with key &apos;{0}&apos; is already exists..
-        /// </summary>
-        internal static string ExStateWithKeyXIsAlreadyExists {
-            get {
-                return ResourceManager.GetString("ExStateWithKeyXIsAlreadyExists", resourceCulture);
             }
         }
         
@@ -5997,15 +4048,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to String does not correspond to the specified descriptor..
-        /// </summary>
-        internal static string ExStringDoesNotCorrespondToDescriptor {
-            get {
-                return ResourceManager.GetString("ExStringDoesNotCorrespondToDescriptor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to String.Trim(char[]), String.TrimStart(char[]), string.TrimEnd(char[]) supported only with argument being array of constants..
         /// </summary>
         internal static string ExStringTrimSupportedOnlyWithConstants {
@@ -6038,15 +4080,6 @@ namespace Xtensive {
         internal static string ExStructureXCantContainFieldOfTheSameType {
             get {
                 return ResourceManager.GetString("ExStructureXCantContainFieldOfTheSameType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to System date \ time has been changed..
-        /// </summary>
-        internal static string ExSystemTimeChanged {
-            get {
-                return ResourceManager.GetString("ExSystemTimeChanged", resourceCulture);
             }
         }
         
@@ -6096,6 +4129,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to &apos;Tag&apos; does not support query provider of type &apos;{0}&apos;..
+        /// </summary>
+        internal static string ExTagDoesNotSupportQueryProviderOfTypeX {
+            get {
+                return ResourceManager.GetString("ExTagDoesNotSupportQueryProviderOfTypeX", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to &apos;Take&apos; does not support query provider of type &apos;{0}&apos;..
         /// </summary>
         internal static string ExTakeDoesNotSupportQueryProviderOfTypeX {
@@ -6141,38 +4183,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Temporary table &apos;{0}&apos; is locked.
-        /// </summary>
-        internal static string ExTemporaryTableXIsLocked {
-            get {
-                return ResourceManager.GetString("ExTemporaryTableXIsLocked", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Term weight value must be between {0} and {1}.
         /// </summary>
         internal static string ExTermWeightValueMustBeBetweenXAndY {
             get {
                 return ResourceManager.GetString("ExTermWeightValueMustBeBetweenXAndY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The data type must be exact numeric without scale or with zero scale..
-        /// </summary>
-        internal static string ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale {
-            get {
-                return ResourceManager.GetString("ExTheDataTypeMustBeExactNumericWithoutScaleOrWithZeroScale", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The data type must be exact numeric with scale 0..
-        /// </summary>
-        internal static string ExTheDataTypeMustBeExactNumericWithScale0 {
-            get {
-                return ResourceManager.GetString("ExTheDataTypeMustBeExactNumericWithScale0", resourceCulture);
             }
         }
         
@@ -6195,38 +4210,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to There are no suitable types in &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExThereAreNoSuitableTypes {
-            get {
-                return ResourceManager.GetString("ExThereAreNoSuitableTypes", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to There is no current HttpRequest, or SessionManager is not bound to it yet..
-        /// </summary>
-        internal static string ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet {
-            get {
-                return ResourceManager.GetString("ExThereIsNoCurrentHttpRequestOrSessionManagerIsnTBoundToItYet", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to There is no implemetation of &apos;{0}.{1}&apos; member in &apos;{0}&apos; type..
         /// </summary>
         internal static string ExThereIsNoImplemetationOfXYMemberInZType {
             get {
                 return ResourceManager.GetString("ExThereIsNoImplemetationOfXYMemberInZType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The scale must be less than or equal to precision..
-        /// </summary>
-        internal static string ExTheScaleMustBeLessThanOrEqualToPrecision {
-            get {
-                return ResourceManager.GetString("ExTheScaleMustBeLessThanOrEqualToPrecision", resourceCulture);
             }
         }
         
@@ -6267,16 +4255,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This operation is not allowed for the parameter context operating with expected values of parameters..
-        /// </summary>
-        internal static string ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParameters {
-            get {
-                return ResourceManager.GetString("ExThisOperationIsNotAllowedForParameterContextOperatingWithExpectedValuesOfParame" +
-                        "ters", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to This storage does not support &apos;{0}&apos;..
         /// </summary>
         internal static string ExThisStorageDoesNotSupportX {
@@ -6304,56 +4282,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Transaction is already activated..
-        /// </summary>
-        internal static string ExTransactionIsAlreadyActivated {
-            get {
-                return ResourceManager.GetString("ExTransactionIsAlreadyActivated", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transaction is already open..
-        /// </summary>
-        internal static string ExTransactionIsAlreadyOpen {
-            get {
-                return ResourceManager.GetString("ExTransactionIsAlreadyOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Transaction is not active..
         /// </summary>
         internal static string ExTransactionIsNotActive {
             get {
                 return ResourceManager.GetString("ExTransactionIsNotActive", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Transaction is not open..
-        /// </summary>
-        internal static string ExTransactionIsNotOpen {
-            get {
-                return ResourceManager.GetString("ExTransactionIsNotOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to A transaction is running, but there should be no active transaction..
-        /// </summary>
-        internal static string ExTransactionIsRunning {
-            get {
-                return ResourceManager.GetString("ExTransactionIsRunning", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TransactionScope.IsCompleted can not be set to &apos;false&apos;..
-        /// </summary>
-        internal static string ExTransactionScopeIsCompletedCanNotBeSetToFalse {
-            get {
-                return ResourceManager.GetString("ExTransactionScopeIsCompletedCanNotBeSetToFalse", resourceCulture);
             }
         }
         
@@ -6412,15 +4345,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type cannot be null..
-        /// </summary>
-        internal static string ExTypeCantBeNull {
-            get {
-                return ResourceManager.GetString("ExTypeCantBeNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type column &apos;{0}&apos; for fulltext column&apos;{1}&apos; must be type of string..
         /// </summary>
         internal static string ExTypeColumnXForFulltextColumnYMustBeTypeOfString {
@@ -6466,47 +4390,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; has no primary index..
-        /// </summary>
-        internal static string ExTypeHasNoPrimaryIndex {
-            get {
-                return ResourceManager.GetString("ExTypeHasNoPrimaryIndex", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TypeId for type &apos;{0}&apos; is not found..
-        /// </summary>
-        internal static string ExTypeIdForTypeXIsNotFound {
-            get {
-                return ResourceManager.GetString("ExTypeIdForTypeXIsNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TypeId is not assigned for type &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExTypeIdIsNotAssignedForTypeX {
-            get {
-                return ResourceManager.GetString("ExTypeIdIsNotAssignedForTypeX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type with TypeId={0} is not registered..
         /// </summary>
         internal static string ExTypeIdXIsNotRegistered {
             get {
                 return ResourceManager.GetString("ExTypeIdXIsNotRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to TypeInfo hierarchy does not correspond to provided hierarchy..
-        /// </summary>
-        internal static string ExTypeInfoHierarchyMistmatch {
-            get {
-                return ResourceManager.GetString("ExTypeInfoHierarchyMistmatch", resourceCulture);
             }
         }
         
@@ -6520,47 +4408,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type is not supported by BinaryPrimitiveSerializer..
-        /// </summary>
-        internal static string ExTypeIsNotSupportedByBinaryPrimitiveSerializer {
-            get {
-                return ResourceManager.GetString("ExTypeIsNotSupportedByBinaryPrimitiveSerializer", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Invalid type specified..
-        /// </summary>
-        internal static string ExTypeMustBeEntityDescendant {
-            get {
-                return ResourceManager.GetString("ExTypeMustBeEntityDescendant", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; is not found in model..
         /// </summary>
         internal static string ExTypeNotFoundInModel {
             get {
                 return ResourceManager.GetString("ExTypeNotFoundInModel", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type of entity stored in Key is undefined..
-        /// </summary>
-        internal static string ExTypeOfEntityStoredInKeyIsUndefined {
-            get {
-                return ResourceManager.GetString("ExTypeOfEntityStoredInKeyIsUndefined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The type of the expression&apos;s return value is not &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExTypeOfExpressionReturnValueIsNotX {
-            get {
-                return ResourceManager.GetString("ExTypeOfExpressionReturnValueIsNotX", resourceCulture);
             }
         }
         
@@ -6601,47 +4453,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type with name &apos;{0}&apos; is not found in metadata..
-        /// </summary>
-        internal static string ExTypeWithNameXIsNotFoundInMetadata {
-            get {
-                return ResourceManager.GetString("ExTypeWithNameXIsNotFoundInMetadata", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type with name &apos;{0}&apos; isn&apos;t registered in the Domain..
         /// </summary>
         internal static string ExTypeWithNameXIsNotRegistered {
             get {
                 return ResourceManager.GetString("ExTypeWithNameXIsNotRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type with type TypeId=&apos;{0}&apos; is not found..
-        /// </summary>
-        internal static string ExTypeWithTypeIdXIsNotFound {
-            get {
-                return ResourceManager.GetString("ExTypeWithTypeIdXIsNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The type {0} can&apos;t be transformed..
-        /// </summary>
-        internal static string ExTypeXCanNotBeTransformed {
-            get {
-                return ResourceManager.GetString("ExTypeXCanNotBeTransformed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; can&apos;t contain Version fields, because it is not a hierarchy root type..
-        /// </summary>
-        internal static string ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot {
-            get {
-                return ResourceManager.GetString("ExTypeXCantContainsVersionFieldsAsItsNotAHierarchyRoot", resourceCulture);
             }
         }
         
@@ -6674,42 +4490,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; does not have a parameterless constructor..
-        /// </summary>
-        internal static string ExTypeXDoesNotHaveAParameterlessConstructor {
-            get {
-                return ResourceManager.GetString("ExTypeXDoesNotHaveAParameterlessConstructor", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; does not have property &apos;{1}&apos;..
-        /// </summary>
-        internal static string ExTypeXDoesNotHavePropertyY {
-            get {
-                return ResourceManager.GetString("ExTypeXDoesNotHavePropertyY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; does not implement &apos;{1}&apos; interface..
-        /// </summary>
-        internal static string ExTypeXDoesNotImplementYInterface {
-            get {
-                return ResourceManager.GetString("ExTypeXDoesNotImplementYInterface", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The type {0} has already been registered..
-        /// </summary>
-        internal static string ExTypeXHasAlreadyBeenRegistered {
-            get {
-                return ResourceManager.GetString("ExTypeXHasAlreadyBeenRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; has multiple clustered indexes: {1}.
         /// </summary>
         internal static string ExTypeXHasMultipleClusteredIndexesY {
@@ -6719,29 +4499,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} hasn&apos;t been registered..
-        /// </summary>
-        internal static string ExTypeXHasNotBeenRegistered {
-            get {
-                return ResourceManager.GetString("ExTypeXHasNotBeenRegistered", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; is already defined..
         /// </summary>
         internal static string ExTypeXIsAlreadyDefined {
             get {
                 return ResourceManager.GetString("ExTypeXIsAlreadyDefined", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not collatable..
-        /// </summary>
-        internal static string ExTypeXIsNotCollatable {
-            get {
-                return ResourceManager.GetString("ExTypeXIsNotCollatable", resourceCulture);
             }
         }
         
@@ -6782,15 +4544,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The type {0} isn&apos;t a subclass of the type {1}..
-        /// </summary>
-        internal static string ExTypeXIsNotSubclassOfTypeY {
-            get {
-                return ResourceManager.GetString("ExTypeXIsNotSubclassOfTypeY", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported..
         /// </summary>
         internal static string ExTypeXIsNotSupported {
@@ -6800,29 +4553,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported in &apos;new&apos; expression..
-        /// </summary>
-        internal static string ExTypeXIsNotSupportedInNewExpression {
-            get {
-                return ResourceManager.GetString("ExTypeXIsNotSupportedInNewExpression", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Type &apos;{0}&apos; must belong to hierarchy..
         /// </summary>
         internal static string ExTypeXMustBelongToHierarchy {
             get {
                 return ResourceManager.GetString("ExTypeXMustBelongToHierarchy", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; must be non-abstract type..
-        /// </summary>
-        internal static string ExTypeXMustBeNonAbstractType {
-            get {
-                return ResourceManager.GetString("ExTypeXMustBeNonAbstractType", resourceCulture);
             }
         }
         
@@ -6850,24 +4585,6 @@ namespace Xtensive {
         internal static string ExTypeXShouldNotBeGeneric {
             get {
                 return ResourceManager.GetString("ExTypeXShouldNotBeGeneric", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; was not registered for activation..
-        /// </summary>
-        internal static string ExTypeXWasNotRegisteredForActivation {
-            get {
-                return ResourceManager.GetString("ExTypeXWasNotRegisteredForActivation", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to activate EntitySet for &apos;{0}&apos; field because it does not has association..
-        /// </summary>
-        internal static string ExUnableToActivateEntitySetWithoutAssociation {
-            get {
-                return ResourceManager.GetString("ExUnableToActivateEntitySetWithoutAssociation", resourceCulture);
             }
         }
         
@@ -6913,25 +4630,6 @@ namespace Xtensive {
         internal static string ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable {
             get {
                 return ResourceManager.GetString("ExUnableToBuildFulltextIndexesForHierarchyWithInheritanceSchemaClassTable", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to build generic instance types for &apos;{0}&apos; type because it contains more then 1 generic parameter..
-        /// </summary>
-        internal static string ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParameter {
-            get {
-                return ResourceManager.GetString("ExUnableToBuildGenericInstanceTypesForXTypeBecauseItContainsMoreThen1GenericParam" +
-                        "eter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to build generic instance types for &apos;{0}&apos; type because parameter is not constrained..
-        /// </summary>
-        internal static string ExUnableToBuildGenericInstanceTypesForXTypeBecauseParameterIsNotConstrained {
-            get {
-                return ResourceManager.GetString("ExUnableToBuildGenericInstanceTypesForXTypeBecauseParameterIsNotConstrained", resourceCulture);
             }
         }
         
@@ -6999,24 +4697,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to clone non-user session configuration..
-        /// </summary>
-        internal static string ExUnableToCloneNonUserSessionConfiguration {
-            get {
-                return ResourceManager.GetString("ExUnableToCloneNonUserSessionConfiguration", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to create the connection. Check if all needed assemblies are available..
-        /// </summary>
-        internal static string ExUnableToCreateConnection {
-            get {
-                return ResourceManager.GetString("ExUnableToCreateConnection", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to create key for &apos;{0}&apos; hierarchy. Key value or key generator should be specified..
         /// </summary>
         internal static string ExUnableToCreateKeyForXHierarchy {
@@ -7026,29 +4706,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to create provider instance. Check if provider&apos;s class has static &quot;Instance&quot; property..
-        /// </summary>
-        internal static string ExUnableToCreateProviderInstance {
-            get {
-                return ResourceManager.GetString("ExUnableToCreateProviderInstance", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to define type identifier &apos;{0}&apos; for type &apos;{1}&apos;. Type is not exists..
         /// </summary>
         internal static string ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists {
             get {
                 return ResourceManager.GetString("ExUnableToDefineTypeIdentifierXForTypeYTypeIsNotExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to find column &apos;{0}&apos; of index &apos;{1}&apos; in primary index..
-        /// </summary>
-        internal static string ExUnableToFindColumnInPrimaryIndex {
-            get {
-                return ResourceManager.GetString("ExUnableToFindColumnInPrimaryIndex", resourceCulture);
             }
         }
         
@@ -7107,38 +4769,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to initialize JoinIndexProvider. Columns count mismatch..
-        /// </summary>
-        internal static string ExUnableToInitializeJoinIndexProviderColumnsCountMismatch {
-            get {
-                return ResourceManager.GetString("ExUnableToInitializeJoinIndexProviderColumnsCountMismatch", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to materialize back local collection item &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnableToMaterializeBackLocalCollectionItem {
             get {
                 return ResourceManager.GetString("ExUnableToMaterializeBackLocalCollectionItem", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to modify removed object..
-        /// </summary>
-        internal static string ExUnableToModifyDeletedObject {
-            get {
-                return ResourceManager.GetString("ExUnableToModifyDeletedObject", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to parse prefetch expression &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExUnabletoParsePrefetchExpressionX {
-            get {
-                return ResourceManager.GetString("ExUnabletoParsePrefetchExpressionX", resourceCulture);
             }
         }
         
@@ -7157,15 +4792,6 @@ namespace Xtensive {
         internal static string ExUnableToPersistTypeXBecauseOfLoopReference {
             get {
                 return ResourceManager.GetString("ExUnableToPersistTypeXBecauseOfLoopReference", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to prepare command: no parts registered..
-        /// </summary>
-        internal static string ExUnableToPrepareCommandNoPartsRegistered {
-            get {
-                return ResourceManager.GetString("ExUnableToPrepareCommandNoPartsRegistered", resourceCulture);
             }
         }
         
@@ -7197,15 +4823,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to remap one of filtered columns..
-        /// </summary>
-        internal static string ExUnableToRemapOneOfFilteredColumns {
-            get {
-                return ResourceManager.GetString("ExUnableToRemapOneOfFilteredColumns", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to remove Owner from EntitySetExpression..
         /// </summary>
         internal static string ExUnableToRemoveOwnerFromEntitySetExpression {
@@ -7233,15 +4850,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unable to resolve owner of StructureExpression &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExUnableToResolveOwnerOfStructureExpressionX {
-            get {
-                return ResourceManager.GetString("ExUnableToResolveOwnerOfStructureExpressionX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to resolve schema for node &apos;{0}&apos;. Please verify that this schema exists..
         /// </summary>
         internal static string ExUnableToResolveSchemaForNodeXPleaseVerifyThatThisSchemaExists {
@@ -7256,24 +4864,6 @@ namespace Xtensive {
         internal static string ExUnableToResolveTypeForKeyX {
             get {
                 return ResourceManager.GetString("ExUnableToResolveTypeForKeyX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited started asynchronous queries before persisting any changes..
-        /// </summary>
-        internal static string ExUnableToSaveModifiedEntitesBecauseOfIncompleteAsynchronousQueries {
-            get {
-                return ResourceManager.GetString("ExUnableToSaveModifiedEntitesBecauseOfIncompleteAsynchronousQueries", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to save modified entites because some asynchronous query is incomplete. Make sure you awaited asyncronous queries before persisting any changes..
-        /// </summary>
-        internal static string ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete {
-            get {
-                return ResourceManager.GetString("ExUnableToSaveModifiedEntitesBecauseSomeAsynchronousQueryIsIncomplete", resourceCulture);
             }
         }
         
@@ -7378,29 +4968,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Unauthorized: the caller is declared outside of any of registered assemblies..
-        /// </summary>
-        internal static string ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly {
-            get {
-                return ResourceManager.GetString("ExUnauthorizedAccessDeclarationOfCallerTypeIsNotInRegisteredAssembly", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unbound column &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnboundColumn {
             get {
                 return ResourceManager.GetString("ExUnboundColumn", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to ForeignKey is undefined..
-        /// </summary>
-        internal static string ExUndefinedForeignKey {
-            get {
-                return ResourceManager.GetString("ExUndefinedForeignKey", resourceCulture);
             }
         }
         
@@ -7432,29 +5004,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Underlying storage provider does not support SQL..
-        /// </summary>
-        internal static string ExUnderlyingStorageProviderDoesNotSupportSQL {
-            get {
-                return ResourceManager.GetString("ExUnderlyingStorageProviderDoesNotSupportSQL", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unexpected type of parameter..
         /// </summary>
         internal static string ExUnexpectedTypeOfParameter {
             get {
                 return ResourceManager.GetString("ExUnexpectedTypeOfParameter", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unknown entity serialization kind &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExUnknownEntitySerializationKindX {
-            get {
-                return ResourceManager.GetString("ExUnknownEntitySerializationKindX", resourceCulture);
             }
         }
         
@@ -7477,29 +5031,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported by current storage provider..
-        /// </summary>
-        internal static string ExUnsupportedColumnType {
-            get {
-                return ResourceManager.GetString("ExUnsupportedColumnType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unsupported expression type: &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnsupportedExpressionType {
             get {
                 return ResourceManager.GetString("ExUnsupportedExpressionType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unsupported field type: &apos;{0}&apos;.
-        /// </summary>
-        internal static string ExUnsupportedFieldTypeX {
-            get {
-                return ResourceManager.GetString("ExUnsupportedFieldTypeX", resourceCulture);
             }
         }
         
@@ -7576,15 +5112,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Use LogCaptureScope constructor instead..
-        /// </summary>
-        internal static string ExUseLogCaptureScopeConstructorInstead {
-            get {
-                return ResourceManager.GetString("ExUseLogCaptureScopeConstructorInstead", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Use LogIndentScope constructor instead..
         /// </summary>
         internal static string ExUseLogIndentScopeConstructorInstead {
@@ -7603,29 +5130,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to User defined type identifier &apos;{0}&apos; for type &apos;{1}&apos;  less then 100..
-        /// </summary>
-        internal static string ExUserDefinedTypeIdentifierXForTypeYLessThan100 {
-            get {
-                return ResourceManager.GetString("ExUserDefinedTypeIdentifierXForTypeYLessThan100", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to validateVersion=true is incompatible with PersistRequestKind=Insert.
         /// </summary>
         internal static string ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert {
             get {
                 return ResourceManager.GetString("ExValidateVersionEqTrueIsIncompatibleWithPersistRequestKindEqInsert", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Validation context is in invalid state. This means that some validation error has happened, but later it was suppressed..
-        /// </summary>
-        internal static string ExValidationContextIsInvalid {
-            get {
-                return ResourceManager.GetString("ExValidationContextIsInvalid", resourceCulture);
             }
         }
         
@@ -7702,15 +5211,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The value of the parameter {0} can&apos;t be {1}, if the value of the parameter {2} is {3}..
-        /// </summary>
-        internal static string ExValueOfParameterWCantBeXIfValueOfParameterYIsZ {
-            get {
-                return ResourceManager.GetString("ExValueOfParameterWCantBeXIfValueOfParameterYIsZ", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Value should be &apos;{0}&apos; descendant..
         /// </summary>
         internal static string ExValueShouldBeXDescendant {
@@ -7720,47 +5220,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value with name &apos;{0}&apos; already exists..
-        /// </summary>
-        internal static string ExValueWithNameXAlreadyExists {
-            get {
-                return ResourceManager.GetString("ExValueWithNameXAlreadyExists", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value with name &apos;{0}&apos; is not found..
-        /// </summary>
-        internal static string ExValueWithNameXIsNotFound {
-            get {
-                return ResourceManager.GetString("ExValueWithNameXIsNotFound", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not allowed or invalid here..
         /// </summary>
         internal static string ExValueXIsNotAllowedHere {
             get {
                 return ResourceManager.GetString("ExValueXIsNotAllowedHere", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Version conflict..
-        /// </summary>
-        internal static string ExVersionConflict {
-            get {
-                return ResourceManager.GetString("ExVersionConflict", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Version conflict on object {0}: expected: {1} = {2}, but it is {3}..
-        /// </summary>
-        internal static string ExVersionConflictEx {
-            get {
-                return ResourceManager.GetString("ExVersionConflictEx", resourceCulture);
             }
         }
         
@@ -7828,24 +5292,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Wrong persistent type candidate: &apos;{0}&apos;..
-        /// </summary>
-        internal static string ExWrongPersistentTypeCandidate {
-            get {
-                return ResourceManager.GetString("ExWrongPersistentTypeCandidate", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Source collection contains at least one item of type &quot;{0}&quot;, that cannot be cast to the item type of the destination collection..
-        /// </summary>
-        internal static string ExWrongSourceCollectionElementType {
-            get {
-                return ResourceManager.GetString("ExWrongSourceCollectionElementType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to {0} can&apos;t be executed on specified sources..
         /// </summary>
         internal static string ExXCantBeExecuted {
@@ -7900,15 +5346,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The {0} is neither class nor value type..
-        /// </summary>
-        internal static string ExXIsNeitherClassNorValueType {
-            get {
-                return ResourceManager.GetString("ExXIsNeitherClassNorValueType", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to &apos;{0}&apos; is not suitable field for full-text search.
         /// </summary>
         internal static string ExXIsNotSuitableFieldFoFullTextSearch {
@@ -7932,15 +5369,6 @@ namespace Xtensive {
         internal static string ExXIsNotValidNameForX {
             get {
                 return ResourceManager.GetString("ExXIsNotValidNameForX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0} is obsolete. Use {1} and {2} instead..
-        /// </summary>
-        internal static string ExXIsObsoleteUseYAndZInstead {
-            get {
-                return ResourceManager.GetString("ExXIsObsoleteUseYAndZInstead", resourceCulture);
             }
         }
         
@@ -7995,15 +5423,6 @@ namespace Xtensive {
         internal static string ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC {
             get {
                 return ResourceManager.GetString("ExXYFieldPairedToZAFieldShouldBeEntitySetOfBButCurrentIsC", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to You must either apply or cancel cached changes before changing this property..
-        /// </summary>
-        internal static string ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty {
-            get {
-                return ResourceManager.GetString("ExYouMustEitherApplyOrCancelCachedChangesToChangeThisProperty", resourceCulture);
             }
         }
         
@@ -8094,15 +5513,6 @@ namespace Xtensive {
         internal static string HasVersionFormat {
             get {
                 return ResourceManager.GetString("HasVersionFormat", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Hierarchy columns.
-        /// </summary>
-        internal static string HierarchyColumns {
-            get {
-                return ResourceManager.GetString("HierarchyColumns", resourceCulture);
             }
         }
         
@@ -8330,15 +5740,6 @@ namespace Xtensive {
         internal static string LogComparisonResultX {
             get {
                 return ResourceManager.GetString("LogComparisonResultX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Connection restore failed..
-        /// </summary>
-        internal static string LogConnectionRestoreFailed {
-            get {
-                return ResourceManager.GetString("LogConnectionRestoreFailed", resourceCulture);
             }
         }
         
@@ -9401,42 +6802,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to {0}: value can not be empty..
-        /// </summary>
-        internal static string PropertyValueCanNotBeEmpty {
-            get {
-                return ResourceManager.GetString("PropertyValueCanNotBeEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: value can not be null..
-        /// </summary>
-        internal static string PropertyValueCanNotBeNull {
-            get {
-                return ResourceManager.GetString("PropertyValueCanNotBeNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: length of the value must be in [{1} ... {2}] range..
-        /// </summary>
-        internal static string PropertyValueLengthMustBeInXYRange {
-            get {
-                return ResourceManager.GetString("PropertyValueLengthMustBeInXYRange", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to {0}: value must be in [{1} ... {2}] range..
-        /// </summary>
-        internal static string PropertyValueMustBeInXYRange {
-            get {
-                return ResourceManager.GetString("PropertyValueMustBeInXYRange", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Query &apos;{0}&apos;.
         /// </summary>
         internal static string QueryX {
@@ -9801,24 +7166,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Type &apos;{0}&apos; is not supported &apos;{1}&apos; node..
-        /// </summary>
-        internal static string TypeXIsNotSupportedYNode {
-            get {
-                return ResourceManager.GetString("TypeXIsNotSupportedYNode", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unable to dispose an item when disposable container has an invalid state..
-        /// </summary>
-        internal static string UnableToDisposeItemWhenContainerIsNotDisposed {
-            get {
-                return ResourceManager.GetString("UnableToDisposeItemWhenContainerIsNotDisposed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Unable to find column &apos;{0}&apos; of type &apos;{1}&apos; of current model..
         /// </summary>
         internal static string UnableToFindColumnXInTypeYOfCurrentModel {
@@ -9873,33 +7220,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value can not be less then {0}..
-        /// </summary>
-        internal static string ValueCanNotBeLessThenX {
-            get {
-                return ResourceManager.GetString("ValueCanNotBeLessThenX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value can not be null..
-        /// </summary>
-        internal static string ValueCanNotBeNull {
-            get {
-                return ResourceManager.GetString("ValueCanNotBeNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value can not be an entity that is already removed..
-        /// </summary>
-        internal static string ValueCanNotBeRemovedEntity {
-            get {
-                return ResourceManager.GetString("ValueCanNotBeRemovedEntity", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Value does not match regex pattern &apos;{0}&apos;..
         /// </summary>
         internal static string ValueDoesNotMatchRegexPatternX {
@@ -9936,15 +7256,6 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value can not exceed {0}..
-        /// </summary>
-        internal static string ValueLengthCanNotExceedX {
-            get {
-                return ResourceManager.GetString("ValueLengthCanNotExceedX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Value should be a valid e-mail..
         /// </summary>
         internal static string ValueShouldBeAValidEMail {
@@ -9972,29 +7283,11 @@ namespace Xtensive {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Value should match regex pattern &apos;{0}&apos;.
-        /// </summary>
-        internal static string ValueShouldMatchRegexPatternX {
-            get {
-                return ResourceManager.GetString("ValueShouldMatchRegexPatternX", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to Value should not be empty..
         /// </summary>
         internal static string ValueShouldNotBeEmpty {
             get {
                 return ResourceManager.GetString("ValueShouldNotBeEmpty", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value should not be null or empty..
-        /// </summary>
-        internal static string ValueShouldNotBeEmptyOrEmpty {
-            get {
-                return ResourceManager.GetString("ValueShouldNotBeEmptyOrEmpty", resourceCulture);
             }
         }
         
@@ -10031,15 +7324,6 @@ namespace Xtensive {
         internal static string ValueShouldNotBeNull {
             get {
                 return ResourceManager.GetString("ValueShouldNotBeNull", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Value type mismatch for field &apos;{0}&apos;.
-        /// </summary>
-        internal static string ValueTypeMismatchForFieldX {
-            get {
-                return ResourceManager.GetString("ValueTypeMismatchForFieldX", resourceCulture);
             }
         }
         

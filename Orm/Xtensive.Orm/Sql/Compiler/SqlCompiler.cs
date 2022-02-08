@@ -1383,6 +1383,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual void Visit(SqlMetadata node)
+    {
+      node.Expression.AcceptVisitor(this);
+    }
+
     public virtual void Visit(SqlUpdate node)
     {
       VisitUpdateDefault(node);

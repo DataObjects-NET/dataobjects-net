@@ -316,5 +316,24 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(result, Is.Not.Empty);
       Assert.IsTrue(expected.SequenceEqual(result));
     }
+
+    [Test]
+    public void OrderByBoolExpression()
+    {
+      var result = Session.Query.All<Invoice>().OrderBy(c => c.Status == (InvoiceStatus) 1)
+        .Select(c => c.Status)
+        .ToArray();
+      Assert.AreEqual(result.Last(), (InvoiceStatus) 1);
+    }
+
+    [Test]
+    public void OrderByBoolExpressionComplex()
+    {
+      var result = Session.Query.All<Invoice>()
+        .OrderBy(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2)
+        .Select(c => c.Status)
+        .ToArray();
+      Assert.Contains(result.Last(), new[] { (InvoiceStatus) 1, (InvoiceStatus) 2 });
+    }
   }
 }

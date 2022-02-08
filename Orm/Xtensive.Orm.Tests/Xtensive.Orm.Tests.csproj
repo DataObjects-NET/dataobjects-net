@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
@@ -29,20 +29,8 @@
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="Model\InterfaceAssociationsModelGenerator.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
     <None Update="Northwind.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
-    <None Update="Upgrade\HugeModelUpgrade\Models\ModelWithMappedTypes.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="Upgrade\HugeModelUpgrade\Models\RegularModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="Upgrade\HugeModelUpgrade\Models\TwoPartsModel.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
     </None>
     <None Update="Chinook.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -48,6 +48,36 @@ namespace Xtensive.Orm.Building.Builders
 
     protected override Expression VisitBinary(BinaryExpression b)
     {
+      if (EnumRewritableOperations(b)) {
+        var leftNoCasts = b.Left.StripCasts();
+        var leftNoCastsType = leftNoCasts.Type;
+        var bareLeftType = leftNoCastsType.StripNullable();
+        var rightNoCasts = b.Right.StripCasts();
+        var rightNoCastsType = rightNoCasts.Type;
+        var bareRightType = rightNoCastsType.StripNullable();
+
+        if (bareLeftType.IsEnum && rightNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = leftNoCastsType.IsNullable()
+            ? bareLeftType.GetEnumUnderlyingType().ToNullable()
+            : leftNoCastsType.GetEnumUnderlyingType();
+
+          return base.VisitBinary(Expression.MakeBinary(
+            b.NodeType,
+            Expression.Convert(leftNoCasts, typeToCast),
+            Expression.Convert(b.Right, typeToCast)));
+        }
+        else if (bareRightType.IsEnum && leftNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = rightNoCastsType.IsNullable()
+            ? bareRightType.GetEnumUnderlyingType().ToNullable()
+            : rightNoCastsType.GetEnumUnderlyingType();
+
+          return base.VisitBinary(Expression.MakeBinary(
+            b.NodeType,
+            Expression.Convert(rightNoCasts, typeToCast),
+            Expression.Convert(b.Left, typeToCast)));
+        }
+      }
+
       // Detect f!=null and f==null for entity fields
 
       if (!(b.NodeType is ExpressionType.Equal or ExpressionType.NotEqual))
@@ -56,13 +86,20 @@ namespace Xtensive.Orm.Building.Builders
       var left = Visit(b.Left);
       var right = Visit(b.Right);
 
-      FieldInfo field;
-      if (entityAccessMap.TryGetValue(left, out field) && IsNull(right))
+      if (entityAccessMap.TryGetValue(left, out var field) && IsNull(right))
         return BuildEntityCheck(field, b.NodeType);
       if (entityAccessMap.TryGetValue(right, out field) && IsNull(left))
         return BuildEntityCheck(field, b.NodeType);
 
       return base.VisitBinary(b);
+
+      static bool EnumRewritableOperations(BinaryExpression b)
+      {
+        var nt = b.NodeType;
+        return nt == ExpressionType.Equal || nt == ExpressionType.NotEqual
+          || nt == ExpressionType.GreaterThan || nt == ExpressionType.GreaterThanOrEqual
+          || nt == ExpressionType.LessThan || nt == ExpressionType.LessThanOrEqual;
+      }
     }
 
     protected override Expression VisitMemberAccess(MemberExpression originalMemberAccess)
