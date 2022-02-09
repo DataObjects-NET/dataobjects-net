@@ -12,19 +12,21 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v9_0
 {
   internal class Translator : v8_4.Translator
   {
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var array = literalValue as byte[];
-      if (array == null) {
-        return base.Translate(context, literalValue);
+      var output = context.Output;
+      switch (literalValue) {
+        case byte[] array:
+          var builder = output.StringBuilder;
+          builder.EnsureCapacity(builder.Length + 2 * (array.Length + 6));
+          builder.Append(@"E'\\x");
+          builder.AppendHexArray(array);
+          builder.Append("'");
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-
-      var result = new StringBuilder((array.Length * 2) + 6)
-        .Append(@"E'\\x")
-        .AppendHexArray(array)
-        .Append("'");
-
-      return result.ToString();
     }
 
     // Constructors

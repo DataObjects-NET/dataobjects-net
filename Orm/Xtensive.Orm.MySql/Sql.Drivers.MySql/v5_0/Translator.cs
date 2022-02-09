@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -52,12 +52,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       DoubleNumberFormat.NumberGroupSeparator = "";
     }
 
-    /// <inheritdoc/>
-    [DebuggerStepThrough]
-    public override string QuoteIdentifier(params string[] names)
-    {
-      return SqlHelper.QuoteIdentifierWithBackTick(names);
-    }
+    public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithBackTick;
 
     /// <inheritdoc/>
     [DebuggerStepThrough]
@@ -66,22 +61,40 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
     }
 
-    public override string Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
+    protected override void TranslateStringChar(IOutput output, char ch)
+    {
+      switch (ch) {
+        case '\\':
+          output.AppendLiteral("\\\\");
+          break;
+        default:
+          base.TranslateStringChar(output, ch);
+          break;
+      }
+    }
+
+    public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       switch (section) {
         case SelectSection.HintsEntry:
-          return string.Empty;
+          break;
         case SelectSection.HintsExit:
-          if (node.Hints.Count==0)
-            return string.Empty;
+          if (node.Hints.Count == 0)
+            break;
           var hints = new List<string>(node.Hints.Count);
           foreach (SqlHint hint in node.Hints) {
-            if (hint is SqlNativeHint)
-              hints.Add(QuoteIdentifier((hint as SqlNativeHint).HintText));
+            if (hint is SqlNativeHint sqlNativeHint)
+              hints.Add(QuoteIdentifier(sqlNativeHint.HintText));
           }
-          return hints.Count > 0 ? "USE INDEX (" + string.Join(", ", hints.ToArray()) + ")" : string.Empty;
+          if (hints.Count > 0) {
+            context.Output.Append("USE INDEX (")
+              .Append(string.Join(", ", hints))
+              .Append(")");
+          }
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 
@@ -186,10 +199,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
+    public override void Translate(SqlCompilerContext context, SequenceDescriptor descriptor,
       SequenceDescriptorSection section)
     {
-      return string.Empty;
       //throw new NotSupportedException(Strings.ExDoesNotSupportSequences);
     }
 
@@ -257,129 +269,137 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     //    return string.Empty;
     //}
 
-    public override string Translate(SqlCompilerContext context, SqlConcat node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlConcat node, NodeSection section)
     {
       switch (section) {
         case NodeSection.Entry:
-          return "CONCAT(";
+          context.Output.Append("CONCAT(");
+          break;
         case NodeSection.Exit:
-          return ")";
-        default:
-          return string.Empty;
+          context.Output.Append(")");
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SchemaNode node)
+    public override void Translate(SqlCompilerContext context, SchemaNode node)
     {
-      return QuoteIdentifier(new[] {node.Name});
+      TranslateIdentifier(context.Output, node.Name);
     }
 
-
-    public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
+    public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
+      var output = context.Output;
       switch (section) {
         case CreateTableSection.Entry:
-          var builder = new StringBuilder();
-          builder.Append("CREATE ");
+          output.Append("CREATE ");
           var temporaryTable = node.Table as TemporaryTable;
-          if (temporaryTable!=null) {
-            builder.Append("TEMPORARY TABLE " + Translate(context, temporaryTable));
+          if (temporaryTable != null) {
+            output.Append("TEMPORARY TABLE ");
+            Translate(context, temporaryTable);
           }
           else {
-            builder.Append("TABLE " + Translate(context, node.Table));
+            output.Append("TABLE ");
+            Translate(context, node.Table);
           }
-          return builder.ToString();
+          return;
         case CreateTableSection.Exit:
-          return string.Empty;
+          return;
       }
-      return base.Translate(context, node, section);
+      base.Translate(context, node, section);
     }
 
 
-    public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
+    public override void Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
       switch (section) {
         case TableColumnSection.Exit:
-          return string.Empty;
+          break;
         case TableColumnSection.GeneratedExit:
-          return "AUTO_INCREMENT"; //Workaround based on fake sequence.
+          context.Output.Append("AUTO_INCREMENT"); //Workaround based on fake sequence.
+          break;
         default:
-          return base.Translate(context, column, section);
+          base.Translate(context, column, section);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
       Index index = node.Index;
       switch (section) {
         case CreateIndexSection.Entry:
-          return string.Format("CREATE {0}INDEX {1} USING BTREE ON {2} "
-            , index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty)
-            , QuoteIdentifier(index.Name)
-            , Translate(context, index.DataTable));
-
+          context.Output.Append(
+            string.Format("CREATE {0}INDEX {1} USING BTREE ON "
+              , index.IsUnique ? "UNIQUE " : (index.IsFullText ? "FULLTEXT " : String.Empty)
+              , QuoteIdentifier(index.Name)));
+          Translate(context, index.DataTable);
+          context.Output.Append(" ");
+          break;
         case CreateIndexSection.Exit:
-          return string.Empty;
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlDropIndex node)
+    public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      return string.Format("DROP INDEX {0} ON {1}", QuoteIdentifier(node.Index.Name),
-        QuoteIdentifier(node.Index.DataTable.Name));
+      context.Output.Append($"DROP INDEX {QuoteIdentifier(node.Index.Name)} ON {QuoteIdentifier(node.Index.DataTable.Name)}");
     }
 
-    public override string Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
+    public override void Translate(SqlCompilerContext context, Constraint constraint, ConstraintSection section)
     {
       switch (section) {
         case ConstraintSection.Entry:
           if (constraint is PrimaryKey)
-            return string.Empty;
-          return base.Translate(context, constraint, section);
-        case ConstraintSection.Exit: {
-          var fk = constraint as ForeignKey;
-          var sb = new StringBuilder();
-          sb.Append(")");
-          if (fk!=null) {
+            return;
+          base.Translate(context, constraint, section);
+          break;
+        case ConstraintSection.Exit:
+          context.Output.Append(")");
+          if (constraint is ForeignKey fk) {
             if (fk.OnUpdate!=ReferentialAction.NoAction)
-              sb.Append(" ON UPDATE " + Translate(fk.OnUpdate));
+              context.Output.Append(" ON UPDATE ").Append(Translate(fk.OnUpdate));
             if (fk.OnDelete!=ReferentialAction.NoAction)
-              sb.Append(" ON DELETE " + Translate(fk.OnDelete));
+              context.Output.Append(" ON DELETE ").Append(Translate(fk.OnDelete));
           }
-          return sb.ToString();
-        }
+          break;
         default:
-          return base.Translate(context, constraint, section);
+          base.Translate(context, constraint, section);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
+    public override void Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
       switch (section) {
         case AlterTableSection.DropBehavior:
           var cascadableAction = node.Action as SqlCascadableAction;
           if (cascadableAction==null || !cascadableAction.Cascade)
-            return string.Empty;
+            return;
           if (cascadableAction is SqlDropConstraint)
-            return string.Empty;
-          return cascadableAction.Cascade ? "CASCADE" : "RESTRICT";
+            return;
+          context.Output.Append(cascadableAction.Cascade ? "CASCADE" : "RESTRICT");
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
+    public override void Translate(SqlCompilerContext context, SqlInsert node, InsertSection section)
     {
-      if (section==InsertSection.DefaultValues)
-        return "() VALUES ()";
-      return base.Translate(context, node, section);
+      if (section == InsertSection.DefaultValues) {
+        context.Output.Append("() VALUES ()");
+      }
+      else {
+        base.Translate(context, node, section);
+      }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlBreak node)
+    public override void Translate(SqlCompilerContext context, SqlBreak node)
     {
-      return string.Empty;
       //throw new NotSupportedException(Strings.ExCursorsOnlyForProcsAndFuncs);
     }
 
@@ -392,50 +412,60 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      Type literalType = literalValue.GetType();
-      switch (Type.GetTypeCode(literalType)) {
-        case TypeCode.Boolean:
-          return (bool) literalValue ? "1" : "0";
-        case TypeCode.UInt64:
-          return QuoteString(((UInt64) literalValue).ToString());
+      var output = context.Output;
+      switch (literalValue) {
+        case bool v:
+          output.Append(v ? '1' : '0');
+          break;
+        case UInt64 v:
+          TranslateString(output, v.ToString());
+          break;
+        case byte[] values:
+          var builder = output.StringBuilder;
+          builder.EnsureCapacity(builder.Length + 2 * (values.Length + 1));
+          builder.Append("x'");
+          builder.AppendHexArray(values);
+          builder.Append("'");
+          break;
+        case Guid guid:
+          TranslateString(output, SqlHelper.GuidToString(guid));
+          break;
+        case TimeSpan timeSpan:
+          output.Append(timeSpan.Ticks * 100);
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-      if (literalType==typeof (byte[])) {
-        var values = (byte[]) literalValue;
-        var builder = new StringBuilder(2 * (values.Length + 1));
-        builder.Append("x'");
-        builder.AppendHexArray(values);
-        builder.Append("'");
-        return builder.ToString();
-      }
-      if (literalType==typeof (Guid))
-        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
-      if (literalType==typeof (TimeSpan))
-        return Convert.ToString(((TimeSpan) literalValue).Ticks * 100);
-      return base.Translate(context, literalValue);
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
-      bool isSecond = node.DateTimePart==SqlDateTimePart.Second || node.IntervalPart==SqlIntervalPart.Second;
-      bool isMillisecond = node.DateTimePart==SqlDateTimePart.Millisecond ||
-        node.IntervalPart==SqlIntervalPart.Millisecond;
-      if (!(isSecond || isMillisecond))
-        return base.Translate(context, node, section);
+      bool isSecond = node.DateTimePart == SqlDateTimePart.Second || node.IntervalPart == SqlIntervalPart.Second;
+      bool isMillisecond = node.DateTimePart == SqlDateTimePart.Millisecond ||
+        node.IntervalPart == SqlIntervalPart.Millisecond;
+      if (!(isSecond || isMillisecond)) {
+        base.Translate(context, node, section);
+        return;
+      }
       switch (section) {
         case ExtractSection.Entry:
-          return "(extract(";
+          context.Output.Append("(extract(");
+          break;
         case ExtractSection.Exit:
-          return isMillisecond ? ") % 1000)" : "))";
+          context.Output.Append(isMillisecond ? ") % 1000)" : "))");
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlFunctionCall node,
+    public override void Translate(SqlCompilerContext context, SqlFunctionCall node,
       FunctionCallSection section, int position)
     {
       switch (section) {
@@ -448,73 +478,81 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
             case SqlFunctionType.User:
             case SqlFunctionType.CurrentDate:
             case SqlFunctionType.CurrentTimeStamp:
-              return Translate(node.FunctionType);
+              context.Output.Append(Translate(node.FunctionType));
+              return;
           }
           break;
         case FunctionCallSection.ArgumentEntry:
-          return string.Empty;
+          return;
         case FunctionCallSection.ArgumentDelimiter:
-          return ArgumentDelimiter;
+          context.Output.Append(ArgumentDelimiter);
+          return;
       }
-
-      return base.Translate(context, node, section, position);
+      base.Translate(context, node, section, position);
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
       throw new NotSupportedException(Strings.ExDoesNotSupportSequences);
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
+      var output = context.Output;
       var sqlType = node.Type.Type;
 
-      if (sqlType==SqlType.Binary ||
-        sqlType==SqlType.Char ||
-        sqlType==SqlType.Interval ||
-        sqlType==SqlType.DateTime)
-        switch (section) {
-        case NodeSection.Entry:
-          return "CAST(";
-        case NodeSection.Exit:
-          return "AS " + Translate(node.Type) + ")";
-        default:
-          throw new ArgumentOutOfRangeException("section");
-        }
-      if (sqlType==SqlType.Int16 ||
-        sqlType==SqlType.Int32)
-        switch (section) {
-        case NodeSection.Entry:
-          return "CAST(";
-        case NodeSection.Exit:
-          return "AS SIGNED " + Translate(node.Type) + ")";
-        default:
-          throw new ArgumentOutOfRangeException("section");
-        }
-      if (sqlType==SqlType.Decimal) {
+      if (sqlType == SqlType.Binary ||
+        sqlType == SqlType.Char ||
+        sqlType == SqlType.Interval ||
+        sqlType == SqlType.DateTime) {
         switch (section) {
           case NodeSection.Entry:
-            return "CAST(";
+            output.Append("CAST(");
+            break;
           case NodeSection.Exit:
-            return "AS " + Translate(node.Type) + ")";
+            output.Append("AS ").Append(Translate(node.Type)).Append(")");
+            break;
           default:
             throw new ArgumentOutOfRangeException("section");
         }
       }
-      if (sqlType==SqlType.Decimal ||
-        sqlType==SqlType.Double ||
-        sqlType==SqlType.Float)
+      else if (sqlType == SqlType.Int16 || sqlType == SqlType.Int32) {
         switch (section) {
-        case NodeSection.Entry:
-          return String.Empty;
-        case NodeSection.Exit:
-          return String.Empty;
-        default:
-          throw new ArgumentOutOfRangeException("section");
+          case NodeSection.Entry:
+            output.Append("CAST(");
+            break;
+          case NodeSection.Exit:
+            output.Append("AS SIGNED ").Append(Translate(node.Type)).Append(")");
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
         }
-      return string.Empty;
+      }
+      else if (sqlType == SqlType.Decimal) {
+        switch (section) {
+          case NodeSection.Entry:
+            output.Append("CAST(");
+            break;
+          case NodeSection.Exit:
+            output.Append("AS ").Append(Translate(node.Type)).Append(")");
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
+        }
+      }
+      else if (sqlType == SqlType.Decimal ||
+        sqlType == SqlType.Double ||
+        sqlType == SqlType.Float) {
+        switch (section) {
+          case NodeSection.Entry:
+          case NodeSection.Exit:
+            break;
+          default:
+            throw new ArgumentOutOfRangeException("section");
+        }
+      }
     }
 
     /// <inheritdoc/>
@@ -601,7 +639,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlRenameColumn action) //TODO: Work on this.
+    public virtual void Translate(SqlCompilerContext context, SqlRenameColumn action) //TODO: Work on this.
     {
       string schemaName = action.Column.Table.Schema.DbName;
       string tableName = action.Column.Table.DbName;
@@ -609,17 +647,15 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
 
       //alter table `actor` change column last_name1 last_name varchar(45)
 
-      var builder = new StringBuilder();
-      builder.Append("ALTER TABLE ");
-      builder.Append(QuoteIdentifier(tableName));
-      builder.Append(" CHANGE COLUMN ");
-      builder.Append(QuoteIdentifier(columnName));
-      builder.Append(" ");
-      builder.Append(QuoteIdentifier(action.NewName));
-      builder.Append(" ");
-      builder.Append(Translate(action.Column.DataType));
-
-      return builder.ToString();
+      var output = context.Output;
+      output.Append("ALTER TABLE ");
+      TranslateIdentifier(output, tableName);
+      output.Append(" CHANGE COLUMN ");
+      TranslateIdentifier(output, columnName);
+      output.Append(" ");
+      TranslateIdentifier(output, action.NewName);
+      output.Append(" ")
+        .Append(Translate(action.Column.DataType));
     }
 
     // Constructors

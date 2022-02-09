@@ -6,6 +6,7 @@ using System.Diagnostics;
 using System.Text;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Sql.Compiler;
 
 namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {
@@ -17,10 +18,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
       return "E'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
     }
 
-    protected override void AppendIndexStorageParameters(StringBuilder builder, Index index)
+    public override void TranslateString(IOutput output, string str)
+    {
+      output.Append('E');
+      base.TranslateString(output, str);
+    }
+
+    protected override void AppendIndexStorageParameters(IOutput output, Index index)
     {
       if (index.FillFactor != null) {
-        _ = builder.AppendFormat("WITH(FILLFACTOR={0})", index.FillFactor);
+        _ = output.Append($"WITH(FILLFACTOR={index.FillFactor})");
       }
     }
 

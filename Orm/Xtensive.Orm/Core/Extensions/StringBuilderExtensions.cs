@@ -67,9 +67,9 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Appends the specified <see cref="byte"/> array in hexidecimal representation.
+    /// Appends the specified <see cref="byte"/> array in hexidecimal representation in lower case.
     /// These bytes are written from left to right, high part of byte is written first.
-    /// For example {1,2,10} will be appended as 01020A.
+    /// For example {1,2,10} will be appended as 01020a.
     /// </summary>
     /// <param name="builder">The builder.</param>
     /// <param name="values">The values.</param>
@@ -78,11 +78,11 @@ namespace Xtensive.Core
     {
       ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
       ArgumentValidator.EnsureArgumentNotNull(values, "values");
+
+      const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {
-        int hi = item >> 4;
-        int low = item & 0xF;
-        builder.Append(Convert.ToString(hi, 16));
-        builder.Append(Convert.ToString(low, 16));
+        builder.Append(lowerHexChars[item >> 4])
+          .Append(lowerHexChars[item & 0xF]);
       }
       return builder;
     }

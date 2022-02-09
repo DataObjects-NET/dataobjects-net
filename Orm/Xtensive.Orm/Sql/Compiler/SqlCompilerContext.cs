@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
@@ -13,8 +13,8 @@ namespace Xtensive.Sql.Compiler
   public class SqlCompilerContext
   {
     private SqlNode[] traversalPath;
-    private readonly Stack<SqlNode> traversalStack;
-    private readonly HashSet<SqlNode> traversalTable;
+    private readonly Stack<SqlNode> traversalStack = new Stack<SqlNode>();
+    private readonly HashSet<SqlNode> traversalTable = new HashSet<SqlNode>();
 
     public SqlTableNameProvider TableNameProvider { get; private set; }
 
@@ -24,16 +24,10 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerNamingOptions NamingOptions { get; private set; }
 
-    public bool IsEmpty { get { return Output.IsEmpty; } }
-
     public SqlNodeActualizer SqlNodeActualizer { get; private set; }
 
-    public SqlNode[] GetTraversalPath()
-    {
-      if (traversalPath == null)
-        traversalPath = traversalStack.ToArray();
-      return traversalPath;
-    }
+    public SqlNode[] GetTraversalPath() =>
+      traversalPath ??= traversalStack.ToArray();
 
     public bool HasOptions(SqlCompilerNamingOptions requiredOptions)
     {
@@ -59,10 +53,9 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerOutputScope EnterScope(SqlNode node)
     {
-      if (traversalTable.Contains(node))
+      if (!traversalTable.Add(node))
         throw new SqlCompilerException(Strings.ExCircularReferenceDetected);
       traversalStack.Push(node);
-      traversalTable.Add(node);
       return OpenScope(ContextType.Node);
     }
 
@@ -73,12 +66,9 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerOutputScope EnterMainVariantScope(object id)
     {
-      var variant = new VariantNode(id) {
-        Main = new ContainerNode(),
-        Alternative = new ContainerNode()
-      };
-      Output.Add(variant);
-      return OpenScope(ContextType.Collection, (ContainerNode) variant.Main);
+      var mainContainerNode = new ContainerNode();
+      Output.Add(new VariantNode(id, mainContainerNode, new ContainerNode()));
+      return OpenScope(ContextType.Collection, mainContainerNode);
     }
 
     public SqlCompilerOutputScope EnterAlternativeVariantScope(object id)
@@ -91,13 +81,9 @@ namespace Xtensive.Sql.Compiler
 
     public SqlCompilerOutputScope EnterCycleBodyScope(object id, string delimiter)
     {
-      var cycle = new CycleNode(id) {
-        Body = new ContainerNode(),
-        EmptyCase = new ContainerNode(),
-        Delimiter = delimiter
-      };
-      Output.Add(cycle);
-      return OpenScope(ContextType.Collection, (ContainerNode) cycle.Body);
+      var body = new ContainerNode();
+      Output.Add(new CycleNode(id, body, new ContainerNode(), delimiter));
+      return OpenScope(ContextType.Collection, body);
     }
 
     public SqlCompilerOutputScope EnterCycleEmptyCaseScope(object id)
@@ -110,23 +96,39 @@ namespace Xtensive.Sql.Compiler
 
     private SqlCompilerOutputScope OpenScope(ContextType type)
     {
-      var container = new ContainerNode();
-      Output.Add(container);
-      return OpenScope(type, container);
+      return OpenScope(type, Output);
     }
 
     private SqlCompilerOutputScope OpenScope(ContextType type, ContainerNode container)
     {
       traversalPath = null;
-      var scope = new SqlCompilerOutputScope(this, Output, type);
-      Output = container;
+      var scope = new SqlCompilerOutputScope(this, type);
+      if (Output != container) {
+        Output = container;
+      }
+      else {
+        Output.StartOfCollection = true;
+        if (Output.RequireIndent) {
+          Output.Indent++;
+        }
+      }
       return scope;
     }
 
     internal void CloseScope(SqlCompilerOutputScope scope)
     {
       traversalPath = null;
-      Output = scope.ParentContainer;
+      if (Output != scope.ParentContainer) {
+        Output.FlushBuffer();
+        Output = scope.ParentContainer;
+      }
+      else {
+        Output.StartOfCollection = scope.StartOfCollection;
+        Output.AppendSpaceIfNecessary();
+        if (Output.RequireIndent) {
+          Output.Indent--;
+        }
+      }
       if (scope.Type == ContextType.Node)
         traversalTable.Remove(traversalStack.Pop());
     }
@@ -144,8 +146,6 @@ namespace Xtensive.Sql.Compiler
 
       TableNameProvider = new SqlTableNameProvider(this);
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
-      traversalStack = new Stack<SqlNode>();
-      traversalTable = new HashSet<SqlNode>();
       Output = new ContainerNode();
       SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
     }

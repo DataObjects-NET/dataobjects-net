@@ -17,18 +17,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     public override string DateTimeFormatString { get { return @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fffffff\'' as datetime2)'"; } }
     public string DateTimeOffsetFormatString { get { return @"'cast ('\'yyyy\-MM\-dd HH\:mm\:ss\.fffffff\ zzz\'' as datetimeoffset)'"; } }
 
-    public override string Translate(SqlCompilerContext context, Ddl.SqlCreateIndex node, CreateIndexSection section)
+    public override void Translate(SqlCompilerContext context, Ddl.SqlCreateIndex node, CreateIndexSection section)
     {
       switch (section) {
-        case CreateIndexSection.ColumnsExit:
-          if (!node.Index.IsSpatial)
-            return base.Translate(context, node, section);
-
+        case CreateIndexSection.ColumnsExit when node.Index.IsSpatial:
           var table = node.Index.DataTable as Table;
           var column = table.TableColumns[node.Index.Columns[0].Name];
-        return column.DataType.Type==CustomSqlType.Geometry ? ") USING GEOMETRY_GRID WITH ( BOUNDING_BOX = ( 0, 0, 500, 200))" : ") USING GEOGRAPHY_GRID";
+          context.Output.Append(column.DataType.Type == CustomSqlType.Geometry
+            ? ") USING GEOMETRY_GRID WITH ( BOUNDING_BOX = ( 0, 0, 500, 200))"
+            : ") USING GEOGRAPHY_GRID"
+          );
+          return;
       }
-      return base.Translate(context, node, section);
+      base.Translate(context, node, section);
     }
 
     public override string Translate(SqlFunctionType functionType)
@@ -40,16 +41,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       return base.Translate(functionType);
     }
 
-    public override string Translate(SqlCompilerContext context, object literalValue)
+    public override void Translate(SqlCompilerContext context, object literalValue)
     {
-      var literalType = literalValue.GetType();
-      if (literalType==typeof (DateTimeOffset)) {
-        var dateTimeOffset = (DateTimeOffset) literalValue;
-        var dateTimeOffsetRange = (ValueRange<DateTimeOffset>) Driver.ServerInfo.DataTypes.DateTimeOffset.ValueRange;
-        var newValue = ValueRangeValidator.Correct(dateTimeOffset, dateTimeOffsetRange);
-        return newValue.ToString(DateTimeOffsetFormatString);
+      switch (literalValue) {
+        case DateTimeOffset dateTimeOffset:
+          var dateTimeOffsetRange = (ValueRange<DateTimeOffset>) Driver.ServerInfo.DataTypes.DateTimeOffset.ValueRange;
+          var newValue = ValueRangeValidator.Correct(dateTimeOffset, dateTimeOffsetRange);
+          context.Output.Append(newValue.ToString(DateTimeOffsetFormatString));
+          break;
+        default:
+          base.Translate(context, literalValue);
+          break;
       }
-      return base.Translate(context, literalValue);
     }
 
     // Constructors

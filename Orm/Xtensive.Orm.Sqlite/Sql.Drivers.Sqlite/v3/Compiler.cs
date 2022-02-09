@@ -83,20 +83,22 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       var renameColumnAction = node.Action as SqlRenameColumn;
       if (renameColumnAction!=null)
-        context.Output.AppendText(((Translator) translator).Translate(context, renameColumnAction));
+        context.Output.Append(((Translator) translator).Translate(context, renameColumnAction));
       else if (node.Action is SqlDropConstraint) {
         using (context.EnterScope(node)) {
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Entry));
+          AppendTranslated(node, AlterTableSection.Entry);
 
           var action = node.Action as SqlDropConstraint;
           var constraint = action.Constraint as TableConstraint;
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropConstraint));
-          if (constraint is ForeignKey)
-            context.Output.AppendText("REFERENCES " + translator.QuoteIdentifier(constraint.DbName));
+          AppendTranslated(node, AlterTableSection.DropConstraint);
+          if (constraint is ForeignKey) {
+            context.Output.Append("REFERENCES ");
+            translator.TranslateIdentifier(context.Output, constraint.DbName);
+          }
           else
-            context.Output.AppendText(translator.Translate(context, constraint, ConstraintSection.Entry));
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.DropBehavior));
-          context.Output.AppendText(translator.Translate(context, node, AlterTableSection.Exit));
+            AppendTranslated(constraint, ConstraintSection.Entry);
+          AppendTranslated(node, AlterTableSection.DropBehavior);
+          AppendTranslated(node, AlterTableSection.Exit);
         }
       }
       else
@@ -205,12 +207,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override void Visit(SqlQueryExpression node)
     {
       using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Entry));
+        AppendTranslated(node, QueryExpressionSection.Entry);
         node.Left.AcceptVisitor(this);
-        context.Output.AppendText(translator.Translate(node.NodeType));
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.All));
+        AppendTranslated(node.NodeType);
+        AppendTranslated(node, QueryExpressionSection.All);
         node.Right.AcceptVisitor(this);
-        context.Output.AppendText(translator.Translate(context, node, QueryExpressionSection.Exit));
+        AppendTranslated(node, QueryExpressionSection.Exit);
       }
     }
 
@@ -221,7 +223,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       using (context.EnterScope(node)) {
         var comment = node.Comment;
         VisitCommentIfBefore(comment);
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Entry));
+        AppendTranslated(node, SelectSection.Entry);
         VisitCommentIfWithin(comment);
         VisitSelectColumns(node);
         VisitSelectFrom(node);
@@ -229,7 +231,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
         VisitSelectLimitOffset(node);
-        context.Output.AppendText(translator.Translate(context, node, SelectSection.Exit));
+        AppendTranslated(node, SelectSection.Exit);
         VisitCommentIfAfter(comment);
       }
     }
@@ -237,14 +239,14 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override void Visit(SqlTrim node)
     {
       using (context.EnterScope(node)) {
-        context.Output.AppendText(translator.Translate(context, node, TrimSection.Entry));
-        context.Output.AppendText(translator.Translate(node.TrimType));
+        AppendTranslated(node, TrimSection.Entry);
+        context.Output.Append(translator.Translate(node.TrimType));
         node.Expression.AcceptVisitor(this);
         if (node.TrimCharacters!=null) {
-          context.Output.AppendText(",");
-          context.Output.AppendText(translator.Translate(context, node.TrimCharacters));
+          context.Output.Append(",");
+          AppendTranslatedLiteral(node.TrimCharacters);
         }
-        context.Output.AppendText(translator.Translate(context, node, TrimSection.Exit));
+        AppendTranslated(node, TrimSection.Exit);
       }
     }
 
@@ -261,13 +263,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         return;
       }
 
-      context.Output.AppendText(translator.Translate(context, node, SelectSection.Limit));
+      AppendTranslated(node, SelectSection.Limit);
       SqlDml.Literal(-1).AcceptVisitor(this);
-      context.Output.AppendText(translator.Translate(context, node, SelectSection.LimitEnd));
+      AppendTranslated(node, SelectSection.LimitEnd);
 
-      context.Output.AppendText(translator.Translate(context, node, SelectSection.Offset));
+      AppendTranslated(node, SelectSection.Offset);
       node.Offset.AcceptVisitor(this);
-      context.Output.AppendText(translator.Translate(context, node, SelectSection.OffsetEnd));
+      AppendTranslated(node, SelectSection.OffsetEnd);
     }
 
     public override void Visit(SqlCreateIndex node, IndexColumn item)
@@ -275,8 +277,9 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       base.Visit(node, item);
 
       var column = item.Column as TableColumn;
-      if (column!=null && column.Collation!=null)
-        context.Output.AppendText(translator.Translate(context, column, TableColumnSection.Collate));
+      if (column!=null && column.Collation!=null) {
+        AppendTranslated(column, TableColumnSection.Collate);
+      }
     }
 
     private void VisitInterval(SqlExtract node)

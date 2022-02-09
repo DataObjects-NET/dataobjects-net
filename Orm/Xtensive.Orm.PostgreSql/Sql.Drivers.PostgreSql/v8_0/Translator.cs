@@ -21,9 +21,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string DateTimeFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'"; } }
     public override string TimeSpanFormatString { get { return "'{0}{1} days {0}{2}:{3}:{4}.{5:000}'::interval"; } }
 
-    public override string FloatFormatString { get { return base.FloatFormatString + "'::float4'"; } }
-    public override string DoubleFormatString { get { return base.DoubleFormatString + "'::float8'"; } }
-
     public string DateTimeOffsetFormatString { get { return @"\'yyyyMMdd HHmmss.ffffff zzz\''::timestamp(6) with time zone'"; } }
 
 
@@ -46,16 +43,24 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override string DdlStatementDelimiter { get { return ";"; } }
     public override string BatchItemDelimiter { get { return ";\r\n"; } }
 
-    [DebuggerStepThrough]
-    public override string QuoteIdentifier(params string[] names)
-    {
-      return SqlHelper.QuoteIdentifierWithQuotes(names);
-    }
+    public override SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithQuotes;
 
     [DebuggerStepThrough]
     public override string QuoteString(string str)
     {
-     return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
+      return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
+    }
+
+    protected override void TranslateStringChar(IOutput output, char ch)
+    {
+      switch (ch) {
+        case '\\':
+          output.AppendLiteral("\\\\");
+          break;
+        default:
+          base.TranslateStringChar(output, ch);
+          break;
+      }
     }
 
     public override string Translate(SqlFunctionType type)
@@ -197,141 +202,159 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SchemaNode node)
+    public override string TranslateToString(SqlCompilerContext context, SchemaNode node)
     {
       //temporary tables need no schema qualifier
-      if (!(node is TemporaryTable) && node.Schema!=null) {
+      if (!(node is TemporaryTable) && node.Schema != null) {
         return context == null
-          ? QuoteIdentifier(new[] {node.Schema.Name, node.Name})
-          : QuoteIdentifier(new[] {context.SqlNodeActualizer.Actualize(node.Schema), node.Name});
+          ? QuoteIdentifier(new[] { node.Schema.Name, node.Name })
+          : QuoteIdentifier(new[] { context.SqlNodeActualizer.Actualize(node.Schema), node.Name });
 
       }
-      return QuoteIdentifier(new[] {node.Name});
+      return QuoteIdentifier(new[] { node.Name });
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
+    public override void Translate(SqlCompilerContext context, SchemaNode node)
+    {
+      context.Output.Append(TranslateToString(context, node));
+    }
+
+    public override void Translate(SqlCompilerContext context, SqlCreateTable node, CreateTableSection section)
     {
       switch (section) {
         case CreateTableSection.Exit:
-          return "WITHOUT OIDS " + base.Translate(context, node, section);
-        default:
-          return base.Translate(context, node, section);
+          context.Output.Append("WITHOUT OIDS ");
+          break;
       }
+      base.Translate(context, node, section);
     }
 
-    public override string Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
+    public override void Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
       switch (section) {
         case TableColumnSection.Exit:
         case TableColumnSection.SetIdentityInfoElement:
         case TableColumnSection.GenerationExpressionExit:
         case TableColumnSection.Collate:
-          return string.Empty;
+          break;
         default:
-          return base.Translate(context, column, section);
+          base.Translate(context, column, section);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
+    public override void Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     {
+      var output = context.Output;
       Index index = node.Index;
       switch (section) {
         case CreateIndexSection.Entry:
-          return string.Format("CREATE {0}INDEX {1} ON {2} {3}("
-            , index.IsUnique ? "UNIQUE " : string.Empty
-            , QuoteIdentifier(index.Name)
-            , Translate(context, index.DataTable)
-            , index.IsSpatial ? "USING GIST" : string.Empty);
+          output.Append("CREATE ");
+          if (index.IsUnique) {
+            output.Append("UNIQUE ");
+          }
+          output.Append("INDEX ")
+            .Append(QuoteIdentifier(index.Name))
+            .Append(" ON ");
+          Translate(context, index.DataTable);
+          if (index.IsSpatial) {
+            output.Append(" USING GIST");
+          }
+          output.Append("(");
+          break;
         case CreateIndexSection.StorageOptions:
-          var builder = new StringBuilder(")");
-          AppendIndexStorageParameters(builder, index);
+          output.Append(")");
+          AppendIndexStorageParameters(output, index);
           if (!string.IsNullOrEmpty(index.Filegroup))
-            _ = builder.Append(" TABLESPACE " + QuoteIdentifier(index.Filegroup));
-          return builder.ToString();
+            output.Append(" TABLESPACE ").Append(QuoteIdentifier(index.Filegroup));
+          break;
         case CreateIndexSection.Exit:
-          return string.Empty;
+          break;
         case CreateIndexSection.Where:
-          return " WHERE ";
+          output.Append(" WHERE ");
+          break;
         default:
-          return string.Empty;
+          break;
+          ;
       }
     }
 
-    protected virtual void AppendIndexStorageParameters(StringBuilder builder, Index index)
+    protected virtual void AppendIndexStorageParameters(IOutput output, Index index)
     {
     }
 
-    public override string Translate(SqlCompilerContext context, SqlDropIndex node)
+    public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
       var indexName = context == null
         ? QuoteIdentifier(node.Index.DataTable.Schema.Name, node.Index.Name)
         : QuoteIdentifier(context.SqlNodeActualizer.Actualize(node.Index.DataTable.Schema), node.Index.Name);
-      return "DROP INDEX " + indexName;
+      context.Output.Append("DROP INDEX ").Append(indexName);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlBreak node) => "EXIT";
-
-    public override string Translate(SqlCompilerContext context, SqlContinue node) => string.Empty;
-
-    public override string Translate(SqlCompilerContext context, SqlDeclareVariable node) => string.Empty;
-
-    public override string Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlBreak node)
     {
-      return string.Empty;
+      context.Output.Append("EXIT");
     }
-    
-    public override string Translate(SqlCompilerContext context, object literalValue)
+
+    public override void Translate(SqlCompilerContext context, SqlContinue node) { }
+
+    public override void Translate(SqlCompilerContext context, SqlDeclareVariable node) { }
+
+    public override void Translate(SqlCompilerContext context, SqlAssignment node, NodeSection section)
     {
+    }
+
+    public override void Translate(SqlCompilerContext context, object literalValue)
+    {
+      var output = context.Output;
       var literalType = literalValue.GetType();
       if (literalType == WellKnownTypes.ByteArrayType) {
-        return TranslateByteArrayLiteral((byte[]) literalValue);
+        output.Append(TranslateByteArrayLiteral((byte[]) literalValue));
       }
-      if (literalType == WellKnownTypes.GuidType) {
-        return QuoteString(SqlHelper.GuidToString((Guid) literalValue));
+      else if (literalType == WellKnownTypes.GuidType) {
+        TranslateString(output, SqlHelper.GuidToString((Guid) literalValue));
       }
-      if (literalType == WellKnownTypes.DateTimeOffsetType) {
-        return ((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString);
+      else if (literalType == WellKnownTypes.DateTimeOffsetType) {
+        output.Append(((DateTimeOffset) literalValue).ToString(DateTimeOffsetFormatString));
       }
-      if (literalType == WellKnownTypes.NpgsqlPointType) {
+      else if (literalType == WellKnownTypes.NpgsqlPointType) {
         var point = (NpgsqlPoint) literalValue;
-        return string.Format("point'({0},{1})'", point.X, point.Y);
+        output.Append($"point'({point.X},{point.Y})'");
       }
-      if (literalType == WellKnownTypes.NpgsqlLSegType) {
+      else if (literalType == WellKnownTypes.NpgsqlLSegType) {
         var lSeg = (NpgsqlLSeg) literalValue;
-        return string.Format("lseg'[({0},{1}),({2},{3})]'", lSeg.Start.X, lSeg.Start.Y, lSeg.End.X, lSeg.End.Y);
+        output.Append($"lseg'[({lSeg.Start.X},{lSeg.Start.Y}),({lSeg.End.X},{lSeg.End.Y})]'");
       }
-      if (literalType == WellKnownTypes.NpgsqlBoxType) {
+      else if (literalType == WellKnownTypes.NpgsqlBoxType) {
         var box = (NpgsqlBox) literalValue;
-        return string.Format("box'({0},{1}),({2},{3})'", box.LowerLeft.X, box.LowerLeft.Y, box.UpperRight.X, box.UpperRight.Y);
+        output.Append($"box'({box.LowerLeft.X},{box.LowerLeft.Y}),({box.UpperRight.X},{box.UpperRight.Y})'");
       }
-      if (literalType == WellKnownTypes.NpgsqlPathType) {
-        return string.Format("path'(({0},{1}))'", 0, 0);
+      else if (literalType == WellKnownTypes.NpgsqlPathType) {
+        output.Append($"path'(({0},{0}))'");
       }
-      if (literalType == WellKnownTypes.NpgsqlPolygonType) {
-        return "polygon'((0,0))'";
+      else if (literalType == WellKnownTypes.NpgsqlPolygonType) {
+        output.Append("polygon'((0,0))'");
       }
-      if (literalType == WellKnownTypes.NpgsqlCircleType) {
+      else if (literalType == WellKnownTypes.NpgsqlCircleType) {
         var circle = (NpgsqlCircle) literalValue;
-        return string.Format("circle'<({0},{1}),{2}>'", circle.Center.X, circle.Center.Y, circle.Radius);
+        output.Append($"circle'<({circle.Center.X},{circle.Center.Y}),{circle.Radius}>'");
       }
-      return base.Translate(context, literalValue);
+      else {
+        base.Translate(context, literalValue);
+      }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
+    public override void Translate(SqlCompilerContext context, SqlArray node, ArraySection section)
     {
-      switch (section) {
-        case ArraySection.Entry:
-          return "ARRAY[";
-        case ArraySection.Exit:
-          return "]";
-        case ArraySection.EmptyArray:
-          return string.Format("'{{}}'::{0}[]", TranslateClrType(node.ItemType));
-        default:
-          throw new ArgumentOutOfRangeException("section");
-      }
+      context.Output.Append(section switch {
+        ArraySection.Entry => "ARRAY[",
+        ArraySection.Exit => "]",
+        ArraySection.EmptyArray => $"'{{}}'::{TranslateClrType(node.ItemType)}[]",
+        _ => throw new ArgumentOutOfRangeException("section")
+      });
     }
 
-    public override string Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
+    public override void Translate(SqlCompilerContext context, SqlExtract node, ExtractSection section)
     {
       var isSecond = node.DateTimePart == SqlDateTimePart.Second
         || node.IntervalPart == SqlIntervalPart.Second
@@ -340,63 +363,77 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         || node.IntervalPart == SqlIntervalPart.Millisecond
         || node.DateTimeOffsetPart == SqlDateTimeOffsetPart.Millisecond;
       if (!(isSecond || isMillisecond)) {
-        return base.Translate(context, node, section);
+        base.Translate(context, node, section);
+        return;
       }
       switch (section) {
         case ExtractSection.Entry:
-          return isSecond ? "(trunc(extract(" : "(extract(";
+          context.Output.Append(isSecond ? "(trunc(extract(" : "(extract(");
+          break;
         case ExtractSection.Exit:
-          return isMillisecond
-           ?  ")::int8 % 1000)"
-           : isSecond ? ")))" : ")::int8)";
+          context.Output.Append(isMillisecond
+           ? ")::int8 % 1000)"
+           : isSecond ? ")))" : ")::int8)"
+          );
+          break;
         default:
-          return base.Translate(context, node, section);
+          base.Translate(context, node, section);
+          break;
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
+    public override void Translate(SqlCompilerContext context, SqlDeclareCursor node, DeclareCursorSection section)
     {
+      var output = context.Output;
       switch (section) {
         case DeclareCursorSection.Entry:
-          return "DECLARE " + QuoteIdentifier(node.Cursor.Name);
+          output.Append("DECLARE ").Append(QuoteIdentifier(node.Cursor.Name));
+          break;
         case DeclareCursorSection.Sensivity:
-          return "";
+          break;
         case DeclareCursorSection.Scrollability:
-          return node.Cursor.Scroll ? "SCROLL" : "NO SCROLL";
+          output.Append(node.Cursor.Scroll ? "SCROLL" : "NO SCROLL");
+          break;
         case DeclareCursorSection.Cursor:
-          return "CURSOR";
+          output.Append("CURSOR");
+          break;
         case DeclareCursorSection.Holdability:
-          return node.Cursor.WithHold ? "WITH HOLD" : "";
+          output.Append(node.Cursor.WithHold ? "WITH HOLD" : "");
+          break;
         case DeclareCursorSection.Returnability:
         case DeclareCursorSection.Updatability:
         case DeclareCursorSection.Exit:
-          return "";
+          break;
         case DeclareCursorSection.For:
-          return "FOR";
+          output.Append("FOR");
+          break;
+        default:
+          base.Translate(context, node, section);
+          break;
       }
-      return base.Translate(context, node, section);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
+    public override void Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
     {
       switch (section) {
         case FetchSection.Entry:
-          return "FETCH " + node.Option.ToString().ToUpper();
+          context.Output.Append("FETCH ").Append(node.Option.ToString().ToUpper());
+          return;
         case FetchSection.Targets:
-          return "FROM " + QuoteIdentifier(node.Cursor.Name);
+          context.Output.Append("FROM ").Append(QuoteIdentifier(node.Cursor.Name));
+          return;
         case FetchSection.Exit:
           break;
       }
-      return base.Translate(context, node, section);
+      base.Translate(context, node, section);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlOpenCursor node)
+    public override void Translate(SqlCompilerContext context, SqlOpenCursor node)
     {
       // DECLARE CURSOR already opens it
-      return string.Empty;
     }
 
-    public override string Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
+    public override void Translate(SqlCompilerContext context, SqlMatch node, MatchSection section)
     {
       switch (section) {
         case MatchSection.Entry:
@@ -420,17 +457,19 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             }
             var newNode = SqlDml.Match(SqlDml.Row(), SqlDml.SubQuery(finalQuery).Query, node.Unique, node.MatchType);
             node.ReplaceWith(newNode);
-            return "EXISTS(SELECT '";
+            context.Output.Append("EXISTS(SELECT '");
+            break;
           }
           else {
             throw new InvalidOperationException(Strings.ExSqlMatchValueMustBeAnSqlRowInstance);
           }
         case MatchSection.Specification:
-          return "' WHERE EXISTS";
+          context.Output.Append("' WHERE EXISTS");
+          break;
         case MatchSection.Exit:
-          return ")";
+          context.Output.Append(")");
+          break;
       }
-      return string.Empty;
     }
 
     private void BuildSelectForUniqueMatchNone(SqlMatch node, SqlRow row, SqlSelect finalQuery)
@@ -467,7 +506,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           subQueryNeeded = true;
         }
         else { //(!whenNotNeeded)
-         //Check if any row element is NULL
+               //Check if any row element is NULL
           _ = @case.Add(when == null ? true : when, true);
           subQueryNeeded = true;
         }
@@ -671,7 +710,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    public override string Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
+    public override void Translate(SqlCompilerContext context, SqlFunctionCall node, FunctionCallSection section, int position)
     {
       switch (section) {
         case FunctionCallSection.Entry:
@@ -682,15 +721,16 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             case SqlFunctionType.User:
             case SqlFunctionType.CurrentDate:
             case SqlFunctionType.CurrentTimeStamp:
-              return Translate(node.FunctionType);
+              context.Output.Append(Translate(node.FunctionType));
+              return;
           }
           break;
       }
 
-      return base.Translate(context, node, section, position);
+      base.Translate(context, node, section, position);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlUnary node, NodeSection section)
     {
       //substitute UNIQUE predicate with a more complex EXISTS predicate,
       //because UNIQUE is not supported
@@ -711,41 +751,43 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           node.ReplaceWith(SqlDml.Not(SqlDml.Exists(existsOp)));
         }
       }
-      return base.Translate(context, node, section);
+      base.Translate(context, node, section);
     }
 
-    public override string Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlNextValue node, NodeSection section)
     {
       switch (section) {
         case NodeSection.Entry:
-          return "nextval('";
+          context.Output.Append("nextval('");
+          break;
         case NodeSection.Exit:
-          return "')";
+          context.Output.Append("')");
+          break;
       }
-      return string.Empty;
     }
 
-    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
       // casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
       switch (section) {
         case NodeSection.Entry:
-          return "(";
+          context.Output.Append("(");
+          break;
         case NodeSection.Exit:
-          return ")::" + Translate(node.Type);
+          context.Output.Append(")::").Append(Translate(node.Type));
+          break;
       }
-      return string.Empty;
     }
 
     public override string Translate(SqlDateTimePart part)
     {
       switch (part) {
-      case SqlDateTimePart.Millisecond:
-        return "MILLISECONDS";
-      case SqlDateTimePart.DayOfYear:
-        return "DOY";
-      case SqlDateTimePart.DayOfWeek:
-        return "DOW";
+        case SqlDateTimePart.Millisecond:
+          return "MILLISECONDS";
+        case SqlDateTimePart.DayOfYear:
+          return "DOY";
+        case SqlDateTimePart.DayOfWeek:
+          return "DOW";
       }
 
       return base.Translate(part);
@@ -851,6 +893,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public Translator(SqlDriver driver)
       : base(driver)
     {
+      FloatFormatString = base.FloatFormatString + "'::float4'";
+      DoubleFormatString = base.DoubleFormatString + "'::float8'";
     }
   }
 }
