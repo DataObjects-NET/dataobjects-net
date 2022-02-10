@@ -13,14 +13,69 @@ namespace Xtensive.Sql.Compiler
 {
   public interface IOutput
   {
+    /// <summary>
+    /// The <see cref="System.Text.StringBuilder"/> the output writes to.
+    /// </summary>
     StringBuilder StringBuilder { get; }
+
+    /// <summary>
+    /// Appends given text.
+    /// </summary>
+    /// <param name="text">The text to append.</param>
+    /// <returns>The <see cref="IOutput"/> instance with appended text.</returns>
     IOutput Append(string text);
-    IOutput AppendLiteral(string text);
-    IOutput AppendPunctuation(string text);
-    void AppendSpaceIfNecessary();
+
+    /// <summary>
+    /// Appends given character.
+    /// </summary>
+    /// <param name="v">The character to append.</param>
+    /// <returns>The output instance with appended character.</returns>
     IOutput Append(char v);
-    IOutput AppendLiteral(char v);
+
+    /// <summary>
+    /// Appends given <see cref="long"/> value.
+    /// </summary>
+    /// <param name="v">The value to append.</param>
+    /// <returns>The <see cref="IOutput"/> instance with appended value.</returns>
     IOutput Append(long v);
+
+    /// <summary>
+    /// Appends given literal text.
+    /// </summary>
+    /// <param name="text">The literal text to append.</param>
+    /// <returns>The <see cref="IOutput"/> instance with appended literal text.</returns>
+    IOutput AppendLiteral(string text);
+
+    /// <summary>
+    /// Appends given literal character.
+    /// </summary>
+    /// <param name="v">The literal character to append.</param>
+    /// <returns>The <see cref="IOutput"/> instance with appended literal character.</returns>
+    IOutput AppendLiteral(char v);
+
+    /// <summary>
+    /// Adds text to the output as an opening punctuation, like method and function name with opening parenthesis,
+    /// e.g 'MAX('. Should be used with <see cref="IOutput.AppendClosingPunctuation(string)"/>
+    /// Some optimizations of inner state may happen.
+    /// </summary>
+    /// <param name="text">The text to append.</param>
+    /// <returns>The <see cref="IOutput"/> instance with appended text.</returns>
+    IOutput AppendOpeningPunctuation(string text);
+
+    /// <summary>
+    /// Adds text to the output as a closing punctuation. Should be used in pair with <see cref="IOutput.AppendOpeningPunctuation(string)"/>
+    /// Some optimizations of inner state may happen, e.g cut off last space. Use it with closing parenthesis like ")".
+    /// </summary>
+    /// <param name="text">The text to append.</param>
+    /// <returns>The <see cref="IOutput"/> instance with given text</returns>
+    IOutput AppendClosingPunctuation(string text);
+
+    /// <summary>
+    /// Appends space unless current output state ends with space or other character
+    /// that desqualfy output from appending space.
+    /// </summary>
+    /// <returns>The <see cref="IOutput"/> instance with appended space if in was nessesary.</returns>
+    IOutput AppendSpaceIfNecessary();
   }
 
   /// <summary>
@@ -30,10 +85,13 @@ namespace Xtensive.Sql.Compiler
   {
     private static readonly IFormatProvider invarianCulture = CultureInfo.InvariantCulture;
 
-    private readonly StringBuilder stringBuilder = new StringBuilder();
+    public readonly bool RequireIndent; // Never set
+
+    private readonly StringBuilder stringBuilder = new();
+    private readonly List<Node> children = new();
+
     private char? lastChar;
     private bool lastCharIsPunctuation;
-    private readonly List<Node> children = new List<Node>();
 
     public IReadOnlyList<Node> Children
     {
@@ -43,48 +101,13 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public IEnumerator<Node> GetEnumerator() => Children.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public bool RequireIndent;            // Never set
     public int Indent { get; set; }
 
     public bool StartOfCollection { get; set; } = true;
 
-    public Node Current => Children.Last();
+    public Node Current => Children[Children.Count - 1];
 
-    internal override void AcceptVisitor(NodeVisitor visitor)
-    {
-      visitor.Visit(this);
-    }
-
-    public void AppendCycleItem(int index)
-    {
-      Add(new CycleItemNode(index));
-    }
-
-    public void FlushBuffer()
-    {
-      if (stringBuilder.Length > 0) {
-        children.Add(new TextNode(stringBuilder.ToString()));
-        stringBuilder.Clear();
-        lastCharIsPunctuation = false;
-        lastChar = null;
-      }
-    }
-
-    public void Add(Node node)
-    {
-      FlushBuffer();
-      children.Add(node);
-    }
-
-    internal void AppendPlaceholder(PlaceholderNode placeholder) =>
-      Add(placeholder);
-
-    public void AppendPlaceholderWithId(object id) =>
-      AppendPlaceholder(new PlaceholderNode(id));
-
+    /// <inheritdoc/>
     public StringBuilder StringBuilder
     {
       get {
@@ -94,39 +117,48 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public IOutput AppendLiteral(string text)
+    public void AppendCycleItem(int index) => Add(new CycleItemNode(index));
+
+    public void AppendPlaceholderWithId(object id) => Add(new PlaceholderNode(id));
+
+    public void AppendIndent()
     {
-      if (!string.IsNullOrEmpty(text)) {
-        stringBuilder.Append(text);
+      if (Indent > 0) {
+        for (var i = Indent; i-- > 0;) {
+          _ = Append("  ");
+        }
+        lastCharIsPunctuation = true;
+      }
+    }
+
+    public void Add(Node node)
+    {
+      FlushBuffer();
+      children.Add(node);
+    }
+
+    internal override void AcceptVisitor(NodeVisitor visitor)
+    {
+      visitor.Visit(this);
+    }
+
+    internal void FlushBuffer()
+    {
+      if (stringBuilder.Length > 0) {
+        children.Add(new TextNode(stringBuilder.ToString()));
+        _ = stringBuilder.Clear();
         lastCharIsPunctuation = false;
         lastChar = null;
-        StartOfCollection = false;
       }
-      return this;
     }
 
-    public IOutput Append(char v)
-    {
-      stringBuilder.Append(v);
-      lastCharIsPunctuation = false;
-      lastChar = v;
-      StartOfCollection = false;
-      return this;
-    }
+    #region IOutput methods implementation
 
-    public IOutput AppendLiteral(char v)
-    {
-      stringBuilder.Append(v);
-      lastCharIsPunctuation = false;
-      lastChar = null;
-      StartOfCollection = false;
-      return this;
-    }
-
+    /// <inheritdoc/>
     public IOutput Append(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
-        stringBuilder.Append(text);
+        _ = stringBuilder.Append(text);
         lastCharIsPunctuation = false;
         lastChar = text[text.Length - 1];
         StartOfCollection = false;
@@ -134,56 +166,86 @@ namespace Xtensive.Sql.Compiler
       return this;
     }
 
+    /// <inheritdoc/>
+    public IOutput Append(char v)
+    {
+      _ = stringBuilder.Append(v);
+      lastCharIsPunctuation = false;
+      lastChar = v;
+      StartOfCollection = false;
+      return this;
+    }
+
+    /// <inheritdoc/>
     public IOutput Append(long v)
     {
-      stringBuilder.AppendFormat(invarianCulture, "{0}", v);
+      _ = stringBuilder.AppendFormat(invarianCulture, "{0}", v);
       lastCharIsPunctuation = false;
       lastChar = null;
       StartOfCollection = false;
       return this;
     }
 
-    public IOutput AppendPunctuation(string text)
+    /// <inheritdoc/>
+    public IOutput AppendLiteral(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
-        Append(text);
+        _ = stringBuilder.Append(text);
+        lastCharIsPunctuation = false;
+        lastChar = null;
+        StartOfCollection = false;
+      }
+      return this;
+    }
+
+    /// <inheritdoc/>
+    public IOutput AppendLiteral(char v)
+    {
+      _ = stringBuilder.Append(v);
+      lastCharIsPunctuation = false;
+      lastChar = null; // do we need to set it here
+      StartOfCollection = false;
+      return this;
+    }
+
+    /// <inheritdoc/>
+    public IOutput AppendOpeningPunctuation(string text)
+    {
+      if (!string.IsNullOrEmpty(text)) {
+        _ = Append(text);
         lastCharIsPunctuation = true;
       }
       return this;
     }
 
-    // Call it with closing parenthesis like ")"
+    /// <inheritdoc/>
     public IOutput AppendClosingPunctuation(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
         if (lastChar == ' ') {
-          stringBuilder.Length--;                                     // Remove space before closing punctuation
+          stringBuilder.Length--;// Remove space before closing punctuation
         }
-        Append(text);
+        _ = Append(text);
         lastCharIsPunctuation = true;
       }
       return this;
     }
 
-    public void AppendSpaceIfNecessary()
+    /// <inheritdoc/>
+    public IOutput AppendSpaceIfNecessary()
     {
       if (lastCharIsPunctuation || lastChar == ' ' || lastChar == '\n' || lastChar == '(') {
         lastCharIsPunctuation = false;
-        return;
+        return this;
       }
-      Append(' ');
+      return Append(' ');
     }
 
-    public void AppendIndent()
-    {
-      if (Indent > 0) {
-        for (int i = Indent; i-- > 0;) {
-          Append("  ");
-        }
-        lastCharIsPunctuation = true;
-      }
-    }
+    #endregion
 
+    public IEnumerator<Node> GetEnumerator() => Children.GetEnumerator();
+
+    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     // Constructors
 

@@ -245,22 +245,22 @@ namespace Xtensive.Sql.Compiler
           TranslateIdentifier(output, constraint.DbName);
           break;
         case ConstraintSection.Check:
-          output.AppendPunctuation("CHECK (");
+          output.AppendOpeningPunctuation("CHECK (");
           break;
         case ConstraintSection.PrimaryKey:
-          output.AppendPunctuation("PRIMARY KEY (");
+          output.AppendOpeningPunctuation("PRIMARY KEY (");
           break;
         case ConstraintSection.Unique:
-          output.AppendPunctuation("UNIQUE (");
+          output.AppendOpeningPunctuation("UNIQUE (");
           break;
         case ConstraintSection.ForeignKey:
-          output.AppendPunctuation("FOREIGN KEY (");
+          output.AppendOpeningPunctuation("FOREIGN KEY (");
           break;
         case ConstraintSection.ReferencedColumns: {
           var fk = (ForeignKey) constraint;
           output.Append(") REFERENCES ");
           Translate(context, fk.ReferencedColumns[0].DataTable);
-          output.AppendPunctuation(" (");
+          output.AppendOpeningPunctuation(" (");
         }
         break;
         case ConstraintSection.Exit: {
@@ -1079,7 +1079,7 @@ namespace Xtensive.Sql.Compiler
           output.Append("FROM");
           break;
         case InsertSection.ValuesEntry:
-          output.AppendPunctuation("VALUES (");
+          output.AppendOpeningPunctuation("VALUES (");
           break;
         case InsertSection.ValuesExit:
           output.AppendClosingPunctuation(")");
@@ -1446,7 +1446,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case WhileSection.Entry:
-          context.Output.AppendPunctuation("WHILE (");
+          context.Output.AppendOpeningPunctuation("WHILE (");
           break;
         case WhileSection.Statement:
           context.Output.Append(") BEGIN");
