@@ -505,7 +505,7 @@ namespace Xtensive.Sql.Compiler
       else {
         translator.TranslateIdentifier(context.Output, item.Column.Name);
         if (!(node.Index.IsFullText || node.Index.IsSpatial) && CheckFeature(IndexFeatures.SortOrder))
-          context.Output.Append(translator.TranslateSortOrder(item.Ascending));
+          translator.TranslateSortOrder(context.Output, item.Ascending);
       }
     }
 
@@ -1660,7 +1660,7 @@ namespace Xtensive.Sql.Compiler
 
     public virtual void Visit(SqlComment node)
     {
-      context.Output.Append(translator.Translate(node));
+      translator.Translate(context, node);
     }
 
     public virtual void VisitCommentIfBefore(SqlComment node)

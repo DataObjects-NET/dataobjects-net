@@ -51,14 +51,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       return "'" + str.Replace("'", "''").Replace(@"\", @"\\").Replace("\0", string.Empty) + "'";
     }
 
-    protected override void TranslateStringChar(IOutput output, char ch)
+    protected override void TranslateChar(IOutput output, char ch)
     {
       switch (ch) {
         case '\\':
           output.AppendLiteral("\\\\");
           break;
         default:
-          base.TranslateStringChar(output, ch);
+          base.TranslateChar(output, ch);
           break;
       }
     }
