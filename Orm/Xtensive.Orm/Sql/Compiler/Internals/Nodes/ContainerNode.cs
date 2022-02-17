@@ -105,7 +105,7 @@ namespace Xtensive.Sql.Compiler
 
     public bool StartOfCollection { get; set; } = true;
 
-    public Node Current => Children[Children.Count - 1];
+    public Node Current => Children.Count == 0 ? null : children[^1]; // logically children can be used here after Children flushed buffer
 
     /// <inheritdoc/>
     public StringBuilder StringBuilder
@@ -146,9 +146,9 @@ namespace Xtensive.Sql.Compiler
     {
       if (stringBuilder.Length > 0) {
         children.Add(new TextNode(stringBuilder.ToString()));
+        lastChar = stringBuilder[^1];
         _ = stringBuilder.Clear();
         lastCharIsPunctuation = false;
-        lastChar = null;
       }
     }
 
@@ -160,7 +160,7 @@ namespace Xtensive.Sql.Compiler
       if (!string.IsNullOrEmpty(text)) {
         _ = stringBuilder.Append(text);
         lastCharIsPunctuation = false;
-        lastChar = text[text.Length - 1];
+        lastChar = text[^1];
         StartOfCollection = false;
       }
       return this;
@@ -192,7 +192,7 @@ namespace Xtensive.Sql.Compiler
       if (!string.IsNullOrEmpty(text)) {
         _ = stringBuilder.Append(text);
         lastCharIsPunctuation = false;
-        lastChar = null;
+        lastChar = text[^1];
         StartOfCollection = false;
       }
       return this;
@@ -203,7 +203,7 @@ namespace Xtensive.Sql.Compiler
     {
       _ = stringBuilder.Append(v);
       lastCharIsPunctuation = false;
-      lastChar = null; // do we need to set it here
+      lastChar = v; // do we need to set it here
       StartOfCollection = false;
       return this;
     }
@@ -214,6 +214,7 @@ namespace Xtensive.Sql.Compiler
       if (!string.IsNullOrEmpty(text)) {
         _ = Append(text);
         lastCharIsPunctuation = true;
+        lastChar = text[^1];
       }
       return this;
     }
@@ -222,11 +223,12 @@ namespace Xtensive.Sql.Compiler
     public IOutput AppendClosingPunctuation(string text)
     {
       if (!string.IsNullOrEmpty(text)) {
-        if (lastChar == ' ') {
+        if (lastChar == ' ' && stringBuilder.Length > 0) {
           stringBuilder.Length--;// Remove space before closing punctuation
         }
         _ = Append(text);
         lastCharIsPunctuation = true;
+        lastChar = text[^1];
       }
       return this;
     }
