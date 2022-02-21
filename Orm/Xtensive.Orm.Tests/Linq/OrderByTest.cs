@@ -333,7 +333,7 @@ namespace Xtensive.Orm.Tests.Linq
         .OrderBy(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2)
         .Select(c => c.Status)
         .ToArray();
-      Assert.AreEqual(result.Last(), (InvoiceStatus) 1);
+      Assert.Contains(result.Last(), new[] { (InvoiceStatus) 1, (InvoiceStatus) 2 });
     }
   }
 }

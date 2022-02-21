@@ -63,7 +63,7 @@ namespace Xtensive.Orm
     public IQueryable<T> All<T>()
       where T : class, IEntity
     {
-      return Provider.CreateQuery<T>(BuildRootExpression(typeof (T)));
+      return Provider.CreateQuery<T>(BuildRootExpression(typeof(T)));
     }
 
     /// <summary>
@@ -78,8 +78,7 @@ namespace Xtensive.Orm
     /// </returns>
     public IQueryable All(Type elementType)
     {
-      var provider = (IQueryProvider) Provider;
-      return provider.CreateQuery(BuildRootExpression(elementType));
+      return ((IQueryProvider) Provider).CreateQuery(BuildRootExpression(elementType));
     }
 
     #region Full-text related

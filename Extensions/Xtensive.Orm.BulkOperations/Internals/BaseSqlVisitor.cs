@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
@@ -516,7 +516,6 @@ namespace Xtensive.Orm.BulkOperations
       VisitInternal(node.Statement);
     }
 
-
     public virtual void Visit(SqlFragment node)
     {
       VisitInternal(node.Expression);
@@ -529,8 +528,8 @@ namespace Xtensive.Orm.BulkOperations
     public virtual void Visit(SqlMetadata node)
     {
       VisitInternal(node.Expression);
-    }
-    
+    }   
+
     #region Non-public methods
 
     private void VisitInternal(ISqlNode node)

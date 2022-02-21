@@ -20,10 +20,8 @@ namespace Xtensive.Orm.Providers
     private readonly Func<CompilerConfiguration, IPreCompiler> preCompilerProvider;
     private readonly Func<CompilerConfiguration, ICompiler, IPostCompiler> postCompilerProvider;
 
-    public CompilerConfiguration CreateConfiguration(Session session)
-    {
-      return new CompilerConfiguration {StorageNode = session.StorageNode};
-    }
+    public CompilerConfiguration CreateConfiguration(Session session) =>
+      new CompilerConfiguration { StorageNode = session.StorageNode, Tags = session.Tags };
 
     public ExecutableProvider Compile(CompilableProvider provider, CompilerConfiguration configuration)
     {

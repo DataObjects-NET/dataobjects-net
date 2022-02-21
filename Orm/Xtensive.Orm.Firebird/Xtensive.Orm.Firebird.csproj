@@ -15,7 +15,7 @@
     <WarningLevel>2</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FirebirdSql.Data.FirebirdClient" Version="6.2.0.1" />
+    <PackageReference Include="FirebirdSql.Data.FirebirdClient" Version="8.5.3" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Xtensive.Orm\Xtensive.Orm.csproj" />

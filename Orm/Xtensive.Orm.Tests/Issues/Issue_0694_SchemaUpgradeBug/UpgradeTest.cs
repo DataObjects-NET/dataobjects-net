@@ -22,88 +22,79 @@ namespace Xtensive.Orm.Tests.Issues.Issue_0694_SchemaUpgradeBug
   [TestFixture]
   public class UpgradeTest
   {
-    private Domain domain;
-
     [SetUp]
     public void SetUp()
     {
-      BuildDomain("1", DomainUpgradeMode.Recreate);
-      using (var session = domain.OpenSession()) {
-        using (var tx = session.OpenTransaction()) {
-          var status = new Status() {Title = "Status"};
-          var media = new Media() {Title = "Media", Data = "Data"};
-          media.Statuses.Add(status);
-          tx.Complete();
-        }
+      using (var domain = BuildDomain("1", DomainUpgradeMode.Recreate))
+      using (var session = domain.OpenSession())
+      using (var tx = session.OpenTransaction()) {
+        var status = new Status() { Title = "Status" };
+        var media = new Media() { Title = "Media", Data = "Data" };
+        _ = media.Statuses.Add(status);
+        tx.Complete();
       }
     }
 
     [Test]
     public void UpgradeToVersion2Test()
     {
-      BuildDomain("2", DomainUpgradeMode.Perform);
+      using (var domain = BuildDomain("2", DomainUpgradeMode.Perform))
       using (var session = domain.OpenSession())
-      {
-        using (session.OpenTransaction())
-        {
-          var status = session.Query.All<Model.Version2.Status>().SingleOrDefault();
-          var newMedia = session.Query.All<NewMedia>().SingleOrDefault();
-          var newMediaTricky = session.Query.All<Content>().Where(c => c.Title == "Media").SingleOrDefault();
+      using (session.OpenTransaction()) {
+        var status = session.Query.All<Model.Version2.Status>().SingleOrDefault();
+        var newMedia = session.Query.All<NewMedia>().SingleOrDefault();
+        var newMediaTricky = session.Query.All<Content>().Where(c => c.Title == "Media").SingleOrDefault();
 
-          int statusCount = session.Query.All<Model.Version2.Status>().Count();
-          int statusAssociationCount = status != null ? status.AssociatedContent.Count() : 0;
-          int newMediaCount = session.Query.All<NewMedia>().Count();
+        var statusCount = session.Query.All<Model.Version2.Status>().Count();
+        var statusAssociationCount = status != null ? status.AssociatedContent.Count() : 0;
+        var newMediaCount = session.Query.All<NewMedia>().Count();
 
-          Assert.IsNotNull(status);
-          Assert.IsNull(newMedia);
-          Assert.IsNull(newMediaTricky);
-          Assert.AreEqual(1, statusCount);
-          Assert.AreEqual(0, newMediaCount);
-          Assert.AreEqual(0, statusAssociationCount);
-        }
+        Assert.IsNotNull(status);
+        Assert.IsNull(newMedia);
+        Assert.IsNull(newMediaTricky);
+        Assert.AreEqual(1, statusCount);
+        Assert.AreEqual(0, newMediaCount);
+        Assert.AreEqual(0, statusAssociationCount);
       }
     }
     
     [Test, Ignore("Default behavior changed. Namespace-only renames are tracked automatically.")]
     public void UpgradeToVersion3Test()
     {
-      BuildDomain("3", DomainUpgradeMode.Perform);
-      using (var session = domain.OpenSession()) {
-        using (session.OpenTransaction()) {
-          // No version-to-version hints, so all the types are removed
-          var status = session.Query.All<Model.Version3.Status>().FirstOrDefault();
-          var newMedia = session.Query.All<Model.Version3.NewMedia>().FirstOrDefault();
-          var newMediaTricky = session.Query.All<Model.Version3.Content>().FirstOrDefault();
+      using (var domain = BuildDomain("3", DomainUpgradeMode.Perform))
+      using (var session = domain.OpenSession())
+      using (session.OpenTransaction()) {
+        // No version-to-version hints, so all the types are removed
+        var status = session.Query.All<Model.Version3.Status>().FirstOrDefault();
+        var newMedia = session.Query.All<Model.Version3.NewMedia>().FirstOrDefault();
+        var newMediaTricky = session.Query.All<Model.Version3.Content>().FirstOrDefault();
 
-          int statusCount = session.Query.All<Model.Version3.Status>().Count();
-          int statusAssociationCount = status!=null ? status.AssociatedContent.Count() : 0;
-          int newMediaCount = session.Query.All<Model.Version3.NewMedia>().Count();
+        var statusCount = session.Query.All<Model.Version3.Status>().Count();
+        var statusAssociationCount = status != null ? status.AssociatedContent.Count() : 0;
+        var newMediaCount = session.Query.All<Model.Version3.NewMedia>().Count();
 
-          Assert.IsNull(status);
-          Assert.IsNull(newMedia);
-          Assert.IsNull(newMediaTricky);
-          Assert.AreEqual(0, statusCount);
-          Assert.AreEqual(0, newMediaCount);
-          Assert.AreEqual(0, statusAssociationCount);
-        }
+        Assert.IsNull(status);
+        Assert.IsNull(newMedia);
+        Assert.IsNull(newMediaTricky);
+        Assert.AreEqual(0, statusCount);
+        Assert.AreEqual(0, newMediaCount);
+        Assert.AreEqual(0, statusAssociationCount);
       }
     }
 
-    private void BuildDomain(string version, DomainUpgradeMode upgradeMode)
+    private Domain BuildDomain(string version, DomainUpgradeMode upgradeMode)
     {
-      if (domain != null)
-        domain.DisposeSafely();
-
-      string ns = typeof(Model.Version1.Content).Namespace;
-      string nsPrefix = ns.Substring(0, ns.Length - 1);
+      var ns = typeof(Model.Version1.Content).Namespace;
+      var nsPrefix = ns.Substring(0, ns.Length - 1);
 
       var configuration = DomainConfigurationFactory.Create();
       configuration.UpgradeMode = upgradeMode;
+      configuration.BuildInParallel = false;
       configuration.Types.Register(Assembly.GetExecutingAssembly(), nsPrefix + version);
       configuration.Types.Register(typeof(Upgrader));
 
       using (Upgrader.Enable(version)) {
-        domain = Domain.Build(configuration);
+        return Domain.Build(configuration);
       }
     }
   }

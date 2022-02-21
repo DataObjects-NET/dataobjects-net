@@ -43,45 +43,53 @@
     <PackageReference Include="System.Configuration.ConfigurationManager" Version="5.0.0" />
     <PackageReference Include="BitFaster.Caching" Version="1.0.4" />
   </ItemGroup>
-  <ItemGroup Label="T4GeneratorsUpdaters">
-    <None Update="Arithmetic\Internal\PrimitiveArithmetics.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="Core\Extensions\DelegateBindExtensions.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="Core\Extensions\ExpressionCompileExtensions.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="InternalLogs.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-    <None Update="Orm\Linq\MemberCompilation\MemberCompilerProvider-CreateCompiler.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-    </None>
-  </ItemGroup>
   <ItemGroup Label="T4 templates">
     <None Include="Arithmetic\Internal\PrimitiveArithmetics.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>PrimitiveArithmetics.cs</LastGenOutput>
     </None>
+    <Compile Update="Arithmetic\Internal\PrimitiveArithmetics.cs">
+      <DesignTime>true</DesignTime>
+      <AutoGen>true</AutoGen>
+      <DependentUpon>PrimitiveArithmetics.tt</DependentUpon>
+    </Compile>
     <None Include="Core\Extensions\DelegateBindExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>DelegateBindExtensions.cs</LastGenOutput>
     </None>
+    <Compile Update="Core\Extensions\DelegateBindExtensions.cs">
+      <DesignTime>true</DesignTime>
+      <AutoGen>true</AutoGen>
+      <DependentUpon>DelegateBindExtensions.tt</DependentUpon>
+    </Compile>
     <None Include="Core\Extensions\ExpressionCompileExtensions.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>ExpressionCompileExtensions.cs</LastGenOutput>
     </None>
+    <Compile Update="Core\Extensions\ExpressionCompileExtensions.cs">
+      <DesignTime>true</DesignTime>
+      <AutoGen>true</AutoGen>
+      <DependentUpon>ExpressionCompileExtensions.tt</DependentUpon>
+    </Compile>
     <None Include="DelegateGenerator.ttinclude" />
     <None Include="InternalLogs.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>InternalLogs.cs</LastGenOutput>
     </None>
+    <Compile Update="InternalLogs.cs">
+      <DesignTime>true</DesignTime>
+      <AutoGen>true</AutoGen>
+      <DependentUpon>InternalLogs.tt</DependentUpon>
+    </Compile>
     <None Include="Orm\Linq\MemberCompilation\MemberCompilerProvider-CreateCompiler.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>MemberCompilerProvider-CreateCompiler.cs</LastGenOutput>
     </None>
+    <Compile Update="Orm\Linq\MemberCompilation\MemberCompilerProvider-CreateCompiler.cs">
+      <DesignTime>true</DesignTime>
+      <AutoGen>true</AutoGen>
+      <DependentUpon>MemberCompilerProvider-CreateCompiler.tt</DependentUpon>
+    </Compile>
     <None Include="Strings.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>

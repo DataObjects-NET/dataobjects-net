@@ -57,7 +57,7 @@ namespace Xtensive.Orm
     public event EventHandler Disposing;
 
     /// <summary>
-    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>. 
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>.
     /// </summary>
     /// <seealso cref="Session.Current"/>
     /// <seealso cref="Demand"/>
@@ -69,7 +69,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>, 
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>,
     /// if active <see cref="Session"/> is not found.
     /// </summary>
     /// <returns>Current domain.</returns>
@@ -79,7 +79,7 @@ namespace Xtensive.Orm
     {
       return Session.Demand().Domain;
     }
-    
+
     /// <summary>
     /// Gets the domain configuration.
     /// </summary>
@@ -93,7 +93,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the information about provider's capabilities.
     /// </summary>
-    public ProviderInfo StorageProviderInfo { get { return Handlers.ProviderInfo; } }
+    public ProviderInfo StorageProviderInfo => Handlers.ProviderInfo;
 
     /// <summary>
     /// Gets the domain-level service container.
@@ -104,6 +104,13 @@ namespace Xtensive.Orm
     /// Gets storage node manager.
     /// </summary>
     public StorageNodeManager StorageNodeManager { get; private set; }
+
+    /// <summary>
+    /// Indicated whether query tagging is enabled by domain configuration
+    /// by <see cref="DomainConfiguration.TagsLocation"/> proprety set to something
+    /// other than <see cref="TagsLocation.Nowhere"/>.
+    /// </summary>
+    public bool TagsEnabled { get; }
 
     #region Private / internal members
 
@@ -392,7 +399,7 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     public IExtensionCollection Extensions { get; private set; }
-    
+
     #endregion
 
     /// <summary>
@@ -428,6 +435,7 @@ namespace Xtensive.Orm
       UpgradeContextCookie = upgradeContextCookie;
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
+      TagsEnabled = configuration.TagsLocation != TagsLocation.Nowhere;
       isDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
     }
 

@@ -17,11 +17,11 @@ namespace Xtensive.Orm.Rse
   {
     private const string ToStringFormat = "{0} = {1}";
 
-    private readonly ColumnInfoRef _columnInfo;
+    private readonly ColumnInfoRef columnInfo;
     /// <summary>
     /// Gets the reference that describes a column.
-    /// </summary>    
-    public ref readonly ColumnInfoRef ColumnInfoRef => ref _columnInfo;
+    /// </summary>
+    public ref readonly ColumnInfoRef ColumnInfoRef => ref columnInfo;
 
     /// <inheritdoc/>
     public override string ToString()
@@ -77,7 +77,7 @@ namespace Xtensive.Orm.Rse
     public MappedColumn(in ColumnInfoRef columnInfoRef, string name, int index, Type type)
       : base(name, index, type, null)
     {
-      _columnInfo = columnInfoRef;
+      columnInfo = columnInfoRef;
     }
 
     #endregion
@@ -87,13 +87,13 @@ namespace Xtensive.Orm.Rse
     private MappedColumn(MappedColumn column, string newName)
       : base(newName, column.Index, column.Type, column)
     {
-      _columnInfo = column.ColumnInfoRef;
+      columnInfo = column.ColumnInfoRef;
     }
 
     private MappedColumn(MappedColumn column, int newIndex)
       : base(column.Name, newIndex, column.Type, column)
     {
-      _columnInfo = column.ColumnInfoRef;
+      columnInfo = column.ColumnInfoRef;
     }
 
     #endregion

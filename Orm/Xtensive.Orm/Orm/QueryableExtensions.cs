@@ -27,8 +27,8 @@ namespace Xtensive.Orm
   public static partial class QueryableExtensions
   {
     /// <summary>
-    /// Tags query with given <paramref name="tag"/> string 
-    /// (inserts string as comment in SQL statement) for 
+    /// Tags query with given <paramref name="tag"/> string
+    /// (inserts string as comment in SQL statement) for
     /// further query identification.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -42,7 +42,7 @@ namespace Xtensive.Orm
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
-        var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 
@@ -52,8 +52,8 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Tags query with given <paramref name="tag"/> string 
-    /// (inserts string as comment in SQL statement) for 
+    /// Tags query with given <paramref name="tag"/> string
+    /// (inserts string as comment in SQL statement) for
     /// further query identification.
     /// </summary>
     /// <param name="source">The source sequence.</param>
@@ -66,7 +66,7 @@ namespace Xtensive.Orm
 
       var providerType = source.Provider.GetType();
       if (providerType != WellKnownOrmTypes.QueryProvider) {
-        var errorMessage = Strings.ExTakeDoesNotSupportQueryProviderOfTypeX;
+        var errorMessage = Strings.ExTagDoesNotSupportQueryProviderOfTypeX;
         throw new NotSupportedException(string.Format(errorMessage, providerType));
       }
 

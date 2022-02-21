@@ -215,6 +215,35 @@ namespace Xtensive.Orm.Linq
           right = Visit(binaryExpression.Right);
         }
       }
+      else if (EnumRewritableOperations(binaryExpression)) {
+        // Following two checks for enums are here to improve result query
+        // performance because they let not to cast columns to integer.
+        var leftNoCasts = binaryExpression.Left.StripCasts();
+        var leftNoCastsType = leftNoCasts.Type;
+        var bareLeftType = leftNoCastsType.StripNullable();
+        var rightNoCasts = binaryExpression.Right.StripCasts();
+        var rightNoCastsType = rightNoCasts.Type;
+        var bareRightType = rightNoCastsType.StripNullable();
+
+        if (bareLeftType.IsEnum && rightNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = leftNoCastsType.IsNullable()
+            ? bareLeftType.GetEnumUnderlyingType().ToNullable()
+            : leftNoCastsType.GetEnumUnderlyingType();
+          left = Visit(Expression.Convert(leftNoCasts, typeToCast));
+          right = Visit(Expression.Convert(binaryExpression.Right, typeToCast));
+        }
+        else if (bareRightType.IsEnum && leftNoCasts.NodeType == ExpressionType.Constant) {
+          var typeToCast = rightNoCastsType.IsNullable()
+            ? bareRightType.GetEnumUnderlyingType().ToNullable()
+            : rightNoCastsType.GetEnumUnderlyingType();
+          left = Visit(Expression.Convert(rightNoCasts, typeToCast));
+          right = Visit(Expression.Convert(binaryExpression.Left, typeToCast));
+        }
+        else {
+          left = Visit(binaryExpression.Left);
+          right = Visit(binaryExpression.Right);
+        }
+      }
       else {
         left = Visit(binaryExpression.Left);
         right = Visit(binaryExpression.Right);
@@ -239,6 +268,14 @@ namespace Xtensive.Orm.Linq
       }
 
       return resultBinaryExpression;
+
+      static bool EnumRewritableOperations(BinaryExpression b)
+      {
+        var nt = b.NodeType;
+        return nt == ExpressionType.Equal || nt == ExpressionType.NotEqual
+          || nt == ExpressionType.GreaterThan || nt == ExpressionType.GreaterThanOrEqual
+          || nt == ExpressionType.LessThan || nt == ExpressionType.LessThanOrEqual;
+      }
     }
 
     protected override Expression VisitConditional(ConditionalExpression c)
@@ -1594,11 +1631,17 @@ namespace Xtensive.Orm.Linq
     private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator, Expression sourceExpression)
     {
       var storedEntityType = translator.State.TypeOfEntityStoredInKey;
-      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translator.context.Model, sourceExpression);
-      var rsHeader = new RecordSetHeader(itemToTupleConverter.TupleDescriptor, itemToTupleConverter.TupleDescriptor.Select(x => new SystemColumn(translator.context.GetNextColumnAlias(), 0, x)).Cast<Column>());
+      var translatorContext = translator.context;
+      var itemToTupleConverter = ItemToTupleConverter.BuildConverter(itemType, storedEntityType, value, translatorContext.Model, sourceExpression);
+      var tupleDescriptor = itemToTupleConverter.TupleDescriptor;
+      var columns = tupleDescriptor
+        .Select(x => new SystemColumn(translatorContext.GetNextColumnAlias(), 0, x))
+        .Cast<Column>()
+        .ToArray(tupleDescriptor.Count);
+      var rsHeader = new RecordSetHeader(tupleDescriptor, columns);
       var rawProvider = new RawProvider(rsHeader, itemToTupleConverter.GetEnumerable());
       var recordset = new StoreProvider(rawProvider);
-      var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translator.context);
+      var itemProjector = new ItemProjectorExpression(itemToTupleConverter.Expression, recordset, translatorContext);
       if (translator.State.JoinLocalCollectionEntity)
         itemProjector = EntityExpressionJoiner.JoinEntities(translator, itemProjector);
       return new ProjectionExpression(itemType, itemProjector, TranslatedQuery.EmptyTupleParameterBindings);

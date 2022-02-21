@@ -19,13 +19,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
   [TestFixture]
   public class ExtractorTest : SqlTest
   {
-    private List<string> dropOperations = new List<string>();
+    private readonly List<string> dropOperations = new List<string>();
 
     protected override void TestFixtureTearDown()
     {
       foreach (var dropOperation in dropOperations) {
         try {
-          ExecuteNonQuery(dropOperation);
+          _ = ExecuteNonQuery(dropOperation);
         }
         catch (Exception) {
           Console.Write("Operation '{0}' wasn't performed correctly", dropOperation);
@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var dropScript = "IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1]";
 
       RegisterDropForLater(dropScript);
-      ExecuteNonQuery(dropScript);
-      ExecuteNonQuery(createScript);
+      _ = ExecuteNonQuery(dropScript);
+      _ = ExecuteNonQuery(createScript);
 
       #endregion
 
@@ -112,8 +112,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       var dropScript = @"IF OBJECT_ID('Table1') IS NOT NULL DROP TABLE [Table1]";
 
       RegisterDropForLater(dropScript);
-      ExecuteNonQuery(dropScript);
-      ExecuteNonQuery(createScript);
+      _ = ExecuteNonQuery(dropScript);
+      _ = ExecuteNonQuery(createScript);
 
       #endregion
 
@@ -187,8 +187,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
 
       RegisterDropForLater(dropScript);
-      ExecuteNonQuery(dropScript);
-      ExecuteNonQuery(createScript);
+      _ = ExecuteNonQuery(dropScript);
+      _ = ExecuteNonQuery(createScript);
 
       #endregion
 
@@ -268,8 +268,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
 
       RegisterDropForLater(dropScript);
-      ExecuteNonQuery(dropScript);
-      ExecuteNonQuery(createScript);
+      _ = ExecuteNonQuery(dropScript);
+      _ = ExecuteNonQuery(createScript);
 
       #endregion
 
@@ -333,8 +333,8 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
         IF OBJECT_ID('Table2') IS NOT NULL DROP TABLE [Table2];";
 
       RegisterDropForLater(dropScript);
-      ExecuteNonQuery(dropScript);
-      ExecuteNonQuery(createScript);
+      _ =ExecuteNonQuery(dropScript);
+      _ = ExecuteNonQuery(createScript);
 
       #endregion
 
@@ -381,15 +381,15 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractDomainsTest()
     {
-      string createTable =
+      var createTable =
         "create table table_with_domained_columns (id int primary key, value test_type)";
-      string dropTable =
+      var dropTable =
         "if object_id('table_with_domained_columns') is not null drop table table_with_domained_columns";
 
-      ExecuteNonQuery(dropTable);
+      _ = ExecuteNonQuery(dropTable);
       DropDomain();
       CreateDomain();
-      ExecuteNonQuery(createTable);
+      _ = ExecuteNonQuery(createTable);
 
       var schema = ExtractCatalog().DefaultSchema;
       var definedDomain = schema.Domains.Single(domain => domain.Name=="test_type");
@@ -403,13 +403,13 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractDefaultConstraintTest()
     {
-      string createTable =
+      var createTable =
         "create table table_with_default_constraint (id int default 0)";
-      string dropTable =
+      var dropTable =
         "if object_id('table_with_default_constraint') is not null drop table table_with_default_constraint";
 
-      ExecuteNonQuery(dropTable);
-      ExecuteNonQuery(createTable);
+      _ = ExecuteNonQuery(dropTable);
+      _ = ExecuteNonQuery(createTable);
 
       var schema = ExtractCatalog().DefaultSchema;
       var table = schema.Tables["table_with_default_constraint"];
@@ -420,33 +420,33 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
     [Test]
     public void ExtractComputedColumnTest()
     {
-      string createTable = @"
+      var createTable = @"
         CREATE TABLE Tmp ( [Value] [int] NOT NULL, [Sum]  AS ([Value]+(1)) PERSISTED ) ON [PRIMARY]
         CREATE NONCLUSTERED INDEX [IX_Sum] ON Tmp ( [Sum] ASC ) ON [PRIMARY]";
-      string createView = @"
+      var createView = @"
         CREATE VIEW Tmp_View WITH SCHEMABINDING AS SELECT Value, Sum FROM dbo.Tmp";
       string drop = @"
         if object_id('Tmp_View') is not null drop view Tmp_View
         if object_id('Tmp') is not null drop table Tmp";
 
-      ExecuteNonQuery(drop);
-      ExecuteNonQuery(createTable);
-      ExecuteNonQuery(createView);
+      _ = ExecuteNonQuery(drop);
+      _ = ExecuteNonQuery(createTable);
+      _ = ExecuteNonQuery(createView);
 
-      ExtractDefaultSchema();
-      ExecuteNonQuery(drop);
+      _ = ExtractDefaultSchema();
+      _ = ExecuteNonQuery(drop);
     }
     
     [Test]
     public void ExtractUDTTest()
     {
       Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2008);
-      string create = "CREATE TYPE GuidList AS TABLE ( Id UNIQUEIDENTIFIER NULL )";
-      string drop = "if type_id('GuidList') is not null drop type GuidList";
+      var create = "CREATE TYPE GuidList AS TABLE ( Id UNIQUEIDENTIFIER NULL )";
+      var drop = "if type_id('GuidList') is not null drop type GuidList";
 
-      ExecuteNonQuery(drop);
-      ExecuteNonQuery(create);
-      ExtractDefaultSchema();
+      _ = ExecuteNonQuery(drop);
+      _ = ExecuteNonQuery(create);
+      _ = ExtractDefaultSchema();
     }
 
     [Test]
@@ -477,36 +477,147 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
       cases[3] = new Pair<string, ChangeTrackingMode>(createOffNoPopulationIndex, ChangeTrackingMode.OffWithNoPopulation);
 
       foreach (var @case in cases) {
-        ExecuteNonQuery(dropTable);
-        ExecuteNonQuery(createTable);
-        ExecuteNonQuery(@case.First);
+        _ = ExecuteNonQuery(dropTable);
+        _ = ExecuteNonQuery(createTable);
+        _ = ExecuteNonQuery(@case.First);
         var schema = ExtractDefaultSchema();
         var table = schema.Tables["FullTextTestTable"];
         var ftIndex = table.Indexes.OfType<FullTextIndex>().FirstOrDefault();
         Assert.That(ftIndex, Is.Not.Null);
         Assert.That(ftIndex.ChangeTrackingMode, Is.EqualTo(@case.Second));
       }
-      ExecuteNonQuery(dropTable);
+      _ = ExecuteNonQuery(dropTable);
     }
 
-#region Helpers
+    [Test]
+    public void ExtractInt64SequenceTest()
+    {
+      var createSequence = @"CREATE SEQUENCE dbo.BigIntSeq
+                                AS bigint
+                                START WITH 12 INCREMENT BY 3
+                                MINVALUE 10 MAXVALUE 200
+                                CYCLE CACHE 3;";
+
+      var dropSequence = @"IF OBJECT_ID('dbo.BigIntSeq', 'SO') IS NOT NULL 
+                              DROP SEQUENCE dbo.BigIntSeq;";
+
+      _ = ExecuteNonQuery(dropSequence);
+      _ = ExecuteNonQuery(createSequence);
+      var schema = ExtractDefaultSchema();
+      var sequence = schema.Sequences.FirstOrDefault(s => s.Name == "BigIntSeq");
+      Assert.That(sequence, Is.Not.Null);
+      var descriptor = sequence.SequenceDescriptor;
+      Assert.That(descriptor.StartValue, Is.EqualTo(12));
+      Assert.That(descriptor.Increment, Is.EqualTo(3));
+      Assert.That(descriptor.MinValue, Is.EqualTo(10));
+      Assert.That(descriptor.MaxValue, Is.EqualTo(200));
+
+      _ = ExecuteNonQuery(dropSequence);
+    }
+
+    [Test]
+    public void ExtractInt32SequenceTest()
+    {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
+
+      var createSequence = @"CREATE SEQUENCE dbo.IntSeq
+                                AS int
+                                START WITH 12 INCREMENT BY 3
+                                MINVALUE 10 MAXVALUE 200
+                                CYCLE CACHE 3;";
+
+      var dropSequence = @"IF OBJECT_ID('dbo.IntSeq', 'SO') IS NOT NULL 
+                              DROP SEQUENCE dbo.IntSeq;";
+
+      _ = ExecuteNonQuery(dropSequence);
+      _ = ExecuteNonQuery(createSequence);
+      var schema = ExtractDefaultSchema();
+      var sequence = schema.Sequences.FirstOrDefault(s => s.Name == "IntSeq");
+      Assert.That(sequence, Is.Not.Null);
+      var descriptor = sequence.SequenceDescriptor;
+      Assert.That(descriptor.StartValue, Is.EqualTo(12));
+      Assert.That(descriptor.Increment, Is.EqualTo(3));
+      Assert.That(descriptor.MinValue, Is.EqualTo(10));
+      Assert.That(descriptor.MaxValue, Is.EqualTo(200));
+
+      _ = ExecuteNonQuery(dropSequence);
+    }
+
+    [Test]
+    public void ExtractInt16SequenceTest()
+    {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
+
+      var createSequence = @"CREATE SEQUENCE dbo.SmallIntSeq
+                                AS smallint
+                                START WITH 12 INCREMENT BY 3
+                                MINVALUE 10 MAXVALUE 200
+                                CYCLE CACHE 3;";
+
+      var dropSequence = @"IF OBJECT_ID('dbo.SmallIntSeq', 'SO') IS NOT NULL 
+                              DROP SEQUENCE dbo.SmallIntSeq;";
+
+      _ = ExecuteNonQuery(dropSequence);
+      _ = ExecuteNonQuery(createSequence);
+      var schema = ExtractDefaultSchema();
+      var sequence = schema.Sequences.FirstOrDefault(s => s.Name == "SmallIntSeq");
+      Assert.That(sequence, Is.Not.Null);
+      var descriptor = sequence.SequenceDescriptor;
+      Assert.That(descriptor.StartValue, Is.EqualTo(12));
+      Assert.That(descriptor.Increment, Is.EqualTo(3));
+      Assert.That(descriptor.MinValue, Is.EqualTo(10));
+      Assert.That(descriptor.MaxValue, Is.EqualTo(200));
+
+      _ = ExecuteNonQuery(dropSequence);
+    }
+
+    [Test]
+    public void ExtractByteSequenceTest()
+    {
+      Require.ProviderVersionAtLeast(StorageProviderVersion.SqlServer2012);
+
+      var createSequence = @"CREATE SEQUENCE dbo.TinyIntSeq
+                                AS tinyint
+                                START WITH 12 INCREMENT BY 3
+                                MINVALUE 10 MAXVALUE 200
+                                CYCLE CACHE 3;";
+
+      var dropSequence = @"IF OBJECT_ID('dbo.TinyIntSeq', 'SO') IS NOT NULL 
+                              DROP SEQUENCE dbo.TinyIntSeq;";
+
+      _ = ExecuteNonQuery(dropSequence);
+      _ = ExecuteNonQuery(createSequence);
+      var schema = ExtractDefaultSchema();
+      var sequence = schema.Sequences.FirstOrDefault(s => s.Name == "TinyIntSeq");
+      Assert.That(sequence, Is.Not.Null);
+      var descriptor = sequence.SequenceDescriptor;
+      Assert.That(descriptor.StartValue, Is.EqualTo(12));
+      Assert.That(descriptor.Increment, Is.EqualTo(3));
+      Assert.That(descriptor.MinValue, Is.EqualTo(10));
+      Assert.That(descriptor.MaxValue, Is.EqualTo(200));
+
+      _ = ExecuteNonQuery(dropSequence);
+    }
+
+
+    #region Helpers
 
     private void CreateDomain()
     {
       var schema = ExtractCatalog().DefaultSchema;
       var domain = schema.CreateDomain("test_type", new SqlValueType(SqlType.Int64));
       var commandText = Driver.Compile(SqlDdl.Create(domain)).GetCommandText();
-      ExecuteNonQuery(commandText);
+      _ = ExecuteNonQuery(commandText);
     }
 
     private void DropDomain()
     {
       var schema = ExtractCatalog().DefaultSchema;
       var domain = schema.Domains["test_type"];
-      if (domain==null)
+      if (domain == null)
         return;
       var commandText = Driver.Compile(SqlDdl.Drop(domain)).GetCommandText();
-      ExecuteNonQuery(commandText);
+      _ =ExecuteNonQuery(commandText);
     }
 
     private void RegisterDropForLater(string dropScript)
