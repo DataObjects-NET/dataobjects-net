@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -37,7 +37,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case SequenceDescriptorSection.RestartValue when descriptor.StartValue.HasValue:
-          context.Output.Append("RESTART WITH ").Append(descriptor.StartValue.Value);
+          _ = context.Output.Append("RESTART WITH ").Append(descriptor.StartValue.Value);
           break;
         case SequenceDescriptorSection.StartValue:
         case SequenceDescriptorSection.Increment:
@@ -57,16 +57,16 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       var output = context.Output;
       switch (section) {
         case AlterTableSection.AddColumn:
-          output.Append("ADD");
+          _ = output.Append("ADD");
           break;
         case AlterTableSection.AlterColumn:
-          output.Append("ALTER");
+          _ = output.Append("ALTER");
           break;
         case AlterTableSection.DropColumn:
-          output.Append("DROP");
+          _ = output.Append("DROP");
           break;
         case AlterTableSection.RenameColumn:
-          output.Append("ALTER");
+          _ = output.Append("ALTER");
           break;
         case AlterTableSection.DropBehavior:
           break;
@@ -79,7 +79,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropTable node)
     {
-      context.Output.Append("DROP TABLE ");
+      _ = context.Output.Append("DROP TABLE ");
       Translate(context, node.Table);
     }
 
@@ -89,23 +89,23 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       var output = context.Output;
       switch (literalValue) {
         case bool v:
-          output.Append(v ? '1' : '0');
+          _ = output.Append(v ? '1' : '0');
           break;
-        case UInt64 v:
+        case ulong v:
           TranslateString(output, v.ToString());
           break;
         case byte[] values:
           var builder = output.StringBuilder;
-          builder.EnsureCapacity(builder.Length + 2 * (values.Length + 1));
-          builder.Append("x'");
-          builder.AppendHexArray(values);
-          builder.Append("'");
+          _ = builder.EnsureCapacity(builder.Length + 2 * (values.Length + 1));
+          _ = builder.Append("x'")
+            .AppendHexArray(values)
+            .Append('\'');
           break;
         case Guid guid:
           TranslateString(output, SqlHelper.GuidToString(guid));
           break;
         case TimeSpan timeSpan:
-          output.Append(timeSpan.Ticks * 100);
+          _ = output.Append(timeSpan.Ticks * 100);
           break;
         default:
           base.Translate(context, literalValue);
@@ -116,68 +116,40 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override string Translate(SqlNodeType type)
     {
-      switch (type) {
-        case SqlNodeType.Equals:
-          return "=";
-        case SqlNodeType.NotEquals:
-          return "<>";
-        case SqlNodeType.Modulo:
-          return "MOD";
-        case SqlNodeType.DateTimeMinusDateTime:
-          return "-";
-        case SqlNodeType.Except:
-          throw SqlHelper.NotSupported(type.ToString());
-        case SqlNodeType.Intersect:
-          throw SqlHelper.NotSupported(type.ToString());
-        case SqlNodeType.BitAnd:
-          return "BIN_AND";
-        case SqlNodeType.BitOr:
-          return "BIN_OR";
-        case SqlNodeType.BitXor:
-          return "BIN_XOR";
-        case SqlNodeType.Overlaps:
-          throw SqlHelper.NotSupported(type.ToString());
-        default:
-          return base.Translate(type);
-      }
+      return type switch {
+        SqlNodeType.Equals => "=",
+        SqlNodeType.NotEquals => "<>",
+        SqlNodeType.Modulo => "MOD",
+        SqlNodeType.DateTimeMinusDateTime => "-",
+        SqlNodeType.Except => throw SqlHelper.NotSupported(type.ToString()),
+        SqlNodeType.Intersect => throw SqlHelper.NotSupported(type.ToString()),
+        SqlNodeType.BitAnd => "BIN_AND",
+        SqlNodeType.BitOr => "BIN_OR",
+        SqlNodeType.BitXor => "BIN_XOR",
+        SqlNodeType.Overlaps => throw SqlHelper.NotSupported(type.ToString()),
+        _ => base.Translate(type),
+      };
     }
 
     /// <inheritdoc/>
     public override string Translate(SqlFunctionType type)
     {
-      switch (type) {
-        case SqlFunctionType.CharLength:
-          return "CHAR_LENGTH";
-        case SqlFunctionType.BinaryLength:
-          return "OCTET_LENGTH";
-        case SqlFunctionType.Truncate:
-          return "TRUNC";
-        case SqlFunctionType.IntervalNegate:
-          return "-";
-        case SqlFunctionType.Log:
-          return "LN";
-        case SqlFunctionType.Log10:
-          return "LOG10";
-        case SqlFunctionType.Ceiling:
-          return "CEIL";
-        case SqlFunctionType.PadLeft:
-          return "LPAD";
-        case SqlFunctionType.PadRight:
-          return "RPAD";
-        case SqlFunctionType.Concat:
-          return "||";
-        case SqlFunctionType.SystemUser:
-        case SqlFunctionType.SessionUser:
-          return base.Translate(SqlFunctionType.CurrentUser);
-        case SqlFunctionType.Degrees:
-        case SqlFunctionType.Radians:
-        case SqlFunctionType.Square:
-          throw SqlHelper.NotSupported(type.ToString());
-        case SqlFunctionType.IntervalAbs:
-          return Translate(SqlFunctionType.Abs);
-        default:
-          return base.Translate(type);
-      }
+      return type switch {
+        SqlFunctionType.CharLength => "CHAR_LENGTH",
+        SqlFunctionType.BinaryLength => "OCTET_LENGTH",
+        SqlFunctionType.Truncate => "TRUNC",
+        SqlFunctionType.IntervalNegate => "-",
+        SqlFunctionType.Log => "LN",
+        SqlFunctionType.Log10 => "LOG10",
+        SqlFunctionType.Ceiling => "CEIL",
+        SqlFunctionType.PadLeft => "LPAD",
+        SqlFunctionType.PadRight => "RPAD",
+        SqlFunctionType.Concat => "||",
+        SqlFunctionType.SystemUser or SqlFunctionType.SessionUser => base.Translate(SqlFunctionType.CurrentUser),
+        SqlFunctionType.Degrees or SqlFunctionType.Radians or SqlFunctionType.Square => throw SqlHelper.NotSupported(type.ToString()),
+        SqlFunctionType.IntervalAbs => Translate(SqlFunctionType.Abs),
+        _ => base.Translate(type),
+      };
     }
 
     /// <inheritdoc/>
@@ -185,10 +157,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case NodeSection.Entry:
-          context.Output.Append("GEN_ID(");
+          _ = context.Output.Append("GEN_ID(");
           break;
         case NodeSection.Exit:
-          context.Output.Append(",")
+          _ = context.Output.Append(",")
             .Append(node.Increment)
             .Append(")");
           break;
@@ -198,21 +170,19 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override string Translate(SqlLockType lockType)
     {
-      if (lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked))
-        return base.Translate(lockType);
-      return "WITH LOCK";
+      return lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked)
+        ? base.Translate(lockType)
+        : "WITH LOCK";
     }
 
     /// <inheritdoc/>
     public override string Translate(SqlDateTimePart dateTimePart)
     {
-      switch (dateTimePart) {
-        case SqlDateTimePart.DayOfYear:
-          return "YEARDAY";
-        case SqlDateTimePart.DayOfWeek:
-          return "WEEKDAY";
-      }
-      return base.Translate(dateTimePart);
+      return dateTimePart switch {
+        SqlDateTimePart.DayOfYear => "YEARDAY",
+        SqlDateTimePart.DayOfWeek => "WEEKDAY",
+        _ => base.Translate(dateTimePart),
+      };
     }
 
     /// <inheritdoc/>
@@ -220,10 +190,10 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case SelectSection.Limit:
-          context.Output.Append("FIRST");
+          _ = context.Output.Append("FIRST");
           break;
         case SelectSection.Offset:
-          context.Output.Append("SKIP");
+          _ = context.Output.Append("SKIP");
           break;
         default:
           base.Translate(context, node, section);
@@ -231,11 +201,12 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
       switch (section) {
         case UpdateSection.Limit:
-          context.Output.Append("ROWS");
+          _ = context.Output.Append("ROWS");
           break;
         default:
           base.Translate(context, node, section);
@@ -248,7 +219,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case DeleteSection.Limit:
-          context.Output.Append("ROWS");
+          _ = context.Output.Append("ROWS");
           return;
       }
       base.Translate(context, node, section);
@@ -260,25 +231,27 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       var output = context.Output;
       switch (section) {
         case CreateIndexSection.Entry:
-          Index index = node.Index;
-          output.Append("CREATE ");
-          if (index.IsUnique)
-            output.Append("UNIQUE ");
+          var index = node.Index;
+          _ = output.Append("CREATE ");
+          if (index.IsUnique) {
+            _ = output.Append("UNIQUE ");
+          }
           //else if (!index.IsAscending)
           //    builder.Append("DESC ");
-          output.Append("INDEX ")
-            .Append(QuoteIdentifier(index.DbName))
-            .Append(" ON ");
+          _ = output.Append("INDEX ");
+          TranslateIdentifier(output, index.DbName);
+          _ = output.Append(" ON ");
           Translate(context, index.DataTable);
           return;
         case CreateIndexSection.ColumnsEnter:
           if (node.Index.Columns[0].Expression != null) {
-            if (node.Index.Columns.Count > 1)
-              SqlHelper.NotSupported("expression index with multiple column");
-            output.Append("COMPUTED BY (");
+            if (node.Index.Columns.Count > 1) {
+              _ = SqlHelper.NotSupported("expression index with multiple column");
+            }
+            _ = output.Append("COMPUTED BY (");
           }
           else
-            output.Append("(");
+            _ = output.Append("(");
           return;
       }
       base.Translate(context, node, section);
@@ -289,12 +262,15 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case ConstraintSection.Exit:
-          context.Output.Append(")");
+          _ = context.Output.Append(")");
           if (constraint is ForeignKey fk) {
-            if (fk.OnUpdate != ReferentialAction.NoAction)
-              context.Output.Append(" ON UPDATE ").Append(Translate(fk.OnUpdate));
-            if (fk.OnDelete != ReferentialAction.NoAction)
-              context.Output.Append(" ON DELETE ").Append(Translate(fk.OnDelete));
+            if (fk.OnUpdate != ReferentialAction.NoAction) {
+              _ = context.Output.Append(" ON UPDATE ").Append(Translate(fk.OnUpdate));
+            }
+
+            if (fk.OnDelete != ReferentialAction.NoAction) {
+              _ = context.Output.Append(" ON DELETE ").Append(Translate(fk.OnDelete));
+            }
           }
           break;
         default:
@@ -309,11 +285,11 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
       var output = context.Output;
       switch (section) {
         case NodeSection.Entry:
-          output.Append("SET GENERATOR ");
+          _ = output.Append("SET GENERATOR ");
           Translate(context, node.Sequence);
           break;
         case NodeSection.Exit:
-          output.Append("TO ")
+          _ = output.Append("TO ")
             .Append(node.SequenceDescriptor.LastValue ?? 0);
           break;
       }
@@ -322,24 +298,27 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropIndex node)
     {
-      if (!node.Index.IsFullText)
-        context.Output.Append("DROP INDEX ").Append(QuoteIdentifier(node.Index.DbName));
+      if (!node.Index.IsFullText) {
+        _ = context.Output.Append("DROP INDEX ");
+        TranslateIdentifier(context.Output, node.Index.DbName);
+      }
       else {
-        context.Output.Append("DROP FULLTEXT INDEX ON ");
+        _ = context.Output.Append("DROP FULLTEXT INDEX ON ");
         Translate(context, node.Index.DataTable);
       }
     }
 
     public override void Translate(SqlCompilerContext context, SqlDropSequence node)
     {
-      context.Output.Append("DROP SEQUENCE ");
+      _ = context.Output.Append("DROP SEQUENCE ");
       Translate(context, node.Sequence);
     }
 
     public override void Translate(SqlCompilerContext context, SqlQueryRef node, TableSection section)
     {
-      if (!context.GetTraversalPath().Any(n => n.NodeType == SqlNodeType.Insert))
+      if (!context.GetTraversalPath().Any(n => n.NodeType == SqlNodeType.Insert)) {
         base.Translate(context, node, section);
+      }
     }
 
     // Constructors
