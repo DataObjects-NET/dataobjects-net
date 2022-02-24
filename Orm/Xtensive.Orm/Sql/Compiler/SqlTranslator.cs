@@ -402,10 +402,10 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case NodeSection.Entry when node.NodeType != SqlNodeType.RawConcat:
-          _ = context.Output.Append(OpeningParenthesis);
+          _ = context.Output.AppendOpeningPunctuation(OpeningParenthesis);
           break;
         case NodeSection.Exit when node.NodeType != SqlNodeType.RawConcat:
-          _ = context.Output.Append(ClosingParenthesis);
+          _ = context.Output.AppendClosingPunctuation(ClosingParenthesis);
           break;
       }
     }
@@ -730,18 +730,18 @@ namespace Xtensive.Sql.Compiler
           _ = output.AppendClosingPunctuation(")");
           break;
         case CreateIndexSection.NonkeyColumnsEnter:
-          _ = output.AppendOpeningPunctuation(" INCLUDE (");
+          _ = output.AppendOpeningPunctuation("INCLUDE (");
           break;
         case CreateIndexSection.NonkeyColumnsExit:
           _ = output.AppendClosingPunctuation(")");
           break;
         case CreateIndexSection.Where:
-          _ = output.Append(" WHERE");
+          _ = output.Append("WHERE");
           break;
         case CreateIndexSection.Exit:
           index = node.Index;
           if (index.FillFactor.HasValue) {
-            _ = output.Append($" WITH (FILLFACTOR = {index.FillFactor.Value})");
+            _ = output.Append($"WITH (FILLFACTOR = {index.FillFactor.Value})");
           }
           if (index.PartitionDescriptor != null) {
             _ = output.Append(" ");
@@ -1762,7 +1762,6 @@ namespace Xtensive.Sql.Compiler
         case TableSection.AliasDeclaration:
           var alias = context.TableNameProvider.GetName(node);
           if (alias != node.DataTable.DbName) {
-            _ = context.Output.Append(" ");
             TranslateIdentifier(context.Output, alias);
           }
           break;
@@ -2359,8 +2358,9 @@ namespace Xtensive.Sql.Compiler
       if (statements.Count == 0) {
         return string.Empty;
       }
-      var expectedLength = BatchBegin.Length + BatchEnd.Length +
-        statements.Sum(statement => statement.Length + BatchItemDelimiter.Length + NewLine.Length);
+      var expectedLength = BatchBegin.Length + BatchEnd.Length
+        + ((BatchItemDelimiter.Length + NewLine.Length) * statements.Count)
+        + statements.Sum(statement => statement.Length);
       var builder = new StringBuilder(expectedLength);
       _ = builder.Append(BatchBegin);
       foreach (var statement in statements) {
@@ -2457,7 +2457,7 @@ namespace Xtensive.Sql.Compiler
                 if (!flag.Value) {
                   _ = output.Append(ColumnDelimiter);
                 }
-                _ = output.Append("PARTITION ");
+                _ = output.Append(" PARTITION ");
                 TranslateIdentifier(output, p.DbName);
                 _ = output.Append(string.IsNullOrEmpty(p.Filegroup) ? "" : " TABLESPACE " + p.Filegroup);
               }
@@ -2467,7 +2467,7 @@ namespace Xtensive.Sql.Compiler
                 if (!flag.Value) {
                   _ = output.Append(ColumnDelimiter);
                 }
-                _ = output.Append("PARTITION ");
+                _ = output.Append(" PARTITION ");
                 TranslateIdentifier(output, p.DbName);
                 _ = output.AppendOpeningPunctuation(" VALUES (");
                 var flag2 = new TrueOnceBoolean();
@@ -2495,7 +2495,7 @@ namespace Xtensive.Sql.Compiler
                 if (!flag.Value) {
                   _ = output.Append(ColumnDelimiter);
                 }
-                _ = output.Append("PARTITION ");
+                _ = output.Append(" PARTITION ");
                 TranslateIdentifier(output, p.DbName);
                 _ = output.Append(" VALUES LESS THAN (");
 
