@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -19,6 +19,29 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 {
   internal class Compiler : v8_2.Compiler
   {
+    /// <inheritdoc/>
+    public override void Visit(SqlCreateIndex node)
+    {
+      if (!node.Index.IsFullText) {
+        base.Visit(node);
+        return;
+      }
+
+      AppendTranslatedEntry(node);
+      if (node.Index.Columns.Count > 0) {
+        AppendSpaceIfNecessary();
+        //columns declaration is done in translator
+        translator.Translate(context, node, CreateIndexSection.ColumnsEnter);
+        translator.Translate(context, node, CreateIndexSection.ColumnsExit);
+        AppendSpaceIfNecessary();
+      }
+
+      AppendTranslated(node, CreateIndexSection.StorageOptions);
+
+      AppendTranslatedExit(node);
+    }
+
+    /// <inheritdoc/>
     public override void Visit(SqlCreateIndex node, IndexColumn item)
     {
       if (!node.Index.IsFullText) {
@@ -27,7 +50,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
       // FullText builds expression instead of list of columns in Translate(SqlCompilerContext context, SqlCreateIndex node, CreateIndexSection section)
     }
 
-
+    /// <inheritdoc/>
     public override void Visit(SqlFreeTextTable node)
     {
       if (node.TargetColumns.Count != 1 || node.TargetColumns[0] != node.TargetTable.Asterisk) {
@@ -50,57 +73,53 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_3
 
       var queryName = translator.QuoteIdentifier("column" + internalColumnIndex);
 
-      context.Output.Append("(SELECT ");
+      var output = context.Output;
+      _ = output.Append("(SELECT ");
       for (var columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
         if (columnIndex != 0) {
-          context.Output.Append(translator.ColumnDelimiter);
+          _ = output.Append(translator.ColumnDelimiter);
         }
         translator.TranslateIdentifier(context.Output, node.Columns[columnIndex].Name);
       }
-      context.Output.Append(translator.ColumnDelimiter);
-      context.Output.Append("ts_rank_cd(");
-      context.Output.Append(vectorName);
-      context.Output.Append(translator.ArgumentDelimiter);
-      context.Output.Append(queryName);
-      context.Output.Append(") AS");
-      context.Output.Append(translator.QuoteIdentifier(node.Columns[node.Columns.Count - 1].Name));
-      context.Output.Append(" FROM (SELECT ");
+      _ = output.Append(translator.ColumnDelimiter)
+        .Append("ts_rank_cd(")
+        .Append(vectorName)
+        .Append(translator.ArgumentDelimiter)
+        .Append(queryName)
+        .Append(") AS ");
+      translator.TranslateIdentifier(output, node.Columns[node.Columns.Count - 1].Name);
+      _ = output.Append(" FROM (SELECT ");
       for (var columnIndex = 0; columnIndex < node.Columns.Count - 1; columnIndex++) {
         if (columnIndex != 0) {
-          context.Output.Append(translator.ColumnDelimiter);
+          _ = context.Output.Append(translator.ColumnDelimiter);
         }
-        context.Output.Append(translator.QuoteIdentifier(node.Columns[columnIndex].Name));
+        translator.TranslateIdentifier(context.Output, node.Columns[columnIndex].Name);
       }
-      context.Output.Append(translator.ColumnDelimiter);
-      context.Output.Append($"{vector} AS {vectorName}");
-      context.Output.Append(translator.ColumnDelimiter);
+      _ = output.Append(translator.ColumnDelimiter)
+        .Append($"{vector} AS {vectorName}")
+        .Append(translator.ColumnDelimiter);
 
       var languages = fullTextIndex
         .Columns
         .SelectMany(column => column.Languages)
         .Select(language => language.Name)
         .Distinct();
-      context.Output.Append("(");
+      _ = output.Append("(");
 
       var isFirst = true;
       foreach(var language in languages) {
         if (!isFirst) {
-          context.Output.Append(" || ");
+          _ = context.Output.Append(" || ");
         }
         isFirst = false;
 
-        context.Output.Append("to_tsquery('");
-        context.Output.Append(language);
-        context.Output.Append("'::regconfig, ");
-        context.Output.Append("replace(trim(regexp_replace(");
+        _ = output.Append("to_tsquery('")
+          .Append(language)
+          .Append("'::regconfig, replace(trim(regexp_replace(");
         node.FreeText.AcceptVisitor(this);
-        context.Output.Append(@",'\\W+', ' ', 'g')),' ', '|')");
-        context.Output.Append(")");
+        _ = output.Append(@",'\\W+', ' ', 'g')),' ', '|'))");
       }
-      context.Output.Append(")");
-
-      context.Output.Append($" AS {queryName}");
-      context.Output.Append($" FROM {tableName}) AS {alias} WHERE {vectorName} @@ {queryName})");
+      _ = context.Output.Append($") AS {queryName} FROM {tableName}) AS {alias} WHERE {vectorName} @@ {queryName})");
     }
 
     // Constructors
