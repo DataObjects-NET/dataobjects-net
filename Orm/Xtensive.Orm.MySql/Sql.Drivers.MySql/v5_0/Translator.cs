@@ -253,12 +253,14 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       switch (section) {
         case CreateIndexSection.Entry:
           var output = context.Output;
-          _ = output.Append("CREATE ");
           if (index.IsUnique) {
-            _ = output.Append("UNIQUE INDEX ");
+            _ = output.Append("CREATE UNIQUE INDEX ");
           }
           else if (index.IsFullText) {
-            _ = output.Append("FULLTEXT INDEX");
+            _ = output.Append("CREATE FULLTEXT INDEX");
+          }
+          else {
+            _ = output.Append("CREATE INDEX ");
           }
           TranslateIdentifier(output, index.Name);
           _ = output.Append(" USING BTREE ON ");
