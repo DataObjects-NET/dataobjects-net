@@ -7390,9 +7390,9 @@ namespace Xtensive {
             }
         }
 
-        internal static string UnsupportedDistinctBy {
+        internal static string ExUnsupportedDistinctBy {
             get {
-                return ResourceManager.GetString("UnsupportedDistinctBy", resourceCulture);
+                return ResourceManager.GetString("ExUnsupportedDistinctBy", resourceCulture);
             }
         }
     }
