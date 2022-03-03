@@ -44,7 +44,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     }
 
     /// <inheritdoc/>
-    public override void VisitSelectFrom(SqlSelect node)
+    protected override void VisitSelectFrom(SqlSelect node)
     {
       if (node.From != null) {
         base.VisitSelectFrom(node);

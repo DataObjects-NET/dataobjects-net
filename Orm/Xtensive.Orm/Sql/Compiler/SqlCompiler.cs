@@ -939,7 +939,7 @@ namespace Xtensive.Sql.Compiler
     /// Default visitor for <see cref="SqlDelete"/> statement parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public void VisitDeleteDefault(SqlDelete node)
+    protected void VisitDeleteDefault(SqlDelete node)
     {
       using (context.EnterScope(node)) {
         VisitDeleteEntry(node);
@@ -955,13 +955,13 @@ namespace Xtensive.Sql.Compiler
     /// Visits entry part of <see cref="SqlDelete"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitDeleteEntry(SqlDelete node) => AppendTranslatedEntry(node);
+    protected virtual void VisitDeleteEntry(SqlDelete node) => AppendTranslatedEntry(node);
 
     /// <summary>
     /// Visits DELETE part of <see cref="SqlDelete"/> statement.
     /// </summary>
     /// <param name="node">Stetement to visit.</param>
-    public virtual void VisitDeleteDelete(SqlDelete node)
+    protected virtual void VisitDeleteDelete(SqlDelete node)
     {
       if (node.Delete == null) {
         throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
@@ -976,7 +976,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits FROM part of <see cref="SqlDelete"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitDeleteFrom(SqlDelete node)
+    protected virtual void VisitDeleteFrom(SqlDelete node)
     {
       if (CheckFeature(QueryFeatures.DeleteFrom) && node.From != null) {
         AppendTranslated(node, DeleteSection.From);
@@ -988,7 +988,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits WHERE part of <see cref="SqlDelete"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitDeleteWhere(SqlDelete node)
+    protected virtual void VisitDeleteWhere(SqlDelete node)
     {
       if (!node.Where.IsNullReference()) {
         AppendTranslated(node, DeleteSection.Where);
@@ -1000,7 +1000,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits LIMIT part of <see cref="SqlDelete"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitDeleteLimit(SqlDelete node)
+    protected virtual void VisitDeleteLimit(SqlDelete node)
     {
       if (!node.Limit.IsNullReference()) {
         if (!CheckFeature(QueryFeatures.DeleteLimit)) {
@@ -1016,7 +1016,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits exit part of <see cref="SqlDelete"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitDeleteExit(SqlDelete node) => AppendTranslatedExit(node);
+    protected virtual void VisitDeleteExit(SqlDelete node) => AppendTranslatedExit(node);
 
     /// <summary>
     /// Visits <see cref="SqlDropAssertion"/> statement and translates its parts.
@@ -1519,7 +1519,7 @@ namespace Xtensive.Sql.Compiler
     /// Default visitor for <see cref="SqlSelect"/>.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public void VisitSelectDefault(SqlSelect node)
+    protected void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
         var comment = node.Comment;
@@ -1543,7 +1543,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits HINTS part of <see cref="SqlSelect"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectHints(SqlSelect node)
+    protected virtual void VisitSelectHints(SqlSelect node)
     {
       var hints = node.Hints;
       if (hints.Count == 0) {
@@ -1565,7 +1565,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits COLUMNS part of <see cref="SqlSelect"/> statement and translates its parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectColumns(SqlSelect node)
+    protected virtual void VisitSelectColumns(SqlSelect node)
     {
       if (node.Columns.Count == 0) {
         AppendSpaceIfNecessary();
@@ -1603,7 +1603,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits FROM part of <see cref="SqlSelect"/> statement and translates its parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectFrom(SqlSelect node)
+    protected virtual void VisitSelectFrom(SqlSelect node)
     {
       if (node.From == null) {
         return;
@@ -1644,7 +1644,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits WHERE part of <see cref="SqlSelect"/> statement and translates its parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectWhere(SqlSelect node)
+    protected virtual void VisitSelectWhere(SqlSelect node)
     {
       if (node.Where.IsNullReference()) {
         return;
@@ -1658,7 +1658,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits GROUP BY part of <see cref="SqlSelect"/> statement and translates its parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectGroupBy(SqlSelect node)
+    protected virtual void VisitSelectGroupBy(SqlSelect node)
     {
       if (node.GroupBy.Count <= 0) {
         return;
@@ -1689,7 +1689,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits ORDER BY part of <see cref="SqlSelect"/> statement and translates its parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectOrderBy(SqlSelect node)
+    protected virtual void VisitSelectOrderBy(SqlSelect node)
     {
       if (node.OrderBy.Count <= 0) {
         return;
@@ -1708,7 +1708,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits limits part of <see cref="SqlSelect"/> statement and translates its parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectLimitOffset(SqlSelect node)
+    protected virtual void VisitSelectLimitOffset(SqlSelect node)
     {
       if (!node.Limit.IsNullReference()) {
         AppendTranslated(node, SelectSection.Limit);
@@ -1726,7 +1726,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits LOCK part of <see cref="SqlSelect"/> statement and translates its parts.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitSelectLock(SqlSelect node)
+    protected virtual void VisitSelectLock(SqlSelect node)
     {
       if (node.Lock != SqlLockType.Empty) {
         _ = context.Output.Append(translator.Translate(node.Lock));
@@ -1832,7 +1832,7 @@ namespace Xtensive.Sql.Compiler
     /// Default visitor for <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public void VisitUpdateDefault(SqlUpdate node)
+    protected void VisitUpdateDefault(SqlUpdate node)
     {
       using (context.EnterScope(node)) {
         VisitUpdateEntry(node);
@@ -1849,7 +1849,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits entry part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitUpdateEntry(SqlUpdate node)
+    protected virtual void VisitUpdateEntry(SqlUpdate node)
     {
       translator.Translate(context, node, UpdateSection.Entry);
       AppendSpaceIfNecessary();
@@ -1859,7 +1859,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits UPDATE part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitUpdateUpdate(SqlUpdate node)
+    protected virtual void VisitUpdateUpdate(SqlUpdate node)
     {
       if (node.Update == null) {
         throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
@@ -1874,7 +1874,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits SET part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitUpdateSet(SqlUpdate node)
+    protected virtual void VisitUpdateSet(SqlUpdate node)
     {
       AppendTranslated(node, UpdateSection.Set);
 
@@ -1896,7 +1896,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits FROM part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitUpdateFrom(SqlUpdate node)
+    protected virtual void VisitUpdateFrom(SqlUpdate node)
     {
       if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateFrom) && node.From != null) {
         AppendTranslated(node, UpdateSection.From);
@@ -1908,7 +1908,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits WHERE part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitUpdateWhere(SqlUpdate node)
+    protected virtual void VisitUpdateWhere(SqlUpdate node)
     {
       if (!node.Where.IsNullReference()) {
         AppendTranslated(node, UpdateSection.Where);
@@ -1920,7 +1920,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits LIMIT part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitUpdateLimit(SqlUpdate node)
+    protected virtual void VisitUpdateLimit(SqlUpdate node)
     {
       if (!node.Limit.IsNullReference()) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit)) {
@@ -1936,7 +1936,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits end part of <see cref="SqlUpdate"/> statement.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
-    public virtual void VisitUpdateExit(SqlUpdate node)
+    protected virtual void VisitUpdateExit(SqlUpdate node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, UpdateSection.Exit);
@@ -2096,7 +2096,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be before statement.
     /// </summary>
     /// <param name="node">Expression to visit.</param>
-    public virtual void VisitCommentIfBefore(SqlComment node)
+    protected virtual void VisitCommentIfBefore(SqlComment node)
     {
       if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.BeforeStatement)
         return;
@@ -2108,7 +2108,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be within statement.
     /// </summary>
     /// <param name="node">Expression to visit.</param>
-    public virtual void VisitCommentIfWithin(SqlComment node)
+    protected virtual void VisitCommentIfWithin(SqlComment node)
     {
       if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.WithinStatement)
         return;
@@ -2121,7 +2121,7 @@ namespace Xtensive.Sql.Compiler
     /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be after statement.
     /// </summary>
     /// <param name="node">Expression to visit.</param>
-    public virtual void VisitCommentIfAfter(SqlComment node)
+    protected virtual void VisitCommentIfAfter(SqlComment node)
     {
       if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.AfterStatement)
         return;

@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       VisitSelectDefault(node);
     }
 
-    public override void VisitSelectLimitOffset(SqlSelect node)
+    protected override void VisitSelectLimitOffset(SqlSelect node)
     {
       // FETCH NEXT n ROWS ONLY does not work without OFFSET n ROWS
       // Provide zero offset if no offset was specified by user.

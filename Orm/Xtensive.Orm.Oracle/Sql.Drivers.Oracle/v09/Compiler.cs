@@ -164,7 +164,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    public override void VisitSelectFrom(SqlSelect node)
+    protected override void VisitSelectFrom(SqlSelect node)
     {
       if (node.From != null) {
         base.VisitSelectFrom(node);

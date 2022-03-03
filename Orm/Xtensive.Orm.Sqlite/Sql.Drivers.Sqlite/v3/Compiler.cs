@@ -256,7 +256,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     }
 
     /// <inheritdoc/>
-    public override void VisitSelectLimitOffset(SqlSelect node)
+    protected override void VisitSelectLimitOffset(SqlSelect node)
     {
       // SQLite requires limit to be present if offset it used,
       // luckily negatives value does the job.

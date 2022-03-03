@@ -188,7 +188,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     }
 
     /// <inheritdoc/>
-    public override void VisitSelectLimitOffset(SqlSelect node)
+    protected override void VisitSelectLimitOffset(SqlSelect node)
     {
       if (!node.Limit.IsNullReference()) {
         AppendTranslated(node, SelectSection.Limit);

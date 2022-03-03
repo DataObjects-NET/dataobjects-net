@@ -70,7 +70,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    public override void VisitUpdateLimit(SqlUpdate node)
+    protected override void VisitUpdateLimit(SqlUpdate node)
     {
       if (!node.Limit.IsNullReference()) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
@@ -95,7 +95,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    public override void VisitDeleteLimit(SqlDelete node)
+    protected override void VisitDeleteLimit(SqlDelete node)
     {
       if (!node.Limit.IsNullReference()) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteLimit))
@@ -107,7 +107,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    public override void VisitSelectLock(SqlSelect node)
+    protected override void VisitSelectLock(SqlSelect node)
     {
       return;
     }
