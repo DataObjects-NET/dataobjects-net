@@ -7389,5 +7389,11 @@ namespace Xtensive {
                 return ResourceManager.GetString("ZeroAssemblyVersion", resourceCulture);
             }
         }
+
+        internal static string ExUnsupportedDistinctBy {
+            get {
+                return ResourceManager.GetString("ExUnsupportedDistinctBy", resourceCulture);
+            }
+        }
     }
 }

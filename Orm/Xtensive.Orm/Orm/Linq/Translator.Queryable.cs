@@ -132,6 +132,8 @@ namespace Xtensive.Orm.Linq
             }
 
             break;
+          case QueryableMethodKind.DistinctBy:
+            throw new NotSupportedException(Strings.ExUnsupportedDistinctBy);
           case QueryableMethodKind.First:
           case QueryableMethodKind.FirstOrDefault:
           case QueryableMethodKind.Single:
