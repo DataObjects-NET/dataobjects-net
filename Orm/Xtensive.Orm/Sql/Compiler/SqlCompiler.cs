@@ -1813,6 +1813,10 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlMetadata"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlMetadata node)
     {
       node.Expression.AcceptVisitor(this);
