@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlAggregate"/> expression and translates its parts.
     /// </summary>
-    /// <param name="node">Expression to visit</param>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlAggregate node)
     {
       using (context.EnterScope(node)) {
@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlAlterDomain"/> statements and translates its parts.
     /// </summary>
-    /// <param name="node">Statement to translate.</param>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterDomain node)
     {
       using (context.EnterScope(node)) {
@@ -93,17 +93,17 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlAlterPartitionFunction"/> statement and translates its parts.
     /// </summary>
-    /// <param name="node">Statement to translate.</param>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterPartitionFunction node) => translator.Translate(context, node);
 
     /// <summary>
     /// Visits <see cref="SqlAlterPartitionScheme"/> statement and translates its parts.
     /// </summary>
-    /// <param name="node">Statement to translate.</param>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterPartitionScheme node) => translator.Translate(context, node);
 
     /// <summary>
-    /// Visits <see cref="SqlAlterPartitionScheme"/> node and translates its parts.
+    /// Visits <see cref="SqlFragment"/> node and translates its parts.
     /// </summary>
     /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlFragment node)
@@ -117,7 +117,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlAlterTable"/> statement and translates its parts.
     /// </summary>
-    /// <param name="node">Statement to translate.</param>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterTable node)
     {
       using (context.EnterScope(node)) {
@@ -199,7 +199,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlAlterSequence"/> statement and translates its parts.
     /// </summary>
-    /// <param name="node">Statement to visit</param>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterSequence node)
     {
       AppendTranslatedEntry(node);
@@ -360,7 +360,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlCase"/> expression and translates its parts.
     /// </summary>
-    /// <param name="node">Expression to translate.</param>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlCase node)
     {
       using (context.EnterScope(node)) {
@@ -393,7 +393,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlCast"/> expression and translates its parts.
     /// </summary>
-    /// <param name="node">Expression to translate.</param>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlCast node)
     {
       using (context.EnterScope(node)) {
@@ -918,7 +918,7 @@ namespace Xtensive.Sql.Compiler
     }
 
     /// <summary>
-    /// Visits <see cref="SqlAlterPartitionScheme"/> statement and translates it.
+    /// Visits <see cref="SqlDeclareVariable"/> statement and translates it.
     /// </summary>
     /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlDeclareVariable node) => AppendTranslated(node);
@@ -926,7 +926,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlDefaultValue"/> expression and translates it.
     /// </summary>
-    /// <param name="node">Expression to translate.</param>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlDefaultValue node) => AppendTranslated(node);
 
     /// <summary>
@@ -1079,7 +1079,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlDropTable"/> statement and translates its parts.
     /// </summary>
-    /// <param name="node">Statement to visit</param>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlDropTable node) => translator.Translate(context, node);
 
     /// <summary>
@@ -1097,7 +1097,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlFastFirstRowsHint"/> node and translates its parts.
     /// </summary>
-    /// <param name="node">Node to translate.</param>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlFastFirstRowsHint node)
     {
       // nothing
@@ -1485,7 +1485,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlRenameTable"/> statement and translates its parts.
     /// </summary>
-    /// <param name="node">Statement to visit</param>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlRenameTable node) => translator.Translate(context, node);
 
     /// <summary>
@@ -2095,7 +2095,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be before statement.
     /// </summary>
-    /// <param name="node">Expression to visit</param>
+    /// <param name="node">Expression to visit.</param>
     public virtual void VisitCommentIfBefore(SqlComment node)
     {
       if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.BeforeStatement)
@@ -2120,7 +2120,7 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be after statement.
     /// </summary>
-    /// <param name="node">Expression to visit</param>
+    /// <param name="node">Expression to visit.</param>
     public virtual void VisitCommentIfAfter(SqlComment node)
     {
       if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.AfterStatement)
