@@ -11,15 +11,17 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 {
   internal class Compiler : v09.Compiler
   {
+    protected const string OffsetPart = "TZoffset";
     protected const string UtcTimeZone = "+00:00";
+    protected const string ZeroTime = "'00:00:00.0000000'";
     protected const string SqlDateTypeName = "date";
     protected const string SqlDateTime2TypeName = "datetime2";
 
     protected static SqlUserFunctionCall DateAddNanosecond(SqlExpression date, SqlExpression nanoseconds) =>
-      SqlDml.FunctionCall("DATEADD", SqlDml.Native("NS"), nanoseconds, date);
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(NanosecondPart), nanoseconds, date);
 
     protected static SqlUserFunctionCall DateDiffNanosecond(SqlExpression date1, SqlExpression date2) =>
-      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("NS"), date1, date2);
+      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(NanosecondPart), date1, date2);
 
     protected override SqlExpression DateTimeTruncate(SqlExpression date) =>
       SqlDml.Cast(
@@ -144,7 +146,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 
     private static SqlExpression DateTimeOffsetTimeOfDay(SqlExpression dateTimeOffset) =>
       DateDiffMillisecond(
-        SqlDml.Native("'00:00:00.0000000'"),
+        SqlDml.Native(ZeroTime),
         SqlDml.Cast(dateTimeOffset, new SqlValueType("time")))
       * NanosecondsPerMillisecond;
 
@@ -158,7 +160,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       SqlDml.FunctionCall("SWITCHOFFSET", dateTimeOffset, offset);
 
     private static SqlUserFunctionCall DateTimeOffsetTimeZoneInMinutes(SqlExpression date) =>
-      SqlDml.FunctionCall("DATEPART", SqlDml.Native("TZoffset"), date);
+      SqlDml.FunctionCall("DATEPART", SqlDml.Native(OffsetPart), date);
 
     private static SqlExpression DateTimeOffsetToLocalTime(SqlExpression dateTimeOffset) =>
       Switchoffset(dateTimeOffset, DateTimeOffsetTimeZoneInMinutes(SqlDml.Native("SYSDATETIMEOFFSET()")));
@@ -170,7 +172,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
       SqlDml.FunctionCall("TODATETIMEOFFSET",
         dateTime,
         SqlDml.FunctionCall("DATEPART",
-          SqlDml.Native("TZoffset"),
+          SqlDml.Native(OffsetPart),
           SqlDml.Native("SYSDATETIMEOFFSET()")));
 
     #endregion

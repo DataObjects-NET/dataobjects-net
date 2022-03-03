@@ -18,6 +18,18 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 {
   internal class Compiler : SqlCompiler
   {
+    #region Date parts
+    protected const string NanosecondPart = "NS";
+    protected const string MillisecondPart = "MS";
+    protected const string SecondPart = "SECOND";
+    protected const string MinutePart = "MINUTE";
+    protected const string HourPart = "HOUR";
+    protected const string DayPart = "DAY";
+    protected const string MonthPart = "MONTH";
+    protected const string YearPart = "YEAR";
+    protected const string WeekdayPart = "WEEKDAY";
+    #endregion
+
     protected static readonly long NanosecondsPerDay = TimeSpan.FromDays(1).Ticks*100;
     protected static readonly long NanosecondsPerSecond = 1000000000;
     protected static readonly long NanosecondsPerMillisecond = 1000000;
@@ -423,64 +435,64 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     #region Static helpers
 
-    private static SqlCast CastToLong(SqlExpression arg)
+    protected static SqlCast CastToLong(SqlExpression arg)
     {
       return SqlDml.Cast(arg, SqlType.Int64);
     }
 
-    private static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
+    protected static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
     {
       return SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
     }
 
     protected static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)
     {
-      return SqlDml.FunctionCall("DATEPART", SqlDml.Native("WEEKDAY"), date);
+      return SqlDml.FunctionCall("DATEPART", SqlDml.Native(WeekdayPart), date);
     }
 
     protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
     {
-      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("DAY"), date1, date2);
+      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(DayPart), date1, date2);
     }
 
     protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
     {
-      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native("MS"), date1, date2);
+      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(MillisecondPart), date1, date2);
     }
 
     protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
     {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("YEAR"),years, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(YearPart),years, date);
     }
 
     protected static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months)
     {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MONTH"), months, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MonthPart), months, date);
     }
 
     protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
     {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("DAY"), days, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(DayPart), days, date);
     }
 
     protected static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours)
     {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("HOUR"), hours, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(HourPart), hours, date);
     }
 
     protected static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes)
     {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MINUTE"), minutes, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MinutePart), minutes, date);
     }
 
     protected static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds)
     {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("SECOND"), seconds, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(SecondPart), seconds, date);
     }
 
     protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
     {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native("MS"), milliseconds, date);
+      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
     }
 
     protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime)

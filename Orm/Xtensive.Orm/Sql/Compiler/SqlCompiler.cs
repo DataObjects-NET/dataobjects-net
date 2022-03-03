@@ -1813,6 +1813,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    public virtual void Visit(SqlMetadata node)
+    {
+      node.Expression.AcceptVisitor(this);
+    }
+
     /// <summary>
     /// Visits <see cref="SqlUpdate"/> statement and translates its parts.
     /// </summary>

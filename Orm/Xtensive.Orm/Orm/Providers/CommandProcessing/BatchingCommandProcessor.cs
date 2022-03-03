@@ -15,7 +15,7 @@ namespace Xtensive.Orm.Providers
   internal sealed class BatchingCommandProcessor : CommandProcessor, ISqlTaskProcessor
   {
     private readonly int batchSize;
-    private Queue<SqlTask> tasks = new Queue<SqlTask>();
+    private Queue<SqlTask> tasks;
 
     void ISqlTaskProcessor.ProcessTask(SqlLoadTask task, CommandProcessorContext context)
     {
@@ -290,7 +290,7 @@ namespace Xtensive.Orm.Providers
       }
       else {
         context.ProcessingTasks = tasks;
-        tasks = new Queue<SqlTask>();
+        tasks = new Queue<SqlTask>(batchSize);
       }
     }
 
@@ -328,6 +328,7 @@ namespace Xtensive.Orm.Providers
     {
       ArgumentValidator.EnsureArgumentIsGreaterThan(batchSize, 1, nameof(batchSize));
       this.batchSize = batchSize;
+      this.tasks = new Queue<SqlTask>(batchSize);
     }
   }
 }

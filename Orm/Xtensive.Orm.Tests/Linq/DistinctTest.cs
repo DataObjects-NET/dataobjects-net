@@ -399,5 +399,26 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.IsTrue(expected.SequenceEqual(result));
       Assert.Greater(result.ToList().Count, 0);
     }
+
+    [Test]
+    public void DistinctByBoolExpression()
+    {
+      var result = Session.Query.All<Invoice>().Select(c => c.Status == (InvoiceStatus) 1)
+        .Distinct()
+        .ToArray();
+
+      CollectionAssert.AreEquivalent(new[] {false, true}, result);
+    }
+
+    [Test]
+    public void DistinctByBoolExpressionComplex()
+    {
+      var result = Session.Query.All<Invoice>()
+        .Select(c => c.Status == (InvoiceStatus) 1 || c.Status == (InvoiceStatus) 2)
+        .Distinct()
+        .ToArray();
+
+      CollectionAssert.AreEquivalent(new[] {false, true}, result);
+    }
   }
 }

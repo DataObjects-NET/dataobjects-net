@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -6,6 +6,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
+using System.Threading.Tasks;
 using Xtensive.Orm.Providers;
 using Tuple = Xtensive.Tuples.Tuple;
 
@@ -17,16 +19,20 @@ namespace Xtensive.Orm.Rse.Providers
   [Serializable]
   public sealed class ExecutableRawProvider : ExecutableProvider<Providers.RawProvider>
   {
-    #region Cached properties
-
     private const string CachedSourceName = "CachedSource";
-
-    #endregion
 
     /// <inheritdoc/>
     protected internal override void OnBeforeEnumerate(EnumerationContext context)
     {
       base.OnBeforeEnumerate(context);
+      var parameterContext = ((Xtensive.Orm.Providers.EnumerationContext) context).ParameterContext;
+      SetValue(context, CachedSourceName, Origin.CompiledSource.Invoke(parameterContext));
+    }
+
+    /// <inheritdoc/>
+    protected internal override async Task OnBeforeEnumerateAsync(EnumerationContext context, CancellationToken token)
+    {
+      await base.OnBeforeEnumerateAsync(context, token).ConfigureAwait(false);
       var parameterContext = ((Xtensive.Orm.Providers.EnumerationContext) context).ParameterContext;
       SetValue(context, CachedSourceName, Origin.CompiledSource.Invoke(parameterContext));
     }
