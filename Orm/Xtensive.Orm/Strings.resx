@@ -2573,4 +2573,7 @@ Error: {1}</value>
   <data name="ExTagDoesNotSupportQueryProviderOfTypeX" xml:space="preserve">
     <value>'Tag' does not support query provider of type '{0}'.</value>
   </data>
+  <data name="ExUnsupportedDistinctBy" xml:space="preserve">
+    <value>IQueryable.DistinctBy() extension is not supported. Use '.AsEnumerable().DistinctBy()' instead.</value>
+  </data>
 </root>
