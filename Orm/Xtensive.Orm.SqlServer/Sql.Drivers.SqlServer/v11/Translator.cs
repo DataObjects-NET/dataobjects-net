@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012-2022 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -15,11 +15,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 {
   internal class Translator : v10.Translator
   {
-    public override void Translate(SqlCompilerContext context, SqlDropSequence node)
-    {
+    /// <inheritdoc/>
+    public override void Translate(SqlCompilerContext context, SqlDropSequence node) =>
       TranslateSequenceStatement(context, node.Sequence, "DROP");
-    }
 
+    /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlAlterSequence node, NodeSection section)
     {
       if (section == NodeSection.Entry) {
@@ -27,6 +27,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlCreateSequence node, NodeSection section)
     {
       if (section == NodeSection.Entry) {
@@ -34,6 +35,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
       switch (descriptor.Owner) {
@@ -48,21 +50,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
     }
 
+    /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlSelect node, SelectSection section)
     {
       var output = context.Output;
       switch (section) {
         case SelectSection.Limit:
-          output.Append("FETCH NEXT");
+          _ = output.Append("FETCH NEXT");
           break;
         case SelectSection.LimitEnd:
-          output.Append("ROWS ONLY");
+          _ = output.Append("ROWS ONLY");
           break;
         case SelectSection.Offset:
-          output.Append("OFFSET");
+          _ = output.Append("OFFSET");
           break;
         case SelectSection.OffsetEnd:
-          output.Append("ROWS");
+          _ = output.Append("ROWS");
           break;
         default:
           base.Translate(context, node, section);
@@ -78,7 +81,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       // but it's OK because we always use database qualified objects in all other statements.
 
       AddUseStatement(context, sequence.Schema.Catalog);
-      context.Output.Append(action)
+      _ = context.Output.Append(action)
         .Append(" SEQUENCE ");
       TranslateIdentifier(context.Output, sequence.Schema.Name, sequence.Name);
     }

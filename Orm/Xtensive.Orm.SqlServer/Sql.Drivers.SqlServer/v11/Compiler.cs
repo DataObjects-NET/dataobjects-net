@@ -1,4 +1,4 @@
-// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012-2022 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -11,24 +11,27 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
 {
   internal class Compiler : v10.Compiler
   {
-    public override void Visit(SqlSelect node)
-    {
-      VisitSelectDefault(node);
-    }
+    /// <inheritdoc/>
+    public override void Visit(SqlSelect node) => VisitSelectDefault(node);
 
+    /// <inheritdoc/>
     protected override void VisitSelectLimitOffset(SqlSelect node)
     {
       // FETCH NEXT n ROWS ONLY does not work without OFFSET n ROWS
       // Provide zero offset if no offset was specified by user.
 
-      if (!node.HasOffset && !node.HasLimit)
+      if (!node.HasOffset && !node.HasLimit) {
         return; // Nothing to process.
+      }
 
       AppendTranslated(node, SelectSection.Offset);
-      if (node.HasOffset)
+      if (node.HasOffset) {
         node.Offset.AcceptVisitor(this);
-      else
-        context.Output.Append("0 ");
+      }
+      else {
+        _ = context.Output.Append("0 ");
+      }
+
       AppendTranslated(node, SelectSection.OffsetEnd);
 
       if (node.HasLimit) {

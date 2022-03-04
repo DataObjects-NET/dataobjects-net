@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -37,6 +37,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     protected static readonly long MillisecondsPerSecond = 1000L;
     protected static readonly SqlExpression DateFirst = SqlDml.Native("@@DATEFIRST");
 
+    /// <inheritdoc/>
     public override void Visit(SqlSelect node)
     {
       using (context.EnterScope(node)) {
@@ -57,6 +58,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlUpdate node)
     {
       using (context.EnterScope(node)) {
@@ -70,18 +72,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
+    /// <inheritdoc/>
     protected override void VisitUpdateLimit(SqlUpdate node)
     {
       if (!node.Limit.IsNullReference()) {
-        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
+        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit)) {
           throw new NotSupportedException(Strings.ExStorageDoesNotSupportLimitationOfRowCountToUpdate);
+        }
+
         AppendTranslated(node, UpdateSection.Limit);
-        context.Output.Append("(");
+        _ = context.Output.Append("(");
         node.Limit.AcceptVisitor(this);
-        context.Output.Append(")");
+        _ = context.Output.Append(")");
       }
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlDelete node)
     {
       using (context.EnterScope(node)) {
@@ -95,18 +101,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
+    /// <inheritdoc/>
     protected override void VisitDeleteLimit(SqlDelete node)
     {
       if (!node.Limit.IsNullReference()) {
-        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteLimit))
+        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteLimit)) {
           throw new NotSupportedException(Strings.ExStorageDoesNotSupportLimitationOfRowCountToDelete);
+        }
+
         AppendTranslated(node, DeleteSection.Limit);
-        context.Output.Append("(");
+        _ = context.Output.Append("(");
         node.Limit.AcceptVisitor(this);
-        context.Output.Append(")");
+        _ = context.Output.Append(")");
       }
     }
 
+    /// <inheritdoc/>
     protected override void VisitSelectLock(SqlSelect node)
     {
       return;
@@ -115,13 +125,11 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <inheritdoc/>
     public override void Visit(SqlAlterTable node)
     {
-      var renameColumnAction = node.Action as SqlRenameColumn;
-      if (renameColumnAction!=null) {
+      if (node.Action is SqlRenameColumn renameColumnAction) {
         ((Translator) translator).Translate(context, renameColumnAction);
         return;
       }
-      var dropConstrainAction = node.Action as SqlDropConstraint;
-      if (dropConstrainAction!=null) {
+      if (node.Action is SqlDropConstraint dropConstrainAction) {
         if (dropConstrainAction.Constraint is DefaultConstraint) {
           var constraint = dropConstrainAction.Constraint as DefaultConstraint;
           if (constraint.NameIsStale) {
@@ -131,7 +139,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
             //we doesn't know real name of default constraint.
             //Because of this we should find name of constraint in system views.
             //And we able to drop default constraint after that.
-            ((Translator)translator).Translate(context, node, constraint);
+            ((Translator) translator).Translate(context, node, constraint);
             return;
           }
         }
@@ -143,75 +151,77 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override void Visit(SqlFunctionCall node)
     {
       switch (node.FunctionType) {
-      case SqlFunctionType.CharLength:
-        (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.PadLeft:
-      case SqlFunctionType.PadRight:
-        GenericPad(node).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.Round:
-        // Round should always be called with 2 arguments
-        if (node.Arguments.Count==1) {
+        case SqlFunctionType.CharLength:
+          (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.PadLeft:
+        case SqlFunctionType.PadRight:
+          GenericPad(node).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.Round:
+          // Round should always be called with 2 arguments
+          if (node.Arguments.Count == 1) {
+            Visit(SqlDml.FunctionCall(
+              translator.Translate(SqlFunctionType.Round),
+              node.Arguments[0],
+              SqlDml.Literal(0)));
+            return;
+          }
+          break;
+        case SqlFunctionType.Truncate:
+          // Truncate is implemented as round(arg, 0, 1) call in MSSQL.
+          // It's stupid, isn't it?
           Visit(SqlDml.FunctionCall(
             translator.Translate(SqlFunctionType.Round),
             node.Arguments[0],
-            SqlDml.Literal(0)));
+            SqlDml.Literal(0),
+            SqlDml.Literal(1)));
           return;
-        }
-        break;
-      case SqlFunctionType.Truncate:
-        // Truncate is implemented as round(arg, 0, 1) call in MSSQL.
-        // It's stupid, isn't it?
-        Visit(SqlDml.FunctionCall(
-          translator.Translate(SqlFunctionType.Round),
-          node.Arguments[0],
-          SqlDml.Literal(0),
-          SqlDml.Literal(1)));
-        return;
-      case SqlFunctionType.Substring:
-        if (node.Arguments.Count==2) {
-          node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
-          SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
-          node.Arguments.Add(len);
-          Visit(node);
-          return;
-        }
-        break;
-      case SqlFunctionType.IntervalToMilliseconds:
+        case SqlFunctionType.Substring:
+          if (node.Arguments.Count == 2) {
+            node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
+            SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
+            node.Arguments.Add(len);
+            Visit(node);
+            return;
+          }
+          break;
+        case SqlFunctionType.IntervalToMilliseconds:
           Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
           return;
-      case SqlFunctionType.IntervalConstruct:
-      case SqlFunctionType.IntervalToNanoseconds:
-        Visit(CastToLong(node.Arguments[0]));
-        return;
-      case SqlFunctionType.DateTimeAddMonths:
-        Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
-        return;
-      case SqlFunctionType.DateTimeAddYears:
-        Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
-        return;
-      case SqlFunctionType.DateTimeTruncate:
-        DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeConstruct:
-        Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-          node.Arguments[0] - 2001),
-          node.Arguments[1] - 1),
-          node.Arguments[2] - 1));
-        return;
-      case SqlFunctionType.DateTimeToStringIso:
-        Visit(DateTimeToStringIso(node.Arguments[0]));
-        return;
+        case SqlFunctionType.IntervalConstruct:
+        case SqlFunctionType.IntervalToNanoseconds:
+          Visit(CastToLong(node.Arguments[0]));
+          return;
+        case SqlFunctionType.DateTimeAddMonths:
+          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateTimeAddYears:
+          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateTimeTruncate:
+          DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeConstruct:
+          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
+            node.Arguments[0] - 2001),
+            node.Arguments[1] - 1),
+            node.Arguments[2] - 1));
+          return;
+        case SqlFunctionType.DateTimeToStringIso:
+          Visit(DateTimeToStringIso(node.Arguments[0]));
+          return;
       }
 
       base.Visit(node);
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlTrim node)
     {
-      if (node.TrimCharacters!=null && !node.TrimCharacters.All(_char => _char==' '))
+      if (node.TrimCharacters!=null && !node.TrimCharacters.All(_char => _char==' ')) {
         throw new NotSupportedException(Strings.ExSqlServerSupportsTrimmingOfSpaceCharactersOnly);
+      }
 
       using (context.EnterScope(node)) {
         AppendTranslated(node, TrimSection.Entry);
@@ -220,74 +230,159 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlExtract node)
     {
-      if (node.DateTimePart==SqlDateTimePart.DayOfWeek) {
+      if (node.DateTimePart == SqlDateTimePart.DayOfWeek) {
         Visit((DatePartWeekDay(node.Operand) + DateFirst + 6) % 7);
         return;
       }
+
       switch (node.IntervalPart) {
-      case SqlIntervalPart.Day:
-        Visit(CastToLong(node.Operand / NanosecondsPerDay));
-        return;
-      case SqlIntervalPart.Hour:
-        Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
-        return;
-      case SqlIntervalPart.Minute:
-        Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
-        return;
-      case SqlIntervalPart.Second:
-        Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
-        return;
-      case SqlIntervalPart.Millisecond:
-        Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
-        return;
-      case SqlIntervalPart.Nanosecond:
-        Visit(CastToLong(node.Operand));
-        return;
+        case SqlIntervalPart.Day:
+          Visit(CastToLong(node.Operand / NanosecondsPerDay));
+          return;
+        case SqlIntervalPart.Hour:
+          Visit(CastToLong(node.Operand / (60 * 60 * NanosecondsPerSecond)) % 24);
+          return;
+        case SqlIntervalPart.Minute:
+          Visit(CastToLong(node.Operand / (60 * NanosecondsPerSecond)) % 60);
+          return;
+        case SqlIntervalPart.Second:
+          Visit(CastToLong(node.Operand / NanosecondsPerSecond) % 60);
+          return;
+        case SqlIntervalPart.Millisecond:
+          Visit(CastToLong(node.Operand / NanosecondsPerMillisecond) % MillisecondsPerSecond);
+          return;
+        case SqlIntervalPart.Nanosecond:
+          Visit(CastToLong(node.Operand));
+          return;
       }
       base.Visit(node);
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlBinary node)
     {
       switch (node.NodeType) {
-      case SqlNodeType.DateTimePlusInterval:
-        DateTimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
-        return;
-      case SqlNodeType.DateTimeMinusDateTime:
-        DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
-        return;
-      case SqlNodeType.DateTimeMinusInterval:
-        DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
-        return;
-      default:
-        base.Visit(node);
-        return;
+        case SqlNodeType.DateTimePlusInterval:
+          DateTimeAddInterval(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.DateTimeMinusDateTime:
+          DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
+          return;
+        case SqlNodeType.DateTimeMinusInterval:
+          DateTimeAddInterval(node.Left, -node.Right).AcceptVisitor(this);
+          return;
+        default:
+          base.Visit(node);
+          return;
       }
     }
 
+    /// <inheritdoc/>
     public override void Visit(SqlRound node)
     {
       SqlExpression result;
       var shouldCastToDecimal = node.Type==TypeCode.Decimal;
       switch (node.Mode) {
-      case MidpointRounding.ToEven:
-        result = node.Length.IsNullReference()
-          ? BankersRound(node.Argument, shouldCastToDecimal)
-          : BankersRound(node.Argument, node.Length, shouldCastToDecimal);
-        break;
-      case MidpointRounding.AwayFromZero:
-        result = node.Length.IsNullReference()
-          ? RegularRound(node.Argument, shouldCastToDecimal)
-          : RegularRound(node.Argument, node.Length, shouldCastToDecimal);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException();
+        case MidpointRounding.ToEven:
+          result = node.Length.IsNullReference()
+            ? BankersRound(node.Argument, shouldCastToDecimal)
+            : BankersRound(node.Argument, node.Length, shouldCastToDecimal);
+          break;
+        case MidpointRounding.AwayFromZero:
+          result = node.Length.IsNullReference()
+            ? RegularRound(node.Argument, shouldCastToDecimal)
+            : RegularRound(node.Argument, node.Length, shouldCastToDecimal);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException();
       }
       result.AcceptVisitor(this);
     }
 
+    /// <inheritdoc/>
+    public override void Visit(SqlContainsTable node)
+    {
+      var output = context.Output;
+
+      _ = output.Append("CONTAINSTABLE(");
+      AppendTranslated(node.TargetTable.DataTable);
+      _ = output.Append(", ");
+
+      var targetColumns = node.TargetColumns;
+      if (targetColumns.Count == 1) {
+        TranslateSingleColumnName(targetColumns[0], node.Asterisk);
+      }
+      else {
+        _ = output.Append('(');
+        TranslateJoinedColumnNames(targetColumns);
+        _ = output.Append(')');
+      }
+
+      _ = output.Append(", ");
+      node.SearchCondition.AcceptVisitor(this);
+      if (node.TopNByRank!=null) {
+        _ = output.Append(", ");
+        node.TopNByRank.AcceptVisitor(this);
+      }
+      _ = output.Append(") ");
+    }
+
+    /// <inheritdoc/>
+    public override void Visit(SqlFreeTextTable node)
+    {
+      var output = context.Output;
+
+      _ = output.Append("FREETEXTTABLE(");
+      AppendTranslated(node.TargetTable.DataTable);
+      _ = output.Append(", ");
+
+      var targetColumns = node.TargetColumns;
+      if (targetColumns.Count == 1) {
+        TranslateSingleColumnName(targetColumns[0], node.Asterisk);
+      }
+      else {
+        TranslateJoinedColumnNames(targetColumns);
+      }
+
+      _ = output.Append(", ");
+      node.FreeText.AcceptVisitor(this);
+      if (node.TopNByRank != null) {
+        _ = context.Output.Append(", ");
+        node.TopNByRank.AcceptVisitor(this);
+      }
+      _ = output.Append(") ");
+    }
+
+    /// <inheritdoc/>
+    public override void Visit(SqlCreateIndex node, IndexColumn item)
+    {
+      base.Visit(node, item);
+
+      if (item.TypeColumn!=null) {
+        _ = context.Output.Append("TYPE COLUMN");
+        translator.TranslateIdentifier(context.Output, item.TypeColumn.Name);
+      }
+      switch (item.Languages.Count) {
+        case 0:
+          break;
+        case 1:
+          if (!string.IsNullOrEmpty(item.Languages[0].Name))
+            _ = context.Output.Append($"LANGUAGE '{item.Languages[0].Name}'");
+          break;
+        default:
+          throw new InvalidOperationException(string.Format(
+            Strings.ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY, item.Name, item.Index.Name));
+      }
+    }
+
+    /// <summary>
+    /// Creates expression that truncates time part for given datetime
+    /// </summary>
+    /// <param name="date">Date (datetime datetimeoffset) expression</param>
+    /// <returns>Result expression</returns>
     protected virtual SqlExpression DateTimeTruncate(SqlExpression date)
     {
       return DateAddMillisecond(DateAddSecond(DateAddMinute(DateAddHour(date,
@@ -297,17 +392,30 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         -SqlDml.Extract(SqlDateTimePart.Millisecond, date));
     }
 
+    /// <summary>
+    /// Creates expression that represents subtraction of two <see cref="DateTime"/> expressions.
+    /// </summary>
+    /// <param name="date1">First <see cref="DateTime"/> expression.</param>
+    /// <param name="date2">Second <see cref="DateTime"/> expression.</param>
+    /// <returns>Result expression.</returns>
+    /// <returns></returns>
     protected virtual SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2)
     {
       return CastToDecimal(DateDiffDay(date2, date1), 18, 0) * NanosecondsPerDay
-          + CastToDecimal(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1),18 , 0) * NanosecondsPerMillisecond;
+          + CastToDecimal(DateDiffMillisecond(DateAddDay(date2, DateDiffDay(date2, date1)), date1), 18, 0) * NanosecondsPerMillisecond;
     }
 
+    /// <summary>
+    /// Creates expression that represents addition <paramref name="interval"/> to the given <paramref name="date"/>.
+    /// </summary>
+    /// <param name="date">Date (datatime, datetimeoffset) expression.</param>
+    /// <param name="interval">Interval expression to add.</param>
+    /// <returns></returns>
     protected virtual SqlExpression DateTimeAddInterval(SqlExpression date, SqlExpression interval)
     {
-        return DateAddMillisecond(
-          DateAddDay(date, interval / NanosecondsPerDay),
-          (interval/NanosecondsPerMillisecond) % (MillisecondsPerDay));
+      return DateAddMillisecond(
+        DateAddDay(date, interval / NanosecondsPerDay),
+        (interval / NanosecondsPerMillisecond) % (MillisecondsPerDay));
     }
 
     private SqlExpression GenericPad(SqlFunctionCall node)
@@ -318,19 +426,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var paddingExpression = node.Arguments.Count > 2
         ? SqlDml.FunctionCall("REPLICATE", node.Arguments[2], requiredLength - actualLength)
         : SqlDml.FunctionCall("SPACE", requiredLength - actualLength);
-      SqlExpression resultExpression;
-      switch (node.FunctionType) {
-      case SqlFunctionType.PadLeft:
-        resultExpression = paddingExpression + operand;
-        break;
-      case SqlFunctionType.PadRight:
-        resultExpression = operand + paddingExpression;
-        break;
-      default:
-        throw new InvalidOperationException();
-      }
+      SqlExpression resultExpression = node.FunctionType switch {
+        SqlFunctionType.PadLeft => paddingExpression + operand,
+        SqlFunctionType.PadRight => operand + paddingExpression,
+        _ => throw new InvalidOperationException(),
+      };
       var result = SqlDml.Case();
-      result.Add(actualLength < requiredLength, resultExpression);
+      _ = result.Add(actualLength < requiredLength, resultExpression);
       result.Else = operand;
       return result;
     }
@@ -339,7 +441,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var output = context.Output;
       if (column == asterisk) {
-        output.Append(column.Name);
+        _ = output.Append(column.Name);
       }
       else {
         translator.TranslateIdentifier(output, column.Name);
@@ -355,150 +457,51 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           first = false;
         }
         else {
-          output.Append(", ");
+          _ = output.Append(", ");
         }
         translator.TranslateIdentifier(output, column.Name);
       }
     }
 
-    public override void Visit(SqlContainsTable node)
-    {
-      var output = context.Output;
-
-      output.Append("CONTAINSTABLE(");
-      AppendTranslated(node.TargetTable.DataTable);
-      output.Append(", ");
-
-      var targetColumns = node.TargetColumns;
-      if (targetColumns.Count == 1) {
-        TranslateSingleColumnName(targetColumns[0], node.Asterisk);
-      }
-      else {
-        output.Append('(');
-        TranslateJoinedColumnNames(targetColumns);
-        output.Append(')');
-      }
-
-
-      output.Append(", ");
-      node.SearchCondition.AcceptVisitor(this);
-      if (node.TopNByRank!=null) {
-        output.Append(", ");
-        node.TopNByRank.AcceptVisitor(this);
-      }
-      output.Append(") ");
-    }
-
-    public override void Visit(SqlFreeTextTable node)
-    {
-      var output = context.Output;
-
-      output.Append("FREETEXTTABLE(");
-      AppendTranslated(node.TargetTable.DataTable);
-      output.Append(", ");
-
-      var targetColumns = node.TargetColumns;
-      if (targetColumns.Count == 1) {
-        TranslateSingleColumnName(targetColumns[0], node.Asterisk);
-      }
-      else {
-        TranslateJoinedColumnNames(targetColumns);
-      }
-
-      output.Append(", ");
-      node.FreeText.AcceptVisitor(this);
-      if (node.TopNByRank != null) {
-        context.Output.Append(", ");
-        node.TopNByRank.AcceptVisitor(this);
-      }
-      output.Append(") ");
-    }
-
-    public override void Visit(SqlCreateIndex node, IndexColumn item)
-    {
-      base.Visit(node, item);
-
-      if (item.TypeColumn!=null)
-        context.Output.Append($"TYPE COLUMN {translator.QuoteIdentifier(item.TypeColumn.Name)} ");
-      switch (item.Languages.Count) {
-        case 0:
-          break;
-        case 1:
-          if (!string.IsNullOrEmpty(item.Languages[0].Name))
-            context.Output.Append($"LANGUAGE '{item.Languages[0].Name}'");
-          break;
-        default:
-          throw new InvalidOperationException(string.Format(
-            Strings.ExMultipleLanguagesNotSupportedForFulltextColumnXOfIndexY, item.Name, item.Index.Name));
-      }
-    }
-
     #region Static helpers
 
-    protected static SqlCast CastToLong(SqlExpression arg)
-    {
-      return SqlDml.Cast(arg, SqlType.Int64);
-    }
+    protected static SqlCast CastToLong(SqlExpression arg) => SqlDml.Cast(arg, SqlType.Int64);
 
-    protected static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale)
-    {
-      return SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
-    }
+    protected static SqlCast CastToDecimal(SqlExpression arg, short precision, short scale) =>
+      SqlDml.Cast(arg, SqlType.Decimal, precision, scale);
 
-    protected static SqlUserFunctionCall DatePartWeekDay(SqlExpression date)
-    {
-      return SqlDml.FunctionCall("DATEPART", SqlDml.Native(WeekdayPart), date);
-    }
+    protected static SqlUserFunctionCall DatePartWeekDay(SqlExpression date) =>
+      SqlDml.FunctionCall("DATEPART", SqlDml.Native(WeekdayPart), date);
 
-    protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2)
-    {
-      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(DayPart), date1, date2);
-    }
+    protected static SqlUserFunctionCall DateDiffDay(SqlExpression date1, SqlExpression date2) =>
+      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(DayPart), date1, date2);
 
-    protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2)
-    {
-      return SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(MillisecondPart), date1, date2);
-    }
+    protected static SqlUserFunctionCall DateDiffMillisecond(SqlExpression date1, SqlExpression date2) =>
+      SqlDml.FunctionCall("DATEDIFF", SqlDml.Native(MillisecondPart), date1, date2);
 
-    protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(YearPart),years, date);
-    }
+    protected static SqlUserFunctionCall DateAddYear(SqlExpression date, SqlExpression years) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(YearPart), years, date);
 
-    protected static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MonthPart), months, date);
-    }
+    protected static SqlUserFunctionCall DateAddMonth(SqlExpression date, SqlExpression months) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(MonthPart), months, date);
 
-    protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(DayPart), days, date);
-    }
+    protected static SqlUserFunctionCall DateAddDay(SqlExpression date, SqlExpression days) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(DayPart), days, date);
 
-    protected static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(HourPart), hours, date);
-    }
+    protected static SqlUserFunctionCall DateAddHour(SqlExpression date, SqlExpression hours) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(HourPart), hours, date);
 
-    protected static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MinutePart), minutes, date);
-    }
+    protected static SqlUserFunctionCall DateAddMinute(SqlExpression date, SqlExpression minutes) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(MinutePart), minutes, date);
 
-    protected static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(SecondPart), seconds, date);
-    }
+    protected static SqlUserFunctionCall DateAddSecond(SqlExpression date, SqlExpression seconds) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(SecondPart), seconds, date);
 
-    protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds)
-    {
-      return SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
-    }
+    protected static SqlUserFunctionCall DateAddMillisecond(SqlExpression date, SqlExpression milliseconds) =>
+      SqlDml.FunctionCall("DATEADD", SqlDml.Native(MillisecondPart), milliseconds, date);
 
-    protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime)
-    {
-      return SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));
-    }
+    protected static SqlUserFunctionCall DateTimeToStringIso(SqlExpression dateTime) =>
+      SqlDml.FunctionCall("CONVERT", SqlDml.Native("NVARCHAR(19)"), dateTime, SqlDml.Native("126"));
 
     private static SqlExpression BankersRound(SqlExpression value, bool shouldCastToDecimal)
     {
