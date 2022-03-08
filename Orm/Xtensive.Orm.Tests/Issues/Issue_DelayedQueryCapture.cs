@@ -12,7 +12,7 @@ using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.Issue0628_ExecuteFutureScalarError_Model;
+using Xtensive.Orm.Tests.Issues.Issue_DelayedQueryCapture_Model;
 
 namespace Xtensive.Orm.Tests.Issues
 {
