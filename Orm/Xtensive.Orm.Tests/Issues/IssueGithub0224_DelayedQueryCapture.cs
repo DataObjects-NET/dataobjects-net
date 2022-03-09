@@ -12,11 +12,11 @@ using System.Threading;
 using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Issues.Issue_DelayedQueryCapture_Model;
+using Xtensive.Orm.Tests.Issues.IssueGithub0224_DelayedQueryCapture_Model;
 
 namespace Xtensive.Orm.Tests.Issues
 {
-  namespace Issue_DelayedQueryCapture_Model
+  namespace IssueGithub0224_DelayedQueryCapture_Model
   {
     [HierarchyRoot]
     class Item : Entity
@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Tests.Issues
   }
 
   [Serializable]
-  public class Issue_DelayedQueryCapture : AutoBuildTest
+  public class IssueGithub0224_DelayedQueryCapture : AutoBuildTest
   {
     public class OtherService
     {
