@@ -192,6 +192,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     [Test]
     public void ExtractTimeOfDayTicksTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);
+
       ExecuteInsideSession(() => {
         RunTest<SingleDateTimeEntity>(c => c.DateTime.TimeOfDay.Ticks == FirstDateTime.TimeOfDay.Ticks);
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.TimeOfDay.Ticks < FirstDateTime.TimeOfDay.Ticks);

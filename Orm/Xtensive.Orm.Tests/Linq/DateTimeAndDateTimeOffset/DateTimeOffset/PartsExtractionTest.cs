@@ -192,6 +192,8 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
     [Test]
     public void ExtractTimeOfDayTicksTest()
     {
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);
+
       ExecuteInsideSession(() => {
         var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
         RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay.Ticks == firstDateTimeOffset.TimeOfDay.Ticks);
