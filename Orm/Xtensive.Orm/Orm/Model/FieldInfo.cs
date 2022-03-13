@@ -661,8 +661,8 @@ namespace Xtensive.Orm.Model
       Fields.UpdateState();
       if (column != null)
         column.UpdateState();
-      columns = new ColumnInfoCollection(this, "Columns");
-      GetColumns(columns);
+      columns?.Clear();           // To prevent event handler leak
+      columns = null;
 
       HasImmediateValidators = validators.Count > 0 && validators.Any(v => v.IsImmediate);
 
