@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2021 Xtensive LLC.
+// Copyright (C) 2016-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
@@ -186,6 +186,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
         RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.DayOfWeek == WrongDateTime.DayOfWeek);
         RunWrongTest<SingleDateTimeEntity>(c => c.MillisecondDateTime.DayOfWeek == WrongMillisecondDateTime.DayOfWeek);
         RunWrongTest<SingleDateTimeEntity>(c => c.NullableDateTime.Value.DayOfWeek == WrongDateTime.DayOfWeek);
+      });
+    }
+
+    [Test]
+    public void ExtractTimeOfDayTicksTest()
+    {
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);
+
+      ExecuteInsideSession(() => {
+        RunTest<SingleDateTimeEntity>(c => c.DateTime.TimeOfDay.Ticks == FirstDateTime.TimeOfDay.Ticks);
+        RunWrongTest<SingleDateTimeEntity>(c => c.DateTime.TimeOfDay.Ticks < FirstDateTime.TimeOfDay.Ticks);
       });
     }
   }
