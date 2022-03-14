@@ -234,14 +234,8 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Session OpenSession(SessionConfiguration configuration)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-
-      return OpenSessionInternal(configuration,
-        null,
-        configuration.Supports(SessionOptions.AutoActivation));
-    }
+    public Session OpenSession(SessionConfiguration configuration) =>
+      OpenSessionInternal(configuration, null, configuration.Supports(SessionOptions.AutoActivation));
 
     internal Session OpenSessionInternal(SessionConfiguration configuration, StorageNode storageNode, bool activate)
     {
@@ -350,7 +344,6 @@ namespace Xtensive.Orm
 
     internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, StorageNode storageNode, SessionScope sessionScope, CancellationToken cancellationToken)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
