@@ -1,0 +1,2 @@
+[main] NodeCollection supports different equality comparers for internal name index
+[oracle] Fixed scheme extraction for case-sensitive schema names
