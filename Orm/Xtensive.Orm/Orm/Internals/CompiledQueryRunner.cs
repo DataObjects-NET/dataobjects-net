@@ -209,7 +209,7 @@ namespace Xtensive.Orm.Internals
       var typeInfo = type.GetTypeInfo();
       if (typeInfo.IsGenericType) {
         var genericDef = typeInfo.GetGenericTypeDefinition();
-        return (genericDef == WellKnownTypes.NullableOfT || genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyList))
+        return (genericDef == WellKnownTypes.NullableOfT || genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT))
           && TypeIsSimple(typeInfo.GetGenericArguments()[0]);
       }
       else if (typeInfo.IsArray) {

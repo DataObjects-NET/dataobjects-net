@@ -74,7 +74,7 @@ namespace Xtensive.Reflection
 
     public static readonly Type ByteArray = typeof(byte[]);
     public static readonly Type ObjectArray = typeof(object[]);
-    public static readonly Type IReadOnlyList = typeof(IReadOnlyList<>);
+    public static readonly Type IReadOnlyListOfT = typeof(IReadOnlyList<>);
 
     public static readonly Type DefaultMemberAttribute = typeof(DefaultMemberAttribute);
   }
