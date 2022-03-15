@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Internals
 {
   internal class CompiledQueryRunner
   {
-    private static readonly Func<FieldInfo, bool> FieldIsSimple = fieldInfo => TypeIsSimple(fieldInfo.FieldType);
+    private static readonly Func<FieldInfo, bool> FieldIsSimple = fieldInfo => IsSimpleType(fieldInfo.FieldType);
 
     private readonly Domain domain;
     private readonly Session session;
@@ -204,16 +204,16 @@ namespace Xtensive.Orm.Internals
         || closureType.GetFields().All(FieldIsSimple);
     }
 
-    private static bool TypeIsSimple(Type type)
+    private static bool IsSimpleType(Type type)
     {
       var typeInfo = type.GetTypeInfo();
       if (typeInfo.IsGenericType) {
         var genericDef = typeInfo.GetGenericTypeDefinition();
         return (genericDef == WellKnownTypes.NullableOfT || genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT))
-          && TypeIsSimple(typeInfo.GetGenericArguments()[0]);
+          && IsSimpleType(typeInfo.GetGenericArguments()[0]);
       }
       else if (typeInfo.IsArray) {
-        return TypeIsSimple(typeInfo.GetElementType());
+        return IsSimpleType(typeInfo.GetElementType());
       }
       else {
         return typeInfo.IsPrimitive || typeInfo.IsEnum || type == WellKnownTypes.String || type == WellKnownTypes.Decimal;
