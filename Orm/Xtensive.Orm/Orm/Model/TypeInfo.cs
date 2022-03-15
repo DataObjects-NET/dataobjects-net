@@ -747,7 +747,7 @@ namespace Xtensive.Orm.Model
 
     private void CreateTupleDescriptor()
     {
-      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList();
+      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList(columns.Count);
       columns.Clear();                    // To prevent event handler leak
       columns.AddRange(orderedColumns);
       TupleDescriptor = TupleDescriptor.Create(
