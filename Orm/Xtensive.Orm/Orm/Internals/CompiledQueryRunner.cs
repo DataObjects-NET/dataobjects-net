@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Internals
         return null;
       });
 
-      return !closureType.Name.Contains("<>c__DisplayClass")            // 'DisplayClass' is generated class for captured objects
+      return !TypeHelper.IsClosure(closureType)
         || closureType.GetFields().All(FieldIsSimple);
     }
 
