@@ -36,12 +36,14 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlFunctionType functionType)
+    public override void Translate(IOutput output, SqlFunctionType functionType)
     {
-      return functionType switch {
-        SqlFunctionType.CurrentDateTimeOffset => "SYSDATETIMEOFFSET",
-        _ => base.Translate(functionType),
-      };
+      if (functionType == SqlFunctionType.CurrentDateTimeOffset) {
+        _ = output.Append("SYSDATETIMEOFFSET");
+      }
+      else {
+        base.Translate(output, functionType);
+      }
     }
 
     /// <inheritdoc/>

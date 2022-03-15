@@ -62,7 +62,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           SqlHelper.GenericPad(node).AcceptVisitor(this);
           return;
         case SqlFunctionType.Rand:
-          SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Rand)).AcceptVisitor(this);
+          SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.Rand)).AcceptVisitor(this);
           return;
         case SqlFunctionType.Square:
           SqlDml.Power(node.Arguments[0], 2).AcceptVisitor(this);
@@ -302,12 +302,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       using (context.EnterScope(node)) {
         AppendTranslated(node, ExtractSection.Entry);
-        var part = node.DateTimePart != SqlDateTimePart.Nothing
-          ? translator.Translate(node.DateTimePart)
-          : node.IntervalPart != SqlIntervalPart.Nothing
-            ? translator.Translate(node.IntervalPart)
-            : translator.Translate(node.DateTimeOffsetPart);
-        _ = context.Output.Append(part);
+        translator.Translate(context.Output, node.DateTimeOffsetPart);
         AppendTranslated(node, ExtractSection.From);
         node.Operand.AcceptVisitor(this);
         AppendTranslated(node, ExtractSection.Exit);

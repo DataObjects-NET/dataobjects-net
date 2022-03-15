@@ -1729,7 +1729,7 @@ namespace Xtensive.Sql.Compiler
     protected virtual void VisitSelectLock(SqlSelect node)
     {
       if (node.Lock != SqlLockType.Empty) {
-        _ = context.Output.Append(translator.Translate(node.Lock));
+        translator.Translate(context.Output, node.Lock);
         AppendSpaceIfNecessary();
       }
     }
@@ -1789,7 +1789,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslated(node, TrimSection.Entry);
-        _ = context.Output.Append(translator.Translate(node.TrimType));
+        translator.Translate(context.Output, node.TrimType);
         AppendSpaceIfNecessary();
         if (node.TrimCharacters != null) {
           AppendTranslatedLiteral(node.TrimCharacters);
@@ -2073,12 +2073,15 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslated(node, ExtractSection.Entry);
-        var part = node.DateTimePart != SqlDateTimePart.Nothing
-          ? translator.Translate(node.DateTimePart)
-          : node.IntervalPart != SqlIntervalPart.Nothing
-            ? translator.Translate(node.IntervalPart)
-            : translator.Translate(node.DateTimeOffsetPart);
-        _ = context.Output.Append(part);
+        if (node.DateTimePart!= SqlDateTimePart.Nothing) {
+          translator.Translate(context.Output, node.DateTimePart);
+        }
+        else if (node.IntervalPart!= SqlIntervalPart.Nothing) {
+          translator.Translate(context.Output, node.IntervalPart);
+        }
+        else {
+          translator.Translate(context.Output, node.DateTimeOffsetPart);
+        }
         AppendSpaceIfNecessary();
         AppendTranslated(node, ExtractSection.From);
         node.Operand.AcceptVisitor(this);
@@ -2856,7 +2859,7 @@ namespace Xtensive.Sql.Compiler
     {
       var expressions = node.Expressions;
       var numberOfExpressions = expressions.Count;
-      var delimiter = " " + translator.Translate(SqlNodeType.Or) + " ";
+      var delimiter = " " + translator.TranslateToString(SqlNodeType.Or) + " ";
       using (context.EnterCycleBodyScope(node.Id, delimiter)) {
         _ = context.Output.Append(translator.OpeningParenthesis);
         for (var i = 0; i < numberOfExpressions; i++) {

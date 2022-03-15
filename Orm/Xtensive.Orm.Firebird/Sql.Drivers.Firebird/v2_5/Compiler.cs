@@ -149,7 +149,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
           DateTimeSubtractDateTime(node.Left, node.Right).AcceptVisitor(this);
           return;
         case SqlNodeType.Modulo:
-          Visit(SqlDml.FunctionCall(translator.Translate(SqlNodeType.Modulo), node.Left, node.Right));
+          Visit(SqlDml.FunctionCall(translator.TranslateToString(SqlNodeType.Modulo), node.Left, node.Right));
           return;
         case SqlNodeType.BitAnd:
           BitAnd(node.Left, node.Right).AcceptVisitor(this);

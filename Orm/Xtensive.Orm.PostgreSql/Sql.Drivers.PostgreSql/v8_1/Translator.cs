@@ -38,12 +38,18 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
       }
     }
 
-    public override string Translate(SqlLockType lockType)
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlLockType lockType)
     {
       if (lockType.Supports(SqlLockType.SkipLocked)) {
-        return base.Translate(lockType);
+        base.Translate(output, lockType);
       }
-      return $"FOR {(lockType.Supports(SqlLockType.Shared) ? "SHARE" : "UPDATE")}{(lockType.Supports(SqlLockType.ThrowIfLocked) ? " NOWAIT" : "")}";
+      _ = lockType.Supports(SqlLockType.Shared)
+        ? output.Append("FOR SHARE")
+        : output.Append("FOR UPDATE");
+      if (lockType.Supports(SqlLockType.ThrowIfLocked)) {
+        _ = output.Append(" NOWAIT");
+      }
     }
 
     // Constructors

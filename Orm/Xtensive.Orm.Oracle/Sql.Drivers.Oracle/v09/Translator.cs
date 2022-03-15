@@ -325,26 +325,53 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlDateTimePart part)
+    public override void Translate(IOutput output, SqlDateTimePart dateTimePart)
     {
-      return part switch {
-        SqlDateTimePart.DayOfWeek or SqlDateTimePart.DayOfYear => throw new NotSupportedException(),
-        SqlDateTimePart.Millisecond => "SECOND",
-        _ => base.Translate(part),
-      };
+      switch (dateTimePart) {
+        case SqlDateTimePart.DayOfWeek:
+        case SqlDateTimePart.DayOfYear:
+          throw new NotSupportedException();
+        case SqlDateTimePart.Millisecond:
+          _ = output.Append("SECOND");
+          break;
+        default:
+          base.Translate(output, dateTimePart);
+          break;
+      }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlIntervalPart part)
+    public override void Translate(IOutput output, SqlIntervalPart part)
     {
-      return part switch {
-        SqlIntervalPart.Millisecond => "SECOND",
-        _ => base.Translate(part),
-      };
+      if (part == SqlIntervalPart.Millisecond) {
+        _ = output.Append("SECOND");
+      }
+      else {
+        base.Translate(output, part);
+      }
+
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlFunctionType type)
+    public override void Translate(IOutput output, SqlFunctionType type)
+    {
+      switch (type) {
+        case SqlFunctionType.Truncate:
+        case SqlFunctionType.DateTimeTruncate:
+          _ = output.Append("TRUNC");
+          break;
+        case SqlFunctionType.IntervalNegate: _ = output.Append("-1*"); break;
+        case SqlFunctionType.Substring: _ = output.Append("SUBSTR"); break;
+        case SqlFunctionType.Log: _ = output.Append("LN"); break;
+        case SqlFunctionType.Log10: _ = output.Append("LOG"); break;
+        case SqlFunctionType.Ceiling: _ = output.Append("CEIL"); break;
+        case SqlFunctionType.CurrentDateTimeOffset: _ = output.Append("CURRENT_TIMESTAMP"); break;
+        default: base.Translate(output, type); break;
+      }
+    }
+
+    /// <inheritdoc/>
+    public override string TranslateToString(SqlFunctionType type)
     {
       return type switch {
         SqlFunctionType.Truncate or SqlFunctionType.DateTimeTruncate => "TRUNC",
@@ -354,32 +381,40 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         SqlFunctionType.Log10 => "LOG",
         SqlFunctionType.Ceiling => "CEIL",
         SqlFunctionType.CurrentDateTimeOffset => "CURRENT_TIMESTAMP",
-        _ => base.Translate(type),
+        _ => base.TranslateToString(type),
       };
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlNodeType type)
+    public override void Translate(IOutput output, SqlNodeType type)
     {
-      return type switch {
-        SqlNodeType.DateTimeOffsetPlusInterval or SqlNodeType.DateTimePlusInterval => "+",
-        SqlNodeType.DateTimeOffsetMinusDateTimeOffset or
-          SqlNodeType.DateTimeOffsetMinusInterval or
-          SqlNodeType.DateTimeMinusInterval or
-          SqlNodeType.DateTimeMinusDateTime => "-",
-        SqlNodeType.Except => "MINUS",
-        _ => base.Translate(type),
+      switch (type) {
+        case SqlNodeType.DateTimeOffsetPlusInterval:
+        case SqlNodeType.DateTimePlusInterval:
+          _ = output.Append("+"); break;
+        case SqlNodeType.DateTimeOffsetMinusDateTimeOffset:
+        case SqlNodeType.DateTimeOffsetMinusInterval:
+        case SqlNodeType.DateTimeMinusInterval:
+        case SqlNodeType.DateTimeMinusDateTime:
+          _ = output.Append("-"); break;
+        case SqlNodeType.Except:
+          _ = output.Append("MINUS"); break;
+        default: base.Translate(output, type); break;
       };
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlLockType lockType)
+    public override void Translate(IOutput output, SqlLockType lockType)
     {
-      return lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked)
-        ? base.Translate(lockType)
-        : lockType.Supports(SqlLockType.ThrowIfLocked)
-          ? "FOR UPDATE NOWAIT"
-          : "FOR UPDATE";
+      if (lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked)) {
+        base.Translate(output, lockType);
+      }
+      else if (lockType.Supports(SqlLockType.ThrowIfLocked)) {
+        _ = output.Append("FOR UPDATE NOWAIT");
+      }
+      else {
+        _ = output.Append("FOR UPDATE");
+      }
     }
 
     // Constructors

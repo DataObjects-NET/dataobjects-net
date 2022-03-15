@@ -147,7 +147,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           Visit(SqlDml.Concat(exprs));
           return;
         case SqlFunctionType.CharLength:
-          SqlDml.FunctionCall(translator.Translate(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);
+          SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);
           //          SqlDml.CharLength(node.Arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.PadLeft:
@@ -155,7 +155,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlHelper.GenericPad(node).AcceptVisitor(this);
           return;
         case SqlFunctionType.Rand:
-          SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Rand)).AcceptVisitor(this);
+          SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.Rand)).AcceptVisitor(this);
           return;
         case SqlFunctionType.Square:
           SqlDml.Power(node.Arguments[0], 2).AcceptVisitor(this);

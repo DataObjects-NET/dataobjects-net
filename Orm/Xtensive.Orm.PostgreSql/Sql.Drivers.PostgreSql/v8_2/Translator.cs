@@ -25,13 +25,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlFunctionType type)
+    public override void Translate(IOutput output, SqlFunctionType type)
     {
-      return type switch {
+      switch(type) {
         //date
-        SqlFunctionType.CurrentDate => "date_trunc('day', clock_timestamp())",
-        SqlFunctionType.CurrentTimeStamp => "clock_timestamp()",
-        _ => base.Translate(type),
+        case SqlFunctionType.CurrentDate: _ = output.Append("date_trunc('day', clock_timestamp())"); break;
+        case SqlFunctionType.CurrentTimeStamp: _ = output.Append("clock_timestamp()"); break;
+        default: base.Translate(output, type); break;
       };
     }
 

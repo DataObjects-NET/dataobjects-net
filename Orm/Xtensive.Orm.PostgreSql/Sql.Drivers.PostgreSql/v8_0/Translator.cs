@@ -67,86 +67,115 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlFunctionType type)
+    public override void Translate(IOutput output, SqlFunctionType type)
     {
-      return type switch {
-        SqlFunctionType.SystemUser => string.Empty,
-        SqlFunctionType.User or SqlFunctionType.CurrentUser => "current_user",
-        SqlFunctionType.SessionUser => "session_user",
-        SqlFunctionType.NullIf => "nullif",
-        SqlFunctionType.Coalesce => "coalesce",
-        SqlFunctionType.BinaryLength => "length",
+      switch(type) {
+        case SqlFunctionType.SystemUser: return;
+        case SqlFunctionType.User:
+        case SqlFunctionType.CurrentUser:
+          _ = output.Append("current_user");
+          break;
+        case SqlFunctionType.SessionUser: _ = output.Append("session_user"); break;
+        case SqlFunctionType.NullIf: _ = output.Append("nullif"); break;
+        case SqlFunctionType.Coalesce: _ = output.Append("coalesce"); break;
+        case SqlFunctionType.BinaryLength: _ = output.Append("length"); break;
         //datetime/timespan
-        SqlFunctionType.CurrentDate => "date_trunc('day', current_timestamp)",
-        SqlFunctionType.CurrentTimeStamp => "current_timestamp",
-        SqlFunctionType.IntervalNegate => "-",
+        case SqlFunctionType.CurrentDate: _ = output.Append("date_trunc('day', current_timestamp)"); break;
+        case SqlFunctionType.CurrentTimeStamp: _ = output.Append("current_timestamp"); break;
+        case SqlFunctionType.IntervalNegate: _ = output.Append("-"); break;
         //string
-        SqlFunctionType.CharLength => "char_length",
-        SqlFunctionType.Lower => "lower",
-        SqlFunctionType.Position => "position",
-        SqlFunctionType.Substring => "substring",
-        SqlFunctionType.Upper => "upper",
-        SqlFunctionType.Concat => "textcat",
+        case SqlFunctionType.CharLength: _ = output.Append("char_length"); break;
+        case SqlFunctionType.Lower: _ = output.Append("lower"); break;
+        case SqlFunctionType.Position: _ = output.Append("position"); break;
+        case SqlFunctionType.Substring: _ = output.Append("substring"); break;
+        case SqlFunctionType.Upper: _ = output.Append("upper"); break;
+        case SqlFunctionType.Concat: _ = output.Append("textcat"); break;
         //math
-        SqlFunctionType.Abs => "abs",
-        SqlFunctionType.Acos => "acos",
-        SqlFunctionType.Asin => "asin",
-        SqlFunctionType.Atan => "atan",
-        SqlFunctionType.Atan2 => "atan2",
-        SqlFunctionType.Ceiling => "ceil",
-        SqlFunctionType.Cos => "cos",
-        SqlFunctionType.Cot => "cot",
-        SqlFunctionType.Degrees => "degrees",
-        SqlFunctionType.Exp => "exp",
-        SqlFunctionType.Floor => "floor",
-        SqlFunctionType.Log => "ln",
-        SqlFunctionType.Log10 => "log",
-        SqlFunctionType.Pi => "pi",
-        SqlFunctionType.Power => "power",
-        SqlFunctionType.Radians => "radians",
-        SqlFunctionType.Rand => "random",
-        SqlFunctionType.Round => "round",
-        SqlFunctionType.Truncate => "trunc",
-        SqlFunctionType.Sign => "sign",
-        SqlFunctionType.Sqrt => "sqrt",
-        SqlFunctionType.Tan => "tan",
-        _ => base.Translate(type),
+        case SqlFunctionType.Abs: _ = output.Append("abs"); break;
+        case SqlFunctionType.Acos: _ = output.Append("acos"); break;
+        case SqlFunctionType.Asin: _ = output.Append("asin"); break;
+        case SqlFunctionType.Atan: _ = output.Append("atan"); break;
+        case SqlFunctionType.Atan2: _ = output.Append("atan2"); break;
+        case SqlFunctionType.Ceiling: _ = output.Append("ceil"); break;
+        case SqlFunctionType.Cos: _ = output.Append("cos"); break;
+        case SqlFunctionType.Cot: _ = output.Append("cot"); break;
+        case SqlFunctionType.Degrees: _ = output.Append("degrees"); break;
+        case SqlFunctionType.Exp: _ = output.Append("exp"); break;
+        case SqlFunctionType.Floor: _ = output.Append("floor"); break;
+        case SqlFunctionType.Log: _ = output.Append("ln"); break;
+        case SqlFunctionType.Log10: _ = output.Append("log"); break;
+        case SqlFunctionType.Pi: _ = output.Append("pi"); break;
+        case SqlFunctionType.Power: _ = output.Append("power"); break;
+        case SqlFunctionType.Radians: _ = output.Append("radians"); break;
+        case SqlFunctionType.Rand: _ = output.Append("random"); break;
+        case SqlFunctionType.Round: _ = output.Append("round"); break;
+        case SqlFunctionType.Truncate: _ = output.Append("trunc"); break;
+        case SqlFunctionType.Sign: _ = output.Append("sign"); break;
+        case SqlFunctionType.Sqrt: _ = output.Append("sqrt"); break;
+        case SqlFunctionType.Tan: _ = output.Append("tan"); break;
+        default: base.Translate(output, type); break;
       };
     }
 
     /// <inheritdoc/>
-    public override string Translate(ReferentialAction action)
+    public override string TranslateToString(SqlFunctionType type)
     {
-      return action switch {
+      return type switch {
+        SqlFunctionType.User or SqlFunctionType.CurrentUser => "current_user",
+        //string
+        SqlFunctionType.CharLength => "char_length",
+        //math
+        SqlFunctionType.Abs => "abs",
+        SqlFunctionType.Rand => "random",
+        SqlFunctionType.Round => "round",
+        _ => base.TranslateToString(type),
+      };
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, ReferentialAction action)
+    {
+      _ = output.Append(action switch {
         ReferentialAction.Cascade => "CASCADE",
         ReferentialAction.NoAction => "NO ACTION",
         ReferentialAction.Restrict => "RESTRICT",
         ReferentialAction.SetDefault => "SET DEFAULT",
         ReferentialAction.SetNull => "SET NULL",
         _ => string.Empty,
+      });
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlNodeType type)
+    {
+      switch(type) {
+        case SqlNodeType.BitXor: _ = output.Append("#"); break;
+        case SqlNodeType.Modulo: _ = output.Append("%"); break;
+        case SqlNodeType.Overlaps: _ = output.Append("OVERLAPS"); break;
+        case SqlNodeType.DateTimePlusInterval: _ = output.Append("+"); break;
+        case SqlNodeType.DateTimeMinusInterval:
+        case SqlNodeType.DateTimeMinusDateTime:
+          _ = output.Append("-"); break;
+        default: base.Translate(output, type); break;
       };
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlNodeType type)
+    public override string TranslateToString(SqlNodeType type)
     {
       return type switch {
-        SqlNodeType.BitXor => "#",
         SqlNodeType.Modulo => "%",
-        SqlNodeType.Overlaps => "OVERLAPS",
-        SqlNodeType.DateTimePlusInterval => "+",
-        SqlNodeType.DateTimeMinusInterval or SqlNodeType.DateTimeMinusDateTime => "-",
-        _ => base.Translate(type),
+        _ => base.TranslateToString(type),
       };
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlMatchType mt)
+    public override void Translate(IOutput output, SqlMatchType mt)
     {
-      return mt switch {
+      _ = output.Append(mt switch {
         SqlMatchType.Full => "FULL",
         _ => "SIMPLE",
-      };
+      });
     }
 
     /// <inheritdoc/>
@@ -683,7 +712,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
             case SqlFunctionType.User:
             case SqlFunctionType.CurrentDate:
             case SqlFunctionType.CurrentTimeStamp:
-              _ = context.Output.Append(Translate(node.FunctionType));
+              Translate(context.Output, node.FunctionType);
               return;
           }
           break;
@@ -744,39 +773,40 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
     }
 
-    /// <inheritdoc/>
-    public override string Translate(SqlDateTimePart part)
+    public override void Translate(IOutput output, SqlDateTimePart part)
     {
-      return part switch {
-        SqlDateTimePart.Millisecond => "MILLISECONDS",
-        SqlDateTimePart.DayOfYear => "DOY",
-        SqlDateTimePart.DayOfWeek => "DOW",
-        _ => base.Translate(part),
-      };
+      switch (part) {
+        case SqlDateTimePart.Millisecond: _ = output.Append("MILLISECONDS"); break;
+        case SqlDateTimePart.DayOfYear: _ = output.Append("DOY"); break;
+        case SqlDateTimePart.DayOfWeek: _ = output.Append("DOW"); break;
+        default: base.Translate(output, part); break;
+      }
+    }
+
+    public override void Translate(IOutput output, SqlDateTimeOffsetPart part)
+    {
+      switch (part) {
+        case SqlDateTimeOffsetPart.Millisecond: _ = output.Append("MILLISECONDS"); break;
+        case SqlDateTimeOffsetPart.DayOfYear: _ = output.Append("DOY"); break;
+        case SqlDateTimeOffsetPart.DayOfWeek: _ = output.Append("DOW"); break;
+        case SqlDateTimeOffsetPart.Offset: _ = output.Append("TIMEZONE"); break;
+        case SqlDateTimeOffsetPart.TimeZoneHour: _ = output.Append("TIMEZONE_HOUR"); break;
+        case SqlDateTimeOffsetPart.TimeZoneMinute: _ = output.Append("TIMEZONE_MINUTE"); break;
+        default: base.Translate(output, part); break;
+      }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlDateTimeOffsetPart part)
+    public override void Translate(IOutput output, SqlLockType lockType)
     {
-      return part switch {
-        SqlDateTimeOffsetPart.Millisecond => "MILLISECONDS",
-        SqlDateTimeOffsetPart.DayOfYear => "DOY",
-        SqlDateTimeOffsetPart.DayOfWeek => "DOW",
-        SqlDateTimeOffsetPart.Offset => "TIMEZONE",
-        SqlDateTimeOffsetPart.TimeZoneHour => "TIMEZONE_HOUR",
-        SqlDateTimeOffsetPart.TimeZoneMinute => "TIMEZONE_MINUTE",
-        _ => base.Translate(part),
-      };
-    }
-
-    /// <inheritdoc/>
-    public override string Translate(SqlLockType lockType)
-    {
-      return lockType.Supports(SqlLockType.SkipLocked)
+      if (lockType.Supports(SqlLockType.SkipLocked)
         || lockType.Supports(SqlLockType.Shared)
-        || lockType.Supports(SqlLockType.ThrowIfLocked)
-        ? base.Translate(lockType)
-        : "FOR UPDATE";
+        || lockType.Supports(SqlLockType.ThrowIfLocked)) {
+        base.Translate(output, lockType);
+      }
+      else {
+        _ = output.Append("FOR UPDATE");
+      }
     }
 
     protected virtual string TranslateClrType(Type type)

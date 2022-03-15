@@ -114,9 +114,8 @@ namespace Xtensive.Sql.Compiler
       var output = context.Output;
       switch (section) {
         case NodeSection.Entry:
-          _= output.Append(Translate(node.NodeType))
-            .Append("(")
-            .Append(node.Distinct ? "DISTINCT" : string.Empty);
+          Translate(context.Output, node.NodeType);
+          _= output.Append(node.Distinct ? "(DISTINCT" : "(");
           break;
         case NodeSection.Exit:
           _ = output.AppendClosingPunctuation(")");
@@ -325,13 +324,16 @@ namespace Xtensive.Sql.Compiler
           _ = output.Append(")");
           if (constraint is ForeignKey fk) {
             if (fk.MatchType != SqlMatchType.None) {
-              _ = output.Append(" MATCH ").Append(Translate(fk.MatchType));
+              _ = output.Append(" MATCH ");
+              Translate(output, fk.MatchType);
             }
             if (fk.OnUpdate != ReferentialAction.NoAction) {
-              _ = output.Append(" ON UPDATE ").Append(Translate(fk.OnUpdate));
+              _ = output.Append(" ON UPDATE ");
+              Translate(output, fk.OnUpdate);
             }
             if (fk.OnDelete != ReferentialAction.NoAction) {
-              _ = output.Append(" ON DELETE ").Append(Translate(fk.OnDelete));
+              _ = output.Append(" ON DELETE ");
+              Translate(output, fk.OnDelete);
             }
           }
           if (constraint.IsDeferrable.HasValue) {
@@ -384,7 +386,7 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case BetweenSection.Between:
-          _ = context.Output.Append(Translate(node.NodeType));
+          Translate(context.Output, node.NodeType);
           break;
         case BetweenSection.And:
           _ = context.Output.Append("AND");
@@ -1279,18 +1281,16 @@ namespace Xtensive.Sql.Compiler
             case SqlFunctionType.SessionUser:
             case SqlFunctionType.SystemUser:
             case SqlFunctionType.User:
-              _ = output.Append(Translate(node.FunctionType));
+              Translate(output, node.FunctionType);
               break;
             case SqlFunctionType.Position when Driver.ServerInfo.StringIndexingBase > 0:
-              _ = output.Append("(").Append(Translate(node.FunctionType)).Append("(");
+              _ = output.Append("(");
+              Translate(output, node.FunctionType);
+              _ = output.Append("(");
               break;
             default:
-              if (node.Arguments.Count == 0) {
-                _ = output.Append(Translate(node.FunctionType)).Append("()");
-              }
-              else {
-                _ = output.Append(Translate(node.FunctionType)).Append("(");
-              }
+              Translate(output, node.FunctionType);
+              _ = output.Append(node.Arguments.Count == 0 ? "()" : "(");
               break;
           }
           break;
@@ -1428,8 +1428,8 @@ namespace Xtensive.Sql.Compiler
           if (isNatural) {
             _ = output.Append("NATURAL ");
           }
-          _ = output.Append(Translate(node.JoinType))
-            .Append(" JOIN");
+          Translate(output, node.JoinType);
+          _ = output.Append(" JOIN");
           break;
         case JoinSection.Condition:
           _ = output.Append(node.JoinType == SqlJoinType.UsingJoin ? "USING" : "ON");
@@ -1524,11 +1524,12 @@ namespace Xtensive.Sql.Compiler
     {
       switch (section) {
         case MatchSection.Specification:
-          _ = context.Output.Append(" MATCH ");
+          var output = context.Output;
+          _ = output.Append(" MATCH ");
           if (node.Unique) {
-            _ = context.Output.Append("UNIQUE ");
+            _ = output.Append("UNIQUE ");
           }
-          _ = context.Output.Append(Translate(node.MatchType));
+          Translate(output, node.MatchType);
           break;
       }
     }
@@ -1804,12 +1805,13 @@ namespace Xtensive.Sql.Compiler
             _ = output.AppendOpeningPunctuation("(");
           }
           if (!isNullCheck) {
-            _ = output.Append(Translate(node.NodeType));
+            Translate(output, node.NodeType);
           }
           break;
         case NodeSection.Exit:
           if (isNullCheck) {
-            _ = output.Append(Translate(node.NodeType));
+            _ = output.AppendSpaceIfNecessary();
+            Translate(output, node.NodeType);
           }
 
           if (!omitParenthesis) {
@@ -1964,13 +1966,9 @@ namespace Xtensive.Sql.Compiler
 
     #region Enums and other types that require translation to string
 
-    /// <summary>
-    /// Translates <see cref="SqlNodeType"/>.
-    /// </summary>
-    /// <param name="type">Enum value to translate.</param>
-    /// <returns>SQL variant of node</returns>
-    public virtual string Translate(SqlNodeType type) =>
-      type switch {
+    public virtual void Translate(IOutput output, SqlNodeType type)
+    {
+      _ = output.Append(type switch {
         SqlNodeType.All => "ALL",
         SqlNodeType.Any => "ANY",
         SqlNodeType.Some => "SOME",
@@ -2012,15 +2010,31 @@ namespace Xtensive.Sql.Compiler
         SqlNodeType.Overlaps => "OVERLAPS",
         SqlNodeType.RawConcat => string.Empty,
         _ => throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlNodeType"/>.
+    /// </summary>
+    /// <param name="type">Enum value to translate.</param>
+    /// <returns>SQL variant of node</returns>
+    public virtual string TranslateToString(SqlNodeType type) =>
+      // only two nodes need to be traslated to string
+      type switch {
+        SqlNodeType.Or => "OR",
+        SqlNodeType.Modulo => "%",
+        _ => throw new NotSupportedException(string.Format(Strings.ExOperationXIsNotSupported, type))
       };
 
     /// <summary>
-    /// Translates <see cref="SqlJoinType"/>.
+    /// Translates <see cref="SqlJoinType"/> and writes the result to the <paramref name="output"/>.
     /// </summary>
+    /// <param name="output">The output to write to.</param>
     /// <param name="type">Enum value to translate.</param>
     /// <returns>SQL variant of join type.</returns>
-    public virtual string Translate(SqlJoinType type) =>
-      type switch {
+    public virtual void Translate(IOutput output, SqlJoinType type)
+    {
+      _ = output.Append(type switch {
         SqlJoinType.CrossJoin => "CROSS",
         SqlJoinType.FullOuterJoin => "FULL OUTER",
         SqlJoinType.InnerJoin => "INNER",
@@ -2029,32 +2043,27 @@ namespace Xtensive.Sql.Compiler
         SqlJoinType.RightOuterJoin => "RIGHT OUTER",
         SqlJoinType.CrossApply or SqlJoinType.LeftOuterApply => throw SqlHelper.NotSupported(QueryFeatures.CrossApply),
         _ => string.Empty
-      };
+      });
+    }
 
-    /// <summary>
-    /// Translates <see cref="SqlMatchType"/>.
-    /// </summary>
-    /// <param name="type">Enum value to translate.</param>
-    /// <returns>SQL variant of match type.</returns>
-    public virtual string Translate(SqlMatchType type) =>
-      type switch {
+    public virtual void Translate(IOutput output, SqlMatchType type)
+    {
+      _ = output.Append(type switch {
         SqlMatchType.Full => "FULL",
         SqlMatchType.Partial => "PARTIAL",
         _ => string.Empty
-      };
+      });
+    }
 
-    /// <summary>
-    /// Translates <see cref="ReferentialAction"/>.
-    /// </summary>
-    /// <param name="action">Enum value to translate.</param>
-    /// <returns>SQL variant of referential action.</returns>
-    public virtual string Translate(ReferentialAction action) =>
-      action switch {
+    public virtual void Translate(IOutput output, ReferentialAction action)
+    {
+      _ = output.Append(action switch {
         ReferentialAction.Cascade => "CASCADE",
         ReferentialAction.SetDefault => "SET DEFAULT",
         ReferentialAction.SetNull => "SET NULL",
-        _ => string.Empty
-      };
+        _ => string.Empty,
+      });
+    }
 
     /// <summary>
     /// Translates <see cref="SqlValueType"/>.
@@ -2088,12 +2097,13 @@ namespace Xtensive.Sql.Compiler
     }
 
     /// <summary>
-    /// Translates <see cref="SqlFunctionType"/>.
+    /// Translates <see cref="SqlFunctionType"/> and writes the result to the <paramref name="output"/>.
     /// </summary>
+    /// <param name="output">The output to write to.</param>
     /// <param name="type">Enum value to translate.</param>
-    /// <returns>SQL variant of function.</returns>
-    public virtual string Translate(SqlFunctionType type) =>
-      type switch {
+    public virtual void Translate(IOutput output, SqlFunctionType type)
+    {
+      _ = output.Append(type switch {
         SqlFunctionType.CharLength or SqlFunctionType.BinaryLength => "LENGTH",
         SqlFunctionType.Concat => "CONCAT",
         SqlFunctionType.CurrentDate => "CURRENT_DATE",
@@ -2134,28 +2144,82 @@ namespace Xtensive.Sql.Compiler
         SqlFunctionType.SystemUser => "SYSTEM_USER",
         SqlFunctionType.Tan => "TAN",
         _ => throw new NotSupportedException(string.Format(Strings.ExFunctionXIsNotSupported, type))
+      });
+    }
+
+    /// <summary>
+    /// Translates <see cref="SqlFunctionType"/>.
+    /// </summary>
+    /// <param name="type">Enum value to translate.</param>
+    /// <returns>SQL variant of function.</returns>
+    public virtual string TranslateToString(SqlFunctionType type) =>
+      // most of the cases aren't in use, commented to keep the full list
+      type switch {
+        SqlFunctionType.CharLength or SqlFunctionType.BinaryLength => "LENGTH",
+        //SqlFunctionType.Concat => "CONCAT",
+        //SqlFunctionType.CurrentDate => "CURRENT_DATE",
+        //SqlFunctionType.CurrentTime => "CURRENT_TIME",
+        //SqlFunctionType.CurrentTimeStamp => "CURRENT_TIMESTAMP",
+        //SqlFunctionType.Lower => "LOWER",
+        //SqlFunctionType.Position => "POSITION",
+        //SqlFunctionType.Substring => "SUBSTRING",
+        //SqlFunctionType.Upper => "UPPER",
+        SqlFunctionType.Abs => "ABS",
+        //SqlFunctionType.Acos => "ACOS",
+        //SqlFunctionType.Asin => "ASIN",
+        //SqlFunctionType.Atan => "ATAN",
+        //SqlFunctionType.Atan2 => "ATAN2",
+        //SqlFunctionType.Ceiling => "CEILING",
+        //SqlFunctionType.Coalesce => "COALESCE",
+        //SqlFunctionType.Cos => "COS",
+        //SqlFunctionType.Cot => "COT",
+        SqlFunctionType.CurrentUser => "CURRENT_USER",
+        //SqlFunctionType.Degrees => "DEGREES",
+        //SqlFunctionType.Exp => "EXP",
+        //SqlFunctionType.Floor => "FLOOR",
+        //SqlFunctionType.Log => "LOG",
+        //SqlFunctionType.Log10 => "LOG10",
+        //SqlFunctionType.NullIf => "NULLIF",
+        //SqlFunctionType.Pi => "PI",
+        //SqlFunctionType.Power => "POWER",
+        //SqlFunctionType.Radians => "RADIANS",
+        SqlFunctionType.Rand => "RAND",
+        //SqlFunctionType.Replace => "REPLACE",
+        SqlFunctionType.Round => "ROUND",
+        //SqlFunctionType.Truncate => "TRUNCATE",
+        SqlFunctionType.SessionUser => "SESSION_USER",
+        //SqlFunctionType.Sign => "SIGN",
+        //SqlFunctionType.Sin => "SIN",
+        //SqlFunctionType.Sqrt => "SQRT",
+        //SqlFunctionType.Square => "SQUARE",
+        SqlFunctionType.SystemUser => "SYSTEM_USER",
+        //SqlFunctionType.Tan => "TAN",
+        _ => throw new NotSupportedException(string.Format(Strings.ExFunctionXIsNotSupported, type))
       };
 
     /// <summary>
-    /// Translates <see cref="SqlTrimType"/>.
+    /// Translates <see cref="SqlTrimType"/> and writes the result to the <paramref name="output"/>.
     /// </summary>
+    /// <param name="output">The output to write to.</param>
     /// <param name="type">Enum value to translate.</param>
-    /// <returns>SQL variant of trim type.</returns>
-    public virtual string Translate(SqlTrimType type) =>
-      type switch {
+    public virtual void Translate(IOutput output, SqlTrimType type)
+    {
+      _ = output.Append(type switch {
         SqlTrimType.Leading => "LEADING",
         SqlTrimType.Trailing => "TRAILING",
         SqlTrimType.Both => "BOTH",
         _ => string.Empty
-      };
+      });
+    }
 
     /// <summary>
-    /// Translates <see cref="SqlDateTimePart"/>.
+    /// Translates <see cref="SqlDateTimePart"/> writes the result to the <paramref name="output"/>.
     /// </summary>
+    /// <param name="output">The output to write to.</param>
     /// <param name="dateTimePart">Enum value to translate.</param>
-    /// <returns>SQL variant of DateTime part.</returns>
-    public virtual string Translate(SqlDateTimePart dateTimePart) =>
-      dateTimePart switch {
+    public virtual void Translate(IOutput output, SqlDateTimePart dateTimePart)
+    {
+      _ = output.Append(dateTimePart switch {
         SqlDateTimePart.Year => "YEAR",
         SqlDateTimePart.Month => "MONTH",
         SqlDateTimePart.Day => "DAY",
@@ -2168,16 +2232,18 @@ namespace Xtensive.Sql.Compiler
         SqlDateTimePart.TimeZoneMinute => "TIMEZONE_MINUTE",
         SqlDateTimePart.DayOfYear => "DAYOFYEAR",
         SqlDateTimePart.DayOfWeek => "DAYOFWEEK",
-        _ => throw new ArgumentOutOfRangeException("dateTimePart")
-      };
+        _ => throw new ArgumentOutOfRangeException(nameof(dateTimePart))
+      });
+    }
 
     /// <summary>
-    /// Translates <see cref="SqlDateTimeOffsetPart"/>.
+    /// Translates <see cref="SqlDateTimeOffsetPart"/> and writes result to the <paramref name="output"/>.
     /// </summary>
+    /// <param name="output">The output to write to.</param>
     /// <param name="dateTimeOffsetPart">Enum value to translate.</param>
-    /// <returns>SQL variant of DateTimeOffset part.</returns>
-    public virtual string Translate(SqlDateTimeOffsetPart dateTimeOffsetPart) =>
-      dateTimeOffsetPart switch {
+    public virtual void Translate(IOutput output, SqlDateTimeOffsetPart dateTimeOffsetPart)
+    {
+      _ = output.Append(dateTimeOffsetPart switch {
         SqlDateTimeOffsetPart.Year => "YEAR",
         SqlDateTimeOffsetPart.Month => "MONTH",
         SqlDateTimeOffsetPart.Day => "DAY",
@@ -2191,30 +2257,34 @@ namespace Xtensive.Sql.Compiler
         SqlDateTimeOffsetPart.DayOfYear => "DAYOFYEAR",
         SqlDateTimeOffsetPart.DayOfWeek => "WEEKDAY",
         _ => throw new ArgumentOutOfRangeException(nameof(dateTimeOffsetPart))
-      };
+      });
+    }
 
     /// <summary>
-    /// Translates <see cref="SqlIntervalPart"/>.
+    /// Translates <see cref="SqlIntervalPart"/> and writes result to the <paramref name="output"/>.
     /// </summary>
+    /// <param name="output">The output to write to.</param>
     /// <param name="intervalPart">Enum value to translate.</param>
-    /// <returns>SQL variant of interval part.</returns>
-    public virtual string Translate(SqlIntervalPart intervalPart) =>
-      intervalPart switch {
+    public virtual void Translate(IOutput output, SqlIntervalPart intervalPart)
+    {
+      _ = output.Append(intervalPart switch {
         SqlIntervalPart.Day => "DAY",
         SqlIntervalPart.Hour => "HOUR",
         SqlIntervalPart.Minute => "MINUTE",
         SqlIntervalPart.Second => "SECOND",
         SqlIntervalPart.Millisecond => "MILLISECOND",
         SqlIntervalPart.Nanosecond => "NANOSECOND",
-        _ => throw new ArgumentOutOfRangeException("intervalPart")
-      };
+        _ => throw new ArgumentOutOfRangeException(nameof(intervalPart))
+      });
+    }
 
     /// <summary>
-    /// Translates <see cref="SqlLockType"/>.
+    /// Translates <see cref="SqlLockType"/> and writes the result to the <paramref name="output"/>.
     /// </summary>
+    /// <param name="output">The output to write to.</param>
     /// <param name="lockType">Enum value to translate.</param>
     /// <returns>SQL variant of lock.</returns>
-    public virtual string Translate(SqlLockType lockType)
+    public virtual void Translate(IOutput output, SqlLockType lockType)
     {
       throw new NotSupportedException(string.Format(Strings.ExLockXIsNotSupported, lockType.ToString(true)));
     }

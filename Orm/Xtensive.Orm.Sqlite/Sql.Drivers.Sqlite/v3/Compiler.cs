@@ -144,7 +144,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         case SqlFunctionType.Round:
           // Round should always be called with 2 arguments
           if (node.Arguments.Count == 1) {
-            Visit(SqlDml.FunctionCall(translator.Translate(SqlFunctionType.Round), node.Arguments[0], SqlDml.Literal(0)));
+            Visit(SqlDml.FunctionCall(translator.TranslateToString(SqlFunctionType.Round), node.Arguments[0], SqlDml.Literal(0)));
             return;
           }
           break;
@@ -244,11 +244,13 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override void Visit(SqlTrim node)
     {
       using (context.EnterScope(node)) {
+        var output = context.Output;
+
         AppendTranslated(node, TrimSection.Entry);
-        _ = context.Output.Append(translator.Translate(node.TrimType));
+        translator.Translate(output, node.TrimType);
         node.Expression.AcceptVisitor(this);
         if (node.TrimCharacters!=null) {
-          _ = context.Output.Append(",");
+          _ = output.Append(",");
           AppendTranslatedLiteral(node.TrimCharacters);
         }
         AppendTranslated(node, TrimSection.Exit);

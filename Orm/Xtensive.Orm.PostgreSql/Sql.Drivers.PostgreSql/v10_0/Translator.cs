@@ -33,7 +33,8 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v10_0
                 return;
             }
           }
-          _ = output.Append(Translate(node.JoinType)).Append(" JOIN");
+          Translate(output, node.JoinType);
+          _ = output.Append(" JOIN");
           break;
         }
         case JoinSection.Exit: {

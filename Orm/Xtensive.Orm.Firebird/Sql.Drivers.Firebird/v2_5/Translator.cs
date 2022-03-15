@@ -114,41 +114,75 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlNodeType type)
+    public override void Translate(IOutput output, SqlNodeType type)
     {
-      return type switch {
-        SqlNodeType.Equals => "=",
-        SqlNodeType.NotEquals => "<>",
-        SqlNodeType.Modulo => "MOD",
-        SqlNodeType.DateTimeMinusDateTime => "-",
-        SqlNodeType.Except => throw SqlHelper.NotSupported(type.ToString()),
-        SqlNodeType.Intersect => throw SqlHelper.NotSupported(type.ToString()),
-        SqlNodeType.BitAnd => "BIN_AND",
-        SqlNodeType.BitOr => "BIN_OR",
-        SqlNodeType.BitXor => "BIN_XOR",
-        SqlNodeType.Overlaps => throw SqlHelper.NotSupported(type.ToString()),
-        _ => base.Translate(type),
+      switch (type) {
+        case SqlNodeType.Equals: _ = output.Append("="); break;
+        case SqlNodeType.NotEquals:
+          _ = output.Append("<>"); break;
+        case SqlNodeType.Modulo:
+          _ = output.Append("MOD"); break;
+        case SqlNodeType.DateTimeMinusDateTime:
+          _ = output.Append("-"); break;
+        case SqlNodeType.Except:
+        case SqlNodeType.Intersect:
+        case SqlNodeType.Overlaps:
+          throw SqlHelper.NotSupported(type.ToString());
+        case SqlNodeType.BitAnd:
+          _ = output.Append("BIN_AND"); break;
+        case SqlNodeType.BitOr:
+          _ = output.Append("BIN_OR"); break;
+        case SqlNodeType.BitXor:
+          _ = output.Append("BIN_XOR"); break;
+        default: base.Translate(output, type); break;
       };
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlFunctionType type)
+    public override string TranslateToString(SqlNodeType type)
+    {
+      return type switch {
+        SqlNodeType.Modulo => "MOD",
+        SqlNodeType.Except => throw SqlHelper.NotSupported(type.ToString()),
+        SqlNodeType.Intersect => throw SqlHelper.NotSupported(type.ToString()),
+        SqlNodeType.Overlaps => throw SqlHelper.NotSupported(type.ToString()),
+        _ => base.TranslateToString(type),
+      };
+    }
+
+    /// <inheritdoc/>
+    public override void Translate(IOutput output, SqlFunctionType type)
+    {
+      switch (type) {
+        case SqlFunctionType.CharLength: _ = output.Append("CHAR_LENGTH"); break;
+        case SqlFunctionType.BinaryLength: _ = output.Append("OCTET_LENGTH"); break;
+        case SqlFunctionType.Truncate: _ = output.Append("TRUNC"); break;
+        case SqlFunctionType.IntervalNegate: _ = output.Append("-"); break;
+        case SqlFunctionType.Log: _ = output.Append("LN"); break;
+        case SqlFunctionType.Log10: _ = output.Append("LOG10"); break;
+        case SqlFunctionType.Ceiling: _ = output.Append("CEIL"); break;
+        case SqlFunctionType.PadLeft: _ = output.Append("LPAD"); break;
+        case SqlFunctionType.PadRight: _ = output.Append("RPAD"); break;
+        case SqlFunctionType.Concat: _ = output.Append("||"); break;
+        case SqlFunctionType.SystemUser:
+        case SqlFunctionType.SessionUser:
+          base.Translate(output, SqlFunctionType.CurrentUser); break;
+        case SqlFunctionType.Degrees:
+        case SqlFunctionType.Radians:
+        case SqlFunctionType.Square:
+          throw SqlHelper.NotSupported(type.ToString());
+        case SqlFunctionType.IntervalAbs: base.Translate(output, SqlFunctionType.Abs); break;
+        default: base.Translate(output, type); break;
+      };
+    }
+
+    /// <inheritdoc/>
+    public override string TranslateToString(SqlFunctionType type)
     {
       return type switch {
         SqlFunctionType.CharLength => "CHAR_LENGTH",
-        SqlFunctionType.BinaryLength => "OCTET_LENGTH",
-        SqlFunctionType.Truncate => "TRUNC",
-        SqlFunctionType.IntervalNegate => "-",
-        SqlFunctionType.Log => "LN",
-        SqlFunctionType.Log10 => "LOG10",
-        SqlFunctionType.Ceiling => "CEIL",
-        SqlFunctionType.PadLeft => "LPAD",
-        SqlFunctionType.PadRight => "RPAD",
-        SqlFunctionType.Concat => "||",
-        SqlFunctionType.SystemUser or SqlFunctionType.SessionUser => base.Translate(SqlFunctionType.CurrentUser),
-        SqlFunctionType.Degrees or SqlFunctionType.Radians or SqlFunctionType.Square => throw SqlHelper.NotSupported(type.ToString()),
-        SqlFunctionType.IntervalAbs => Translate(SqlFunctionType.Abs),
-        _ => base.Translate(type),
+        SqlFunctionType.SystemUser or SqlFunctionType.SessionUser => base.TranslateToString(SqlFunctionType.CurrentUser),
+        _ => base.TranslateToString(type),
       };
     }
 
@@ -168,21 +202,24 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlLockType lockType)
+    public override void Translate(IOutput output, SqlLockType lockType)
     {
-      return lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked)
-        ? base.Translate(lockType)
-        : "WITH LOCK";
+      if (lockType.Supports(SqlLockType.Shared) || lockType.Supports(SqlLockType.SkipLocked)) {
+        base.Translate(output, lockType);
+      }
+      else {
+        _ = output.Append("WITH LOCK");
+      }
     }
 
     /// <inheritdoc/>
-    public override string Translate(SqlDateTimePart dateTimePart)
+    public override void Translate(IOutput output, SqlDateTimePart dateTimePart)
     {
-      return dateTimePart switch {
-        SqlDateTimePart.DayOfYear => "YEARDAY",
-        SqlDateTimePart.DayOfWeek => "WEEKDAY",
-        _ => base.Translate(dateTimePart),
-      };
+      switch (dateTimePart) {
+        case SqlDateTimePart.DayOfYear: _ = output.Append("YEARDAY"); break;
+        case SqlDateTimePart.DayOfWeek: _ = output.Append("WEEKDAY"); break;
+        default: base.Translate(output, dateTimePart); break;
+      }
     }
 
     /// <inheritdoc/>
@@ -262,14 +299,17 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (section) {
         case ConstraintSection.Exit:
-          _ = context.Output.Append(")");
+          var output = context.Output;
+          _ = output.Append(")");
           if (constraint is ForeignKey fk) {
             if (fk.OnUpdate != ReferentialAction.NoAction) {
-              _ = context.Output.Append(" ON UPDATE ").Append(Translate(fk.OnUpdate));
+              _ = output.Append(" ON UPDATE ");
+              Translate(output, fk.OnUpdate);
             }
 
             if (fk.OnDelete != ReferentialAction.NoAction) {
-              _ = context.Output.Append(" ON DELETE ").Append(Translate(fk.OnDelete));
+              _ = output.Append(" ON DELETE ");
+              Translate(output, fk.OnDelete);
             }
           }
           break;

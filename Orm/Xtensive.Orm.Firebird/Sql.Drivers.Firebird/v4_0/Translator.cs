@@ -28,7 +28,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
             }
             return;
           }
-          _ = output.Append(Translate(node.JoinType) + " JOIN");
+          Translate(output, node.JoinType);
+          _ = output.Append(" JOIN");
           break;
         case JoinSection.Exit:
           if (node.JoinType == SqlJoinType.LeftOuterApply) {

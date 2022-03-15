@@ -162,7 +162,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           // Round should always be called with 2 arguments
           if (node.Arguments.Count == 1) {
             Visit(SqlDml.FunctionCall(
-              translator.Translate(SqlFunctionType.Round),
+              translator.TranslateToString(SqlFunctionType.Round),
               node.Arguments[0],
               SqlDml.Literal(0)));
             return;
@@ -172,7 +172,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           // Truncate is implemented as round(arg, 0, 1) call in MSSQL.
           // It's stupid, isn't it?
           Visit(SqlDml.FunctionCall(
-            translator.Translate(SqlFunctionType.Round),
+            translator.TranslateToString(SqlFunctionType.Round),
             node.Arguments[0],
             SqlDml.Literal(0),
             SqlDml.Literal(1)));
