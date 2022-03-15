@@ -111,7 +111,7 @@ namespace Xtensive.Tuples.Packed
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
-      descriptor.Accessor = (PackedFieldAccessor) ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor;
+      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor).Index;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureLen1(Type[] fieldTypes, ref PackedFieldDescriptor descriptor, out int valuesLength,
@@ -119,7 +119,7 @@ namespace Xtensive.Tuples.Packed
     {
       var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[0]);
       if (valueAccessor != null) {
-        descriptor.Accessor = valueAccessor;
+        descriptor.AccessorIndex = valueAccessor.Index;
         descriptor.DataPosition = Val064BitCount;
 
         valuesLength = (valueAccessor.ValueBitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
@@ -128,7 +128,7 @@ namespace Xtensive.Tuples.Packed
         return;
       }
 
-      descriptor.Accessor = ObjectAccessor;
+      descriptor.AccessorIndex = ObjectAccessor.Index;
       valuesLength = 1;
       objectsLength = 1;
     }
@@ -234,11 +234,11 @@ namespace Xtensive.Tuples.Packed
     private static void ConfigureFieldPhase1(ref PackedFieldDescriptor descriptor, ref Counters counters,
       Type[] fieldTypes, int fieldIndex)
     {
-      descriptor.StatePosition = fieldIndex << 1;
+      descriptor.StatePosition = checked((ushort)(fieldIndex << 1));
 
       var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[fieldIndex]);
       if (valueAccessor != null) {
-        descriptor.Accessor = valueAccessor;
+        descriptor.AccessorIndex = valueAccessor.Index;
 
         IncrementerByRank[valueAccessor.Rank].Invoke(ref counters);
 
@@ -246,7 +246,7 @@ namespace Xtensive.Tuples.Packed
         return;
       }
 
-      descriptor.Accessor = ObjectAccessor;
+      descriptor.AccessorIndex = ObjectAccessor.Index;
       descriptor.DataPosition = counters.ObjectCounter++;
     }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2021 Xtensive LLC.
+// Copyright (C) 2013-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -10,6 +10,8 @@ namespace Xtensive.Tuples.Packed
 {
   internal abstract class PackedFieldAccessor
   {
+    public static readonly PackedFieldAccessor[] All = new PackedFieldAccessor[20];
+
     /// <summary>
     /// Getter delegate.
     /// </summary>
@@ -33,6 +35,7 @@ namespace Xtensive.Tuples.Packed
     public readonly int Rank;
     public readonly int ValueBitCount;
     protected readonly long ValueBitMask;
+    public readonly byte Index;
 
     public void SetValue<T>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
@@ -70,9 +73,14 @@ namespace Xtensive.Tuples.Packed
 
     public abstract int GetValueHashCode(PackedTuple tuple, ref PackedFieldDescriptor descriptor);
 
-    protected PackedFieldAccessor(int rank)
+    protected PackedFieldAccessor(int rank, byte index)
     {
       Rank = rank;
+      Index = index;
+      if (All[Index] != null) {
+        throw new IndexOutOfRangeException($"Duplicated Index {Index} of PackedFieldAccessor instance");
+      }
+      All[Index] = this;
       ValueBitCount = 1 << Rank;
 
       // What we want here is to shift 1L by ValueBitCount to left and then subtract 1
@@ -128,7 +136,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ObjectFieldAccessor()
-      : base(-1)
+      : base(-1, 19)
     { }
   }
 
@@ -146,8 +154,8 @@ namespace Xtensive.Tuples.Packed
       return rank;
     }
 
-    protected ValueFieldAccessor(int bitCount)
-      : base(GetRank(bitCount))
+    protected ValueFieldAccessor(int bitCount, byte index)
+      : base(GetRank(bitCount), index)
     {}
   }
 
@@ -255,8 +263,8 @@ namespace Xtensive.Tuples.Packed
       return Decode(encoded);
     }
 
-    protected ValueFieldAccessor(int bits)
-      : base(bits)
+    protected ValueFieldAccessor(int bits, byte index)
+      : base(bits, index)
     {
       FieldType = typeof(T);
       Getter = (GetValueDelegate<T>) GetValue;
@@ -280,7 +288,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public BooleanFieldAccessor()
-      : base(1)
+      : base(1, 1)
     {
     }
   }
@@ -303,7 +311,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public FloatFieldAccessor()
-      : base(sizeof(float) * 8)
+      : base(sizeof(float) * 8, 2)
     {
     }
   }
@@ -321,7 +329,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public DoubleFieldAccessor()
-      : base(sizeof(double) * 8)
+      : base(sizeof(double) * 8, 3)
     {
     }
   }
@@ -339,7 +347,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public TimeSpanFieldAccessor()
-      : base(sizeof(long) * 8)
+      : base(sizeof(long) * 8, 4)
     {
     }
   }
@@ -357,7 +365,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public DateTimeFieldAccessor()
-      : base(sizeof(long) * 8)
+      : base(sizeof(long) * 8, 5)
     {
     }
   }
@@ -375,7 +383,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ByteFieldAccessor()
-      : base(sizeof(byte) * 8)
+      : base(sizeof(byte) * 8, 6)
     {
     }
   }
@@ -393,7 +401,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public SByteFieldAccessor()
-      : base(sizeof(sbyte) * 8)
+      : base(sizeof(sbyte) * 8, 7)
     {
     }
   }
@@ -411,7 +419,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ShortFieldAccessor()
-      : base(sizeof(short) * 8)
+      : base(sizeof(short) * 8, 8)
     {
     }
   }
@@ -429,7 +437,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public UShortFieldAccessor()
-      : base(sizeof(ushort) * 8)
+      : base(sizeof(ushort) * 8, 9)
     {
     }
   }
@@ -447,7 +455,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public IntFieldAccessor()
-      : base(sizeof(int) * 8)
+      : base(sizeof(int) * 8, 10)
     {
     }
   }
@@ -465,7 +473,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public UIntFieldAccessor()
-      : base(sizeof(uint) * 8)
+      : base(sizeof(uint) * 8, 11)
     {
     }
   }
@@ -483,7 +491,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public LongFieldAccessor()
-      : base(sizeof(long) * 8)
+      : base(sizeof(long) * 8, 12)
     {
     }
   }
@@ -501,7 +509,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public ULongFieldAccessor()
-      : base(sizeof(ulong) * 8)
+      : base(sizeof(ulong) * 8, 13)
     {
     }
   }
@@ -530,7 +538,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public GuidFieldAccessor()
-      : base(GetSize() * 8)
+      : base(GetSize() * 8, 14)
     {
     }
   }
@@ -553,7 +561,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
     public DecimalFieldAccessor()
-      : base(sizeof(decimal) * 8)
+      : base(sizeof(decimal) * 8, 15)
     {
     }
   }
@@ -582,7 +590,7 @@ namespace Xtensive.Tuples.Packed
     }
 
     public DateTimeOffsetFieldAccessor()
-       : base(GetSize() * 8)
+       : base(GetSize() * 8, 16)
     { }
   }
 }
