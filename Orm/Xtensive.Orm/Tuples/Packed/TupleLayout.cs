@@ -236,13 +236,14 @@ namespace Xtensive.Tuples.Packed
     {
       descriptor.StatePosition = checked((ushort)(fieldIndex << 1));
 
-      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[fieldIndex]);
+      ref var fieldType = ref fieldTypes[fieldIndex];
+      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldType);
       if (valueAccessor != null) {
         descriptor.AccessorIndex = valueAccessor.Index;
 
         IncrementerByRank[valueAccessor.Rank].Invoke(ref counters);
 
-        fieldTypes[fieldIndex] = valueAccessor.FieldType;
+        fieldType = valueAccessor.FieldType;
         return;
       }
 
