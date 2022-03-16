@@ -47,14 +47,14 @@ namespace Xtensive.Tuples.Packed
       var count = Count;
       for (int i = 0; i < count; i++) {
         ref var descriptor = ref fieldDescriptors[i];
-        var thisState = GetFieldState(ref descriptor);
-        var otherState = packedOther.GetFieldState(ref descriptor);
+        var thisState = GetFieldState(descriptor);
+        var otherState = packedOther.GetFieldState(descriptor);
         if (thisState!=otherState)
           return false;
         if (thisState!=TupleFieldState.Available)
           continue;
         var accessor = descriptor.Accessor;
-        if (!accessor.ValueEquals(this, ref descriptor, packedOther, ref descriptor))
+        if (!accessor.ValueEquals(this, descriptor, packedOther, descriptor))
           return false;
       }
 
@@ -68,9 +68,9 @@ namespace Xtensive.Tuples.Packed
       int result = 0;
       for (int i = 0; i < count; i++) {
         ref var descriptor = ref fieldDescriptors[i];
-        var state = GetFieldState(ref descriptor);
+        var state = GetFieldState(descriptor);
         var fieldHash = state == TupleFieldState.Available
-          ? descriptor.Accessor.GetValueHashCode(this, ref descriptor)
+          ? descriptor.Accessor.GetValueHashCode(this, descriptor)
           : 0;
         result = HashCodeMultiplier * result ^ fieldHash;
       }
@@ -79,7 +79,7 @@ namespace Xtensive.Tuples.Packed
 
     public override TupleFieldState GetFieldState(int fieldIndex)
     {
-      return GetFieldState(ref PackedDescriptor.FieldDescriptors[fieldIndex]);
+      return GetFieldState(PackedDescriptor.FieldDescriptors[fieldIndex]);
     }
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
@@ -94,7 +94,7 @@ namespace Xtensive.Tuples.Packed
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
       ref var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
-      return descriptor.Accessor.GetUntypedValue(this, ref descriptor, out fieldState);
+      return descriptor.Accessor.GetUntypedValue(this, descriptor, out fieldState);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
@@ -114,7 +114,7 @@ namespace Xtensive.Tuples.Packed
       }
     }
 
-    public TupleFieldState GetFieldState(ref PackedFieldDescriptor d)
+    public TupleFieldState GetFieldState(in PackedFieldDescriptor d)
     {
       var block = Values[d.StateIndex];
       return (TupleFieldState) ((block >> d.StateBitOffset) & 3);

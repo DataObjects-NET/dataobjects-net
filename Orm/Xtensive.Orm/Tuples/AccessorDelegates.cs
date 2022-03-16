@@ -16,7 +16,7 @@ namespace Xtensive.Tuples
   /// <param name="descriptor">Field descriptor.</param>
   /// <param name="fieldState">State of a field.</param>
   /// <returns></returns>
-  internal delegate TValue GetValueDelegate<TValue>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
+  internal delegate TValue GetValueDelegate<TValue>(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
 
   /// <summary>
   /// Incapsulates <see cref="Tuple.SetValue{T}"/> method.
