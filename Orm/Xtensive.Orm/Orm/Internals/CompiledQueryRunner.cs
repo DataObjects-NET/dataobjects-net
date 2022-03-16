@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2021 Xtensive LLC.
+// Copyright (C) 2012-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -7,6 +7,7 @@
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Caching;
@@ -19,6 +20,8 @@ namespace Xtensive.Orm.Internals
 {
   internal class CompiledQueryRunner
   {
+    private static readonly Func<FieldInfo, bool> FieldIsSimple = fieldInfo => IsSimpleType(fieldInfo.FieldType);
+
     private readonly Domain domain;
     private readonly Session session;
     private readonly QueryEndpoint endpoint;
@@ -108,7 +111,7 @@ namespace Xtensive.Orm.Internals
     private ParameterizedQuery GetScalarQuery<TResult>(
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
-      AllocateParameterAndReplacer();
+      var cacheable = AllocateParameterAndReplacer();
 
       var parameterContext = new ParameterContext(outerContext);
       parameterContext.SetValue(queryParameter, queryTarget);
@@ -123,7 +126,9 @@ namespace Xtensive.Orm.Internals
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
-      PutCachedQuery(parameterizedQuery);
+      if (cacheable) {
+        PutCachedQuery(parameterizedQuery);
+      }
       return parameterizedQuery;
     }
 
@@ -135,7 +140,7 @@ namespace Xtensive.Orm.Internals
         return parameterizedQuery;
       }
 
-      AllocateParameterAndReplacer();
+      var cacheable = AllocateParameterAndReplacer();
       var scope = new CompiledQueryProcessingScope(queryParameter, queryParameterReplacer);
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
@@ -143,16 +148,18 @@ namespace Xtensive.Orm.Internals
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
-      PutCachedQuery(parameterizedQuery);
+      if (cacheable) {
+        PutCachedQuery(parameterizedQuery);
+      }
       return parameterizedQuery;
     }
 
-    private void AllocateParameterAndReplacer()
+    private bool AllocateParameterAndReplacer()
     {
       if (queryTarget == null) {
         queryParameter = null;
         queryParameterReplacer = new ExtendedExpressionReplacer(e => e);
-        return;
+        return true;
       }
 
       var closureType = queryTarget.GetType();
@@ -192,6 +199,25 @@ namespace Xtensive.Orm.Internals
         }
         return null;
       });
+
+      return !TypeHelper.IsClosure(closureType)
+        || closureType.GetFields().All(FieldIsSimple);
+    }
+
+    private static bool IsSimpleType(Type type)
+    {
+      var typeInfo = type.GetTypeInfo();
+      if (typeInfo.IsGenericType) {
+        var genericDef = typeInfo.GetGenericTypeDefinition();
+        return (genericDef == WellKnownTypes.NullableOfT || genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT))
+          && IsSimpleType(typeInfo.GetGenericArguments()[0]);
+      }
+      else if (typeInfo.IsArray) {
+        return IsSimpleType(typeInfo.GetElementType());
+      }
+      else {
+        return typeInfo.IsPrimitive || typeInfo.IsEnum || type == WellKnownTypes.String || type == WellKnownTypes.Decimal;
+      }
     }
 
     private ParameterizedQuery GetCachedQuery() =>

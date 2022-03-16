@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -38,7 +38,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public const int MinTypeId = 100;
 
-    private ColumnInfoCollection               columns;
+    private readonly ColumnInfoCollection      columns;
     private readonly FieldMap                  fieldMap;
     private readonly FieldInfoCollection       fields;
     private readonly TypeIndexInfoCollection   indexes;
@@ -747,8 +747,8 @@ namespace Xtensive.Orm.Model
 
     private void CreateTupleDescriptor()
     {
-      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset);
-      columns = new ColumnInfoCollection(this, "Columns");
+      var orderedColumns = columns.OrderBy(c => c.Field.MappingInfo.Offset).ToList(columns.Count);
+      columns.Clear();                    // To prevent event handler leak
       columns.AddRange(orderedColumns);
       TupleDescriptor = TupleDescriptor.Create(
         Columns.Select(c => c.ValueType).ToArray(Columns.Count));
