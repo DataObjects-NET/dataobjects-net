@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
+// Copyright (C) 2003-2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -107,8 +107,8 @@ namespace Xtensive.Tuples.Packed
     public void SetFieldState(ref PackedFieldDescriptor d, TupleFieldState fieldState)
     {
       var bits = (long) fieldState;
-      var block = Values[d.StateIndex];
-      Values[d.StateIndex] = (block & ~(3L << d.StateBitOffset)) | (bits << d.StateBitOffset);
+      ref var block = ref Values[d.StateIndex];
+      block = (block & ~(3L << d.StateBitOffset)) | (bits << d.StateBitOffset);
 
       if (fieldState!=TupleFieldState.Available && d.IsObjectField) {
         Objects[d.ObjectIndex] = null;
