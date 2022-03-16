@@ -35,13 +35,12 @@ namespace Xtensive.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
     {
-      var packedSource = source as PackedTuple;
-      var packedTarget = target as PackedTuple;
-
-      if (packedSource!=null && packedTarget!=null)
+      if (source is PackedTuple packedSource && target is PackedTuple packedTarget) {
         PartiallyCopyTupleFast(packedSource, packedTarget, startIndex, targetStartIndex, length);
-      else
+      }
+      else {
         PartiallyCopyTupleSlow(source, target, startIndex, targetStartIndex, length);
+      }
     }
 
     /// <summary>
