@@ -5,6 +5,7 @@
 // Created:    2013.01.22
 
 using System;
+using System.Numerics;
 
 namespace Xtensive.Tuples.Packed
 {
@@ -144,15 +145,8 @@ namespace Xtensive.Tuples.Packed
   {
     public Type FieldType { get; protected set; }
 
-    private static int GetRank(int bitSize)
-    {
-      var rank = 0;
-      while ((bitSize >>= 1) > 0) {
-        rank++;
-      }
-
-      return rank;
-    }
+    private static int GetRank(int bitSize) =>
+      BitOperations.Log2((uint)bitSize);
 
     protected ValueFieldAccessor(int bitCount, byte index)
       : base(GetRank(bitCount), index)
