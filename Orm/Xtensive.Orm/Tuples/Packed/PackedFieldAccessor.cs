@@ -242,24 +242,27 @@ namespace Xtensive.Tuples.Packed
 
     private void Store(PackedTuple tuple, ref PackedFieldDescriptor d, T value)
     {
+      var valueIndex = d.ValueIndex;
       if (Rank > 6) {
-        Encode(value, tuple.Values, d.ValueIndex);
+        Encode(value, tuple.Values, valueIndex);
         return;
       }
 
       var encoded = Encode(value);
-      var block = tuple.Values[d.ValueIndex];
-      var mask = ValueBitMask << d.ValueBitOffset;
-      tuple.Values[d.ValueIndex] = (block & ~mask) | ((encoded << d.ValueBitOffset) & mask);
+      var block = tuple.Values[valueIndex];
+      var valueBitOffset = d.ValueBitOffset;
+      var mask = ValueBitMask << valueBitOffset;
+      tuple.Values[valueIndex] = (block & ~mask) | ((encoded << valueBitOffset) & mask);
     }
 
     private T Load(PackedTuple tuple, ref PackedFieldDescriptor d)
     {
+      var valueIndex = d.ValueIndex;
       if (Rank > 6) {
-        return Decode(tuple.Values, d.ValueIndex);
+        return Decode(tuple.Values, valueIndex);
       }
 
-      var encoded = (tuple.Values[d.ValueIndex] >> d.ValueBitOffset) & ValueBitMask;
+      var encoded = (tuple.Values[valueIndex] >> d.ValueBitOffset) & ValueBitMask;
       return Decode(encoded);
     }
 
