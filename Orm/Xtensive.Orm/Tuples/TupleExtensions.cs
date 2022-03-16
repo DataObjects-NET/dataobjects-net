@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -474,7 +474,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleWithMappingSlow(Tuple source, Tuple target, IReadOnlyList<int> map)
     {
-      for (int targetIndex = 0; targetIndex < map.Count; targetIndex++) {
+      for (int targetIndex = 0, count = map.Count; targetIndex < count; targetIndex++) {
         var sourceIndex = map[targetIndex];
         if (sourceIndex >= 0)
           CopyValue(source, sourceIndex, target, targetIndex);
@@ -492,7 +492,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleArrayWithMappingSlow(Tuple[] sources, Tuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
@@ -514,7 +514,7 @@ namespace Xtensive.Tuples
 
     private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
