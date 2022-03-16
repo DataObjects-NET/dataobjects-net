@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.12.29
 
@@ -68,10 +68,9 @@ namespace Xtensive.Tuples.Packed
       int result = 0;
       for (int i = 0; i < count; i++) {
         ref var descriptor = ref fieldDescriptors[i];
-        var accessor = descriptor.Accessor;
-        var state = GetFieldState(ref fieldDescriptors[i]);
-        var fieldHash = state==TupleFieldState.Available
-          ? accessor.GetValueHashCode(this, ref descriptor)
+        var state = GetFieldState(ref descriptor);
+        var fieldHash = state == TupleFieldState.Available
+          ? descriptor.Accessor.GetValueHashCode(this, ref descriptor)
           : 0;
         result = HashCodeMultiplier * result ^ fieldHash;
       }
