@@ -483,7 +483,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleWithMappingFast(PackedTuple source, PackedTuple target, IReadOnlyList<int> map)
     {
-      for (int targetIndex = 0; targetIndex < map.Count; targetIndex++) {
+      for (int targetIndex = 0, count = map.Count; targetIndex < count; targetIndex++) {
         var sourceIndex = map[targetIndex];
         if (sourceIndex >= 0)
           CopyPackedValue(source, sourceIndex, target, targetIndex);
@@ -503,7 +503,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleArrayWithMappingFast(PackedTuple[] sources, PackedTuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
@@ -525,7 +525,7 @@ namespace Xtensive.Tuples
 
     private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
