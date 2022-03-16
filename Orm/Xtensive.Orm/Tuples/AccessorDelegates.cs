@@ -25,5 +25,5 @@ namespace Xtensive.Tuples
   /// <param name="tuple">Tuple to use.</param>
   /// <param name="descriptor">Field descriptor.</param>
   /// <param name="value">A value.</param>
-  internal delegate void SetValueDelegate<TValue>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, TValue value);
+  internal delegate void SetValueDelegate<TValue>(PackedTuple tuple, in PackedFieldDescriptor descriptor, TValue value);
 }

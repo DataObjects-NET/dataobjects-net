@@ -88,7 +88,7 @@ namespace Xtensive.Tuples.Packed
         throw new ArgumentOutOfRangeException(nameof(fieldState));
       }
 
-      SetFieldState(ref PackedDescriptor.FieldDescriptors[fieldIndex], fieldState);
+      SetFieldState(PackedDescriptor.FieldDescriptors[fieldIndex], fieldState);
     }
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
@@ -100,10 +100,10 @@ namespace Xtensive.Tuples.Packed
     public override void SetValue(int fieldIndex, object fieldValue)
     {
       ref var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
-      descriptor.Accessor.SetUntypedValue(this, ref descriptor, fieldValue);
+      descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
     }
 
-    public void SetFieldState(ref PackedFieldDescriptor d, TupleFieldState fieldState)
+    public void SetFieldState(in PackedFieldDescriptor d, TupleFieldState fieldState)
     {
       var bits = (long) fieldState;
       ref var block = ref Values[d.StateIndex];

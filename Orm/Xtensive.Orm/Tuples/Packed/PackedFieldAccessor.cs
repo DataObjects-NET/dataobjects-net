@@ -38,13 +38,14 @@ namespace Xtensive.Tuples.Packed
     protected readonly long ValueBitMask;
     public readonly byte Index;
 
-    public void SetValue<T>(PackedTuple tuple, ref PackedFieldDescriptor descriptor, bool isNullable, T value)
+    public void SetValue<T>(PackedTuple tuple, in PackedFieldDescriptor descriptor, bool isNullable, T value)
     {
-      var setter = (isNullable ? NullableSetter : Setter) as SetValueDelegate<T>;
-      if (setter!=null)
-        setter.Invoke(tuple, ref descriptor, value);
-      else
-        SetUntypedValue(tuple, ref descriptor, value);
+      if ((isNullable ? NullableSetter : Setter) is SetValueDelegate<T> setter) {
+        setter.Invoke(tuple, descriptor, value);
+      }
+      else {
+        SetUntypedValue(tuple, descriptor, value);
+      }
     }
 
     public T GetValue<T>(PackedTuple tuple, in PackedFieldDescriptor descriptor, bool isNullable, out TupleFieldState fieldState)
@@ -64,10 +65,10 @@ namespace Xtensive.Tuples.Packed
 
     public abstract object GetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState);
 
-    public abstract void SetUntypedValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, object value);
+    public abstract void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value);
 
-    public abstract void CopyValue(PackedTuple source, ref PackedFieldDescriptor sourceDescriptor,
-      PackedTuple target, ref PackedFieldDescriptor targetDescriptor);
+    public abstract void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, in PackedFieldDescriptor targetDescriptor);
 
     public abstract bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
       PackedTuple right, in PackedFieldDescriptor rightDescriptor);
@@ -108,17 +109,14 @@ namespace Xtensive.Tuples.Packed
       return state==TupleFieldState.Available ? tuple.Objects[descriptor.ObjectIndex] : null;
     }
 
-    public override void SetUntypedValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, object value)
+    public override void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value)
     {
       tuple.Objects[descriptor.ObjectIndex] = value;
-      if (value!=null)
-        tuple.SetFieldState(ref descriptor, TupleFieldState.Available);
-      else
-        tuple.SetFieldState(ref descriptor, TupleFieldState.Available | TupleFieldState.Null);
+      tuple.SetFieldState(descriptor, value != null ? TupleFieldState.Available : (TupleFieldState.Available | TupleFieldState.Null));
     }
 
-    public override void CopyValue(PackedTuple source, ref PackedFieldDescriptor sourceDescriptor,
-      PackedTuple target, ref PackedFieldDescriptor targetDescriptor)
+    public override void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, in PackedFieldDescriptor targetDescriptor)
     {
       target.Objects[targetDescriptor.ObjectIndex] = source.Objects[sourceDescriptor.ObjectIndex];
     }
@@ -174,21 +172,21 @@ namespace Xtensive.Tuples.Packed
       return state==TupleFieldState.Available ? (object) Load(tuple, descriptor) : null;
     }
 
-    public override void SetUntypedValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, object value)
+    public override void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value)
     {
       if (value!=null) {
-        Store(tuple, ref descriptor, (T) value);
-        tuple.SetFieldState(ref descriptor, TupleFieldState.Available);
+        Store(tuple, descriptor, (T) value);
+        tuple.SetFieldState(descriptor, TupleFieldState.Available);
       }
       else {
-        tuple.SetFieldState(ref descriptor, TupleFieldState.Available | TupleFieldState.Null);
+        tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
       }
     }
 
-    public override void CopyValue(PackedTuple source, ref PackedFieldDescriptor sourceDescriptor,
-      PackedTuple target, ref PackedFieldDescriptor targetDescriptor)
+    public override void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
+      PackedTuple target, in PackedFieldDescriptor targetDescriptor)
     {
-      Store(target, ref targetDescriptor, Load(source, sourceDescriptor));
+      Store(target, targetDescriptor, Load(source, sourceDescriptor));
     }
 
     public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
@@ -218,23 +216,23 @@ namespace Xtensive.Tuples.Packed
       return state==TupleFieldState.Available ? Load(tuple, descriptor) : NullValue;
     }
 
-    private void SetValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, T value)
+    private void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, T value)
     {
-      Store(tuple, ref descriptor, value);
-      tuple.SetFieldState(ref descriptor, TupleFieldState.Available);
+      Store(tuple, descriptor, value);
+      tuple.SetFieldState(descriptor, TupleFieldState.Available);
     }
 
-    private void SetNullableValue(PackedTuple tuple, ref PackedFieldDescriptor descriptor, T? value)
+    private void SetNullableValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, T? value)
     {
       if (value!=null) {
-        Store(tuple, ref descriptor, value.Value);
-        tuple.SetFieldState(ref descriptor, TupleFieldState.Available);
+        Store(tuple, descriptor, value.Value);
+        tuple.SetFieldState(descriptor, TupleFieldState.Available);
       }
       else
-        tuple.SetFieldState(ref descriptor, TupleFieldState.Available | TupleFieldState.Null);
+        tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
     }
 
-    private void Store(PackedTuple tuple, ref PackedFieldDescriptor d, T value)
+    private void Store(PackedTuple tuple, in PackedFieldDescriptor d, T value)
     {
       var valueIndex = d.ValueIndex;
       if (Rank > 6) {
