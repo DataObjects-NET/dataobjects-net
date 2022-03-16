@@ -187,11 +187,8 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Session OpenSession()
-    {
-      var configuration = Configuration.Sessions.Default;
-      return OpenSession(configuration);
-    }
+    public Session OpenSession() =>
+      OpenSession(Configuration.Sessions.Default);
 
     /// <summary>
     /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/>.
@@ -205,21 +202,8 @@ namespace Xtensive.Orm
     /// // work with persistent objects here.
     /// }
     /// </code></sample>
-    public Session OpenSession(SessionType type)
-    {
-      switch (type) {
-        case SessionType.User:
-          return OpenSession(Configuration.Sessions.Default);
-        case SessionType.System:
-          return OpenSession(Configuration.Sessions.System);
-        case SessionType.KeyGenerator:
-          return OpenSession(Configuration.Sessions.KeyGenerator);
-        case SessionType.Service:
-          return OpenSession(Configuration.Sessions.Service);
-        default:
-          throw new ArgumentOutOfRangeException("type");
-      }
-    }
+    public Session OpenSession(SessionType type) =>
+      OpenSession(GetSessionConfiguration(type));
 
     /// <summary>
     /// Opens new <see cref="Session"/> with specified <see cref="SessionConfiguration"/>.
@@ -234,14 +218,8 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Session OpenSession(SessionConfiguration configuration)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, "configuration");
-
-      return OpenSessionInternal(configuration,
-        null,
-        configuration.Supports(SessionOptions.AutoActivation));
-    }
+    public Session OpenSession(SessionConfiguration configuration) =>
+      OpenSessionInternal(configuration, null, configuration.Supports(SessionOptions.AutoActivation));
 
     internal Session OpenSessionInternal(SessionConfiguration configuration, StorageNode storageNode, bool activate)
     {
@@ -283,11 +261,8 @@ namespace Xtensive.Orm
     /// }
     /// </code></sample>
     /// <seealso cref="Session"/>
-    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default)
-    {
-      var configuration = Configuration.Sessions.Default;
-      return OpenSessionAsync(configuration, cancellationToken);
-    }
+    public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default) =>
+      OpenSessionAsync(Configuration.Sessions.Default, cancellationToken);
 
     /// <summary>
     /// Opens new <see cref="Session"/> of specified <see cref="SessionType"/> asynchronously.
@@ -304,18 +279,7 @@ namespace Xtensive.Orm
     public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
     {
       cancellationToken.ThrowIfCancellationRequested();
-      switch (type) {
-        case SessionType.User:
-          return OpenSessionAsync(Configuration.Sessions.Default, cancellationToken);
-        case SessionType.System:
-          return OpenSessionAsync(Configuration.Sessions.System, cancellationToken);
-        case SessionType.KeyGenerator:
-          return OpenSessionAsync(Configuration.Sessions.KeyGenerator, cancellationToken);
-        case SessionType.Service:
-          return OpenSessionAsync(Configuration.Sessions.Service, cancellationToken);
-        default:
-          throw new ArgumentOutOfRangeException("type");
-      }
+      return OpenSessionAsync(GetSessionConfiguration(type), cancellationToken);
     }
 
     /// <summary>
@@ -348,9 +312,17 @@ namespace Xtensive.Orm
       }
     }
 
+    internal SessionConfiguration GetSessionConfiguration(SessionType type) =>
+      type switch {
+        SessionType.User => Configuration.Sessions.Default,
+        SessionType.System => Configuration.Sessions.System,
+        SessionType.KeyGenerator => Configuration.Sessions.KeyGenerator,
+        SessionType.Service => Configuration.Sessions.Service,
+        _ => throw new ArgumentOutOfRangeException(nameof(type))
+      };
+
     internal async Task<Session> OpenSessionInternalAsync(SessionConfiguration configuration, StorageNode storageNode, SessionScope sessionScope, CancellationToken cancellationToken)
     {
-      ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
