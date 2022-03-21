@@ -92,6 +92,24 @@ namespace Xtensive.Sql.Model
       this.property = property;
     }
 
+    /// <summary>
+    /// Initializes a new instance of the <see cref="PairedNodeCollection{TOwner,TNode}"/> class.
+    /// </summary>
+    /// <param name="owner">The collection owner.</param>
+    /// <param name="property">Owner collection property.</param>
+    /// <param name="capacity">The initial collection capacity.</param>
+    /// <param name="equalityComparer">Comparer for inner name index.</param>
+    public PairedNodeCollection(TOwner owner, string property, int capacity, IEqualityComparer<string> equalityComparer)
+      : base(capacity, equalityComparer)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(owner, nameof(owner));
+      ArgumentValidator.EnsureArgumentNotNullOrEmpty(property, nameof(property));
+      ArgumentValidator.EnsureArgumentNotNull(equalityComparer, nameof(equalityComparer));
+
+      this.owner = owner;
+      this.property = property;
+    }
+
     #endregion
   }
 }

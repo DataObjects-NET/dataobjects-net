@@ -96,5 +96,16 @@ namespace Xtensive.Sql.Model
     {
       nameIndex = new Dictionary<string, TNode>(capacity, Comparer);
     }
+
+    /// <summary>
+    /// Initializes new instance of this type.
+    /// </summary>
+    /// <param name="capacity">The initial collection capacity.</param>
+    /// <param name="comparer">Comparer for inner name index.</param>
+    public NodeCollection(int capacity, IEqualityComparer<string> comparer)
+      : base(capacity)
+    {
+      nameIndex = new Dictionary<string, TNode>(capacity, comparer);
+    }
   }
 }

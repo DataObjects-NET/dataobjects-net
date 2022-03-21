@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.12.17
 
@@ -51,13 +51,16 @@ namespace Xtensive.Orm.Tests
         var extractionResult = driver.Extract(connection, new[] {extractionTask});
         var catalog = extractionResult.Catalogs.Single();
         var existingSchemas = catalog.Schemas.Select(s => s.Name);
-        var schemasToCreate = schemas.Except(existingSchemas, StringComparer.OrdinalIgnoreCase);
 
         // Oracle does not support creating schemas, user should be created instead.
-        if (connectionInfo.Provider==WellKnown.Provider.Oracle)
+        if (connectionInfo.Provider == WellKnown.Provider.Oracle) {
+          var schemasToCreate = schemas.Except(existingSchemas, StringComparer.Ordinal);
           CreateUsers(connection, schemasToCreate);
-        else
+        }
+        else {
+          var schemasToCreate = schemas.Except(existingSchemas, StringComparer.OrdinalIgnoreCase);
           CreateSchemas(connection, catalog, schemasToCreate);
+        }
 
         connection.Close();
       }

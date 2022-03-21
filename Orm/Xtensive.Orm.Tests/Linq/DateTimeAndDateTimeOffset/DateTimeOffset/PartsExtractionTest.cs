@@ -1,4 +1,4 @@
-// Copyright (C) 2016-2021 Xtensive LLC.
+// Copyright (C) 2016-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Groznov
@@ -186,6 +186,20 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimeOffsets
 
         var wrongMillisecondDateTimeOffset = TryMoveToLocalTimeZone(WrongMillisecondDateTimeOffset);
         RunWrongTest<SingleDateTimeOffsetEntity>(c => c.MillisecondDateTimeOffset.TimeOfDay==wrongMillisecondDateTimeOffset.TimeOfDay);
+      });
+    }
+
+    [Test]
+    public void ExtractTimeOfDayTicksTest()
+    {
+      Require.ProviderIsNot(StorageProvider.PostgreSql | StorageProvider.Oracle);
+
+      ExecuteInsideSession(() => {
+        var firstDateTimeOffset = TryMoveToLocalTimeZone(FirstDateTimeOffset);
+        RunTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay.Ticks == firstDateTimeOffset.TimeOfDay.Ticks);
+
+        var wrongDateTimeOffset = TryMoveToLocalTimeZone(WrongDateTimeOffset);
+        RunWrongTest<SingleDateTimeOffsetEntity>(c => c.DateTimeOffset.TimeOfDay.Ticks == wrongDateTimeOffset.TimeOfDay.Ticks);
       });
     }
 

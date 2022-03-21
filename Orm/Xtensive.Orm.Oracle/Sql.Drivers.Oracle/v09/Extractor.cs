@@ -142,9 +142,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     private ExtractionContext CreateContext(string catalogName, string[] schemaNames)
     {
-      var catalog = new Catalog(catalogName);
+      var catalog = new Catalog(catalogName, true);
       for(var i = 0; i < schemaNames.Length; i++) {
-        schemaNames[i] = schemaNames[i].ToUpperInvariant();
+        schemaNames[i] = ToUpperInvariantIfNeeded(schemaNames[i]);
       }
 
       var replacements = new Dictionary<string, string>();
