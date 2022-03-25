@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
@@ -35,13 +35,12 @@ namespace Xtensive.Tuples
     /// <param name="length">The number of elements to copy.</param>
     public static void CopyTo(this Tuple source, Tuple target, int startIndex, int targetStartIndex, int length)
     {
-      var packedSource = source as PackedTuple;
-      var packedTarget = target as PackedTuple;
-
-      if (packedSource!=null && packedTarget!=null)
+      if (source is PackedTuple packedSource && target is PackedTuple packedTarget) {
         PartiallyCopyTupleFast(packedSource, packedTarget, startIndex, targetStartIndex, length);
-      else
+      }
+      else {
         PartiallyCopyTupleSlow(source, target, startIndex, targetStartIndex, length);
+      }
     }
 
     /// <summary>
@@ -438,7 +437,7 @@ namespace Xtensive.Tuples
       ref var sourceDescriptor = ref source.PackedDescriptor.FieldDescriptors[sourceIndex];
       ref var targetDescriptor = ref target.PackedDescriptor.FieldDescriptors[targetIndex];
 
-      var fieldState = source.GetFieldState(ref sourceDescriptor);
+      var fieldState = source.GetFieldState(sourceDescriptor);
       if (!fieldState.IsAvailable()) {
         return;
       }
@@ -457,7 +456,7 @@ namespace Xtensive.Tuples
       }
 
       target.SetFieldState(targetIndex, TupleFieldState.Available);
-      accessor.CopyValue(source, ref sourceDescriptor, target, ref targetDescriptor);
+      accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
     }
 
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)
@@ -474,7 +473,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleWithMappingSlow(Tuple source, Tuple target, IReadOnlyList<int> map)
     {
-      for (int targetIndex = 0; targetIndex < map.Count; targetIndex++) {
+      for (int targetIndex = 0, count = map.Count; targetIndex < count; targetIndex++) {
         var sourceIndex = map[targetIndex];
         if (sourceIndex >= 0)
           CopyValue(source, sourceIndex, target, targetIndex);
@@ -483,7 +482,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleWithMappingFast(PackedTuple source, PackedTuple target, IReadOnlyList<int> map)
     {
-      for (int targetIndex = 0; targetIndex < map.Count; targetIndex++) {
+      for (int targetIndex = 0, count = map.Count; targetIndex < count; targetIndex++) {
         var sourceIndex = map[targetIndex];
         if (sourceIndex >= 0)
           CopyPackedValue(source, sourceIndex, target, targetIndex);
@@ -492,7 +491,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleArrayWithMappingSlow(Tuple[] sources, Tuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
@@ -503,7 +502,7 @@ namespace Xtensive.Tuples
 
     private static void CopyTupleArrayWithMappingFast(PackedTuple[] sources, PackedTuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
@@ -514,7 +513,7 @@ namespace Xtensive.Tuples
 
     private static void Copy3TuplesWithMappingSlow(FixedList3<Tuple> sources, Tuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
@@ -525,7 +524,7 @@ namespace Xtensive.Tuples
 
     private static void Copy3TuplesWithMappingFast(FixedList3<PackedTuple> sources, PackedTuple target, Pair<int, int>[] map)
     {
-      for (int targetIndex = 0; targetIndex < map.Length; targetIndex++) {
+      for (int targetIndex = 0, length = map.Length; targetIndex < length; targetIndex++) {
         var sourceInfo = map[targetIndex];
         var sourceTupleIndex = sourceInfo.First;
         var sourceFieldIndex = sourceInfo.Second;
