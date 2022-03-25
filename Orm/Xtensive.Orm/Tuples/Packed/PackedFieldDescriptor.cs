@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.12.29
 
@@ -15,10 +15,12 @@ namespace Xtensive.Tuples.Packed
     private const int OffsetMask = (1 << OffsetBitCount) - 1;
 
     internal int DataPosition;
-    internal int StatePosition;
+    internal ushort StatePosition;
 
     [NonSerialized]
-    public PackedFieldAccessor Accessor;
+    internal byte AccessorIndex;
+
+    public PackedFieldAccessor Accessor => PackedFieldAccessor.All[AccessorIndex];
 
     public bool IsObjectField => Accessor.Rank < 0;
 

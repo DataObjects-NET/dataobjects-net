@@ -112,13 +112,13 @@ namespace Xtensive.Tuples
 
       if (this is PackedTuple packedTuple) {
         ref var descriptor = ref packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-        return descriptor.Accessor.GetValue<T>(packedTuple, ref descriptor, isNullable, out fieldState);
+        return descriptor.Accessor.GetValue<T>(packedTuple, descriptor, isNullable, out fieldState);
       }
 
       var mappedContainer = GetMappedContainer(fieldIndex, false);
       if (mappedContainer.First is PackedTuple mappedTuple) {
         ref var descriptor = ref mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
-        return descriptor.Accessor.GetValue<T>(mappedTuple, ref descriptor, isNullable, out fieldState);
+        return descriptor.Accessor.GetValue<T>(mappedTuple, descriptor, isNullable, out fieldState);
       }
 
       var value = GetValue(fieldIndex, out fieldState);
@@ -187,14 +187,14 @@ namespace Xtensive.Tuples
 
       if (this is PackedTuple packedTuple) {
         ref var descriptor = ref packedTuple.PackedDescriptor.FieldDescriptors[fieldIndex];
-        descriptor.Accessor.SetValue(packedTuple, ref descriptor, isNullable, fieldValue);
+        descriptor.Accessor.SetValue(packedTuple, descriptor, isNullable, fieldValue);
         return;
       }
 
       var mappedContainer = GetMappedContainer(fieldIndex, true);
       if (mappedContainer.First is PackedTuple mappedTuple) {
         ref var descriptor = ref mappedTuple.PackedDescriptor.FieldDescriptors[mappedContainer.Second];
-        descriptor.Accessor.SetValue(mappedTuple, ref descriptor, isNullable, fieldValue);
+        descriptor.Accessor.SetValue(mappedTuple, descriptor, isNullable, fieldValue);
         return;
       }
 
