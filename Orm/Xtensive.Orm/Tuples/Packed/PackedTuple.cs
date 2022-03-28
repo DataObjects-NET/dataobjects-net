@@ -11,8 +11,6 @@ namespace Xtensive.Tuples.Packed
   [Serializable]
   internal sealed class PackedTuple : RegularTuple
   {
-    private static readonly object[] EmptyObjectArray = new object[0];
-
     public readonly TupleDescriptor PackedDescriptor;
     public readonly long[] Values;
     public readonly object[] Objects;
@@ -35,24 +33,26 @@ namespace Xtensive.Tuples.Packed
     public override bool Equals(Tuple other)
     {
       var packedOther = other as PackedTuple;
-      if (packedOther==null)
+      if (packedOther == null)
         return base.Equals(other);
 
       if (ReferenceEquals(packedOther, this))
         return true;
-      if (Descriptor!=packedOther.Descriptor)
+      if (Descriptor != packedOther.Descriptor)
         return false;
 
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       var count = Count;
       for (int i = 0; i < count; i++) {
-        ref var descriptor = ref fieldDescriptors[i];
+        ref readonly var descriptor = ref fieldDescriptors[i];
         var thisState = GetFieldState(descriptor);
         var otherState = packedOther.GetFieldState(descriptor);
-        if (thisState!=otherState)
+        if (thisState != otherState) {
           return false;
-        if (thisState!=TupleFieldState.Available)
+        }
+        if (thisState != TupleFieldState.Available) {
           continue;
+        }
         var accessor = descriptor.Accessor;
         if (!accessor.ValueEquals(this, descriptor, packedOther, descriptor))
           return false;
@@ -67,7 +67,7 @@ namespace Xtensive.Tuples.Packed
       var fieldDescriptors = PackedDescriptor.FieldDescriptors;
       int result = 0;
       for (int i = 0; i < count; i++) {
-        ref var descriptor = ref fieldDescriptors[i];
+        ref readonly var descriptor = ref fieldDescriptors[i];
         var state = GetFieldState(descriptor);
         var fieldHash = state == TupleFieldState.Available
           ? descriptor.Accessor.GetValueHashCode(this, descriptor)
@@ -77,14 +77,12 @@ namespace Xtensive.Tuples.Packed
       return result;
     }
 
-    public override TupleFieldState GetFieldState(int fieldIndex)
-    {
-      return GetFieldState(PackedDescriptor.FieldDescriptors[fieldIndex]);
-    }
+    public override TupleFieldState GetFieldState(int fieldIndex) =>
+      GetFieldState(PackedDescriptor.FieldDescriptors[fieldIndex]);
 
     protected internal override void SetFieldState(int fieldIndex, TupleFieldState fieldState)
     {
-      if (fieldState==TupleFieldState.Null) {
+      if (fieldState == TupleFieldState.Null) {
         throw new ArgumentOutOfRangeException(nameof(fieldState));
       }
 
@@ -93,13 +91,13 @@ namespace Xtensive.Tuples.Packed
 
     public override object GetValue(int fieldIndex, out TupleFieldState fieldState)
     {
-      ref var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
       return descriptor.Accessor.GetUntypedValue(this, descriptor, out fieldState);
     }
 
     public override void SetValue(int fieldIndex, object fieldValue)
     {
-      ref var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
+      ref readonly var descriptor = ref PackedDescriptor.FieldDescriptors[fieldIndex];
       descriptor.Accessor.SetUntypedValue(this, descriptor, fieldValue);
     }
 
@@ -109,7 +107,7 @@ namespace Xtensive.Tuples.Packed
       ref var block = ref Values[d.StateIndex];
       block = (block & ~(3L << d.StateBitOffset)) | (bits << d.StateBitOffset);
 
-      if (fieldState!=TupleFieldState.Available && d.IsObjectField) {
+      if (fieldState != TupleFieldState.Available && d.IsObjectField) {
         Objects[d.ObjectIndex] = null;
       }
     }
@@ -127,7 +125,7 @@ namespace Xtensive.Tuples.Packed
       Values = new long[PackedDescriptor.ValuesLength];
       Objects = PackedDescriptor.ObjectsLength > 0
         ? new object[PackedDescriptor.ObjectsLength]
-        : EmptyObjectArray;
+        : Array.Empty<object>();
     }
 
     private PackedTuple(PackedTuple origin)
@@ -137,7 +135,7 @@ namespace Xtensive.Tuples.Packed
       Values = (long[]) origin.Values.Clone();
       Objects = PackedDescriptor.ObjectsLength > 0
         ? (object[]) origin.Objects.Clone()
-        : EmptyObjectArray;
+        : Array.Empty<object>();
     }
   }
 }
