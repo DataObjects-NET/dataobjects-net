@@ -444,8 +444,7 @@ namespace Xtensive.Tuples
         return;
       }
 
-      var accessor = sourceDescriptor.GetAccessor();
-      if (accessor != targetDescriptor.GetAccessor()) {
+      if (sourceDescriptor.AccessorIndex != targetDescriptor.AccessorIndex) {
         throw new InvalidOperationException(string.Format(
           Strings.ExInvalidCast,
           source.PackedDescriptor[sourceIndex],
@@ -453,7 +452,7 @@ namespace Xtensive.Tuples
       }
 
       target.SetFieldState(targetIndex, TupleFieldState.Available);
-      accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
+      sourceDescriptor.GetAccessor().CopyValue(source, sourceDescriptor, target, targetDescriptor);
     }
 
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)
