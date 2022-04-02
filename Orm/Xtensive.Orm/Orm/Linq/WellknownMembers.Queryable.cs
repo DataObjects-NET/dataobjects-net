@@ -176,12 +176,12 @@ namespace Xtensive.Orm.Linq
               }
               break;
             case nameof(System.Linq.Queryable.ElementAt):
-              if (parameters.Length == 2) {
+              if (parameters.Length == 2 && parameters[1].ParameterType == WellKnownTypes.Int32) {
                 ElementAt = methodInfo;
               }
               break;
             case nameof(System.Linq.Queryable.ElementAtOrDefault):
-              if (parameters.Length == 2) {
+              if (parameters.Length == 2 && parameters[1].ParameterType == WellKnownTypes.Int32) {
                 ElementAtOrDefault = methodInfo;
               }
               break;
@@ -284,7 +284,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   Max = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   MaxWithSelector = methodInfo;
                   break;
               }
@@ -294,7 +294,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   Min = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   MinWithSelector = methodInfo;
                   break;
               }
@@ -398,7 +398,7 @@ namespace Xtensive.Orm.Linq
               }
               break;
             case nameof(System.Linq.Queryable.Take):
-              if (parameters.Length == 2) {
+              if (parameters.Length == 2 && parameters[1].ParameterType == WellKnownTypes.Int32) {
                 Take = methodInfo;
               }
               break;
