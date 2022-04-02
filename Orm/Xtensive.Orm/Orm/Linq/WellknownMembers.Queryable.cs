@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   FirstOrDefault = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   FirstOrDefaultWithPredicate = methodInfo;
                   break;
               }
@@ -264,7 +264,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   LastOrDefault = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   LastOrDefaultWithPredicate = methodInfo;
                   break;
               }
@@ -362,7 +362,7 @@ namespace Xtensive.Orm.Linq
                 case 1:
                   SingleOrDefault = methodInfo;
                   break;
-                case 2:
+                case 2 when parameters[1].ParameterType.IsAssignableTo(WellKnownTypes.Expression):
                   SingleOrDefaultWithPredicate = methodInfo;
                   break;
               }
