@@ -1,9 +1,10 @@
+using System.Collections.Generic;
+using System.Linq;
 using Xtensive.Core;
 using Xtensive.Sql;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using System.Collections.Generic;
 
 namespace Xtensive.Orm.Providers
 {
@@ -249,6 +250,10 @@ namespace Xtensive.Orm.Providers
     {
     }
 
+    public void Visit(SqlTruncateTable node)
+    {
+    }
+
     public void Visit(SqlDynamicFilter node)
     {
     }
@@ -309,12 +314,15 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlInsert node)
     {
-      if (node.From!=null)
+      if (node.From != null) {
         Visit(node.From);
-      if (node.Into!=null)
+      }
+      if (node.Into != null) {
         Visit(node.Into);
-      foreach (var value in node.Values.Values)
+      }
+      foreach (var value in node.Values.Columns.SelectMany(column => node.Values.ValuesByColumn(column))) {
         Visit(value);
+      }        
     }
 
     public void Visit(SqlJoinExpression node)

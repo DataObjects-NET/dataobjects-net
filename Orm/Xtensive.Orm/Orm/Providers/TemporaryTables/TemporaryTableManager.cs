@@ -24,6 +24,9 @@ namespace Xtensive.Orm.Providers
     private const string TableNamePattern = "Tmp_{0}";
     private const string ColumnNamePattern = "C{0}";
 
+    // Preallocated array of 1 column name
+    private static readonly string[] ColumnNames1 = new[] { string.Format(ColumnNamePattern, 0) };
+
     private TemporaryTableBackEnd backEnd;
 
     /// <summary>
@@ -66,8 +69,7 @@ namespace Xtensive.Orm.Providers
         ? new Collation(schema, modelMapping.TemporaryTableCollation)
         : null;
 
-      if (fieldNames == null)
-        fieldNames = BuildFieldNames(source);
+      fieldNames ??= BuildFieldNames(source);
 
       var typeMappings = source
         .Select(driver.GetTypeMapping)
@@ -80,18 +82,25 @@ namespace Xtensive.Orm.Providers
       // select statement
       var queryStatement = MakeUpSelectQuery(tableRef, hasColumns);
 
-      // insert statement
+      // insert statements
+
+      var batchStoreRequestBindings = new List<PersistParameterBinding>();
+      var batchInsertStatement = MakeUpInsertQuery(tableRef, typeMappings, batchStoreRequestBindings, hasColumns, WellKnown.RecordsInInsertBatch);
+
       var storeRequestBindings = new List<PersistParameterBinding>();
-      var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns);
+      var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns, 1);
+
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
         QueryStatement = queryStatement,
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
-        StoreRequest = new PersistRequest(Handlers.StorageDriver, insertStatement, storeRequestBindings),
-        ClearRequest = new PersistRequest(Handlers.StorageDriver, SqlDml.Delete(tableRef), null)
+        BatchStoreRequest = new PersistRequest(driver, batchInsertStatement, batchStoreRequestBindings),
+        StoreRequest = new PersistRequest(driver, insertStatement, storeRequestBindings),
+        ClearRequest = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null)
       };
 
+      result.BatchStoreRequest.Prepare();
       result.StoreRequest.Prepare();
       result.ClearRequest.Prepare();
 
@@ -149,12 +158,12 @@ namespace Xtensive.Orm.Providers
         throw new NotSupportedException(Strings.ExTemporaryTablesAreNotSupportedByCurrentStorage);
     }
 
-    private string[] BuildFieldNames(TupleDescriptor source)
-    {
-      return Enumerable.Range(0, source.Count)
+    private string[] BuildFieldNames(TupleDescriptor source) =>
+      source.Count == 1
+        ? ColumnNames1
+        : Enumerable.Range(0, source.Count)
           .Select(i => string.Format(ColumnNamePattern, i))
           .ToArray();
-    }
 
     private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[]fieldNames, Collation collation)
     {
@@ -188,21 +197,26 @@ namespace Xtensive.Orm.Providers
       return queryStatement;
     }
 
-    private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable, TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns)
+    private SqlInsert MakeUpInsertQuery(SqlTableRef temporaryTable, TypeMapping[] typeMappings, List<PersistParameterBinding> storeRequestBindings, bool hasColumns, int rows = 1)
     {
       var insertStatement = SqlDml.Insert(temporaryTable);
       if (hasColumns) {
-        var fieldIndex = 0;
-        foreach (var column in temporaryTable.Columns) {
-          TypeMapping typeMapping = typeMappings[fieldIndex];
-          var binding = new PersistParameterBinding(typeMapping, fieldIndex);
-          insertStatement.Values[column] = binding.ParameterReference;
-          storeRequestBindings.Add(binding);
-          fieldIndex++;
+        var paramIndex = 0;
+        for (int i = 0; i < rows; ++i) {
+          var fieldIndex = 0;
+          foreach (var column in temporaryTable.Columns) {
+            TypeMapping typeMapping = typeMappings[fieldIndex];
+            var binding = new PersistParameterBinding(typeMapping, paramIndex);
+            insertStatement.Values.Add(column, binding.ParameterReference);
+            storeRequestBindings.Add(binding);
+            fieldIndex++;
+            paramIndex++;
+          }
         }
       }
-      else
-        insertStatement.Values[temporaryTable.Columns[0]] = SqlDml.Literal(0);
+      else {
+        insertStatement.Values.SetValueByColumn(temporaryTable.Columns[0], SqlDml.Literal(0));
+      }
       return insertStatement;
     }
 

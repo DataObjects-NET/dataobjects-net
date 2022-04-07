@@ -841,6 +841,11 @@ namespace Xtensive.Sql.Compiler
       context.Output.AppendText(translator.Translate(context, node));
     }
 
+    public virtual void Visit(SqlTruncateTable node)
+    {
+      context.Output.AppendText(translator.Translate(context, node));
+    }
+
     public virtual void Visit(SqlFastFirstRowsHint node)
     {
       // nothing
@@ -946,16 +951,18 @@ namespace Xtensive.Sql.Compiler
         }
 
         context.Output.AppendText(translator.Translate(context, node, InsertSection.ColumnsEntry));
-        if (node.Values.Keys.Count > 0)
+        var columns = node.Values.Columns;
+        if (columns.Count > 0)
           using (context.EnterCollectionScope())
-            foreach (SqlColumn item in node.Values.Keys) {
-              if (!context.IsEmpty)
+            foreach (SqlColumn item in columns) {
+              if (!context.IsEmpty) {
                 context.Output.AppendDelimiter(translator.ColumnDelimiter);
+              }
               context.Output.AppendText(translator.QuoteIdentifier(item.Name));
             }
         context.Output.AppendText(translator.Translate(context, node, InsertSection.ColumnsExit));
 
-        if (node.Values.Keys.Count == 0 && node.From == null)
+        if (node.Values.Columns.Count == 0 && node.From == null)
           context.Output.AppendText(translator.Translate(context, node, InsertSection.DefaultValues));
         else {
           if (node.From != null)
@@ -964,12 +971,20 @@ namespace Xtensive.Sql.Compiler
             }
           else {
             context.Output.AppendText(translator.Translate(context, node, InsertSection.ValuesEntry));
-            using (context.EnterCollectionScope())
-              foreach (SqlExpression item in node.Values.Values) {
-                if (!context.IsEmpty)
+            var rowCount = node.Values.ValuesByColumn(columns.First()).Count;
+            for (int i = 0; i < rowCount; i++) {
+              if (i > 0) {
+                context.Output.AppendText(translator.Translate(context, node, InsertSection.NewRow));
+              }
+              using var _ = context.EnterCollectionScope();
+              foreach (var column in columns) {
+                if (!context.IsEmpty) {
                   context.Output.AppendDelimiter(translator.ColumnDelimiter);
+                }
+                var item = node.Values.ValuesByColumn(column)[i];
                 item.AcceptVisitor(this);
               }
+            }
             context.Output.AppendText(translator.Translate(context, node, InsertSection.ValuesExit));
           }
         }

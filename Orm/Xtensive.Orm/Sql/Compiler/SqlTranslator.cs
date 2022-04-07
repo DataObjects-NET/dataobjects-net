@@ -863,9 +863,9 @@ namespace Xtensive.Sql.Compiler
       return "DROP SEQUENCE " + Translate(context, node.Sequence) + (node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
-    public virtual string Translate(SqlCompilerContext context, SqlDropTable node)
+    public virtual string Translate(SqlCompilerContext context, SqlTruncateTable node)
     {
-      return "DROP TABLE " + Translate(context, node.Table) + (node.Cascade ? " CASCADE" : " RESTRICT");
+      return "TRUNCATE TABLE " + Translate(context, node.Table);
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlDropTranslation node)
@@ -876,6 +876,11 @@ namespace Xtensive.Sql.Compiler
     public virtual string Translate(SqlCompilerContext context, SqlDropView node)
     {
       return "DROP VIEW " + Translate(context, node.View) + (node.Cascade ? " CASCADE" : " RESTRICT");
+    }
+
+    public virtual string Translate(SqlCompilerContext context, SqlDropTable node)
+    {
+      return "DROP TABLE " + Translate(context, node.Table) + (node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
     public virtual string Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
@@ -975,9 +980,9 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.Entry:
           return "INSERT INTO";
         case InsertSection.ColumnsEntry:
-          return (node.Values.Keys.Count > 0) ? "(" : string.Empty;
+          return (node.Values.Columns.Count > 0) ? "(" : string.Empty;
         case InsertSection.ColumnsExit:
-          return (node.Values.Keys.Count > 0) ? ")" : string.Empty;
+          return (node.Values.Columns.Count > 0) ? ")" : string.Empty;
         case InsertSection.From:
           return "FROM";
         case InsertSection.ValuesEntry:
@@ -986,6 +991,8 @@ namespace Xtensive.Sql.Compiler
           return ")";
         case InsertSection.DefaultValues:
           return "DEFAULT VALUES";
+        case InsertSection.NewRow:
+          return "), (";
       }
       return string.Empty;
     }

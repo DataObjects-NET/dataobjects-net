@@ -1,10 +1,11 @@
-// Copyright (C) 2010-2021 Xtensive LLC.
+// Copyright (C) 2010-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2010.02.09
 
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
@@ -42,13 +43,8 @@ namespace Xtensive.Orm.Providers
       ParameterContext parameterContext)
     {
       Prepare();
-      foreach (var tuple in tuples) {
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      }
-
-      using (var context = new CommandProcessorContext(parameterContext)) {
-        commandProcessor.ExecuteTasks(context);
-      }
+      Store(descriptor, tuples);
+      Execute(parameterContext);
     }
 
     /// <inheritdoc/>
@@ -57,9 +53,7 @@ namespace Xtensive.Orm.Providers
     {
       await PrepareAsync(token).ConfigureAwait(false);
 
-      foreach (var tuple in tuples) {
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      }
+      Store(descriptor, tuples);
 
       using (var context = new CommandProcessorContext(parameterContext)) {
         await commandProcessor.ExecuteTasksAsync(context, token).ConfigureAwait(false);
@@ -70,20 +64,45 @@ namespace Xtensive.Orm.Providers
     void IProviderExecutor.Clear(IPersistDescriptor descriptor, ParameterContext parameterContext)
     {
       Prepare();
-      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-      using (var context = new CommandProcessorContext(parameterContext))
-        commandProcessor.ExecuteTasks(context);
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
+      Execute(parameterContext);
     }
 
     /// <inheritdoc/>
     void IProviderExecutor.Overwrite(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
     {
       Prepare();
-      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest, null));
-      foreach (var tuple in tuples)
-        commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
-      using (var context = new CommandProcessorContext(new ParameterContext()))
-        commandProcessor.ExecuteTasks(context);
+      commandProcessor.RegisterTask(new SqlPersistTask(descriptor.ClearRequest));
+      Store(descriptor, tuples);
+      Execute(new ParameterContext());
+    }
+
+    private void Execute(ParameterContext parameterContext)
+    {
+      using var context = new CommandProcessorContext(parameterContext);
+      commandProcessor.ExecuteTasks(context);
+    }
+
+    private void Store(IPersistDescriptor descriptor, IEnumerable<Tuple> tuples)
+    {
+      if (descriptor.BatchStoreRequest != null) {
+        var parametersInBatchStoreRequest = descriptor.BatchStoreRequest.ParameterBindings.Count;
+        foreach (var chunk in tuples.Chunk(WellKnown.RecordsInInsertBatch)) {
+          if (chunk.Length == parametersInBatchStoreRequest) {
+            commandProcessor.RegisterTask(new SqlPersistTask(descriptor.BatchStoreRequest, chunk));
+          }
+          else {
+            foreach (var tuple in chunk) {
+              commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+            }
+          }
+        }
+      }
+      else {
+        foreach (var tuple in tuples) {
+          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+        }
+      }
     }
   }
 }

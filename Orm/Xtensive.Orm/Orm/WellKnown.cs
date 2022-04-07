@@ -96,6 +96,11 @@ namespace Xtensive.Orm
     public const int MaxNumberOfConditions = 256;
 
     /// <summary>
+    /// Number of records in multi-record INSERT SQL statement
+    /// </summary>
+    public const int RecordsInInsertBatch = 10;
+
+    /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
     /// </summary>
     public const int EntitySetCacheSize = 1024000;

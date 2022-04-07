@@ -38,6 +38,11 @@ namespace Xtensive.Orm.Providers
     public string DropStatement { get; set; }
 
     /// <summary>
+    /// Gets or sets the persist request used to store batched data in temporary table.
+    /// </summary>
+    public PersistRequest BatchStoreRequest { get; set; }
+
+    /// <summary>
     /// Gets or sets the persist request used to store data in temporary table.
     /// </summary>
     public PersistRequest StoreRequest { get; set; }

@@ -50,7 +50,6 @@ namespace Xtensive.Orm.Providers
       var result = new List<CommandPart>();
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
-        var tuple = task.Tuple;
         var compilationResult = request.GetCompiledStatement();
         var configuration = new SqlPostCompilerConfiguration();
         var part = new CommandPart();
@@ -183,12 +182,17 @@ namespace Xtensive.Orm.Providers
     private object GetParameterValue(SqlPersistTask task, PersistParameterBinding binding)
     {
       switch (binding.BindingType) {
-      case PersistParameterBindingType.Regular:
-        return task.Tuple.GetValueOrDefault(binding.FieldIndex);
-      case PersistParameterBindingType.VersionFilter:
-        return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
-      default:
-        throw new ArgumentOutOfRangeException("binding.Source");
+        case PersistParameterBindingType.Regular:
+          if (task.Tuples == null) {
+            return task.Tuple.GetValueOrDefault(binding.FieldIndex);
+          }
+          var tupleSize = task.Tuples[0].Count;
+          var tupleIndex = Math.DivRem(binding.FieldIndex, tupleSize, out var columnIndex);
+          return task.Tuples[tupleIndex].GetValueOrDefault(columnIndex);
+        case PersistParameterBindingType.VersionFilter:
+          return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
+        default:
+          throw new ArgumentOutOfRangeException("binding.Source");
       }
     }
 

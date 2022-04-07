@@ -73,7 +73,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       EntityInfo viewInfo = new EntityInfo();
       viewInfo.MaxIdentifierLength = MaxIdentifierLength;
-      viewInfo.AllowedDdlStatements = DdlStatements.All;
+      viewInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return viewInfo;
     }
 
@@ -81,7 +81,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       EntityInfo schemaInfo = new EntityInfo();
       schemaInfo.MaxIdentifierLength = MaxIdentifierLength;
-      schemaInfo.AllowedDdlStatements = DdlStatements.All;
+      schemaInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       return schemaInfo;
     }
 
@@ -89,7 +89,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       var tableInfo = new TableInfo();
       tableInfo.MaxIdentifierLength = MaxIdentifierLength;
-      tableInfo.AllowedDdlStatements = DdlStatements.All;
+      tableInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       tableInfo.PartitionMethods = PartitionMethods.List | PartitionMethods.Range | PartitionMethods.Hash;
       return tableInfo;
     }
@@ -98,7 +98,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     {
       var temporaryTableInfo = new TemporaryTableInfo();
       temporaryTableInfo.MaxIdentifierLength = MaxIdentifierLength;
-      temporaryTableInfo.AllowedDdlStatements = DdlStatements.All;
+      temporaryTableInfo.AllowedDdlStatements = DdlStatements.All & ~DdlStatements.Truncate;
       temporaryTableInfo.Features = TemporaryTableFeatures.Local;
       return temporaryTableInfo;
     }
