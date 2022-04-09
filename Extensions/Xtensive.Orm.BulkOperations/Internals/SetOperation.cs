@@ -227,7 +227,10 @@ namespace Xtensive.Orm.BulkOperations
         }
       }
       i = -1;
-      var entity = (IEntity) FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
+      var entity = (IEntity) (addContext.Lambda.Body is ConstantExpression ce
+          ? ce.Value
+          : FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke());
+
       foreach (ColumnInfo column in addContext.Field.Columns) {
         i++;
         SqlExpression value;

@@ -81,7 +81,7 @@ namespace Xtensive.Orm.BulkOperations
         TResult value) where T: IEntity =>
       Set(query,
         field,
-        Expression.Lambda<Func<T, TResult>>(Expression.Constant(value), Expression.Parameter(typeof(T), "a"))   // Manually constructed expression is simpler than `a => value`
+        Expression.Lambda<Func<T, TResult>>(Expression.Constant(value, typeof(TResult)), Expression.Parameter(typeof(T), "a"))   // Manually constructed expression is simpler than `a => value`
       );
 
     /// <summary>
