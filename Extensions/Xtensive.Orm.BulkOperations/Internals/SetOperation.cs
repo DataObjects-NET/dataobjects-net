@@ -146,10 +146,7 @@ namespace Xtensive.Orm.BulkOperations
     private void AddConstantValue(AddValueContext addContext)
     {
       SqlTableColumn column = SqlDml.TableColumn(addContext.Statement.Table, addContext.Field.Column.Name);
-      var constant =
-        addContext.Lambda.Body is ConstantExpression ce
-          ? ce.Value
-          : FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke();
+      var constant = addContext.EvalLambdaBody();
       SqlExpression value;
       if (constant == null) {
         value = SqlDml.Null;
@@ -227,9 +224,7 @@ namespace Xtensive.Orm.BulkOperations
         }
       }
       i = -1;
-      var entity = (IEntity) (addContext.Lambda.Body is ConstantExpression ce
-          ? ce.Value
-          : FastExpression.Lambda(addContext.Lambda.Body).Compile().DynamicInvoke());
+      var entity = (IEntity)addContext.EvalLambdaBody();
 
       foreach (ColumnInfo column in addContext.Field.Columns) {
         i++;
