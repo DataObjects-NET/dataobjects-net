@@ -116,6 +116,7 @@ namespace Xtensive.Core
     /// <typeparam name="T">Type of the sequence item.</typeparam>
     /// <param name="items">The sequence to apply the <paramref name="action"/> to.</param>
     /// <param name="action">The action to apply.</param>
+    [Obsolete("Use foreach statement")]
     public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
     {
       foreach (var item in items)

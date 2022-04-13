@@ -300,8 +300,9 @@ namespace Xtensive.Modelling.Comparison
               nodeDifference.IsDependentOnParent = true;
             }
             else if (propertyDifference is NodeCollectionDifference nodeCollectionDifference) {
-              nodeCollectionDifference.ItemChanges
-                .ForEach(item=>item.IsDependentOnParent = true);
+              foreach (var item in nodeCollectionDifference.ItemChanges) {
+                item.IsDependentOnParent = true;
+              }
             }
           }
           difference.PropertyChanges.Add(property.Name, propertyDifference);

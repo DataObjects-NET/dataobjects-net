@@ -54,7 +54,9 @@ namespace Xtensive.Orm.Tests.Upgrade.Sample3
     protected override void AddUpgradeHints(ISet<UpgradeHint> hints)
     {
       if (runningVersion=="2")
-        Version1To2Hints.ForEach(hint => hints.Add(hint));
+        foreach (var hint in Version1To2Hints) {
+          hints.Add(hint);
+        }
     }
 
     public override void OnUpgrade()

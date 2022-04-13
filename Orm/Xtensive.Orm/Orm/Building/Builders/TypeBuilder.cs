@@ -273,7 +273,9 @@ namespace Xtensive.Orm.Building.Builders
         if (!IsAuxiliaryType(type)) {
           AssociationBuilder.BuildAssociation(context, fieldDef, fieldInfo);
           if (type.IsStructure) {
-            fieldInfo.Associations.ForEach(a => context.DiscardedAssociations.Add(a));
+            foreach (var a in fieldInfo.Associations) {
+              context.DiscardedAssociations.Add(a);
+            }
           }
         }
 

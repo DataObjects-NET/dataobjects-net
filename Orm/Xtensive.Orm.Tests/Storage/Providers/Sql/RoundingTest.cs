@@ -90,15 +90,20 @@ namespace Xtensive.Orm.Tests.Storage.Providers.Sql
         Assert.That(ex.InnerException.Message.Contains("Power", StringComparison.Ordinal));
       }
       else {
-        Query.All<DecimalContainer>()
-          .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1) })
-          .GroupBy(x => x.DecimalRound)
-          .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Decimal, 1), x.Key)));
-
-        Query.All<DoubleContainer>()
-          .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1) })
-          .GroupBy(x => x.DoubleRound)
-          .ForEach(x => x.ForEach(i => AreEqual(Math.Round(i.Double, 1), x.Key)));
+        foreach (var x in Query.All<DecimalContainer>()
+            .Select(x => new { Decimal = x.d18_9, DecimalRound = Math.Round(x.d18_9, 1) })
+            .GroupBy(x => x.DecimalRound)) {
+          foreach (var i in x) {
+            AreEqual(Math.Round(i.Decimal, 1), x.Key);
+          }
+        }
+        foreach (var x in Query.All<DoubleContainer>()
+            .Select(x => new { Double = x.FDouble, DoubleRound = Math.Round(x.FDouble, 1) })
+            .GroupBy(x => x.DoubleRound)) {
+          foreach (var i in x) {
+            AreEqual(Math.Round(i.Double, 1), x.Key);
+          }
+        }
       }
 
       

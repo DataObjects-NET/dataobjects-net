@@ -494,10 +494,11 @@ namespace Xtensive.Orm.Upgrade
       if (context.Stage==UpgradeStage.Final) {
         var schemaExtractionResult = new SchemaExtractionResult();
         var defaultNode = context.ParentDomain.StorageNodeManager.GetNode(WellKnown.DefaultNodeId);
-        defaultNode.Mapping.GetAllSchemaNodes()
-          .Select(node => node.Schema.Catalog)
-          .Distinct()
-          .ForEach(schemaExtractionResult.Catalogs.Add);
+        foreach (var x in defaultNode.Mapping.GetAllSchemaNodes()
+            .Select(node => node.Schema.Catalog)
+            .Distinct()) {
+          schemaExtractionResult.Catalogs.Add(x);
+        }
         return schemaExtractionResult.MakeShared();
       }
       return baseSchemaExtractionResult;

@@ -235,7 +235,9 @@ namespace Xtensive.Orm.Upgrade
       var update = SqlDml.Update(toTableRef);
 
       if (fromTable == toTable) {
-        copiedColumns.ForEach(pair => update.Values[toTableRef[pair.Second.Name]] = toTableRef[pair.First.Name]);
+        foreach (var pair in copiedColumns) {
+          update.Values[toTableRef[pair.Second.Name]] = toTableRef[pair.First.Name];
+        }
         currentOutput.RegisterCommand(update);
         return;
       }
@@ -243,12 +245,20 @@ namespace Xtensive.Orm.Upgrade
       if (providerInfo.Supports(ProviderFeatures.UpdateFrom)) {
         var fromTableRef = SqlDml.TableRef(fromTable);
         var select = SqlDml.Select(fromTableRef);
-        identityColumns.ForEach(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
-        copiedColumns.ForEach(pair => select.Columns.Add(fromTableRef[pair.First.Name]));
+        foreach (var pair in identityColumns) {
+          select.Columns.Add(fromTableRef[pair.First.Name]);
+        }
+        foreach (var pair in copiedColumns) {
+          select.Columns.Add(fromTableRef[pair.First.Name]);
+        }
         var selectRef = SqlDml.QueryRef(select, SubqueryAliasName);
         update.From = selectRef;
-        copiedColumns.ForEach(pair => update.Values[toTableRef[pair.Second.Name]] = selectRef[pair.First.Name]);
-        identityColumns.ForEach(pair => update.Where &= toTableRef[pair.Second.Name]==selectRef[pair.First.Name]);
+        foreach (var pair in copiedColumns) {
+          update.Values[toTableRef[pair.Second.Name]] = selectRef[pair.First.Name];
+        }
+        foreach (var pair in identityColumns) {
+          update.Where &= toTableRef[pair.Second.Name]==selectRef[pair.First.Name];
+        }
       }
       else {
         foreach (var columnPair in copiedColumns) {
@@ -749,10 +759,12 @@ namespace Xtensive.Orm.Upgrade
           deleteFromAncestorTableActions.Add(deleteAction);
       }
 
-      updateActions.ForEach(
-        a => ProcessUpdateDataAction(a, postCopy));
-      deleteFromConnectorTableActions.ForEach(
-        a => ProcessDeleteDataAction(a, postCopy));
+      foreach (var a in updateActions) {
+        ProcessUpdateDataAction(a, postCopy);
+      }
+      foreach (var a in deleteFromConnectorTableActions) {
+        ProcessDeleteDataAction(a, postCopy);
+      }
       ProcessClearAncestorsActions(deleteFromAncestorTableActions, postCopy);
 
       // Necessary, since this method is called twice on upgrade
@@ -1163,11 +1175,15 @@ namespace Xtensive.Orm.Upgrade
         var identifiedTableRef = SqlDml.TableRef(identifiedTable,
           string.Format(SubqueryTableAliasNameFormat, identifiedTable.Name));
         var select = SqlDml.Select(identifiedTableRef);
-        selectColumns.ForEach(column => select.Columns.Add(identifiedTableRef[column.Name]));
-        identityColumnPairs.ForEach(pair =>
-          select.Where &= identifiedTableRef[pair.First.Name]==table[pair.Second.Name]);
-        identityConstantPairs.ForEach(pair =>
-          select.Where &= identifiedTableRef[pair.First.Name]==SqlDml.Literal(pair.Second));
+        foreach (var column in selectColumns) {
+          select.Columns.Add(identifiedTableRef[column.Name]);
+        }
+        foreach (var pair in identityColumnPairs) {
+          select.Where &= identifiedTableRef[pair.First.Name]==table[pair.Second.Name];
+        }
+        foreach (var pair in identityConstantPairs) {
+          select.Where &= identifiedTableRef[pair.First.Name]==SqlDml.Literal(pair.Second);
+        }
         return SqlDml.Exists(select);
       }
       else {
@@ -1179,8 +1195,9 @@ namespace Xtensive.Orm.Upgrade
         if (!identityConstantPairs.Any())
           throw new InvalidOperationException(Strings.ExIncorrectCommandParameters);
         SqlExpression expression = null;
-        identityConstantPairs.ForEach(pair =>
-          expression &= table[pair.First.Name]==SqlDml.Literal(pair.Second));
+        foreach (var pair in identityConstantPairs) {
+          expression &= table[pair.First.Name]==SqlDml.Literal(pair.Second);
+        }
         return expression;
       }
     }

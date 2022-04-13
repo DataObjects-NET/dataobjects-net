@@ -229,11 +229,13 @@ namespace Xtensive.Orm.Upgrade
       HashSet<StoredTypeInfo> conflictsByTable, bool isMovedToAnotherHierarchy)
     {
       if (!isMovedToAnotherHierarchy) {
-        removedTypes.ForEach((rType) =>
-          GenerateCleanupByForeignKeyHints(rType, GetCleanupInfo(rType, conflictsByTable, isMovedToAnotherHierarchy)));
+        foreach (var rType in removedTypes) {
+          GenerateCleanupByForeignKeyHints(rType, GetCleanupInfo(rType, conflictsByTable, isMovedToAnotherHierarchy));
+        }
       }
-      removedTypes.ForEach(type =>
-          GenerateCleanupByPrimaryKeyHints(type, GetCleanupInfo(type, conflictsByTable, isMovedToAnotherHierarchy)));
+      foreach (var type in removedTypes) {
+          GenerateCleanupByPrimaryKeyHints(type, GetCleanupInfo(type, conflictsByTable, isMovedToAnotherHierarchy));
+      }
     }
 
     private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType, CleanupInfo cleanupInfo)
@@ -350,8 +352,9 @@ namespace Xtensive.Orm.Upgrade
     private void GenerateCleanupByForeignKeyHints(StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
       var removedTypeAndAncestors = new HashSet<StoredTypeInfo>(removedType.AllAncestors.Length + 1);
-      removedType.AllAncestors.Append(removedType).ForEach(t => removedTypeAndAncestors.Add(t));
-
+      foreach (var t in removedType.AllAncestors.Append(removedType)) {
+        removedTypeAndAncestors.Add(t);
+      }
 
       var descendantsToHash = (cleanupInfo & CleanupInfo.ConflictByTable) != 0
         ? removedType.AllDescendants
@@ -568,13 +571,19 @@ namespace Xtensive.Orm.Upgrade
     private void CalculateAffectedTablesAndColumns(NativeTypeClassifier<UpgradeHint> hints)
     {
       if (hints.GetItemCount<RemoveTypeHint>() > 0) {
-        hints.GetItems<RemoveTypeHint>().ForEach(UpdateAffectedTables);
+        foreach (var hint in hints.GetItems<RemoveTypeHint>()) {
+          UpdateAffectedTables(hint);
+        }
       }
       if (hints.GetItemCount<RemoveFieldHint>() > 0) {
-        hints.GetItems<RemoveFieldHint>().ForEach(UpdateAffectedColumns);
+        foreach (var hint in hints.GetItems<RemoveFieldHint>()) {
+          UpdateAffectedColumns(hint);
+        }
       }
       if (hints.GetItemCount<ChangeFieldTypeHint>() > 0) {
-        hints.GetItems<ChangeFieldTypeHint>().ForEach(UpdateAffectedColumns);
+        foreach (var hint in hints.GetItems<ChangeFieldTypeHint>()) {
+          UpdateAffectedColumns(hint);
+        }
       }
     }
 

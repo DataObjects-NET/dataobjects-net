@@ -218,19 +218,22 @@ namespace Xtensive.Orm.Upgrade
         .SelectMany(hint => hint.AffectedTables)
         .ToHashSet();
 
-      actions
-        .OfType<RemoveNodeAction>()
-        .Where(IsTableAction)
-        .Where(a => !safeTableRemovals.Contains(a.Path, Comparer))
-        .ForEach(output.Add);
+      foreach (var x in actions
+          .OfType<RemoveNodeAction>()
+          .Where(IsTableAction)
+          .Where(a => !safeTableRemovals.Contains(a.Path, Comparer))) {
+        output.Add(x);
+      }
     }
 
     private static void GetCrossHierarchicalMovements(IEnumerable<NodeAction> actions, ICollection<NodeAction> output)
     {
-      (from action in actions.OfType<DataAction>()
-        let deleteDataHint = action.DataHint as DeleteDataHint
-        where deleteDataHint!=null && deleteDataHint.IsUnsafe
-        select action).ForEach(output.Add);
+      foreach (var x in (from action in actions.OfType<DataAction>()
+          let deleteDataHint = action.DataHint as DeleteDataHint
+          where deleteDataHint!=null && deleteDataHint.IsUnsafe
+          select action)) {
+        output.Add(x);
+      }
     }
 
     private static bool IsTypeChangeAction(PropertyChangeAction action)

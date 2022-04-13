@@ -164,9 +164,15 @@ namespace Xtensive.Sql.Model
     internal void MakeNamesUnreadable()
     {
       isNamesReadingDenied = true;
-      this.Schemas.ForEach(s => s.MakeNamesUnreadable());
-      this.PartitionFunctions.ForEach(pf => pf.MakeNamesUnreadable());
-      this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
+      foreach (var s in this.Schemas) {
+        s.MakeNamesUnreadable();
+      }
+      foreach (var pf in this.PartitionFunctions) {
+        pf.MakeNamesUnreadable();
+      }
+      foreach (var ps in this.PartitionSchemas) {
+        ps.MakeNamesUnreadable();
+      }
     }
 
     internal string GetActualName(IReadOnlyDictionary<string, string> catalogNameMap)

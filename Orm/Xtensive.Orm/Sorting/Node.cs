@@ -155,7 +155,9 @@ namespace Xtensive.Sorting
         return Enumerable.Empty<NodeConnection<TNodeItem, TConnectionItem>>();
 
       var nodesToRemove = outgoingConnections.Where(connection => connection.Destination==destination).ToList();
-      EnumerableExtensions.ForEach(nodesToRemove, nodeConnection=>nodeConnection.UnbindFromNodes());
+      foreach (var nodeConnection in nodesToRemove) {
+        nodeConnection.UnbindFromNodes();
+      }
       return nodesToRemove;
     }
 

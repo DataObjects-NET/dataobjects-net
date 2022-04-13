@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -27,7 +27,9 @@ namespace Xtensive.Orm.Upgrade.Internals
       if (buildAsCopy)
         CopyCatalogs(result.Catalogs);
       else {
-        GetDefaultNodeCatalogs().ForEach(result.Catalogs.Add);
+        foreach (var x in GetDefaultNodeCatalogs()) {
+          result.Catalogs.Add(x);
+        }
         result.MakeShared();
       }
       return result;
@@ -42,10 +44,10 @@ namespace Xtensive.Orm.Upgrade.Internals
         catalogs.Add(cloner.Clone(defaultNodeCatalogs[0], mappingResolver, currentCatalogNodes[0]));
       }
       else {
-        defaultNodeCatalogs
-          .Select(
-              catalog => cloner.Clone(catalog, mappingResolver, buildingNodeConfiguration.DatabaseMapping.Apply(catalog.Name)))
-          .ForEach(catalogs.Add);
+        foreach (var x in defaultNodeCatalogs
+            .Select(catalog => cloner.Clone(catalog, mappingResolver, buildingNodeConfiguration.DatabaseMapping.Apply(catalog.Name)))) {
+          catalogs.Add(x);
+        }
       }
     }
 
