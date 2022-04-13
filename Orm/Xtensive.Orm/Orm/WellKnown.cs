@@ -98,7 +98,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Number of records in multi-record INSERT SQL statement
     /// </summary>
-    public const int RecordsInInsertBatch = 10;
+    public const int RecordsInInsertBatch = 20;
 
     /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
