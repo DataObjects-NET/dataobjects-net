@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Validation
     public bool IsImmediate
     {
       get => isImmediate;
-      set {
+      init {
         if (Domain != null) {
           throw Exceptions.AlreadyInitialized(null);
         }

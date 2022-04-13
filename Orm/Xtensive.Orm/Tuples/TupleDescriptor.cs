@@ -23,11 +23,10 @@ namespace Xtensive.Tuples
   /// Provides information about <see cref="Tuple"/> structure.
   /// </summary>
   [Serializable]
-  public sealed class TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
+  public readonly struct TupleDescriptor : IEquatable<TupleDescriptor>, IReadOnlyList<Type>, ISerializable
   {
     private static readonly TupleDescriptor EmptyDescriptor = new TupleDescriptor(Array.Empty<Type>());
 
-    private readonly int FieldCount;
     internal readonly int ValuesLength;
     internal readonly int ObjectsLength;
 
@@ -36,6 +35,8 @@ namespace Xtensive.Tuples
     
     [field: NonSerialized]
     private Type[] FieldTypes { get; }
+
+    private int FieldCount => FieldTypes.Length;
 
     /// <summary>
     /// Gets the empty tuple descriptor.
@@ -85,23 +86,24 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
-      if (ReferenceEquals(other, null))
+      if (FieldTypes == null) {
+        return other.FieldTypes == null;
+      }
+      if (other.FieldTypes == null || FieldCount != other.FieldCount) {
         return false;
-      if (ReferenceEquals(other, this))
-        return true;
-      if (FieldCount!=other.FieldCount)
-        return false;
-      for (int i = 0; i < FieldCount; i++)
-        if (FieldTypes[i]!=other.FieldTypes[i])
+      }
+
+      for (int i = 0; i < FieldCount; i++) {
+        if (FieldTypes[i] != other.FieldTypes[i]) {
           return false;
+        }
+      }
       return true;
     }
 
     /// <inheritdoc/>
-    public override bool Equals(object obj)
-    {
-      return Equals(obj as TupleDescriptor);
-    }
+    public override bool Equals(object obj) =>
+      obj is TupleDescriptor other && Equals(other);
 
     /// <inheritdoc/>
     public override int GetHashCode()
@@ -112,19 +114,9 @@ namespace Xtensive.Tuples
       return result;
     }
 
-    public static bool operator ==(TupleDescriptor left, TupleDescriptor right)
-    {
-      if (ReferenceEquals(left, right))
-        return true;
-      if (ReferenceEquals(left, null))
-        return false;
-      return left.Equals(right);
-    }
+    public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) => left.Equals(right);
 
-    public static bool operator !=(TupleDescriptor left, TupleDescriptor right)
-    {
-      return !(left==right);
-    }
+    public static bool operator !=(in TupleDescriptor left, in TupleDescriptor right) => !(left == right);
 
     #endregion
 
@@ -268,12 +260,14 @@ namespace Xtensive.Tuples
 
     private TupleDescriptor(Type[] fieldTypes)
     {
+      var fieldCount = fieldTypes.Length;
       FieldTypes = fieldTypes;
-      FieldCount = fieldTypes.Length;
-      FieldDescriptors = new PackedFieldDescriptor[FieldCount];
+      FieldDescriptors = new PackedFieldDescriptor[fieldCount];
 
-      switch (FieldCount) {
+      switch (fieldCount) {
         case 0:
+          ValuesLength = 0;
+          ObjectsLength = 0;
           return;
         case 1:
           TupleLayout.ConfigureLen1(ref FieldTypes[0],
@@ -289,12 +283,11 @@ namespace Xtensive.Tuples
           TupleLayout.Configure(FieldTypes, FieldDescriptors, out ValuesLength, out ObjectsLength);
           break;
       }
-
     }
 
     public TupleDescriptor(SerializationInfo info, StreamingContext context)
     {
-      FieldCount = info.GetInt32("FieldCount");
+      var fieldCount = info.GetInt32("FieldCount");
       ValuesLength = info.GetInt32("ValuesLength");
       ObjectsLength = info.GetInt32("ObjectsLength");
 

@@ -61,9 +61,11 @@ namespace Xtensive.Orm.Linq
       if (memberType==MemberType.Entity
         && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
-        IEnumerable<int> typeIds = type.GetDescendants(true)
-          .Union(type.GetImplementors(true))
-          .Union(Enumerable.Repeat(type, 1))
+        var typeInfos = type.RecursiveDescendants.ToHashSet();
+        typeInfos.UnionWith(type.RecursiveImplementors);
+        typeInfos.Add(type);
+
+        IEnumerable<int> typeIds = typeInfos
           .Select(t => context.TypeIdRegistry.GetTypeId(t));
         MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
         Expression boolExpression = null;
@@ -1025,7 +1027,7 @@ namespace Xtensive.Orm.Linq
 
       var result = new List<Expression>();
       foreach (PersistentFieldExpression fieldExpression in structureFields) {
-        if (!structureType.GetProperties(BindingFlags.Instance | BindingFlags.Public).Contains(fieldExpression.UnderlyingProperty)) {
+        if (!TypeHelper.GetProperties(structureType, BindingFlags.Instance | BindingFlags.Public).Contains(fieldExpression.UnderlyingProperty)) {
           if (!context.Model.Types[structureType].Fields[fieldExpression.Name].IsDynamicallyDefined) {
             continue;
           }
@@ -1280,9 +1282,7 @@ namespace Xtensive.Orm.Linq
         if (constantExpression.Value==null && constantExpression.Type==WellKnownTypes.Object) {
           var newConstantExpressionType = anonymousTypeForNullValues ?? constantExpression.Type;
           constantExpression = Expression.Constant(null, newConstantExpressionType);
-          return constantExpression
-            .Type
-            .GetProperties()
+          return TypeHelper.GetProperties(constantExpression.Type)
             .OrderBy(property => property.Name)
             .Select(p => Expression.MakeMemberAccess(constantExpression, p))
             .Cast<Expression>()
@@ -1290,9 +1290,7 @@ namespace Xtensive.Orm.Linq
         }
       }
 
-      return expression
-        .Type
-        .GetProperties()
+      return TypeHelper.GetProperties(expression.Type)
         .OrderBy(property => property.Name)
         .Select(p => Expression.MakeMemberAccess(expression, p))
         .Select(e => (Expression) e)
@@ -1650,7 +1648,7 @@ namespace Xtensive.Orm.Linq
     {
       var @interface = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var implementors = context.Model.Types[@interface].GetImplementors(true);
+      var implementors = context.Model.Types[@interface].RecursiveImplementors;
       var fields = implementors
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
         .Concat(implementors
@@ -1664,7 +1662,7 @@ namespace Xtensive.Orm.Linq
     {
       var ancestor = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var descendants = context.Model.Types[ancestor].GetDescendants(true);
+      var descendants = context.Model.Types[ancestor].RecursiveDescendants;
       var fields = descendants
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic))
         .Where(f => f != null);

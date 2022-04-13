@@ -1,4 +1,5 @@
 using System;
+using System.Diagnostics;
 using Xtensive.Orm.Logging;
 using JetBrains.Annotations;
 
@@ -17,12 +18,12 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IDisposable DebugRegion(string format, params object[] args)
+    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
     }
 
-    public static IDisposable InfoRegion(string format, params object[] args)
+    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
     {
       return instance.InfoRegion(format, args);
     }
@@ -133,12 +134,12 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IDisposable DebugRegion(string format, params object[] args)
+    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
     }
 
-    public static IDisposable InfoRegion(string format, params object[] args)
+    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
     {
       return instance.InfoRegion(format, args);
     }
@@ -249,12 +250,12 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IDisposable DebugRegion(string format, params object[] args)
+    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
     }
 
-    public static IDisposable InfoRegion(string format, params object[] args)
+    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
     {
       return instance.InfoRegion(format, args);
     }
@@ -276,6 +277,7 @@ namespace Xtensive
       return exception;
     }
 
+    [Conditional("DO_TRACE")]
     public static void Info(string format, params object[] args)
     {
       instance.Info(format, args);
@@ -365,12 +367,12 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IDisposable DebugRegion(string format, params object[] args)
+    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
     }
 
-    public static IDisposable InfoRegion(string format, params object[] args)
+    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
     {
       return instance.InfoRegion(format, args);
     }
@@ -481,12 +483,12 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IDisposable DebugRegion(string format, params object[] args)
+    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
     {
       return instance.DebugRegion(format, args);
     }
 
-    public static IDisposable InfoRegion(string format, params object[] args)
+    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
     {
       return instance.InfoRegion(format, args);
     }
@@ -597,20 +599,14 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IDisposable DebugRegion(string format, params object[] args)
-    {
-      return instance.DebugRegion(format, args);
-    }
+    public static IndentManager.IndentScope DebugRegion(string format, params object[] args) =>
+      instance.DebugRegion(format, args);
 
-    public static IDisposable InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
-    }
+    public static IndentManager.IndentScope InfoRegion(string format, params object[] args) =>
+      instance.InfoRegion(format, args);
 
-    public static void Debug(string format, params object[] args)
-    {
+    public static void Debug(string format, params object[] args) =>
       instance.Debug(format, args);
-    }
 
     public static Exception Debug(Exception exception, string format, params object[] args)
     {
@@ -624,10 +620,8 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Info(string format, params object[] args)
-    {
+    public static void Info(string format, params object[] args) =>
       instance.Info(format, args);
-    }
 
     public static Exception Info(Exception exception, string format, params object[] args)
     {
@@ -641,10 +635,8 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
+    public static void Warning(string format, params object[] args) =>
       instance.Warning(format, args);
-    }
 
     public static Exception Warning(Exception exception, string format, params object[] args)
     {
@@ -699,6 +691,4 @@ namespace Xtensive
       instance = manager.GetLog(Name);
     }
   }
-
 }
- 

@@ -120,7 +120,7 @@ namespace Xtensive.Tuples.Packed
       return (TupleFieldState) ((block >> d.StateBitOffset) & 3);
     }
 
-    public PackedTuple(TupleDescriptor descriptor)
+    public PackedTuple(in TupleDescriptor descriptor)
     {
       PackedDescriptor = descriptor;
 

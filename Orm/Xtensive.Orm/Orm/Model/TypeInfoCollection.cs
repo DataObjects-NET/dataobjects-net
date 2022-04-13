@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -21,12 +21,8 @@ namespace Xtensive.Orm.Model
     : NodeCollection<TypeInfo>,
       IFilterable<TypeAttributes, TypeInfo>
   {
-    private readonly Dictionary<Type, TypeInfo> typeTable = new Dictionary<Type, TypeInfo>();
-    private readonly Dictionary<string, TypeInfo> fullNameTable = new Dictionary<string, TypeInfo>();
-    private readonly Dictionary<TypeInfo, TypeInfo> ancestorTable = new Dictionary<TypeInfo, TypeInfo>();
-    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> descendantTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
-    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> interfaceTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
-    private readonly Dictionary<TypeInfo, HashSet<TypeInfo>> implementorTable = new Dictionary<TypeInfo, HashSet<TypeInfo>>();
+    private readonly Dictionary<Type, TypeInfo> typeTable = new();
+    private readonly Dictionary<string, TypeInfo> fullNameTable = new();
 
     private TypeIdRegistry typeIdRegistry;
 
@@ -56,26 +52,17 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the structures that are contained in this collection.
     /// </summary>
-    public ICollection<TypeInfo> Structures
-    {
-      get { return Find(TypeAttributes.Structure); }
-    }
+    public IEnumerable<TypeInfo> Structures => Find(TypeAttributes.Structure);
 
     /// <summary>
     /// Gets the entities that are contained in this collection.
     /// </summary>
-    public ICollection<TypeInfo> Entities
-    {
-      get { return Find(TypeAttributes.Entity); }
-    }
+    public IEnumerable<TypeInfo> Entities => Find(TypeAttributes.Entity);
 
     /// <summary>
     /// Gets the interfaces that are contained in this collection.
     /// </summary>
-    public ICollection<TypeInfo> Interfaces
-    {
-      get { return Find(TypeAttributes.Interface); }
-    }
+    public IEnumerable<TypeInfo> Interfaces => Find(TypeAttributes.Interface);
 
     internal TypeIdRegistry TypeIdRegistry
     {
@@ -181,148 +168,6 @@ namespace Xtensive.Orm.Model
     }
 
     /// <summary>
-    /// Finds the ancestor of the specified <paramref name="item"/>.
-    /// </summary>
-    /// <param name="item">The type to search ancestor for.</param>
-    /// <returns><see cref="TypeInfo"/> instance that is ancestor of specified <paramref name="item"/> or 
-    /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public TypeInfo FindAncestor(TypeInfo item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-      TypeInfo result;
-      return ancestorTable.TryGetValue(item, out result) ? result : null;
-    }
-
-    /// <summary>
-    /// Finds the set of direct descendants of the specified <paramref name="item"/>.
-    /// </summary>
-    /// <param name="item">The type to search descendants for.</param>
-    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are descendants of specified <paramref name="item"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public IEnumerable<TypeInfo> FindDescendants(TypeInfo item)
-    {
-      return FindDescendants(item, false);
-    }
-
-    /// <summary>
-    /// Finds the set of descendants of the specified <paramref name="item"/>.
-    /// </summary>
-    /// <param name="item">The type to search descendants for.</param>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested descendants will be returned.</param>
-    /// <returns>
-    ///   <see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are descendants of specified <paramref name="item"/>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public IEnumerable<TypeInfo> FindDescendants(TypeInfo item, bool recursive)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-
-      if (descendantTable.TryGetValue(item, out var result)) {
-        foreach (var item1 in result) {
-          yield return item1;
-          if (recursive)
-            foreach (var item2 in FindDescendants(item1, true))
-              yield return item2;
-        }
-      }
-    }
-
-    /// <summary>
-    /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="item"/> implements.
-    /// </summary>
-    /// <param name="item">The type to search interfaces for.</param>
-    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implemented by specified <paramref name="item"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item)
-    {
-      return FindInterfaces(item, false);
-    }
-
-    /// <summary>
-    /// Find the <see cref="IList{T}"/> of interfaces that specified <paramref name="item"/> implements.
-    /// </summary>
-    /// <param name="item">The type to search interfaces for.</param>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and non-direct implemented interfaces will be returned.</param>
-    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implemented by specified <paramref name="item"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public IEnumerable<TypeInfo> FindInterfaces(TypeInfo item, bool recursive)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-
-      if (interfaceTable.TryGetValue(item, out var result)) {
-        foreach (var item1 in result)
-          yield return item1;
-      }
-
-      if (!recursive || item.IsInterface)
-        yield break;
-
-      var ancestor = FindAncestor(item);
-      while (ancestor != null) {
-        foreach (var @interface in FindInterfaces(ancestor))
-          yield return @interface;
-        ancestor = FindAncestor(ancestor);
-      }
-    }
-
-    /// <summary>
-    /// Finds the set of direct implementors of the specified <paramref name="item"/>.
-    /// </summary>
-    /// <param name="item">The type to search implementors for.</param>
-    /// <returns><see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implementors of specified <paramref name="item"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public IEnumerable<TypeInfo> FindImplementors(TypeInfo item)
-    {
-      return FindImplementors(item, false);
-    }
-
-    /// <summary>
-    /// Finds the set of implementors of the specified <paramref name="item"/>.
-    /// </summary>
-    /// <param name="item">The type to search implementors for.</param>
-    /// <param name="recursive">if set to <see langword="true"/> then both direct and nested implementors will be returned.</param>
-    /// <returns>
-    ///   <see cref="IEnumerable{T}"/> of <see cref="TypeInfo"/> instance that are implementors of specified <paramref name="item"/>.
-    /// </returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public IEnumerable<TypeInfo> FindImplementors(TypeInfo item, bool recursive)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-
-      if (implementorTable.TryGetValue(item, out var result)) {
-        foreach (var item1 in result) {
-          yield return item1;
-          if (recursive && !item1.IsInterface)
-            foreach (var item2 in FindDescendants(item1, true))
-              yield return item2;
-        }
-      }
-    }
-
-    /// <summary>
-    /// Finds the root of the specified <paramref name="item"/>.
-    /// </summary>
-    /// <param name="item">The type to search root for.</param>
-    /// <returns><see cref="TypeInfo"/> instance that is root of specified <paramref name="item"/>.</returns>
-    /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
-    public TypeInfo FindRoot(TypeInfo item)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(item, "item");
-
-      if (item.IsInterface || item.IsStructure)
-        return null;
-
-      var candidate = item;
-      while (true) {
-        var ancestor = FindAncestor(candidate);
-        if (ancestor == null)
-          return candidate;
-        candidate = ancestor;
-      }
-    }
-
-    /// <summary>
     /// Finds the ancestor of the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type to search ancestor for.</param>
@@ -349,26 +194,19 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="criteria">The attributes.</param>
     /// <returns><see cref="ICollection{TItem}"/> that contains all found instances.</returns>
-    public ICollection<TypeInfo> Find(TypeAttributes criteria)
+    public IEnumerable<TypeInfo> Find(TypeAttributes criteria) => Find(criteria, MatchType.Partial);
+
+    public IEnumerable<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
     {
-      // We don't have any instance that has attributes == TypeAttributes.None
       if (criteria == TypeAttributes.None)
         return Array.Empty<TypeInfo>();
-
-      return Find(criteria, MatchType.Partial);
-    }
-
-    public ICollection<TypeInfo> Find(TypeAttributes criteria, MatchType matchType)
-    {
-      if (criteria==TypeAttributes.None)
-        return Array.Empty<TypeInfo>();
       switch (matchType) {
-      case MatchType.Partial:
-        return this.Where(f => (f.Attributes & criteria) > 0).ToList();
-      case MatchType.Full:
-        return this.Where(f => (f.Attributes & criteria)==criteria).ToList();
-      default:
-        return this.Where(f => (f.Attributes & criteria)==0).ToList();
+        case MatchType.Partial:
+          return this.Where(f => (f.Attributes & criteria) > 0);
+        case MatchType.Full:
+          return this.Where(f => (f.Attributes & criteria) == criteria);
+        default:
+          return this.Where(f => (f.Attributes & criteria) == 0);
       }
     }
 
@@ -384,22 +222,13 @@ namespace Xtensive.Orm.Model
       this.EnsureNotLocked();
 
       if (ancestor.IsInterface) {
-        HashSet<TypeInfo> interfaces;
-        if (!interfaceTable.TryGetValue(descendant, out interfaces)) {
-          interfaces = new HashSet<TypeInfo>();
-          interfaceTable[descendant] = interfaces;
-        }
-        interfaces.Add(ancestor);
+        descendant.AddInterface(ancestor);
       }
-      else
-        ancestorTable[descendant] = ancestor;
+      else {
+        descendant.Ancestor = ancestor;
+      }
 
-      HashSet<TypeInfo> descendants;
-      if (!descendantTable.TryGetValue(ancestor, out descendants)) {
-        descendants = new HashSet<TypeInfo>();
-        descendantTable[ancestor] = descendants;
-      }
-      descendants.Add(descendant);
+      ancestor.AddDescendant(descendant);
     }
 
     /// <summary>
@@ -411,19 +240,8 @@ namespace Xtensive.Orm.Model
     {
       this.EnsureNotLocked();
 
-      HashSet<TypeInfo> interfaces;
-      if (!interfaceTable.TryGetValue(implementor, out interfaces)) {
-        interfaces = new HashSet<TypeInfo>();
-        interfaceTable[implementor] = interfaces;
-      }
-      interfaces.Add(@interface);
-
-      HashSet<TypeInfo> implementors;
-      if (!implementorTable.TryGetValue(@interface, out implementors)) {
-        implementors = new HashSet<TypeInfo>();
-        implementorTable[@interface] = implementors;
-      }
-      implementors.Add(implementor);
+      implementor.AddInterface(@interface);
+      @interface.AddImplementor(implementor);
     }
 
     protected override string GetExceptionMessage(string key)

@@ -159,8 +159,7 @@ namespace Xtensive.Orm.Linq
         throw new InvalidOperationException(String.Format(Strings.ExUnableToPersistTypeXBecauseOfLoopReference, type.FullName));
 
 
-      IEnumerable<MemberInfo> members = type
-        .GetProperties(BindingFlags.Instance | BindingFlags.Public)
+      IEnumerable<MemberInfo> members = TypeHelper.GetProperties(type, BindingFlags.Instance | BindingFlags.Public)
         .Where(propertyInfo => propertyInfo.CanRead)
         .Cast<MemberInfo>()
         .Concat(type.GetFields(BindingFlags.Instance | BindingFlags.Public));

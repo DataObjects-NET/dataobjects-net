@@ -38,9 +38,9 @@ namespace Xtensive.Orm.Model
     private ReadOnlyCollection<ColumnInfo> columns;
     private TupleDescriptor tupleDescriptor;
     private TupleDescriptor keyTupleDescriptor;
-    private IList<TypeInfo> filterByTypes;
-    private IList<int> selectColumns;
-    private List<Pair<int, List<int>>> valueColumnsMap;
+    private IReadOnlyList<TypeInfo> filterByTypes;
+    private IReadOnlyList<int> selectColumns;
+    private IReadOnlyList<Pair<int, List<int>>> valueColumnsMap;
     private LambdaExpression filterExpression;
     private PartialIndexFilterInfo filter;
 
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the types for <see cref="IndexAttributes.Filtered"/> index.
     /// </summary>
-    public IList<TypeInfo> FilterByTypes
+    public IReadOnlyList<TypeInfo> FilterByTypes
     {
       get { return filterByTypes; }
       set
@@ -214,9 +214,9 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets the column indexes for <see cref="IndexAttributes.View"/> index.
     /// </summary>
-    public IList<int> SelectColumns
+    public IReadOnlyList<int> SelectColumns
     {
-      get { return selectColumns; }
+      get => selectColumns;
       set
       {
         this.EnsureNotLocked();
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Model
       }
     }
 
-    public List<Pair<int, List<int>>> ValueColumnsMap
+    public IReadOnlyList<Pair<int, List<int>>> ValueColumnsMap
     {
       get { return valueColumnsMap; }
       set
@@ -326,10 +326,10 @@ namespace Xtensive.Orm.Model
       base.UpdateState();
       CreateColumns();
       valueColumns.UpdateState();
-      foreach (IndexInfo baseIndex in underlyingIndexes)
+      foreach (IndexInfo baseIndex in underlyingIndexes) {
         baseIndex.UpdateState();
-      if (filter!=null)
-        filter.UpdateState();
+      }
+      filter?.UpdateState();
       CreateTupleDescriptors();
 
       if (!IsPrimary)
@@ -383,14 +383,15 @@ namespace Xtensive.Orm.Model
     private void CreateTupleDescriptors()
     {
       tupleDescriptor = TupleDescriptor.Create(
-        Columns.Select(c => c.ValueType).ToArray(Columns.Count));
+        Columns.Select(static c => c.ValueType).ToArray(Columns.Count));
       keyTupleDescriptor = TupleDescriptor.Create(
-        KeyColumns.Select(c => c.Key.ValueType).ToArray(KeyColumns.Count));
+        KeyColumns.Select(static c => c.Key.ValueType).ToArray(KeyColumns.Count));
     }
 
     private void CreateColumns()
     {
-      var result = new List<ColumnInfo>(keyColumns.Select(pair => pair.Key));
+      var result = new List<ColumnInfo>(keyColumns.Count + valueColumns.Count);
+      result.AddRange(keyColumns.Select(static pair => pair.Key));
       result.AddRange(valueColumns);
       columns = result.AsReadOnly();
     }

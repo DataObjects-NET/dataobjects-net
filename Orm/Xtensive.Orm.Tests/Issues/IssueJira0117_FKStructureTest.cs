@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Storage
     public void AssociationThroughStructureTest()
     {
       var type = Domain.Model.Types[typeof (Owner1)];
-      Assert.AreEqual(2, type.GetOwnerAssociations().Count);
+      Assert.AreEqual(2, type.GetOwnerAssociations().Count());
       Assert.AreEqual(8, Domain.Model.Associations.Count);
     }
 

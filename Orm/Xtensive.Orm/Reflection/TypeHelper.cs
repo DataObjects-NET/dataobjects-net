@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
@@ -53,14 +53,14 @@ namespace Xtensive.Reflection
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
-    private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces =
-      new ConcurrentDictionary<Type, Type[]>();
+    private static readonly ConcurrentDictionary<Type, IReadOnlyList<Type>> UnorderedInterfaces = new();
+    private static readonly ConcurrentDictionary<Type, IReadOnlyList<Type>> OrderedInterfaces = new();
 
-    private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles =
-      new ConcurrentDictionary<Type, Type[]>();
+    private static readonly ConcurrentDictionary<(Type Type, BindingFlags BindingAttr), IReadOnlyList<PropertyInfo>> Properties = new();
 
-    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
-      new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
+    private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles = new();
+
+    private static readonly ConcurrentDictionary<(Type, Type), InterfaceMapping> InterfaceMaps = new();
 
     private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 =
       new ConcurrentDictionary<(MethodInfo, Type), MethodInfo>();
@@ -236,7 +236,7 @@ namespace Xtensive.Reflection
       }
 
       // Nothing is found; trying to find an associate for implemented interface
-      var interfaces = currentForType.GetInterfaces();
+      var interfaces = GetInterfacesUnordered(currentForType).ToArray();
       var interfaceCount = interfaces.Length;
       var suppressed = new BitArray(interfaceCount);
       while (interfaceCount > 0) {
@@ -677,8 +677,8 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="types">The types to sort.</param>
     /// <returns>The list of <paramref name="types"/> ordered by their inheritance.</returns>
-    public static List<Type> OrderByInheritance(this IEnumerable<Type> types) =>
-      TopologicalSorter.Sort(types, (t1, t2) => t1.IsAssignableFrom(t2));
+    public static IEnumerable<Type> OrderByInheritance(this IEnumerable<Type> types) =>
+      TopologicalSorter.Sort(types, static (t1, t2) => t1.IsAssignableFrom(t2));
 
     /// <summary>
     /// Fast analogue of <see cref="Type.GetInterfaceMap"/>.
@@ -687,16 +687,31 @@ namespace Xtensive.Reflection
     /// <param name="targetInterface">The target interface.</param>
     /// <returns>Interface map for the specified interface.</returns>
     public static InterfaceMapping GetInterfaceMapFast(this Type type, Type targetInterface) =>
-      interfaceMaps.GetOrAdd(new Pair<Type, Type>(type, targetInterface),
-        pair => new InterfaceMapping(pair.First.GetInterfaceMap(pair.Second)));
+      InterfaceMaps.GetOrAdd((type, targetInterface), static pair => new InterfaceMapping(pair.Item1.GetInterfaceMap(pair.Item2)));
+
+    /// <summary>
+    /// Gets the interfaces of the specified type.
+    /// Interfaces will be unordered.
+    /// </summary>
+    /// <param name="type">The type to get the interfaces of.</param>
+    public static IReadOnlyList<Type> GetInterfacesUnordered(Type type) =>
+      UnorderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces());
 
     /// <summary>
     /// Gets the interfaces of the specified type.
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
-    public static Type[] GetInterfaces(this Type type) =>
-      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+    public static IReadOnlyList<Type> GetInterfaces(Type type) =>
+      OrderedInterfaces.GetOrAdd(type, static t => t.GetInterfaces().OrderByInheritance().ToArray());
+
+    /// <summary>
+    /// Gets the properties of the specified combination of type and binding flags.
+    /// </summary>
+    /// <param name="type">The type to get the interfaces of.</param>
+    /// <param name="bindingAttr">The binding flags to get the properties.</param>
+    public static IReadOnlyList<PropertyInfo> GetProperties(Type type, BindingFlags bindingAttr = BindingFlags.Instance | BindingFlags.Static | BindingFlags.Public) =>
+      Properties.GetOrAdd((type, bindingAttr), static o => o.Type.GetProperties(o.BindingAttr));
 
     /// <summary>
     /// Gets the sequence of type itself, all its base types and interfaces.
@@ -707,7 +722,7 @@ namespace Xtensive.Reflection
     public static Type[] GetCompatibles(this Type type) =>
       OrderedCompatibles.GetOrAdd(type,
         t => {
-          var interfaces = t.GetInterfaces();
+          var interfaces = GetInterfacesUnordered(t);
           var bases = EnumerableUtils.Unfold(t.BaseType, baseType => baseType.BaseType);
           return bases
             .Concat(interfaces)
@@ -1037,7 +1052,7 @@ namespace Xtensive.Reflection
       }
 
       // We don't use LINQ as we don't want to create a closure here
-      foreach (var implementedInterface in type.GetInterfaces()) {
+      foreach (var implementedInterface in GetInterfacesUnordered(type)) {
         if ((implementedInterface.MetadataToken ^ metadataToken) == 0
           && ReferenceEquals(implementedInterface.Module, module)) {
           return implementedInterface;

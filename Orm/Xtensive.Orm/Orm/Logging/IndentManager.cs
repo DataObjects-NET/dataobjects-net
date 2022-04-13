@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -14,20 +14,15 @@ namespace Xtensive.Orm.Logging
   /// </summary>
   public static class IndentManager
   {
-    private sealed class IndentScope : IDisposable
+    public readonly struct IndentScope : IDisposable
     {
       private readonly string oldIndent;
       private readonly Action endAction;
-      private bool disposed;
 
       public void Dispose()
       {
-        if (disposed)
-          return;
-        disposed = true;
         CurrentIndentValueAsync.Value = oldIndent;
-        if (endAction!=null)
-          endAction.Invoke();
+        endAction?.Invoke();
       }
 
       public IndentScope(string oldIndent, Action endAction)
@@ -50,10 +45,10 @@ namespace Xtensive.Orm.Logging
     /// Increases indentation for current thread.
     /// </summary>
     /// <returns>Indentation scope.</returns>
-    public static IDisposable IncreaseIndent(Action endAction = null)
+    public static IndentScope IncreaseIndent(Action endAction = null)
     {
       var oldIndent = CurrentIndentValueAsync.Value;
-      CurrentIndentValueAsync.Value = oldIndent==null ? SingleIndent : oldIndent + SingleIndent;
+      CurrentIndentValueAsync.Value = oldIndent == null ? SingleIndent : oldIndent + SingleIndent;
       return new IndentScope(oldIndent, endAction);
     }
   }

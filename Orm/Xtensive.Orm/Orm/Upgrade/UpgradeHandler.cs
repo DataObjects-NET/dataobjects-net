@@ -371,10 +371,7 @@ namespace Xtensive.Orm.Upgrade
 
       var recycledProperties =
         from t in registeredTypes
-        from p in t.GetProperties(BindingFlags.DeclaredOnly 
-          | BindingFlags.Instance
-          | BindingFlags.Public
-          | BindingFlags.NonPublic)
+        from p in TypeHelper.GetProperties(t, BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
         let pa = p.GetAttribute<FieldAttribute>()
         let ra = p.GetAttribute<RecycledAttribute>()
         where pa!=null && ra!=null

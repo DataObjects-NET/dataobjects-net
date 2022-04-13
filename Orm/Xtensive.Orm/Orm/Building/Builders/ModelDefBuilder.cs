@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -103,11 +103,7 @@ namespace Xtensive.Orm.Building.Builders
 
         ProcessFullTextIndexes(typeDef);
 
-        var validators = type.GetCustomAttributes(false).OfType<IObjectValidator>();
-        foreach (var validator in validators) {
-          typeDef.Validators.Add(validator);
-        }
-
+        typeDef.Validators.AddRange(type.GetCustomAttributes(WellKnownOrmInterfaces.ObjectValidator, false).Cast<IObjectValidator>());
         return typeDef;
       }
     }
@@ -140,14 +136,10 @@ namespace Xtensive.Orm.Building.Builders
 
     public void ProcessProperties(TypeDef typeDef, HierarchyDef hierarchyDef)
     {
-      var properties = typeDef.UnderlyingType.GetProperties(
-        BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+      var properties = TypeHelper.GetProperties(typeDef.UnderlyingType, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
 
-      foreach (var propertyInfo in properties) {
-        // Domain builder stage-related filter
-        if (!IsFieldAvailable(propertyInfo)) {
-          continue;
-        }
+      foreach (var propertyInfo in properties
+          .Where(IsFieldAvailable)) {   // Domain builder stage-related filter
 
         // FieldAttribute presence is required
         var reversedFieldAttributes = GetReversedFieldAttributes<FieldAttribute>(propertyInfo);
@@ -327,10 +319,7 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         // Validators
-        var validators = propertyInfo.GetCustomAttributes(false).OfType<IPropertyValidator>();
-        foreach (var validator in validators) {
-          fieldDef.Validators.Add(validator);
-        }
+        fieldDef.Validators.AddRange(propertyInfo.GetCustomAttributes(WellKnownOrmInterfaces.PropertyValidator, false).Cast<IPropertyValidator>());
       }
 
       return fieldDef;

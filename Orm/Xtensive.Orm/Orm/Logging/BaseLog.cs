@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message, which writes to beginning of region and end of region.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
-    public IDisposable DebugRegion(string message, params object[] parameters)
+    public IndentManager.IndentScope DebugRegion(string message, params object[] parameters)
     {
       ArgumentValidator.EnsureArgumentNotNull(message, "message");
       if (!IsLogged(LogLevel.Debug))
@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message, which writes to beginning of region and end of region.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
-    public IDisposable InfoRegion(string message, params object[] parameters)
+    public IndentManager.IndentScope InfoRegion(string message, params object[] parameters)
     {
       ArgumentValidator.EnsureArgumentNotNull(message, "message");
       if (!IsLogged(LogLevel.Info))

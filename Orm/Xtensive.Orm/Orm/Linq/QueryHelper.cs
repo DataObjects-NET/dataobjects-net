@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Linq
 
     public static Expression CreateDirectEntitySetQuery(EntitySetBase entitySet)
     {
-      // A hack making expression to look like regular parameter 
+      // A hack making expression to look like regular parameter
       // (ParameterExtractor.IsParameter => true)
       var owner = entitySet.Owner;
       var wrapper = Activator.CreateInstance(
@@ -90,7 +90,7 @@ namespace Xtensive.Orm.Linq
       if (!entitySet.Field.IsDynamicallyDefined) {
         return Expression.Property(wrappedOwner, entitySet.Field.UnderlyingProperty);
       }
-      var indexers = owner.GetType().GetProperties(BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
+      var indexers = TypeHelper.GetProperties(owner.GetType(), BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public)
         .Where(p => p.GetIndexParameters().Any())
         .Select(p => p.GetGetMethod());
       return Expression.Convert(Expression.Call(Expression.Constant(owner),indexers.Single(), new []{Expression.Constant(entitySet.Field.Name)}), entitySet.Field.ValueType);

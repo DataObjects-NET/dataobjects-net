@@ -24,13 +24,10 @@ namespace Xtensive.Orm.Model
     internal new static readonly FieldInfoCollection Empty;
 
     /// <inheritdoc/>
-    public ICollection<FieldInfo> Find(FieldAttributes criteria)
-    {
-      return Find(criteria, MatchType.Partial);
-    }
+    public IEnumerable<FieldInfo> Find(FieldAttributes criteria) => Find(criteria, MatchType.Partial);
 
     /// <inheritdoc/>
-    public ICollection<FieldInfo> Find(FieldAttributes criteria, MatchType matchType)
+    public IEnumerable<FieldInfo> Find(FieldAttributes criteria, MatchType matchType)
     {
       // We don't have any instance that has attributes == FieldAttributes.None
       if (criteria == FieldAttributes.None)

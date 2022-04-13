@@ -72,8 +72,7 @@ namespace Xtensive.Orm.Linq.Rewriters
       if (mc.Object != visitedObject)
         mc = Expression.Call(visitedObject, mc.Method, mc.Arguments);
       
-      var propertyInfo = mc.Object.Type
-        .GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+      var propertyInfo = TypeHelper.GetProperties(mc.Object.Type, BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
         .SingleOrDefault(property => property.Name==name);
       if (propertyInfo!=null)
         return Expression.MakeMemberAccess(mc.Object, propertyInfo);

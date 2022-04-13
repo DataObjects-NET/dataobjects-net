@@ -309,12 +309,10 @@ namespace Xtensive.Tuples
     /// </summary>
     /// <param name="descriptor">The descriptor.</param>
     /// <returns>Newly created <see cref="RegularTuple"/> object.</returns>
-    public static RegularTuple Create(TupleDescriptor descriptor)
-    {
-      if (descriptor==null)
-        throw new ArgumentNullException("descriptor");
-      return new PackedTuple(descriptor);
-    }
+    public static RegularTuple Create(TupleDescriptor descriptor) =>
+      descriptor != default
+        ? new PackedTuple(descriptor)
+        : throw new ArgumentNullException("descriptor");
 
     #endregion
 

@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Building.Builders
     private void EnsureIntefacesAreImplementedWithinSingleDatabase()
     {
       foreach (var @interface in model.Types.Where(t => t.IsInterface)) {
-        var implementors = @interface.GetImplementors(true).ToList();
+        var implementors = @interface.RecursiveImplementors;
         if (implementors.Count==0)
           continue; // shouldn't reach here, but it's safer to do check anyway
         var firstImplementor = implementors[0];

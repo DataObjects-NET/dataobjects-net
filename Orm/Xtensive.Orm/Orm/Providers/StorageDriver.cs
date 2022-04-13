@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Providers
       return underlyingDriver.Compile(statement, options);
     }
 
-    public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
+    public DbDataReaderAccessor GetDataReaderAccessor(in TupleDescriptor descriptor)
     {
       return new DbDataReaderAccessor(descriptor, descriptor.Select(GetTypeMapping));
     }

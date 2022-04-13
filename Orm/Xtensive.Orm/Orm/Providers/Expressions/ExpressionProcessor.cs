@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
@@ -160,8 +160,6 @@ namespace Xtensive.Orm.Providers
       return SqlDml.Cast(operand, driver.MapValueType(targetType));
     }
 
-
-
     protected override SqlExpression VisitBinary(BinaryExpression expression)
     {
       // handle x.CompareTo(y) > 0 and similar comparisons
@@ -173,42 +171,46 @@ namespace Xtensive.Orm.Providers
       SqlExpression left;
       SqlExpression right;
 
-      var isEqualityCheck =
-        expression.NodeType == ExpressionType.Equal
-        || expression.NodeType == ExpressionType.NotEqual;
+      var expressionNodeType = expression.NodeType;
+      var expressionLeft = expression.Left;
+      var expressionRight = expression.Right;
+
+      var isEqualityCheck = expressionNodeType is ExpressionType.Equal or ExpressionType.NotEqual;
 
       var isBooleanFixRequired = fixBooleanExpressions
-        && (isEqualityCheck || expression.NodeType == ExpressionType.Coalesce)
-        && (IsBooleanExpression(expression.Left) || IsBooleanExpression(expression.Right));
+        && (isEqualityCheck || expressionNodeType == ExpressionType.Coalesce)
+        && (IsBooleanExpression(expressionLeft) || IsBooleanExpression(expressionRight));
 
-      if (IsCharToIntConvert(expression.Left) && IsCharToIntConvert(expression.Right)) {
+      var isLeftCharToIntConvert = IsCharToIntConvert(expressionLeft);
+
+      if (isLeftCharToIntConvert && IsCharToIntConvert(expressionRight)) {
         // chars are compared as integers, but we store them as strings and should compare them like strings.
-        left = Visit(GetOperand(expression.Left), isEqualityCheck);
-        right = Visit(GetOperand(expression.Right), isEqualityCheck);
+        left = Visit(GetOperand(expressionLeft), isEqualityCheck);
+        right = Visit(GetOperand(expressionRight), isEqualityCheck);
       }
-      else if (IsCharToIntConvert(expression.Left) && IsIntConstant(expression.Right)) {
+      else if (isLeftCharToIntConvert && IsIntConstant(expressionRight)) {
         // another case of char comparison
-        left = Visit(GetOperand(expression.Left), isEqualityCheck);
-        right = ConvertIntConstantToSingleCharString(expression.Right);
+        left = Visit(GetOperand(expressionLeft), isEqualityCheck);
+        right = ConvertIntConstantToSingleCharString(expressionRight);
       }
-      else if (IsIntConstant(expression.Left) && IsCharToIntConvert(expression.Right)) {
+      else if (IsIntConstant(expressionLeft) && IsCharToIntConvert(expressionRight)) {
         // another case of char comparison
-        left = ConvertIntConstantToSingleCharString(expression.Left);
-        right = Visit(GetOperand(expression.Right), isEqualityCheck);
+        left = ConvertIntConstantToSingleCharString(expressionLeft);
+        right = Visit(GetOperand(expressionRight), isEqualityCheck);
       }
       else {
         // regular case
-        left = Visit(expression.Left, isEqualityCheck);
-        right = Visit(expression.Right, isEqualityCheck);
+        left = Visit(expressionLeft, isEqualityCheck);
+        right = Visit(expressionRight, isEqualityCheck);
       }
       if (isBooleanFixRequired) {
         // boolean expressions should be compared as integers.
         // additional check is required because some type information might be lost.
         // we assume they already have correct format in that case.
-        if (IsBooleanExpression(expression.Left)) {
+        if (IsBooleanExpression(expressionLeft)) {
           left = booleanExpressionConverter.BooleanToInt(left);
         }
-        if (IsBooleanExpression(expression.Right)) {
+        if (IsBooleanExpression(expressionRight)) {
           right = booleanExpressionConverter.BooleanToInt(right);
         }
       }
@@ -218,7 +220,7 @@ namespace Xtensive.Orm.Providers
           && left.NodeType != SqlNodeType.Null
           && right.NodeType != SqlNodeType.Null
           && IsComparisonExpression(expression)
-          && (IsDateTimeExpression(expression.Left) || IsDateTimeExpression(expression.Right))) {
+          && (IsDateTimeExpression(expressionLeft) || IsDateTimeExpression(expressionRight))) {
         left = SqlDml.Cast(left, SqlType.DateTime);
         right = SqlDml.Cast(right, SqlType.DateTime);
       }
@@ -228,7 +230,7 @@ namespace Xtensive.Orm.Providers
           && left.NodeType != SqlNodeType.Null
           && right.NodeType != SqlNodeType.Null
           && IsComparisonExpression(expression)
-          && (IsDateTimeOffsetExpression(expression.Left) || IsDateTimeOffsetExpression(expression.Right))) {
+          && (IsDateTimeOffsetExpression(expressionLeft) || IsDateTimeOffsetExpression(expressionRight))) {
         left = SqlDml.Cast(left, SqlType.DateTimeOffset);
         right = SqlDml.Cast(right, SqlType.DateTimeOffset);
       }
@@ -260,7 +262,7 @@ namespace Xtensive.Orm.Providers
         right = TryUnwrapEnum(rightContainer);
       }
 
-      switch (expression.NodeType) {
+      switch (expressionNodeType) {
         case ExpressionType.Add:
         case ExpressionType.AddChecked:
           return SqlDml.Add(left, right);

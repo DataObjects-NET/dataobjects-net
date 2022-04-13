@@ -21,12 +21,12 @@ namespace Xtensive.Orm.Model
   {
     #region IFilterable<ColumnAttributes,ColumnInfo> Members
 
-    public ICollection<ColumnInfo> Find(ColumnAttributes criteria)
+    public IEnumerable<ColumnInfo> Find(ColumnAttributes criteria)
     {
       return Find(criteria, MatchType.Partial);
     }
 
-    public ICollection<ColumnInfo> Find(ColumnAttributes criteria, MatchType matchType)
+    public IEnumerable<ColumnInfo> Find(ColumnAttributes criteria, MatchType matchType)
     {
       // We don't have any instance that has attributes == FieldAttributes.None
       if (criteria == ColumnAttributes.None)
