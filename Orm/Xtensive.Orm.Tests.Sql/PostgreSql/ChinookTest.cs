@@ -1,23 +1,15 @@
-// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
-// Created by: Malisa Ncube
-// Created:    2011.06.10
 
 using System;
-using System.Data;
 using System.Data.Common;
-using System.Diagnostics;
-using System.Linq;
 using NUnit.Framework;
-using Xtensive.Core;
 using Xtensive.Sql;
-using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
-using Index = Xtensive.Sql.Model.Index;
 
-namespace Xtensive.Orm.Tests.Sql.Sqlite
+namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   [Explicit]
   public sealed class ChinookInMemoryTest : ChinookTest
@@ -50,7 +42,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       schema = Catalog.DefaultSchema;
     }
 
-    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Sqlite);
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.PostgreSql);
 
     #region Internals
 
@@ -123,8 +115,6 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
     #endregion
 
-    //SET CHARACTER SET utf8
-
     [Test]
     public void TestExtractCatalog()
     {
@@ -134,17 +124,10 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void Test000()
     {
-      var nativeSql = @"SELECT 
-                          Employee.EmployeeId,
-                          Employee.FirstName,
-                          Employee.LastName,
-                          Employee.BirthDate
-                        FROM
-                          Employee
-                        WHERE
-                          Employee.FirstName = 'Robert'
-                        ORDER BY
-                          Employee.LastName";
+      var nativeSql = "SELECT \"a\".\"EmployeeId\", \"a\".\"FirstName\", \"a\".\"LastName\", \"a\".\"BirthDate\" " +
+                      "FROM \"Employee\" \"a\" " +
+                      "WHERE \"a\".\"FirstName\" = 'Robert' " +
+                      "ORDER BY \"a\".\"LastName\"";
 
       var p = sqlCommand.CreateParameter();
       p.ParameterName = "p1";
@@ -164,10 +147,9 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void Test001()
     {
-      var nativeSql = @"SELECT DISTINCT
-                                        employee.FirstName
-                        FROM employee
-                        WHERE employee.Title = 'IT Staff'";
+      var nativeSql = "SELECT DISTINCT \"a\".\"FirstName\" " + 
+                      "FROM \"Employee\" \"a\" " +
+                      "WHERE \"a\".\"Title\" = 'IT Staff'";
 
       var p = sqlCommand.CreateParameter();
       sqlDriver.TypeMappings.Mappings[typeof(string)].BindValue(p, "IT Staff");
@@ -186,7 +168,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void Test002()
     {
-      var nativeSql = "SELECT * FROM [genre] a";
+      var nativeSql = "SELECT * FROM \"Genre\" \"a\"";
 
       var region = SqlDml.TableRef(schema.Tables["genre"]);
       var select = SqlDml.Select(region);
@@ -198,15 +180,10 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [Test]
     public void Test003()
     {
-      var nativeSql = @"SELECT
-                               [a].[EmployeeId],
-                               [a].[FirstName],
-                               [a].[LastName]
-                        FROM [Employee] [a]
-                        WHERE ([a].[EmployeeId] < 2)
-                        ORDER BY
-                                 [a].[FirstName] ASC,
-                                 3 DESC";
+      var nativeSql = "SELECT \"a\".\"EmployeeId\", \"a\".\"FirstName\", \"a\".\"LastName\" " +
+                      "FROM \"Employee\" \"a\" " +
+                      "WHERE (\"a\".\"EmployeeId\" < 2) " +
+                      "ORDER BY \"a\".\"FirstName\" ASC, 3 DESC";
 
       var customer = SqlDml.TableRef(schema.Tables["Employee"]);
       var select = SqlDml.Select(customer);
@@ -219,7 +196,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test006()
+    public void Test004()
     {
       var orders = SqlDml.TableRef(schema.Tables["invoice"]);
       var select = SqlDml.Select(orders);
@@ -241,7 +218,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test007()
+    public void Test005()
     {
       var orders = SqlDml.TableRef(schema.Tables["invoice"]);
       var select = SqlDml.Select(orders);
@@ -262,15 +239,12 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test008()
+    public void Test006()
     {
-      var nativeSql = @"SELECT
-                               t.TrackId,
-                               t.[Name],
-                               a.[Title]
-                        FROM Track t
-                        INNER JOIN Album a ON (t.AlbumId = a.AlbumId)
-                        ORDER BY t.TrackId";
+      var nativeSql = "SELECT \"t\".\"TrackId\", \"t\".\"Name\", \"a\".\"Title\" " +
+                      "FROM \"Track\" \"t\" " +
+                      "INNER JOIN \"Album\" \"a\" ON (\"t\".\"AlbumId\" = \"a\".\"AlbumId\") " +
+                      "ORDER BY \"t\".\"TrackId\"";
 
       var track = SqlDml.TableRef(schema.Tables["Track"], "t");
       var album = SqlDml.TableRef(schema.Tables["Album"], "a");
@@ -287,22 +261,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test009()
+    public void Test007()
     {
-      var nativeSql = @"SELECT
-                               c.CustomerId,
-                               c.CompanyName,
-                               c.FirstName,
-                               c.LastName,
-                               i.InvoiceDate,
-                               il.TrackId,
-                               t.Name,
-                               il.UnitPrice,
-                               il.Quantity
-                        FROM Customer c
-                        INNER JOIN Invoice i ON (c.CustomerId = i.CustomerId)
-                        INNER JOIN [InvoiceLine] il ON (i.InvoiceId = il.InvoiceId)
-                        INNER JOIN [Track] t ON (t.TrackId = il.TrackId)";
+      var nativeSql =
+        "SELECT \"c\".\"CustomerId\"," +
+              " \"c\".\"CompanyName\"," +
+              " \"c\".\"FirstName\"," +
+              " \"c\".\"LastName\", \"i\".\"InvoiceDate\", \"il\".\"TrackId\"," +
+              " \"t\".\"Name\", \"il\".\"UnitPrice\", \"il\".\"Quantity\" " +
+        "FROM \"Customer\" \"c\" " +
+        "INNER JOIN \"Invoice\" \"i\" ON (\"c\".\"CustomerId\" = \"i\".\"CustomerId\") " +
+        "INNER JOIN \"InvoiceLine\" \"il\" ON (\"i\".\"InvoiceId\" = \"il\".\"InvoiceId\") "+
+        "INNER JOIN \"Track\" \"t\" ON (\"t\".\"TrackId\" = \"il\".\"TrackId\")";
 
       var customer = SqlDml.TableRef(schema.Tables["customer"], "c");
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "i");
@@ -327,13 +297,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test010()
+    public void Test008()
     {
-      var nativeSql = @"SELECT
-                               i.invoiceid,
-                               round(i.Commission * 12, 1) Rounded
-                        FROM invoice i
-                        WHERE i.invoiceid = 412";
+      var nativeSql = "SELECT \"i\".\"InvoiceId\", round(\"i\".\"Commission\" * 12, 1) as \"Rounded\" " +
+                      "FROM \"Invoice\" \"i\" " +
+                      "WHERE \"i\".\"InvoiceId\" = 412";
 
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "i");
 
@@ -346,20 +314,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test011()
+    public void Test009()
     {
-      var nativeSql = @"SELECT
-                               c.CustomerId,
-                               c.CompanyName,
-                               c.LastName,
-                               SUM(i.Commission) AS Total
-                        FROM Customer c
-                        INNER JOIN invoice i ON (c.CustomerID = i.CustomerID)
-                        GROUP BY
-                                 c.CustomerID,
-                                 c.CompanyName,
-                                 c.LastName
-                        ORDER BY c.CustomerID";
+      var nativeSql =
+        "SELECT" +
+                "\"c\".\"CustomerId\", " +
+                "\"c\".\"CompanyName\", " +
+                "\"c\".\"LastName\", " +
+                "SUM(\"i\".\"Commission\") AS \"Total\" " +
+        "FROM \"Customer\" \"c\" " +
+        "INNER JOIN \"Invoice\" \"i\" ON (\"c\".\"CustomerId\" = \"i\".\"CustomerId\") " +
+        "GROUP BY \"c\".\"CustomerId\", \"c\".\"CompanyName\", \"c\".\"LastName\" " +
+        "ORDER BY \"c\".\"CustomerId\"";
 
       var customer = SqlDml.TableRef(schema.Tables["customer"], "c");
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "i");
@@ -376,17 +342,14 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test012()
+    public void Test010()
     {
-      var nativeSql = @"SELECT
-                               CASE il.TrackId
-                               WHEN 1 THEN 'STAFF_1'
-                               WHEN 2 THEN 'STAFF_2'
-                               ELSE 'STAFF_OTHER'
-                               END AS shippers,
-                               SUM(il.UnitPrice) AS TotalUnits
-                        FROM [invoiceline] il
-                        GROUP BY il.TrackId";
+      var nativeSql = 
+        "SELECT " +
+                "CASE \"il\".\"TrackId\" WHEN 1 THEN 'STAFF_1' WHEN 2 THEN 'STAFF_2' ELSE 'STAFF_OTHER' END AS \"shippers\"," +
+                "SUM(\"il\".\"UnitPrice\") AS \"TotalUnits\" " +
+                "FROM \"InvoiceLine\" \"il\" " +
+                "GROUP BY \"il\".\"TrackId\"";
 
       var invoiceLine = SqlDml.TableRef(schema.Tables["invoiceline"], "il");
 
@@ -404,17 +367,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test013()
+    public void Test011()
     {
-      var nativeSql = @"SELECT
-                               r.InvoiceId,
-                               r.DesignatedEmployeeId,
-                               r.Status
-                        FROM invoice r
-                        WHERE r.[BillingState] IS NOT NULL
-                        ORDER BY r.InvoiceId";
+      var nativeSql =
+        "SELECT " +
+                "\"i\".\"InvoiceId\", " +
+                "\"i\".\"DesignatedEmployeeId\", " +
+                "\"i\".\"Status\" " +
+         "FROM \"Invoice\" \"i\" " +
+         "WHERE \"i\".\"BillingState\" IS NOT NULL " +
+         "ORDER BY \"i\".\"InvoiceId\"";
 
-      var invoice = SqlDml.TableRef(schema.Tables["invoice"], "r");
+      var invoice = SqlDml.TableRef(schema.Tables["Invoice"], "i");
       var select = SqlDml.Select(invoice);
       select.Columns.AddRange(invoice["InvoiceId"], invoice["DesignatedEmployeeId"], invoice["Status"]);
 
@@ -425,29 +389,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test014_1()
-    {
-      var nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
-
-      var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", 1), "Days");
-
-      Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
-    }
-
-    [Test]
-    public void Test014_2()
+    public void Test012()
     {
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "r");
       var select = SqlDml.Select(invoice);
-      select.Columns.Add(SqlDml.FunctionCall("DATE", invoice["PaymentDate"], SqlDml.Native(string.Format("'{0} MONTHS'", 1 + 1))), "TimeToToday");
+      select.Columns.Add(SqlDml.FunctionCall("EXTRACT", SqlDml.Native("MONTH"), 1 + 1, invoice["PaymentDate"]), "TimeToToday");
       select.Where = SqlDml.IsNotNull(invoice["PaymentDate"]);
 
       Console.WriteLine(Compile(select));
     }
 
     [Test]
-    public void Test014_3()
+    public void Test013()
     {
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "r");
       var select = SqlDml.Select(invoice);
@@ -458,108 +411,108 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test014_4()
+    public void Test014()
     {
-      var nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
+      var nativeSql = "SELECT (CURRENT_TIMESTAMP + (-15) * interval '1 month') AS \"Days\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", -15), "Days");
+      select.Columns.Add(SqlDml.DateTimeAddMonths(SqlDml.Native("CURRENT_TIMESTAMP"), -15), "Days");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_5()
+    public void Test015()
     {
-      var nativeSql = @"select date('NOW', '+1 MONTHS') AS Days ";
+      var nativeSql = "SELECT (CURRENT_TIMESTAMP + (1 + 1) * interval '1 month') AS \"Days\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.DateTimeAddMonths("NOW", 1 + 1), "Days");
+      select.Columns.Add(SqlDml.DateTimeAddMonths(SqlDml.Native("CURRENT_TIMESTAMP"), SqlDml.Add(1, 1)), "Days");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_6()
+    public void Test016()
     {
-      var nativeSql = @"select strftime('%d', 'now') AS DayOfMonth ";
+      var nativeSql = "SELECT EXTRACT(DAY FROM CURRENT_TIMESTAMP) AS \"DayOfMonth\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, "NOW"), "DayOfMonth");
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, SqlDml.Native("CURRENT_TIMESTAMP")), "DayOfMonth");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_7()
+    public void Test017()
     {
-      var nativeSql = @"select strftime('%m', 'now') AS Month ";
+      var nativeSql = "SELECT EXTRACT(MONTH FROM CURRENT_TIMESTAMP) AS \"Month\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, "NOW"), "Month");
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, SqlDml.Native("CURRENT_TIMESTAMP")), "Month");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_8()
+    public void Test018()
     {
-      var nativeSql = @"select strftime('%Y', 'now') AS Year ";
+      var nativeSql = "select EXTRACT(YEAR FROM CURRENT_TIMESTAMP) AS \"Year\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, "NOW"), "Year");
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, SqlDml.Native("CURRENT_TIMESTAMP")), "Year");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_9()
+    public void Test019()
     {
-      var nativeSql = @"select strftime('%H', 'now') AS Hour ";
+      var nativeSql = "SELECT EXTRACT(HOUR FROM CURRENT_TIMESTAMP) AS \"Hour\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, "NOW"), "Hour");
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, SqlDml.Native("CURRENT_TIMESTAMP")), "Hour");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_10()
+    public void Test020()
     {
-      var nativeSql = @"select strftime('%M', 'now') AS Minutes ";
+      var nativeSql = "SELECT EXTRACT(MINUTE FROM CURRENT_TIMESTAMP) AS \"Minutes\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, "NOW"), "Minutes");
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, SqlDml.Native("CURRENT_TIMESTAMP")), "Minutes");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_11()
+    public void Test021()
     {
-      var nativeSql = @"select strftime('%S', 'now') AS Seconds ";
+      var nativeSql = "SELECT EXTRACT(SECOND FROM CURRENT_TIMESTAMP) AS \"Seconds\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, "NOW"), "Seconds");
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, SqlDml.Native("CURRENT_TIMESTAMP")), "Seconds");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_12()
+    public void Test022()
     {
-      var nativeSql = @"select strftime('%f', 'now') AS Milliseconds";
+      var nativeSql = "SELECT EXTRACT(MILLISECOND FROM CURRENT_TIMESTAMP) AS \"Milliseconds\"";
 
       var select = SqlDml.Select();
-      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Millisecond, "NOW"), "Milliseconds");
+      select.Columns.Add(SqlDml.Extract(SqlDateTimePart.Millisecond, SqlDml.Native("CURRENT_TIMESTAMP")), "Milliseconds");
 
       Assert.IsTrue(CompareExecuteDataReader(nativeSql, select));
     }
 
     [Test]
-    public void Test014_13()
+    public void Test023()
     {
-      var nativeSql = @"select datetime('2011-11-16') AS BirthDay";
+      var nativeSql = "SELECT cast('2011-11-16' as date) AS \"BirthDay\"";
 
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeConstruct(2011, 11, 16), "BirthDay");
@@ -568,8 +521,8 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    [Ignore("A close inspection needed")]
-    public void Test015()
+    //[Ignore("A close inspection needed")]
+    public void Test024()
     {
       var select = SqlDml.Select();
       select.Columns.Add(SqlDml.DateTimeMinusDateTime(DateTime.Now, DateTime.Now.AddDays(-4)), "FewDaysAgo");
@@ -578,11 +531,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test016()
+    public void Test025()
     {
-      var nativeSql = "SELECT SUM(p.commission) AS sum FROM invoice p";
+      var nativeSql = "SELECT SUM(\"i\".\"Commission\") AS \"sum\" FROM \"Invoice\" \"i\"";
 
-      var invoices = SqlDml.TableRef(schema.Tables["invoice"], "p");
+      var invoices = SqlDml.TableRef(schema.Tables["Invoice"], "i");
       var select = SqlDml.Select(invoices);
       select.Columns.Add(SqlDml.Sum(invoices["Commission"]), "sum");
 
@@ -590,9 +543,9 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test017_1()
+    public void Test026()
     {
-      var customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+      var customer = SqlDml.TableRef(schema.Tables["Customer"], "c");
 
       var select = SqlDml.Select(customer);
       select.Columns.Add(customer["CustomerId"]);
@@ -601,11 +554,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test017()
+    public void Test027()
     {
-      var nativeSql = "SELECT c.CustomerId, c.FirstName|| ', ' || c.LastName as FullName FROM customer c";
+      var nativeSql = "SELECT \"c\".\"CustomerId\", \"c\".\"FirstName\" || ', ' || \"c\".\"LastName\" as \"FullName\" FROM \"Customer\" \"c\"";
 
-      var customer = SqlDml.TableRef(schema.Tables["customer"], "c");
+      var customer = SqlDml.TableRef(schema.Tables["Customer"], "c");
 
       var select = SqlDml.Select(customer);
       select.Columns.Add(customer["CustomerId"]);
@@ -614,23 +567,24 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test018()
+    public void Test028()
     {
-      var nativeSql = @"SELECT
-                               c.CustomerId,
-                               c.CompanyName,
-                               c.LastName,
-                               SUM(i.commission) AS Total
-                        FROM customer c
-                        INNER JOIN invoice i ON (c.CustomerID = i.CustomerID)
-                        GROUP BY
-                                 c.CustomerId,
-                                 c.CompanyName,
-                                 c.LastName
-                        HAVING SUM(i.commission) > 140";
+      var nativeSql =
+        "SELECT " +
+                "\"c\".\"CustomerId\", " +
+                "\"c\".\"CompanyName\", " +
+                "\"c\".\"LastName\", " +
+                "SUM(\"i\".\"Commission\") AS \"Total\" " +
+        "FROM \"Customer\" \"c\" " +
+        "INNER JOIN \"Invoice\" \"i\" ON (\"c\".\"CustomerId\" = \"i\".\"CustomerId\") " +
+        "GROUP BY " +
+                  "\"c\".\"CustomerId\", " +
+                  "\"c\".\"CompanyName\", " +
+                  "\"c\".\"LastName\" " +
+        "HAVING SUM(\"i\".\"Commission\") > 140";
 
-      var customer = SqlDml.TableRef(schema.Tables["customer"], "c");
-      var invoice = SqlDml.TableRef(schema.Tables["invoice"], "i");
+      var customer = SqlDml.TableRef(schema.Tables["Customer"], "c");
+      var invoice = SqlDml.TableRef(schema.Tables["Invoice"], "i");
       var select = SqlDml.Select(customer.InnerJoin(invoice, customer["CustomerId"] == invoice["CustomerId"]));
 
       select.Columns.AddRange(customer["CustomerID"], customer["CompanyName"], customer["LastName"]);
@@ -644,17 +598,16 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test019()
+    public void Test029()
     {
-      var nativeSql = @"SELECT
-                               c.CustomerId,
-                               c.CompanyName,
-                               c.LastName
-                        FROM customer c
-                        WHERE c.CustomerId IN (SELECT r.CustomerId FROM invoice r WHERE r.DesignatedEmployeeId = 8)
-                        GROUP BY c.CustomerID,
-                                 c.CompanyName,
-                                 c.LastName";
+      var nativeSql =
+        "SELECT " +
+                "\"c\".\"CustomerId\", " +
+                "\"c\".\"CompanyName\", " +
+                "\"c\".\"LastName\" " +
+        "FROM \"Customer\" \"c\" " +
+        "WHERE \"c\".\"CustomerId\" IN (SELECT \"i\".\"CustomerId\" FROM \"Invoice\" \"i\" WHERE \"i\".\"DesignatedEmployeeId\" = 8) " +
+        "GROUP BY \"c\".\"CustomerId\", \"c\".\"CompanyName\", \"c\".\"LastName\"";
 
       var customer = SqlDml.TableRef(schema.Tables["customer"], "c");
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "r");
@@ -679,17 +632,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test020()
+    public void Test030()
     {
-      var nativeSql = @"SELECT
-                               f.TrackId,
-                               f.Name,
-                               f.UnitPrice
-                        FROM track f
-                        WHERE f.Milliseconds BETWEEN 50 AND 40000
-                        ORDER BY f.TrackId";
+      var nativeSql =
+        "SELECT " +
+                "\"t\".\"TrackId\", " +
+                "\"t\".\"Name\", " +
+                "\"t\".\"UnitPrice\" " +
+        "FROM \"Track\" \"t\" " +
+        "WHERE \"t\".\"Milliseconds\" BETWEEN 50 AND 40000 " +
+        "ORDER BY \"t\".\"TrackId\"";
 
-      var track = SqlDml.TableRef(schema.Tables["track"], "f");
+      var track = SqlDml.TableRef(schema.Tables["track"], "t");
       var select = SqlDml.Select(track);
       select.Columns.AddRange(track["TrackId"], track["Name"], track["UnitPrice"]);
       select.Where = SqlDml.Between(track["Milliseconds"], 50, 40000);
@@ -699,16 +653,16 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test021()
+    public void Test031()
     {
-      var nativeSql = @"SELECT
-                               f.TrackId,
-                               f.Name,
-                               f.UnitPrice,
-                               f.AlbumId
-                        FROM track f
-                        WHERE f.AlbumId in (2, 8)
-                        ORDER BY f.TrackId";
+      var nativeSql = @"SELECT" +
+                               "\"t\".\"TrackId\", " +
+                               "\"t\".\"Name\", " +
+                               "\"t\".\"UnitPrice\", " +
+                               "\"t\".\"AlbumId\" " +
+                        "FROM \"Track\" \"t\" " +
+                        "WHERE \"t\".\"AlbumId\" IN (2, 8) " +
+                        "ORDER BY \"t\".\"TrackId\"";
 
       var track = SqlDml.TableRef(schema.Tables["track"], "f");
       var select = SqlDml.Select(track);
@@ -720,18 +674,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test022()
+    public void Test032()
     {
-      var nativeSql = @"SELECT
-                               f.TrackId,
-                               f.Name,
-                               f.UnitPrice,
-                               f.AlbumId
-                        FROM track f
-                        WHERE f.Name LIKE 'R%'
-                        ORDER BY f.TrackId";
+      var nativeSql = "SELECT " +
+                               "\"t\".\"TrackId\", " +
+                               "\"t\".\"Name\", " +
+                               "\"t\".\"UnitPrice\", " +
+                               "\"t\".\"AlbumId\" " +
+                        "FROM \"Track\" \"t\" " +
+                        "WHERE \"t\".\"Name\" LIKE 'R%' " +
+                        "ORDER BY \"t\".\"TrackId\"";
 
-      var track = SqlDml.TableRef(schema.Tables["track"], "f");
+      var track = SqlDml.TableRef(schema.Tables["Track"], "t");
       var select = SqlDml.Select(track);
       select.Columns.AddRange(track["TrackId"], track["Name"], track["UnitPrice"], track["AlbumId"]);
       select.Where = SqlDml.Like(track["Name"], "R%");
@@ -741,17 +695,18 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test023()
+    public void Test033()
     {
-      var nativeSql = @"SELECT
-                               f.TrackId,
-                               f.Name,
-                               f.UnitPrice
-                        FROM track f
-                        WHERE (f.AlbumId = 3 OR f.AlbumId = 8) AND f.UnitPrice < 1
-                        ORDER BY f.TrackId";
+      var nativeSql =
+        @"SELECT " +
+                 "\"t\".\"TrackId\", " +
+                 "\"t\".\"Name\", " +
+                 "\"t\".\"UnitPrice\" " +
+         "FROM \"Track\" \"t\" " +
+         "WHERE (\"t\".\"AlbumId\" = 3 OR \"t\".\"AlbumId\" = 8) AND \"t\".\"UnitPrice\" < 1 " +
+         "ORDER BY \"t\".\"TrackId\"";
 
-      var track = SqlDml.TableRef(schema.Tables["track"], "f");
+      var track = SqlDml.TableRef(schema.Tables["track"], "t");
       var select = SqlDml.Select(track);
       select.Columns.AddRange(track["TrackId"], track["Name"], track["UnitPrice"]);
       select.Where = (track["AlbumId"] == 3 || track["AlbumId"] == 8) && track["UnitPrice"] < 1;
@@ -761,13 +716,14 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test024()
+    public void Test034()
     {
-      var nativeSql = @"SELECT
-                               strftime('%Y', PaymentDate) as Year,
-                               COUNT(*) Required
-                        FROM invoice r
-                        GROUP BY strftime('%Y', PaymentDate)";
+      var nativeSql =
+        "SELECT " +
+                "EXTRACT(YEAR FROM \"PaymentDate\") AS \"Year\", " +
+                 "COUNT(*) AS \"Required\" " +
+        "FROM \"Invoice\" \"r\" " +
+        "GROUP BY EXTRACT(YEAR FROM \"PaymentDate\")";
 
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "r");
 
@@ -781,14 +737,14 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test026()
+    public void Test035()
     {
-      var nativeSql = @"SELECT
-                               p.CustomerId,
-                               p.Commission
-                        FROM invoice p
-                        WHERE
-                              p.Commission = (SELECT MIN(Commission) AS LowestCommission FROM invoice)";
+      var nativeSql =
+        "SELECT " +
+                "\"p\".\"CustomerId\"," +
+                "\"p\".\"Commission\" " +
+        "FROM \"Invoice\" \"p\" " +
+        "WHERE \"p\".\"Commission\" = (SELECT MIN(\"Commission\") AS \"LowestCommission\" FROM \"Invoice\")";
 
       var invoice1 = SqlDml.TableRef(schema.Tables["invoice"], "p1");
       var invoice2 = SqlDml.TableRef(schema.Tables["invoice"], "p2");
@@ -806,14 +762,16 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test027()
+    public void Test036()
     {
-      var nativeSql = @"SELECT
-                               c.CustomerId,
-                               c.CompanyName
-                        FROM customer c
-                        WHERE EXISTS
-                                    (SELECT * FROM invoice i WHERE i.Commission < 1.00 AND i.CustomerId = c.CustomerId )";
+      var nativeSql =
+        "SELECT" +
+                "\"c\".\"CustomerId\", " +
+                "\"c\".\"CompanyName\" " +
+        "FROM \"Customer\" \"c\" " +
+        "WHERE EXISTS " +
+                     "(SELECT * FROM \"Invoice\" \"i\" " +
+                     " WHERE \"i\".\"Commission\" < 1.00 AND \"i\".\"CustomerId\" = \"c\".\"CustomerId\" )";
 
       var customer = SqlDml.TableRef(schema.Tables["customer"], "c");
       var invoice = SqlDml.TableRef(schema.Tables["invoice"], "i");
@@ -832,9 +790,9 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test028()
+    public void Test037()
     {
-      var nativeSql = @"select * FROM customer c limit 0, 10";
+      var nativeSql = "SELECT * FROM \"Customer\" \"c\" LIMIT 10 OFFSET 0";
 
       var customer = SqlDml.TableRef(schema.Tables["customer"]);
       var select = SqlDml.Select(customer);
@@ -846,9 +804,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test029()
+    public void Test038()
     {
-      var nativeSql = "UPDATE invoice " + "SET Total = Total * 1 " + "WHERE InvoiceId = 10;";
+      var nativeSql = "UPDATE \"Invoice\" " +
+                      "SET \"Total\" = \"Total\" * 1 " +
+                      "WHERE \"InvoiceId\" = 10;";
 
       var invoice = SqlDml.TableRef(schema.Tables["invoice"]);
       var update = SqlDml.Update(invoice);
@@ -859,42 +819,42 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test150()
+    public void Test039()
     {
       var create = SqlDdl.Create(schema.Tables["customer"]);
       Console.Write(Compile(create));
     }
 
     [Test]
-    public void Test151()
+    public void Test040()
     {
       var drop = SqlDdl.Drop(schema.Tables["customer"]);
       Console.Write(Compile(drop));
     }
 
     [Test]
-    public void Test152()
+    public void Test041()
     {
       var drop = SqlDdl.Drop(schema);
-      _ = Assert.Throws<NotSupportedException>(() => Console.Write(Compile(drop)));
+      Console.Write(Compile(drop));
     }
 
     [Test]
-    public void Test153()
+    public void Test042()
     {
-      var create = SqlDdl.Create(schema.Views["Invoice Subtotals"]);
-      Console.Write(Compile(create));
+      //var create = SqlDdl.Create(schema.Views["Invoice Subtotals"]);
+      //Console.Write(Compile(create));
     }
 
     [Test]
-    public void Test154()
+    public void Test043()
     {
       var create = SqlDdl.Create(Catalog.DefaultSchema);
       Console.Write(Compile(create));
     }
 
     [Test]
-    public void Test155()
+    public void Test044()
     {
       var alter = SqlDdl.Alter(schema.Tables["customer"], SqlDdl.AddColumn(schema.Tables["customer"].TableColumns["CompanyName"]));
 
@@ -902,33 +862,33 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test156()
+    public void Test045()
     {
       var alter = SqlDdl.Alter(schema.Tables["customer"], SqlDdl.DropColumn(schema.Tables["customer"].TableColumns["CompanyName"]));
 
-      _ = Assert.Throws<NotSupportedException>(() => Console.Write(Compile(alter)));
+      Console.Write(Compile(alter));
     }
 
     [Test]
-    public void Test157()
+    public void Test046()
     {
       var renameColumn = SqlDdl.Rename(schema.Tables["customer"].TableColumns["LastName"], "LastName1");
 
-      _ = Assert.Throws<NotSupportedException>(() => Console.Write(Compile(renameColumn)));
+      Console.Write(Compile(renameColumn));
     }
 
     [Test]
-    public void Test158()
+    public void Test047()
     {
       var t = schema.Tables["customer"];
       var uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["Phone"]);
       var stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
 
-      _ = Assert.Throws<NotSupportedException>(() => Console.Write(Compile(stmt)));
+      Console.Write(Compile(stmt));
     }
 
     [Test]
-    public void Test160()
+    public void Test048()
     {
       var t = schema.Tables["customer"];
       var index = t.CreateIndex("MegaIndex195");
@@ -939,7 +899,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test161()
+    public void Test049()
     {
       var t = schema.Tables["customer"];
       var index = t.CreateIndex("MegaIndex196");
@@ -950,16 +910,35 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     }
 
     [Test]
-    public void Test162()
+    public void Test050()
     {
       var alter = SqlDdl.Rename(schema.Tables["customer"], "SomeWierdTableName");
       Console.Write(Compile(alter));
     }
 
     [Test]
-    public void Test201()
+    public void Test051()
     {
-      var nativeSql = "SELECT a.f FROM (SELECT 1 as f UNION SELECT 2 EXCEPT SELECT 3 UNION SELECT 4) a";
+      var t = schema.CreateTable("SomeWierdTableName");
+      _ = t.CreateColumn("Field01", new SqlValueType(SqlType.Int32));
+      _ = t.CreateColumn("Field02", new SqlValueType(SqlType.Int32));
+
+      var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["Field02"]);
+      var stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
+
+      Console.Write(Compile(stmt));
+    }
+
+    [Test]
+    public void Test052()
+    {
+      var nativeSql =
+        "SELECT \"a\".\"f\" " +
+        "FROM (" +
+               "SELECT 1 as \"f\" " +
+               "UNION SELECT 2 " +
+               "UNION SELECT 3 " +
+               "UNION SELECT 4) \"a\"";
 
       var s1 = SqlDml.Select();
       var s2 = SqlDml.Select();
@@ -969,24 +948,11 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       s2.Columns.Add(2);
       s3.Columns.Add(3);
       s4.Columns.Add(4);
-      var qr = SqlDml.QueryRef(s1.Union(s2).Except(s3.Union(s4)), "a");
+      var qr = SqlDml.QueryRef(s1.Union(s2).Union(s3.Union(s4)), "a");
       var select = SqlDml.Select(qr);
       select.Columns.Add(qr["f"]);
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
-    }
-
-    [Test]
-    public void Test165()
-    {
-      var t = schema.CreateTable("SomeWierdTableName");
-      _ = t.CreateColumn("Field01", new SqlValueType(SqlType.Int32));
-      _ = t.CreateColumn("Field02", new SqlValueType(SqlType.Int32));
-
-      var uc = t.CreatePrimaryKey(string.Empty, t.TableColumns["Field02"]);
-      var stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
-
-      _ = Assert.Throws<NotSupportedException>(() => Console.Write(Compile(stmt)));
     }
   }
 }

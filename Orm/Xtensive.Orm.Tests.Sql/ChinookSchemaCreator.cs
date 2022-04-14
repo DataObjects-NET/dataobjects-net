@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2019 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2019-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2019.10.03
 
@@ -13,7 +13,7 @@ using Xtensive.Sql;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
 
-namespace Xtensive.Orm.Tests.Sql.Sqlite
+namespace Xtensive.Orm.Tests.Sql
 {
   internal class ChinookSchemaCreator
   {
@@ -24,17 +24,35 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       public IEnumerable<XElement> Rows { get; set; }
     }
 
+    private readonly bool nativeTimeSpan;
     private readonly SqlDriver driver;
+    private readonly Dictionary<string, string> views = new();
+
+    public void DropSchemaContent(Schema defaultSchema)
+    {
+      DropTables(null, defaultSchema);
+      DropViews(null, defaultSchema);
+    }
 
     public void DropSchemaContent(SqlConnection connection, Schema defaultSchema)
     {
       DropTables(connection, defaultSchema);
+      DropViews(connection, defaultSchema);
     }
 
+    public void CreateSchemaContent(Schema defaultSchema)
+    {
+      CreateTables(null, defaultSchema);
+      CreateViews(null, defaultSchema);
+      //FillTables(connection, defaultSchema);
+    }
+    
     public void CreateSchemaContent(SqlConnection connection, Schema defaultSchema)
     {
       CreateTables(connection, defaultSchema);
       CreateViews(connection, defaultSchema);
+      connection.Commit();
+      connection.BeginTransaction();
       FillTables(connection, defaultSchema);
     }
 
@@ -42,26 +60,31 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     {
       foreach (var tableName in GetTableNamesToDrop()) {
         var existingTable = defaultSchema.Tables[tableName];
-        if (existingTable==null)
+        if (existingTable == null) {
           continue;
+        }
         ExecuteDropTable(connection, existingTable);
-        defaultSchema.Tables.Remove(existingTable);
+        _ = defaultSchema.Tables.Remove(existingTable);
       }
     }
 
-    private void DropViews(SqlConnection connection, Schema defaultSchema)
+    private static void DropViews(SqlConnection connection, Schema defaultSchema)
     {
       var existingView = defaultSchema.Views["Invoice Subtotals"];
-      if (existingView==null)
+      if (existingView == null) {
         return;
+      }
       ExecuteDropView(connection, existingView);
-      defaultSchema.Views.Remove(existingView);
-
+      _ = defaultSchema.Views.Remove(existingView);
     }
 
     private void CreateTables(SqlConnection connection, Schema defaultSchema)
     {
       var t = defaultSchema.CreateTable("Employee");
+
+      var decimalType = driver.ServerInfo.DataTypes.Decimal;
+      var decimalPresision = decimalType.MaxPrecision;
+      var decimalScale = 6;
 
       CreateInt32Column(t, "EmployeeId", false);
       CreateStringColumn(t, "Title", true, 30);
@@ -122,14 +145,14 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       CreateDateTimeColumn(t, "InvoiceDate", false);
       CreateDateTimeColumn(t, "PaymentDate", true);
       CreateInt32Column(t, "Status", false);
-      CreateInt64Column(t, "ProcessingTime", true);
+      CreateTimeSpanColumn(t, "ProcessingTime", true);
       CreateStringColumn(t, "BillingStreetAddress", true, 70);
       CreateStringColumn(t, "BillingCity", true, 40);
       CreateStringColumn(t, "BillingState", true, 40);
       CreateStringColumn(t, "BillingCountry", true, 40);
       CreateStringColumn(t, "BillingPostalCode", true, 10);
-      CreateDecimalColumn(t, "Total", false, 38, 19);
-      CreateDecimalColumn(t, "Commission", true, 38, 19);
+      CreateDecimalColumn(t, "Total", false, decimalPresision, decimalScale);
+      CreateDecimalColumn(t, "Commission", true, decimalPresision, decimalScale);
       CreateInt32Column(t, "CustomerId", true);
       CreateInt32Column(t, "DesignatedEmployeeId", true);
       t.CreatePrimaryKey("PK_Invoice", t.TableColumns["InvoiceId"]).IsClustered = true;
@@ -137,7 +160,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
       t = defaultSchema.CreateTable("InvoiceLine");
       CreateInt32Column(t, "InvoiceLineId", false);
-      CreateDecimalColumn(t, "UnitPrice", false, 38, 19);
+      CreateDecimalColumn(t, "UnitPrice", false, decimalPresision, decimalScale);
       CreateInt16Column(t, "Quantity", false);
       CreateInt32Column(t, "InvoiceId", false);
       CreateInt32Column(t, "TrackId", false);
@@ -163,7 +186,7 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       CreateStringColumn(t, "Composer", true, 220);
       CreateInt32Column(t, "Milliseconds", false);
       CreateByteArrayColumn(t, "Bytes", true, 4000);
-      CreateDecimalColumn(t, "UnitPrice", true, 38, 19);
+      CreateDecimalColumn(t, "UnitPrice", true, decimalPresision, decimalScale);
       CreateInt32Column(t, "AlbumId", true);
       CreateInt32Column(t, "MediaTypeId", true);
       CreateInt32Column(t, "GenreId", true);
@@ -180,14 +203,12 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
 
     private void CreateViews(SqlConnection connection, Schema defaultSchema)
     {
-      var v = defaultSchema.CreateView("Invoice Subtotals");
-      v.Definition = new SqlNative(
-        @"SELECT [InvoiceLine].InvoiceId, 
-                 Sum([InvoiceLine].UnitPrice) AS Subtotal
-          FROM [InvoiceLine]
-          GROUP BY [InvoiceLine].InvoiceID");
-
-      ExecuteCreateView(connection, v);
+      var provider = connection?.ConnectionInfo.Provider ?? TestConnectionInfoProvider.GetProvider();
+      if (views.TryGetValue(provider, out var viewVersion)) {
+        var v = defaultSchema.CreateView("Invoice Subtotals");
+        v.Definition = new SqlNative(viewVersion);
+        ExecuteCreateView(connection, v);
+      }
     }
 
     private void FillTables(SqlConnection connection, Schema defaultSchema)
@@ -197,44 +218,51 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
       var xmlTables = ReadXml(path);
       foreach (var xmlTable in xmlTables) {
         var sqlTable = defaultSchema.Tables[xmlTable.Name];
-        if (sqlTable==null)
+        if (sqlTable == null) {
           continue;
-        foreach (var row in xmlTable.Rows)
+        }
+
+        foreach (var row in xmlTable.Rows) {
           ExecuteInsert(connection, sqlTable, GetColumnValues(row, xmlTable.ColumnTypes));
+        }
       }
     }
 
     private static Dictionary<string, object> GetColumnValues(XElement row, Dictionary<string, string> columnTypes)
     {
       var fields = new Dictionary<string, object>();
-      var elements = row.Elements().ToList();
-      for (int i = 0; i < elements.Count(); i++) {
-        var value = elements[i].Value;
-        object obj = null;
-        if (!string.IsNullOrEmpty(value)) {
-          obj = ConvertFieldType(columnTypes[elements[i].Name.LocalName], elements[i].Value);
-        }
-        fields.Add(elements[i].Name.LocalName, obj);
+
+      foreach(var element in row.Elements()) {
+        var value = element.Value;
+        var obj = !string.IsNullOrEmpty(value)
+          ? ConvertFieldType(columnTypes[element.Name.LocalName], element.Value)
+          : null;
+        fields.Add(element.Name.LocalName, obj);
       }
+
       return fields;
     }
 
     private static object ConvertFieldType(string columnType, string text)
     {
       var type = Type.GetType(columnType);
-      switch (columnType) {
-        case "System.Byte[]":
-          return Convert.FromBase64String(text);
-        case "System.Decimal":
-          return Decimal.Parse(text, CultureInfo.InvariantCulture);
-        case "System.Single":
-          return Single.Parse(text, CultureInfo.InvariantCulture);
-        case "System.DateTime":
-          return DateTime.Parse(text);
-        case "System.TimeSpan":
-          return TimeSpan.FromTicks(Int64.Parse(text, CultureInfo.InvariantCulture));
-        default:
-          return Convert.ChangeType(text, type, CultureInfo.InvariantCulture);
+      if (type == Reflection.WellKnownTypes.ByteArray) {
+        return Convert.FromBase64String(text);
+      }
+      else if (type == Reflection.WellKnownTypes.Decimal) {
+        return Math.Round(decimal.Parse(text, CultureInfo.InvariantCulture), 6);
+      }
+      else if (type == Reflection.WellKnownTypes.Single) {
+        return float.Parse(text, CultureInfo.InvariantCulture);
+      }
+      else if (type == Reflection.WellKnownTypes.DateTime) {
+        return DateTime.Parse(text);
+      }
+      else if (type == Reflection.WellKnownTypes.TimeSpan) {
+        return TimeSpan.FromTicks(long.Parse(text, CultureInfo.InvariantCulture));
+      }
+      else {
+        return Convert.ChangeType(text, Type.GetType(columnType), CultureInfo.InvariantCulture);
       }
     }
 
@@ -242,106 +270,107 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     {
       var doc = XDocument.Load(path);
       var root = doc.Element("root");
-      if (root==null)
-        throw new Exception("Read xml error");
+      if (root == null) {
+        throw new Exception("Read xml error: No Root");
+      }
+
       var tables = root.Elements();
       var list = new List<XmlTable>();
 
       foreach (var table in tables) {
-        var xmlTable = new XmlTable();
-        xmlTable.Name = table.Name.LocalName;
-        xmlTable.ColumnTypes = table.Element("Columns").Elements().ToDictionary(key => key.Name.LocalName, value => value.Value);
-        xmlTable.Rows = table.Element("Rows").Elements();
+        var xmlTable = new XmlTable {
+          Name = table.Name.LocalName,
+          ColumnTypes = table.Element("Columns").Elements().ToDictionary(key => key.Name.LocalName, value => value.Value),
+          Rows = table.Element("Rows").Elements()
+        };
         list.Add(xmlTable);
       }
       return list;
     }
 
-    private void ExecuteCreateTable(SqlConnection connection, Table table)
+    private static void ExecuteCreateTable(SqlConnection connection, Table table)
     {
-      var createTableQuery = SqlDdl.Create(table);
-      using (var command = connection.CreateCommand(createTableQuery))
-        command.ExecuteNonQuery();
+      if (connection == null)
+        return;
+      using var command = connection.CreateCommand(SqlDdl.Create(table));
+      _ = command.ExecuteNonQuery();
     }
 
-    private void ExecuteCreateView(SqlConnection connection, View view)
+    private static void ExecuteCreateView(SqlConnection connection, View view)
     {
-      var createViewQuery = SqlDdl.Create(view);
-      using (var command = connection.CreateCommand(createViewQuery))
-        command.ExecuteNonQuery();
+      if (connection == null)
+        return;
+      using var command = connection.CreateCommand(SqlDdl.Create(view));
+      _ = command.ExecuteNonQuery();
     }
 
-    private void ExecuteDropTable(SqlConnection connection, Table table)
+    private static void ExecuteDropTable(SqlConnection connection, Table table)
     {
-      var createTableQuery = SqlDdl.Drop(table);
-      using (var command = connection.CreateCommand(createTableQuery))
-        command.ExecuteNonQuery();
+      if (connection == null)
+        return;
+      using var command = connection.CreateCommand(SqlDdl.Drop(table));
+      _ = command.ExecuteNonQuery();
     }
 
-    private void ExecuteDropView(SqlConnection connection, View view)
+    private static void ExecuteDropView(SqlConnection connection, View view)
     {
-      var createViewQuery = SqlDdl.Drop(view);
-      using (var command = connection.CreateCommand(createViewQuery))
-        command.ExecuteNonQuery();
+      if (connection == null)
+        return;
+
+      using var command = connection.CreateCommand(SqlDdl.Drop(view));
+      _ = command.ExecuteNonQuery();
     }
 
-    private void ExecuteInsert(SqlConnection connection, Table table, Dictionary<string, object> values)
+    private static void ExecuteInsert(SqlConnection connection, Table table, Dictionary<string, object> values)
     {
       var tableRef = SqlDml.TableRef(table);
-      SqlInsert insertQuery = SqlDml.Insert(tableRef);
+      var insertQuery = SqlDml.Insert(tableRef);
       foreach (var nameValue in values) {
-        if (nameValue.Value!=null)
-          insertQuery.Values.Add(tableRef[nameValue.Key], SqlDml.Literal(nameValue.Value));
-        else
-          insertQuery.Values.Add(tableRef[nameValue.Key], SqlDml.Null);
+        var value = nameValue.Value != null
+          ? (SqlExpression) SqlDml.Literal(nameValue.Value)
+          : SqlDml.Null;
+        insertQuery.Values.Add(tableRef[nameValue.Key], value);
       }
 
-      using (var command = connection.CreateCommand(insertQuery)) {
-        Console.WriteLine(command.CommandText);
-        command.ExecuteNonQuery();
-      }
+      using var command = connection.CreateCommand(insertQuery);
+      Console.WriteLine(command.CommandText);
+      _ = command.ExecuteNonQuery();
     }
 
-
-    private void CreateInt16Column(Table table, string name, bool nullable)
-    {
+    private void CreateInt16Column(Table table, string name, bool nullable) =>
       CreateTableColumn<short>(table, name, nullable, null, null, null);
-    }
 
-    private void CreateInt32Column(Table table, string name, bool nullable)
-    {
+    private void CreateInt32Column(Table table, string name, bool nullable) =>
       CreateTableColumn<int>(table, name, nullable, null, null, null);
-    }
 
-    private void CreateInt64Column(Table table, string name, bool nullable)
-    {
+    private void CreateInt64Column(Table table, string name, bool nullable) =>
       CreateTableColumn<long>(table, name, nullable, null, null, null);
-    }
 
-    private void CreateStringColumn(Table table, string name, bool nullable, int? length)
-    {
+    private void CreateStringColumn(Table table, string name, bool nullable, int? length) =>
       CreateTableColumn<string>(table, name, nullable, length, null, null);
-    }
 
-    private void CreateDateTimeColumn(Table table, string name, bool nullable)
-    {
+    private void CreateDateTimeColumn(Table table, string name, bool nullable) =>
       CreateTableColumn<DateTime>(table, name, nullable, null, null, null);
-    }
 
-    private void CreateByteArrayColumn(Table table, string name, bool nullable, int length)
-    {
+    private void CreateByteArrayColumn(Table table, string name, bool nullable, int length) =>
       CreateTableColumn<byte[]>(table, name, nullable, length, null, null);
-    }
 
-    private void CreateDecimalColumn(Table table, string name, bool nullable, int? precision, int? scale)
-    {
+    private void CreateDecimalColumn(Table table, string name, bool nullable, int? precision, int? scale) =>
       CreateTableColumn<decimal>(table, name, nullable, null, precision, scale);
+
+    private void CreateTimeSpanColumn(Table table, string name, bool nullable)
+    {
+      if (nativeTimeSpan) {
+        _ = CreateTableColumn<TimeSpan>(table, name, nullable, null, null, null);
+      }
+      else {
+        CreateInt64Column(table, name, nullable);
+      }
     }
 
     private TableColumn CreateTableColumn<T>(Table table, string name, bool isNullable, int? lenght, int? precision, int? scale)
     {
-      var type = typeof(T);
-      var sqlType = driver.TypeMappings.GetMapping(type).MapType(lenght, precision, scale);
+      var sqlType = driver.TypeMappings.GetMapping(typeof(T)).MapType(lenght, precision, scale);
       var column = table.CreateColumn(name, sqlType);
       column.IsNullable = isNullable;
       return column;
@@ -368,6 +397,28 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     public ChinookSchemaCreator(SqlDriver driver)
     {
       this.driver = driver;
+      nativeTimeSpan = driver.ServerInfo.DataTypes.Interval!=null;
+      views[WellKnown.Provider.MySql] =
+        @"SELECT `InvoiceLine`.`InvoiceId`,
+                 Sum(`InvoiceLine`.`UnitPrice`) AS `Subtotal`
+          FROM `InvoiceLine`
+          GROUP BY `InvoiceLine`.`InvoiceId`";
+      views[WellKnown.Provider.Oracle] =
+        "SELECT \"InvoiceLine\".\"InvoiceId\"," +
+                "Sum(\"InvoiceLine\".\"UnitPrice\") AS \"Subtotal\" " +
+          "FROM \"InvoiceLine\" " +
+          "GROUP BY \"InvoiceLine\".\"InvoiceId\"";
+      views[WellKnown.Provider.Sqlite] =
+        @"SELECT [InvoiceLine].InvoiceId,
+                 Sum([InvoiceLine].UnitPrice) AS Subtotal
+          FROM [InvoiceLine]
+          GROUP BY [InvoiceLine].InvoiceId";
+      views[WellKnown.Provider.SqlServer] =
+        @"SELECT [InvoiceLine].InvoiceId, 
+                 Sum([InvoiceLine].UnitPrice) AS Subtotal
+          FROM [InvoiceLine]
+          GROUP BY [InvoiceLine].InvoiceId";
+
     }
   }
 }
