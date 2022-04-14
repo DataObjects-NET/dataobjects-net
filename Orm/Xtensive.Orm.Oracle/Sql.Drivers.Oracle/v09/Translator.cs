@@ -143,6 +143,15 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
+    public override void Translate(SqlCompilerContext context, SqlDropView node)
+    {
+      _ = context.Output.Append("DROP VIEW ");
+      Translate(context, node.View);
+      if (node.Cascade) {
+        _ = context.Output.Append(" CASCADE CONSTRAINTS");
+      }
+    }
+
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlDropSequence node)
     {
@@ -368,21 +377,6 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         case SqlFunctionType.CurrentDateTimeOffset: _ = output.Append("CURRENT_TIMESTAMP"); break;
         default: base.Translate(output, type); break;
       }
-    }
-
-    /// <inheritdoc/>
-    public override string TranslateToString(SqlFunctionType type)
-    {
-      return type switch {
-        SqlFunctionType.Truncate or SqlFunctionType.DateTimeTruncate => "TRUNC",
-        SqlFunctionType.IntervalNegate => "-1*",
-        SqlFunctionType.Substring => "SUBSTR",
-        SqlFunctionType.Log => "LN",
-        SqlFunctionType.Log10 => "LOG",
-        SqlFunctionType.Ceiling => "CEIL",
-        SqlFunctionType.CurrentDateTimeOffset => "CURRENT_TIMESTAMP",
-        _ => base.TranslateToString(type),
-      };
     }
 
     /// <inheritdoc/>
