@@ -104,7 +104,7 @@ namespace Xtensive.Reflection
         }
       }
 
-      if ((options & AttributeSearchOptions.InheritFromAllBase) != 0
+      if ((options & AttributeSearchOptions.InheritFromAllBase) == AttributeSearchOptions.InheritFromAllBase
           && member.DeclaringType != WellKnownTypes.Object
           && member.GetBaseMember() is MemberInfo bm2) {
         attributes.AddRange(GetAttributes(bm2, attributeType, options));
