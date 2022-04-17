@@ -97,9 +97,10 @@ namespace Xtensive.Reflection
           attributes = poe.GetAttributes(attributeType).ToList();
         }
         if ((options & AttributeSearchOptions.InheritFromBase) != 0
-            && (options & AttributeSearchOptions.InheritFromAllBase) == 0
+            && (options & AttributeSearchOptions.InheritRecursively) == 0
             && member.GetBaseMember() is MemberInfo bm) {
           attributes.AddRange(GetAttributes(bm, attributeType, options));
+          return attributes;
         }
       }
 
