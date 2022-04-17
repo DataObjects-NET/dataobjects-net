@@ -31,7 +31,7 @@ namespace Xtensive.Reflection
     /// <summary>
     /// Attributes from all the bases should be inherited.
     /// </summary>
-    InheritFromAllBase = 3,
+    InheritFromAllBase = 2,
     /// <summary>
     /// If no attributes are found on the specified method,
     /// attributes from the property or event it belongs to should be inherited.
