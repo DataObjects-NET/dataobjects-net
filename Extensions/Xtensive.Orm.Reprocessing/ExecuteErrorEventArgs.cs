@@ -1,31 +1,35 @@
-﻿using System;
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 
 namespace Xtensive.Orm.Reprocessing
 {
   /// <summary>
   /// Provides data for the <see cref="IExecuteActionStrategy.Error"/> event
   /// </summary>
-  public class ExecuteErrorEventArgs : EventArgs
+  public readonly struct ExecuteErrorEventArgs
   {
     /// <summary>
     /// Gets the attempt number of this task.
     /// </summary>
-    public int Attempt { get; private set; }
+    public int Attempt { get; }
 
     /// <summary>
     /// Gets the exception of this task.
     /// </summary>
-    public Exception Exception { get; private set; }
+    public Exception Exception { get; }
 
     /// <summary>
     /// Gets the session of this task. Session will have outer transaction.
     /// </summary>
-    public Session Session { get; private set; }
+    public Session Session { get; }
 
     /// <summary>
     /// Gets the transaction of this task.
     /// </summary>
-    public Transaction Transaction { get; private set; }
+    public Transaction Transaction { get; }
 
     /// <summary>
     /// Initializes a new instance of the <see cref="ExecuteErrorEventArgs"/> class.

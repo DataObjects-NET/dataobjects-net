@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.10.22
 
@@ -17,7 +17,7 @@ namespace Xtensive.Orm
     /// Gets the exception.
     /// </summary>
     /// <value>The exception.</value>
-    public Exception Exception { get; private set; }
+    public Exception Exception { get; }
 
 
     // Constructors
