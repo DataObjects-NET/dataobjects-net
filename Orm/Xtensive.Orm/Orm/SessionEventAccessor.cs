@@ -245,15 +245,12 @@ namespace Xtensive.Orm
 
     internal void NotifyDbCommandExecuting(DbCommand command)
     {
-      if (DbCommandExecuting!=null)
-        DbCommandExecuting(this, new DbCommandEventArgs(command));
+      DbCommandExecuting?.Invoke(this, new DbCommandEventArgs(command));
     }
 
     internal void NotifyDbCommandExecuted(DbCommand command, Exception exception = null)
     {
-      if(DbCommandExecuted!=null)
-        DbCommandExecuted(this, new DbCommandEventArgs(command, exception));
-
+      DbCommandExecuted?.Invoke(this, new DbCommandEventArgs(command, exception));
     }
 
     internal Expression NotifyQueryExecuting(Expression expression)
