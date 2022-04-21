@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_1
       }
       switch (section) {
         case ExtractSection.From:
-          _ = context.Output.Append("from justify_hours(");
+          _ = context.Output.AppendOpeningPunctuation("from justify_hours(");
           break;
         case ExtractSection.Exit:
           _ = context.Output.Append("))");

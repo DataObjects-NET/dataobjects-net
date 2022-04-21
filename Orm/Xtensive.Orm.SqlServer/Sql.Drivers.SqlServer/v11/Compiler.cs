@@ -25,19 +25,22 @@ namespace Xtensive.Sql.Drivers.SqlServer.v11
       }
 
       AppendTranslated(node, SelectSection.Offset);
+
       if (node.HasOffset) {
         node.Offset.AcceptVisitor(this);
       }
       else {
-        _ = context.Output.Append("0 ");
+        _ = context.Output.Append("0");
       }
 
-      AppendTranslated(node, SelectSection.OffsetEnd);
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node, SelectSection.OffsetEnd);
 
       if (node.HasLimit) {
         AppendTranslated(node, SelectSection.Limit);
         node.Limit.AcceptVisitor(this);
-        AppendTranslated(node, SelectSection.LimitEnd);
+        AppendSpaceIfNecessary();
+        translator.Translate(context, node, SelectSection.LimitEnd);
       }
     }
 

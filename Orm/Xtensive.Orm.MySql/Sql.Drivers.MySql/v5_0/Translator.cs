@@ -209,7 +209,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           _ = context.Output.AppendOpeningPunctuation("CONCAT(");
           break;
         case NodeSection.Exit:
-          _ = context.Output.AppendClosingPunctuation(")");
+          _ = context.Output.Append(")");
           break;
       }
     }
@@ -273,7 +273,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           TranslateIdentifier(output, index.Name);
           _ = output.Append(" USING BTREE ON ");
           Translate(context, index.DataTable);
-          _ = output.AppendSpaceIfNecessary();
+          _ = output.AppendSpace();
           break;
         case CreateIndexSection.Exit:
           break;
@@ -411,7 +411,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
       switch (section) {
         case ExtractSection.Entry:
-          _ = context.Output.Append("(extract(");
+          _ = context.Output.AppendOpeningPunctuation("(extract(");
           break;
         case ExtractSection.Exit:
           _ = context.Output.Append(isMillisecond ? ") % 1000)" : "))");
@@ -464,21 +464,21 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         sqlType == SqlType.Interval ||
         sqlType == SqlType.DateTime) {
         _ = section switch {
-          NodeSection.Entry => output.Append("CAST("),
+          NodeSection.Entry => output.AppendOpeningPunctuation("CAST("),
           NodeSection.Exit => output.Append("AS ").Append(Translate(node.Type)).Append(")"),
           _ => throw new ArgumentOutOfRangeException("section"),
         };
       }
       else if (sqlType == SqlType.Int16 || sqlType == SqlType.Int32) {
         _ = section switch {
-          NodeSection.Entry => output.Append("CAST("),
+          NodeSection.Entry => output.AppendOpeningPunctuation("CAST("),
           NodeSection.Exit => output.Append("AS SIGNED ").Append(Translate(node.Type)).Append(")"),
           _ => throw new ArgumentOutOfRangeException(nameof(section)),
         };
       }
       else if (sqlType == SqlType.Decimal) {
         _ = section switch {
-          NodeSection.Entry => output.Append("CAST("),
+          NodeSection.Entry => output.AppendOpeningPunctuation("CAST("),
           NodeSection.Exit => output.Append("AS ").Append(Translate(node.Type)).Append(")"),
           _ => throw new ArgumentOutOfRangeException(nameof(section)),
         };
@@ -589,9 +589,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       TranslateIdentifier(output, tableName);
       _ = output.Append(" CHANGE COLUMN ");
       TranslateIdentifier(output, columnName);
-      _ = output.AppendSpaceIfNecessary();
+      _ = output.AppendSpace();
       TranslateIdentifier(output, action.NewName);
-      _ = output.AppendSpaceIfNecessary()
+      _ = output.AppendSpace()
         .Append(Translate(action.Column.DataType));
     }
 

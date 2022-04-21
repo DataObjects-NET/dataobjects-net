@@ -293,7 +293,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
           TranslateIdentifier(output, index.Name);
           _ = output.Append(" ON ");
           TranslateIdentifier(output, index.DataTable.Name);
-          _ = output.AppendSpaceIfNecessary();
+          _ = output.AppendSpace();
           return;
         case CreateIndexSection.Exit:
           return;
@@ -414,7 +414,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
         TrimSection.Exit => node.TrimType switch {
           SqlTrimType.Leading or
             SqlTrimType.Trailing or
-            SqlTrimType.Both => output.AppendClosingPunctuation(")"),
+            SqlTrimType.Both => output.Append(")"),
           _ => throw new ArgumentOutOfRangeException(nameof(node.TrimType)),
         },
         _ => throw new ArgumentOutOfRangeException(nameof(section)),

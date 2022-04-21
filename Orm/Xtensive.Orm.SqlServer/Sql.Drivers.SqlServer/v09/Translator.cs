@@ -264,7 +264,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
           Translate(output, node.JoinType);
           if (joinHint != null) {
-            _ = output.Append(" ").Append(Translate(joinHint.Method));
+            _ = output.AppendSpace().Append(Translate(joinHint.Method));
           }
           _ = output.Append(" JOIN");
           break;
@@ -356,7 +356,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           _ = output.Append(", ");
         }
         else {
-          _ = output.Append("OPTION (");
+          _ = output.Append(" OPTION (");
           hasHints = true;
         }
         _ = output.Append(hint);
@@ -407,7 +407,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
       var index = node.Index;
       if (index is not FullTextIndex ftIndex) {
-
         return;
       }
       if (ftIndex.FullTextCatalog != null) {
@@ -507,8 +506,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           _ => throw new ArgumentOutOfRangeException("node.TrimType"),
         },
         TrimSection.Exit => node.TrimType switch {
-          SqlTrimType.Leading or SqlTrimType.Trailing => output.AppendClosingPunctuation(")"),
-          SqlTrimType.Both => output.AppendClosingPunctuation("))"),
+          SqlTrimType.Leading or SqlTrimType.Trailing => output.Append(")"),
+          SqlTrimType.Both => output.Append("))"),
           _ => throw new ArgumentOutOfRangeException("node.TrimType"),
         },
         _ => throw new ArgumentOutOfRangeException(nameof(section)),

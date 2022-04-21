@@ -170,7 +170,7 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
         base.VisitSelectFrom(node);
       }
       else {
-        _ = context.Output.Append("FROM DUAL");
+        _ = context.Output.Append(" FROM DUAL");
       }
     }
 

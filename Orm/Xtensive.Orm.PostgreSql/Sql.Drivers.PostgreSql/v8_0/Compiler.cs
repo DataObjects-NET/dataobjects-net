@@ -285,7 +285,6 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       base.Visit(node);
     }
 
-    
     protected SqlExpression DateTimeOffsetExtractDate(SqlExpression timestamp) =>
       SqlDml.FunctionCall("DATE", timestamp);
 
@@ -301,11 +300,12 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     protected void DateTimeOffsetExtractOffset(SqlExtract node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, ExtractSection.Entry);
+        AppendTranslatedEntry(node);
         translator.Translate(context.Output, node.DateTimeOffsetPart);
         AppendTranslated(node, ExtractSection.From);
         node.Operand.AcceptVisitor(this);
-        AppendTranslated(node, ExtractSection.Exit);
+        AppendSpace();
+        AppendTranslatedExit(node);
         AppendTranslated(SqlNodeType.Multiply);
         OneSecondInterval.AcceptVisitor(this);
       }

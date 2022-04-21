@@ -200,7 +200,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       switch (section) {
         case CreateTableSection.Exit:
-          _ = context.Output.Append("WITHOUT OIDS ");
+          _ = context.Output.Append(" WITHOUT OIDS");
           break;
       }
       base.Translate(context, node, section);
@@ -351,7 +351,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       }
       switch (section) {
         case ExtractSection.Entry:
-          _ = context.Output.Append(isSecond ? "(trunc(extract(" : "(extract(");
+          _ = context.Output.AppendOpeningPunctuation(isSecond ? "(trunc(extract(" : "(extract(");
           break;
         case ExtractSection.Exit:
           _ = context.Output.Append(isMillisecond
@@ -383,7 +383,9 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
           _ = output.Append("CURSOR");
           break;
         case DeclareCursorSection.Holdability:
-          _ = output.Append(node.Cursor.WithHold ? "WITH HOLD" : "");
+          if (node.Cursor.WithHold) {
+            _ = output.Append("WITH HOLD");
+          }
           break;
         case DeclareCursorSection.Returnability:
         case DeclareCursorSection.Updatability:
@@ -751,7 +753,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     {
       switch (section) {
         case NodeSection.Entry:
-          _ = context.Output.Append("nextval('");
+          _ = context.Output.AppendOpeningPunctuation("nextval('");
           break;
         case NodeSection.Exit:
           _ = context.Output.Append("')");
@@ -765,7 +767,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       // casting this way behaves differently: -32768::int2 is out of range ! We need (-32768)::int2
       switch (section) {
         case NodeSection.Entry:
-          _ = context.Output.Append("(");
+          _ = context.Output.AppendOpeningPunctuation("(");
           break;
         case NodeSection.Exit:
           _ = context.Output.Append(")::").Append(Translate(node.Type));

@@ -50,7 +50,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         base.VisitSelectFrom(node);
       }
       else {
-        _ = context.Output.Append("FROM RDB$DATABASE ");
+        _ = context.Output.Append(" FROM RDB$DATABASE");
       }
     }
 
@@ -211,8 +211,8 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     /// <inheritdoc/>
     public override void Visit(SqlAlterSequence node)
     {
-      AppendTranslatedEntry(node);
-      AppendTranslatedExit(node);
+      translator.Translate(context, node, NodeSection.Entry);
+      translator.Translate(context, node, NodeSection.Exit);
     }
 
     #region Static helpers

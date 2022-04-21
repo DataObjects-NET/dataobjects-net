@@ -87,7 +87,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
       }
       else if (node.Action is SqlDropConstraint) {
         using (context.EnterScope(node)) {
-          AppendTranslated(node, AlterTableSection.Entry);
+          AppendTranslatedEntry(node);
 
           var action = node.Action as SqlDropConstraint;
           var constraint = action.Constraint as TableConstraint;
@@ -210,12 +210,12 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override void Visit(SqlQueryExpression node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, QueryExpressionSection.Entry);
+        AppendTranslatedEntry(node);
         node.Left.AcceptVisitor(this);
         AppendTranslated(node.NodeType);
         AppendTranslated(node, QueryExpressionSection.All);
         node.Right.AcceptVisitor(this);
-        AppendTranslated(node, QueryExpressionSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 

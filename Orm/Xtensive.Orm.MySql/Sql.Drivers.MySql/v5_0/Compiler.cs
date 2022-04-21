@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         ((Translator) translator).Translate(context, renameColumnAction);
       else if (node.Action is SqlDropConstraint) {
         using (context.EnterScope(node)) {
-          AppendTranslated(node, AlterTableSection.Entry);
+          AppendTranslatedEntry(node);
 
           var action = node.Action as SqlDropConstraint;
           var constraint = action.Constraint as TableConstraint;
@@ -65,7 +65,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           }
 
           AppendTranslated(node, AlterTableSection.DropBehavior);
-          AppendTranslated(node, AlterTableSection.Exit);
+          AppendTranslatedExit(node);
         }
       }
       else {
@@ -116,7 +116,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       using (context.EnterScope(node)) {
         //bool needOpeningParenthesis = false;
         //bool needClosingParenthesis = false;
-        AppendTranslated(node, QueryExpressionSection.Entry);
+        AppendTranslatedEntry(node);
         //if (needOpeningParenthesis)
         //  context.Output.Append("(");
         node.Left.AcceptVisitor(this);
@@ -129,7 +129,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         node.Right.AcceptVisitor(this);
         //if (needClosingParenthesis)
         //  context.Output.Append(")");
-        AppendTranslated(node, QueryExpressionSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 

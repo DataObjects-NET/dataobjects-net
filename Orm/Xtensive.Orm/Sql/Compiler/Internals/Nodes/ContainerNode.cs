@@ -71,11 +71,24 @@ namespace Xtensive.Sql.Compiler
     IOutput AppendClosingPunctuation(string text);
 
     /// <summary>
+    /// Appends space to the output.
+    /// </summary>
+    /// <returns>The <see cref="IOutput"/> instance with appended space.</returns>
+    IOutput AppendSpace();
+
+    /// <summary>
     /// Appends space unless current output state ends with space or other character
     /// that desqualfy output from appending space.
     /// </summary>
     /// <returns>The <see cref="IOutput"/> instance with appended space if in was nessesary.</returns>
     IOutput AppendSpaceIfNecessary();
+
+    /// <summary>
+    /// Appends new line text.
+    /// </summary>
+    /// <param name="text">The new line text.</param>
+    /// <returns>The <see cref="IOutput"/> instance with appended new line text.</returns>
+    IOutput AppendNewLine(string text);
   }
 
   /// <summary>
@@ -92,6 +105,7 @@ namespace Xtensive.Sql.Compiler
 
     private char? lastChar;
     private bool lastCharIsPunctuation;
+    private bool lastNodeIsText = true;
 
     public IReadOnlyList<Node> Children
     {
@@ -112,7 +126,7 @@ namespace Xtensive.Sql.Compiler
     {
       get {
         lastCharIsPunctuation = false;
-        lastChar = null;
+        lastChar = null;// char.MaxValue;//I highly doubt that this char will appear in translation :-)
         return stringBuilder;
       }
     }
@@ -135,6 +149,7 @@ namespace Xtensive.Sql.Compiler
     {
       FlushBuffer();
       children.Add(node);
+      lastNodeIsText = node.IsTextNode;
     }
 
     internal override void AcceptVisitor(NodeVisitor visitor)
@@ -146,6 +161,7 @@ namespace Xtensive.Sql.Compiler
     {
       if (stringBuilder.Length > 0) {
         children.Add(new TextNode(stringBuilder.ToString()));
+        lastNodeIsText = true;
         lastChar = stringBuilder[^1];
         _ = stringBuilder.Clear();
         lastCharIsPunctuation = false;
@@ -181,7 +197,7 @@ namespace Xtensive.Sql.Compiler
     {
       _ = stringBuilder.AppendFormat(invarianCulture, "{0}", v);
       lastCharIsPunctuation = false;
-      lastChar = null;
+      lastChar = null;// char.MaxValue;//i highly doubt that this char will appear in translation :-);
       StartOfCollection = false;
       return this;
     }
@@ -234,13 +250,37 @@ namespace Xtensive.Sql.Compiler
     }
 
     /// <inheritdoc/>
+    public IOutput AppendSpace()
+    {
+      _ = stringBuilder.Append(' ');
+      lastCharIsPunctuation = true;
+      lastChar = ' ';
+      StartOfCollection = false;
+      return this;
+    }
+
+    /// <inheritdoc/>
     public IOutput AppendSpaceIfNecessary()
     {
-      if (lastCharIsPunctuation || lastChar == ' ' || lastChar == '\n' || lastChar == '(') {
+      if (lastNodeIsText && (lastCharIsPunctuation || (lastChar is ' ' or '(' or '\n'))) {
         lastCharIsPunctuation = false;
         return this;
       }
-      return Append(' ');
+      return AppendSpace();
+    }
+
+    /// <inheritdoc/>
+    public IOutput AppendNewLine(string text)
+    {
+      //reduces chances of checking for new line character
+      //mostly it is used for batches
+      if (!string.IsNullOrEmpty(text)) {
+        _ = stringBuilder.Append(text);
+        lastCharIsPunctuation = true;
+        lastChar = text[^1];
+        StartOfCollection = false;
+      }
+      return this;
     }
 
     #endregion

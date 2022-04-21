@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       using (context.EnterScope(node)) {
         var comment = node.Comment;
         VisitCommentIfBefore(comment);
-        AppendTranslated(node, SelectSection.Entry);
+        AppendTranslatedEntry(node);
         VisitCommentIfWithin(comment);
         VisitSelectLimitOffset(node);
         VisitSelectHints(node);
@@ -53,7 +53,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         VisitSelectGroupBy(node);
         VisitSelectOrderBy(node);
         VisitSelectLock(node);
-        AppendTranslated(node, SelectSection.Exit);
+        AppendTranslatedExit(node);
         VisitCommentIfAfter(comment);
       }
     }
@@ -81,7 +81,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         }
 
         AppendTranslated(node, UpdateSection.Limit);
-        _ = context.Output.Append("(");
+        _ = context.Output.AppendOpeningPunctuation("(");
         node.Limit.AcceptVisitor(this);
         _ = context.Output.Append(")");
       }
@@ -110,7 +110,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         }
 
         AppendTranslated(node, DeleteSection.Limit);
-        _ = context.Output.Append("(");
+        _ = context.Output.AppendOpeningPunctuation("(");
         node.Limit.AcceptVisitor(this);
         _ = context.Output.Append(")");
       }
@@ -307,7 +307,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var output = context.Output;
 
-      _ = output.Append("CONTAINSTABLE(");
+      _ = output.AppendOpeningPunctuation("CONTAINSTABLE(");
       AppendTranslated(node.TargetTable.DataTable);
       _ = output.Append(", ");
 
@@ -335,7 +335,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       var output = context.Output;
 
-      _ = output.Append("FREETEXTTABLE(");
+      _ = output.AppendOpeningPunctuation("FREETEXTTABLE(");
       AppendTranslated(node.TargetTable.DataTable);
       _ = output.Append(", ");
 
@@ -451,7 +451,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private void TranslateJoinedColumnNames(SqlTableColumnCollection targetColumns)
     {
       var output = context.Output;
-      bool first = true;
+      var first = true;
       foreach (var column in targetColumns) {
         if (first) {
           first = false;
