@@ -78,11 +78,14 @@ namespace Xtensive.Orm.BulkOperations
     /// <returns>Instance of <see cref=" IUpdatable&lt;T&gt;"/>.</returns>
     [Pure]
     public static IUpdatable<T> Set<T, TResult>(this IQueryable<T> query, Expression<Func<T, TResult>> field,
-        TResult value) where T: IEntity =>
-      Set(query,
-        field,
-        Expression.Lambda<Func<T, TResult>>(Expression.Constant(value, typeof(TResult)), Expression.Parameter(typeof(T), "a"))   // Manually constructed expression is simpler than `a => value`
-      );
+      TResult value) where T: IEntity
+    {
+      // Manually constructed expression is simpler than `a => value`
+      var valueFunc = Expression.Lambda<Func<T, TResult>>(Expression.Constant(value, typeof(TResult)),
+        Expression.Parameter(typeof(T), "a"));
+
+      return Set(query, field, valueFunc);
+    }
 
     /// <summary>
     /// Executes bulk update of entities specified by the query.
