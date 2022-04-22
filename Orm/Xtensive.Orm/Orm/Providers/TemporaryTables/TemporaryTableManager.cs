@@ -85,7 +85,8 @@ namespace Xtensive.Orm.Providers
       // insert statements
 
       var batchStoreRequestBindings = new List<PersistParameterBinding>();
-      var batchInsertStatement = MakeUpInsertQuery(tableRef, typeMappings, batchStoreRequestBindings, hasColumns, WellKnown.RecordsInInsertBatch);
+      var numberOfRecordsInInsert = (int)Math.Sqrt(Handlers.Domain.Configuration.MaxNumberOfConditions);
+      var batchInsertStatement = MakeUpInsertQuery(tableRef, typeMappings, batchStoreRequestBindings, hasColumns, numberOfRecordsInInsert);
 
       var storeRequestBindings = new List<PersistParameterBinding>();
       var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns, 1);

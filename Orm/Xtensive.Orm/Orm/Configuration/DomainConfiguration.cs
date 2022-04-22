@@ -617,7 +617,11 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
 
-    
+    /// <summary>
+    /// Maximal number of filtering values in an <see cref="IncludeProvider"/>
+    /// which are to be placed inside a resulted SQL command (as boolean predicate).
+    /// </summary>
+    public int MaxNumberOfConditions { get; set; } = 256;
 
     private bool GetIsMultidatabase()
     {

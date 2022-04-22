@@ -90,17 +90,6 @@ namespace Xtensive.Orm
     public const int MaxGenericKeyLength = 4;
 
     /// <summary>
-    /// Maximal number of filtering values in an <see cref="IncludeProvider"/> 
-    /// which are to be placed inside a resulted SQL command (as boolean predicate).
-    /// </summary>
-    public const int MaxNumberOfConditions = 256;
-
-    /// <summary>
-    /// Number of records in multi-record INSERT SQL statement
-    /// </summary>
-    public const int RecordsInInsertBatch = 20;
-
-    /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
     /// </summary>
     public const int EntitySetCacheSize = 1024000;

@@ -87,7 +87,7 @@ namespace Xtensive.Orm.Providers
     {
       if (descriptor.BatchStoreRequest != null) {
         var parametersInBatchStoreRequest = descriptor.BatchStoreRequest.ParameterBindings.Count;
-        foreach (var chunk in tuples.Chunk(WellKnown.RecordsInInsertBatch)) {
+        foreach (var chunk in tuples.Chunk(parametersInBatchStoreRequest)) {
           if (chunk.Length == parametersInBatchStoreRequest) {
             commandProcessor.RegisterTask(new SqlPersistTask(descriptor.BatchStoreRequest, chunk));
           }
