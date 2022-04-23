@@ -12,7 +12,9 @@
   <CompileDependsOn>$(CompileDependsOn);XtensiveOrmBuild</CompileDependsOn>
   <XtensiveOrmPath Condition="'$(XtensiveOrmPath)'==''">$(MSBuildThisFileDirectory)</XtensiveOrmPath>
   <XtensiveOrmPath Condition="!HasTrailingSlash('$(XtensiveOrmPath)')">$(XtensiveOrmPath)\</XtensiveOrmPath>
-  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)tools\weaver\net5.0\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
+  <XtensiveWeaverFramework Condition="'$(TargetFramework)'=='net5.0'">net5.0</XtensiveWeaverFramework>
+  <XtensiveWeaverFramework>net6.0</XtensiveWeaverFramework>  <!-- works for net7.0 as well -->
+  <XtensiveOrmWeaver Condition="'$(XtensiveOrmWeaver)'==''">$(XtensiveOrmPath)tools\weaver\$(XtensiveWeaverFramework)\Xtensive.Orm.Weaver.dll</XtensiveOrmWeaver>
   <XtensiveOrmBuildDependsOn>$(XtensiveOrmBuildDependsOn)</XtensiveOrmBuildDependsOn>
 </PropertyGroup>
 
