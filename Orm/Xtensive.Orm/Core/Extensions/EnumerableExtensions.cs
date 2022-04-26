@@ -484,7 +484,7 @@ namespace Xtensive.Core
     }
 
 #if !NET6_0_OR_GREATER
-        public static IEnumerable<T[]> Chunk<T>(this IEnumerable<T> enumerable, int chunkSize)
+        internal static IEnumerable<T[]> Chunk<T>(this IEnumerable<T> enumerable, int chunkSize)
         {
             using var enumerator = enumerable.GetEnumerator();
             while (enumerator.MoveNext()) {
