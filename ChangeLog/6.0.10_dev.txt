@@ -1,0 +1,1 @@
+[main] Fixed NotSupportedException appeared on x86 architecture when DateTimeOffset is used in entites
