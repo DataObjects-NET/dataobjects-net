@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Dml
     internal override object Clone(SqlNodeCloneContext context)
     {
       if (!context.NodeMapping.TryGetValue(this, out var clone)) {
-        context.NodeMapping[this] = clone= new SqlFunctionCall(FunctionType, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
+        context.NodeMapping[this] = clone = new SqlFunctionCall(FunctionType, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
       }
       return clone;
     }
