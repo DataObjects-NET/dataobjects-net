@@ -52,9 +52,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlMatch>(expression, "expression");
-      SqlMatch replacingExpression = expression as SqlMatch;
+      SqlMatch replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlMatch>(expression);
       value = replacingExpression.Value;
       subQuery = replacingExpression.SubQuery;
       matchType = replacingExpression.MatchType;

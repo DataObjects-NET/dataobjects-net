@@ -95,9 +95,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlCase>(expression, "expression");
-      SqlCase replacingExpression = expression as SqlCase;
+      SqlCase replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCase>(expression);
       value = replacingExpression.Value;
       @else = replacingExpression.Else;
       cases.Clear();

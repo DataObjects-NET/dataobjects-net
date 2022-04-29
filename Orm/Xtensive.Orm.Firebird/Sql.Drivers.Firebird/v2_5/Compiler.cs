@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Csaba Beer
@@ -9,6 +9,7 @@ using System.Linq;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Drivers.Firebird.v2_5
 {
@@ -167,9 +168,7 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
     {
       switch (node.FunctionType) {
         case SqlFunctionType.Concat:
-          var exprs = new SqlExpression[node.Arguments.Count];
-          node.Arguments.CopyTo(exprs, 0);
-          Visit(SqlDml.Concat(exprs));
+          Visit(SqlDml.Concat(node.Arguments.ToArray(node.Arguments.Count)));
           return;
         case SqlFunctionType.DateTimeTruncate:
           Visit(SqlDml.Cast(node.Arguments[0], new SqlValueType("Date")));

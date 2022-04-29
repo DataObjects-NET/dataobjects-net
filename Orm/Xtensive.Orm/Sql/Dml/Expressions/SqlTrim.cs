@@ -43,9 +43,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlTrim>(expression, "expression");
-      var replacingExpression = (SqlTrim) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlTrim>(expression);
       this.expression = replacingExpression.expression;
       trimCharacters = replacingExpression.trimCharacters;
       trimType = replacingExpression.TrimType;
