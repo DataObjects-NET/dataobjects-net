@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -17,7 +17,7 @@ namespace Xtensive.Orm.Logging
       return true;
     }
 
-    public override void Write(LogEventInfo info)
+    public override void Write(in LogEventInfo info)
     {
       writer.Write(info);
     }

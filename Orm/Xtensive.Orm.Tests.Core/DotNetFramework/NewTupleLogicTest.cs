@@ -145,12 +145,18 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
 
     private void Test(int count)
     {
-      using (warmup ? new Disposable(delegate { }) :
-        TestLog.InfoRegion("With boxing"))
+      if (warmup) {
         TestTupleAccess(new BoxingTuple(), count);
-      using (warmup ? new Disposable(delegate { }) :
-        TestLog.InfoRegion("Without boxing"))
         TestTupleAccess(new NonBoxingTuple(), count);
+      }
+      else {
+        using(TestLog.InfoRegion("With boxing")) {
+          TestTupleAccess(new BoxingTuple(), count);
+        }
+        using (TestLog.InfoRegion("Without boxing")) {
+          TestTupleAccess(new NonBoxingTuple(), count);
+        }
+      }
     }
 
     private void TestTupleAccess(TestTuple tuple, int count)

@@ -782,7 +782,7 @@ namespace Xtensive.Orm.Model
             tuple.SetValue(i, column.DefaultValue);
           }
           catch (Exception e) {
-            OrmLog.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ,
+            OrmLog.Error(e, nameof(Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ),
               column.DefaultValue, column.Name, Name);
           }
         }

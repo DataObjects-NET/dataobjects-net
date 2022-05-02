@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -13,27 +13,27 @@ namespace Xtensive.Orm.Logging
   /// <summary>
   /// Represent information to write to target of log.
   /// </summary>
-  public sealed class LogEventInfo
+  public readonly struct LogEventInfo
   {
     /// <summary>
     /// Gets source of this event.
     /// </summary>
-    public string Source { get; private set; }
+    public string Source { get; }
 
     /// <summary>
     /// Gets log level for this event.
     /// </summary>
-    public LogLevel Level { get; private set; }
+    public LogLevel Level { get; }
 
     /// <summary>
     /// Gets log message for this event.
     /// </summary>
-    public string FormattedMessage { get; private set; }
+    public string FormattedMessage { get; }
 
     /// <summary>
     /// Gets exception for this event.
     /// </summary>
-    public Exception Exception { get; private set; }
+    public Exception Exception { get; }
 
     /// <inheritdoc/>
     public override string ToString()
@@ -68,7 +68,7 @@ namespace Xtensive.Orm.Logging
       if (string.IsNullOrEmpty(message))
         return message;
       var indent = IndentManager.CurrentIdent;
-      return indent.Length > 0 ? indent + message : message;
+      return indent > 0 ? new string(' ', indent) + message : message;
     }
 
     /// <summary>
