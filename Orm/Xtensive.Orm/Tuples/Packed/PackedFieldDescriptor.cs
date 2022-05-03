@@ -11,25 +11,10 @@ namespace Xtensive.Tuples.Packed
   [Serializable]
   internal struct PackedFieldDescriptor
   {
-    private const int OffsetBitCount = 6;
-    private const int OffsetMask = (1 << OffsetBitCount) - 1;
-
     internal int DataPosition;
     internal ushort StatePosition;
 
     [NonSerialized]
     internal byte AccessorIndex;
-
-    public PackedFieldAccessor Accessor => PackedFieldAccessor.All[AccessorIndex];
-
-    public bool IsObjectField => Accessor.Rank < 0;
-
-    public int ObjectIndex => DataPosition;
-
-    public int ValueIndex => DataPosition >> OffsetBitCount;
-    public int ValueBitOffset => DataPosition & OffsetMask;
-
-    public int StateIndex => StatePosition >> OffsetBitCount;
-    public int StateBitOffset => StatePosition & OffsetMask;
   }
 }

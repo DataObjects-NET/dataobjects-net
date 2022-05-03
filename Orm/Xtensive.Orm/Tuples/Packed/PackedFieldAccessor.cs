@@ -51,15 +51,18 @@ namespace Xtensive.Tuples.Packed
     public T GetValue<T>(PackedTuple tuple, in PackedFieldDescriptor descriptor, bool isNullable, out TupleFieldState fieldState)
     {
       var getter = (isNullable ? NullableGetter : Getter) as GetValueDelegate<T>;
-      if (getter!=null)
+      if (getter != null) {
         return getter.Invoke(tuple, descriptor, out fieldState);
-      var targetType = typeof (T);
+      }
+      var targetType = typeof(T);
 
       //Dirty hack of nullable enum reading
-      if (isNullable)
+      if (isNullable) {
         targetType = Nullable.GetUnderlyingType(targetType) ?? targetType;
-      if (targetType.IsEnum)
+      }
+      if (targetType.IsEnum) {
         return (T) Enum.ToObject(targetType, GetUntypedValue(tuple, descriptor, out fieldState));
+      }
       return (T) GetUntypedValue(tuple, descriptor, out fieldState);
     }
 
@@ -106,32 +109,30 @@ namespace Xtensive.Tuples.Packed
     {
       var state = tuple.GetFieldState(descriptor);
       fieldState = state;
-      return state==TupleFieldState.Available ? tuple.Objects[descriptor.ObjectIndex] : null;
+      return state == TupleFieldState.Available ? tuple.Objects[descriptor.GetObjectIndex()] : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value)
     {
-      tuple.Objects[descriptor.ObjectIndex] = value;
+      tuple.Objects[descriptor.GetObjectIndex()] = value;
       tuple.SetFieldState(descriptor, value != null ? TupleFieldState.Available : (TupleFieldState.Available | TupleFieldState.Null));
     }
 
     public override void CopyValue(PackedTuple source, in PackedFieldDescriptor sourceDescriptor,
       PackedTuple target, in PackedFieldDescriptor targetDescriptor)
     {
-      target.Objects[targetDescriptor.ObjectIndex] = source.Objects[sourceDescriptor.ObjectIndex];
+      target.Objects[targetDescriptor.GetObjectIndex()] = source.Objects[sourceDescriptor.GetObjectIndex()];
     }
 
     public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
       PackedTuple right, in PackedFieldDescriptor rightDescriptor)
     {
-      var leftValue = left.Objects[leftDescriptor.ObjectIndex];
-      var rightValue = right.Objects[rightDescriptor.ObjectIndex];
-      return leftValue.Equals(rightValue);
+      return Equals(left.Objects[leftDescriptor.GetObjectIndex()], right.Objects[rightDescriptor.GetObjectIndex()]);
     }
 
     public override int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor)
     {
-      return tuple.Objects[descriptor.ObjectIndex].GetHashCode();
+      return tuple.Objects[descriptor.GetObjectIndex()]?.GetHashCode() ?? 0;
     }
 
     public ObjectFieldAccessor()
@@ -167,14 +168,13 @@ namespace Xtensive.Tuples.Packed
 
     public override object GetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
-      var state = tuple.GetFieldState(descriptor);
-      fieldState = state;
-      return state==TupleFieldState.Available ? (object) Load(tuple, descriptor) : null;
+      fieldState = tuple.GetFieldState(descriptor);
+      return fieldState == TupleFieldState.Available ? (object) Load(tuple, descriptor) : null;
     }
 
     public override void SetUntypedValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, object value)
     {
-      if (value!=null) {
+      if (value != null) {
         Store(tuple, descriptor, (T) value);
         tuple.SetFieldState(descriptor, TupleFieldState.Available);
       }
@@ -190,12 +190,8 @@ namespace Xtensive.Tuples.Packed
     }
 
     public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
-      PackedTuple right, in PackedFieldDescriptor rightDescriptor)
-    {
-      var leftValue = Load(left, leftDescriptor);
-      var rightValue = Load(right, rightDescriptor);
-      return leftValue.Equals(rightValue);
-    }
+        PackedTuple right, in PackedFieldDescriptor rightDescriptor) =>
+      Load(left, leftDescriptor).Equals(Load(right, rightDescriptor));
 
     public override int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor)
     {
@@ -204,16 +200,14 @@ namespace Xtensive.Tuples.Packed
 
     private T GetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
-      var state = tuple.GetFieldState(descriptor);
-      fieldState = state;
-      return state==TupleFieldState.Available ? Load(tuple, descriptor) : DefaultValue;
+      fieldState = tuple.GetFieldState(descriptor);
+      return fieldState == TupleFieldState.Available ? Load(tuple, descriptor) : DefaultValue;
     }
 
     private T? GetNullableValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, out TupleFieldState fieldState)
     {
-      var state = tuple.GetFieldState(descriptor);
-      fieldState = state;
-      return state==TupleFieldState.Available ? Load(tuple, descriptor) : NullValue;
+      fieldState = tuple.GetFieldState(descriptor);
+      return fieldState == TupleFieldState.Available ? Load(tuple, descriptor) : NullValue;
     }
 
     private void SetValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, T value)
@@ -224,17 +218,18 @@ namespace Xtensive.Tuples.Packed
 
     private void SetNullableValue(PackedTuple tuple, in PackedFieldDescriptor descriptor, T? value)
     {
-      if (value!=null) {
+      if (value != null) {
         Store(tuple, descriptor, value.Value);
         tuple.SetFieldState(descriptor, TupleFieldState.Available);
       }
-      else
+      else {
         tuple.SetFieldState(descriptor, TupleFieldState.Available | TupleFieldState.Null);
+      }
     }
 
     private void Store(PackedTuple tuple, in PackedFieldDescriptor d, T value)
     {
-      var valueIndex = d.ValueIndex;
+      var valueIndex = d.GetValueIndex();
       if (Rank > 6) {
         Encode(value, tuple.Values, valueIndex);
         return;
@@ -242,19 +237,19 @@ namespace Xtensive.Tuples.Packed
 
       var encoded = Encode(value);
       ref var block = ref tuple.Values[valueIndex];
-      var valueBitOffset = d.ValueBitOffset;
+      var valueBitOffset = d.GetValueBitOffset();
       var mask = ValueBitMask << valueBitOffset;
       block = (block & ~mask) | ((encoded << valueBitOffset) & mask);
     }
 
     private T Load(PackedTuple tuple, in PackedFieldDescriptor d)
     {
-      var valueIndex = d.ValueIndex;
+      var valueIndex = d.GetValueIndex();
       if (Rank > 6) {
         return Decode(tuple.Values, valueIndex);
       }
 
-      var encoded = (tuple.Values[valueIndex] >> d.ValueBitOffset) & ValueBitMask;
+      var encoded = (tuple.Values[valueIndex] >> d.GetValueBitOffset()) & ValueBitMask;
       return Decode(encoded);
     }
 
@@ -279,7 +274,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override bool Decode(long value)
     {
-      return value!=0;
+      return value != 0;
     }
 
     public BooleanFieldAccessor()
@@ -299,7 +294,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override float Decode(long value)
     {
-      var intValue = unchecked ((int) value);
+      var intValue = unchecked((int) value);
       unsafe {
         return *(float*) &intValue;
       }
@@ -374,7 +369,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override byte Decode(long value)
     {
-      return unchecked ((byte) value);
+      return unchecked((byte) value);
     }
 
     public ByteFieldAccessor()
@@ -392,7 +387,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override sbyte Decode(long value)
     {
-      return unchecked ((sbyte) value);
+      return unchecked((sbyte) value);
     }
 
     public SByteFieldAccessor()
@@ -400,7 +395,7 @@ namespace Xtensive.Tuples.Packed
     {
     }
   }
-  
+
   internal sealed class ShortFieldAccessor : ValueFieldAccessor<short>
   {
     protected override long Encode(short value)
@@ -410,7 +405,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override short Decode(long value)
     {
-      return unchecked ((short) value);
+      return unchecked((short) value);
     }
 
     public ShortFieldAccessor()
@@ -418,7 +413,7 @@ namespace Xtensive.Tuples.Packed
     {
     }
   }
-  
+
   internal sealed class UShortFieldAccessor : ValueFieldAccessor<ushort>
   {
     protected override long Encode(ushort value)
@@ -428,7 +423,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override ushort Decode(long value)
     {
-      return unchecked ((ushort) value);
+      return unchecked((ushort) value);
     }
 
     public UShortFieldAccessor()
@@ -436,7 +431,7 @@ namespace Xtensive.Tuples.Packed
     {
     }
   }
-  
+
   internal sealed class IntFieldAccessor : ValueFieldAccessor<int>
   {
     protected override long Encode(int value)
@@ -446,7 +441,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override int Decode(long value)
     {
-      return unchecked ((int) value);
+      return unchecked((int) value);
     }
 
     public IntFieldAccessor()
@@ -454,7 +449,7 @@ namespace Xtensive.Tuples.Packed
     {
     }
   }
-  
+
   internal sealed class UIntFieldAccessor : ValueFieldAccessor<uint>
   {
     protected override long Encode(uint value)
@@ -464,7 +459,7 @@ namespace Xtensive.Tuples.Packed
 
     protected override uint Decode(long value)
     {
-      return unchecked ((uint) value);
+      return unchecked((uint) value);
     }
 
     public UIntFieldAccessor()
@@ -472,7 +467,7 @@ namespace Xtensive.Tuples.Packed
     {
     }
   }
-  
+
   internal sealed class LongFieldAccessor : ValueFieldAccessor<long>
   {
     protected override long Encode(long value)
@@ -490,7 +485,7 @@ namespace Xtensive.Tuples.Packed
     {
     }
   }
-  
+
   internal sealed class ULongFieldAccessor : ValueFieldAccessor<ulong>
   {
     protected override long Encode(ulong value)
@@ -529,7 +524,7 @@ namespace Xtensive.Tuples.Packed
 
     private static unsafe int GetSize()
     {
-      return sizeof (Guid);
+      return sizeof(Guid);
     }
 
     public GuidFieldAccessor()
