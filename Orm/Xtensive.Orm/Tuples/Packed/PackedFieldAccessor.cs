@@ -576,7 +576,11 @@ namespace Xtensive.Tuples.Packed
 
     private static unsafe int GetSize()
     {
-      return sizeof(DateTimeOffset);
+      // Depending on architecture, x86 or x64, the size of DateTimeOffset is either 12 or 16 respectively.
+      // Due to the fact that Rank calculation algorithm expects sizes to be equal to one of the power of two
+      // it returns wrong rank value for size 12 (bitsize = 96) which causes wrong choice of Encode/Decode methods.
+      // Setting it to 16 helps to solve Rank problem.
+      return sizeof(long) * 2;
     }
 
     public DateTimeOffsetFieldAccessor()
