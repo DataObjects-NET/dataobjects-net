@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Model
         return null;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (defaultSchema == value)
           return;
         if (value!=null && !schemas.Contains(value))

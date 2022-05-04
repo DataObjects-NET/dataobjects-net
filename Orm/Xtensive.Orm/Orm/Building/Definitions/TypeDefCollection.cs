@@ -129,7 +129,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <inheritdoc/>
     public override void AddRange(IEnumerable<TypeDef> items)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       foreach (var item in items) {
         Add(item);
       }

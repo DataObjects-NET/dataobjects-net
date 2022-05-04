@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Model
       get { return (attributes & ColumnAttributes.System) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.System : Attributes & ~ColumnAttributes.System;
       }
     }
@@ -55,7 +55,7 @@ namespace Xtensive.Orm.Model
       get { return (attributes & ColumnAttributes.Declared) > 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value ? 
                              (attributes | ColumnAttributes.Declared) & ~ColumnAttributes.Inherited :
                                                                                                       attributes & ~ColumnAttributes.Declared | ColumnAttributes.Inherited;
@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Model
       get { return (attributes & ColumnAttributes.Inherited) > 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value ? 
                              (attributes | ColumnAttributes.Inherited) & ~ColumnAttributes.Declared :
                                                                                                       attributes & ~ColumnAttributes.Inherited | ColumnAttributes.Declared;
@@ -85,7 +85,7 @@ namespace Xtensive.Orm.Model
       get { return (Attributes & ColumnAttributes.PrimaryKey) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.PrimaryKey : Attributes & ~ColumnAttributes.PrimaryKey;
       }
     }
@@ -98,7 +98,7 @@ namespace Xtensive.Orm.Model
       get { return (attributes & ColumnAttributes.Nullable) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.Nullable : Attributes & ~ColumnAttributes.Nullable;
       }
     }
@@ -111,7 +111,7 @@ namespace Xtensive.Orm.Model
       get { return (attributes & ColumnAttributes.LazyLoad) != 0; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value ? Attributes | ColumnAttributes.LazyLoad : Attributes & ~ColumnAttributes.LazyLoad;
       }
     }
@@ -126,7 +126,7 @@ namespace Xtensive.Orm.Model
       get { return field; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         field = value;
       }
     }
@@ -200,7 +200,7 @@ namespace Xtensive.Orm.Model
       get { return cultureInfo; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked(); 
+        EnsureNotLocked(); 
         cultureInfo = value;
       }
     }
@@ -213,7 +213,7 @@ namespace Xtensive.Orm.Model
       get { return indexes; } 
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         indexes = value;
       }
     }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2007.11.22
 
@@ -16,35 +16,29 @@ namespace Xtensive.Core
   [Serializable]
   public abstract class LockableBase: ILockable
   {
-    private bool isLocked;
 
     /// <inheritdoc/>
-    public bool IsLocked
-    {
-      [DebuggerStepThrough]
-      get { return isLocked; }
-    }
-
-    /// <inheritdoc/>
-    public void Lock()
-    {
-      Lock(true);
-    }
-
-    /// <inheritdoc/>
-    public virtual void Lock(bool recursive)
-    {
-      isLocked = true;
-    }
+    public bool IsLocked { [DebuggerStepThrough] get; private set; }
 
     /// <summary>
-    /// Unlocks the object.
-    /// Sets <see cref="IsLocked"/> to <see langword="false"/>.
+    /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
     /// </summary>
-    protected void Unlock()
+    /// <exception cref="InstanceIsLockedException">Specified instance is locked.</exception>
+    public void EnsureNotLocked()
     {
-      isLocked = false;
+      if (IsLocked) {
+        throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
+      }
     }
+
+
+    /// <inheritdoc/>
+    public void Lock() => Lock(true);
+
+    /// <inheritdoc/>
+    public virtual void Lock(bool recursive) =>
+      IsLocked = true;
+
     
 
     // Constructors
@@ -63,7 +57,7 @@ namespace Xtensive.Core
     /// <param name="isLocked">Initial <see cref="IsLocked"/> property value.</param>
     protected LockableBase(bool isLocked)
     {
-      this.isLocked = isLocked;
+      IsLocked = isLocked;
     }
   }
 }
