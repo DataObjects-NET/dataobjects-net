@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2007.11.22
 
@@ -16,26 +16,28 @@ namespace Xtensive.Core
   [Serializable]
   public abstract class LockableBase: ILockable
   {
-    private bool isLocked;
 
     /// <inheritdoc/>
-    public bool IsLocked
+    public bool IsLocked { [DebuggerStepThrough] get; private set; }
+
+    /// <summary>
+    /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
+    /// </summary>
+    /// <exception cref="InstanceIsLockedException">Specified instance is locked.</exception>
+    public void EnsureNotLocked()
     {
-      [DebuggerStepThrough]
-      get { return isLocked; }
+      if (IsLocked) {
+        throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
+      }
     }
 
-    /// <inheritdoc/>
-    public void Lock()
-    {
-      Lock(true);
-    }
 
     /// <inheritdoc/>
-    public virtual void Lock(bool recursive)
-    {
-      isLocked = true;
-    }
+    public void Lock() => Lock(true);
+
+    /// <inheritdoc/>
+    public virtual void Lock(bool recursive) =>
+      IsLocked = true;
 
     /// <summary>
     /// Unlocks the object.

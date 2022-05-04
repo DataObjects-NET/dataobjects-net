@@ -67,7 +67,7 @@ namespace Xtensive.Collections
     /// <exception cref="ArgumentException">Wrong arguments.</exception>
     public void Set(Type extensionType, object value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       ArgumentValidator.EnsureArgumentNotNull(extensionType, "extensionType");
       if (extensionType.IsValueType)
         throw new ArgumentException(string.Format(
@@ -87,7 +87,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       extensions = null;
     }
 

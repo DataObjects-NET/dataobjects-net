@@ -51,7 +51,7 @@ namespace Xtensive.Orm.Building.Definitions
     {
       get => (attributes & TypeAttributes.Abstract) > 0;
       internal set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value
           ? Attributes | TypeAttributes.Abstract
           : Attributes & ~TypeAttributes.Abstract;

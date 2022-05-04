@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Model
       get { return expression; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         expression = value;
       }
     }
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Model
       get { return fields; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         fields = value;
       }
     }
