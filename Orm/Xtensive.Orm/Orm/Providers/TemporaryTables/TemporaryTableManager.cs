@@ -85,9 +85,6 @@ namespace Xtensive.Orm.Providers
       // insert statements
 
 
-      var storeRequestBindings = new List<PersistParameterBinding>();
-      var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns, 1);
-
       var result = new TemporaryTableDescriptor(name) {
         TupleDescriptor = source,
         QueryStatement = queryStatement,
@@ -95,19 +92,18 @@ namespace Xtensive.Orm.Providers
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
         LazyLevel1BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel1BatchSize),
         LazyLevel2BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel2BatchSize),
-        StoreRequest = new PersistRequest(driver, insertStatement, storeRequestBindings),
+        LazyStoreRequest = CreateLazyPersistRequest(1),
         ClearRequest = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null)
       };
 
-      result.StoreRequest.Prepare();
       result.ClearRequest.Prepare();
       return result;
 
       Lazy<PersistRequest> CreateLazyPersistRequest(int batchSize) =>
         new Lazy<PersistRequest>(() => {
           var bindings = new List<PersistParameterBinding>(batchSize);
-          var level2BatchInsertStatement = MakeUpInsertQuery(tableRef, typeMappings, bindings, hasColumns, batchSize);
-          var persistRequest = new PersistRequest(driver, level2BatchInsertStatement, bindings);
+          var statement = MakeUpInsertQuery(tableRef, typeMappings, bindings, hasColumns, batchSize);
+          var persistRequest = new PersistRequest(driver, statement, bindings);
           persistRequest.Prepare();
           return persistRequest;
         });

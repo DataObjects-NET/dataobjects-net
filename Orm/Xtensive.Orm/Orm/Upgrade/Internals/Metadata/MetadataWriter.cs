@@ -27,7 +27,7 @@ namespace Xtensive.Orm.Upgrade
 
     private sealed class Descriptor : IPersistDescriptor
     {
-      public PersistRequest StoreRequest { get; set; }
+      public Lazy<PersistRequest> LazyStoreRequest { get; set; }
       public Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; }
       public Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; }
       public PersistRequest ClearRequest { get; set; }
@@ -120,7 +120,7 @@ namespace Xtensive.Orm.Upgrade
       clearRequest.Prepare();
 
       return new Descriptor {
-        StoreRequest = storeRequest,
+        LazyStoreRequest = new Lazy<PersistRequest>(storeRequest),
         ClearRequest = clearRequest
       };
     }

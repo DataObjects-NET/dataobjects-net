@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Providers
               }
               else {
                 foreach (var tuple in level1Chunk) {
-                  commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+                  commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyStoreRequest.Value, tuple));
                 }
               }
             }
@@ -106,7 +106,7 @@ namespace Xtensive.Orm.Providers
       }
       else {
         foreach (var tuple in tuples) {
-          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.StoreRequest, tuple));
+          commandProcessor.RegisterTask(new SqlPersistTask(descriptor.LazyStoreRequest.Value, tuple));
         }
       }
     }

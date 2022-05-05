@@ -10,8 +10,7 @@ namespace Xtensive.Orm.Providers
 {
   public interface IPersistDescriptor
   {
-    PersistRequest StoreRequest { get; }
-
+    Lazy<PersistRequest> LazyStoreRequest { get; }
     Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; }
     Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; }
 
