@@ -89,6 +89,10 @@ namespace Xtensive.Orm
     /// </summary>
     public const int MaxGenericKeyLength = 4;
 
+    public const int MultiRowInsertLevel1BatchSize = 16;
+
+    public const int MultiRowInsertLevel2BatchSize = 256;
+
     /// <summary>
     /// Maximum number of cached keys in <see cref="EntitySetState"/>.
     /// </summary>

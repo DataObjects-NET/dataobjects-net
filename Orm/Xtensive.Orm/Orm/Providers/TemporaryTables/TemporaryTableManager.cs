@@ -84,9 +84,6 @@ namespace Xtensive.Orm.Providers
 
       // insert statements
 
-      var batchStoreRequestBindings = new List<PersistParameterBinding>();
-      var numberOfRecordsInInsert = (int)Math.Sqrt(Handlers.Domain.Configuration.MaxNumberOfConditions);
-      var batchInsertStatement = MakeUpInsertQuery(tableRef, typeMappings, batchStoreRequestBindings, hasColumns, numberOfRecordsInInsert);
 
       var storeRequestBindings = new List<PersistParameterBinding>();
       var insertStatement = MakeUpInsertQuery(tableRef, typeMappings, storeRequestBindings, hasColumns, 1);
@@ -96,16 +93,24 @@ namespace Xtensive.Orm.Providers
         QueryStatement = queryStatement,
         CreateStatement = driver.Compile(SqlDdl.Create(table)).GetCommandText(),
         DropStatement = driver.Compile(SqlDdl.Drop(table)).GetCommandText(),
-        BatchStoreRequest = new PersistRequest(driver, batchInsertStatement, batchStoreRequestBindings),
+        LazyLevel1BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel1BatchSize),
+        LazyLevel2BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel2BatchSize),
         StoreRequest = new PersistRequest(driver, insertStatement, storeRequestBindings),
         ClearRequest = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null)
       };
 
-      result.BatchStoreRequest.Prepare();
       result.StoreRequest.Prepare();
       result.ClearRequest.Prepare();
-
       return result;
+
+      Lazy<PersistRequest> CreateLazyPersistRequest(int batchSize) =>
+        new Lazy<PersistRequest>(() => {
+          var bindings = new List<PersistParameterBinding>(batchSize);
+          var level2BatchInsertStatement = MakeUpInsertQuery(tableRef, typeMappings, bindings, hasColumns, batchSize);
+          var persistRequest = new PersistRequest(driver, level2BatchInsertStatement, bindings);
+          persistRequest.Prepare();
+          return persistRequest;
+        });
     }
 
     /// <summary>
