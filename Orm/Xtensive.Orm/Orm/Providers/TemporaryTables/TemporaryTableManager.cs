@@ -32,7 +32,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets value indicating whether temporary tables are supported.
     /// </summary>
-    public bool Supported { get { return backEnd!=null; } }
+    public bool Supported { get { return backEnd != null; } }
 
     /// <summary>
     /// Builds the descriptor of a temporary table.
@@ -93,10 +93,13 @@ namespace Xtensive.Orm.Providers
         LazyLevel1BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel1BatchSize),
         LazyLevel2BatchStoreRequest = CreateLazyPersistRequest(WellKnown.MultiRowInsertLevel2BatchSize),
         LazyStoreRequest = CreateLazyPersistRequest(1),
-        ClearRequest = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null)
+        ClearRequest = new Lazy<PersistRequest>(() => {
+          var request = new PersistRequest(driver, Handlers.ProviderInfo.Supports(ProviderFeatures.TruncateTable) ? SqlDdl.Truncate(table) : SqlDml.Delete(tableRef), null);
+          request.Prepare();
+          return request;
+        })
       };
 
-      result.ClearRequest.Prepare();
       return result;
 
       Lazy<PersistRequest> CreateLazyPersistRequest(int batchSize) =>
@@ -147,7 +150,7 @@ namespace Xtensive.Orm.Providers
     private static TemporaryTableStateRegistry GetRegistry(Session session)
     {
       var registry = session.Extensions.Get<TemporaryTableStateRegistry>();
-      if (registry==null) {
+      if (registry == null) {
         registry = new TemporaryTableStateRegistry();
         session.Extensions.Set(registry);
       }
@@ -167,7 +170,7 @@ namespace Xtensive.Orm.Providers
           .Select(i => string.Format(ColumnNamePattern, i))
           .ToArray();
 
-    private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[]fieldNames, Collation collation)
+    private Table CreateTemporaryTable(Schema schema, string name, TupleDescriptor source, TypeMapping[] typeMappings, string[] fieldNames, Collation collation)
     {
       var tableName = Handlers.NameBuilder.ApplyNamingRules(string.Format(TableNamePattern, name));
       var table = backEnd.CreateTemporaryTable(schema, tableName);
@@ -178,7 +181,7 @@ namespace Xtensive.Orm.Providers
           var column = table.CreateColumn(fieldNames[fieldIndex], mapping.MapType());
           column.IsNullable = true;
           // TODO: Dmitry Maximov, remove this workaround than collation problem will be fixed
-          if (mapping.Type==WellKnownTypes.String)
+          if (mapping.Type == WellKnownTypes.String)
             column.Collation = collation;
           fieldIndex++;
         }

@@ -14,6 +14,6 @@ namespace Xtensive.Orm.Providers
     Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; }
     Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; }
 
-    PersistRequest ClearRequest { get; }
+    Lazy<PersistRequest> ClearRequest { get; }
   }
 }

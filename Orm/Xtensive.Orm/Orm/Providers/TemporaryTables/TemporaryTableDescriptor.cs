@@ -56,7 +56,7 @@ namespace Xtensive.Orm.Providers
     /// <summary>
     /// Gets or sets the clear reqest used to delete all data from temporary table.
     /// </summary>
-    public PersistRequest ClearRequest { get; set; }
+    public Lazy<PersistRequest> ClearRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the query statement associated with this table descriptor.
