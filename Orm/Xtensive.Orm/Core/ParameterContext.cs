@@ -7,6 +7,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using Xtensive.Orm.Model;
 using Tuple = Xtensive.Tuples.Tuple;
 
 namespace Xtensive.Core
@@ -18,11 +19,15 @@ namespace Xtensive.Core
   {
     private readonly ParameterContext outerContext;
 
-    private readonly Dictionary<Parameter, object> values = new Dictionary<Parameter, object>();
+    private Dictionary<Parameter, object> values;
+    private Dictionary<Parameter, object> Values => values ??= new Dictionary<Parameter, object>();
 
     [DebuggerStepThrough]
-    internal bool TryGetValue(Parameter parameter, out object value) =>
-      values.TryGetValue(parameter, out value) || outerContext?.TryGetValue(parameter, out value) == true;
+    internal bool TryGetValue(Parameter parameter, out object value)
+    {
+      value = default;
+      return values?.TryGetValue(parameter, out value) == true || outerContext?.TryGetValue(parameter, out value) == true;
+    }
 
     [DebuggerStepThrough]
     public TValue GetValue<TValue>(Parameter<TValue> parameter)
@@ -35,7 +40,7 @@ namespace Xtensive.Core
     }
 
     [DebuggerStepThrough]
-    internal void SetValue(Parameter parameter, object value) => values[parameter] = value;
+    internal void SetValue(Parameter parameter, object value) => Values[parameter] = value;
 
     // Constructors
 

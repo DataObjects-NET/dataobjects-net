@@ -228,7 +228,7 @@ namespace Xtensive.Orm
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -327,7 +327,7 @@ namespace Xtensive.Orm
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -427,7 +427,7 @@ namespace Xtensive.Orm
       }
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogDomainIsDisposing);
+        OrmLog.Debug(nameof(Strings.LogDomainIsDisposing));
       }
 
       NotifyDisposing();

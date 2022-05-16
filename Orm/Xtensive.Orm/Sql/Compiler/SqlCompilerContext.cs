@@ -16,6 +16,8 @@ namespace Xtensive.Sql.Compiler
     private readonly Stack<SqlNode> traversalStack = new Stack<SqlNode>();
     private readonly HashSet<SqlNode> traversalTable = new HashSet<SqlNode>();
 
+    public bool ParametrizeSchemaNames { get; set; }
+
     public SqlTableNameProvider TableNameProvider { get; private set; }
 
     public SqlParameterNameProvider ParameterNameProvider { get; private set; }
@@ -148,6 +150,7 @@ namespace Xtensive.Sql.Compiler
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
       Output = new ContainerNode();
       SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
+      ParametrizeSchemaNames = configuration.ParametrizeSchemaNames;
     }
   }
 }

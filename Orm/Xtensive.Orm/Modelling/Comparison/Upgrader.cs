@@ -161,15 +161,15 @@ namespace Xtensive.Modelling.Comparison
           }
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
           if (diff != null) {
-            CoreLog.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
-            CoreLog.Info(Strings.LogValidationFailed);
-            CoreLog.Info(Strings.LogItemFormat, Strings.Difference);
+            CoreLog.InfoRegion(nameof(Strings.LogAutomaticUpgradeSequenceValidation));
+            CoreLog.Info(nameof(Strings.LogValidationFailed));
+            CoreLog.Info(nameof(Strings.LogItemFormat), Strings.Difference);
             CoreLog.Info("{0}", diff);
             CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
               new ActionSequence() { actions });
-            CoreLog.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
+            CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ExpectedTargetModel);
             TargetModel.Dump();
-            CoreLog.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
+            CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ActualTargetModel);
             CurrentModel.Dump();
             throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }

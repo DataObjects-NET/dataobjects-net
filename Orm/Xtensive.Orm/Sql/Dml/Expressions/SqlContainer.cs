@@ -23,9 +23,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlContainer>(expression, "expression");
-      var replacingExpression = (SqlContainer) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlContainer>(expression);
       Value = replacingExpression.Value;
     }
 

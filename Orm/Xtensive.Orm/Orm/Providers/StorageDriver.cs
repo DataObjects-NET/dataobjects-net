@@ -35,7 +35,10 @@ namespace Xtensive.Orm.Providers
 
     private readonly DomainConfiguration configuration;
     private readonly SqlDriver underlyingDriver;
+
     private readonly SqlTranslator translator;
+    public SqlTranslator Translator => translator;
+
     private readonly TypeMappingRegistry allMappings;
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
@@ -83,6 +86,7 @@ namespace Xtensive.Orm.Providers
     {
       var options = new SqlCompilerConfiguration {
         DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes,
         CommentLocation = configuration.TagsLocation.ToCommentLocation(),
       };
       return underlyingDriver.Compile(statement, options);
@@ -94,8 +98,9 @@ namespace Xtensive.Orm.Providers
         ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
         : new SqlCompilerConfiguration();
       options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
+      options.ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes;
       options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
-      return underlyingDriver.Compile(statement, options);
+      return underlyingDriver.Compile(statement, options, nodeConfiguration.TypeIdRegistry);
     }
 
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
@@ -204,7 +209,7 @@ namespace Xtensive.Orm.Providers
         instances.Add(accessorFactory());
         factoriesLocal[type] = accessorFactory;
       }
-      factories = factoriesLocal; 
+      factories = factoriesLocal;
       return instances.ToArray();
     }
 

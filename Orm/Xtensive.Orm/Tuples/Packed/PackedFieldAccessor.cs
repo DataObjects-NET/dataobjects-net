@@ -189,8 +189,7 @@ namespace Xtensive.Tuples.Packed
       Store(target, targetDescriptor, Load(source, sourceDescriptor));
     }
 
-    public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor,
-        PackedTuple right, in PackedFieldDescriptor rightDescriptor) =>
+    public override bool ValueEquals(PackedTuple left, in PackedFieldDescriptor leftDescriptor, PackedTuple right, in PackedFieldDescriptor rightDescriptor) =>
       Load(left, leftDescriptor).Equals(Load(right, rightDescriptor));
 
     public override int GetValueHashCode(PackedTuple tuple, in PackedFieldDescriptor descriptor)

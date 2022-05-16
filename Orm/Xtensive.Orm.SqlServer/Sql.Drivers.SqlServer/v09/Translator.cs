@@ -283,9 +283,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private static SqlJoinHint TryFindJoinHint(SqlCompilerContext context, SqlJoinExpression node)
     {
       SqlQueryStatement statement = null;
-      for (int i = 0, count = context.GetTraversalPath().Length; i < count; i++) {
-        if (context.GetTraversalPath()[i] is SqlQueryStatement)
-          statement = context.GetTraversalPath()[i] as SqlQueryStatement;
+      var traversalPath = context.GetTraversalPath();
+      for (var i = traversalPath.Length; i-- > 0;) {
+        if (traversalPath[i] is SqlQueryStatement sqlQueryStatement) {
+          statement = sqlQueryStatement;
+          break;
+        }
       }
       if (statement == null || statement.Hints.Count == 0)
         return null;
@@ -642,7 +645,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
 
     public override string Translate(SqlLockType lockType)
     {
-      var items = new List<string>();
+      var items = new List<string>(3);
       items.Add("ROWLOCK");
       if (lockType.Supports(SqlLockType.Update))
         items.Add("UPDLOCK");

@@ -1,4 +1,4 @@
-// Copyright (C) 2011-2021 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -9,6 +9,7 @@ using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Xtensive.Sql.Model;
+using Xtensive.Core;
 
 namespace Xtensive.Sql.Drivers.MySql.v5_0
 {
@@ -154,9 +155,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
           SqlDml.FunctionCall("TRUNCATE", argument, SqlDml.Literal(0)).AcceptVisitor(this);
           return;
         case SqlFunctionType.Concat:
-          var exprs = new SqlExpression[node.Arguments.Count];
-          node.Arguments.CopyTo(exprs, 0);
-          Visit(SqlDml.Concat(exprs));
+          Visit(SqlDml.Concat(node.Arguments.ToArray(node.Arguments.Count)));
           return;
         case SqlFunctionType.CharLength:
           SqlDml.FunctionCall(translator.Translate(SqlFunctionType.CharLength), node.Arguments[0]).AcceptVisitor(this);

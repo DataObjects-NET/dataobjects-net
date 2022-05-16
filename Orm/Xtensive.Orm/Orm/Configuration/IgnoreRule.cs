@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Configuration
       get { return database; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         database = value;
       }
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Orm.Configuration
       get { return schema; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         schema = value;
       }
     }
@@ -61,7 +61,7 @@ namespace Xtensive.Orm.Configuration
       get { return table; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         table = value;
       }
     }
@@ -76,7 +76,7 @@ namespace Xtensive.Orm.Configuration
       get { return column; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         column = value;
       }
     }

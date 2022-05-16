@@ -707,7 +707,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
       }
 
-      UpgradeLog.Warning(Strings.ExTableXIsNotFound, nodeName);
+      UpgradeLog.Warning(nameof(Strings.ExTableXIsNotFound), nodeName);
       return false;
     }
 
@@ -722,7 +722,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
       }
 
-      UpgradeLog.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, nodeName);
+      UpgradeLog.Warning(nameof(Strings.ExColumnXIsNotFoundInTableY), actualFieldName, nodeName);
       return false;
     }
 

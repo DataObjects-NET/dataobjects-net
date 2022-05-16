@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -78,11 +78,13 @@ namespace Xtensive.Orm.Building.Builders
       var extensionAssembly = Assembly.Load(extensionAssemblyFullName);
       var mainAssemblyVersion = GetInformationalVersion(mainAssembly);
       var extensionAssemblyVersion = GetInformationalVersion(extensionAssembly);
+#if !DEBUG  // Avoid strong version check during debugging
       if (mainAssemblyVersion!=extensionAssemblyVersion)
         throw new InvalidOperationException(string.Format(
           Strings.ExAssemblyVersionMismatchMainAssemblyXYExtensionsAssemblyAB,
           mainAssemblyRef.Name, mainAssemblyVersion,
           extensionAssemblyName, extensionAssemblyVersion));
+#endif
       return extensionAssembly;
     }
 

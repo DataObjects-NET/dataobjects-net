@@ -58,20 +58,26 @@ namespace Xtensive.Orm.Linq
       }
 
       // Entity
-      if (memberType==MemberType.Entity
-        && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
+      if (memberType == MemberType.Entity
+          && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
-        IEnumerable<int> typeIds = type.GetDescendants(true)
-          .Union(type.GetImplementors(true))
-          .Union(Enumerable.Repeat(type, 1))
-          .Select(t => context.TypeIdRegistry.GetTypeId(t));
-        MemberExpression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
+
+        var typeInfos = type.GetDescendants(true).ToHashSet();
+        typeInfos.UnionWith(type.GetImplementors(true));
+        typeInfos.Add(type);
+        Expression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
+
+        // Cast 'o.TypeId' to TypeInfo to be compatible with TypeInfo literals
+        // The literals are replaced by placeholders in SqlTranslator
+        // The '(o.TypeId as TypeInfo)' replaced by 'mc.GetTypeInfo(o.TypeId)' in ExpressionMaterializer
+        memberExpression = Expression.TypeAs(memberExpression, WellKnownOrmTypes.TypeInfo);
+
         Expression boolExpression = null;
-        foreach (int typeId in typeIds)
+        foreach (var typeInfo in typeInfos)
           boolExpression = MakeBooleanExpression(
             boolExpression,
             memberExpression,
-            Expression.Constant(typeId),
+            Expression.Constant(typeInfo),
             ExpressionType.Equal,
             ExpressionType.OrElse);
 
@@ -352,6 +358,7 @@ namespace Xtensive.Orm.Linq
           return Visit(expression);
       }
 
+      var expressionMember = ma.Member;
       if (context.Evaluator.CanBeEvaluated(ma) && context.ParameterExtractor.IsParameter(ma)) {
         if (WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type)) {
           Func<IQueryable> lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
@@ -361,39 +368,39 @@ namespace Xtensive.Orm.Linq
         }
         return ma;
       }
-      if (ma.Expression==null) {
+      if (ma.Expression == null) {
         if (WellKnownInterfaces.Queryable.IsAssignableFrom(ma.Type)) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
-          if (rootPoint!=null)
+          if (rootPoint != null)
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.NodeType==ExpressionType.Constant) {
-        var rfi = ma.Member as FieldInfo;
-        if (rfi!=null && rfi.FieldType.IsGenericType && WellKnownInterfaces.Queryable.IsAssignableFrom(rfi.FieldType)) {
+      else if (ma.Expression.NodeType == ExpressionType.Constant) {
+        if (expressionMember is FieldInfo rfi && rfi.FieldType.IsGenericType && WellKnownInterfaces.Queryable.IsAssignableFrom(rfi.FieldType)) {
           var lambda = FastExpression.Lambda<Func<IQueryable>>(ma).CachingCompile();
           var rootPoint = lambda();
-          if (rootPoint!=null)
+          if (rootPoint != null)
             return VisitSequence(rootPoint.Expression);
         }
       }
-      else if (ma.Expression.GetMemberType() == MemberType.Entity && ma.Member.Name != "Key") {
+      else if (ma.Expression.GetMemberType() == MemberType.Entity && expressionMember.Name != "Key") {
         var type = ma.Expression.Type;
-        var parameter = ma.Expression as ParameterExpression;
-        if (parameter != null) {
+        if (ma.Expression is ParameterExpression parameter) {
           var projection = context.Bindings[parameter];
           type = projection.ItemProjector.Item.Type;
         }
-        if (!context.Model.Types[type].Fields.Contains(context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) ma.Member)))
+        var fieldName = context.Domain.Handlers.NameBuilder.BuildFieldName((PropertyInfo) expressionMember);
+        if (!context.Model.Types[type].Fields.Contains(fieldName) && fieldName != "TypeInfo") {
           throw new NotSupportedException(String.Format(Strings.ExFieldMustBePersistent, ma.ToString(true)));
+        }
       }
       Expression source;
       using (CreateScope(new TranslatorState(State) { /* BuildingProjection = false */ })) {
         source = Visit(ma.Expression);
       }
 
-      var result = GetMember(source, ma.Member, ma);
+      var result = GetMember(source, expressionMember, ma);
       return result ?? base.VisitMemberAccess(ma);
     }
 
@@ -1596,36 +1603,23 @@ namespace Xtensive.Orm.Linq
     private static Expression MakeBooleanExpression(Expression previous, Expression left, Expression right,
       ExpressionType operationType, ExpressionType concatenationExpression)
     {
-      BinaryExpression binaryExpression;
-      switch (operationType) {
-        case ExpressionType.Equal:
-          binaryExpression = Expression.Equal(left, right);
-          break;
-        case ExpressionType.NotEqual:
-          binaryExpression = Expression.NotEqual(left, right);
-          break;
-        case ExpressionType.OrElse:
-          binaryExpression = Expression.OrElse(left, right);
-          break;
-        case ExpressionType.AndAlso:
-          binaryExpression = Expression.AndAlso(left, right);
-          break;
-        default:
-          throw new ArgumentOutOfRangeException("operationType");
-      }
+      var binaryExpression = operationType switch {
+        ExpressionType.Equal => Expression.Equal(left, right),
+        ExpressionType.NotEqual => Expression.NotEqual(left, right),
+        ExpressionType.OrElse => Expression.OrElse(left, right),
+        ExpressionType.AndAlso => Expression.AndAlso(left, right),
+        _ => throw new ArgumentOutOfRangeException("operationType")
+      };
 
-
-      if (previous==null)
+      if (previous == null) {
         return binaryExpression;
-
-      switch (concatenationExpression) {
-      case ExpressionType.AndAlso:
-        return Expression.AndAlso(previous, binaryExpression);
-      case ExpressionType.OrElse:
-        return Expression.OrElse(previous, binaryExpression);
-      default:
-        throw new ArgumentOutOfRangeException("concatenationExpression");
       }
+
+      return concatenationExpression switch {
+        ExpressionType.AndAlso => Expression.AndAlso(previous, binaryExpression),
+        ExpressionType.OrElse => Expression.OrElse(previous, binaryExpression),
+        _ => throw new ArgumentOutOfRangeException("concatenationExpression")
+      };
     }
 
     private static ProjectionExpression CreateLocalCollectionProjectionExpression(Type itemType, object value, Translator translator, Expression sourceExpression)

@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+using System;
 using System.Linq.Expressions;
 
 
@@ -18,7 +21,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets exception, thrown during expression execution. <see langword="null" /> if expression executed successfully.
     /// </summary>
-    public Exception Exception { get; private set; }
+    public Exception Exception { get; }
 
     // Constructors
 

@@ -120,7 +120,7 @@ namespace Xtensive.Orm
         return TypeReference.Type;
 
       if (session.IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired, session, this);
+        OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsUnknownFetchIsRequired), session, this);
       }
 
       var entityState = session.Handler.FetchEntityState(this);

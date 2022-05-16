@@ -143,66 +143,65 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     public override void Visit(SqlFunctionCall node)
     {
       switch (node.FunctionType) {
-      case SqlFunctionType.CharLength:
-        (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.PadLeft:
-      case SqlFunctionType.PadRight:
-        GenericPad(node).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.Round:
-        // Round should always be called with 2 arguments
-        if (node.Arguments.Count==1) {
+        case SqlFunctionType.CharLength:
+          (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.PadLeft:
+        case SqlFunctionType.PadRight:
+          GenericPad(node).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.Round:
+          // Round should always be called with 2 arguments
+          if (node.Arguments.Count == 1) {
+            Visit(SqlDml.FunctionCall(
+              translator.Translate(SqlFunctionType.Round),
+              node.Arguments[0],
+              SqlDml.Literal(0)));
+            return;
+          }
+          break;
+        case SqlFunctionType.Truncate:
+          // Truncate is implemented as round(arg, 0, 1) call in MSSQL.
+          // It's stupid, isn't it?
           Visit(SqlDml.FunctionCall(
             translator.Translate(SqlFunctionType.Round),
             node.Arguments[0],
-            SqlDml.Literal(0)));
+            SqlDml.Literal(0),
+            SqlDml.Literal(1)));
           return;
-        }
-        break;
-      case SqlFunctionType.Truncate:
-        // Truncate is implemented as round(arg, 0, 1) call in MSSQL.
-        // It's stupid, isn't it?
-        Visit(SqlDml.FunctionCall(
-          translator.Translate(SqlFunctionType.Round),
-          node.Arguments[0],
-          SqlDml.Literal(0),
-          SqlDml.Literal(1)));
-        return;
-      case SqlFunctionType.Substring:
-        if (node.Arguments.Count==2) {
-          node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
-          SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
-          node.Arguments.Add(len);
-          Visit(node);
-          return;
-        }
-        break;
-      case SqlFunctionType.IntervalToMilliseconds:
+        case SqlFunctionType.Substring:
+          if (node.Arguments.Count == 2) {
+            SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
+            node = SqlDml.Substring(node.Arguments[0], node.Arguments[1], len);
+            Visit(node);
+            return;
+          }
+          break;
+        case SqlFunctionType.IntervalToMilliseconds:
           Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
           return;
-      case SqlFunctionType.IntervalConstruct:
-      case SqlFunctionType.IntervalToNanoseconds:
-        Visit(CastToLong(node.Arguments[0]));
-        return;
-      case SqlFunctionType.DateTimeAddMonths:
-        Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
-        return;
-      case SqlFunctionType.DateTimeAddYears:
-        Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
-        return;
-      case SqlFunctionType.DateTimeTruncate:
-        DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
-        return;
-      case SqlFunctionType.DateTimeConstruct:
-        Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-          node.Arguments[0] - 2001),
-          node.Arguments[1] - 1),
-          node.Arguments[2] - 1));
-        return;
-      case SqlFunctionType.DateTimeToStringIso:
-        Visit(DateTimeToStringIso(node.Arguments[0]));
-        return;
+        case SqlFunctionType.IntervalConstruct:
+        case SqlFunctionType.IntervalToNanoseconds:
+          Visit(CastToLong(node.Arguments[0]));
+          return;
+        case SqlFunctionType.DateTimeAddMonths:
+          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateTimeAddYears:
+          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateTimeTruncate:
+          DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
+          return;
+        case SqlFunctionType.DateTimeConstruct:
+          Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
+            node.Arguments[0] - 2001),
+            node.Arguments[1] - 1),
+            node.Arguments[2] - 1));
+          return;
+        case SqlFunctionType.DateTimeToStringIso:
+          Visit(DateTimeToStringIso(node.Arguments[0]));
+          return;
       }
 
       base.Visit(node);

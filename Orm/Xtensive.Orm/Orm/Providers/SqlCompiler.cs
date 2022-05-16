@@ -26,8 +26,8 @@ namespace Xtensive.Orm.Providers
     private readonly BooleanExpressionConverter booleanExpressionConverter;
     private readonly Dictionary<SqlColumnStub, SqlExpression> stubColumnMap;
     private readonly ProviderInfo providerInfo;
+    private readonly HashSet<Column> rootColumns;
     private readonly bool temporaryTablesSupported;
-    private readonly HashSet<Column> rootColumns = new HashSet<Column>();
     private readonly bool forceApplyViaReference;
 
     private bool anyTemporaryTablesRequired;
@@ -38,19 +38,14 @@ namespace Xtensive.Orm.Providers
     protected ModelMapping Mapping { get; private set; }
 
     /// <summary>
-    /// Gets type identifier registry.
-    /// </summary>
-    protected TypeIdRegistry TypeIdRegistry { get; private set; }
-
-    /// <summary>
     /// Gets the SQL domain handler.
     /// </summary>
-    protected DomainHandler DomainHandler { get { return Handlers.DomainHandler; } }
+    protected DomainHandler DomainHandler => Handlers.DomainHandler;
 
     /// <summary>
     /// Gets the SQL driver.
     /// </summary>
-    protected StorageDriver Driver { get { return Handlers.StorageDriver; } }
+    protected StorageDriver Driver => Handlers.StorageDriver;
 
     /// <summary>
     /// Gets the <see cref="HandlerAccessor"/> object providing access to available storage handlers.
@@ -572,18 +567,20 @@ namespace Xtensive.Orm.Providers
     {
       Handlers = handlers;
       OuterReferences = new BindingCollection<ApplyParameter, Pair<SqlProvider, bool>>();
-      Mapping = configuration.StorageNode.Mapping;
-      TypeIdRegistry = configuration.StorageNode.TypeIdRegistry;
-      NodeConfiguration = configuration.StorageNode.Configuration;
+      var storageNode = configuration.StorageNode;
+      Mapping = storageNode.Mapping;
+      NodeConfiguration = storageNode.Configuration;
 
       providerInfo = Handlers.ProviderInfo;
       temporaryTablesSupported = DomainHandler.TemporaryTableManager.Supported;
       forceApplyViaReference = Handlers.StorageDriver.ServerInfo.Query.Features.HasFlag(Sql.Info.QueryFeatures.CrossApplyForSubqueriesOnly);
 
-      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions))
+      if (!providerInfo.Supports(ProviderFeatures.FullFeaturedBooleanExpressions)) {
         booleanExpressionConverter = new BooleanExpressionConverter(Driver);
+      }
 
       stubColumnMap = new Dictionary<SqlColumnStub, SqlExpression>();
+      rootColumns = new HashSet<Column>();
     }
   }
 }

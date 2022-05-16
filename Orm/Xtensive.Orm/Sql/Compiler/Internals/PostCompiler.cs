@@ -25,11 +25,11 @@ namespace Xtensive.Sql.Compiler
     public static string Process(IReadOnlyList<Node> nodes, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
     {
       var textNodesLength = nodes.OfType<TextNode>().Sum(o => o.Text.Length);
-      var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));
+      var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));      
       compiler.VisitNodes(nodes);
       return compiler.result.ToString();
     }
-    
+
     #region NodeVisitor members
 
     public override void Visit(TextNode node)
@@ -39,18 +39,12 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(VariantNode node)
     {
-      if (configuration.AlternativeBranches.Contains(node.Id))
-        VisitNodes(node.Alternative);
-      else
-        VisitNodes(node.Main);
+      VisitNodes(configuration.AlternativeBranches.Contains(node.Id) ? node.Alternative : node.Main);
     }
 
     public override void Visit(PlaceholderNode node)
     {
-      string value;
-      if (!configuration.PlaceholderValues.TryGetValue(node.Id, out value))
-        throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
-      result.Append(value);
+      configuration.AppendPlaceholderValue(result, node);
     }
 
     public override void Visit(CycleItemNode node)

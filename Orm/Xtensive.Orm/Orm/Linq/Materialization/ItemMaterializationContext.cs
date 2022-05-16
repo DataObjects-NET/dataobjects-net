@@ -2,6 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -30,6 +31,8 @@ namespace Xtensive.Orm.Linq.Materialization
     public bool IsMaterialized(int index) => entities[index] != null;
 
     public Entity GetEntity(int index) => entities[index];
+
+    public TypeInfo GetTypeInfo(int typeId) => typeId == TypeInfo.NoTypeId ? null : typeIdRegistry[typeId];
 
     public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, Pair<int>[] entityColumns, Tuple tuple)
     {

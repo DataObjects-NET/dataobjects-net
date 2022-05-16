@@ -12,7 +12,7 @@ namespace Xtensive.Sql.Compiler
   /// <summary>
   /// Applies configured mappings to <see cref="Catalog"/>'s or <see cref="Schema"/>'s name to get actual name.
   /// </summary>
-  public sealed class SqlNodeActualizer
+  public struct SqlNodeActualizer
   {
     private readonly IReadOnlyDictionary<string, string> databaseMapping;
     private readonly IReadOnlyDictionary<string, string> schemaMapping;

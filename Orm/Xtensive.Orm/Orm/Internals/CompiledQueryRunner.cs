@@ -242,9 +242,12 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
+
+      this.queryKey = domain.Configuration.ShareQueryCacheOverNodes
+        ? queryKey
+        : new Pair<object, string>(queryKey, session.StorageNodeId);
     }
   }
 }

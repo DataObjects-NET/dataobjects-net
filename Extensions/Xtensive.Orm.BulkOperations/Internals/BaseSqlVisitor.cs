@@ -247,6 +247,10 @@ namespace Xtensive.Orm.BulkOperations
     {
     }
 
+    public virtual void Visit(SqlTruncateTable node)
+    {
+    }
+
     public virtual void Visit(SqlDynamicFilter node)
     {
       foreach (SqlExpression expression in node.Expressions)
@@ -314,9 +318,11 @@ namespace Xtensive.Orm.BulkOperations
     {
       VisitInternal(node.From);
       VisitInternal(node.Into);
-      foreach (var pair in node.Values) {
-        VisitInternal(pair.Key);
-        VisitInternal(pair.Value);
+      foreach (var column in node.Values.Columns) {
+        VisitInternal(column);
+        foreach (var value in node.Values.ValuesByColumn(column)) {
+          VisitInternal(value);
+        }
       }
     }
 

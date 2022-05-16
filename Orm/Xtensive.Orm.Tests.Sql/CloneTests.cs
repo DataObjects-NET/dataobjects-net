@@ -4,6 +4,7 @@
 
 using NUnit.Framework;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using Xtensive.Sql;
 using Xtensive.Sql.Dml;
@@ -597,8 +598,8 @@ namespace Xtensive.Orm.Tests.Sql
     {
       SqlTableRef t = SqlDml.TableRef(table1);
       SqlInsert i = SqlDml.Insert(t);
-      i.Values[t[0]] = 1;
-      i.Values[t[1]] = "Anonym";
+      i.Values.SetValueByColumn(t[0], 1);
+      i.Values.SetValueByColumn(t[1], "Anonym");
       i.Hints.Add(SqlDml.FastFirstRowsHint(10));
       SqlInsert iClone = (SqlInsert)i.Clone();
 
@@ -606,9 +607,9 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreNotEqual(i.Into, iClone.Into);
       Assert.AreEqual(i.NodeType, iClone.NodeType);
       Assert.AreEqual(i.Values.Count, iClone.Values.Count);
-      foreach (KeyValuePair<SqlColumn, SqlExpression> p in i.Values) {
-        Assert.IsFalse(iClone.Values.ContainsKey(p.Key));
-        Assert.IsFalse(iClone.Values.ContainsValue(p.Value));
+      foreach (var column in i.Values.Columns) {
+        Assert.IsFalse(iClone.Values.ContainsColumn(column));
+        Assert.IsFalse(i.Values.ValuesByColumn(column).Any(v => iClone.Values.ContainsValue(v)));
       }
       Assert.AreEqual(i.Hints.Count, iClone.Hints.Count);
     }

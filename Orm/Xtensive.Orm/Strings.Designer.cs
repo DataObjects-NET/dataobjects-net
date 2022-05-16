@@ -19,7 +19,7 @@ namespace Xtensive {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "17.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -93,6 +93,15 @@ namespace Xtensive {
         internal static string AnyCulture {
             get {
                 return ResourceManager.GetString("AnyCulture", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Applying changes to Metadata-related types for MySQL.
+        /// </summary>
+        internal static string ApplyingChangesToMetadata {
+            get {
+                return ResourceManager.GetString("ApplyingChangesToMetadata", resourceCulture);
             }
         }
         
@@ -5031,6 +5040,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to IQueryable.DistinctBy() extension is not supported. Use &apos;.AsEnumerable().DistinctBy()&apos; instead..
+        /// </summary>
+        internal static string ExUnsupportedDistinctBy {
+            get {
+                return ResourceManager.GetString("ExUnsupportedDistinctBy", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Unsupported expression type: &apos;{0}&apos;..
         /// </summary>
         internal static string ExUnsupportedExpressionType {
@@ -7387,12 +7405,6 @@ namespace Xtensive {
         internal static string ZeroAssemblyVersion {
             get {
                 return ResourceManager.GetString("ZeroAssemblyVersion", resourceCulture);
-            }
-        }
-
-        internal static string ExUnsupportedDistinctBy {
-            get {
-                return ResourceManager.GetString("ExUnsupportedDistinctBy", resourceCulture);
             }
         }
     }

@@ -141,7 +141,7 @@ namespace Xtensive.Orm.Model
       get { return isOutboundOnly; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isOutboundOnly = value;
       }
     }
@@ -155,7 +155,7 @@ namespace Xtensive.Orm.Model
       get { return isInboundOnly; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isInboundOnly = value;
       }
     }
@@ -168,7 +168,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return (attributes & TypeAttributes.Auxiliary) == TypeAttributes.Auxiliary; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value
           ? attributes | TypeAttributes.Auxiliary
           : attributes & ~TypeAttributes.Auxiliary;
@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Model
       get { return underlyingType; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         underlyingType = value;
       }
     }
@@ -305,7 +305,7 @@ namespace Xtensive.Orm.Model
       [DebuggerStepThrough]
       get { return hierarchy; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         hierarchy = value;
       }
     }
@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Model
     public object TypeDiscriminatorValue {
       get { return typeDiscriminatorValue; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         typeDiscriminatorValue = value;
       }
     }
@@ -362,7 +362,7 @@ namespace Xtensive.Orm.Model
       get { return hasVersionRoots; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         hasVersionRoots = value;
       }
     }
@@ -387,7 +387,7 @@ namespace Xtensive.Orm.Model
       get { return validators; }
       internal set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         validators = value;
       }
     }
@@ -782,7 +782,7 @@ namespace Xtensive.Orm.Model
             tuple.SetValue(i, column.DefaultValue);
           }
           catch (Exception e) {
-            OrmLog.Error(e, Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ,
+            OrmLog.Error(e, nameof(Strings.LogExErrorSettingDefaultValueXForColumnYInTypeZ),
               column.DefaultValue, column.Name, Name);
           }
         }

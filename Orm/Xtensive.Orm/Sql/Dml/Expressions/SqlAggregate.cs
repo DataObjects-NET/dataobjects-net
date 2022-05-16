@@ -33,9 +33,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlAggregate>(expression, "expression");
-      var replacingExpression = (SqlAggregate) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlAggregate>(expression);
       NodeType = replacingExpression.NodeType;
       distinct = replacingExpression.Distinct;
       this.expression = replacingExpression.Expression;

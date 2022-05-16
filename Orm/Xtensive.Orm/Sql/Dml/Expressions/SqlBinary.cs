@@ -83,9 +83,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlBinary>(expression, "expression");
-      var replacingExpression = (SqlBinary) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlBinary>(expression);
       NodeType = replacingExpression.NodeType;
       Left = replacingExpression.Left;
       Right = replacingExpression.Right;

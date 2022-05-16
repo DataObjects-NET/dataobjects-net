@@ -42,8 +42,6 @@ namespace Xtensive.Orm.Linq
 
     public DomainModel Model { get; }
 
-    public TypeIdRegistry TypeIdRegistry { get; }
-
     public IMemberCompilerProvider<Expression> CustomCompilerProvider { get; }
 
     public Translator Translator { get; }
@@ -168,7 +166,6 @@ namespace Xtensive.Orm.Linq
       columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
       CustomCompilerProvider = Domain.Handler.GetMemberCompilerProvider<Expression>();
       Model = Domain.Model;
-      TypeIdRegistry = session.StorageNode.TypeIdRegistry;
       ProviderInfo = Domain.Handlers.ProviderInfo;
       Translator = new Translator(this, compiledQueryScope);
       ParameterExtractor = new ParameterExtractor(Evaluator);

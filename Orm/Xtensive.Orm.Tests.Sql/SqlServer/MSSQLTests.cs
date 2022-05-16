@@ -2607,9 +2607,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       SqlTableRef unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
       SqlInsert insert = SqlDml.Insert(unitMeasure);
-      insert.Values[unitMeasure[0]] = "F2";
-      insert.Values[unitMeasure[1]] = "Square Feet";
-      insert.Values[unitMeasure[2]] = SqlDml.CurrentDate();
+      insert.Values.SetValueByColumn(unitMeasure[0], "F2");
+      insert.Values.SetValueByColumn(unitMeasure[1], "Square Feet");
+      insert.Values.SetValueByColumn(unitMeasure[2], SqlDml.CurrentDate());
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert));
     }

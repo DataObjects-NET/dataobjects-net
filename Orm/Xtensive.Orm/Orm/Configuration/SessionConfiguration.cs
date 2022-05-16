@@ -71,7 +71,7 @@ namespace Xtensive.Orm.Configuration
     public string UserName {
       get { return userName; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         userName = value;
       }
     }
@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Configuration
     public string Password {
       get { return password; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         password = value;
       }
     }
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Configuration
     public int CacheSize {
       get { return cacheSize; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 1, "CacheSize");
         cacheSize = value;
       }
@@ -107,7 +107,7 @@ namespace Xtensive.Orm.Configuration
     public SessionCacheType CacheType {
       get { return cacheType; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         cacheType = value;
       }
     }
@@ -119,7 +119,7 @@ namespace Xtensive.Orm.Configuration
     public IsolationLevel DefaultIsolationLevel {
       get { return defaultIsolationLevel; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultIsolationLevel = value;
       }
     }
@@ -131,7 +131,7 @@ namespace Xtensive.Orm.Configuration
     public int? DefaultCommandTimeout {
       get { return defaultCommandTimeout; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultCommandTimeout = value;
       }
     }
@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Configuration
     public int BatchSize {
       get { return batchSize; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         batchSize = value;
       }
     }
@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Configuration
     public SessionOptions Options {
       get { return options; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         options = value;
       }
     }
@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return readerPreloading; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         readerPreloading = value;
       }
     }
@@ -185,7 +185,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return entityChangeRegistrySize; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         entityChangeRegistrySize = value;
       }
     }
@@ -196,7 +196,7 @@ namespace Xtensive.Orm.Configuration
     public Type ServiceContainerType {
       get { return serviceContainerType; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         serviceContainerType = value;
       }
     }
@@ -207,7 +207,7 @@ namespace Xtensive.Orm.Configuration
     public ConnectionInfo ConnectionInfo {
       get { return connectionInfo; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInfo = value;
       }
     }

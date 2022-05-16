@@ -75,7 +75,7 @@ namespace Xtensive.Orm.Providers
           var fieldIndex = GetFieldIndex(context.Type, column);
           if (fieldIndex >= 0) {
             var binding = GetBinding(context, column, table, fieldIndex);
-            query.Values[tableRef[column.Name]] = binding.ParameterReference;
+            query.Values.SetValueByColumn(tableRef[column.Name], binding.ParameterReference);
             bindings.Add(binding);
           }
         }

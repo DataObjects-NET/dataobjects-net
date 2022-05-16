@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -6,6 +6,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Sql;
@@ -50,9 +51,8 @@ namespace Xtensive.Orm.Providers
       var result = new List<CommandPart>();
       int parameterIndex = 0;
       foreach (var request in task.RequestSequence) {
-        var tuple = task.Tuple;
         var compilationResult = request.GetCompiledStatement();
-        var configuration = new SqlPostCompilerConfiguration();
+        var configuration = new SqlPostCompilerConfiguration(Session.StorageNode);
         var part = new CommandPart();
         
         foreach (var binding in request.ParameterBindings) {
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers
 
       int parameterIndex = 0;
       var compilationResult = request.GetCompiledStatement();
-      var configuration = new SqlPostCompilerConfiguration();
+      var configuration = new SqlPostCompilerConfiguration(Session.StorageNode);
       var result = new CommandPart();
 
       foreach (var binding in request.ParameterBindings) {
@@ -183,12 +183,17 @@ namespace Xtensive.Orm.Providers
     private object GetParameterValue(SqlPersistTask task, PersistParameterBinding binding)
     {
       switch (binding.BindingType) {
-      case PersistParameterBindingType.Regular:
-        return task.Tuple.GetValueOrDefault(binding.FieldIndex);
-      case PersistParameterBindingType.VersionFilter:
-        return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
-      default:
-        throw new ArgumentOutOfRangeException("binding.Source");
+        case PersistParameterBindingType.Regular:
+          if (task.Tuples == null) {
+            return task.Tuple.GetValueOrDefault(binding.FieldIndex);
+          }
+          var tupleSize = task.Tuples[0].Count;
+          var tupleIndex = Math.DivRem(binding.FieldIndex, tupleSize, out var columnIndex);
+          return task.Tuples[tupleIndex].GetValueOrDefault(columnIndex);
+        case PersistParameterBindingType.VersionFilter:
+          return task.OriginalTuple.GetValueOrDefault(binding.FieldIndex);
+        default:
+          throw new ArgumentOutOfRangeException("binding.Source");
       }
     }
 

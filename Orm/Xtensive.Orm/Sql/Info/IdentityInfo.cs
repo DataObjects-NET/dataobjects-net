@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Info
     public IdentityFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }

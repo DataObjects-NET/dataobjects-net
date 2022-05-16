@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014 Xtensive LLC.
+// Copyright (C) 2014 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -6,6 +6,7 @@
 
 using System;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Configuration
 {
@@ -21,6 +22,7 @@ namespace Xtensive.Orm.Configuration
     private NameMappingCollection schemaMapping = new NameMappingCollection();
     private NameMappingCollection databaseMapping = new NameMappingCollection();
     private DomainUpgradeMode upgradeMode = DomainUpgradeMode.Default;
+    public TypeIdRegistry TypeIdRegistry { get; set; }
 
     /// <summary>
     /// Gets or sets node identifier.
@@ -30,7 +32,7 @@ namespace Xtensive.Orm.Configuration
       get { return nodeId; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         nodeId = value;
       }
     }
@@ -43,7 +45,7 @@ namespace Xtensive.Orm.Configuration
       get { return upgradeMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         upgradeMode = value;
       }
     }
@@ -56,7 +58,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInfo; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInfo = value;
       }
     }
@@ -69,7 +71,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInitializationSql; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInitializationSql = value;
       }
     }
@@ -110,6 +112,7 @@ namespace Xtensive.Orm.Configuration
         connectionInitializationSql = connectionInitializationSql,
         databaseMapping = (NameMappingCollection) databaseMapping.Clone(),
         schemaMapping = (NameMappingCollection) schemaMapping.Clone(),
+        TypeIdRegistry = TypeIdRegistry,
       };
       return clone;
     }

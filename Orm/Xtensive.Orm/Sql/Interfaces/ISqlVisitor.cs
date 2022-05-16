@@ -62,6 +62,7 @@ namespace Xtensive.Sql
     void Visit(SqlDropTable node);
     void Visit(SqlDropTranslation node);
     void Visit(SqlDropView node);
+    void Visit(SqlTruncateTable node);
     void Visit(SqlDynamicFilter node);
     void Visit(SqlPlaceholder node);
     void Visit(SqlExtract node);
