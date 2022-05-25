@@ -18,6 +18,41 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {
+    protected class SqlFunctionTypeTranslations
+    {
+      private readonly string[] translations;
+
+      public void Add(in SqlFunctionType enumValue, in string value)
+      {
+        var index = (int) enumValue;
+        if (translations[index] != null) {
+          throw new InvalidOperationException($"Translation for '{enumValue}' is already defined");
+        }
+        translations[index] = value;
+      }
+
+      public void AddOrOverride(in SqlFunctionType enumValue, in string value)
+      {
+        var index = (int) enumValue;
+        translations[index] = value;
+      }
+
+      public string Get(in SqlFunctionType enumValue)
+      {
+        var index = (int) enumValue;
+        return translations[index];
+      }
+
+      public SqlFunctionTypeTranslations()
+      {
+        // this is still fast but keeps reference to remind the reader
+        // to keep array size in accordance with max enum value
+        translations = new string[(int)SqlFunctionType.RoundDoubleToZero];
+      }
+    }
+
+    protected readonly SqlFunctionTypeTranslations FunctionTypeTranslations = new();
+
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'";
 
@@ -43,6 +78,52 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
       DoubleNumberFormat.NaNSymbol = "'Nan'::float8";
       DoubleNumberFormat.NegativeInfinitySymbol = "'-Infinity'::float8";
       DoubleNumberFormat.PositiveInfinitySymbol = "'Infinity'::float8";
+
+      InitFunctionTypeTranslations();
+    }
+
+    protected virtual void InitFunctionTypeTranslations()
+    {
+      FunctionTypeTranslations.Add(SqlFunctionType.User, "current_user");
+      FunctionTypeTranslations.Add(SqlFunctionType.CurrentUser, "current_user");
+      FunctionTypeTranslations.Add(SqlFunctionType.SessionUser, "session_user");
+      FunctionTypeTranslations.Add(SqlFunctionType.NullIf, "nullif");
+      FunctionTypeTranslations.Add(SqlFunctionType.Coalesce, "coalesce");
+      FunctionTypeTranslations.Add(SqlFunctionType.BinaryLength, "length");
+
+      FunctionTypeTranslations.Add(SqlFunctionType.CurrentDate, "date_trunc('day', current_timestamp)");
+      FunctionTypeTranslations.Add(SqlFunctionType.CurrentTimeStamp, "current_timestamp");
+      FunctionTypeTranslations.Add(SqlFunctionType.IntervalNegate, "-");
+
+      FunctionTypeTranslations.Add(SqlFunctionType.CharLength, "char_length");
+      FunctionTypeTranslations.Add(SqlFunctionType.Lower, "lower");
+      FunctionTypeTranslations.Add(SqlFunctionType.Position, "position");
+      FunctionTypeTranslations.Add(SqlFunctionType.Substring, "substring");
+      FunctionTypeTranslations.Add(SqlFunctionType.Upper, "upper");
+      FunctionTypeTranslations.Add(SqlFunctionType.Concat, "textcat");
+
+      FunctionTypeTranslations.Add(SqlFunctionType.Abs, "abs");
+      FunctionTypeTranslations.Add(SqlFunctionType.Acos, "acos");
+      FunctionTypeTranslations.Add(SqlFunctionType.Asin, "asin");
+      FunctionTypeTranslations.Add(SqlFunctionType.Atan, "atan");
+      FunctionTypeTranslations.Add(SqlFunctionType.Atan2, "atan2");
+      FunctionTypeTranslations.Add(SqlFunctionType.Ceiling, "ceil");
+      FunctionTypeTranslations.Add(SqlFunctionType.Cos, "cos");
+      FunctionTypeTranslations.Add(SqlFunctionType.Cot, "cot");
+      FunctionTypeTranslations.Add(SqlFunctionType.Degrees, "degrees");
+      FunctionTypeTranslations.Add(SqlFunctionType.Exp, "exp");
+      FunctionTypeTranslations.Add(SqlFunctionType.Floor, "floor");
+      FunctionTypeTranslations.Add(SqlFunctionType.Log, "ln");
+      FunctionTypeTranslations.Add(SqlFunctionType.Log10, "log");
+      FunctionTypeTranslations.Add(SqlFunctionType.Pi, "pi");
+      FunctionTypeTranslations.Add(SqlFunctionType.Power, "power");
+      FunctionTypeTranslations.Add(SqlFunctionType.Radians, "radians");
+      FunctionTypeTranslations.Add(SqlFunctionType.Rand, "random");
+      FunctionTypeTranslations.Add(SqlFunctionType.Round, "round");
+      FunctionTypeTranslations.Add(SqlFunctionType.Truncate, "trunc");
+      FunctionTypeTranslations.Add(SqlFunctionType.Sign, "sign");
+      FunctionTypeTranslations.Add(SqlFunctionType.Sqrt, "sqrt");
+      FunctionTypeTranslations.Add(SqlFunctionType.Tan, "tan");
     }
 
     /// <inheritdoc/>
@@ -69,67 +150,32 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     /// <inheritdoc/>
     public override void Translate(IOutput output, SqlFunctionType type)
     {
-      switch(type) {
-        case SqlFunctionType.SystemUser: return;
-        case SqlFunctionType.User:
-        case SqlFunctionType.CurrentUser:
-          _ = output.Append("current_user");
-          break;
-        case SqlFunctionType.SessionUser: _ = output.Append("session_user"); break;
-        case SqlFunctionType.NullIf: _ = output.Append("nullif"); break;
-        case SqlFunctionType.Coalesce: _ = output.Append("coalesce"); break;
-        case SqlFunctionType.BinaryLength: _ = output.Append("length"); break;
-        //datetime/timespan
-        case SqlFunctionType.CurrentDate: _ = output.Append("date_trunc('day', current_timestamp)"); break;
-        case SqlFunctionType.CurrentTimeStamp: _ = output.Append("current_timestamp"); break;
-        case SqlFunctionType.IntervalNegate: _ = output.Append("-"); break;
-        //string
-        case SqlFunctionType.CharLength: _ = output.Append("char_length"); break;
-        case SqlFunctionType.Lower: _ = output.Append("lower"); break;
-        case SqlFunctionType.Position: _ = output.Append("position"); break;
-        case SqlFunctionType.Substring: _ = output.Append("substring"); break;
-        case SqlFunctionType.Upper: _ = output.Append("upper"); break;
-        case SqlFunctionType.Concat: _ = output.Append("textcat"); break;
-        //math
-        case SqlFunctionType.Abs: _ = output.Append("abs"); break;
-        case SqlFunctionType.Acos: _ = output.Append("acos"); break;
-        case SqlFunctionType.Asin: _ = output.Append("asin"); break;
-        case SqlFunctionType.Atan: _ = output.Append("atan"); break;
-        case SqlFunctionType.Atan2: _ = output.Append("atan2"); break;
-        case SqlFunctionType.Ceiling: _ = output.Append("ceil"); break;
-        case SqlFunctionType.Cos: _ = output.Append("cos"); break;
-        case SqlFunctionType.Cot: _ = output.Append("cot"); break;
-        case SqlFunctionType.Degrees: _ = output.Append("degrees"); break;
-        case SqlFunctionType.Exp: _ = output.Append("exp"); break;
-        case SqlFunctionType.Floor: _ = output.Append("floor"); break;
-        case SqlFunctionType.Log: _ = output.Append("ln"); break;
-        case SqlFunctionType.Log10: _ = output.Append("log"); break;
-        case SqlFunctionType.Pi: _ = output.Append("pi"); break;
-        case SqlFunctionType.Power: _ = output.Append("power"); break;
-        case SqlFunctionType.Radians: _ = output.Append("radians"); break;
-        case SqlFunctionType.Rand: _ = output.Append("random"); break;
-        case SqlFunctionType.Round: _ = output.Append("round"); break;
-        case SqlFunctionType.Truncate: _ = output.Append("trunc"); break;
-        case SqlFunctionType.Sign: _ = output.Append("sign"); break;
-        case SqlFunctionType.Sqrt: _ = output.Append("sqrt"); break;
-        case SqlFunctionType.Tan: _ = output.Append("tan"); break;
-        default: base.Translate(output, type); break;
-      };
+      if (type == SqlFunctionType.SystemUser) {
+        return;
+      }
+
+      var value = FunctionTypeTranslations.Get(type);
+      if (value != null)
+        _ = output.Append(value);
+      else {
+        base.Translate(output, type);
+      }
     }
 
     /// <inheritdoc/>
     public override string TranslateToString(SqlFunctionType type)
     {
-      return type switch {
-        SqlFunctionType.User or SqlFunctionType.CurrentUser => "current_user",
-        //string
-        SqlFunctionType.CharLength => "char_length",
-        //math
-        SqlFunctionType.Abs => "abs",
-        SqlFunctionType.Rand => "random",
-        SqlFunctionType.Round => "round",
-        _ => base.TranslateToString(type),
-      };
+      if (type == SqlFunctionType.SystemUser) {
+        return string.Empty;
+      }
+
+      var value = FunctionTypeTranslations.Get(type);
+      if (value != null) {
+        return value;
+      }
+      else {
+        return base.TranslateToString(type);
+      }
     }
 
     /// <inheritdoc/>

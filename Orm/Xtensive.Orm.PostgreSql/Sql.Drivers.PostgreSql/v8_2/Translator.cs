@@ -12,6 +12,14 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_2
 {
   internal class Translator : v8_1.Translator
   {
+    protected override void InitFunctionTypeTranslations()
+    {
+      base.InitFunctionTypeTranslations();
+
+      FunctionTypeTranslations.AddOrOverride(SqlFunctionType.CurrentDate, "date_trunc('day', clock_timestamp())");
+      FunctionTypeTranslations.AddOrOverride(SqlFunctionType.CurrentTimeStamp, "clock_timestamp()");
+    }
+
     /// <inheritdoc/>
     [DebuggerStepThrough]
     public override string QuoteString(string str) =>
