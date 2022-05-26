@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Data;
@@ -17,7 +17,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.SqlServer
 {
-  [TestFixture]
+  [TestFixture, Explicit]
   public class MiscTests: AdventureWorks
   {
     private SqlConnection sqlConnection;
