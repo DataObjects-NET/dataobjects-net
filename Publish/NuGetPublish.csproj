@@ -33,6 +33,10 @@
   <ItemGroup>
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.BulkOperations.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.SqlServer.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Security.$(Version).nupkg" />
+    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Tracking.$(Version).nupkg" />
+<!-- ServiceTitan does not use these packages
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Firebird.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Localization.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Logging.log4net.$(Version).nupkg" />
@@ -41,11 +45,9 @@
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Oracle.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.PostgreSql.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Reprocessing.$(Version).nupkg" />
-    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Security.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Sqlite.$(Version).nupkg" />
-    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.SqlServer.$(Version).nupkg" />
-    <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Tracking.$(Version).nupkg" />
     <NugetPublishInput Include="$(PackageOutputPath)Xtensive.Orm.Web.$(Version).nupkg" />
+-->
   </ItemGroup>
 
   <!-- If package-lock.json has changed, perform an NPM install -->
