@@ -84,12 +84,14 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [OneTimeSetUp]
     public override void SetUp()
     {
-      Require.ProviderIs(StorageProvider.Sqlite);
+      
       base.SetUp();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
     }
+
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Sqlite);
 
     #endregion
 
