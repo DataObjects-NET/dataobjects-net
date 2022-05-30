@@ -126,7 +126,7 @@ namespace Xtensive.Sql.Compiler
     {
       get {
         lastCharIsPunctuation = false;
-        lastChar = null;// char.MaxValue;//I highly doubt that this char will appear in translation :-)
+        lastChar = null;
         return stringBuilder;
       }
     }
