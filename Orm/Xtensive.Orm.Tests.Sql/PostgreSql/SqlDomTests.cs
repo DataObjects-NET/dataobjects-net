@@ -925,7 +925,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Test]
     public void ReadServerInfoTest()
     {
-      ServerInfo si = Driver.ServerInfo;
+      var si = Driver.ServerInfo;
     }
 
     [Test]
@@ -934,88 +934,89 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       try {
         Connection.BeginTransaction();
 
+        var catalogComparer = new CatalogComparer(Connection);
+
         //Create model
         using (var cmd = Connection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
-          foreach (Schema sch in MyCatalog.Schemas) {
+          var batch = SqlDml.Batch();
+          foreach (var sch in MyCatalog.Schemas) {
             batch.Add(SqlDdl.Create(sch));
           }
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
           Console.WriteLine(cmd.CommandText);
-          cmd.ExecuteNonQuery();
+          _ = cmd.ExecuteNonQuery();
         }
 
         //Extract initial model
         {
           var extractedCatalog = Driver.ExtractCatalog(Connection);
-          new CatalogComparer(Connection)
-            .CompareCatalogs(MyCatalog, extractedCatalog);
+          catalogComparer.CompareCatalogs(MyCatalog, extractedCatalog);
         }
 
         //Alter model
         using (var cmd = Connection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
+          var batch = SqlDml.Batch();
           
           //Alter sequence
           {
-            Sequence seq = MyCatalog.Schemas["Sch2"].Sequences["Seq2"];
+            var seq = MyCatalog.Schemas["Sch2"].Sequences["Seq2"];
             seq.SequenceDescriptor.Increment = 4;
             seq.SequenceDescriptor.MaxValue = null;
             seq.SequenceDescriptor.MinValue = null;
             seq.SequenceDescriptor.StartValue = 22;
             seq.SequenceDescriptor.IsCyclic = false;
-            SqlAlterSequence stmt = SqlDdl.Alter(seq, seq.SequenceDescriptor);
+            var stmt = SqlDdl.Alter(seq, seq.SequenceDescriptor);
             batch.Add(stmt);
           }
 
           //Alter table
           {
-            Table t = MyCatalog.Schemas["Sch1"].Tables["T1"];
+            var t = MyCatalog.Schemas["Sch1"].Tables["T1"];
             TableColumn col = null;
             //Add column
             {
               col = t.CreateColumn("newCol", new SqlValueType(SqlType.Decimal, 30, 10));
               col.IsNullable = false;
-              SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddColumn(col));
+              var stmt = SqlDdl.Alter(t, SqlDdl.AddColumn(col));
               batch.Add(stmt);
             }
             //Set default
             {
               col.DefaultValue = 543.21m;
-              SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.SetDefault(col.DefaultValue, col));
+              var stmt = SqlDdl.Alter(t, SqlDdl.SetDefault(col.DefaultValue, col));
               batch.Add(stmt);
             }
 
             //Add check constraint
             {
-              CheckConstraint cc = t.CreateCheckConstraint("newCheckConstraint", SqlDml.TableRef(t).Columns["newCol"] > 0);
-              SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(cc));
+              var cc = t.CreateCheckConstraint("newCheckConstraint", SqlDml.TableRef(t).Columns["newCol"] > 0);
+              var stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(cc));
               batch.Add(stmt);
             }
 
             //Add unique constraint
             {
-              UniqueConstraint uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["newCol"]);
-              SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
+              var uc = t.CreateUniqueConstraint("newUniqueConstraint", t.TableColumns["newCol"]);
+              var stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(uc));
               batch.Add(stmt);
             }
 
             //Add foreign key
             {
-              ForeignKey fk = t.CreateForeignKey("newForeignKey");
+              var fk = t.CreateForeignKey("newForeignKey");
               fk.Columns.Add(col);
               fk.ReferencedTable = t;
               fk.ReferencedColumns.Add(col);
               fk.MatchType = SqlMatchType.Full;
               fk.OnDelete = ReferentialAction.SetDefault;
               fk.OnUpdate = ReferentialAction.Cascade;
-              SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(fk));
+              var stmt = SqlDdl.Alter(t, SqlDdl.AddConstraint(fk));
               batch.Add(stmt);
             }
           }
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
           //Execute
-          cmd.ExecuteNonQuery();
+          _ = cmd.ExecuteNonQuery();
         }
 
         //Extract altered model
@@ -1028,32 +1029,30 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         //Alter model again
         using (var cmd = Connection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
+          var batch = SqlDml.Batch();
 
           //Alter table
           {
-            Table t = MyCatalog.Schemas["Sch1"].Tables["T1"];
-            TableColumn col = t.TableColumns["newCol"];
+            var t = MyCatalog.Schemas["Sch1"].Tables["T1"];
+            var col = t.TableColumns["newCol"];
             Assert.IsNotNull(col);
             //Drop constraints
             {
-              SqlAlterTable stmt = null;
-
-              CheckConstraint cc = t.TableConstraints["newCheckConstraint"] as CheckConstraint;
+              var cc = t.TableConstraints["newCheckConstraint"] as CheckConstraint;
               Assert.IsNotNull(cc);
-              t.TableConstraints.Remove(cc);
-              stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(cc));
+              _ = t.TableConstraints.Remove(cc);
+              var stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(cc));
               batch.Add(stmt);
 
-              ForeignKey fk = t.TableConstraints["newForeignKey"] as ForeignKey;
+              var fk = t.TableConstraints["newForeignKey"] as ForeignKey;
               Assert.IsNotNull(fk);
-              t.TableConstraints.Remove(fk);
+              _ = t.TableConstraints.Remove(fk);
               stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(fk));
               batch.Add(stmt);
 
-              UniqueConstraint uc = t.TableConstraints["newUniqueConstraint"] as UniqueConstraint;
+              var uc = t.TableConstraints["newUniqueConstraint"] as UniqueConstraint;
               Assert.IsNotNull(uc);
-              t.TableConstraints.Remove(uc);
+              _ = t.TableConstraints.Remove(uc);
               stmt = SqlDdl.Alter(t, SqlDdl.DropConstraint(uc));
               batch.Add(stmt);
             }
@@ -1061,20 +1060,20 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
             //Drop default
             {
               col.DefaultValue = null;
-              SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.DropDefault(col));
+              var stmt = SqlDdl.Alter(t, SqlDdl.DropDefault(col));
               batch.Add(stmt);
             }
 
             //Drop column
             {
-              t.TableColumns.Remove(col);
-              SqlAlterTable stmt = SqlDdl.Alter(t, SqlDdl.DropColumn(col));
+              _ = t.TableColumns.Remove(col);
+              var stmt = SqlDdl.Alter(t, SqlDdl.DropColumn(col));
               batch.Add(stmt);
             }
           }
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
           //Execute
-          cmd.ExecuteNonQuery();
+          _ = cmd.ExecuteNonQuery();
         }
 
         //Extract altered model again
@@ -1086,44 +1085,38 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         
         //Manipulate data
         using (var cmd = Connection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
-          SqlInsert insert;
-          SqlUpdate update;
-          SqlDelete delete;
-          SqlTableRef t1 = SqlDml.TableRef(MyCatalog.Schemas["Sch1"].Tables["T1"]);
-          //Should insert default values
-          //insert = Sql.Insert(t1);
-          //batch.Add(insert);
+          var batch = SqlDml.Batch();
+          var t1 = SqlDml.TableRef(MyCatalog.Schemas["Sch1"].Tables["T1"]);
 
-          insert = SqlDml.Insert(t1);
+          var insert = SqlDml.Insert(t1);
           insert.Values.Add(t1["Text?"], SqlDml.Null);
-          insert.Values.Add(t1["Int8"], Int64.MaxValue);
+          insert.Values.Add(t1["Int8"], long.MaxValue);
           batch.Add(insert);
 
           //set FK to self
-          update = SqlDml.Update(t1);
+          var update = SqlDml.Update(t1);
           update.Values.Add(t1["Int4?"], SqlDml.FunctionCall("currval", @"""Sch1"".""T1Seq"""));
           update.Values.Add(t1["Text?"], "new text");
           batch.Add(update);
 
-          delete = SqlDml.Delete(t1);
+          var delete = SqlDml.Delete(t1);
           batch.Add(delete);
 
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
-          cmd.ExecuteNonQuery();
+          _ = cmd.ExecuteNonQuery();
         }
 
 
         //Drop model
         using (var cmd = Connection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
+          var batch = SqlDml.Batch();
 
-          foreach (Schema sch in MyCatalog.Schemas) {
+          foreach (var sch in MyCatalog.Schemas) {
             batch.Add(SqlDdl.Drop(sch));
           }
 
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
-          cmd.ExecuteNonQuery();
+          _ = cmd.ExecuteNonQuery();
         }
       }
       finally {
@@ -1132,26 +1125,24 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     }
 
     [Test]
-    public void ExpressionTest()
+    public void LimitsTest()
     {
-      SqlSelect q = SqlDml.Select();
-
-      #region Limits
+      var q = SqlDml.Select();
 
       q.Columns.Add(SqlDml.Power(SqlDml.Cast(10, SqlType.Decimal), 50));
       q.Columns.Add(SqlDml.Cast(SqlDml.Literal(DateTime.MinValue), SqlType.DateTime), "datetime min");
       //casting in the DBMS rounds to 100000101 00:00:00 somewhy (?)
       //q.Columns.Add(Sql.Cast(Sql.Literal(DateTime.MaxValue), SqlDataType.DateTime, Driver.ServerInfoProvider.MaxDateTimePrecision,0), "datetime max");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Int16.MinValue), SqlType.Int16), "int16 min");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Int16.MaxValue), SqlType.Int16), "int16 max");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Int32.MinValue), SqlType.Int32), "int32 min");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Int32.MaxValue), SqlType.Int32), "int32 max");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Int64.MinValue), SqlType.Int64), "int64 min");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Int64.MaxValue), SqlType.Int64), "int64 max");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Decimal.MinValue), SqlType.Decimal), "decimal min");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Decimal.MaxValue), SqlType.Decimal), "decimal max");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Single.MinValue), SqlType.Float), "float min");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(Single.MaxValue), SqlType.Float), "float max");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(short.MinValue), SqlType.Int16), "int16 min");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(short.MaxValue), SqlType.Int16), "int16 max");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(int.MinValue), SqlType.Int32), "int32 min");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(int.MaxValue), SqlType.Int32), "int32 max");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(long.MinValue), SqlType.Int64), "int64 min");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(long.MaxValue), SqlType.Int64), "int64 max");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(decimal.MinValue), SqlType.Decimal), "decimal min");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(decimal.MaxValue), SqlType.Decimal), "decimal max");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(float.MinValue), SqlType.Float), "float min");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Literal(float.MaxValue), SqlType.Float), "float max");
 
       //1.79769313486231E308  instead of 1.79769313486232E308 
       //q.Columns.Add(Sql.Cast(Sql.Literal(Double.MinValue), SqlDataType.Double), "double min");
@@ -1161,10 +1152,25 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       q.Columns.Add(TimeSpan.MinValue, "interval min");
       q.Columns.Add(TimeSpan.MaxValue, "interval max");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region Literal
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
 
+    [Test]
+    public void LiteralsTest()
+    {
+      var q = SqlDml.Select();
       q.Columns.Add((byte) 5, "literal_byte");
       q.Columns.Add((sbyte) 5, "literal_sbyte");
       q.Columns.Add((short) 5, "literal_short");
@@ -1180,26 +1186,57 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       q.Columns.Add(@"'\", "literal_string");
       q.Columns.Add(true, "literal_bool");
       q.Columns.Add(!SqlDml.Literal(false), "not_false");
-      q.Columns.Add(SqlDml.Literal(false)!=true, "false_neq_true");
+      q.Columns.Add(SqlDml.Literal(false) != true, "false_neq_true");
       q.Columns.Add(new DateTime(2004, 10, 22, 13, 45, 32, 987), "literal_datetime");
       q.Columns.Add(TimeSpan.FromTicks(0), "literal_timespan1");
       q.Columns.Add(TimeSpan.FromTicks(-5997695706986593470L), "literal_timespan2");
       q.Columns.Add(TimeSpan.FromTicks(1626708734287608436L), "literal_timespan3");
       q.Columns.Add(Guid.NewGuid().ToByteArray(), "bytearray");
-      q.Columns.Add(new byte[] {0, 1, 0, 1, 0, 143, 240, 255, 0}, "bytearray2");
+      q.Columns.Add(new byte[] { 0, 1, 0, 1, 0, 143, 240, 255, 0 }, "bytearray2");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region Bit operators
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
 
-      q.Columns.Add(SqlDml.BitNot(SqlDml.BitNot(5435))==5435, "bitnot");
-      q.Columns.Add(SqlDml.BitAnd(6, 3)==2, "bitand1");
-      q.Columns.Add(SqlDml.BitAnd(SqlDml.BitOr(3, 6), 10)==2, "bitand2");
-      q.Columns.Add(SqlDml.BitXor(3, 6)==5, "bitxor1");
+    [Test]
+    public void BitOperatorsTest()
+    {
+      var q = SqlDml.Select();
+      q.Columns.Add(SqlDml.BitNot(SqlDml.BitNot(5435)) == 5435, "bitnot");
+      q.Columns.Add(SqlDml.BitAnd(6, 3) == 2, "bitand1");
+      q.Columns.Add(SqlDml.BitAnd(SqlDml.BitOr(3, 6), 10) == 2, "bitand2");
+      q.Columns.Add(SqlDml.BitXor(3, 6) == 5, "bitxor1");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region Math operations
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void MathOperatorsTest()
+    {
+      var q = SqlDml.Select();
 
       q.Columns.Add(SqlDml.Literal(-1234567) < -123456, "less1");
       q.Columns.Add(SqlDml.Literal(-123456.7) < -12345.6, "less2");
@@ -1207,76 +1244,108 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       q.Columns.Add(SqlDml.Literal(12) <= 12, "leq1");
       q.Columns.Add(SqlDml.Literal(12) >= 12, "geq1");
       q.Columns.Add(SqlDml.Literal(13) >= 12, "geq2");
-      q.Columns.Add(SqlDml.Literal(12)==12, "eq");
-      q.Columns.Add(SqlDml.Literal(12)!=13, "neq");
+      q.Columns.Add(SqlDml.Literal(12) == 12, "eq");
+      q.Columns.Add(SqlDml.Literal(12) != 13, "neq");
       q.Columns.Add(SqlDml.Literal(14) > 13, "greater");
-      q.Columns.Add(SqlDml.Square(4)==16, "square");
+      q.Columns.Add(SqlDml.Square(4) == 16, "square");
       q.Columns.Add(SqlDml.Between(SqlDml.Rand(), 0, 1), "rand2");
       q.Columns.Add(SqlDml.Between(SqlDml.Rand(8), 0, 1), "rand");
-      q.Columns.Add(SqlDml.Abs(10.3m)==10.3m, "abs1");
-      q.Columns.Add(SqlDml.Abs(-140.3m)==140.3m, "abs2");
-      q.Columns.Add(SqlDml.Literal(20) % 7==6, "modulo");
-      q.Columns.Add(-SqlDml.Literal(5)==-5, "negate");
-      q.Columns.Add(SqlDml.Literal(2) + 3 * SqlDml.Literal(4)==14, "right operation order");
-      q.Columns.Add(SqlDml.Cast(3.4564, SqlType.Int16)==3, "cast");
-      q.Columns.Add(SqlDml.Cast(-3.4564, SqlType.Int16)==-3, "cast2");
-      q.Columns.Add(SqlDml.Cast(SqlDml.Floor(3.4786), SqlType.Int32)==3, "floor");
-      q.Columns.Add(SqlDml.Ceiling(3.4564)==4, "ceiling");
+      q.Columns.Add(SqlDml.Abs(10.3m) == 10.3m, "abs1");
+      q.Columns.Add(SqlDml.Abs(-140.3m) == 140.3m, "abs2");
+      q.Columns.Add(SqlDml.Literal(20) % 7 == 6, "modulo");
+      q.Columns.Add(-SqlDml.Literal(5) == -5, "negate");
+      q.Columns.Add(SqlDml.Literal(2) + 3 * SqlDml.Literal(4) == 14, "right operation order");
+      q.Columns.Add(SqlDml.Cast(3.4564, SqlType.Int16) == 3, "cast");
+      q.Columns.Add(SqlDml.Cast(-3.4564, SqlType.Int16) == -3, "cast2");
+      q.Columns.Add(SqlDml.Cast(SqlDml.Floor(3.4786), SqlType.Int32) == 3, "floor");
+      q.Columns.Add(SqlDml.Ceiling(3.4564) == 4, "ceiling");
       q.Columns.Add(SqlDml.Not(SqlDml.Equals(5, 6)), "not");
       q.Columns.Add(SqlDml.NotEquals(5, 6), "notequals");
-      q.Columns.Add(SqlDml.Exp(0)==1, "exp");
-      q.Columns.Add(SqlDml.Power(5, 3)==125, "power");
-      q.Columns.Add(SqlDml.Sign(55)==1, "sign1");
-      q.Columns.Add(SqlDml.Sign(-55)==-1, "sign2");
-      q.Columns.Add(SqlDml.Sign(0)==0, "sign3");
-      q.Columns.Add(SqlDml.Sqrt(64)==8, "sqrt");
+      q.Columns.Add(SqlDml.Exp(0) == 1, "exp");
+      q.Columns.Add(SqlDml.Power(5, 3) == 125, "power");
+      q.Columns.Add(SqlDml.Sign(55) == 1, "sign1");
+      q.Columns.Add(SqlDml.Sign(-55) == -1, "sign2");
+      q.Columns.Add(SqlDml.Sign(0) == 0, "sign3");
+      q.Columns.Add(SqlDml.Sqrt(64) == 8, "sqrt");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region String operations
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
 
-      q.Columns.Add('\\'=='\\', "char_equals");
-      q.Columns.Add('\\'!='\'', "char_not_equals");
-      q.Columns.Add(@"'\"==@"'\", "string_equals");
-      q.Columns.Add(@"'\"!=@"'\\", "string_not_equals");
-      q.Columns.Add(SqlDml.CharLength('F')==1, "char_length1");
-      q.Columns.Add(SqlDml.CharLength('0')==1, "charlength1");
-      q.Columns.Add(SqlDml.CharLength(SqlDml.Literal('F'))==1, "char_length4");
-      q.Columns.Add(SqlDml.CharLength("0123456789")==10, "charlength2");
-      q.Columns.Add(SqlDml.CharLength(@"'\""""")==4, "string_length1");
-      q.Columns.Add(SqlDml.CharLength(SqlDml.Literal(@"'\"""""))==4, "string_length2");
-      q.Columns.Add(SqlDml.Trim("  555    ")=="555", "trim1");
-      q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Both)=="555", "trim_both");
-      q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Leading)=="555    ", "trim_leading");
-      q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Trailing)=="  555", "trim_trailing");
-      q.Columns.Add(SqlDml.Trim("555cccc", SqlTrimType.Trailing, "c")=="555", "trim_trailing2");
-      q.Columns.Add(SqlDml.Trim("555cccc", SqlTrimType.Leading, "5")=="cccc", "trim_leading2");
+    [Test]
+    public void StringOperatorsTest()
+    {
+      var q = SqlDml.Select();
+
+      q.Columns.Add('\\' == '\\', "char_equals");
+      q.Columns.Add('\\' != '\'', "char_not_equals");
+      q.Columns.Add(@"'\" == @"'\", "string_equals");
+      q.Columns.Add(@"'\" != @"'\\", "string_not_equals");
+      q.Columns.Add(SqlDml.CharLength('F') == 1, "char_length1");
+      q.Columns.Add(SqlDml.CharLength('0') == 1, "charlength1");
+      q.Columns.Add(SqlDml.CharLength(SqlDml.Literal('F')) == 1, "char_length4");
+      q.Columns.Add(SqlDml.CharLength("0123456789") == 10, "charlength2");
+      q.Columns.Add(SqlDml.CharLength(@"'\""""") == 4, "string_length1");
+      q.Columns.Add(SqlDml.CharLength(SqlDml.Literal(@"'\""""")) == 4, "string_length2");
+      q.Columns.Add(SqlDml.Trim("  555    ") == "555", "trim1");
+      q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Both) == "555", "trim_both");
+      q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Leading) == "555    ", "trim_leading");
+      q.Columns.Add(SqlDml.Trim("  555    ", SqlTrimType.Trailing) == "  555", "trim_trailing");
+      q.Columns.Add(SqlDml.Trim("555cccc", SqlTrimType.Trailing, "c") == "555", "trim_trailing2");
+      q.Columns.Add(SqlDml.Trim("555cccc", SqlTrimType.Leading, "5") == "cccc", "trim_leading2");
       q.Columns.Add(SqlDml.Like("Xtensive", "X%"), "like_%");
       q.Columns.Add(!SqlDml.Like("Xtensive", "%ee%"), "like_%ee%_1");
       q.Columns.Add(SqlDml.NotLike("Xtensive", "%ee%"), "like_%ee%_2");
       q.Columns.Add(SqlDml.Like("Xtensive", "X__n__v_"), "like_Xnv");
-      q.Columns.Add(SqlDml.Substring("Xtensive", 2, 3)=="ens", "substring0");
-      q.Columns.Add(SqlDml.Substring("Xtensive", 2)=="ensive", "substring with one parameter");
-      q.Columns.Add(SqlDml.Position('E', "WEB")==1, "position0");
-      q.Columns.Add(2 * SqlDml.Position('E', "WEB")==2, "position1");
-      q.Columns.Add(2 * SqlDml.Position('E', "WEB") / 2==1, "position2");
-      q.Columns.Add(SqlDml.Concat('0', SqlDml.Concat("12345", "6789"))=="0123456789", "concat");
+      q.Columns.Add(SqlDml.Substring("Xtensive", 2, 3) == "ens", "substring0");
+      q.Columns.Add(SqlDml.Substring("Xtensive", 2) == "ensive", "substring with one parameter");
+      q.Columns.Add(SqlDml.Position('E', "WEB") == 1, "position0");
+      q.Columns.Add(2 * SqlDml.Position('E', "WEB") == 2, "position1");
+      q.Columns.Add(2 * SqlDml.Position('E', "WEB") / 2 == 1, "position2");
+      q.Columns.Add(SqlDml.Concat('0', SqlDml.Concat("12345", "6789")) == "0123456789", "concat");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region Datetime, interval operations
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
 
-      q.Columns.Add(SqlDml.CurrentDate()==SqlDml.FunctionCall("date_trunc", "day", SqlDml.CurrentTimeStamp()), "current_date_current_timestamp");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, new DateTime(2004, 10, 24))==2004, "extract_year");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, new DateTime(2004, 10, 24))==10, "extract_month");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, new DateTime(2004, 10, 24))==24, "extract_day");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, new DateTime(2004, 10, 24))==0, "extract_hour");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, new DateTime(2000, 9, 12, 23, 45, 11, 234))==45, "extract_minute");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, new DateTime(2000, 9, 12, 23, 45, 11, 234))==11, "extract_second");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Millisecond, new DateTime(2000, 9, 12, 23, 45, 11, 234))==234, "extract_milliseconds");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, new TimeSpan(1, -2, 200, -40, 432))==1, "interval_extract_day");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, new TimeSpan(1, -2, 200, -40, 432))==1, "interval_extract_hour");
-      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, new TimeSpan(1, -2, 200, -40, 432))==19, "interval_extract_minute");
+    [Test]
+    public void DateTimeOperationsTest()
+    {
+      var q = SqlDml.Select();
+
+      q.Columns.Add(SqlDml.CurrentDate() == SqlDml.FunctionCall("date_trunc", "day", SqlDml.CurrentTimeStamp()), "current_date_current_timestamp");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Year, new DateTime(2004, 10, 24)) == 2004, "extract_year");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Month, new DateTime(2004, 10, 24)) == 10, "extract_month");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, new DateTime(2004, 10, 24)) == 24, "extract_day");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, new DateTime(2004, 10, 24)) == 0, "extract_hour");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, new DateTime(2000, 9, 12, 23, 45, 11, 234)) == 45, "extract_minute");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Second, new DateTime(2000, 9, 12, 23, 45, 11, 234)) == 11, "extract_second");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Millisecond, new DateTime(2000, 9, 12, 23, 45, 11, 234)) == 234, "extract_milliseconds");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Day, new TimeSpan(1, -2, 200, -40, 432)) == 1, "interval_extract_day");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Hour, new TimeSpan(1, -2, 200, -40, 432)) == 1, "interval_extract_hour");
+      q.Columns.Add(SqlDml.Extract(SqlDateTimePart.Minute, new TimeSpan(1, -2, 200, -40, 432)) == 19, "interval_extract_minute");
       //8.0: small difference (7E-13), 8.2: OK
       //q.Columns.Add(Sql.Extract(SqlDateTimePart.Second, new TimeSpan(1, -2, 200, -40, 432)) == 20.432m, "interval_extract_second");
       //8.0: small difference (7E-13), 8.2: OK
@@ -1286,22 +1355,38 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       q.Columns.Add(SqlDml.Overlaps(SqlDml.Literal(new DateTime(2005, 10, 26)), new DateTime(2005, 10, 27, 1, 1, 1), new DateTime(2005, 10, 27), new DateTime(2005, 10, 28)), "overlaps3");
       q.Columns.Add(SqlDml.Overlaps(SqlDml.Literal(new DateTime(2006, 10, 26)), new TimeSpan(1, 1, 1, 1), new DateTime(2006, 10, 27), new TimeSpan(1, 0, 0, 0)), "overlaps4");
 
-      q.Columns.Add(SqlDml.Literal(new TimeSpan(12, 13, 14, 15))==SqlDml.Literal(new TimeSpan(12, 13, 14, 15)));
-      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 20, 13, 54, 1, 527)==new TimeSpan(0), "datetime_sub_1");
-      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 13, 54, 1, 527)==new TimeSpan(18, 0, 0, 0), "datetime_sub_2");
-      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 15, 54, 1, 527)==new TimeSpan(17, 22, 0, 0), "datetime_sub_3");
-      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 15, 32, 1, 527)==new TimeSpan(17, 22, 22, 0), "datetime_sub_4");
-      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 15, 32, 43, 527)==new TimeSpan(17, 22, 21, 18), "datetime_sub_5");
+      q.Columns.Add(SqlDml.Literal(new TimeSpan(12, 13, 14, 15)) == SqlDml.Literal(new TimeSpan(12, 13, 14, 15)));
+      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 20, 13, 54, 1, 527) == new TimeSpan(0), "datetime_sub_1");
+      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 13, 54, 1, 527) == new TimeSpan(18, 0, 0, 0), "datetime_sub_2");
+      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 15, 54, 1, 527) == new TimeSpan(17, 22, 0, 0), "datetime_sub_3");
+      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 15, 32, 1, 527) == new TimeSpan(17, 22, 22, 0), "datetime_sub_4");
+      q.Columns.Add(SqlDml.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 15, 32, 43, 527) == new TimeSpan(17, 22, 21, 18), "datetime_sub_5");
       //not equal
       //q.Columns.Add(Sql.Literal(new DateTime(2005, 10, 20, 13, 54, 01, 527)) - new DateTime(2005, 10, 2, 15, 32, 43, 211) == new TimeSpan(17, 22, 21, 18, 316), "datetime_sub_6");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region Arrays
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void ArraysTest()
+    {
+      var q = SqlDml.Select();
 
       q.Columns.Add(SqlDml.Array(true, false, true));
       q.Columns.Add(SqlDml.Array((byte) 1, (byte) 2, (byte) 3));
-      q.Columns.Add(new byte[] {1, 2, 3});
+      q.Columns.Add(new byte[] { 1, 2, 3 });
       q.Columns.Add(SqlDml.Array((ushort) 1, (ushort) 2, (ushort) 3));
       q.Columns.Add(SqlDml.Array((sbyte) -1, (sbyte) -2, (sbyte) -3));
       q.Columns.Add(SqlDml.Array((short) -1, (short) -2, (short) -3));
@@ -1316,109 +1401,189 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       q.Columns.Add(SqlDml.Array("123", "456", "789"));
       q.Columns.Add(SqlDml.Array(1.5, 2.6, 3.7));
       q.Columns.Add(SqlDml.Array(1.5m, 2.6m, 3.7m));
-      q.Columns.Add(SqlDml.Array(new string[] {}));
+      q.Columns.Add(SqlDml.Array(Array.Empty<string>()));
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region In, NotIn array
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
 
-      q.Columns.Add(!SqlDml.In(true, SqlDml.Array(new bool[0])));
-      q.Columns.Add(SqlDml.NotIn(true, SqlDml.Array(new bool[0])));
+    [Test]
+    public void InAndNotInTest()
+    {
+      var q = SqlDml.Select();
+
+      q.Columns.Add(!SqlDml.In(true, SqlDml.Array(Array.Empty<bool>())));
+      q.Columns.Add(SqlDml.NotIn(true, SqlDml.Array(Array.Empty<bool>())));
       q.Columns.Add(SqlDml.NotIn(true, SqlDml.Array(false)));
       q.Columns.Add(SqlDml.In(true, SqlDml.Array(true, false)));
-      q.Columns.Add(SqlDml.NotIn('T', SqlDml.Array(new char[0])));
+      q.Columns.Add(SqlDml.NotIn('T', SqlDml.Array(Array.Empty<char>())));
       q.Columns.Add(SqlDml.NotIn('Z', SqlDml.Array('g', 'i')));
       q.Columns.Add(SqlDml.In('I', SqlDml.Array('u', 'I', 'K')));
-      q.Columns.Add(SqlDml.NotIn("O", SqlDml.Array(new string[0])));
+      q.Columns.Add(SqlDml.NotIn("O", SqlDml.Array(Array.Empty<string>())));
       q.Columns.Add(SqlDml.NotIn("Ur", SqlDml.Array("O", "i")));
       q.Columns.Add(SqlDml.In("Oz", SqlDml.Array("6gfwerw", "", "Oz")));
       q.Columns.Add(SqlDml.In("", SqlDml.Array("6gfwerw", "", "Oz")));
-      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(new byte[0])));
-      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new byte[] {12, 76, 45, 91})));
-      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new byte[] {233, 128, 168})));
-      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(new sbyte[0])));
-      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new sbyte[] {12, 76, 45, 91})));
-      q.Columns.Add(SqlDml.In(-33, SqlDml.Array(new sbyte[] {-33, 127, 68})));
-      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(new int[0])));
-      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new[] {1280942, 76, -45, 1994794321})));
-      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new[] {2864333, -1238974228, 168})));
-      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(new uint[0])));
-      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new uint[] {12, 76, 45, 91})));
-      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new uint[] {2923733, 10702228, 168})));
-      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(new long[0])));
-      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new long[] {12, 76, -49328755, 91})));
-      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new[] {-928438632233, 128, 168})));
-      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(new ulong[0])));
-      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new ulong[] {1219859843, 76, 454876485389732323, 91})));
-      q.Columns.Add(SqlDml.In(233, SqlDml.Array(new ulong[] {233, 128, 15978327274368})));
-      q.Columns.Add(SqlDml.NotIn(DateTime.Now, SqlDml.Array(new DateTime[0])));
-      q.Columns.Add(SqlDml.NotIn(new DateTime(1974, 11, 12), SqlDml.Array(new[] {new DateTime(1994, 11, 12), new DateTime(1874, 1, 3), new DateTime(2004, 12, 19)})));
-      q.Columns.Add(SqlDml.In(new DateTime(1974, 11, 12, 3, 12, 45, 397), SqlDml.Array(new[] {new DateTime(1994, 11, 12), new DateTime(1974, 11, 12, 3, 12, 45, 397), new DateTime(2004, 12, 19)})));
-      q.Columns.Add(SqlDml.NotIn(new DateTime(1974, 11, 12, 3, 12, 45, 397), SqlDml.Array(new[] {new DateTime(1994, 11, 12), new DateTime(1974, 11, 12, 3, 12, 45, 398), new DateTime(2004, 12, 19)})));
+      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(Array.Empty<byte>())));
+      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new byte[] { 12, 76, 45, 91 })));
+      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new byte[] { 233, 128, 168 })));
+      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(Array.Empty<sbyte>())));
+      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new sbyte[] { 12, 76, 45, 91 })));
+      q.Columns.Add(SqlDml.In(-33, SqlDml.Array(new sbyte[] { -33, 127, 68 })));
+      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(Array.Empty<int>())));
+      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new[] { 1280942, 76, -45, 1994794321 })));
+      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new[] { 2864333, -1238974228, 168 })));
+      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(Array.Empty<uint>())));
+      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new uint[] { 12, 76, 45, 91 })));
+      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new uint[] { 2923733, 10702228, 168 })));
+      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(Array.Empty<long>())));
+      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new long[] { 12, 76, -49328755, 91 })));
+      q.Columns.Add(SqlDml.In(168, SqlDml.Array(new[] { -928438632233, 128, 168 })));
+      q.Columns.Add(SqlDml.NotIn(35, SqlDml.Array(Array.Empty<ulong>())));
+      q.Columns.Add(SqlDml.NotIn(98, SqlDml.Array(new ulong[] { 1219859843, 76, 454876485389732323, 91 })));
+      q.Columns.Add(SqlDml.In(233, SqlDml.Array(new ulong[] { 233, 128, 15978327274368 })));
+      q.Columns.Add(SqlDml.NotIn(DateTime.Now, SqlDml.Array(Array.Empty<DateTime>())));
+      q.Columns.Add(SqlDml.NotIn(new DateTime(1974, 11, 12), SqlDml.Array(new[] { new DateTime(1994, 11, 12), new DateTime(1874, 1, 3), new DateTime(2004, 12, 19) })));
+      q.Columns.Add(SqlDml.In(new DateTime(1974, 11, 12, 3, 12, 45, 397), SqlDml.Array(new[] { new DateTime(1994, 11, 12), new DateTime(1974, 11, 12, 3, 12, 45, 397), new DateTime(2004, 12, 19) })));
+      q.Columns.Add(SqlDml.NotIn(new DateTime(1974, 11, 12, 3, 12, 45, 397), SqlDml.Array(new[] { new DateTime(1994, 11, 12), new DateTime(1974, 11, 12, 3, 12, 45, 398), new DateTime(2004, 12, 19) })));
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region All, any, some
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void AllAnySomeTest()
+    {
+      var q = SqlDml.Select();
 
       q.Columns.Add(3 > SqlDml.All(new Func<SqlSelect>(delegate {
-        SqlSelect q2 = SqlDml.Select();
+        var q2 = SqlDml.Select();
         q2.Columns.Add(2);
         return q2;
       })()));
       q.Columns.Add(3 > SqlDml.Any(new Func<SqlSelect>(delegate {
-        SqlSelect q2 = SqlDml.Select();
+        var q2 = SqlDml.Select();
         q2.Columns.Add(2);
         return q2;
       })()));
       q.Columns.Add(3 > SqlDml.Some(new Func<SqlSelect>(delegate {
-        SqlSelect q2 = SqlDml.Select();
+        var q2 = SqlDml.Select();
         q2.Columns.Add(2);
         return q2;
       })()));
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region Row
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void RowTest()
+    {
+      var q = SqlDml.Select();
 
       q.Columns.Add(SqlDml.Row(SqlDml.Acos(SqlDml.Literal(0.4F)), 7, 9), "arithmetic row");
       q.Columns.Add(SqlDml.Row("A", "B", "C"), "string row2");
       q.Columns.Add(SqlDml.Row(SqlDml.Concat("A", "A"), "B", "C"), "string row1");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      #region Case
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
 
-      q.Columns.Add(SqlDml.Case(SqlDml.Concat("s", "")).Add("s", SqlDml.Literal(true) || true));
-      q.Columns.Add(SqlDml.Case(SqlDml.And(true, false)).Add(false, SqlDml.CharLength(SqlDml.Concat("abc", "def"))==6));
+    [Test]
+    public void CaseTest()
+    {
+      var q = SqlDml.Select();
 
-      #endregion
-      
-      #region Other functions, oparators
+      q.Columns.Add(SqlDml.Row(SqlDml.Acos(SqlDml.Literal(0.4F)), 7, 9), "arithmetic row");
+      q.Columns.Add(SqlDml.Row("A", "B", "C"), "string row2");
+      q.Columns.Add(SqlDml.Row(SqlDml.Concat("A", "A"), "B", "C"), "string row1");
 
-      q.Columns.Add(SqlDml.Coalesce(SqlDml.Null, 3)==3, "coalesce1");
-      q.Columns.Add(SqlDml.Coalesce(SqlDml.Null, SqlDml.Null + 5, 3)==3, "coalesce2");
-      q.Columns.Add(SqlDml.Coalesce(SqlDml.Null, SqlDml.Null + 5, 3, 9)==3, "coalesce3");
+      var commandText = Driver.Compile(q).GetCommandText();
+
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
+            }
+          }
+        }
+      }
+    }
+
+    [Test]
+    public void OtherExpressionsTest()
+    {
+      var q = SqlDml.Select();
+
+      q.Columns.Add(SqlDml.Coalesce(SqlDml.Null, 3) == 3, "coalesce1");
+      q.Columns.Add(SqlDml.Coalesce(SqlDml.Null, SqlDml.Null + 5, 3) == 3, "coalesce2");
+      q.Columns.Add(SqlDml.Coalesce(SqlDml.Null, SqlDml.Null + 5, 3, 9) == 3, "coalesce3");
       q.Columns.Add(SqlDml.IsNotNull('R'), "isnotnull");
       q.Columns.Add(SqlDml.IsNull(SqlDml.Null - 7), "isnull1");
       q.Columns.Add(SqlDml.IsNull(SqlDml.NullIf(5, 5)), "isnull2");
-      q.Columns.Add(SqlDml.NullIf(5, 6)==5, "nullif1");
+      q.Columns.Add(SqlDml.NullIf(5, 6) == 5, "nullif1");
       q.Columns.Add(SqlDml.In('E', SqlDml.Row("'J'", 'E', '\'')), "in_row");
       q.Columns.Add(SqlDml.NotIn('E', SqlDml.Row("'J'", '\\', 'Z')), "not_in_row");
       q.Columns.Add(SqlDml.NotBetween("between'", "bezier'", "lagrange'"), "not_between");
-      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast("", SqlType.VarBinaryMax))==0, "cast_bytea1");
-      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast(@"\050", SqlType.VarBinaryMax))==1, "cast_bytea2");
-      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast(@"abc\\", SqlType.VarBinaryMax))==4, "cast_bytea5");
+      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast("", SqlType.VarBinaryMax)) == 0, "cast_bytea1");
+      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast(@"\050", SqlType.VarBinaryMax)) == 1, "cast_bytea2");
+      q.Columns.Add(SqlDml.BinaryLength(SqlDml.Cast(@"abc\\", SqlType.VarBinaryMax)) == 4, "cast_bytea5");
 
-      #endregion
+      var commandText = Driver.Compile(q).GetCommandText();
 
-      using (var cmd = Connection.CreateCommand(q)) {
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            for (int i = 0; i < dr.FieldCount; i++) {
-              object value = dr.GetValue(i);
-              if (value is bool) {
-                Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
-              }
+      using (var cmd = Connection.CreateCommand(commandText))
+      using (var dr = cmd.ExecuteReader()) {
+        while (dr.Read()) {
+          for (var i = 0; i < dr.FieldCount; i++) {
+            var value = dr.GetValue(i);
+            if (value is bool) {
+              Assert.IsTrue(dr.GetBoolean(i), "'" + dr.GetName(i) + "' column is not true!");
             }
           }
         }
@@ -1430,17 +1595,18 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       Connection.BeginTransaction();
       try {
-        SqlBatch batch = SqlDml.Batch();
+        var batch = SqlDml.Batch();
+
         TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("unique_pred_test");
         t.PreserveRows = false;
-        t.CreateColumn("id", new SqlValueType(SqlType.Int32));
+        _ = t.CreateColumn("id", new SqlValueType(SqlType.Int32));
         t.CreateColumn("col1", new SqlValueType(SqlType.Int32)).IsNullable = true;
         t.CreateColumn("col2", new SqlValueType(SqlType.Int32)).IsNullable = true;
         batch.Add(SqlDdl.Create(t));
-        SqlTableRef tref = SqlDml.TableRef(t);
+        var tref = SqlDml.TableRef(t);
 
         Action<int, SqlExpression, SqlExpression> insert = delegate(int id, SqlExpression expr1, SqlExpression expr2) {
-          SqlInsert ins2 = SqlDml.Insert(tref);
+          var ins2 = SqlDml.Insert(tref);
           ins2.Values.Add(tref["id"], id);
           ins2.Values.Add(tref["col1"], expr1);
           ins2.Values.Add(tref["col2"], expr2);
@@ -1464,14 +1630,14 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
         //query
 
-        SqlSelect initialQuery = SqlDml.Select(tref);
+        var initialQuery = SqlDml.Select(tref);
         initialQuery.Columns.Add(tref["col1"]);
         initialQuery.Columns.Add(tref["col2"]);
         {
-          SqlSelect q = SqlDml.Select();
+          var q = SqlDml.Select();
           q.Columns.Add(1);
           q.Where = SqlDml.Unique(new Func<SqlSelect>(delegate {
-            SqlSelect q2 = SqlDml.Select(tref);
+            var q2 = SqlDml.Select(tref);
             q2.Columns.Add(tref["col1"]);
             q2.Columns.Add(tref["col2"]);
 
@@ -1483,10 +1649,10 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         }
 
         {
-          SqlSelect q = SqlDml.Select();
+          var q = SqlDml.Select();
           q.Columns.Add(1);
           q.Where = SqlDml.Unique(new Func<SqlSelect>(delegate {
-            SqlSelect q2 = SqlDml.Select(tref);
+            var q2 = SqlDml.Select(tref);
             q2.Columns.Add(tref["col1"]);
             q2.Columns.Add(tref["col2"]);
             return q2;
@@ -1501,8 +1667,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       finally {
         Connection.Rollback();
         var t = MyCatalog.DefaultSchema.Tables["unique_perd_test"];
-        if (t != null)
-          MyCatalog.DefaultSchema.Tables.Remove(t);
+        if (t != null) {
+          _ = MyCatalog.DefaultSchema.Tables.Remove(t);
+        }
       }
     }
 
@@ -1512,6 +1679,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Connection.BeginTransaction();
       try {
         SqlBatch batch = SqlDml.Batch();
+
         TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("match_pred_test");
         t.PreserveRows = false;
         t.CreateColumn("id", new SqlValueType(SqlType.Int32));
@@ -1706,33 +1874,35 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       Connection.BeginTransaction();
       try {
-        SqlBatch batch = SqlDml.Batch();
-        TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("agg_test");
+        var batch = SqlDml.Batch();
+        var t = MyCatalog.DefaultSchema.CreateTemporaryTable("agg_test");
         t.PreserveRows = false;
-        t.CreateColumn("id", new SqlValueType(SqlType.Int32));
+        _ = t.CreateColumn("id", new SqlValueType(SqlType.Int32));
         t.CreateColumn("col1", new SqlValueType(SqlType.Int32)).IsNullable = true;
         batch.Add(SqlDdl.Create(t));
-        SqlTableRef tref = SqlDml.TableRef(t);
+        var tref = SqlDml.TableRef(t);
 
-        Action<int, SqlExpression> insert = delegate(int id, SqlExpression expr1) {
-          SqlInsert ins2 = SqlDml.Insert(tref);
+        void InsertRow(int id, SqlExpression expr1)
+        {
+          var ins2 = SqlDml.Insert(tref);
           ins2.Values.Add(tref["id"], id);
           ins2.Values.Add(tref["col1"], expr1);
           batch.Add(ins2);
-        };
+        }
+
         //unique part
-        insert(01, 1);
-        insert(02, SqlDml.Null);
-        insert(03, 3);
-        insert(04, 4);
-        insert(05, 5);
-        insert(06, SqlDml.Null);
-        insert(07, 7);
-        insert(08, 8);
+        InsertRow(01, 1);
+        InsertRow(02, SqlDml.Null);
+        InsertRow(03, 3);
+        InsertRow(04, 4);
+        InsertRow(05, 5);
+        InsertRow(06, SqlDml.Null);
+        InsertRow(07, 7);
+        InsertRow(08, 8);
         //non-unique part
-        insert(10, 3);
-        insert(11, 4);
-        insert(12, 7);
+        InsertRow(10, 3);
+        InsertRow(11, 4);
+        InsertRow(12, 7);
 
         ExecuteNonQuery(batch);
 
@@ -1773,7 +1943,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
             long l = 4;
             //ez megy
-            int m = (int) l;
+            var m = (int) l;
             //ez nem megy:
             //long n = (long)((object)m);
           }
@@ -1794,63 +1964,57 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Test]
     public void IntOrderByTest1()
     {
-      SqlSelect q = SqlDml.Select();
+      var q = SqlDml.Select();
       q.Columns.Add(2, "col");
       q.OrderBy.Add(1);
-      using (ExecuteQuery(q)) {
-      }
+      using (ExecuteQuery(q)) { }
     }
 
     [Test]
     public void IntOrderByTest2()
     {
-      SqlSelect q = SqlDml.Select();
+      var q = SqlDml.Select();
       q.Columns.Add(2, "col");
       q.OrderBy.Add(SqlDml.Order(1));
-      using (ExecuteQuery(q)) {
-      }
+      using (ExecuteQuery(q)) { }
     }
 
     [Test]
     public void SetOperationTest()
     {
-      Func<int, SqlSelect> selectCreator = delegate(int n) {
-        SqlSelect q = SqlDml.Select();
-        q.Columns.Add(n, "col");
-        return q;
-      };
+      var unit = SqlDml.Union(SelectCreator(1), SelectCreator(2));
+      _ = Driver.Compile(unit);
 
-      ISqlCompileUnit unit;
-      SqlCompilationResult res;
-
-      {
-        unit = SqlDml.Union(selectCreator(1), selectCreator(2));
-        res = Driver.Compile(unit);
+      var q = SqlDml.Select();
+      q.Columns.Add(SqlDml.In(1, SqlDml.Union(SelectCreator(1), SelectCreator(2))));
+      using (var dr = ExecuteQuery(q)) {
+        var first = true;
+        while (dr.Read()) {
+          if (!first) {
+            Assert.Fail(">1 row");
+          }
+          Assert.AreEqual(true, dr.GetBoolean(0));
+          first = false;
+        }
+        if (first) {
+          Assert.Fail("empty result");
+        }
       }
 
+      static SqlSelect SelectCreator(int n)
       {
-        SqlSelect q = SqlDml.Select();
-        q.Columns.Add(SqlDml.In(1, SqlDml.Union(selectCreator(1), selectCreator(2))));
-        using (DbDataReader dr = ExecuteQuery(q)) {
-          bool first = true;
-          while (dr.Read()) {
-            if (!first)
-              Assert.Fail(">1 row");
-            Assert.AreEqual(true, dr.GetBoolean(0));
-            first = false;
-          }
-          if (first)
-            Assert.Fail("empty result");
-        }
+        var q = SqlDml.Select();
+        q.Columns.Add(n, "col");
+        return q;
       }
     }
 
     [Test, Ignore("SQLFIXME")]
     public void UnionAndIntersectTest()
     {
-      SqlSelect q = SqlDml.Select(SqlDml.QueryRef(
-        (SingleNumberSelect(1)
-          .Union(SingleNumberSelect(2)))
+      var q = SqlDml.Select(SqlDml.QueryRef(
+        SingleNumberSelect(1)
+          .Union(SingleNumberSelect(2))
           .Intersect(SingleNumberSelect(3)
             .Union(SingleNumberSelect(4)))));
       q.Columns.Add(1);
@@ -1861,9 +2025,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Test]
     public void UnionAndExceptTest()
     {
-      SqlSelect q = SqlDml.Select(SqlDml.QueryRef(
-        (SingleNumberSelect(1)
-          .Union(SingleNumberSelect(2)))
+      var q = SqlDml.Select(SqlDml.QueryRef(
+        SingleNumberSelect(1)
+          .Union(SingleNumberSelect(2))
           .Except(SingleNumberSelect(1)
             .Union(SingleNumberSelect(2)))));
       q.Columns.Add(1);
@@ -1873,11 +2037,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Test]
     public void UnionAllTest()
     {
-      SqlSelect q = SqlDml.Select(SqlDml.QueryRef(
+      var q = SqlDml.Select(SqlDml.QueryRef(
         SingleNumberSelect(1).UnionAll(SingleNumberSelect(1))));
       q.Columns.Add(SqlDml.Count(SqlDml.Asterisk));
 
-      SqlSelect q2 = SqlDml.Select();
+      var q2 = SqlDml.Select();
       q2.Where = 2==SqlDml.SubQuery(q);
       q2.Columns.Add(5);
       AssertQueryExists(q2);
@@ -1886,26 +2050,29 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Test]
     public void UnionAllWithOrderByTest()
     {
-      SqlSelect q1 = SingleNumberSelect(2);
+      var q1 = SingleNumberSelect(2);
 
-      SqlSelect q2 = SingleNumberSelect(1);
+      var q2 = SingleNumberSelect(1);
       q2.OrderBy.Add(q2.Columns[0]);
 
-      SqlQueryExpression union = SqlDml.UnionAll(q1, q2);
+      var union = SqlDml.UnionAll(q1, q2);
 
-      using (DbDataReader dr = ExecuteQuery(union)) {
+      using (var dr = ExecuteQuery(union)) {
         int i;
         for (i = 0; dr.Read(); i++) {
-          int value = Convert.ToInt32(dr[0]);
-          if (i==0)
+          var value = Convert.ToInt32(dr[0]);
+          if (i == 0)
             Assert.AreEqual(2, value, "First value not 2");
-          else if (i==1)
+          else if (i == 1) {
             Assert.AreEqual(1, value, "Second value not 1");
-          else
+          }
+          else {
             Assert.Fail("More than 2 rows");
+          }
         }
-        if (i!=2)
+        if (i != 2) {
           Assert.Fail("Not 2 rows");
+        }
       }
     }
 
@@ -1914,63 +2081,66 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     {
       Connection.BeginTransaction();
       try {
-        SqlBatch batch = SqlDml.Batch();
-        TemporaryTable t = MyCatalog.DefaultSchema.CreateTemporaryTable("cursor_test");
+        var batch = SqlDml.Batch();
+        var t = MyCatalog.DefaultSchema.CreateTemporaryTable("cursor_test");
         t.PreserveRows = false;
-        t.CreateColumn("id", new SqlValueType(SqlType.Int32));
-        t.CreateColumn("dt", new SqlValueType(SqlType.DateTime));
-        t.CreateColumn("bool", new SqlValueType(SqlType.Boolean));
+        _ = t.CreateColumn("id", new SqlValueType(SqlType.Int32));
+        _ = t.CreateColumn("dt", new SqlValueType(SqlType.DateTime));
+        _ = t.CreateColumn("bool", new SqlValueType(SqlType.Boolean));
         batch.Add(SqlDdl.Create(t));
-        SqlTableRef tref = SqlDml.TableRef(t);
+        var tref = SqlDml.TableRef(t);
 
         //fill
         {
-          int id = 1;
-          Action<SqlExpression, SqlExpression> insert = delegate(SqlExpression expr1, SqlExpression expr2) {
-            SqlInsert ins2 = SqlDml.Insert(tref);
+          var id = 1;
+          void InserfRow(SqlExpression expr1)
+          {
+            var ins2 = SqlDml.Insert(tref);
             ins2.Values.Add(tref["id"], id);
             ins2.Values.Add(tref["dt"], expr1);
-            ins2.Values.Add(tref["bool"], id % 2==0);
+            ins2.Values.Add(tref["bool"], id % 2 == 0);
             batch.Add(ins2);
             id++;
-          };
-          insert(new DateTime(2001, 1, 1, 1, 1, 1, 111), 0);
-          insert(new DateTime(2002, 2, 2, 2, 2, 2, 222), 0);
-          insert(new DateTime(2003, 3, 3, 3, 3, 3, 333), 0);
-          insert(new DateTime(2004, 4, 4, 4, 4, 4, 444), 0);
-          insert(new DateTime(2005, 5, 5, 5, 5, 5, 555), 0);
-          insert(new DateTime(2006, 6, 6, 6, 6, 6, 666), 0);
-          insert(new DateTime(2007, 7, 7, 7, 7, 7, 777), 0);
-          insert(new DateTime(2008, 8, 8, 8, 8, 8, 888), 0);
-          insert(new DateTime(2009, 9, 9, 9, 9, 9, 999), 0);
+          }
+
+          InserfRow(new DateTime(2001, 1, 1, 1, 1, 1, 111));
+          InserfRow(new DateTime(2002, 2, 2, 2, 2, 2, 222));
+          InserfRow(new DateTime(2003, 3, 3, 3, 3, 3, 333));
+          InserfRow(new DateTime(2004, 4, 4, 4, 4, 4, 444));
+          InserfRow(new DateTime(2005, 5, 5, 5, 5, 5, 555));
+          InserfRow(new DateTime(2006, 6, 6, 6, 6, 6, 666));
+          InserfRow(new DateTime(2007, 7, 7, 7, 7, 7, 777));
+          InserfRow(new DateTime(2008, 8, 8, 8, 8, 8, 888));
+          InserfRow(new DateTime(2009, 9, 9, 9, 9, 9, 999));
         }
 
         ExecuteNonQuery(batch);
         //query
         {
-          SqlSelect testQuery = SqlDml.Select(tref);
+          var testQuery = SqlDml.Select(tref);
           testQuery.Columns.Add(SqlDml.Asterisk);
           testQuery.OrderBy.Add(tref["id"]);
 
-          SqlCursor mycursor = SqlDml.Cursor("mycursor", testQuery);
+          var mycursor = SqlDml.Cursor("mycursor", testQuery);
           mycursor.Insensitive = true;
           mycursor.WithHold = false;
           mycursor.Scroll = true;
 
           ExecuteNonQuery(mycursor.Declare());
 
-          Func<ISqlCompileUnit, DataTable> Execute = delegate(ISqlCompileUnit stmt) {
+          DataTable Execute(ISqlCompileUnit stmt)
+          {
             using (DbDataReader dr = ExecuteQuery(stmt)) {
-              DataTable result = new DataTable();
-              result.Columns.Add("id", typeof (int));
-              result.Columns.Add("dt", typeof (DateTime));
-              result.Columns.Add("bool", typeof (bool));
+              var result = new DataTable();
+              _ = result.Columns.Add("id", Reflection.WellKnownTypes.Int32);
+              _ = result.Columns.Add("dt", Reflection.WellKnownTypes.DateTime);
+              _ = result.Columns.Add("bool", Reflection.WellKnownTypes.Bool);
               while (dr.Read()) {
-                result.Rows.Add(Convert.ToInt32(dr["id"]), dr["dt"], dr["bool"]);
+                _ = result.Rows.Add(Convert.ToInt32(dr["id"]), dr["dt"], dr["bool"]);
               }
               return result;
             }
-          };
+          }
 
 
           {
@@ -2050,8 +2220,7 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
             ExecuteNonQuery(mycursor.Close());
 
             ExecuteNonQuery(mycursor.Open());
-            {
-            }
+            
             ExecuteNonQuery(mycursor.Close());
           }
 
@@ -2065,8 +2234,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       finally {
         Connection.Rollback();
         var t = MyCatalog.DefaultSchema.Tables["cursor_test"];
-        if (t != null)
-          MyCatalog.DefaultSchema.Tables.Remove(t);
+        if (t != null) {
+          _ = MyCatalog.DefaultSchema.Tables.Remove(t);
+        }
       }
     }
 
@@ -2075,47 +2245,42 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 
     protected void ExecuteNonQuery(ISqlCompileUnit stmt)
     {
-      using (var cmd = Connection.CreateCommand(stmt)) {
-        int result = cmd.ExecuteNonQuery();
-      }
+      using var cmd = Connection.CreateCommand(stmt);
+      _ = cmd.ExecuteNonQuery();
     }
 
     protected DbDataReader ExecuteQuery(ISqlCompileUnit stmt)
     {
-      using (var cmd = Connection.CreateCommand(stmt)) {
-        return cmd.ExecuteReader();
-      }
+      using var cmd = Connection.CreateCommand(stmt);
+      return cmd.ExecuteReader();
     }
 
     protected void AssertQueryExists(ISqlCompileUnit q)
     {
-      using (var cmd = Connection.CreateCommand(q)) {
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          bool exists = false;
-          while (dr.Read()) {
-            exists = true;
-            break;
-          }
-          if (!exists)
-            Assert.Fail("Query not exists.");
-        }
+      using var cmd = Connection.CreateCommand(q);
+      using var dr = cmd.ExecuteReader();
+      bool exists = false;
+      while (dr.Read()) {
+        exists = true;
+        break;
+      }
+      if (!exists) {
+        Assert.Fail("Query not exists.");
       }
     }
 
     protected void AssertQueryNotExists(ISqlCompileUnit q)
     {
-      using (var cmd = Connection.CreateCommand(q)) {
-        using (DbDataReader dr = cmd.ExecuteReader()) {
-          while (dr.Read()) {
-            Assert.Fail("Query exists.");
-          }
-        }
+      using var cmd = Connection.CreateCommand(q);
+      using var dr = cmd.ExecuteReader();
+      while (dr.Read()) {
+        Assert.Fail("Query exists.");
       }
     }
 
     protected SqlSelect SingleNumberSelect(int n)
     {
-      SqlSelect q = SqlDml.Select();
+      var q = SqlDml.Select();
       q.Columns.Add(n, "col");
       return q;
     }
@@ -2124,18 +2289,18 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
     [Test]
     public void RenameTest()
     {
-      Schema schema = MyCatalog.CreateSchema("S1");
-      Table table = schema.CreateTable("T1");
-      table.CreateColumn("C1", new SqlValueType(SqlType.Int32));
+      var schema = MyCatalog.CreateSchema("S1");
+      var table = schema.CreateTable("T1");
+      _ = table.CreateColumn("C1", new SqlValueType(SqlType.Int32));
 
       try {
         Connection.BeginTransaction();
 
         using (var cmd = Connection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
+          var batch = SqlDml.Batch();
           batch.Add(SqlDdl.Create(schema));
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
-          cmd.ExecuteNonQuery();
+          _ = cmd.ExecuteNonQuery();
         }
 
         var exModel1 = Driver.ExtractCatalog(Connection);
@@ -2145,11 +2310,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         Assert.IsNotNull(exC1);
 
         using (var cmd = Connection.CreateCommand()) {
-          SqlBatch batch = SqlDml.Batch();
+          var batch = SqlDml.Batch();
           batch.Add(SqlDdl.Rename(exC1, "C2"));
           batch.Add(SqlDdl.Rename(exT1, "T2"));
           cmd.CommandText = Driver.Compile(batch).GetCommandText();
-          cmd.ExecuteNonQuery();
+          _ = cmd.ExecuteNonQuery();
         }
 
         var exModel2 = Driver.ExtractCatalog(Connection);

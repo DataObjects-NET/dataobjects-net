@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -18,7 +18,7 @@ using Xtensive.Sql.Model;
 
 namespace Xtensive.Orm.Tests.Sql.Sqlite
 {
-  public class MiscTests : Chinook
+  public class MiscTests : ChinookTestBase
   {
     private DbCommand dbCommand;
     private DbCommand sqlCommand;
@@ -84,13 +84,14 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     [OneTimeSetUp]
     public override void SetUp()
     {
+      
       base.SetUp();
-      sqlDriver = TestSqlDriver.Create(Url);
-      sqlConnection = sqlDriver.CreateConnection();
 
       dbCommand = sqlConnection.CreateCommand();
       sqlCommand = sqlConnection.CreateCommand();
     }
+
+    protected override void CheckRequirements() => Require.ProviderIs(StorageProvider.Sqlite);
 
     #endregion
 

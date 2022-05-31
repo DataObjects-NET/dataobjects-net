@@ -19,6 +19,7 @@
 [main] CollectionExtensions.ReverseList() method is removed
 [main] ThreadSafeCached type is removed
 [main] Triplet<T> and Triplet<TFirst,TSecond,TThird> are removed
+[main] SqlTranslator/SqlCompiler APIs were significantly changed in order to improve memory usage and perfromance
 [main] Introduced IQueryable<T>.Tag() extensions allowing to add tags to result SQL statement
 [main] Introduced Session.Tag() method for being able to tag queries within returned TagScope
 [main] Domain.TagsEnabled is introduced as faster alternative to DomainConfiguration.TagLocation!=TagLocation.Nowhere check
