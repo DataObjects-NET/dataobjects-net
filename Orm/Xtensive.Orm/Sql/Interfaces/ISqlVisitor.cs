@@ -324,6 +324,12 @@ namespace Xtensive.Sql
     void Visit(SqlDropView node);
 
     /// <summary>
+    /// Visits <see cref="SqlTruncateTable"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    void Visit(SqlTruncateTable node);
+
+    /// <summary>
     /// Visits <see cref="SqlDynamicFilter"/> expression.
     /// </summary>
     /// <param name="node">Expression to visit.</param>

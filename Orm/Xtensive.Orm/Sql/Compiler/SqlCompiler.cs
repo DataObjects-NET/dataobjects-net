@@ -33,22 +33,13 @@ namespace Xtensive.Sql.Compiler
     protected SqlCompilerConfiguration configuration;
     protected SqlCompilerContext context;
 
-    private void AppendCollectionDelimiterIfNecessary(System.Action action)
-    {
-      if (!context.Output.StartOfCollection) {
-        action();
-      }
-      context.Output.StartOfCollection = false;
-    }
-
-    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration, TypeIdRegistry typeIdRegistry = null)
     /// <summary>
     /// Compiles implementors of <see cref="ISqlCompileUnit"/>.
     /// </summary>
     /// <param name="unit">Instance to compile.</param>
     /// <param name="compilerConfiguration">Configuration for compiler.</param>
     /// <returns></returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration, TypeIdRegistry typeIdRegistry = null)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       configuration = compilerConfiguration;
@@ -1108,6 +1099,12 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlDropView node) => translator.Translate(context, node);
 
     /// <summary>
+    /// Visits <see cref="SqlTruncateTable"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlTruncateTable node) => translator.Translate(context, node);
+
+    /// <summary>
     /// Visits <see cref="SqlFastFirstRowsHint"/> node and translates its parts.
     /// </summary>
     /// <param name="node">Node to visit.</param>
@@ -1250,26 +1247,23 @@ namespace Xtensive.Sql.Compiler
         }
 
         AppendTranslated(node, InsertSection.ColumnsEntry);
-        if (node.Values.Keys.Count > 0) {
-          using (context.EnterCollectionScope()) {
-            foreach (var item in node.Values.Keys) {
+        var columns = node.Values.Columns;
+        if (columns.Count > 0)
+          using (context.EnterCollectionScope())
+            foreach (SqlColumn item in columns) {
               AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
               translator.TranslateIdentifier(context.Output, item.Name);
             }
-          }
-        }
-
         AppendTranslated(node, InsertSection.ColumnsExit);
 
-        if (node.Values.Keys.Count == 0 && node.From == null) {
+        if (node.Values.Columns.Count == 0 && node.From == null) {
           AppendTranslated(node, InsertSection.DefaultValues);
         }
         else {
-          if (node.From != null) {
+          if (node.From != null)
             using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
               node.From.AcceptVisitor(this);
             }
-          }
           else {
             AppendTranslated(node, InsertSection.ValuesEntry);
             var rowCount = node.Values.ValuesByColumn(columns.First()).Count;

@@ -47,7 +47,6 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     public override void Translate(IOutput output, SqlFunctionType functionType)
     {
       switch (functionType) {
-<<<<<<< HEAD
         case SqlFunctionType.Acos:
         case SqlFunctionType.Asin:
         case SqlFunctionType.Atan:

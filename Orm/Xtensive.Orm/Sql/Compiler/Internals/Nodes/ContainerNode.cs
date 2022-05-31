@@ -152,16 +152,6 @@ namespace Xtensive.Sql.Compiler
       lastNodeIsText = node.IsTextNode;
     }
 
-    public IEnumerator<Node> GetEnumerator() => Children.GetEnumerator();
-    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
-
-    public bool RequireIndent;            // Never set
-    public int Indent { get; set; }
-
-    public bool StartOfCollection { get; set; } = true;
-
-    public Node Current => Children.Last();
-
     internal override void AcceptVisitor(NodeVisitor visitor)
     {
       visitor.Visit(this);

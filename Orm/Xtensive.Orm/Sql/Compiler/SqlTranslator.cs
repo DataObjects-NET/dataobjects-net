@@ -1395,10 +1395,10 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.Entry:
           _ = output.Append("INSERT INTO");
           break;
-        case InsertSection.ColumnsEntry when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsEntry when node.Values.Columns.Count > 0:
           _ = output.AppendOpeningPunctuation("(");
           break;
-        case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsExit when node.Values.Columns.Count > 0:
           _ = output.Append(")");
           break;
         case InsertSection.From:
@@ -2373,16 +2373,6 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void TranslateString(IOutput output, string str)
-    {
-      output.AppendLiteral('\'');
-      foreach (var ch in str) {
-        TranslateStringChar(output, ch);
-      }
-      output.AppendLiteral('\'');
-    }
-
-    public virtual SqlHelper.EscapeSetup EscapeSetup => SqlHelper.EscapeSetup.WithBrackets;
 
     /// <summary>
     /// Translates identifier names (one or several) and writes result to <paramref name="output"/>
