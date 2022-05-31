@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 {
   internal class Translator : SqlTranslator
   {
-    protected class SqlFunctionTypeTranslations
+    protected struct SqlFunctionTypeTranslations
     {
       private readonly string[] translations;
 
@@ -43,15 +43,13 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         return translations[index];
       }
 
-      public SqlFunctionTypeTranslations()
+      public SqlFunctionTypeTranslations(int count)
       {
-        // this is still fast but keeps reference to remind the reader
-        // to keep array size in accordance with max enum value
-        translations = new string[(int)SqlFunctionType.RoundDoubleToZero];
+        translations = new string[count];
       }
     }
 
-    protected readonly SqlFunctionTypeTranslations FunctionTypeTranslations = new();
+    protected readonly SqlFunctionTypeTranslations FunctionTypeTranslations = new((int) SqlFunctionType.RoundDoubleToZero);
 
     /// <inheritdoc/>
     public override string DateTimeFormatString => @"\'yyyyMMdd HHmmss.ffffff\''::timestamp(6)'";
