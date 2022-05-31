@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v13
             // we have to use time consuming algorithm here because
             // DATEDIFF_BIG can throw arithmetic overflow on nanoseconds
             // so we should handle it by this big formula
-            Visit(CastToLong(DateTimeSubtractDateTimeExpensive(binary.Right, binary.Left)));
+            Visit(CastToLong(DateTimeSubtractDateTimeExpensive(binary.Left, binary.Right)));
           }
           else {
             base.Visit(node);

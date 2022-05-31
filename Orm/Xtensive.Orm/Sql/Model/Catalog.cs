@@ -198,10 +198,20 @@ namespace Xtensive.Sql.Model
 
     // Constructors
 
-    public Catalog(string name) : base(name)
+    public Catalog(string name)
+      : base(name)
     {
       schemas =
         new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1);
     }
+
+    public Catalog(string name, bool caseSensitiveNames = false)
+      : base(name)
+    {
+      schemas = caseSensitiveNames
+        ? new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1, StringComparer.Ordinal)
+        : new PairedNodeCollection<Catalog, Schema>(this, "Schemas", 1, StringComparer.OrdinalIgnoreCase);
+    }
+
   }
 }

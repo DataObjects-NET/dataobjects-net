@@ -276,7 +276,7 @@ namespace Xtensive.Tuples
         case 0:
           return;
         case 1:
-          TupleLayout.ConfigureLen1(FieldTypes,
+          TupleLayout.ConfigureLen1(ref FieldTypes[0],
             ref FieldDescriptors[0],
             out ValuesLength, out ObjectsLength);
           break;

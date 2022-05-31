@@ -13,18 +13,19 @@ namespace Xtensive.Sql.Drivers.MySql.v5_7
   internal class Translator : v5_6.Translator
   {
     /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
+    public override void Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
     {
-      if (node.Type.Type==SqlType.DateTime)
-        switch (section) {
-        case NodeSection.Entry:
-          return "CAST(";
-        case NodeSection.Exit:
-          return "AS " + Translate(node.Type) + "(6))";
-        default:
-          throw new ArgumentOutOfRangeException("section");
-        }
-      return base.Translate(context, node, section);
+      if (node.Type.Type == SqlType.DateTime) {
+        var output = context.Output;
+        _ = section switch {
+          NodeSection.Entry => output.AppendOpeningPunctuation("CAST("),
+          NodeSection.Exit => output.Append("AS ")
+            .Append(Translate(node.Type))
+            .AppendClosingPunctuation("(6))"),
+          _ => throw new ArgumentOutOfRangeException(nameof(section)),
+        };
+      }
+      base.Translate(context, node, section);
     }
 
     // Constructors

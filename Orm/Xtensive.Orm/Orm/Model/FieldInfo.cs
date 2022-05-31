@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -627,6 +627,7 @@ namespace Xtensive.Orm.Model
 
         var result = new ColumnInfoCollection(this, "Columns");
         GetColumns(result);
+        columns = result;
         return result;
       }
     }
@@ -660,8 +661,8 @@ namespace Xtensive.Orm.Model
       Fields.UpdateState();
       if (column != null)
         column.UpdateState();
-      columns = new ColumnInfoCollection(this, "Columns");
-      GetColumns(columns);
+      columns?.Clear();           // To prevent event handler leak
+      columns = null;
 
       HasImmediateValidators = validators.Count > 0 && validators.Any(v => v.IsImmediate);
 

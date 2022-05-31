@@ -75,44 +75,24 @@ namespace Xtensive.Orm
     internal ConcurrentDictionary<PersistRequestBuilderTask, ICollection<PersistRequest>> PersistRequestCache { get; }
 
     /// <inheritdoc/>
-    public Session OpenSession()
-    {
-      return OpenSession(domain.Configuration.Sessions.Default);
-    }
+    public Session OpenSession() =>
+      OpenSession(domain.Configuration.Sessions.Default);
 
     /// <inheritdoc/>
-    public Session OpenSession(SessionType type)
-    {
-      return type switch {
-        SessionType.User => OpenSession(domain.Configuration.Sessions.Default),
-        SessionType.System => OpenSession(domain.Configuration.Sessions.System),
-        SessionType.KeyGenerator => OpenSession(domain.Configuration.Sessions.KeyGenerator),
-        SessionType.Service => OpenSession(domain.Configuration.Sessions.Service),
-        _ => throw new ArgumentOutOfRangeException("type"),
-      };
-    }
+    public Session OpenSession(SessionType type) =>
+      OpenSession(domain.GetSessionConfiguration(type));
 
     /// <inheritdoc/>
-    public Session OpenSession(SessionConfiguration configuration)
-    {
-      return domain.OpenSessionInternal(configuration, this, configuration.Supports(SessionOptions.AutoActivation));
-    }
+    public Session OpenSession(SessionConfiguration configuration) =>
+      domain.OpenSessionInternal(configuration, this, configuration.Supports(SessionOptions.AutoActivation));
 
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(CancellationToken cancellationToken = default) =>
       OpenSessionAsync(domain.Configuration.Sessions.Default, cancellationToken);
 
     /// <inheritdoc/>
-    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default)
-    {
-      return type switch {
-        SessionType.User => OpenSessionAsync(domain.Configuration.Sessions.Default),
-        SessionType.System => OpenSessionAsync(domain.Configuration.Sessions.System),
-        SessionType.KeyGenerator => OpenSessionAsync(domain.Configuration.Sessions.KeyGenerator),
-        SessionType.Service => OpenSessionAsync(domain.Configuration.Sessions.Service),
-        _ => throw new ArgumentOutOfRangeException("type"),
-      };
-    }
+    public Task<Session> OpenSessionAsync(SessionType type, CancellationToken cancellationToken = default) =>
+      OpenSessionAsync(domain.GetSessionConfiguration(type), cancellationToken);
 
     /// <inheritdoc/>
     public Task<Session> OpenSessionAsync(SessionConfiguration configuration, CancellationToken cancellationToken = default)

@@ -1,4 +1,4 @@
-// Copyright (C) 2012-2021 Xtensive LLC.
+// Copyright (C) 2012-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -111,24 +111,24 @@ namespace Xtensive.Tuples.Packed
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static void ConfigureFieldAccessor(ref PackedFieldDescriptor descriptor, Type fieldType) =>
-      descriptor.Accessor = (PackedFieldAccessor) ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor;
+      descriptor.AccessorIndex = ((PackedFieldAccessor)ValueFieldAccessorResolver.GetValue(fieldType) ?? ObjectAccessor).Index;
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public static void ConfigureLen1(Type[] fieldTypes, ref PackedFieldDescriptor descriptor, out int valuesLength,
+    public static void ConfigureLen1(ref Type fieldType, ref PackedFieldDescriptor descriptor, out int valuesLength,
       out int objectsLength)
     {
-      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[0]);
+      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldType);
       if (valueAccessor != null) {
-        descriptor.Accessor = valueAccessor;
+        descriptor.AccessorIndex = valueAccessor.Index;
         descriptor.DataPosition = Val064BitCount;
 
         valuesLength = (valueAccessor.ValueBitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
         objectsLength = 0;
-        fieldTypes[0] = valueAccessor.FieldType;
+        fieldType = valueAccessor.FieldType;
         return;
       }
 
-      descriptor.Accessor = ObjectAccessor;
+      descriptor.AccessorIndex = ObjectAccessor.Index;
       valuesLength = 1;
       objectsLength = 1;
     }
@@ -146,21 +146,21 @@ namespace Xtensive.Tuples.Packed
           valuesLength = 1;
           return;
         case 1: {
-          if (descriptor1.IsObjectField) {
+          if (descriptor1.IsObjectField()) {
             descriptor2.DataPosition = Val064BitCount;
-            val1BitCount = descriptor2.Accessor.ValueBitCount;
+            val1BitCount = descriptor2.GetAccessor().ValueBitCount;
           }
           else {
             descriptor1.DataPosition = Val064BitCount;
-            val1BitCount = descriptor1.Accessor.ValueBitCount;
+            val1BitCount = descriptor1.GetAccessor().ValueBitCount;
           }
           valuesLength = (val1BitCount  + ((Val064BitCount * 2) - 1)) >> Val064Rank;
           return;
         }
       }
       // Both descriptors are value descriptors
-      val1BitCount = descriptor1.Accessor.ValueBitCount;
-      val2BitCount = descriptor2.Accessor.ValueBitCount;
+      val1BitCount = descriptor1.GetAccessor().ValueBitCount;
+      val2BitCount = descriptor2.GetAccessor().ValueBitCount;
       if (val2BitCount > val1BitCount) {
         descriptor2.DataPosition = Val064BitCount;
         descriptor1.DataPosition = Val064BitCount + val2BitCount;
@@ -212,11 +212,11 @@ namespace Xtensive.Tuples.Packed
 
       for (var fieldIndex = 0; fieldIndex < fieldCount; fieldIndex++) {
         ref var descriptor = ref fieldDescriptors[fieldIndex];
-        if (descriptor.IsObjectField) {
+        if (descriptor.IsObjectField()) {
           continue;
         }
 
-        PositionUpdaterByRank[descriptor.Accessor.Rank].Invoke(ref descriptor, ref counters);
+        PositionUpdaterByRank[descriptor.GetAccessor().Rank].Invoke(ref descriptor, ref counters);
       }
 
       valuesLength = (totalBitCount + (Val064BitCount - 1)) >> Val064Rank;
@@ -227,26 +227,27 @@ namespace Xtensive.Tuples.Packed
     private static void UpdateDescriptorPosition(ref PackedFieldDescriptor descriptor, ref int bitCounter)
     {
       descriptor.DataPosition = bitCounter;
-      bitCounter += descriptor.Accessor.ValueBitCount;
+      bitCounter += descriptor.GetAccessor().ValueBitCount;
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     private static void ConfigureFieldPhase1(ref PackedFieldDescriptor descriptor, ref Counters counters,
       Type[] fieldTypes, int fieldIndex)
     {
-      descriptor.StatePosition = fieldIndex << 1;
+      descriptor.StatePosition = checked((ushort)(fieldIndex << 1));
 
-      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldTypes[fieldIndex]);
+      ref var fieldType = ref fieldTypes[fieldIndex];
+      var valueAccessor = ValueFieldAccessorResolver.GetValue(fieldType);
       if (valueAccessor != null) {
-        descriptor.Accessor = valueAccessor;
+        descriptor.AccessorIndex = valueAccessor.Index;
 
         IncrementerByRank[valueAccessor.Rank].Invoke(ref counters);
 
-        fieldTypes[fieldIndex] = valueAccessor.FieldType;
+        fieldType = valueAccessor.FieldType;
         return;
       }
 
-      descriptor.Accessor = ObjectAccessor;
+      descriptor.AccessorIndex = ObjectAccessor.Index;
       descriptor.DataPosition = counters.ObjectCounter++;
     }
 
