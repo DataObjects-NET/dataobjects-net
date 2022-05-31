@@ -90,7 +90,7 @@ namespace Xtensive.Sql.Model
     /// <value></value>
     public override string Name
     {
-      get { return !expression.IsNullReference() ? string.Empty : column.Name; }
+      get { return base.Name; }
       set { throw new NotSupportedException(); }
     }
 
@@ -142,6 +142,7 @@ namespace Xtensive.Sql.Model
     #region Constructors
 
     internal IndexColumn(Index index, DataTableColumn column, bool ascending)
+      : base(column.Name)
     {
       Column = column;
       Index = index;
@@ -149,6 +150,7 @@ namespace Xtensive.Sql.Model
     }
 
     internal IndexColumn(Index index, SqlExpression expression, bool ascending)
+      : base(string.Empty)
     {
       this.expression = expression;
       Index = index;

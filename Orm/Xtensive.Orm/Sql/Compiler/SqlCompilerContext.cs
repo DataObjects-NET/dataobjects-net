@@ -126,7 +126,6 @@ namespace Xtensive.Sql.Compiler
       }
       else {
         Output.StartOfCollection = scope.StartOfCollection;
-        Output.AppendSpaceIfNecessary();
         if (Output.RequireIndent) {
           Output.Indent--;
         }
@@ -137,7 +136,7 @@ namespace Xtensive.Sql.Compiler
 
     #endregion
 
-    
+
     // Constructor
 
     internal SqlCompilerContext(SqlCompilerConfiguration configuration)

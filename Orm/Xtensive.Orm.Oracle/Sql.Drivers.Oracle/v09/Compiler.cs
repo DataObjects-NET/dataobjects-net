@@ -82,16 +82,17 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
 
     public override void Visit(SqlCreateTable node)
     {
-      var table = node.Table as TemporaryTable;
-      if (table!=null && !table.IsGlobal)
+      if (node.Table is TemporaryTable table && !table.IsGlobal) {
         throw new NotSupportedException(Strings.ExOracleDoesNotSupportLocalTemporaryTables);
+      }
       base.Visit(node);
     }
 
     public override void Visit(SqlTrim node)
     {
-      if (node.TrimCharacters!=null && node.TrimCharacters.Length > 1)
+      if (node.TrimCharacters != null && node.TrimCharacters.Length > 1) {
         throw new NotSupportedException(Strings.ExOracleDoesNotSupportTrimmingMoreThatOneCharacterAtOnce);
+      }
       base.Visit(node);
     }
 
@@ -163,52 +164,56 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       }
     }
 
-    public override void VisitSelectFrom(SqlSelect node)
+    protected override void VisitSelectFrom(SqlSelect node)
     {
-      if (node.From!=null)
+      if (node.From != null) {
         base.VisitSelectFrom(node);
-      else
-        context.Output.Append("FROM DUAL");
+      }
+      else {
+        _ = context.Output.Append(" FROM DUAL");
+      }
     }
 
     public override void Visit(SqlJoinHint node)
     {
       var method = translator.Translate(node.Method);
-      if (string.IsNullOrEmpty(method))
+      if (string.IsNullOrEmpty(method)) {
         return;
-      context.Output.Append(method);
-      context.Output.Append("(");
+      }
+
+      _ = context.Output.Append(method);
+      _ = context.Output.AppendOpeningPunctuation("(");
       node.Table.AcceptVisitor(this);
-      context.Output.Append(")");
+      _ = context.Output.AppendClosingPunctuation(")");
     }
 
-    public override void Visit(SqlFastFirstRowsHint node)
-    {
-      context.Output.Append($"FIRST_ROWS({node.Amount})");
-    }
+    public override void Visit(SqlFastFirstRowsHint node) =>
+      context.Output.Append(string.Format("FIRST_ROWS({0})", node.Amount));
 
-    public override void Visit(SqlNativeHint node)
-    {
-      context.Output.Append(node.HintText);
-    }
+    public override void Visit(SqlNativeHint node) => context.Output.Append(node.HintText);
+
 
     public override void Visit(SqlForceJoinOrderHint node)
     {
-      if (node.Tables.IsNullOrEmpty())
-        context.Output.Append("ORDERED");
+      if (node.Tables.IsNullOrEmpty()) {
+        _ = context.Output.Append("ORDERED");
+      }
       else {
-        context.Output.Append("LEADING(");
-        using (context.EnterCollectionScope())
-          foreach (var table in node.Tables)
+        _  = context.Output.AppendOpeningPunctuation("LEADING(");
+        using (context.EnterCollectionScope()) {
+          foreach (var table in node.Tables) {
             table.AcceptVisitor(this);
-        context.Output.Append(")");
+          }
+        }
+        _ = context.Output.AppendClosingPunctuation(")");
       }
     }
 
     public override void Visit(SqlUpdate node)
     {
-      if (node.From!=null)
+      if (node.From != null) {
         throw new NotSupportedException(Strings.ExOracleDoesNotSupportUpdateFromStatements);
+      }
       base.Visit(node);
     }
 

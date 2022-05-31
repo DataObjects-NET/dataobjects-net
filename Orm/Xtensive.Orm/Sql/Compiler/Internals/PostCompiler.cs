@@ -25,7 +25,7 @@ namespace Xtensive.Sql.Compiler
     public static string Process(IReadOnlyList<Node> nodes, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
     {
       var textNodesLength = nodes.OfType<TextNode>().Sum(o => o.Text.Length);
-      var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));      
+      var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));
       compiler.VisitNodes(nodes);
       return compiler.result.ToString();
     }
@@ -39,7 +39,10 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(VariantNode node)
     {
-      VisitNodes(configuration.AlternativeBranches.Contains(node.Id) ? node.Alternative : node.Main);
+      if (configuration.AlternativeBranches.Contains(node.Id))
+        VisitNodes(node.Alternative);
+      else
+        VisitNodes(node.Main);
     }
 
     public override void Visit(PlaceholderNode node)

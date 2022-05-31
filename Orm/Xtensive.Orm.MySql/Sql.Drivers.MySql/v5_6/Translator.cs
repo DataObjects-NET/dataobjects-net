@@ -18,13 +18,13 @@ namespace Xtensive.Sql.Drivers.MySql.v5_6
       if (node.Type.Type == SqlType.DateTime) {
         switch (section) {
           case NodeSection.Entry:
-            context.Output.Append("CAST(");
+            _ = context.Output.AppendOpeningPunctuation("CAST(");
             break;
           case NodeSection.Exit:
-            context.Output.Append("AS ").Append(Translate(node.Type)).Append("(6))");
+            _ = context.Output.Append("AS ").Append(Translate(node.Type)).Append("(6))");
             break;
           default:
-            throw new ArgumentOutOfRangeException("section");
+            throw new ArgumentOutOfRangeException(nameof(section));
         }
       }
       else {

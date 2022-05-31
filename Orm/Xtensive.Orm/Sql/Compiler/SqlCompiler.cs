@@ -25,6 +25,8 @@ namespace Xtensive.Sql.Compiler
   {
     private static readonly Type SqlPlaceholderType = typeof(SqlPlaceholder);
 
+    private readonly QueryFeatures queryFeatures;
+
     protected readonly SqlValueType decimalType;
     protected readonly SqlTranslator translator;
 
@@ -40,6 +42,13 @@ namespace Xtensive.Sql.Compiler
     }
 
     public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration, TypeIdRegistry typeIdRegistry = null)
+    /// <summary>
+    /// Compiles implementors of <see cref="ISqlCompileUnit"/>.
+    /// </summary>
+    /// <param name="unit">Instance to compile.</param>
+    /// <param name="compilerConfiguration">Configuration for compiler.</param>
+    /// <returns></returns>
+    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       configuration = compilerConfiguration;
@@ -48,54 +57,68 @@ namespace Xtensive.Sql.Compiler
       return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable, typeIdRegistry, compilerConfiguration.SchemaMapping);
     }
 
+    #region Visitors
+
+    /// <summary>
+    /// Visits <see cref="SqlAggregate"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlAggregate node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, NodeSection.Entry);
+        AppendTranslatedEntry(node);
         node.Expression.AcceptVisitor(this);
-        AppendTranslated(node, NodeSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlAlterDomain"/> statements and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterDomain node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, AlterDomainSection.Entry);
-        switch (node.Action) {
-          case SqlAddConstraint action:
-            var constraint = (DomainConstraint) action.Constraint;
-            AppendTranslated(node, AlterDomainSection.AddConstraint);
-            AppendTranslated(constraint, ConstraintSection.Entry);
-            AppendTranslated(constraint, ConstraintSection.Check);
-            constraint.Condition.AcceptVisitor(this);
-            AppendTranslated(constraint, ConstraintSection.Exit);
-            break;
-          case SqlDropConstraint action:
-            AppendTranslated(node, AlterDomainSection.DropConstraint);
-            AppendTranslated(action.Constraint, ConstraintSection.Entry);
-            break;
-          case SqlSetDefault action:
-            AppendTranslated(node, AlterDomainSection.SetDefault);
-            action.DefaultValue.AcceptVisitor(this);
-            break;
-          case SqlDropDefault _:
-            AppendTranslated(node, AlterDomainSection.DropDefault);
-            break;
+        AppendTranslatedEntry(node);
+        if (node.Action is SqlAddConstraint addConstraint) {
+          var constraint = (DomainConstraint) addConstraint.Constraint;
+          AppendTranslated(node, AlterDomainSection.AddConstraint);
+          AppendTranslated(constraint, ConstraintSection.Entry);
+          AppendTranslated(constraint, ConstraintSection.Check);
+          constraint.Condition.AcceptVisitor(this);
+          AppendTranslated(constraint, ConstraintSection.Exit);
         }
-        AppendTranslated(node, AlterDomainSection.Exit);
+        else if (node.Action is SqlDropConstraint dropConstraint) {
+          AppendTranslated(node, AlterDomainSection.DropConstraint);
+          AppendTranslated(dropConstraint.Constraint, ConstraintSection.Entry);
+        }
+        else if (node.Action is SqlSetDefault setDefault) {
+          AppendTranslated(node, AlterDomainSection.SetDefault);
+          setDefault.DefaultValue.AcceptVisitor(this);
+        }
+        else if (node.Action is SqlDropDefault) {
+          AppendTranslated(node, AlterDomainSection.DropDefault);
+        }
+        AppendTranslatedExit(node);
       }
     }
 
-    public virtual void Visit(SqlAlterPartitionFunction node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlAlterPartitionFunction"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlAlterPartitionFunction node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlAlterPartitionScheme node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlAlterPartitionScheme"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlAlterPartitionScheme node) => translator.Translate(context, node);
 
+    /// <summary>
+    /// Visits <see cref="SqlFragment"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlFragment node)
     {
       using (context.EnterScope(node))
@@ -104,92 +127,103 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlAlterTable"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterTable node)
     {
-      using var _ = context.EnterScope(node);
-
-      AppendTranslated(node, AlterTableSection.Entry);
-      switch (node.Action) {
-        case SqlAddColumn sqlAddColumn: {
-          var column = sqlAddColumn.Column;
+      using (context.EnterScope(node)) {
+        AppendTranslatedEntry(node);
+        if (node.Action is SqlAddColumn addColumn) {
           AppendTranslated(node, AlterTableSection.AddColumn);
-          Visit(column);
+          Visit(addColumn.Column);
         }
-        break;
-        case SqlDropDefault sqlDropDefault: {
-          var column = sqlDropDefault.Column;
+        else if (node.Action is SqlDropDefault dropDefault) {
+          var column = dropDefault.Column;
           AppendTranslated(node, AlterTableSection.AlterColumn);
           AppendTranslated(column, TableColumnSection.Entry);
           AppendTranslated(column, TableColumnSection.DropDefault);
         }
-        break;
-        case SqlSetDefault action:
+        else if (node.Action is SqlSetDefault setDefault) {
+          var column = setDefault.Column;
           AppendTranslated(node, AlterTableSection.AlterColumn);
-          AppendTranslated(action.Column, TableColumnSection.Entry);
-          AppendTranslated(action.Column, TableColumnSection.SetDefault);
-          action.DefaultValue.AcceptVisitor(this);
-          break;
-        case SqlDropColumn action:
+          AppendTranslated(column, TableColumnSection.Entry);
+          AppendTranslated(column, TableColumnSection.SetDefault);
+          setDefault.DefaultValue.AcceptVisitor(this);
+        }
+        else if (node.Action is SqlDropColumn dropColumn) {
           AppendTranslated(node, AlterTableSection.DropColumn);
-          AppendTranslated(action.Column, TableColumnSection.Entry);
+          AppendTranslated(dropColumn.Column, TableColumnSection.Entry);
           AppendTranslated(node, AlterTableSection.DropBehavior);
-          break;
-        case SqlAlterIdentityInfo action:
+        }
+        else if (node.Action is SqlAlterIdentityInfo alterIndentityInfo) {
+          var action = node.Action as SqlAlterIdentityInfo;
+          var column = alterIndentityInfo.Column;
+          var descriptor = alterIndentityInfo.SequenceDescriptor;
           AppendTranslated(node, AlterTableSection.AlterColumn);
-          AppendTranslated(action.Column, TableColumnSection.Entry);
-          if ((action.InfoOption & SqlAlterIdentityInfoOptions.RestartWithOption) != 0)
-            AppendTranslated(action.SequenceDescriptor, SequenceDescriptorSection.RestartValue);
+          AppendTranslated(column, TableColumnSection.Entry);
+          if ((alterIndentityInfo.InfoOption & SqlAlterIdentityInfoOptions.RestartWithOption) != 0) {
+            AppendTranslated(alterIndentityInfo.SequenceDescriptor, SequenceDescriptorSection.RestartValue);
+          }
+
           if ((action.InfoOption & SqlAlterIdentityInfoOptions.IncrementByOption) != 0) {
-            if (action.SequenceDescriptor.Increment.HasValue && action.SequenceDescriptor.Increment.Value == 0)
+            if (descriptor.Increment.HasValue && descriptor.Increment.Value == 0) {
               throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
-            AppendTranslated(action.Column, TableColumnSection.SetIdentityInfoElement);
-            AppendTranslated(action.SequenceDescriptor, SequenceDescriptorSection.Increment);
+            }
+
+            AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
+            AppendTranslated(descriptor, SequenceDescriptorSection.Increment);
           }
           if ((action.InfoOption & SqlAlterIdentityInfoOptions.MaxValueOption) != 0) {
-            AppendTranslated(action.Column, TableColumnSection.SetIdentityInfoElement);
-            AppendTranslated(action.SequenceDescriptor, SequenceDescriptorSection.AlterMaxValue);
+            AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
+            AppendTranslated(descriptor, SequenceDescriptorSection.AlterMaxValue);
           }
           if ((action.InfoOption & SqlAlterIdentityInfoOptions.MinValueOption) != 0) {
-            AppendTranslated(action.Column, TableColumnSection.SetIdentityInfoElement);
-            AppendTranslated(action.SequenceDescriptor, SequenceDescriptorSection.AlterMinValue);
+            AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
+            AppendTranslated(descriptor, SequenceDescriptorSection.AlterMinValue);
           }
           if ((action.InfoOption & SqlAlterIdentityInfoOptions.CycleOption) != 0) {
-            AppendTranslated(action.Column, TableColumnSection.SetIdentityInfoElement);
-            AppendTranslated(action.SequenceDescriptor, SequenceDescriptorSection.IsCyclic);
+            AppendTranslated(column, TableColumnSection.SetIdentityInfoElement);
+            AppendTranslated(descriptor, SequenceDescriptorSection.IsCyclic);
           }
-          break;
-        case SqlAddConstraint action: {
-          var constraint = action.Constraint as TableConstraint;
+        }
+        else if (node.Action is SqlAddConstraint addConstraint) {
+          var constraint = addConstraint.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.AddConstraint);
           Visit(constraint);
         }
-        break;
-        case SqlDropConstraint action: {
-          var constraint = action.Constraint as TableConstraint;
+        else if (node.Action is SqlDropConstraint dropConstraint) {
+          var constraint = dropConstraint.Constraint as TableConstraint;
           AppendTranslated(node, AlterTableSection.DropConstraint);
           AppendTranslated(constraint, ConstraintSection.Entry);
           AppendTranslated(node, AlterTableSection.DropBehavior);
         }
-        break;
-        case SqlRenameColumn action:
+        else if (node.Action is SqlRenameColumn renameColumn) {
           AppendTranslated(node, AlterTableSection.RenameColumn);
-          AppendTranslated(action.Column, TableColumnSection.Entry);
+          AppendTranslated(renameColumn.Column, TableColumnSection.Entry);
           AppendTranslated(node, AlterTableSection.To);
-          translator.TranslateIdentifier(context.Output, action.NewName);
-          break;
+          translator.TranslateIdentifier(context.Output, renameColumn.NewName);
+        }
+        AppendTranslatedExit(node);
       }
       AppendTranslated(node, AlterTableSection.Exit);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlAlterSequence"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAlterSequence node)
     {
-      AppendTranslated(node, NodeSection.Entry);
+      AppendTranslatedEntry(node);
       if ((node.InfoOption & SqlAlterIdentityInfoOptions.RestartWithOption) != 0) {
         AppendTranslated(node.SequenceDescriptor, SequenceDescriptorSection.RestartValue);
       }
       if ((node.InfoOption & SqlAlterIdentityInfoOptions.IncrementByOption) != 0) {
-        if (node.SequenceDescriptor.Increment.HasValue && node.SequenceDescriptor.Increment.Value == 0)
+        if (node.SequenceDescriptor.Increment.HasValue && node.SequenceDescriptor.Increment.Value == 0) {
           throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
+        }
         AppendTranslated(node.SequenceDescriptor, SequenceDescriptorSection.Increment);
       }
       if ((node.InfoOption & SqlAlterIdentityInfoOptions.MaxValueOption) != 0) {
@@ -201,9 +235,13 @@ namespace Xtensive.Sql.Compiler
       if ((node.InfoOption & SqlAlterIdentityInfoOptions.CycleOption) != 0) {
         AppendTranslated(node.SequenceDescriptor, SequenceDescriptorSection.IsCyclic);
       }
-      AppendTranslated(node, NodeSection.Exit);
+      AppendTranslatedExit(node);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlArray"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlArray node)
     {
       var items = node.GetValues();
@@ -214,14 +252,14 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(node, ArraySection.Entry);
       var lengthMinusOne = items.Length - 1;
       if (node.ItemType == SqlPlaceholderType) {
-        for (int i = 0; i < lengthMinusOne; i++) {
+        for (var i = 0; i < lengthMinusOne; i++) {
           Visit((SqlPlaceholder) items[i]);
           AppendRowItemDelimiter();
         }
         Visit((SqlPlaceholder) items[lengthMinusOne]);
       }
       else {
-        for (int i = 0; i < lengthMinusOne; i++) {
+        for (var i = 0; i < lengthMinusOne; i++) {
           AppendTranslatedLiteral(items[i]);
           AppendRowItemDelimiter();
         }
@@ -230,6 +268,10 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(node, ArraySection.Exit);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlAssignment"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlAssignment node)
     {
       using (context.EnterScope(node)) {
@@ -241,87 +283,103 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlBatch"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlBatch node)
     {
       using (context.EnterScope(node)) {
         var statements = FlattenBatch(node).ToArray();
-        if (statements.Length == 0)
+        if (statements.Length == 0) {
           return;
+        }
         if (statements.Length == 1) {
           statements[0].AcceptVisitor(this);
           return;
         }
-        context.Output.Append(translator.BatchBegin);
+        _ = context.Output.Append(translator.BatchBegin);
         using (context.EnterCollectionScope()) {
           foreach (var item in statements) {
             item.AcceptVisitor(this);
-            AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            AppendBatchDelimiter();
+            _ = context.Output.AppendNewLine(translator.NewLine);
           }
         }
-        context.Output.Append(translator.BatchEnd);
+        _ = context.Output.Append(translator.BatchEnd);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlBetween"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlBetween node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, BetweenSection.Entry);
+        AppendTranslatedEntry(node);
         node.Expression.AcceptVisitor(this);
         AppendTranslated(node, BetweenSection.Between);
         node.Left.AcceptVisitor(this);
         AppendTranslated(node, BetweenSection.And);
         node.Right.AcceptVisitor(this);
-        AppendTranslated(node, BetweenSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlBinary"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlBinary node)
     {
-      if (node.NodeType == SqlNodeType.In || node.NodeType == SqlNodeType.NotIn) {
+      if (node.NodeType is SqlNodeType.In or SqlNodeType.NotIn) {
         var row = node.Right as SqlRow;
         var array = node.Right as SqlArray;
-        bool isEmptyIn = !row.IsNullReference() && row.Count == 0 || !array.IsNullReference() && array.Length == 0;
+        var isEmptyIn = (!row.IsNullReference() && row.Count == 0) || (!array.IsNullReference() && array.Length == 0);
         if (isEmptyIn) {
           SqlDml.Literal(node.NodeType == SqlNodeType.NotIn).AcceptVisitor(this);
           return;
         }
       }
 
-      if (node.NodeType == SqlNodeType.Or || node.NodeType == SqlNodeType.And) {
+      if (node.NodeType is SqlNodeType.Or or SqlNodeType.And) {
         var expressions = RecursiveBinaryLogicExtractor.Extract(node);
         using (context.EnterScope(node)) {
-          AppendTranslated(node, NodeSection.Entry);
+          AppendTranslatedEntry(node);
           expressions[0].AcceptVisitor(this);
           foreach (var operand in expressions.Skip(1)) {
             AppendTranslated(node.NodeType);
             operand.AcceptVisitor(this);
           }
-          AppendTranslated(node, NodeSection.Exit);
+          AppendTranslatedExit(node);
         }
         return;
       }
 
       using (context.EnterScope(node)) {
-        var left = node.Left;
-        var right = node.Right;
-
-        AppendTranslated(node, NodeSection.Entry);
-        left.AcceptVisitor(this);
+        AppendTranslatedEntry(node);
+        node.Left.AcceptVisitor(this);
         AppendTranslated(node.NodeType);
-        right.AcceptVisitor(this);
-        AppendTranslated(node, NodeSection.Exit);
+        node.Right.AcceptVisitor(this);
+        AppendTranslatedExit(node);
       }
     }
 
-    public virtual void Visit(SqlBreak node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlBreak"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlBreak node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlCase"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlCase node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, CaseSection.Entry);
+        AppendTranslatedEntry(node);
 
         if (!node.Value.IsNullReference()) {
           AppendTranslated(node, CaseSection.Value);
@@ -343,10 +401,14 @@ namespace Xtensive.Sql.Compiler
           node.Else.AcceptVisitor(this);
         }
 
-        AppendTranslated(node, CaseSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCast"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlCast node)
     {
       using (context.EnterScope(node)) {
@@ -356,11 +418,16 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void Visit(SqlCloseCursor node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlCloseCursor"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlCloseCursor node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlCollate"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlCollate node)
     {
       using (context.EnterScope(node)) {
@@ -370,30 +437,42 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void Visit(SqlColumnRef node)
-    {
-      AppendTranslated(node, ColumnSection.Entry);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlColumnRef"/> and translates its parts.
+    /// </summary>
+    /// <param name="node">Column reference to visit.</param>
+    public virtual void Visit(SqlColumnRef node) => AppendTranslated(node, ColumnSection.Entry);
 
-    public virtual void Visit(SqlContainsTable node)
-    {
+    /// <summary>
+    /// Visits <see cref="SqlContainsTable"/> table and translates its parts.
+    /// </summary>
+    /// <param name="node">Table to visit.</param>
+    public virtual void Visit(SqlContainsTable node) =>
       throw SqlHelper.NotSupported(Strings.FullTextQueries);
-    }
 
-    public virtual void Visit(SqlNative node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlNative"/> expression and translates it.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlNative node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlNativeHint"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlNativeHint node)
     {
       // nothing
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlConcat"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlConcat node)
     {
-      AppendTranslated(node, NodeSection.Entry);
-      bool first = true;
+      AppendTranslatedEntry(node);
+      var first = true;
       foreach (var item in node) {
         if (!first) {
           AppendTranslated(node.NodeType);
@@ -401,248 +480,335 @@ namespace Xtensive.Sql.Compiler
         item.AcceptVisitor(this);
         first = false;
       }
-
-      AppendTranslated(node, NodeSection.Exit);
+      AppendTranslatedExit(node);
     }
 
-    public virtual void Visit(SqlContainer node)
-    {
+    /// <summary>
+    /// Visits <see cref="SqlContainer"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlContainer node) =>
       throw new SqlCompilerException(Strings.ExSqlContainerExpressionCanNotBeCompiled);
-    }
 
-    public virtual void Visit(SqlContinue node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlContinue"/> statement and translates it.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlContinue node) => AppendTranslated(node);
 
-    public virtual void Visit(SqlCommand node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlCommand"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlCommand node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateAssertion"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateAssertion node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, NodeSection.Entry);
+        AppendTranslatedEntry(node);
         node.Assertion.Condition.AcceptVisitor(this);
-        AppendTranslated(node, NodeSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateCharacterSet"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateCharacterSet node)
     {
       //      ArgumentValidator.EnsureArgumentNotNull(node.CharacterSet.CharacterSetSource, "CharacterSetSource");
       //      AppendTranslated(node);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateCollation"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateCollation node)
     {
       //      ArgumentValidator.EnsureArgumentNotNull(node.Collation.CharacterSet, "CharacterSet");
       //      AppendTranslated(node);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateDomain"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateDomain node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.Domain.DataType, "DataType");
+
       using (context.EnterScope(node)) {
-        AppendTranslated(node, CreateDomainSection.Entry);
+        AppendTranslatedEntry(node);
         if (!node.Domain.DefaultValue.IsNullReference()) {
           AppendTranslated(node, CreateDomainSection.DomainDefaultValue);
           node.Domain.DefaultValue.AcceptVisitor(this);
         }
         if (node.Domain.DomainConstraints.Count != 0) {
-          using (context.EnterCollectionScope())
-            foreach (DomainConstraint constraint in node.Domain.DomainConstraints) {
+          using (context.EnterCollectionScope()) {
+            foreach (var constraint in node.Domain.DomainConstraints) {
               AppendTranslated(constraint, ConstraintSection.Entry);
               AppendTranslated(constraint, ConstraintSection.Check);
               constraint.Condition.AcceptVisitor(this);
               AppendTranslated(constraint, ConstraintSection.Exit);
             }
+          }
         }
         if (node.Domain.Collation != null) {
           AppendTranslated(node, CreateDomainSection.DomainCollate);
         }
-        AppendTranslated(node, CreateDomainSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateIndex"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateIndex node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.Index.DataTable, "DataTable");
-      AppendTranslated(node, CreateIndexSection.Entry);
+
+      AppendTranslatedEntry(node);
       if (node.Index.Columns.Count > 0) {
-        AppendTranslated(node, CreateIndexSection.ColumnsEnter);
+        AppendSpaceIfNecessary();
+        translator.Translate(context, node, CreateIndexSection.ColumnsEnter);
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.Columns) {
             AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
             Visit(node, item);
           }
         }
-        AppendTranslated(node, CreateIndexSection.ColumnsExit);
+        translator.Translate(context, node, CreateIndexSection.ColumnsExit);
+        AppendSpaceIfNecessary();
       }
       if (node.Index.NonkeyColumns != null && node.Index.NonkeyColumns.Count != 0 && CheckFeature(IndexFeatures.NonKeyColumns)) {
-        AppendTranslated(node, CreateIndexSection.NonkeyColumnsEnter);
+        translator.Translate(context, node, CreateIndexSection.NonkeyColumnsEnter);
+        AppendSpaceIfNecessary();
         using (context.EnterCollectionScope()) {
           foreach (var item in node.Index.NonkeyColumns) {
             AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
             translator.TranslateIdentifier(context.Output, item.Name);
           }
         }
-        AppendTranslated(node, CreateIndexSection.NonkeyColumnsExit);
+        translator.Translate(context, node, CreateIndexSection.NonkeyColumnsExit);
       }
 
       AppendTranslated(node, CreateIndexSection.StorageOptions);
 
       if (!node.Index.Where.IsNullReference() && CheckFeature(IndexFeatures.Filtered)) {
-        AppendTranslated(node, CreateIndexSection.Where);
+        AppendSpaceIfNecessary();
+        translator.Translate(context, node, CreateIndexSection.Where);
+        AppendSpace();
         using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
           node.Index.Where.AcceptVisitor(this);
         }
       }
-      AppendTranslated(node, CreateIndexSection.Exit);
+      AppendTranslatedExit(node);
     }
 
+    /// <summary>
+    /// Visits <see cref="IndexColumn"/> and translates it.
+    /// </summary>
+    /// <param name="node">The <see cref="SqlCreateIndex"/> the <paramref name="item"/> belongs to</param>
+    /// <param name="item">Column to visit.</param>
     public virtual void Visit(SqlCreateIndex node, IndexColumn item)
     {
       if (!item.Expression.IsNullReference() && CheckFeature(IndexFeatures.Expressions)) {
-        using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns))
+        using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
           item.Expression.AcceptVisitor(this);
+        }
       }
       else {
         translator.TranslateIdentifier(context.Output, item.Column.Name);
-        if (!(node.Index.IsFullText || node.Index.IsSpatial) && CheckFeature(IndexFeatures.SortOrder))
-          context.Output.Append(translator.TranslateSortOrder(item.Ascending));
+        if (!(node.Index.IsFullText || node.Index.IsSpatial) && CheckFeature(IndexFeatures.SortOrder)) {
+          AppendSpaceIfNecessary();
+          translator.TranslateSortOrder(context.Output, item.Ascending);
+        }
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreatePartitionFunction"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreatePartitionFunction node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.PartitionFunction.DataType, "DataType");
-      AppendTranslated(node);
+      translator.Translate(context, node);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreatePartitionScheme"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreatePartitionScheme node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.PartitionSchema.PartitionFunction, "PartitionFunction");
-      AppendTranslated(node);
+      translator.Translate(context, node);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateSchema"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateSchema node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, NodeSection.Entry);
+        AppendTranslatedEntry(node);
         AppendDdlStatementDelimiter();
-        if (node.Schema.Assertions.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (Assertion assertion in node.Schema.Assertions) {
+        if (node.Schema.Assertions.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var assertion in node.Schema.Assertions) {
               new SqlCreateAssertion(assertion).AcceptVisitor(this);
               AppendDdlStatementDelimiter();
             }
+          }
+        }
 
-        if (node.Schema.CharacterSets.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (CharacterSet characterSet in node.Schema.CharacterSets) {
+        if (node.Schema.CharacterSets.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var characterSet in node.Schema.CharacterSets) {
               new SqlCreateCharacterSet(characterSet).AcceptVisitor(this);
               AppendDdlStatementDelimiter();
             }
+          }
+        }
 
-        if (node.Schema.Collations.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (Collation collation in node.Schema.Collations) {
+        if (node.Schema.Collations.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var collation in node.Schema.Collations) {
               AppendCollectionDelimiterIfNecessary(AppendDdlStatementDelimiter);
               new SqlCreateCollation(collation).AcceptVisitor(this);
             }
+          }
+        }
 
-        if (node.Schema.Domains.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (Domain domain in node.Schema.Domains) {
+        if (node.Schema.Domains.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var domain in node.Schema.Domains) {
               new SqlCreateDomain(domain).AcceptVisitor(this);
               AppendDdlStatementDelimiter();
             }
+          }
+        }
 
-        if (node.Schema.Sequences.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (Sequence sequence in node.Schema.Sequences) {
+        if (node.Schema.Sequences.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var sequence in node.Schema.Sequences) {
               new SqlCreateSequence(sequence).AcceptVisitor(this);
               AppendDdlStatementDelimiter();
             }
+          }
+        }
 
-        if (node.Schema.Tables.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (Table table in node.Schema.Tables) {
+        if (node.Schema.Tables.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var table in node.Schema.Tables) {
               new SqlCreateTable(table).AcceptVisitor(this);
               AppendDdlStatementDelimiter();
-              if (table.Indexes.Count > 0)
-                using (context.EnterCollectionScope())
-                  foreach (Index index in table.Indexes) {
+              if (table.Indexes.Count > 0) {
+                using (context.EnterCollectionScope()) {
+                  foreach (var index in table.Indexes) {
                     new SqlCreateIndex(index).AcceptVisitor(this);
                     AppendDdlStatementDelimiter();
                   }
+                }
+              }
             }
+          }
+        }
 
-        if (node.Schema.Translations.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (Translation translation in node.Schema.Translations) {
+        if (node.Schema.Translations.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var translation in node.Schema.Translations) {
               new SqlCreateTranslation(translation).AcceptVisitor(this);
               AppendDdlStatementDelimiter();
             }
+          }
+        }
 
-        if (node.Schema.Views.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (View view in node.Schema.Views) {
+        if (node.Schema.Views.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var view in node.Schema.Views) {
               new SqlCreateView(view).AcceptVisitor(this);
               AppendDdlStatementDelimiter();
             }
+          }
+        }
 
-        AppendTranslated(node, NodeSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateSequence"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateSequence node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.Sequence.SequenceDescriptor, "SequenceDescriptor");
+
+      if (node.Sequence.SequenceDescriptor.Increment.HasValue && node.Sequence.SequenceDescriptor.Increment.Value == 0) {
+        throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
+      }
+      if (string.IsNullOrEmpty(node.Sequence.Name)) {
+        throw new SqlCompilerException(Strings.ExNameMustBeNotNullOrEmpty);
+      }
+      if (node.Sequence.Schema == null) {
+        throw new SqlCompilerException(Strings.ExSchemaMustBeNotNull);
+      }
+      if (node.Sequence.SequenceDescriptor.MaxValue.HasValue &&
+          node.Sequence.SequenceDescriptor.MinValue.HasValue &&
+          node.Sequence.SequenceDescriptor.MaxValue.Value <= node.Sequence.SequenceDescriptor.MinValue.Value) {
+        throw new SqlCompilerException(Strings.ExTheMaximumValueMustBeGreaterThanTheMinimumValue);
+      }
+      if (node.Sequence.SequenceDescriptor.StartValue.HasValue &&
+          (node.Sequence.SequenceDescriptor.MaxValue.HasValue &&
+           node.Sequence.SequenceDescriptor.MaxValue.Value < node.Sequence.SequenceDescriptor.StartValue.Value ||
+           node.Sequence.SequenceDescriptor.MinValue.HasValue &&
+           node.Sequence.SequenceDescriptor.MinValue.Value > node.Sequence.SequenceDescriptor.StartValue.Value)) {
+        throw new SqlCompilerException(Strings.ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue);
+      }
+
       using (context.EnterScope(node)) {
-        if (node.Sequence.SequenceDescriptor.Increment.HasValue && node.Sequence.SequenceDescriptor.Increment.Value == 0)
-          throw new SqlCompilerException(Strings.ExIncrementMustNotBeZero);
-        if (string.IsNullOrEmpty(node.Sequence.Name))
-          throw new SqlCompilerException(Strings.ExNameMustBeNotNullOrEmpty);
-        if (node.Sequence.Schema == null)
-          throw new SqlCompilerException(Strings.ExSchemaMustBeNotNull);
-        if (node.Sequence.SequenceDescriptor.MaxValue.HasValue &&
-            node.Sequence.SequenceDescriptor.MinValue.HasValue &&
-            node.Sequence.SequenceDescriptor.MaxValue.Value <= node.Sequence.SequenceDescriptor.MinValue.Value)
-          throw new SqlCompilerException(Strings.ExTheMaximumValueMustBeGreaterThanTheMinimumValue);
-        if (node.Sequence.SequenceDescriptor.StartValue.HasValue &&
-            (node.Sequence.SequenceDescriptor.MaxValue.HasValue &&
-             node.Sequence.SequenceDescriptor.MaxValue.Value < node.Sequence.SequenceDescriptor.StartValue.Value ||
-             node.Sequence.SequenceDescriptor.MinValue.HasValue &&
-             node.Sequence.SequenceDescriptor.MinValue.Value > node.Sequence.SequenceDescriptor.StartValue.Value))
-          throw new SqlCompilerException(Strings.ExTheStartValueShouldBeBetweenTheMinimumAndMaximumValue);
-        AppendTranslated(node, NodeSection.Entry);
+        AppendTranslatedEntry(node);
         AppendTranslated(node.Sequence.SequenceDescriptor, SequenceDescriptorSection.StartValue);
         AppendTranslated(node.Sequence.SequenceDescriptor, SequenceDescriptorSection.Increment);
         AppendTranslated(node.Sequence.SequenceDescriptor, SequenceDescriptorSection.MaxValue);
         AppendTranslated(node.Sequence.SequenceDescriptor, SequenceDescriptorSection.MinValue);
         AppendTranslated(node.Sequence.SequenceDescriptor, SequenceDescriptorSection.IsCyclic);
-        AppendTranslated(node, NodeSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateTable"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateTable node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, CreateTableSection.Entry);
+        AppendTranslatedEntry(node);
         AppendTranslated(node, CreateTableSection.TableElementsEntry);
 
         // ReSharper disable ConditionIsAlwaysTrueOrFalse
         // ReSharper disable RedundantAssignment
 
-        bool hasItems = false;
+        var hasItems = false;
 
-        if (node.Table.Columns.Count > 0)
+        if (node.Table.Columns.Count > 0) {
           hasItems = VisitCreateTableColumns(node, node.Table.TableColumns, hasItems);
-        if (node.Table.TableConstraints.Count > 0)
-          hasItems = VisitCreateTableConstraints(node, node.Table.TableConstraints, hasItems);
+        }
+
+        if (node.Table.TableConstraints.Count > 0) {
+          _ = VisitCreateTableConstraints(node, node.Table.TableConstraints, hasItems);
+        }
 
         // ReSharper restore ConditionIsAlwaysTrueOrFalse
         // ReSharper restore RedundantAssignment
@@ -652,14 +818,20 @@ namespace Xtensive.Sql.Compiler
           AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
           AppendTranslated(node, CreateTableSection.Partition);
         }
-        AppendTranslated(node, CreateTableSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits list of <see cref="TableConstraint"/>s translates parts of them.
+    /// </summary>
+    /// <param name="node">The <see cref="SqlCreateTable"/> constrains belong to</param>
+    /// <param name="constraints">List of constraints.</param>
+    /// <returns>Flag that tells whether there were constraints.</returns>
     protected virtual bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
       using (context.EnterCollectionScope()) {
-        foreach (TableConstraint constraint in constraints) {
+        foreach (var constraint in constraints) {
           if (hasItems) {
             AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
           }
@@ -672,13 +844,20 @@ namespace Xtensive.Sql.Compiler
       return hasItems;
     }
 
+    /// <summary>
+    /// Visits list of <see cref="SqlTableColumn"/>s statement and translates parts of them.
+    /// </summary>
+    /// <param name="node">The <see cref="SqlCreateTable"/> the columns belong to.</param>
+    /// <param name="columns">List of columns.</param>
+    /// <returns>Flag that tells whether there were columns.</returns>
     protected virtual bool VisitCreateTableColumns(SqlCreateTable node, IEnumerable<TableColumn> columns, bool hasItems)
     {
       using (context.EnterCollectionScope()) {
         foreach (var column in columns) {
           // Skipping computed columns
-          if (!column.Expression.IsNullReference() && !CheckFeature(ColumnFeatures.Computed))
+          if (!column.Expression.IsNullReference() && !CheckFeature(ColumnFeatures.Computed)) {
             continue;
+          }
           if (hasItems) {
             AppendDelimiter(translator.ColumnDelimiter, SqlDelimiterType.Column);
           }
@@ -692,6 +871,10 @@ namespace Xtensive.Sql.Compiler
       return hasItems;
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateTranslation"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateTranslation node)
     {
       //      ArgumentValidator.EnsureArgumentNotNull(node.Translation.SourceCharacterSet, "SourceCharacterSet");
@@ -700,25 +883,35 @@ namespace Xtensive.Sql.Compiler
       //      AppendTranslated(node);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlCreateView"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlCreateView node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, NodeSection.Entry);
-        if (!node.View.Definition.IsNullReference())
+        AppendTranslatedEntry(node);
+        if (!node.View.Definition.IsNullReference()) {
           node.View.Definition.AcceptVisitor(this);
-        AppendTranslated(node, NodeSection.Exit);
+        }
+        AppendTranslatedExit(node);
       }
     }
 
-    public virtual void Visit(SqlCursor node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlCursor"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlCursor node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlDeclareCursor"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlDeclareCursor node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, DeclareCursorSection.Entry);
+        AppendTranslatedEntry(node);
         AppendTranslated(node, DeclareCursorSection.Sensivity);
         AppendTranslated(node, DeclareCursorSection.Scrollability);
         AppendTranslated(node, DeclareCursorSection.Cursor);
@@ -733,26 +926,33 @@ namespace Xtensive.Sql.Compiler
           }
         }
         AppendTranslated(node, DeclareCursorSection.Updatability);
-        AppendTranslated(node, DeclareCursorSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
-    public virtual void Visit(SqlDeclareVariable node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDeclareVariable"/> statement and translates it.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDeclareVariable node) => AppendTranslated(node);
 
-    public virtual void Visit(SqlDefaultValue node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDefaultValue"/> expression and translates it.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlDefaultValue node) => AppendTranslated(node);
 
-    public virtual void Visit(SqlDelete node)
-    {
-      VisitDeleteDefault(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDelete"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDelete node) => VisitDeleteDefault(node);
 
-    public void VisitDeleteDefault(SqlDelete node)
+    /// <summary>
+    /// Default visitor for <see cref="SqlDelete"/> statement parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected void VisitDeleteDefault(SqlDelete node)
     {
       using (context.EnterScope(node)) {
         VisitDeleteEntry(node);
@@ -764,22 +964,32 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitDeleteEntry(SqlDelete node)
-    {
-      AppendTranslated(node, DeleteSection.Entry);
-    }
+    /// <summary>
+    /// Visits entry part of <see cref="SqlDelete"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitDeleteEntry(SqlDelete node) => AppendTranslatedEntry(node);
 
-    public virtual void VisitDeleteDelete(SqlDelete node)
+    /// <summary>
+    /// Visits DELETE part of <see cref="SqlDelete"/> statement.
+    /// </summary>
+    /// <param name="node">Stetement to visit.</param>
+    protected virtual void VisitDeleteDelete(SqlDelete node)
     {
-      if (node.Delete == null)
+      if (node.Delete == null) {
         throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+      }
 
       using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
         node.Delete.AcceptVisitor(this);
       }
     }
 
-    public virtual void VisitDeleteFrom(SqlDelete node)
+    /// <summary>
+    /// Visits FROM part of <see cref="SqlDelete"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitDeleteFrom(SqlDelete node)
     {
       if (CheckFeature(QueryFeatures.DeleteFrom) && node.From != null) {
         AppendTranslated(node, DeleteSection.From);
@@ -787,7 +997,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitDeleteWhere(SqlDelete node)
+    /// <summary>
+    /// Visits WHERE part of <see cref="SqlDelete"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitDeleteWhere(SqlDelete node)
     {
       if (!node.Where.IsNullReference()) {
         AppendTranslated(node, DeleteSection.Where);
@@ -795,92 +1009,117 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitDeleteLimit(SqlDelete node)
+    /// <summary>
+    /// Visits LIMIT part of <see cref="SqlDelete"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitDeleteLimit(SqlDelete node)
     {
       if (!node.Limit.IsNullReference()) {
-        if (!CheckFeature(QueryFeatures.DeleteLimit))
+        if (!CheckFeature(QueryFeatures.DeleteLimit)) {
           throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToDelete);
+        }
+
         AppendTranslated(node, DeleteSection.Limit);
         node.Limit.AcceptVisitor(this);
       }
     }
 
-    public virtual void VisitDeleteExit(SqlDelete node)
-    {
-      AppendTranslated(node, DeleteSection.Exit);
-    }
+    /// <summary>
+    /// Visits exit part of <see cref="SqlDelete"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitDeleteExit(SqlDelete node) => AppendTranslatedExit(node);
 
-    public virtual void Visit(SqlDropAssertion node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropAssertion"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropAssertion node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropCharacterSet node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropCharacterSet"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropCharacterSet node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropCollation node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropCollation"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropCollation node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropDomain node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropDomain"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropDomain node) => translator.Translate(context, node);
 
+    /// <summary>
+    /// Visits <see cref="SqlDropIndex"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlDropIndex node)
     {
       ArgumentValidator.EnsureArgumentNotNull(node.Index.DataTable, "DataTable");
-      AppendTranslated(node);
+      translator.Translate(context, node);
     }
 
-    public virtual void Visit(SqlDropPartitionFunction node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropPartitionFunction"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropPartitionFunction node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropPartitionScheme node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropPartitionScheme"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropPartitionScheme node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropSchema node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropSchema"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropSchema node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropSequence node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropSequence"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropSequence node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropTable node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropTable"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropTable node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropTranslation node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropTranslation"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropTranslation node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlDropView node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlDropView"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlDropView node) => translator.Translate(context, node);
 
-    public virtual void Visit(SqlTruncateTable node)
-    {
-      AppendTranslated(node);
-    }
-
+    /// <summary>
+    /// Visits <see cref="SqlFastFirstRowsHint"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlFastFirstRowsHint node)
     {
       // nothing
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlDynamicFilter"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlDynamicFilter node)
     {
       switch (node.Expressions.Count) {
@@ -891,63 +1130,89 @@ namespace Xtensive.Sql.Compiler
           TranslateDynamicFilterViaInOperator(node);
           break;
         default:
-          if (CheckFeature(QueryFeatures.MulticolumnIn))
+          if (CheckFeature(QueryFeatures.MulticolumnIn)) {
             TranslateDynamicFilterViaInOperator(node);
-          else
+          }
+          else {
             TranslateDynamicFilterViaMultipleComparisons(node);
+          }
           break;
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlFetch"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlFetch node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, FetchSection.Entry);
-        if (!node.RowCount.IsNullReference())
+        AppendTranslatedEntry(node);
+        if (!node.RowCount.IsNullReference()) {
           node.RowCount.AcceptVisitor(this);
+        }
         AppendTranslated(node, FetchSection.Targets);
-        foreach (ISqlCursorFetchTarget item in node.Targets) {
+        foreach (var item in node.Targets) {
           item.AcceptVisitor(this);
         }
-        AppendTranslated(node, FetchSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlForceJoinOrderHint"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlForceJoinOrderHint node)
     {
       // nothing
     }
 
-    public virtual void Visit(SqlFreeTextTable node)
-    {
-      throw SqlHelper.NotSupported(Strings.FullTextQueries);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlFreeTextTable"/> table and translates it.
+    /// </summary>
+    /// <param name="node">Table to visit.</param>
+    public virtual void Visit(SqlFreeTextTable node) => throw SqlHelper.NotSupported(Strings.FullTextQueries);
 
+    /// <summary>
+    /// Visits <see cref="SqlFunctionCall"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlFunctionCall node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, FunctionCallSection.Entry, -1);
+        AppendTranslatedEntry(node);
+
         if (node.Arguments.Count > 0) {
           using (context.EnterCollectionScope()) {
-            int argumentPosition = 0;
-            foreach (SqlExpression item in node.Arguments) {
+            var argumentPosition = 0;
+            foreach (var item in node.Arguments) {
               AppendCollectionDelimiterIfNecessary(() => AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition));
-              AppendTranslated(node, FunctionCallSection.ArgumentEntry, argumentPosition);
+              AppendSpaceIfNecessary();
+              translator.Translate(context, node, FunctionCallSection.ArgumentEntry, argumentPosition);
+              AppendSpaceIfNecessary();
               item.AcceptVisitor(this);
-              AppendTranslated(node, FunctionCallSection.ArgumentExit, argumentPosition);
+              AppendSpaceIfNecessary();
+              translator.Translate(context, node, FunctionCallSection.ArgumentExit, argumentPosition);
               argumentPosition++;
             }
           }
         }
-        AppendTranslated(node, FunctionCallSection.Exit, -1);
+        AppendTranslatedExit(node);
       }
     }
 
-    public virtual void Visit(SqlCustomFunctionCall node)
-    {
+    /// <summary>
+    /// Visits <see cref="SqlCustomFunctionCall"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlCustomFunctionCall node) =>
       throw new NotSupportedException(string.Format(Strings.ExFunctionXIsNotSupported, node.FunctionType));
-    }
 
+    /// <summary>
+    /// Visits <see cref="SqlIf"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlIf node)
     {
       using (context.EnterScope(node)) {
@@ -967,36 +1232,44 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlInsert"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlInsert node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, InsertSection.Entry);
+        AppendTranslatedEntry(node);
 
-        if (node.Into == null)
+        if (node.Into == null) {
           throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+        }
 
         using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
           node.Into.AcceptVisitor(this);
         }
 
         AppendTranslated(node, InsertSection.ColumnsEntry);
-        var columns = node.Values.Columns;
-        if (columns.Count > 0)
-          using (context.EnterCollectionScope())
-            foreach (SqlColumn item in columns) {
+        if (node.Values.Keys.Count > 0) {
+          using (context.EnterCollectionScope()) {
+            foreach (var item in node.Values.Keys) {
               AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
               translator.TranslateIdentifier(context.Output, item.Name);
             }
+          }
+        }
+
         AppendTranslated(node, InsertSection.ColumnsExit);
 
-        if (node.Values.Columns.Count == 0 && node.From == null) {
+        if (node.Values.Keys.Count == 0 && node.From == null) {
           AppendTranslated(node, InsertSection.DefaultValues);
         }
         else {
-          if (node.From != null)
+          if (node.From != null) {
             using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
               node.From.AcceptVisitor(this);
             }
+          }
           else {
             AppendTranslated(node, InsertSection.ValuesEntry);
             var rowCount = node.Values.ValuesByColumn(columns.First()).Count;
@@ -1014,19 +1287,25 @@ namespace Xtensive.Sql.Compiler
             AppendTranslated(node, InsertSection.ValuesExit);
           }
         }
-        AppendTranslated(node, InsertSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlJoinExpression"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlJoinExpression node)
     {
       var leftIsJoin = node.Left is SqlJoinedTable;
-      if (leftIsJoin)
+      if (leftIsJoin) {
         node.Left.AcceptVisitor(this);
+      }
       using (context.EnterScope(node)) {
         AppendTranslated(node, JoinSection.Entry);
-        if (!leftIsJoin)
+        if (!leftIsJoin) {
           node.Left.AcceptVisitor(this);
+        }
         AppendTranslated(node, JoinSection.Specification);
         node.Right.AcceptVisitor(this);
         if (!node.Expression.IsNullReference()) {
@@ -1037,15 +1316,23 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlJoinHint"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlJoinHint node)
     {
       // nothing
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlLike"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlLike node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, LikeSection.Entry);
+        AppendTranslatedEntry(node);
         node.Expression.AcceptVisitor(this);
         AppendTranslated(node, LikeSection.Like);
         node.Pattern.AcceptVisitor(this);
@@ -1053,15 +1340,20 @@ namespace Xtensive.Sql.Compiler
           AppendTranslated(node, LikeSection.Escape);
           node.Escape.AcceptVisitor(this);
         }
-        AppendTranslated(node, LikeSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
-    public virtual void Visit(SqlLiteral node)
-    {
-      AppendTranslatedLiteral(node.GetValue());
-    }
+    /// <summary>
+    /// Visits <see cref="SqlLiteral"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlLiteral node) => AppendTranslatedLiteral(node.GetValue());
 
+    /// <summary>
+    /// Visits <see cref="SqlMatch"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlMatch node)
     {
       using (context.EnterScope(node)) {
@@ -1073,11 +1365,16 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void Visit(SqlNull node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlNull"/> expression.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlNull node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlNextValue"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlNextValue node)
     {
       AppendTranslated(node, NodeSection.Entry);
@@ -1085,66 +1382,94 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(node, NodeSection.Exit);
     }
 
-    public virtual void Visit(SqlOpenCursor node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlOpenCursor"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlOpenCursor node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlOrder"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlOrder node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, NodeSection.Entry);
-        if (!node.Expression.IsNullReference())
+        AppendSpaceIfNecessary();
+        translator.Translate(context, node, NodeSection.Entry);
+        if (!node.Expression.IsNullReference()) {
           node.Expression.AcceptVisitor(this);
-        else if (node.Position > 0)
-          context.Output.Append(node.Position.ToString());
-        AppendTranslated(node, NodeSection.Exit);
+        }
+        else if (node.Position > 0) {
+          _ = context.Output.Append(node.Position.ToString());
+        }
+        AppendSpaceIfNecessary();
+        translator.Translate(context, node, NodeSection.Exit);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlParameterRef"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlParameterRef node)
     {
       var name = string.IsNullOrEmpty(node.Name)
         ? context.ParameterNameProvider.GetName(node.Parameter)
         : node.Name;
-      context.Output.Append(translator.ParameterPrefix + name);
+      _ = context.Output.Append(translator.ParameterPrefix + name);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlQueryRef"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlQueryRef node)
     {
       using (context.EnterScope(node)) {
         AppendTranslated(node, TableSection.Entry);
         node.Query.AcceptVisitor(this);
-        AppendTranslated(node, TableSection.Exit);
+        translator.Translate(context, node, TableSection.Exit);
         AppendTranslated(node, TableSection.AliasDeclaration);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlQueryExpression"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlQueryExpression node)
     {
       var leftIsQueryExpression = node.Left is SqlQueryExpression;
       using (context.EnterScope(node)) {
-        AppendTranslated(node, QueryExpressionSection.Entry);
-        if (!leftIsQueryExpression)
-          context.Output.Append("(");
+        AppendTranslatedEntry(node);
+        if (!leftIsQueryExpression) {
+          _ = context.Output.AppendOpeningPunctuation("(");
+        }
+
         node.Left.AcceptVisitor(this);
-        if (!leftIsQueryExpression)
-          context.Output.Append(")");
+        if (!leftIsQueryExpression) {
+          _ = context.Output.Append(")");
+        }
         AppendTranslated(node.NodeType);
         AppendTranslated(node, QueryExpressionSection.All);
-        context.Output.Append("(");
+        _ = context.Output.AppendOpeningPunctuation("(");
         node.Right.AcceptVisitor(this);
-        context.Output.Append(")");
-        AppendTranslated(node, QueryExpressionSection.Exit);
+        _ = context.Output.Append(")");
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlRow"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlRow node)
     {
       using (context.EnterScope(node)) {
         AppendTranslated(node, NodeSection.Entry);
         using (context.EnterCollectionScope()) {
-          foreach (SqlExpression item in node) {
+          foreach (var item in node) {
             AppendCollectionDelimiterIfNecessary(AppendRowItemDelimiter);
             item.AcceptVisitor(this);
           }
@@ -1153,10 +1478,15 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlRowNumber"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlRowNumber node)
     {
-      if (!CheckFeature(QueryFeatures.RowNumber))
+      if (!CheckFeature(QueryFeatures.RowNumber)) {
         throw SqlHelper.NotSupported(QueryFeatures.RowNumber);
+      }
 
       using (context.EnterScope(node)) {
         AppendTranslated(node, NodeSection.Entry);
@@ -1170,44 +1500,49 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void Visit(SqlRenameTable node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlRenameTable"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlRenameTable node) => translator.Translate(context, node);
 
+    /// <summary>
+    /// Visits <see cref="SqlRound"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlRound node)
     {
-      SqlExpression result;
-      switch (node.Mode) {
-        case MidpointRounding.ToEven:
-          result = node.Length.IsNullReference()
-            ? SqlHelper.BankersRound(node.Argument)
-            : SqlHelper.BankersRound(node.Argument, node.Length);
-          break;
-        case MidpointRounding.AwayFromZero:
-          result = node.Length.IsNullReference()
-            ? SqlHelper.RegularRound(node.Argument)
-            : SqlHelper.RegularRound(node.Argument, node.Length);
-          break;
-        default:
-          throw new ArgumentOutOfRangeException();
-      }
-      if (node.Type == TypeCode.Decimal)
+      var result = node.Mode switch {
+        MidpointRounding.ToEven => node.Length.IsNullReference()
+          ? SqlHelper.BankersRound(node.Argument)
+          : SqlHelper.BankersRound(node.Argument, node.Length),
+        MidpointRounding.AwayFromZero => node.Length.IsNullReference()
+          ? SqlHelper.RegularRound(node.Argument)
+          : SqlHelper.RegularRound(node.Argument, node.Length),
+        _ => throw new ArgumentOutOfRangeException(),
+      };
+      if (node.Type == TypeCode.Decimal) {
         result = SqlDml.Cast(result, decimalType);
+      }
       result.AcceptVisitor(this);
     }
 
-    public virtual void Visit(SqlSelect node)
-    {
-      VisitSelectDefault(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to translate</param>
+    public virtual void Visit(SqlSelect node) => VisitSelectDefault(node);
 
-    public void VisitSelectDefault(SqlSelect node)
+    /// <summary>
+    /// Default visitor for <see cref="SqlSelect"/>.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected void VisitSelectDefault(SqlSelect node)
     {
       using (context.EnterScope(node)) {
         var comment = node.Comment;
         VisitCommentIfBefore(comment);
-        AppendTranslated(node, SelectSection.Entry);
+        AppendTranslatedEntry(node);
         VisitCommentIfWithin(comment);
         VisitSelectHints(node);
         VisitSelectColumns(node);
@@ -1217,20 +1552,26 @@ namespace Xtensive.Sql.Compiler
         VisitSelectOrderBy(node);
         VisitSelectLimitOffset(node);
         VisitSelectLock(node);
-        AppendTranslated(node, SelectSection.Exit);
+        AppendTranslatedExit(node);
         VisitCommentIfAfter(comment);
       }
     }
 
-    public virtual void VisitSelectHints(SqlSelect node)
+    /// <summary>
+    /// Visits HINTS part of <see cref="SqlSelect"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectHints(SqlSelect node)
     {
       var hints = node.Hints;
-      if (hints.Count == 0)
+      if (hints.Count == 0) {
         return;
+      }
+
       using (context.EnterCollectionScope()) {
         AppendTranslated(node, SelectSection.HintsEntry);
         hints[0].AcceptVisitor(this);
-        for (int i = 1; i < hints.Count; i++) {
+        for (var i = 1; i < hints.Count; i++) {
           AppendDelimiter(translator.HintDelimiter);
           hints[i].AcceptVisitor(this);
         }
@@ -1238,35 +1579,52 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitSelectColumns(SqlSelect node)
+    /// <summary>
+    /// Visits COLUMNS part of <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectColumns(SqlSelect node)
     {
       if (node.Columns.Count == 0) {
+        AppendSpaceIfNecessary();
         Visit(SqlDml.Asterisk);
+        AppendSpaceIfNecessary();
         return;
       }
       using (context.EnterCollectionScope()) {
-        foreach (SqlColumn item in node.Columns) {
-          if (item is SqlColumnStub)
+        foreach (var item in node.Columns) {
+          if (item is SqlColumnStub) {
             continue;
+          }
+
           var cr = item as SqlColumnRef;
-          if (!cr.IsNullReference() && cr.SqlColumn is SqlColumnStub)
+          if (!cr.IsNullReference() && cr.SqlColumn is SqlColumnStub) {
             continue;
+          }
 
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           if (!cr.IsNullReference()) {
+            AppendSpaceIfNecessary();
             cr.SqlColumn.AcceptVisitor(this);
-            AppendTranslated(cr, ColumnSection.AliasDeclaration);
+            translator.Translate(context, cr, ColumnSection.AliasDeclaration);
           }
-          else
+          else {
+            AppendSpaceIfNecessary();
             item.AcceptVisitor(this);
+          }
         }
       }
     }
 
-    public virtual void VisitSelectFrom(SqlSelect node)
+    /// <summary>
+    /// Visits FROM part of <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectFrom(SqlSelect node)
     {
-      if (node.From == null)
+      if (node.From == null) {
         return;
+      }
 
       AppendTranslated(node, SelectSection.From);
 
@@ -1282,7 +1640,7 @@ namespace Xtensive.Sql.Compiler
       var previous = joinSequence.Pivot;
       previous.AcceptVisitor(this);
 
-      for (int i = 0; i < joinSequence.Tables.Count; i++) {
+      for (var i = 0; i < joinSequence.Tables.Count; i++) {
         var table = joinSequence.Tables[i];
         var type = joinSequence.JoinTypes[i];
         var condition = joinSequence.Conditions[i];
@@ -1299,51 +1657,79 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitSelectWhere(SqlSelect node)
+    /// <summary>
+    /// Visits WHERE part of <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectWhere(SqlSelect node)
     {
-      if (node.Where.IsNullReference())
+      if (node.Where.IsNullReference()) {
         return;
+      }
+
       AppendTranslated(node, SelectSection.Where);
       node.Where.AcceptVisitor(this);
     }
 
-    public virtual void VisitSelectGroupBy(SqlSelect node)
+    /// <summary>
+    /// Visits GROUP BY part of <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectGroupBy(SqlSelect node)
     {
-      if (node.GroupBy.Count <= 0)
+      if (node.GroupBy.Count <= 0) {
         return;
+      }
       // group by
-      AppendTranslated(node, SelectSection.GroupBy);
+      AppendSpace();
+      translator.Translate(context, node, SelectSection.GroupBy);
+      AppendSpace();
       using (context.EnterCollectionScope()) {
-        foreach (SqlColumn item in node.GroupBy) {
+        foreach (var item in node.GroupBy) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var cr = item as SqlColumnRef;
-          if (!cr.IsNullReference())
+          if (!cr.IsNullReference()) {
             cr.SqlColumn.AcceptVisitor(this);
-          else
+          }
+          else {
             item.AcceptVisitor(this);
+          }
         }
       }
-      if (node.Having.IsNullReference())
+      if (node.Having.IsNullReference()) {
         return;
+      }
       // having
       AppendTranslated(node, SelectSection.Having);
       node.Having.AcceptVisitor(this);
     }
 
-    public virtual void VisitSelectOrderBy(SqlSelect node)
+    /// <summary>
+    /// Visits ORDER BY part of <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectOrderBy(SqlSelect node)
     {
-      if (node.OrderBy.Count <= 0)
+      if (node.OrderBy.Count <= 0) {
         return;
-      AppendTranslated(node, SelectSection.OrderBy);
+      }
+
+      AppendSpace();
+      translator.Translate(context, node, SelectSection.OrderBy);
+      AppendSpace();
       using (context.EnterCollectionScope()) {
-        foreach (SqlOrder item in node.OrderBy) {
+        foreach (var item in node.OrderBy) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           item.AcceptVisitor(this);
         }
       }
     }
 
-    public virtual void VisitSelectLimitOffset(SqlSelect node)
+    /// <summary>
+    /// Visits limits part of <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectLimitOffset(SqlSelect node)
     {
       if (!node.Limit.IsNullReference()) {
         AppendTranslated(node, SelectSection.Limit);
@@ -1357,14 +1743,22 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitSelectLock(SqlSelect node)
+    /// <summary>
+    /// Visits LOCK part of <see cref="SqlSelect"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitSelectLock(SqlSelect node)
     {
       if (node.Lock != SqlLockType.Empty) {
-        context.Output.Append(translator.Translate(node.Lock));
+        translator.Translate(context.Output, node.Lock);
         AppendSpaceIfNecessary();
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlStatementBlock"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlStatementBlock node)
     {
       using (context.EnterScope(node)) {
@@ -1372,13 +1766,17 @@ namespace Xtensive.Sql.Compiler
         using (context.EnterCollectionScope()) {
           foreach (SqlStatement item in node) {
             item.AcceptVisitor(this);
-            AppendDelimiter(translator.BatchItemDelimiter, SqlDelimiterType.Column);
+            AppendBatchDelimiter();
           }
         }
         AppendTranslated(node, NodeSection.Exit);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlSubQuery"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlSubQuery node)
     {
       using (context.EnterScope(node)) {
@@ -1388,22 +1786,31 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void Visit(SqlTableColumn node)
-    {
-      AppendTranslated(node, NodeSection.Entry);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlTableColumn"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
+    public virtual void Visit(SqlTableColumn node) => translator.Translate(context, node, NodeSection.Entry);
 
+    /// <summary>
+    /// Visits <see cref="SqlTableRef"/> node and translates its parts.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlTableRef node)
     {
       AppendTranslated(node, TableSection.Entry);
       AppendTranslated(node, TableSection.AliasDeclaration);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlTrim"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlTrim node)
     {
       using (context.EnterScope(node)) {
         AppendTranslated(node, TrimSection.Entry);
-        context.Output.Append(translator.Translate(node.TrimType));
+        translator.Translate(context.Output, node.TrimType);
         AppendSpaceIfNecessary();
         if (node.TrimCharacters != null) {
           AppendTranslatedLiteral(node.TrimCharacters);
@@ -1414,26 +1821,37 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlUnary"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlUnary node)
     {
       using (context.EnterScope(node)) {
+        AppendSpaceIfNecessary();
         AppendTranslated(node, NodeSection.Entry);
         node.Operand.AcceptVisitor(this);
         AppendTranslated(node, NodeSection.Exit);
       }
     }
 
-    public virtual void Visit(SqlMetadata node)
-    {
-      node.Expression.AcceptVisitor(this);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlMetadata"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlMetadata node) => node.Expression.AcceptVisitor(this);
 
-    public virtual void Visit(SqlUpdate node)
-    {
-      VisitUpdateDefault(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlUpdate"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlUpdate node) => VisitUpdateDefault(node);
 
-    public void VisitUpdateDefault(SqlUpdate node)
+    /// <summary>
+    /// Default visitor for <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected void VisitUpdateDefault(SqlUpdate node)
     {
       using (context.EnterScope(node)) {
         VisitUpdateEntry(node);
@@ -1446,40 +1864,54 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitUpdateEntry(SqlUpdate node)
-    {
-      AppendTranslated(node, UpdateSection.Entry);
-    }
+    /// <summary>
+    /// Visits entry part of <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitUpdateEntry(SqlUpdate node) => AppendTranslatedEntry(node);
 
-    public virtual void VisitUpdateUpdate(SqlUpdate node)
+    /// <summary>
+    /// Visits UPDATE part of <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitUpdateUpdate(SqlUpdate node)
     {
-      if (node.Update == null)
+      if (node.Update == null) {
         throw new SqlCompilerException(Strings.ExTablePropertyIsNotSet);
+      }
 
       using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
         node.Update.AcceptVisitor(this);
       }
     }
 
-    public virtual void VisitUpdateSet(SqlUpdate node)
+    /// <summary>
+    /// Visits SET part of <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitUpdateSet(SqlUpdate node)
     {
       AppendTranslated(node, UpdateSection.Set);
 
       using (context.EnterCollectionScope()) {
-        foreach (ISqlLValue item in node.Values.Keys) {
+        foreach (var item in node.Values.Keys) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var tc = item as SqlTableColumn;
           if (!tc.IsNullReference() && tc.SqlTable != node.Update)
             throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
           translator.TranslateIdentifier(context.Output, tc.Name);
           AppendTranslated(SqlNodeType.Equals);
-          SqlExpression value = node.Values[item];
+          var value = node.Values[item];
           value.AcceptVisitor(this);
         }
       }
     }
 
-    public virtual void VisitUpdateFrom(SqlUpdate node)
+    /// <summary>
+    /// Visits FROM part of <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitUpdateFrom(SqlUpdate node)
     {
       if (Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateFrom) && node.From != null) {
         AppendTranslated(node, UpdateSection.From);
@@ -1487,7 +1919,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitUpdateWhere(SqlUpdate node)
+    /// <summary>
+    /// Visits WHERE part of <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitUpdateWhere(SqlUpdate node)
     {
       if (!node.Where.IsNullReference()) {
         AppendTranslated(node, UpdateSection.Where);
@@ -1495,67 +1931,98 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    public virtual void VisitUpdateLimit(SqlUpdate node)
+    /// <summary>
+    /// Visits LIMIT part of <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitUpdateLimit(SqlUpdate node)
     {
       if (!node.Limit.IsNullReference()) {
-        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit))
+        if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit)) {
           throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToUpdate);
+        }
+
         AppendTranslated(node, UpdateSection.Limit);
         node.Limit.AcceptVisitor(this);
       }
     }
 
-    public virtual void VisitUpdateExit(SqlUpdate node)
-    {
-      AppendTranslated(node, UpdateSection.Exit);
-    }
+    /// <summary>
+    /// Visits end part of <see cref="SqlUpdate"/> statement.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    protected virtual void VisitUpdateExit(SqlUpdate node) => AppendTranslatedExit(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlPlaceholder"/> expression.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlPlaceholder node)
     {
       context.Output.AppendPlaceholderWithId(node.Id);
-      AppendSpaceIfNecessary();
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlUserColumn"/> node.
+    /// </summary>
+    /// <param name="node">Node to visit.</param>
     public virtual void Visit(SqlUserColumn node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, NodeSection.Entry);
+        AppendTranslatedEntry(node);
         node.Expression.AcceptVisitor(this);
-        AppendTranslated(node, NodeSection.Exit);
+        AppendTranslatedExit(node);
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlUserFunctionCall"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlUserFunctionCall node)
     {
       using (context.EnterScope(node)) {
-        AppendTranslated(node, FunctionCallSection.Entry, -1);
+        AppendTranslatedEntry(node);
+
         if (node.Arguments.Count > 0) {
           using (context.EnterCollectionScope()) {
-            int argumentPosition = 0;
-            foreach (SqlExpression item in node.Arguments) {
+            var argumentPosition = 0;
+            foreach (var item in node.Arguments) {
               AppendCollectionDelimiterIfNecessary(() => AppendTranslated(node, FunctionCallSection.ArgumentDelimiter, argumentPosition++));
               item.AcceptVisitor(this);
             }
           }
         }
-        AppendTranslated(node, FunctionCallSection.Exit, -1);
+
+        AppendTranslatedExit(node);
       }
     }
 
-    public virtual void Visit(SqlVariable node)
-    {
-      AppendTranslated(node);
-    }
+    /// <summary>
+    /// Visits <see cref="SqlVariable"/> expression and translates it.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlVariable node) => AppendTranslated(node);
 
+    /// <summary>
+    /// Visits <see cref="SqlVariant"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
     public virtual void Visit(SqlVariant node)
     {
-      using (context.EnterMainVariantScope(node.Id))
+      using (context.EnterMainVariantScope(node.Id)) {
         node.Main.AcceptVisitor(this);
+      }
 
-      using (context.EnterAlternativeVariantScope(node.Id))
+      using (context.EnterAlternativeVariantScope(node.Id)) {
         node.Alternative.AcceptVisitor(this);
+      }
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlWhile"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
     public virtual void Visit(SqlWhile node)
     {
       using (context.EnterScope(node)) {
@@ -1567,12 +2034,18 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
+    /// <summary>
+    /// Visits <see cref="TableColumn"/> and translates it.
+    /// </summary>
+    /// <param name="column">Column to visit.</param>
     public virtual void Visit(TableColumn column)
     {
       AppendTranslated(column, TableColumnSection.Entry);
       if (column.Expression.IsNullReference()) {
-        if (column.Domain == null)
+        if (column.Domain == null) {
           ArgumentValidator.EnsureArgumentNotNull(column.DataType, "DataType");
+        }
+
         AppendTranslated(column, TableColumnSection.Type);
       }
       if (column.Collation != null) {
@@ -1604,16 +2077,86 @@ namespace Xtensive.Sql.Compiler
       AppendTranslated(column, TableColumnSection.Exit);
     }
 
+    /// <summary>
+    /// Visits <see cref="SqlExtract"/> expression and translates its parts.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlExtract node)
+    {
+      using (context.EnterScope(node)) {
+        AppendTranslatedEntry(node);
+        if (node.DateTimePart!= SqlDateTimePart.Nothing) {
+          translator.Translate(context.Output, node.DateTimePart);
+        }
+        else if (node.IntervalPart!= SqlIntervalPart.Nothing) {
+          translator.Translate(context.Output, node.IntervalPart);
+        }
+        else {
+          translator.Translate(context.Output, node.DateTimeOffsetPart);
+        }
+        AppendTranslated(node, ExtractSection.From);
+        node.Operand.AcceptVisitor(this);
+        AppendTranslatedExit(node);
+      }
+    }
+
+    /// <summary>
+    /// Visits <see cref="SqlComment"/> expression and translates it.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    public virtual void Visit(SqlComment node) => translator.Translate(context, node);
+
+    /// <summary>
+    /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be before statement.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    protected virtual void VisitCommentIfBefore(SqlComment node)
+    {
+      if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.BeforeStatement) {
+        return;
+      }
+
+      Visit(node);
+      _ = context.Output.AppendNewLine(translator.NewLine);
+    }
+
+    /// <summary>
+    /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be within statement.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    protected virtual void VisitCommentIfWithin(SqlComment node)
+    {
+      if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.WithinStatement) {
+        return;
+      }
+      AppendSpaceIfNecessary();
+      Visit(node);
+      AppendSpaceIfNecessary();
+    }
+
+    /// <summary>
+    /// Visits <see cref="SqlComment"/> expression and translates it if setting is set it to be after statement.
+    /// </summary>
+    /// <param name="node">Expression to visit.</param>
+    protected virtual void VisitCommentIfAfter(SqlComment node)
+    {
+      if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.AfterStatement) {
+        return;
+      }
+      _ = context.Output.AppendNewLine(translator.NewLine);
+      Visit(node);
+    }
+
     private void Visit(TableConstraint constraint)
     {
       using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
         AppendTranslated(constraint, ConstraintSection.Entry);
-        var checkConstraint = constraint as CheckConstraint;
-        if (checkConstraint != null)
+        if (constraint is CheckConstraint checkConstraint) {
           VisitCheckConstraint(checkConstraint);
-        var uniqueConstraint = constraint as UniqueConstraint;
-        if (uniqueConstraint != null)
+        }
+        if (constraint is UniqueConstraint uniqueConstraint) {
           VisitUniqueConstraint(uniqueConstraint);
+        }
         if (constraint is ForeignKey foreignKey) {
           VisitForeignKeyConstraint(foreignKey);
         }
@@ -1623,40 +2166,49 @@ namespace Xtensive.Sql.Compiler
 
     private void VisitForeignKeyConstraint(ForeignKey constraint)
     {
-      AppendTranslated(constraint, ConstraintSection.ForeignKey);
-      if (constraint.ReferencedColumns.Count == 0)
+      if (constraint.ReferencedColumns.Count == 0) {
         throw new SqlCompilerException(Strings.ExReferencedColumnsCountCantBeLessThenOne);
-      if (constraint.Columns.Count == 0)
+      }
+      if (constraint.Columns.Count == 0) {
         throw new SqlCompilerException(Strings.ExReferencingColumnsCountCantBeLessThenOne);
+      }
+      AppendTranslated(constraint, ConstraintSection.ForeignKey);
       using (context.EnterCollectionScope()) {
-        foreach (TableColumn column in constraint.Columns) {
+        foreach (var column in constraint.Columns) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
-          AppendTranslated(column, TableColumnSection.Entry);
+          AppendSpaceIfNecessary();
+          translator.Translate(context, column, TableColumnSection.Entry);
         }
       }
 
       AppendTranslated(constraint, ConstraintSection.ReferencedColumns);
       using (context.EnterCollectionScope()) {
-        foreach (TableColumn tc in constraint.ReferencedColumns) {
+        foreach (var tc in constraint.ReferencedColumns) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
-          AppendTranslated(tc, TableColumnSection.Entry);
+          AppendSpaceIfNecessary();
+          translator.Translate(context, tc, TableColumnSection.Entry);
         }
       }
     }
 
     private void VisitUniqueConstraint(UniqueConstraint constraint)
     {
-      if (constraint is PrimaryKey)
+      if (constraint is PrimaryKey) {
         AppendTranslated(constraint, ConstraintSection.PrimaryKey);
-      else
+      }
+      else {
         AppendTranslated(constraint, ConstraintSection.Unique);
+      }
 
-      if (constraint.Columns.Count > 0)
-        using (context.EnterCollectionScope())
-          foreach (TableColumn tc in constraint.Columns) {
+      if (constraint.Columns.Count > 0) {
+        using (context.EnterCollectionScope()) {
+          foreach (var tc in constraint.Columns) {
             AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
-            AppendTranslated(tc, TableColumnSection.Entry);
+            AppendSpaceIfNecessary();
+            translator.Translate(context, tc, TableColumnSection.Entry);
           }
+        }
+      }
     }
 
     private void VisitCheckConstraint(CheckConstraint constraint)
@@ -1665,165 +2217,66 @@ namespace Xtensive.Sql.Compiler
       constraint.Condition.AcceptVisitor(this);
     }
 
-    public virtual void Visit(SqlExtract node)
-    {
-      using (context.EnterScope(node)) {
-        AppendTranslated(node, ExtractSection.Entry);
-        var part = node.DateTimePart != SqlDateTimePart.Nothing
-          ? translator.Translate(node.DateTimePart)
-          : node.IntervalPart != SqlIntervalPart.Nothing
-            ? translator.Translate(node.IntervalPart)
-            : translator.Translate(node.DateTimeOffsetPart);
-        context.Output.Append(part);
-        AppendSpaceIfNecessary();
-        AppendTranslated(node, ExtractSection.From);
-        node.Operand.AcceptVisitor(this);
-        AppendTranslated(node, ExtractSection.Exit);
-      }
-    }
+    #endregion
 
-    public virtual void Visit(SqlComment node)
-    {
-      translator.Translate(context.Output, node);
-    }
+    #region Append methods - helpers to write to output
 
-    public virtual void VisitCommentIfBefore(SqlComment node)
-    {
-      if (configuration.CommentLocation != SqlCommentLocation.BeforeStatement)
-        return;
-      Visit(node);
-      context.Output.Append(translator.NewLine);
-    }
-
-    public virtual void VisitCommentIfWithin(SqlComment node)
-    {
-      if (configuration.CommentLocation != SqlCommentLocation.WithinStatement)
-        return;
-      Visit(node);
-    }
-
-    public virtual void VisitCommentIfAfter(SqlComment node)
-    {
-      if (configuration.CommentLocation != SqlCommentLocation.AfterStatement)
-        return;
-      context.Output.Append(translator.NewLine);
-      Visit(node);
-    }
-
-    private void TranslateDynamicFilterViaInOperator(SqlDynamicFilter node)
-    {
-      int numberOfExpressions = node.Expressions.Count;
-      bool isMulticolumn = numberOfExpressions > 1;
-      string delimiter = translator.RowItemDelimiter + " ";
-      context.Output.Append(translator.OpeningParenthesis);
-      SqlExpression filteredExpression = isMulticolumn ? SqlDml.Row(node.Expressions) : node.Expressions[0];
-      filteredExpression.AcceptVisitor(this);
-      AppendTranslated(SqlNodeType.In);
-      context.Output.Append(translator.RowBegin);
-      using (context.EnterCycleBodyScope(node.Id, delimiter)) {
-        if (isMulticolumn) {
-          context.Output.Append(translator.RowBegin);
-          for (int i = 0; i < numberOfExpressions; i++) {
-            context.Output.AppendCycleItem(i);
-            if (i != numberOfExpressions - 1) {
-              AppendRowItemDelimiter();
-            }
-          }
-          context.Output.Append(translator.RowEnd);
-        }
-        else
-          context.Output.AppendCycleItem(0);
-      }
-      using (context.EnterCycleEmptyCaseScope(node.Id)) {
-        SqlExpression nullExpression = isMulticolumn
-          ? SqlDml.Row(Enumerable.Repeat(SqlDml.Null, numberOfExpressions).ToArray())
-          : (SqlExpression) SqlDml.Null;
-        nullExpression.AcceptVisitor(this);
-        // Append "and false" to avoid result beeing "undefined" rather than "false"
-        context.Output.Append(translator.ClosingParenthesis);
-        AppendTranslated(SqlNodeType.And);
-        context.Output.Append(translator.OpeningParenthesis);
-        WriteFalseExpression();
-      }
-      context.Output.Append(translator.RowEnd);
-      context.Output.Append(translator.ClosingParenthesis);
-    }
-
-    private void TranslateDynamicFilterViaMultipleComparisons(SqlDynamicFilter node)
-    {
-      var expressions = node.Expressions;
-      int numberOfExpressions = expressions.Count;
-      string delimiter = " " + translator.Translate(SqlNodeType.Or) + " ";
-      using (context.EnterCycleBodyScope(node.Id, delimiter)) {
-        context.Output.Append(translator.OpeningParenthesis);
-        for (int i = 0; i < numberOfExpressions; i++) {
-          expressions[i].AcceptVisitor(this);
-          AppendTranslated(SqlNodeType.Equals);
-          context.Output.AppendCycleItem(i);
-          if (i != numberOfExpressions - 1) {
-            AppendSpaceIfNecessary();
-            AppendTranslated(SqlNodeType.And);
-          }
-        }
-        context.Output.Append(translator.ClosingParenthesis);
-      }
-      using (context.EnterCycleEmptyCaseScope(node.Id)) {
-        WriteFalseExpression();
-      }
-    }
-
-    protected void AppendDelimiter(string text, SqlDelimiterType type = SqlDelimiterType.Row)
+    protected void AppendDelimiter(string delimiter, SqlDelimiterType type = SqlDelimiterType.Row)
     {
       switch (type) {
         case SqlDelimiterType.Column:
-          context.Output.Append(translator.NewLine);
+          _ = context.Output.AppendNewLine(translator.NewLine);
           context.Output.AppendIndent();
           break;
       }
-      context.Output.Append(text);
+      //_ = context.Output.AppendClosingPunctuation(delimiter);
+      _ = context.Output.Append(delimiter);
       AppendSpaceIfNecessary();
     }
 
+    protected void AppendBatchDelimiter() =>
+      context.Output.AppendClosingPunctuation(translator.BatchItemDelimiter);
 
-    protected void AppendColumnDelimiter()
-    {
+    protected void AppendColumnDelimiter() =>
       AppendDelimiter(translator.ColumnDelimiter);
-    }
 
-    protected void AppendDdlStatementDelimiter()
-    {
+    protected void AppendDdlStatementDelimiter() =>
       AppendDelimiter(translator.DdlStatementDelimiter, SqlDelimiterType.Column);
-    }
 
-    protected void AppendRowItemDelimiter()
-    {
+    protected void AppendRowItemDelimiter() =>
       AppendDelimiter(translator.RowItemDelimiter);
+
+    protected void AppendCollectionDelimiterIfNecessary(System.Action action)
+    {
+      if (!context.Output.StartOfCollection) {
+        action();
+      }
+      context.Output.StartOfCollection = false;
     }
 
-    protected void AppendSpaceIfNecessary()
-    {
-      context.Output.AppendSpaceIfNecessary();
-    }
+    protected void AppendSpaceIfNecessary() => context.Output.AppendSpaceIfNecessary();
+
+    protected void AppendSpace() => context.Output.AppendSpace();
 
     protected void AppendTranslated(SqlNodeType nodeType)
     {
-      AppendSpaceIfNecessary();
-      context.Output.Append(translator.Translate(nodeType));
-      AppendSpaceIfNecessary();
+      AppendSpace();
+      translator.Translate(context.Output, nodeType);
+      AppendSpace();
     }
 
-    protected void AppendTranslated(SqlAggregate node, NodeSection section)
+    protected void AppendTranslatedEntry(SqlAggregate node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, node, NodeSection.Entry);
     }
+    protected void AppendTranslatedExit(SqlAggregate node) =>
+      translator.Translate(context, node, NodeSection.Exit);
 
     protected void AppendTranslated(SqlArray node, ArraySection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlBetween node, BetweenSection section)
@@ -1833,18 +2286,28 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlBinary node, NodeSection section)
+    protected void AppendTranslatedEntry(SqlBetween node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, node, BetweenSection.Entry);
     }
+
+    protected void AppendTranslatedExit(SqlBetween node) =>
+      translator.Translate(context, node, BetweenSection.Exit);
+
+    protected void AppendTranslatedEntry(SqlBinary node)
+    {
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node, NodeSection.Entry);
+    }
+
+    protected void AppendTranslatedExit(SqlBinary node) =>
+      translator.Translate(context, node, NodeSection.Exit);
 
     protected void AppendTranslated(SqlBreak node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCase node, CaseSection section)
@@ -1852,6 +2315,18 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
       AppendSpaceIfNecessary();
+    }
+
+    protected void AppendTranslatedEntry(SqlCase node)
+    {
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node, CaseSection.Entry);
+    }
+
+    protected void AppendTranslatedExit(SqlCase node)
+    {
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node, CaseSection.Exit);
     }
 
     protected void AppendTranslated(SqlCase node, SqlExpression item, CaseSection section)
@@ -1865,7 +2340,6 @@ namespace Xtensive.Sql.Compiler
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAlterDomain node, AlterDomainSection section)
@@ -1875,12 +2349,17 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlAlterSequence node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
+    protected void AppendTranslatedEntry(SqlAlterDomain node) =>
+      translator.Translate(context, node, AlterDomainSection.Entry);
+
+    protected void AppendTranslatedExit(SqlAlterDomain node) =>
+      translator.Translate(context, node, AlterDomainSection.Exit);
+
+    protected void AppendTranslatedEntry(SqlAlterSequence node) =>
+      translator.Translate(context, node, NodeSection.Entry);
+
+    protected void AppendTranslatedExit(SqlAlterSequence node) =>
+      translator.Translate(context, node, NodeSection.Exit);
 
     protected void AppendTranslated(SqlAlterTable node, AlterTableSection section)
     {
@@ -1889,18 +2368,19 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlCloseCursor node)
-    {
-      AppendSpaceIfNecessary();
+    protected void AppendTranslatedEntry(SqlAlterTable node) =>
+      translator.Translate(context, node, AlterTableSection.Entry);
+
+    protected void AppendTranslatedExit(SqlAlterTable node) =>
+      translator.Translate(context, node, AlterTableSection.Exit);
+
+    protected void AppendTranslated(SqlCloseCursor node) =>
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
 
     protected void AppendTranslated(SqlCollate node, NodeSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlColumnRef node, ColumnSection section)
@@ -1910,144 +2390,165 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlConcat node, NodeSection section)
+    protected void AppendTranslatedEntry(SqlConcat node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, node, NodeSection.Entry);
+    }
+
+    protected void AppendTranslatedExit(SqlConcat node)
+    {
+      translator.Translate(context, node, NodeSection.Exit);
     }
 
     protected void AppendTranslated(TableColumn column, TableColumnSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, column, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(Constraint constraint, ConstraintSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, constraint, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlCommand node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlContinue node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
+    }
+
+    protected void AppendTranslatedEntry(SqlCreateAssertion node)
+    {
+      translator.Translate(context, node, NodeSection.Entry);
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlCreateAssertion node, NodeSection section)
+    protected void AppendTranslatedExit(SqlCreateAssertion node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, node, NodeSection.Entry);
     }
 
     protected void AppendTranslated(SqlCreateDomain node, CreateDomainSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
+    }
+
+    protected void AppendTranslatedEntry(SqlCreateDomain node)
+    {
+      translator.Translate(context, node, CreateDomainSection.Entry);
       AppendSpaceIfNecessary();
     }
+
+    protected void AppendTranslatedExit(SqlCreateDomain node) =>
+      translator.Translate(context, node, CreateDomainSection.Exit);
 
     protected void AppendTranslated(SqlCreateIndex node, CreateIndexSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
+    }
+
+    protected void AppendTranslatedEntry(SqlCreateIndex node)
+    {
+      translator.Translate(context, node, CreateIndexSection.Entry);
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlCreatePartitionFunction node)
+    protected void AppendTranslatedExit(SqlCreateIndex node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, node, CreateIndexSection.Exit);
     }
 
     protected void AppendTranslated(SequenceDescriptor descriptor, SequenceDescriptorSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, descriptor, section);
+    }
+
+    protected void AppendTranslatedEntry(SqlCreateSchema node)
+    {
+      translator.Translate(context, node, NodeSection.Entry);
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlAlterPartitionFunction node)
+    protected void AppendTranslatedExit(SqlCreateSchema node) =>
+      translator.Translate(context, node, NodeSection.Exit);
+
+    protected void AppendTranslatedEntry(SqlCreateSequence node)
     {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
+      translator.Translate(context, node, NodeSection.Entry);
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlCreatePartitionScheme node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlCreateSchema node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlCreateSequence node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
+    protected void AppendTranslatedExit(SqlCreateSequence node) =>
+      translator.Translate(context, node, NodeSection.Exit);
 
     protected void AppendTranslated(SqlCreateTable node, CreateTableSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
+    }
+
+    protected void AppendTranslatedEntry(SqlCreateTable node)
+    {
+      translator.Translate(context, node, CreateTableSection.Entry);
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlCreateView node, NodeSection section)
+    protected void AppendTranslatedExit(SqlCreateTable node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
+      translator.Translate(context, node, CreateTableSection.Exit);
+    }
+
+    protected void AppendTranslatedEntry(SqlCreateView node)
+    {
+      translator.Translate(context, node, NodeSection.Entry);
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlCursor node)
+    protected void AppendTranslatedExit(SqlCreateView node)
     {
       AppendSpaceIfNecessary();
+      translator.Translate(context, node, NodeSection.Exit);
+    }
+
+    protected void AppendTranslated(SqlCursor node) =>
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
 
     protected void AppendTranslated(SqlDeclareCursor node, DeclareCursorSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
+
+    protected void AppendTranslatedEntry(SqlDeclareCursor node) =>
+      translator.Translate(context, node, DeclareCursorSection.Entry);
+
+    protected void AppendTranslatedExit(SqlDeclareCursor node) =>
+      translator.Translate(context, node, DeclareCursorSection.Exit);
 
     protected void AppendTranslated(SqlDeclareVariable node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDefaultValue node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlDelete node, DeleteSection section)
@@ -2057,137 +2558,82 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlDropAssertion node)
+    protected void AppendTranslatedEntry(SqlDelete node)
     {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
+      translator.Translate(context, node, DeleteSection.Entry);
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlDropCharacterSet node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropCollation node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropDomain node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropIndex node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropPartitionFunction node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropPartitionScheme node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropSchema node)
-    {
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropSequence node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropTable node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropTranslation node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlDropView node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlTruncateTable node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
+    protected void AppendTranslatedExit(SqlDelete node) =>
+      translator.Translate(context, node, DeleteSection.Exit);
 
     protected void AppendTranslated(SqlFetch node, FetchSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
+
+    protected void AppendTranslatedEntry(SqlFetch node) =>
+      translator.Translate(context, node, FetchSection.Entry);
+
+    protected void AppendTranslatedExit(SqlFetch node) =>
+      translator.Translate(context, node, FetchSection.Exit);
 
     protected void AppendTranslated(SqlFunctionCall node, FunctionCallSection section, int position)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section, position);
-      AppendSpaceIfNecessary();
     }
+
+    protected void AppendTranslatedEntry(SqlFunctionCall node)
+    {
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node, FunctionCallSection.Entry, -1);
+    }
+
+    protected void AppendTranslatedExit(SqlFunctionCall node) =>
+      translator.Translate(context, node, FunctionCallSection.Exit, -1);
 
     protected void AppendTranslated(SqlUserFunctionCall node, FunctionCallSection section, int position)
     {
-      AppendSpaceIfNecessary();
       translator.Translate(context, node, section, position);
       AppendSpaceIfNecessary();
     }
+
+    protected void AppendTranslatedEntry(SqlUserFunctionCall node)
+    {
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node, FunctionCallSection.Entry, -1);
+    }
+
+    protected void AppendTranslatedExit(SqlUserFunctionCall node) =>
+      translator.Translate(context, node, FunctionCallSection.Exit, -1);
 
     protected void AppendTranslated(SqlIf node, IfSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlInsert node, InsertSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
+    }
+
+    protected void AppendTranslatedEntry(SqlInsert node)
+    {
+      translator.Translate(context, node, InsertSection.Entry);
       AppendSpaceIfNecessary();
     }
+
+    protected void AppendTranslatedExit(SqlInsert node) =>
+      translator.Translate(context, node, InsertSection.Exit);
 
     protected void AppendTranslated(SqlJoinExpression node, JoinSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlLike node, LikeSection section)
@@ -2197,53 +2643,49 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
+    protected void AppendTranslatedEntry(SqlLike node)
+    {
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node, LikeSection.Entry);
+    }
+
+    protected void AppendTranslatedExit(SqlLike node) =>
+      translator.Translate(context, node, LikeSection.Exit);
+
     protected void AppendTranslated(SqlMatch node, MatchSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlNull node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlNextValue node, NodeSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SchemaNode node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlOpenCursor node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlOrder node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlQueryRef node, TableSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlQueryExpression node, QueryExpressionSection section)
@@ -2253,26 +2695,20 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlRow node, NodeSection section)
+    protected void AppendTranslatedEntry(SqlQueryExpression node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, node, QueryExpressionSection.Entry);
     }
 
-    protected void AppendTranslated(SqlRowNumber node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
+    protected void AppendTranslatedExit(SqlQueryExpression node) =>
+      translator.Translate(context, node, QueryExpressionSection.Exit);
 
-    protected void AppendTranslated(SqlRenameTable node)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
-    }
+    protected void AppendTranslated(SqlRow node, NodeSection section) =>
+      translator.Translate(context, node, section);
+
+    protected void AppendTranslated(SqlRowNumber node, NodeSection section) =>
+      translator.Translate(context, node, section);
 
     protected void AppendTranslated(SqlSelect node, SelectSection section)
     {
@@ -2281,47 +2717,41 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
+    protected void AppendTranslatedEntry(SqlSelect node)
+    {
+      translator.Translate(context, node, SelectSection.Entry);
+      AppendSpaceIfNecessary();
+    }
+
+    protected void AppendTranslatedExit(SqlSelect node) =>
+      translator.Translate(context, node, SelectSection.Exit);
+
     protected void AppendTranslated(SqlStatementBlock node, NodeSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlSubQuery node, NodeSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
-
-    protected void AppendTranslated(SqlTableColumn node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlTableRef node, TableSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlTrim node, TrimSection section)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlUnary node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
+    protected void AppendTranslated(SqlUnary node, NodeSection section) =>
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
 
     protected void AppendTranslated(SqlUpdate node, UpdateSection section)
     {
@@ -2330,18 +2760,25 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlUserColumn node, NodeSection section)
+    protected void AppendTranslatedEntry(SqlUpdate node) =>
+      translator.Translate(context, node, UpdateSection.Entry);
+
+    protected void AppendTranslatedExit(SqlUpdate node) =>
+      translator.Translate(context, node, UpdateSection.Exit);
+
+    protected void AppendTranslatedEntry(SqlUserColumn node)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, node, NodeSection.Entry);
     }
+
+    protected void AppendTranslatedExit(SqlUserColumn node) =>
+      translator.Translate(context, node, NodeSection.Exit);
 
     protected void AppendTranslated(SqlVariable node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlWhile node, WhileSection section)
@@ -2358,45 +2795,105 @@ namespace Xtensive.Sql.Compiler
       AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlAlterPartitionScheme node)
+    protected void AppendTranslatedEntry(SqlExtract extract)
     {
       AppendSpaceIfNecessary();
-      translator.Translate(context, node);
-      AppendSpaceIfNecessary();
+      translator.Translate(context, extract, ExtractSection.Entry);
     }
+
+    protected void AppendTranslatedExit(SqlExtract extract) =>
+      translator.Translate(context, extract, ExtractSection.Exit);
 
     protected void AppendTranslated(SqlNative node)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
-      AppendSpaceIfNecessary();
     }
 
-    protected void AppendTranslated(SqlAssignment node, NodeSection section)
-    {
-      AppendSpaceIfNecessary();
+    protected void AppendTranslated(SqlAssignment node, NodeSection section) =>
       translator.Translate(context, node, section);
-      AppendSpaceIfNecessary();
-    }
 
     protected void AppendTranslatedLiteral(object literalValue)
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, literalValue);
-      AppendSpaceIfNecessary();
     }
 
-    private void WriteFalseExpression()
+    #endregion
+
+    private void TranslateDynamicFilterViaInOperator(SqlDynamicFilter node)
     {
-      SqlDml.Equals(SqlDml.Literal(1), SqlDml.Literal(0)).AcceptVisitor(this);
+      var numberOfExpressions = node.Expressions.Count;
+      var isMulticolumn = numberOfExpressions > 1;
+      var delimiter = translator.RowItemDelimiter + " ";
+      _ = context.Output.Append(translator.OpeningParenthesis);
+      var filteredExpression = isMulticolumn ? SqlDml.Row(node.Expressions) : node.Expressions[0];
+      filteredExpression.AcceptVisitor(this);
+      AppendTranslated(SqlNodeType.In);
+      _ = context.Output.Append(translator.RowBegin);
+      using (context.EnterCycleBodyScope(node.Id, delimiter)) {
+        if (isMulticolumn) {
+          _ = context.Output.Append(translator.RowBegin);
+          for (int i = 0; i < numberOfExpressions; i++) {
+            context.Output.AppendCycleItem(i);
+            if (i != numberOfExpressions - 1) {
+              AppendRowItemDelimiter();
+            }
+          }
+          _ = context.Output.Append(translator.RowEnd);
+        }
+        else {
+          context.Output.AppendCycleItem(0);
+        }
+      }
+      using (context.EnterCycleEmptyCaseScope(node.Id)) {
+        var nullExpression = isMulticolumn
+          ? SqlDml.Row(Enumerable.Repeat(SqlDml.Null, numberOfExpressions).ToArray())
+          : (SqlExpression) SqlDml.Null;
+        nullExpression.AcceptVisitor(this);
+        // Append "and false" to avoid result beeing "undefined" rather than "false"
+        _ = context.Output.Append(translator.ClosingParenthesis);
+        AppendTranslated(SqlNodeType.And);
+        _ = context.Output.Append(translator.OpeningParenthesis);
+        WriteFalseExpression();
+      }
+      _ = context.Output.Append(translator.RowEnd);
+      _ = context.Output.Append(translator.ClosingParenthesis);
     }
+
+    private void TranslateDynamicFilterViaMultipleComparisons(SqlDynamicFilter node)
+    {
+      var expressions = node.Expressions;
+      var numberOfExpressions = expressions.Count;
+      var delimiter = " " + translator.TranslateToString(SqlNodeType.Or) + " ";
+      using (context.EnterCycleBodyScope(node.Id, delimiter)) {
+        _ = context.Output.Append(translator.OpeningParenthesis);
+        for (var i = 0; i < numberOfExpressions; i++) {
+          expressions[i].AcceptVisitor(this);
+          AppendTranslated(SqlNodeType.Equals);
+          context.Output.AppendCycleItem(i);
+          if (i != numberOfExpressions - 1) {
+            AppendSpaceIfNecessary();
+            AppendTranslated(SqlNodeType.And);
+          }
+        }
+        _ = context.Output.Append(translator.ClosingParenthesis);
+      }
+      using (context.EnterCycleEmptyCaseScope(node.Id)) {
+        WriteFalseExpression();
+      }
+    }
+
+    private void WriteFalseExpression() =>
+      SqlDml.Equals(SqlDml.Literal(1), SqlDml.Literal(0)).AcceptVisitor(this);
 
     private static IEnumerable<SqlStatement> FlattenBatch(SqlBatch batch)
     {
-      foreach (SqlStatement statement in batch) {
+      foreach (var statement in batch) {
         if (statement is SqlBatch nestedBatch) {
-          foreach (var nestedStatement in FlattenBatch(nestedBatch))
+          foreach (var nestedStatement in FlattenBatch(nestedBatch)) {
             yield return nestedStatement;
+          }
         }
         else {
           yield return statement;
@@ -2404,20 +2901,11 @@ namespace Xtensive.Sql.Compiler
       }
     }
 
-    protected bool CheckFeature(ColumnFeatures features)
-    {
-      return Driver.ServerInfo.Column.Features.Supports(features);
-    }
+    protected bool CheckFeature(ColumnFeatures features) => Driver.ServerInfo.Column.Features.Supports(features);
 
-    protected bool CheckFeature(IndexFeatures features)
-    {
-      return Driver.ServerInfo.Index.Features.Supports(features);
-    }
+    protected bool CheckFeature(IndexFeatures features) => Driver.ServerInfo.Index.Features.Supports(features);
 
-    protected bool CheckFeature(QueryFeatures features)
-    {
-      return Driver.ServerInfo.Query.Features.Supports(features);
-    }
+    protected bool CheckFeature(QueryFeatures features) => queryFeatures.Supports(features);
 
     // Constructors
 
@@ -2430,6 +2918,7 @@ namespace Xtensive.Sql.Compiler
     {
       translator = driver.Translator;
       decimalType = driver.TypeMappings[WellKnownTypes.Decimal].MapType();
+      queryFeatures = Driver.ServerInfo.Query.Features;
     }
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2021 Xtensive LLC.
+// Copyright (C) 2021-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -13,14 +13,14 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
     {
       var output = context.Output;
       switch (section) {
-        case JoinSection.Specification: {
+        case JoinSection.Specification:
           if (node.Expression == null) {
             switch (node.JoinType) {
               case SqlJoinType.CrossApply:
-                output.Append("CROSS JOIN LATERAL");
+                _ = output.Append("CROSS JOIN LATERAL");
                 break;
               case SqlJoinType.LeftOuterApply:
-                output.Append("LEFT JOIN LATERAL");
+                _ = output.Append("LEFT JOIN LATERAL");
                 break;
               default:
                 base.Translate(context, node, section);
@@ -28,17 +28,18 @@ namespace Xtensive.Sql.Drivers.Firebird.v4_0
             }
             return;
           }
-          output.Append(Translate(node.JoinType) + " JOIN");
-          return;
-        }
-        case JoinSection.Exit: {
+          Translate(output, node.JoinType);
+          _ = output.Append(" JOIN");
+          break;
+        case JoinSection.Exit:
           if (node.JoinType == SqlJoinType.LeftOuterApply) {
-            output.Append("ON TRUE");
+            _ = output.Append("ON TRUE");
           }
-          return;
-        }
+          break;
+        default:
+          base.Translate(context, node, section);
+          break;
       }
-      base.Translate(context, node, section);
     }
 
     // Constructors

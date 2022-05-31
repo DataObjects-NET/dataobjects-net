@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.03.17
 
@@ -464,7 +464,9 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
         batch.Add(SqlDdl.Alter(foreignKey.Table, SqlDdl.DropConstraint(foreignKey)));
       foreach (var view in schema.Views) {
         batch.Add(SqlDdl.Drop(view));
-        schema.Tables.Remove(schema.Tables[view.Name]);
+        if (schema.Tables[view.Name] != null) {
+          _ = schema.Tables.Remove(schema.Tables[view.Name]);
+        }
       }
       foreach (var table in schema.Tables)
         batch.Add(SqlDdl.Drop(table));
