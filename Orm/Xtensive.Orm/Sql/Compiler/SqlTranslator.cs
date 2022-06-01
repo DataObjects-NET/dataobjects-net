@@ -1413,6 +1413,9 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.DefaultValues:
           _ = output.Append("DEFAULT VALUES");
           break;
+        case InsertSection.NewRow:
+          _ = output.Append("), (");
+          break;
       }
     }
 
