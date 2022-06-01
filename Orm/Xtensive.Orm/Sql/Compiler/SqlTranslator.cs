@@ -1526,6 +1526,9 @@ namespace Xtensive.Sql.Compiler
         case TimeSpan timeSpan:
           _ = output.Append(SqlHelper.TimeSpanToString(timeSpan, TimeSpanFormatString));
           break;
+        case TypeInfo typeInfo:
+          output.AppendPlaceholderWithId(typeInfo);
+          break;
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
