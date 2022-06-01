@@ -12,21 +12,6 @@ namespace Xtensive.Sql.Drivers.MySql.v8_0
 {
   internal class Translator : v5_7.Translator
   {
-    /// <inheritdoc/>
-    public override string Translate(SqlCompilerContext context, SqlCast node, NodeSection section)
-    {
-      if (node.Type.Type==SqlType.DateTime)
-        switch (section) {
-        case NodeSection.Entry:
-          return "CAST(";
-        case NodeSection.Exit:
-          return "AS " + Translate(node.Type) + "(6))";
-        default:
-          throw new ArgumentOutOfRangeException("section");
-        }
-      return base.Translate(context, node, section);
-    }
-
     // Constructors
 
     public Translator(SqlDriver driver)
