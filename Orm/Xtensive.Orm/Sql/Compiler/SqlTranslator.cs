@@ -1227,6 +1227,12 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
+    public virtual void Translate(SqlCompilerContext context, SqlTruncateTable node)
+    {
+      _ = context.Output.Append("TRUNCATE TABLE ");
+      Translate(context, node.Table);
+    }
+
     /// <summary>
     /// Translates <see cref="SqlDropTranslation"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
     /// </summary>
