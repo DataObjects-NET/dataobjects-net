@@ -2576,4 +2576,7 @@ Error: {1}</value>
   <data name="ExUnsupportedDistinctBy" xml:space="preserve">
     <value>IQueryable.DistinctBy() extension is not supported. Use '.AsEnumerable().DistinctBy()' instead.</value>
   </data>
+  <data name="ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed" xml:space="preserve">
+    <value>Session '{0}' is actively persisting changes, persistent objects' changes are not allowed.</value>
+  </data>
 </root>

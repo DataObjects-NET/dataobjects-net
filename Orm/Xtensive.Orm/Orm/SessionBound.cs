@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -15,17 +15,10 @@ namespace Xtensive.Orm
   /// </summary>
   public abstract class SessionBound : ISessionBound
   {
-    private Session session;
-
     /// <summary>
     /// Gets <see cref="Session"/> which current instance is bound to.
     /// </summary>
-    public Session Session {
-      [DebuggerStepThrough]
-      get { return session; }
-      [DebuggerStepThrough]
-      internal set { session = value; }
-    }
+    public Session Session { [DebuggerStepThrough] get; }
 
     /// <summary>
     /// Ensures <see cref="Session"/> of <paramref name="other"/> is the same 
@@ -36,15 +29,27 @@ namespace Xtensive.Orm
     /// 	<see cref="SessionBound"/> differs from this <see cref="Session"/>.</exception>
     protected void EnsureTheSameSession(SessionBound other)
     {
-      if (Session!=other.Session)
-        throw new ArgumentException(Strings.ExSessionOfAnotherSessionBoundMustBeTheSame, "other");
+      if (Session != other.Session)
+        throw new ArgumentException(Strings.ExSessionOfAnotherSessionBoundMustBeTheSame, nameof(other));
+    }
+
+    /// <summary>
+    /// Ensures that <see cref="Session"/> is not on stage when changes are persisting
+    /// and any changes are forbidden.
+    /// </summary>
+    protected void EnsureChangesAreNotPersisting()
+    {
+      if (Session.ChangesInProcessing) {
+        throw new InvalidOperationException(
+          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
+      }
     }
 
     #region IContextBound<Session> Members
 
     Session IContextBound<Session>.Context {
       [DebuggerStepThrough]
-      get { return session; }
+      get { return Session; }
     }
 
     #endregion
@@ -70,11 +75,10 @@ namespace Xtensive.Orm
     protected SessionBound(Session session)
     {
       if (session==null)
-        throw new InvalidOperationException(
-          Strings.ExSessionIsNotOpen);
+        throw new InvalidOperationException(Strings.ExSessionIsNotOpen);
       session.EnsureNotDisposed();
 
-      this.session = session;
+      this.Session = session;
     }
   }
 }

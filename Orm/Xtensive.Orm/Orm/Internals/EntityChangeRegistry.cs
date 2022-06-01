@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -16,9 +16,9 @@ namespace Xtensive.Orm.Internals
   /// </summary>
   public sealed class EntityChangeRegistry : SessionBound
   {
-    private readonly HashSet<EntityState> @new = new HashSet<EntityState>();
-    private readonly HashSet<EntityState> modified = new HashSet<EntityState>();
-    private readonly HashSet<EntityState> removed = new HashSet<EntityState>();
+    private readonly HashSet<EntityState> @new = new();
+    private readonly HashSet<EntityState> modified = new();
+    private readonly HashSet<EntityState> removed = new();
     private int count;
 
     /// <summary>
@@ -34,7 +34,8 @@ namespace Xtensive.Orm.Internals
     {
       // Remove-create sequences fix for Issue 690
       if (item.PersistenceState == PersistenceState.New && removed.Contains(item)) {
-        removed.Remove(item);
+        EnsureChangesAreNotPersisting();
+        _ = removed.Remove(item);
         count--;
         if (item.DifferentialTuple.Difference == null) {
           item.SetPersistenceState(PersistenceState.Synchronized);
@@ -43,18 +44,22 @@ namespace Xtensive.Orm.Internals
         item.SetPersistenceState(PersistenceState.Modified);
       }
       else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item)) {
-        @new.Remove(item);
+        EnsureChangesAreNotPersisting();
+        _ = @new.Remove(item);
         count--;
         return;
       }
       else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
-        modified.Remove(item);
+        EnsureChangesAreNotPersisting();
+        _ = modified.Remove(item);
         count--;
       }
 
       var container = GetContainer(item.PersistenceState);
-      if (container.Add(item))
+      EnsureChangesAreNotPersisting();
+      if (container.Add(item)) {
         count++;
+      }
     }
 
     /// <summary>

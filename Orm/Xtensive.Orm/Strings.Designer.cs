@@ -3895,6 +3895,15 @@ namespace Xtensive {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Session &apos;{0}&apos; is actively persisting changes, persistent objects&apos; changes are not allowed..
+        /// </summary>
+        internal static string ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed {
+            get {
+                return ResourceManager.GetString("ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Session &apos;{0}&apos; still uses single available connection..
         /// </summary>
         internal static string ExSessionXStillUsesSingleAvailableConnection {
@@ -5027,6 +5036,15 @@ namespace Xtensive {
         internal static string ExUnknownInSyntax {
             get {
                 return ResourceManager.GetString("ExUnknownInSyntax", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to IQueryable.DistinctBy() extension is not supported. Use &apos;.AsEnumerable().DistinctBy()&apos; instead..
+        /// </summary>
+        internal static string ExUnsupportedDistinctBy {
+            get {
+                return ResourceManager.GetString("ExUnsupportedDistinctBy", resourceCulture);
             }
         }
         
@@ -7387,12 +7405,6 @@ namespace Xtensive {
         internal static string ZeroAssemblyVersion {
             get {
                 return ResourceManager.GetString("ZeroAssemblyVersion", resourceCulture);
-            }
-        }
-
-        internal static string ExUnsupportedDistinctBy {
-            get {
-                return ResourceManager.GetString("ExUnsupportedDistinctBy", resourceCulture);
             }
         }
     }

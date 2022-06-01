@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -112,6 +112,12 @@ namespace Xtensive.Orm
     /// Gets a value indicating whether <see cref="SaveChanges"/> method is running.
     /// </summary>
     internal bool IsPersisting { get; private set; }
+
+    /// <summary>
+    /// Gets a value indicating that saving changes in that stage when any other persistent
+    /// object cannot be changed within session.
+    /// </summary>
+    internal bool ChangesInProcessing { get; private set; }
 
     /// <summary>
     /// Gets a value indicating whether session is disconnected:
