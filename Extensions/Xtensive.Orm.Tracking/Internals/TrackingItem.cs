@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2012.05.16
 
@@ -16,23 +16,15 @@ namespace Xtensive.Orm.Tracking
   [DebuggerDisplay("{Key}")]
   internal sealed class TrackingItem : ITrackingItem
   {
-    private IList<ChangedValue> cachedChangedValues;
+    private IReadOnlyList<ChangedValue> cachedChangedValues;
 
-    public Key Key { get; private set; }
+    public Key Key { get; }
 
     public DifferentialTuple RawData { get; private set; }
 
     public TrackingItemState State { get; private set; }
 
-    public IList<ChangedValue> ChangedValues
-    {
-      get
-      {
-        if (cachedChangedValues==null)
-          cachedChangedValues = CalculateChangedValues().ToList().AsReadOnly();
-        return cachedChangedValues;
-      }
-    }
+    public IReadOnlyList<ChangedValue> ChangedValues => cachedChangedValues ??= CalculateChangedValues().ToList().AsReadOnly();
 
     public void MergeWith(TrackingItem source)
     {
