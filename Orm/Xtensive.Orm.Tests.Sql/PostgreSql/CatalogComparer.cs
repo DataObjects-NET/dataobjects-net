@@ -1,8 +1,9 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
 using System;
+using System.Collections.Generic;
 using NUnit.Framework;
 using Xtensive.Sql;
 using Xtensive.Sql.Model;
@@ -12,20 +13,14 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
 {
   internal class CatalogComparer
   {
-    public CatalogComparer(SqlConnection conn)
-    {
-      connection = conn;
-    }
-
     private readonly SqlConnection connection;
-
 
     public void CompareCatalogs(Catalog created, Catalog extracted)
     {
       Assert.AreEqual(created.Name, extracted.Name);
 
-      foreach (Schema s1 in created.Schemas) {
-        Schema s2 = extracted.Schemas[s1.Name];
+      foreach (var s1 in created.Schemas) {
+        var s2 = extracted.Schemas[s1.Name];
         Assert.IsNotNull(s2);
         CompareSchemas(s1, s2);
       }
@@ -47,29 +42,29 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.AreEqual(s1.Tables.Count, s2.Tables.Count);
       Assert.AreEqual(s1.Views.Count, s2.Views.Count);
 
-      foreach (Xtensive.Sql.Model.Domain d1 in s1.Domains) {
-        Xtensive.Sql.Model.Domain d2 = s2.Domains[d1.Name];
+      foreach (var d1 in s1.Domains) {
+        var d2 = s2.Domains[d1.Name];
         Assert.IsNotNull(d2);
 
         CompareDomains(d1, d2);
       }
 
-      foreach (Sequence sq1 in s1.Sequences) {
-        Sequence sq2 = s2.Sequences[sq1.Name];
+      foreach (var sq1 in s1.Sequences) {
+        var sq2 = s2.Sequences[sq1.Name];
         Assert.IsNotNull(sq2);
 
         CompareSequences(sq1, sq2);
       }
 
-      foreach (Table t1 in s1.Tables) {
-        Table t2 = s2.Tables[t1.Name];
+      foreach (var t1 in s1.Tables) {
+        var t2 = s2.Tables[t1.Name];
         Assert.IsNotNull(t2);
 
         CompareTables(t1, t2);
       }
 
-      foreach (View v1 in s1.Views) {
-        View v2 = s2.Views[v1.Name];
+      foreach (var v1 in s1.Views) {
+        var v2 = s2.Views[v1.Name];
         Assert.IsNotNull(v2);
 
         CompareViews(v1, v2);
@@ -113,9 +108,9 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.AreEqual(sq1.SequenceDescriptor.Increment ?? 1, sq2.SequenceDescriptor.Increment);
       //if(sq1.SequenceDescriptor.IsCyclic != null)
       Assert.AreEqual(sq1.SequenceDescriptor.IsCyclic ?? false, sq2.SequenceDescriptor.IsCyclic);
-      if (sq1.SequenceDescriptor.MaxValue!=null)
+      if (sq1.SequenceDescriptor.MaxValue != null)
         Assert.AreEqual(sq1.SequenceDescriptor.MaxValue, sq2.SequenceDescriptor.MaxValue);
-      if (sq1.SequenceDescriptor.MinValue!=null)
+      if (sq1.SequenceDescriptor.MinValue != null)
         Assert.AreEqual(sq1.SequenceDescriptor.MinValue, sq2.SequenceDescriptor.MinValue);
       //start value cannot be extracted
       /*
@@ -143,20 +138,20 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.AreEqual(t1.TableColumns.Count, t2.TableColumns.Count);
       Assert.AreEqual(t1.TableConstraints.Count, t2.TableConstraints.Count);
 
-      foreach (TableColumn c1 in t1.TableColumns) {
-        TableColumn c2 = t2.TableColumns[c1.Name];
+      foreach (var c1 in t1.TableColumns) {
+        var c2 = t2.TableColumns[c1.Name];
         Assert.IsNotNull(c2);
         CompareTableColumns(c1, c2);
       }
 
-      foreach (Index i1 in t1.Indexes) {
-        Index i2 = t2.Indexes[i1.Name];
+      foreach (var i1 in t1.Indexes) {
+        var i2 = t2.Indexes[i1.Name];
         Assert.IsNotNull(i2);
         CompareTableIndexes(i1, i2);
       }
 
       foreach (TableConstraint tc1 in t1.TableConstraints) {
-        TableConstraint tc2 = t2.TableConstraints[tc1.Name];
+        var tc2 = t2.TableConstraints[tc1.Name];
         Assert.IsNotNull(tc2);
         if (tc1 is CheckConstraint)
           CompareCheckConstraints(tc1 as CheckConstraint, tc2 as CheckConstraint);
@@ -175,7 +170,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.IsNotNull(c2);
       Assert.AreEqual(c1.DataTable.Name, c2.DataTable.Name);
       CompareSqlValueTypes(c1.DataType, c2.DataType);
-      Assert.IsTrue(c1.Domain==null && c2.Domain==null || c1.Domain!=null && c2.Domain!=null && c1.Domain.Name==c2.Domain.Name);
+      Assert.IsTrue(c1.Domain == null && c2.Domain == null
+        || c1.Domain != null && c2.Domain != null && c1.Domain.Name == c2.Domain.Name);
       Assert.AreEqual(c1.IsNullable, c2.IsNullable);
       Assert.AreEqual(c1.Table.Name, c2.Table.Name);
     }
@@ -187,18 +183,19 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.AreEqual(i1.DataTable.Name, i2.DataTable.Name);
       Assert.AreEqual(i1.Filegroup, i2.Filegroup);
 
-      Version ver = connection.Driver.CoreServerInfo.ServerVersion;
+      var ver = connection.Driver.CoreServerInfo.ServerVersion;
       if (ver.Major * 100 + ver.Minor >= 802) {
-        if (i1.FillFactor!=null)
+        if (i1.FillFactor != null) {
           Assert.AreEqual(i1.FillFactor, i2.FillFactor);
+        }
       }
       Assert.AreEqual(i1.IsBitmap, i2.IsBitmap);
       Assert.AreEqual(i1.IsClustered, i2.IsClustered);
       Assert.AreEqual(i1.IsUnique, i2.IsUnique);
 
       Assert.AreEqual(i1.Columns.Count, i2.Columns.Count);
-      foreach (IndexColumn ic1 in i1.Columns) {
-        IndexColumn ic2 = i2.Columns[ic1.Name];
+      foreach (var ic1 in i1.Columns) {
+        var ic2 = i2.Columns[ic1.Name];
         Assert.IsNotNull(ic2);
         CompareIndexColumns(ic1, ic2);
       }
@@ -234,8 +231,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       CompareTableConstraints(cc1, cc2);
 
       Assert.AreEqual(cc1.Columns.Count, cc2.Columns.Count);
-      foreach (TableColumn tc1 in cc1.Columns) {
-        TableColumn tc2 = cc2.Columns[tc1.Name];
+      foreach (var tc1 in cc1.Columns) {
+        var tc2 = cc2.Columns[tc1.Name];
         Assert.IsNotNull(tc2);
         Assert.AreEqual(tc1.Table.Schema.Name, tc2.Table.Schema.Name);
         Assert.AreEqual(tc1.Table.Name, tc2.Table.Name);
@@ -259,8 +256,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.AreEqual(fk1.Table.Name, fk2.Table.Name);
       //columns
       Assert.AreEqual(fk1.Columns.Count, fk2.Columns.Count);
-      foreach (TableColumn tc1 in fk1.Columns) {
-        TableColumn tc2 = fk2.Columns[tc1.Name];
+      foreach (var tc1 in fk1.Columns) {
+        var tc2 = fk2.Columns[tc1.Name];
         Assert.IsNotNull(tc2);
         Assert.AreEqual(tc1.Table.Schema.Name, tc2.Table.Schema.Name);
         Assert.AreEqual(tc1.Table.Name, tc2.Table.Name);
@@ -270,8 +267,8 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
       Assert.AreEqual(fk1.ReferencedTable.Name, fk2.ReferencedTable.Name);
       //referenced columns
       Assert.AreEqual(fk1.ReferencedColumns.Count, fk2.ReferencedColumns.Count);
-      foreach (TableColumn tc1 in fk1.ReferencedColumns) {
-        TableColumn tc2 = fk2.ReferencedColumns[tc1.Name];
+      foreach (var tc1 in fk1.ReferencedColumns) {
+        var tc2 = fk2.ReferencedColumns[tc1.Name];
         Assert.IsNotNull(tc2);
         Assert.AreEqual(tc1.Table.Schema.Name, tc2.Table.Schema.Name);
         Assert.AreEqual(tc1.Table.Name, tc2.Table.Name);
@@ -297,6 +294,11 @@ namespace Xtensive.Orm.Tests.Sql.PostgreSql
         Assert.AreEqual(vc1.View.Name, vc2.View.Name);
       }
       /**/
+    }
+
+    public CatalogComparer(SqlConnection conn)
+    {
+      connection = conn;
     }
   }
 }
