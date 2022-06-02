@@ -114,7 +114,7 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
         case NodeSection.Entry:
           Translate(context.Output, node.NodeType);
-          _= output.AppendOpeningPunctuation(node.Distinct ? "(DISTINCT" : "(");
+          _ = output.AppendOpeningPunctuation(node.Distinct ? "(DISTINCT" : "(");
           break;
         case NodeSection.Exit:
           _ = output.AppendClosingPunctuation(")");
@@ -777,7 +777,7 @@ namespace Xtensive.Sql.Compiler
         .Append(pf.BoundaryType == BoundaryType.Left ? "LEFT" : "RIGHT")
         .AppendOpeningPunctuation(" FOR VALUES (");
 
-      var first = true ;
+      var first = true;
       foreach (var value in pf.BoundaryValues) {
         if (first)
           first = false;
@@ -1970,12 +1970,25 @@ namespace Xtensive.Sql.Compiler
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
       var actualizer = context.SqlNodeActualizer;
 
+
+      var setup = EscapeSetup;
+
       if (dbQualified) {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal());
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog));
+        _ = output.AppendLiteral(setup.Delimiter);
+      }
+
+      if (context.ParametrizeSchemaNames) {
+        _ = output.AppendLiteral(setup.Opener);
+        output.AppendPlaceholderWithId(node.Schema);
+        _ = output.AppendLiteral(setup.Closer);
       }
       else {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema), node.DbName);
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema));
       }
+      _ = output.AppendLiteral(setup.Delimiter);
+
+      TranslateIdentifier(output, dbQualified ? node.GetDbNameInternal() : node.DbName);
     }
 
     /// <summary>
