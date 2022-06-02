@@ -1385,7 +1385,7 @@ namespace Xtensive.Sql.Compiler
         else if (node.Position > 0) {
           _ = context.Output.Append(node.Position.ToString());
         }
-        AppendSpaceIfNecessary();
+        AppendSpace();
         translator.Translate(context, node, NodeSection.Exit);
       }
     }
@@ -1608,7 +1608,9 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
-      AppendTranslated(node, SelectSection.From);
+      AppendSpace();
+      translator.Translate(context, node, SelectSection.From);
+      AppendSpace();
 
       var joinedFrom = node.From as SqlJoinedTable;
       var linearJoinRequired = CheckFeature(QueryFeatures.StrictJoinSyntax) && joinedFrom != null;
