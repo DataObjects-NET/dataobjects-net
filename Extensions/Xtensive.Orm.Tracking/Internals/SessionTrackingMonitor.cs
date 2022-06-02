@@ -55,13 +55,13 @@ namespace Xtensive.Orm.Tracking
     {
       var frame = stack.Peek();
 
-      foreach (var state in accessor.GetChangedEntities(PersistenceState.Removed))
+      foreach (var state in accessor.GetChangedEntitiesInternal(PersistenceState.Removed))
         frame.Register(new TrackingItem(state.Key, TrackingItemState.Deleted, state.DifferentialTuple));
 
-      foreach (var state in accessor.GetChangedEntities(PersistenceState.New))
+      foreach (var state in accessor.GetChangedEntitiesInternal(PersistenceState.New))
         frame.Register(new TrackingItem(state.Key, TrackingItemState.Created, state.DifferentialTuple));
 
-      foreach (var state in accessor.GetChangedEntities(PersistenceState.Modified))
+      foreach (var state in accessor.GetChangedEntitiesInternal(PersistenceState.Modified))
         frame.Register(new TrackingItem(state.Key, TrackingItemState.Changed, state.DifferentialTuple));
     }
 
