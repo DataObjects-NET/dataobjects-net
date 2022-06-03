@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2021 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
@@ -37,13 +38,13 @@ namespace Xtensive.Sql.Compiler
     /// <param name="unit">Instance to compile.</param>
     /// <param name="compilerConfiguration">Configuration for compiler.</param>
     /// <returns></returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration, TypeIdRegistry typeIdRegistry = null)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       configuration = compilerConfiguration;
       context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);
-      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable);
+      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable, typeIdRegistry, compilerConfiguration.SchemaMapping);
     }
 
     #region Visitors

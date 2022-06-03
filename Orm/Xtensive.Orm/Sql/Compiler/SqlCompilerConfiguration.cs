@@ -30,6 +30,12 @@ namespace Xtensive.Sql.Compiler
     public bool DatabaseQualifiedObjects { get; set; }
 
     /// <summary>
+    /// Insert Placeholder nodes instead of real schema names
+    /// Allows to share compiled query over multiple schemas.
+    /// </summary>
+    public bool ParametrizeSchemaNames { get; set; }
+
+    /// <summary>
     /// Gets or sets comment location.
     /// </summary>
     public SqlCommentLocation CommentLocation { get; set; } = SqlCommentLocation.Nowhere;
@@ -37,12 +43,12 @@ namespace Xtensive.Sql.Compiler
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    public IReadOnlyDictionary<string, string> SchemaMapping { get; private set; }
+    public IReadOnlyDictionary<string, string> SchemaMapping { get; }
 
     /// <summary>
     /// Gets database mapping.
     /// </summary>
-    public IReadOnlyDictionary<string, string> DatabaseMapping { get; private set; }
+    public IReadOnlyDictionary<string, string> DatabaseMapping { get; }
 
     /// <summary>
     /// Clones this instance.
@@ -53,6 +59,7 @@ namespace Xtensive.Sql.Compiler
       return new SqlCompilerConfiguration {
         ParameterNamePrefix = ParameterNamePrefix,
         DatabaseQualifiedObjects = DatabaseQualifiedObjects,
+        ParametrizeSchemaNames = ParametrizeSchemaNames,
       };
     }
 
@@ -62,12 +69,12 @@ namespace Xtensive.Sql.Compiler
       DatabaseMapping = null;
     }
 
-    public SqlCompilerConfiguration([NotNull]IDictionary<string, string> databaseMapping, [NotNull]IDictionary<string, string> schemaMapping)
+    public SqlCompilerConfiguration([NotNull]IReadOnlyDictionary<string, string> databaseMapping, [NotNull]IReadOnlyDictionary<string, string> schemaMapping)
     {
       ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
       ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");
-      DatabaseMapping = new ReadOnlyDictionary<string, string>(databaseMapping);
-      SchemaMapping = new ReadOnlyDictionary<string, string>(schemaMapping);
+      DatabaseMapping = databaseMapping;
+      SchemaMapping = schemaMapping;
     }
   }
 }

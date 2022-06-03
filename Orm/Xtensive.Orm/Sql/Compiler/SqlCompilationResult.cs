@@ -1,9 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
+using Xtensive.Orm.Model;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -14,8 +15,11 @@ namespace Xtensive.Sql.Compiler
   {
     private readonly IReadOnlyList<Node> resultNodes;
     private readonly string resultText;
-    private readonly IDictionary<object, string> parameterNames;
+    private readonly IReadOnlyDictionary<object, string> parameterNames;
     private volatile int lastResultLength;
+
+    private readonly TypeIdRegistry typeIdRegistry;
+    private readonly IReadOnlyDictionary<string, string> schemaMapping;
 
     /// <inheritdoc/>
     public override string ToString()
@@ -41,14 +45,8 @@ namespace Xtensive.Sql.Compiler
     /// Gets the textual representation of SQL DOM statement compilation.
     /// </summary>
     /// <value>The SQL text command.</value>
-    public string GetCommandText()
-    {
-      if (resultText != null)
-        return resultText;
-      string result = PostCompiler.Process(resultNodes, new SqlPostCompilerConfiguration(), lastResultLength);
-      lastResultLength = result.Length;
-      return result;
-    }
+    public string GetCommandText() =>
+      GetCommandText(new SqlPostCompilerConfiguration(typeIdRegistry, schemaMapping));
 
     /// <summary>
     /// Gets the textual representation of SQL DOM statement compilation.
@@ -68,7 +66,11 @@ namespace Xtensive.Sql.Compiler
 
     // Constructors
 
-    internal SqlCompilationResult(IReadOnlyList<Node> result, IDictionary<object, string> parameterNames)
+    internal SqlCompilationResult(IReadOnlyList<Node> result,
+      IReadOnlyDictionary<object, string> parameterNames,
+      TypeIdRegistry typeIdRegistry,
+      IReadOnlyDictionary<string, string> schemaMapping
+      )
     {
       switch (result.Count) {
         case 0:
@@ -82,6 +84,8 @@ namespace Xtensive.Sql.Compiler
           break;
       }
       this.parameterNames = parameterNames.Count > 0 ? parameterNames : null;
+      this.typeIdRegistry = typeIdRegistry;
+      this.schemaMapping = schemaMapping;
     }
   }
 }

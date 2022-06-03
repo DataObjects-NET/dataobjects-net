@@ -36,6 +36,7 @@ namespace Xtensive.Orm.Linq.Materialization
     private static readonly ParameterExpression TupleParameter = Expression.Parameter(WellKnownOrmTypes.Tuple, "tuple");
     private static readonly ParameterExpression MaterializationContextParameter = Expression.Parameter(WellKnownOrmTypes.ItemMaterializationContext, "mc");
     private static readonly ConstantExpression TypeReferenceAccuracyConstantExpression = Expression.Constant(TypeReferenceAccuracy.BaseType);
+    private static readonly MethodInfo GetTypeInfoMethod = typeof(ItemMaterializationContext).GetMethod(nameof(ItemMaterializationContext.GetTypeInfo));
 
     private readonly TranslatorContext context;
     private readonly ParameterExpression itemMaterializationContextParameter;
@@ -422,24 +423,35 @@ namespace Xtensive.Orm.Linq.Materialization
       var originalOperandType = u.Operand.Type;
       var convertedOperandType = u.Type;
 
-      var isConvertToNullable = u.NodeType == ExpressionType.Convert
-        && !originalOperandType.IsNullable()
+      switch (u.NodeType) {
+        // Optimize tuple access by replacing
+        //   (T?) tuple.GetValueOrDefault<T>(index)
+        // with
+        //   tuple.GetValueOrDefault<T?>(index)
+        case ExpressionType.Convert when !originalOperandType.IsNullable()
         && convertedOperandType.IsNullable()
-        && originalOperandType == convertedOperandType.StripNullable();
-      // Optimize tuple access by replacing
-      //   (T?) tuple.GetValueOrDefault<T>(index)
-      // with
-      //   tuple.GetValueOrDefault<T?>(index)
-      if (isConvertToNullable) {
-        var operand = Visit(u.Operand);
-        var tupleAccess = operand.AsTupleAccess();
-        if (tupleAccess != null) {
-          var index = tupleAccess.GetTupleAccessArgument();
-          return tupleAccess.Object.MakeTupleAccess(u.Type, index);
-        }
-        return operand != u.Operand ? Expression.Convert(operand, u.Type) : u;
+        && originalOperandType == convertedOperandType.StripNullable():
+          var operand = Visit(u.Operand);
+          var tupleAccess = operand.AsTupleAccess();
+          if (tupleAccess != null) {
+            var index = tupleAccess.GetTupleAccessArgument();
+            return tupleAccess.Object.MakeTupleAccess(u.Type, index);
+          }
+          return operand != u.Operand
+            ? Expression.Convert(operand, u.Type)
+            : u;
+        // Replace '(o.TypeId as TypeInfo)' expression by 'mc.GetTypeInfo(o.TypeId)'
+        case ExpressionType.TypeAs when
+            context.Translator.State.BuildingProjection
+            && itemMaterializationContextParameter != null
+            && originalOperandType == WellKnownTypes.Int32
+            && convertedOperandType == WellKnownOrmTypes.TypeInfo
+            && u.Operand is FieldExpression fe
+            && fe.Field.OriginalName == WellKnown.TypeIdFieldName:
+          return Expression.Call(itemMaterializationContextParameter, GetTypeInfoMethod, Visit(u.Operand));
+        default:
+          return base.VisitUnary(u);
       }
-      return base.VisitUnary(u);
     }
 
     protected override Expression VisitMemberAccess(MemberExpression m)

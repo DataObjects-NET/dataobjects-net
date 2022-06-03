@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2021 Xtensive LLC.
+// Copyright (C) 2003-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -15,6 +15,8 @@ namespace Xtensive.Sql.Compiler
     private SqlNode[] traversalPath;
     private readonly Stack<SqlNode> traversalStack = new Stack<SqlNode>();
     private readonly HashSet<SqlNode> traversalTable = new HashSet<SqlNode>();
+
+    public bool ParametrizeSchemaNames { get; set; }
 
     public SqlTableNameProvider TableNameProvider { get; private set; }
 
@@ -147,6 +149,7 @@ namespace Xtensive.Sql.Compiler
       ParameterNameProvider = new SqlParameterNameProvider(configuration);
       Output = new ContainerNode();
       SqlNodeActualizer = new SqlNodeActualizer(configuration.DatabaseMapping, configuration.SchemaMapping);
+      ParametrizeSchemaNames = configuration.ParametrizeSchemaNames;
     }
   }
 }

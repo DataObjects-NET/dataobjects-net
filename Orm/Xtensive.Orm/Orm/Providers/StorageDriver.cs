@@ -83,6 +83,7 @@ namespace Xtensive.Orm.Providers
     {
       var options = new SqlCompilerConfiguration {
         DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes,
         CommentLocation = configuration.TagsLocation.ToCommentLocation(),
       };
       return underlyingDriver.Compile(statement, options);
@@ -94,6 +95,7 @@ namespace Xtensive.Orm.Providers
         ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
         : new SqlCompilerConfiguration();
       options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
+      options.ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes;
       options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
       return underlyingDriver.Compile(statement, options);
     }

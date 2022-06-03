@@ -52,7 +52,7 @@ namespace Xtensive.Orm.Providers
       foreach (var request in task.RequestSequence) {
         var tuple = task.Tuple;
         var compilationResult = request.GetCompiledStatement();
-        var configuration = new SqlPostCompilerConfiguration();
+        var configuration = new SqlPostCompilerConfiguration(Session.StorageNode);
         var part = new CommandPart();
         
         foreach (var binding in request.ParameterBindings) {
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Providers
 
       int parameterIndex = 0;
       var compilationResult = request.GetCompiledStatement();
-      var configuration = new SqlPostCompilerConfiguration();
+      var configuration = new SqlPostCompilerConfiguration(Session.StorageNode);
       var result = new CommandPart();
 
       foreach (var binding in request.ParameterBindings) {

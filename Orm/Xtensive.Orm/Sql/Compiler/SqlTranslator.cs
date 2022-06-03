@@ -9,12 +9,13 @@ using System.Linq;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Reflection;
+using System.Runtime.CompilerServices;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Index = Xtensive.Sql.Model.Index;
-using System.Runtime.CompilerServices;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -1515,6 +1516,9 @@ namespace Xtensive.Sql.Compiler
         case TimeSpan timeSpan:
           _ = output.Append(SqlHelper.TimeSpanToString(timeSpan, TimeSpanFormatString));
           break;
+        case TypeInfo typeInfo:
+          output.AppendPlaceholderWithId(typeInfo);
+          break;
         case Guid:
         case byte[]:
           throw new NotSupportedException(string.Format(Strings.ExTranslationOfLiteralOfTypeXIsNotSupported, literalType.GetShortName()));
@@ -1956,12 +1960,25 @@ namespace Xtensive.Sql.Compiler
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
       var actualizer = context.SqlNodeActualizer;
 
+
+      var setup = EscapeSetup;
+
       if (dbQualified) {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal());
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog));
+        _ = output.AppendLiteral(setup.Delimiter);
+      }
+
+      if (context.ParametrizeSchemaNames) {
+        _ = output.AppendLiteral(setup.Opener);
+        output.AppendPlaceholderWithId(node.Schema);
+        _ = output.AppendLiteral(setup.Closer);
       }
       else {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema), node.DbName);
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema));
       }
+      _ = output.AppendLiteral(setup.Delimiter);
+
+      TranslateIdentifier(output, dbQualified ? node.GetDbNameInternal() : node.DbName);
     }
 
     /// <summary>

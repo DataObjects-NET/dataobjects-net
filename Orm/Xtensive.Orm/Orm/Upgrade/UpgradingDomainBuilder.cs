@@ -42,6 +42,10 @@ namespace Xtensive.Orm.Upgrade
     {
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
 
+      if (configuration.ShareQueryCacheOverNodes && !configuration.ShareStorageSchemaOverNodes) {
+        throw new InvalidOperationException($"{nameof(configuration.ShareQueryCacheOverNodes)} options cannot be set without {nameof(configuration.ShareStorageSchemaOverNodes)} option");
+      }
+
       if (configuration.ConnectionInfo==null) {
         throw new ArgumentException(Strings.ExConnectionInfoIsMissing, nameof(configuration));
       }

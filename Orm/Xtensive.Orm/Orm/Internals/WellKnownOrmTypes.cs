@@ -48,6 +48,7 @@ namespace Xtensive.Orm.Internals
 
     public static readonly Type ProjectionExpression = typeof(ProjectionExpression);
 
+    public static readonly Type TypeInfo = typeof(Xtensive.Orm.Model.TypeInfo);
   }
 
   internal static class WellKnownOrmInterfaces
