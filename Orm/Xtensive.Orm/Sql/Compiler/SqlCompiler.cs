@@ -2792,6 +2792,7 @@ namespace Xtensive.Sql.Compiler
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAssignment node, NodeSection section) =>
