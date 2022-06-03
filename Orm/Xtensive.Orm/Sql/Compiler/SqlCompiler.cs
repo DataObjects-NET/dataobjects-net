@@ -345,6 +345,18 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
+      if (node.NodeType == SqlNodeType.RawConcat) {
+        AppendSpace();
+        translator.Translate(context, node, NodeSection.Entry);
+        node.Left.AcceptVisitor(this);
+        AppendSpace();
+        translator.Translate(context.Output, node.NodeType);
+        node.Right.AcceptVisitor(this);
+        translator.Translate(context, node, NodeSection.Exit);
+
+        return;
+      }
+
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
         node.Left.AcceptVisitor(this);
