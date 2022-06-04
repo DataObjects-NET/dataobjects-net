@@ -1,12 +1,13 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.04.23
 
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace Xtensive.Sql.Compiler
@@ -21,10 +22,11 @@ namespace Xtensive.Sql.Compiler
 
     private string[] currentCycleItem;
 
-    public static string Process(Node root, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
+    public static string Process(IReadOnlyList<Node> nodes, SqlPostCompilerConfiguration configuration, int estimatedResultLength)
     {
-      var compiler = new PostCompiler(configuration, estimatedResultLength);
-      compiler.VisitNodeSequence(root);
+      var textNodesLength = nodes.OfType<TextNode>().Sum(o => o.Text.Length);
+      var compiler = new PostCompiler(configuration, Math.Max(textNodesLength, estimatedResultLength));
+      compiler.VisitNodes(nodes);
       return compiler.result.ToString();
     }
     
@@ -38,9 +40,9 @@ namespace Xtensive.Sql.Compiler
     public override void Visit(VariantNode node)
     {
       if (configuration.AlternativeBranches.Contains(node.Id))
-        VisitNodeSequence(node.Alternative);
+        VisitNodes(node.Alternative);
       else
-        VisitNodeSequence(node.Main);
+        VisitNodes(node.Main);
     }
 
     public override void Visit(PlaceholderNode node)
@@ -62,16 +64,16 @@ namespace Xtensive.Sql.Compiler
       if (!configuration.DynamicFilterValues.TryGetValue(node.Id, out items))
         throw new InvalidOperationException(string.Format(Strings.ExItemsForCycleXAreNotSpecified, node.Id));
       if (items==null || items.Count==0) {
-        VisitNodeSequence(node.EmptyCase);
+        VisitNodes(node.EmptyCase);
         return;
       }
       for (int i = 0; i < items.Count - 1; i++) {
         currentCycleItem = items[i];
-        VisitNodeSequence(node.Body);
+        VisitNodes(node.Body);
         result.Append(node.Delimiter);
       }
       currentCycleItem = items[items.Count - 1];
-      VisitNodeSequence(node.Body);
+      VisitNodes(node.Body);
     }
 
     #endregion

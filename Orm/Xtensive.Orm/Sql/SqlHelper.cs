@@ -88,7 +88,7 @@ namespace Xtensive.Sql
     public static string QuoteIdentifierWithBackTick(string[] names) 
       => Quote(EscapeSetup.WithBackTick, names);
 
-    private static unsafe string Quote(in EscapeSetup setup, string[] names)
+    public static unsafe string Quote(in EscapeSetup setup, string[] names)
     {
       // That's one of frequently called methods, so it's optimized for speed. 
 

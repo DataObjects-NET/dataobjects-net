@@ -1,8 +1,6 @@
-﻿// Copyright (C) 2015 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
-// Created by: Alexey Kulakov
-// Created:    2015.02.06
+// Copyright (C) 2009-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Linq;
@@ -220,7 +218,9 @@ namespace Xtensive.Orm.Tests.Sql
           dropBatch = SqlDml.Batch();
         }
         dropBatch.Add(SqlDdl.Drop(view));
-        schema.Tables.Remove(schema.Tables[view.Name]);
+        if (schema.Tables[view.Name]!=null) {
+          _ = schema.Tables.Remove(schema.Tables[view.Name]);
+        }
       }
 
       foreach (var schemaTable in schema.Tables) {

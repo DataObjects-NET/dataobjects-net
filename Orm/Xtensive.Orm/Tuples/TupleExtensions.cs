@@ -23,10 +23,10 @@ namespace Xtensive.Tuples
     #region Copy methods
 
     /// <summary>
-    /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/> 
-    /// starting at the specified source index 
-    /// and pastes them to <paramref name="target"/> <see cref="Tuple"/> 
-    /// starting at the specified target index. 
+    /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/>
+    /// starting at the specified source index
+    /// and pastes them to <paramref name="target"/> <see cref="Tuple"/>
+    /// starting at the specified target index.
     /// </summary>
     /// <param name="source">Source tuple to copy.</param>
     /// <param name="target">Tuple that receives the data.</param>
@@ -44,10 +44,10 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/> 
-    /// starting at the specified source index 
-    /// and pastes them to <paramref name="target"/> <see cref="Tuple"/> 
-    /// starting at the first element. 
+    /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/>
+    /// starting at the specified source index
+    /// and pastes them to <paramref name="target"/> <see cref="Tuple"/>
+    /// starting at the first element.
     /// </summary>
     /// <param name="source">Source tuple to copy.</param>
     /// <param name="target">Tuple that receives the data.</param>
@@ -59,10 +59,10 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/> 
+    /// Copies a range of elements from <paramref name="source"/> <see cref="Tuple"/>
     /// starting at the <paramref name="startIndex"/>
-    /// and pastes them into <paramref name="target"/> <see cref="Tuple"/> 
-    /// starting at the first element. 
+    /// and pastes them into <paramref name="target"/> <see cref="Tuple"/>
+    /// starting at the first element.
     /// </summary>
     /// <param name="source">Source tuple to copy.</param>
     /// <param name="target">Tuple that receives the data.</param>
@@ -73,9 +73,9 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// Copies all the elements from <paramref name="source"/> <see cref="Tuple"/> 
+    /// Copies all the elements from <paramref name="source"/> <see cref="Tuple"/>
     /// starting at the first element
-    /// and pastes them into <paramref name="target"/> <see cref="Tuple"/> 
+    /// and pastes them into <paramref name="target"/> <see cref="Tuple"/>
     /// starting at the first element.
     /// </summary>
     /// <param name="source">Source tuple to copy.</param>
@@ -86,8 +86,8 @@ namespace Xtensive.Tuples
     }
 
     /// <summary>
-    /// Copies a set of elements from <paramref name="source"/> <see cref="Tuple"/> 
-    /// to <paramref name="target"/> <see cref="Tuple"/> using 
+    /// Copies a set of elements from <paramref name="source"/> <see cref="Tuple"/>
+    /// to <paramref name="target"/> <see cref="Tuple"/> using
     /// specified target-to-source field index <paramref name="map"/>.
     /// </summary>
     /// <param name="source">Source tuple to copy.</param>
@@ -96,18 +96,17 @@ namespace Xtensive.Tuples
     /// Negative value in this map means "skip this element".</param>
     public static void CopyTo(this Tuple source, Tuple target, IReadOnlyList<int> map)
     {
-      var packedSource = source as PackedTuple;
-      var packedTarget = target as PackedTuple;
-
-      if (packedSource!=null && packedTarget!=null)
+      if (source is PackedTuple packedSource && target is PackedTuple packedTarget) {
         CopyTupleWithMappingFast(packedSource, packedTarget, map);
-      else
+      }
+      else {
         CopyTupleWithMappingSlow(source, target, map);
+      }
     }
 
     /// <summary>
     /// Copies a set of elements from <paramref name="sources"/> <see cref="Tuple"/>s
-    /// to <paramref name="target"/> <see cref="Tuple"/> using 
+    /// to <paramref name="target"/> <see cref="Tuple"/> using
     /// specified target-to-source field index <paramref name="map"/>.
     /// </summary>
     /// <param name="sources">Source tuples to copy.</param>
@@ -120,20 +119,18 @@ namespace Xtensive.Tuples
       var packedSources = new PackedTuple[sources.Length];
 
       for (int i = 0; i < sources.Length; i++) {
-        var packedSource = sources[i] as PackedTuple;
-        if (packedSource==null) {
+        if (sources[i] is PackedTuple packedSource) {
+          packedSources[i] = packedSource;
+        }
+        else {
           haveSlowSource = true;
           break;
         }
-        packedSources[i] = packedSource;
       }
 
-      if (!haveSlowSource) {
-        var packedTarget = target as PackedTuple;
-        if (packedTarget!=null) {
-          CopyTupleArrayWithMappingFast(packedSources, packedTarget, map);
-          return;
-        }
+      if (!haveSlowSource && target is PackedTuple packedTarget) {
+        CopyTupleArrayWithMappingFast(packedSources, packedTarget, map);
+        return;
       }
 
       CopyTupleArrayWithMappingSlow(sources, target, map);
@@ -141,7 +138,7 @@ namespace Xtensive.Tuples
 
     /// <summary>
     /// Copies a set of elements from <paramref name="sources"/> <see cref="Tuple"/>s
-    /// to <paramref name="target"/> <see cref="Tuple"/> using 
+    /// to <paramref name="target"/> <see cref="Tuple"/> using
     /// specified target-to-source field index <paramref name="map"/>.
     /// </summary>
     /// <param name="sources">Source tuples to copy.</param>
@@ -154,20 +151,18 @@ namespace Xtensive.Tuples
       var packedSources = new FixedList3<PackedTuple>();
 
       for (int i = 0; i < sources.Count; i++) {
-        var packedSource = sources[i] as PackedTuple;
-        if (packedSource==null) {
+        if (sources[i] is PackedTuple packedSource) {
+          packedSources.Push(packedSource);
+        }
+        else {
           haveSlowSource = true;
           break;
         }
-        packedSources.Push(packedSource);
       }
 
-      if (!haveSlowSource) {
-        var packedTarget = target as PackedTuple;
-        if (packedTarget!=null) {
-          Copy3TuplesWithMappingFast(packedSources, packedTarget, map);
-          return;
-        }
+      if (!haveSlowSource && target is PackedTuple packedTarget) {
+        Copy3TuplesWithMappingFast(packedSources, packedTarget, map);
+        return;
       }
 
       Copy3TuplesWithMappingSlow(sources, target, map);
@@ -185,7 +180,7 @@ namespace Xtensive.Tuples
     /// <returns></returns>
     public static Tuple Combine(this Tuple left, Tuple right)
     {
-      var transform = new CombineTransform(false, new[] {left.Descriptor, right.Descriptor});
+      var transform = new CombineTransform(false, new[] { left.Descriptor, right.Descriptor });
       return transform.Apply(TupleTransformType.TransformedTuple, left, right);
     }
 
@@ -224,35 +219,35 @@ namespace Xtensive.Tuples
     /// <param name="difference">Tuple with differences to merge with.</param>
     /// <param name="startIndex">The index in the <paramref name="difference"/> tuple at which merging begins.</param>
     /// <param name="length">The number of elements to process.</param>
-    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values
     /// from <paramref name="difference"/> and <paramref name="origin"/> are available.</param>
     /// <exception cref="ArgumentException">Tuple descriptors mismatch.</exception>
     public static void MergeWith(this Tuple origin, Tuple difference, int startIndex, int length, MergeBehavior behavior)
     {
-      if (difference==null)
+      if (difference == null)
         return;
-      if (origin.Descriptor!=difference.Descriptor)
+      if (origin.Descriptor != difference.Descriptor)
         throw new ArgumentException(string.Format(Strings.ExInvalidTupleDescriptorExpectedDescriptorIs, origin.Descriptor), "difference");
 
       var packedOrigin = origin as PackedTuple;
       var packedDifference = difference as PackedTuple;
-      var useFast = packedOrigin!=null && packedDifference!=null;
+      var useFast = packedOrigin != null && packedDifference != null;
 
       switch (behavior) {
-      case MergeBehavior.PreferOrigin:
-        if (useFast)
-          MergeTuplesPreferOriginFast(packedOrigin, packedDifference, startIndex, length);
-        else
-          MergeTuplesPreferOriginSlow(origin, difference, startIndex, length);
-        break;
-      case MergeBehavior.PreferDifference:
-        if (useFast)
-          PartiallyCopyTupleFast(packedDifference, packedOrigin, startIndex, startIndex, length);
-        else
-          PartiallyCopyTupleSlow(difference, origin, startIndex, startIndex, length);
-        break;
-      default:
-        throw new ArgumentOutOfRangeException("behavior");
+        case MergeBehavior.PreferOrigin:
+          if (useFast)
+            MergeTuplesPreferOriginFast(packedOrigin, packedDifference, startIndex, length);
+          else
+            MergeTuplesPreferOriginSlow(origin, difference, startIndex, length);
+          break;
+        case MergeBehavior.PreferDifference:
+          if (useFast)
+            PartiallyCopyTupleFast(packedDifference, packedOrigin, startIndex, startIndex, length);
+          else
+            PartiallyCopyTupleSlow(difference, origin, startIndex, startIndex, length);
+          break;
+        default:
+          throw new ArgumentOutOfRangeException("behavior");
       }
     }
 
@@ -279,7 +274,7 @@ namespace Xtensive.Tuples
     /// <param name="origin">Tuple containing original values and receiving the data.</param>
     /// <param name="difference">Tuple with differences to merge with.</param>
     /// <param name="startIndex">The index in the <paramref name="difference"/> tuple at which merging begins.</param>
-    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values
     /// from <paramref name="difference"/> and <paramref name="origin"/> are available.</param>
     public static void MergeWith(this Tuple origin, Tuple difference, int startIndex, MergeBehavior behavior)
     {
@@ -306,7 +301,7 @@ namespace Xtensive.Tuples
     /// </summary>
     /// <param name="origin">Tuple containing original values and receiving the data.</param>
     /// <param name="difference">Tuple with differences to merge with.</param>
-    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values 
+    /// <param name="behavior">The merge behavior that will be used to resolve conflicts when both values
     /// from <paramref name="difference"/> and <paramref name="origin"/> are available.</param>
     public static void MergeWith(this Tuple origin, Tuple difference, MergeBehavior behavior)
     {
@@ -338,7 +333,7 @@ namespace Xtensive.Tuples
     /// as the specified <paramref name="source"/> tuple.</returns>
     public static RegularTuple ToRegular(this Tuple source)
     {
-      if (source==null)
+      if (source == null)
         return null;
       var result = Tuple.Create(source.Descriptor);
       source.CopyTo(result);
@@ -353,7 +348,7 @@ namespace Xtensive.Tuples
     /// <returns>Read-only version of <paramref name="source"/> tuple.</returns>
     public static Tuple ToReadOnly(this Tuple source, TupleTransformType transformType)
     {
-      if (source==null)
+      if (source == null)
         return null;
       return ReadOnlyTransform.Instance.Apply(transformType, source);
     }
@@ -365,7 +360,7 @@ namespace Xtensive.Tuples
     /// <returns>Fast read-only version of <paramref name="source"/> tuple.</returns>
     public static Tuple ToFastReadOnly(this Tuple source)
     {
-      if (source==null) {
+      if (source == null) {
         return null;
       }
 
@@ -386,14 +381,16 @@ namespace Xtensive.Tuples
       var result = new BitArray(count);
 
       switch (requestedState) {
-      case TupleFieldState.Default:
-        for (int i = 0; i < count; i++)
-          result[i] = target.GetFieldState(i)==0;
-        break;
-      default:
-        for (int i = 0; i < count; i++)
-          result[i] = (requestedState & target.GetFieldState(i)) != 0;
-        break;
+        case TupleFieldState.Default:
+          for (int i = 0; i < count; i++) {
+            result[i] = target.GetFieldState(i) == 0;
+          }
+          break;
+        default:
+          for (int i = 0; i < count; i++) {
+            result[i] = (requestedState & target.GetFieldState(i)) != 0;
+          }
+          break;
       }
       return result;
     }
@@ -407,7 +404,7 @@ namespace Xtensive.Tuples
     public static void Initialize(this Tuple target, BitArray nullableMap)
     {
       var descriptor = target.Descriptor;
-      if (descriptor.Count!=nullableMap.Count)
+      if (descriptor.Count != nullableMap.Count)
         throw new ArgumentException(String.Format(Strings.ExInvalidFieldMapSizeExpectedX, descriptor.Count));
 
       for (int i = 0; i < target.Count; i++) {
@@ -434,8 +431,8 @@ namespace Xtensive.Tuples
 
     private static void CopyPackedValue(PackedTuple source, int sourceIndex, PackedTuple target, int targetIndex)
     {
-      ref var sourceDescriptor = ref source.PackedDescriptor.FieldDescriptors[sourceIndex];
-      ref var targetDescriptor = ref target.PackedDescriptor.FieldDescriptors[targetIndex];
+      ref readonly var sourceDescriptor = ref source.PackedDescriptor.FieldDescriptors[sourceIndex];
+      ref readonly var targetDescriptor = ref target.PackedDescriptor.FieldDescriptors[targetIndex];
 
       var fieldState = source.GetFieldState(sourceDescriptor);
       if (!fieldState.IsAvailable()) {
@@ -447,8 +444,7 @@ namespace Xtensive.Tuples
         return;
       }
 
-      var accessor = sourceDescriptor.Accessor;
-      if (accessor != targetDescriptor.Accessor) {
+      if (sourceDescriptor.AccessorIndex != targetDescriptor.AccessorIndex) {
         throw new InvalidOperationException(string.Format(
           Strings.ExInvalidCast,
           source.PackedDescriptor[sourceIndex],
@@ -456,7 +452,7 @@ namespace Xtensive.Tuples
       }
 
       target.SetFieldState(targetIndex, TupleFieldState.Available);
-      accessor.CopyValue(source, sourceDescriptor, target, targetDescriptor);
+      sourceDescriptor.GetAccessor().CopyValue(source, sourceDescriptor, target, targetDescriptor);
     }
 
     private static void PartiallyCopyTupleSlow(Tuple source, Tuple target, int sourceStartIndex, int targetStartIndex, int length)
