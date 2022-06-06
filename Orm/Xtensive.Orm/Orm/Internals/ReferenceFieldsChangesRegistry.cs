@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2014.04.07
 
+using System;
 using System.Collections.Generic;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
@@ -16,6 +17,8 @@ namespace Xtensive.Orm.Internals
   internal sealed class ReferenceFieldsChangesRegistry : SessionBound
   {
     private readonly HashSet<ReferenceFieldChangeInfo> changes = new();
+
+    private bool changesDisabled;
 
     /// <summary>
     /// Registrates information about field which value was set.
@@ -63,11 +66,25 @@ namespace Xtensive.Orm.Internals
     {
       changes.Clear();
     }
-    
+
+    internal Core.Disposable PreventChanges()
+    {
+      changesDisabled = true;
+      return new Core.Disposable((a) => changesDisabled = false);
+    }
+
     private void Register(ReferenceFieldChangeInfo fieldChangeInfo)
     {
-      EnsureChangesAreNotPersisting();
+      EnsureRegistrationsAllowed();
       _ = changes.Add(fieldChangeInfo);
+    }
+
+    private void EnsureRegistrationsAllowed()
+    {
+      if (changesDisabled) {
+        throw new System.InvalidOperationException(
+          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
+      }
     }
 
     public ReferenceFieldsChangesRegistry(Session session)

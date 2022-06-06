@@ -33,18 +33,6 @@ namespace Xtensive.Orm
         throw new ArgumentException(Strings.ExSessionOfAnotherSessionBoundMustBeTheSame, nameof(other));
     }
 
-    /// <summary>
-    /// Ensures that <see cref="Session"/> is not on stage when changes are persisting
-    /// and any changes are forbidden.
-    /// </summary>
-    protected void EnsureChangesAreNotPersisting()
-    {
-      if (Session.ChangesInProcessing) {
-        throw new InvalidOperationException(
-          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
-      }
-    }
-
     #region IContextBound<Session> Members
 
     Session IContextBound<Session>.Context {

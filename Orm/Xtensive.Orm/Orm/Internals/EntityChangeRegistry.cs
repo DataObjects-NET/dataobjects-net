@@ -21,6 +21,8 @@ namespace Xtensive.Orm.Internals
     private readonly HashSet<EntityState> removed = new();
     private int count;
 
+    private bool changesDisabled;
+
     /// <summary>
     /// Gets the number of registered entities.
     /// </summary>
@@ -34,7 +36,7 @@ namespace Xtensive.Orm.Internals
     {
       // Remove-create sequences fix for Issue 690
       if (item.PersistenceState == PersistenceState.New && removed.Contains(item)) {
-        EnsureChangesAreNotPersisting();
+        EnsureRegistrationsAllowed();
         _ = removed.Remove(item);
         count--;
         if (item.DifferentialTuple.Difference == null) {
@@ -44,19 +46,19 @@ namespace Xtensive.Orm.Internals
         item.SetPersistenceState(PersistenceState.Modified);
       }
       else if (item.PersistenceState == PersistenceState.Removed && @new.Contains(item)) {
-        EnsureChangesAreNotPersisting();
+        EnsureRegistrationsAllowed();
         _ = @new.Remove(item);
         count--;
         return;
       }
       else if (item.PersistenceState == PersistenceState.Removed && modified.Contains(item)) {
-        EnsureChangesAreNotPersisting();
+        EnsureRegistrationsAllowed();
         _ = modified.Remove(item);
         count--;
       }
 
       var container = GetContainer(item.PersistenceState);
-      EnsureChangesAreNotPersisting();
+      EnsureRegistrationsAllowed();
       if (container.Add(item)) {
         count++;
       }
@@ -84,18 +86,32 @@ namespace Xtensive.Orm.Internals
       removed.Clear();
     }
 
+    internal Core.Disposable PreventChanges()
+    {
+      changesDisabled = true;
+      return new Core.Disposable((a) => changesDisabled = false);
+    }
+
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
     private HashSet<EntityState> GetContainer(PersistenceState state)
     {
       switch (state) {
-      case PersistenceState.New:
-        return @new;
-      case PersistenceState.Modified:
-        return modified;
-      case PersistenceState.Removed:
-        return removed;
-      default:
-        throw new ArgumentOutOfRangeException("state");
+        case PersistenceState.New:
+          return @new;
+        case PersistenceState.Modified:
+          return modified;
+        case PersistenceState.Removed:
+          return removed;
+        default:
+          throw new ArgumentOutOfRangeException(nameof(state));
+      }
+    }
+
+    private void EnsureRegistrationsAllowed()
+    {
+      if (changesDisabled) {
+        throw new InvalidOperationException(
+          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
       }
     }
 

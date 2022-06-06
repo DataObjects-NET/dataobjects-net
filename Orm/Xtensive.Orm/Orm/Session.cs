@@ -114,12 +114,6 @@ namespace Xtensive.Orm
     internal bool IsPersisting { get; private set; }
 
     /// <summary>
-    /// Gets a value indicating that saving changes in that stage when any other persistent
-    /// object cannot be changed within session.
-    /// </summary>
-    internal bool ChangesInProcessing { get; private set; }
-
-    /// <summary>
     /// Gets a value indicating whether session is disconnected:
     /// session supports non-transactional entity states and does not support autosaving of changes.
     /// </summary>

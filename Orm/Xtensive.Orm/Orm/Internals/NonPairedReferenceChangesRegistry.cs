@@ -54,6 +54,8 @@ namespace Xtensive.Orm.Internals
     private readonly IDictionary<Identifier, HashSet<EntityState>> addedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
     private readonly object accessGuard = new();
 
+    private bool changesDisabled;
+
     public int RemovedReferencesCount => removedReferences.Values.Sum(el => el.Count);
 
     public int AddedReferencesCount => addedReferences.Values.Sum(el => el.Count);
@@ -98,6 +100,12 @@ namespace Xtensive.Orm.Internals
       }
     }
 
+    internal Core.Disposable PreventChanges()
+    {
+      changesDisabled = true;
+      return new Core.Disposable((a) => changesDisabled = false);
+    }
+
     private void RegisterChange(EntityState referencedState, EntityState referencingState, EntityState noLongerReferencedState, AssociationInfo association)
     {
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
@@ -129,7 +137,7 @@ namespace Xtensive.Orm.Internals
     private void RegisterRemoveInternal(Identifier oldKey, EntityState referencingState)
     {
       if (addedReferences.TryGetValue(oldKey, out var addedRefs)) {
-        EnsureChangesAreNotPersisting();
+        EnsureRegistrationsAllowed();
         if (addedRefs.Remove(referencingState)) {
           if (addedRefs.Count == 0) {
             _ = addedReferences.Remove(oldKey);
@@ -143,14 +151,14 @@ namespace Xtensive.Orm.Internals
         }
         return;
       }
-      EnsureChangesAreNotPersisting();
+      EnsureRegistrationsAllowed();
       removedReferences.Add(oldKey, new HashSet<EntityState>{referencingState});
     }
 
     private void RegisterAddInternal(Identifier newKey, EntityState referencingState)
     {
       if (removedReferences.TryGetValue(newKey, out var removedRefs)) {
-        EnsureChangesAreNotPersisting();
+        EnsureRegistrationsAllowed();
         if (removedRefs.Remove(referencingState)) {
           if (removedRefs.Count == 0) {
             _ = removedReferences.Remove(newKey);
@@ -165,7 +173,7 @@ namespace Xtensive.Orm.Internals
         }
         return;
       }
-      EnsureChangesAreNotPersisting();
+      EnsureRegistrationsAllowed();
       addedReferences.Add(newKey, new HashSet<EntityState>{referencingState});
     }
 
@@ -275,6 +283,14 @@ namespace Xtensive.Orm.Internals
 
     private string BuildNameOfEntityField(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure) =>
       $"{fieldOfOwner.Name}.{referenceFieldOfStructure.Name}";
+
+    private void EnsureRegistrationsAllowed()
+    {
+      if (changesDisabled) {
+        throw new InvalidOperationException(
+          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
+      }
+    }
 
     internal NonPairedReferenceChangesRegistry(Session session)
       : base(session)

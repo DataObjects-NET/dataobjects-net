@@ -134,12 +134,15 @@ namespace Xtensive.Orm
 
       var ts = await InnerOpenTransaction(
         TransactionOpenMode.Default, IsolationLevel.Unspecified, false, isAsync, token);
+
+      IDisposable changesGuard = null;
       try {
         IsPersisting = true;
         persistingIsFailed = false;
         SystemEvents.NotifyPersisting();
         Events.NotifyPersisting();
-        ChangesInProcessing = true;
+
+        changesGuard = PreventRegistryChanges();
         using (OpenSystemLogicOnlyRegion()) {
           DemandTransaction();
           if (IsDebugEventLoggingEnabled) {
@@ -173,11 +176,16 @@ namespace Xtensive.Orm
           }
           catch (Exception) {
             persistingIsFailed = true;
+            changesGuard.Dispose();
+            changesGuard = null;
+
             RollbackChangesOfEntitySets();
             RestoreEntityChangesAfterPersistFailed();
             throw;
           }
           finally {
+            changesGuard.DisposeSafely();
+            changesGuard = null;
             if (persistIsSuccessful || !Configuration.Supports(SessionOptions.NonTransactionalEntityStates)) {
               DropDifferenceBackup();
               foreach (var item in itemsToPersist.GetItems(PersistenceState.New)) {
@@ -210,12 +218,12 @@ namespace Xtensive.Orm
           }
         }
 
-        ChangesInProcessing = false;
         SystemEvents.NotifyPersisted();
         Events.NotifyPersisted();
       }
       finally {
         IsPersisting = false;
+        changesGuard.DisposeSafely();
         if (isAsync) {
           await ts.DisposeAsync().ConfigureAwait(false);
         }
@@ -362,6 +370,14 @@ namespace Xtensive.Orm
       var itemsToProcess = EntitySetChangeRegistry.GetItems();
       foreach (var entitySet in itemsToProcess)
         action.Invoke(entitySet);
+    }
+
+    private IDisposable PreventRegistryChanges()
+    {
+      return EntityChangeRegistry.PreventChanges()
+        & EntitySetChangeRegistry.PreventChanges()
+        & NonPairedReferencesRegistry.PreventChanges()
+        & ReferenceFieldsChangesRegistry.PreventChanges();
     }
   }
 }

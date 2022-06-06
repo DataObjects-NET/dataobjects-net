@@ -4,6 +4,7 @@
 // Created by: Alexey Kulakov
 // Created:    2014.03.27
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Orm.Internals
@@ -14,6 +15,8 @@ namespace Xtensive.Orm.Internals
   public sealed class EntitySetChangeRegistry : SessionBound
   {
     private readonly HashSet<EntitySetState> modifiedEntitySets = new();
+
+    private bool changesDisabled;
 
     /// <summary>
     /// Count of registered <see cref="EntitySetState"/>.
@@ -26,7 +29,7 @@ namespace Xtensive.Orm.Internals
     /// <param name="entitySetState"><see cref="EntitySetState"/> to bound.</param>
     public void Register(EntitySetState entitySetState)
     {
-      EnsureChangesAreNotPersisting();
+      EnsureRegistrationsAllowed();
       _ = modifiedEntitySets.Add(entitySetState);
     }
 
@@ -41,11 +44,26 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     public void Clear() => modifiedEntitySets.Clear();
 
+    internal Core.Disposable PreventChanges()
+    {
+      changesDisabled = true;
+      return new Core.Disposable((a) => changesDisabled = false);
+    }
+
+    private void EnsureRegistrationsAllowed()
+    {
+      if (changesDisabled) {
+        throw new InvalidOperationException(
+          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
+      }
+    }
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="session"><see cref="Session"/>, to which current instance 
     /// is bound.</param>
+    /// 
     public EntitySetChangeRegistry(Session session)
       : base(session)
     {
