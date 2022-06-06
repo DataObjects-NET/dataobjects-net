@@ -25,6 +25,11 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     [Field]
     public DateTime Date { get; set; }
 
+#if DO_DATEONLY
+    [Field]
+    public DateOnly DateOnly { get; set; }
+#endif
+
     [Field]
     public Direction? NullableDirection { get; set; }
 
@@ -61,6 +66,11 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
         AssertIsNotCalled(() => { book.Title = "A"; });
         AssertIsCalled   (() => { book.Date = new DateTime(1,2,3); });
         AssertIsNotCalled(() => { book.Date = new DateTime(1,2,3); });
+
+#if DO_DATEONLY
+        AssertIsCalled   (() => { book.DateOnly = new DateOnly(1,2,3); });
+        AssertIsNotCalled(() => { book.DateOnly = new DateOnly(1,2,3); });
+#endif
         
         var image = new byte[] {1, 2, 3};
         AssertIsCalled   (() => { book.Image = image; });

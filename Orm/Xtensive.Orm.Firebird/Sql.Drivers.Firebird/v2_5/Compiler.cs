@@ -188,6 +188,9 @@ namespace Xtensive.Sql.Drivers.Firebird.v2_5
         case SqlFunctionType.DateTimeAddMonths:
           Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
           return;
+        case SqlFunctionType.DateOnlyAddDays:
+          Visit(DateAddDay(node.Arguments[0], node.Arguments[1]));
+          return;
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
           return;

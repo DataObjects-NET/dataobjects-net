@@ -98,6 +98,20 @@ namespace Xtensive.Sql
     public static readonly SqlType DateTimeOffset = new SqlType("DateTimeOffset");
 
     /// <summary>
+    /// Date from January 1, 1753 through December 31, 9999,
+    /// Storage size is 3 bytes.
+    /// </summary>
+    public static readonly SqlType Date = new SqlType("Date");
+
+    /// <summary>
+    /// Time data from to an accuracy of one three-hundredth of a second (equivalent to 3.33
+    /// milliseconds or 0.00333 seconds). Values are rounded to increments
+    /// of .000, .003, or .007 seconds.
+    /// Storage size is 6 bytes.
+    /// </summary>
+    public static readonly SqlType Time = new SqlType("Time");
+
+    /// <summary>
     /// Datetime interval.
     /// </summary>
     public static readonly SqlType Interval = new SqlType("Interval");

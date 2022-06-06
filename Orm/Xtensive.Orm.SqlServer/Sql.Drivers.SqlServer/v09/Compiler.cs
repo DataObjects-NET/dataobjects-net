@@ -150,6 +150,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <inheritdoc/>
     public override void Visit(SqlFunctionCall node)
     {
+      var arguments = node.Arguments;
       switch (node.FunctionType) {
         case SqlFunctionType.CharLength:
           (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
@@ -198,6 +199,15 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return;
         case SqlFunctionType.DateTimeAddYears:
           Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          return;
+        case SqlFunctionType.DateOnlyAddDays:
+          Visit(DateAddDay(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.TimeOnlyAddHours:
+          Visit(DateAddHour(arguments[0], arguments[1]));
+          return;
+        case SqlFunctionType.TimeOnlyAddMinutes:
+          Visit(DateAddMinute(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeTruncate:
           DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);

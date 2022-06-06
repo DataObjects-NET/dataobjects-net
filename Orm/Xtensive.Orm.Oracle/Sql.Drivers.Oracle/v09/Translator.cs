@@ -31,6 +31,9 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
     public override string DateTimeFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\'\)";
 
     /// <inheritdoc/>
+    public override string DateOnlyFormatString => @"'(DATE '\'yyyy\-MM\-dd\'\)";
+
+    /// <inheritdoc/>
     public override string TimeSpanFormatString => "(INTERVAL '{0}{1} {2}:{3}:{4}.{5:000}' DAY(6) TO SECOND(3))";
 
     public string DateTimeOffsetFormatString => @"'(TIMESTAMP '\'yyyy\-MM\-dd HH\:mm\:ss\.fff\ zzz\'\)";

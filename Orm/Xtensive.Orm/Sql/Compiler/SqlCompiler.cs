@@ -1170,7 +1170,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        
+
         if (node.Arguments.Count > 0) {
           using (context.EnterCollectionScope()) {
             var argumentPosition = 0;

@@ -40,7 +40,8 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(DO_TargetFrameworks)' != ''">$(DO_TargetFrameworks)</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
@@ -96,4 +97,10 @@
   </ItemGroup>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
+
+  <PropertyGroup>
+
+    <!-- setting env var or property 'DO_DATEONLY=false' disables DO_DATEONLY feature -->
+    <DefineConstants Condition="$(TargetFramework)=='net6.0' AND '$(DO_DATEONLY)'!='false'">$(DefineConstants);DO_DATEONLY</DefineConstants>
+  </PropertyGroup>
 </Project>
