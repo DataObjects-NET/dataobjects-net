@@ -33,6 +33,11 @@ namespace Xtensive.Sql.Dml
       return (available & required)==required;
     }
 
+    public static bool SupportsAny(this SqlLockType available, SqlLockType required)
+    {
+      return (available | required) == required;
+    }
+
     public static string ToString(this SqlLockType lockType, bool humanReadable)
     {
       if (!humanReadable)
