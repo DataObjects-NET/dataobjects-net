@@ -15,18 +15,32 @@ namespace Xtensive.Sql.Drivers.MySql.v8_0
     public override void Visit(SqlQueryExpression node)
     {
       using (context.EnterScope(node)) {
-        bool needOpeningParenthesis = true;
-        bool needClosingParenthesis = true;
+        var wrapLeft = node.Left is SqlSelect sL
+          && (sL.OrderBy.Count > 0 || !sL.HasLimit || sL.Lock != SqlLockType.Empty);
+        var wrapRight = node.Left is SqlSelect sR
+          && (sR.OrderBy.Count > 0 || !sR.HasLimit || sR.Lock != SqlLockType.Empty);
 
         AppendTranslatedEntry(node);
-        _ = context.Output.Append("(");
-        node.Left.AcceptVisitor(this);
-        _ = context.Output.Append(")");
+        if (wrapLeft) {
+          _ = context.Output.Append("(");
+          node.Left.AcceptVisitor(this);
+          _ = context.Output.Append(")");
+        }
+        else {
+          node.Left.AcceptVisitor(this);
+        }
+
         AppendTranslated(node.NodeType);
         AppendTranslated(node, QueryExpressionSection.All);
-        _ = context.Output.Append("(");
-        node.Right.AcceptVisitor(this);
-        _ = context.Output.Append(")");
+
+        if (wrapRight) {
+          _ = context.Output.Append("(");
+          node.Right.AcceptVisitor(this);
+          _ = context.Output.Append(")");
+        }
+        else {
+          node.Right.AcceptVisitor(this);
+        }
         AppendTranslatedExit(node);
       }
     }
