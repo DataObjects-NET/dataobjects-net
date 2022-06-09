@@ -16,9 +16,9 @@ namespace Xtensive.Sql.Drivers.MySql.v8_0
     {
       using (context.EnterScope(node)) {
         var wrapLeft = node.Left is SqlSelect sL
-          && (sL.OrderBy.Count > 0 || !sL.HasLimit || sL.Lock != SqlLockType.Empty);
+          && (sL.OrderBy.Count > 0 || sL.HasLimit || sL.Lock != SqlLockType.Empty);
         var wrapRight = node.Left is SqlSelect sR
-          && (sR.OrderBy.Count > 0 || !sR.HasLimit || sR.Lock != SqlLockType.Empty);
+          && (sR.OrderBy.Count > 0 || sR.HasLimit || sR.Lock != SqlLockType.Empty);
 
         AppendTranslatedEntry(node);
         if (wrapLeft) {
