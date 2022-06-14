@@ -14,14 +14,12 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Registers <see cref="EntityState"/> changes.
   /// </summary>
-  public sealed class EntityChangeRegistry : SessionBound
+  public sealed class EntityChangeRegistry : SessionBoundRegistry
   {
     private readonly HashSet<EntityState> @new = new();
     private readonly HashSet<EntityState> modified = new();
     private readonly HashSet<EntityState> removed = new();
     private int count;
-
-    private bool changesDisabled;
 
     /// <summary>
     /// Gets the number of registered entities.
@@ -86,33 +84,15 @@ namespace Xtensive.Orm.Internals
       removed.Clear();
     }
 
-    internal Core.Disposable PreventChanges()
-    {
-      changesDisabled = true;
-      return new Core.Disposable((a) => changesDisabled = false);
-    }
-
     /// <exception cref="ArgumentOutOfRangeException"><paramref name="state"/> is out of range.</exception>
     private HashSet<EntityState> GetContainer(PersistenceState state)
     {
-      switch (state) {
-        case PersistenceState.New:
-          return @new;
-        case PersistenceState.Modified:
-          return modified;
-        case PersistenceState.Removed:
-          return removed;
-        default:
-          throw new ArgumentOutOfRangeException(nameof(state));
-      }
-    }
-
-    private void EnsureRegistrationsAllowed()
-    {
-      if (changesDisabled) {
-        throw new InvalidOperationException(
-          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
-      }
+      return state switch {
+        PersistenceState.New => @new,
+        PersistenceState.Modified => modified,
+        PersistenceState.Removed => removed,
+        _ => throw new ArgumentOutOfRangeException(nameof(state)),
+      };
     }
 
     

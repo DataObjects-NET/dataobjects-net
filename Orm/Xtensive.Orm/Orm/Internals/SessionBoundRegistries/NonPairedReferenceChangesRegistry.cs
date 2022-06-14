@@ -13,7 +13,7 @@ using Xtensive.Orm.Model;
 
 namespace Xtensive.Orm.Internals
 {
-  internal sealed class NonPairedReferenceChangesRegistry : SessionBound
+  internal sealed class NonPairedReferenceChangesRegistry : SessionBoundRegistry
   {
     private readonly struct Identifier : IEquatable<Identifier>
     {
@@ -53,8 +53,6 @@ namespace Xtensive.Orm.Internals
     private readonly IDictionary<Identifier, HashSet<EntityState>> removedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
     private readonly IDictionary<Identifier, HashSet<EntityState>> addedReferences = new Dictionary<Identifier, HashSet<EntityState>>();
     private readonly object accessGuard = new();
-
-    private bool changesDisabled;
 
     public int RemovedReferencesCount => removedReferences.Values.Sum(el => el.Count);
 
@@ -98,12 +96,6 @@ namespace Xtensive.Orm.Internals
         removedReferences.Clear();
         addedReferences.Clear();
       }
-    }
-
-    internal Core.Disposable PreventChanges()
-    {
-      changesDisabled = true;
-      return new Core.Disposable((a) => changesDisabled = false);
     }
 
     private void RegisterChange(EntityState referencedState, EntityState referencingState, EntityState noLongerReferencedState, AssociationInfo association)
@@ -284,13 +276,6 @@ namespace Xtensive.Orm.Internals
     private string BuildNameOfEntityField(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure) =>
       $"{fieldOfOwner.Name}.{referenceFieldOfStructure.Name}";
 
-    private void EnsureRegistrationsAllowed()
-    {
-      if (changesDisabled) {
-        throw new InvalidOperationException(
-          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
-      }
-    }
 
     internal NonPairedReferenceChangesRegistry(Session session)
       : base(session)

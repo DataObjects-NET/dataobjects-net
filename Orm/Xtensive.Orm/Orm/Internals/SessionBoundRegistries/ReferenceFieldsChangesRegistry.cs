@@ -14,11 +14,9 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Registrates information about changed reference fields.
   /// </summary>
-  internal sealed class ReferenceFieldsChangesRegistry : SessionBound
+  internal sealed class ReferenceFieldsChangesRegistry : SessionBoundRegistry
   {
     private readonly HashSet<ReferenceFieldChangeInfo> changes = new();
-
-    private bool changesDisabled;
 
     /// <summary>
     /// Registrates information about field which value was set.
@@ -67,25 +65,12 @@ namespace Xtensive.Orm.Internals
       changes.Clear();
     }
 
-    internal Core.Disposable PreventChanges()
-    {
-      changesDisabled = true;
-      return new Core.Disposable((a) => changesDisabled = false);
-    }
-
     private void Register(ReferenceFieldChangeInfo fieldChangeInfo)
     {
       EnsureRegistrationsAllowed();
       _ = changes.Add(fieldChangeInfo);
     }
 
-    private void EnsureRegistrationsAllowed()
-    {
-      if (changesDisabled) {
-        throw new System.InvalidOperationException(
-          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
-      }
-    }
 
     public ReferenceFieldsChangesRegistry(Session session)
       : base(session)

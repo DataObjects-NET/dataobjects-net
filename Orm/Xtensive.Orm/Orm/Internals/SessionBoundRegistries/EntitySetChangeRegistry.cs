@@ -12,11 +12,9 @@ namespace Xtensive.Orm.Internals
   /// <summary>
   /// Contains <see cref="EntitySetState"/>s which modified during the bounded session.
   /// </summary>
-  public sealed class EntitySetChangeRegistry : SessionBound
+  public sealed class EntitySetChangeRegistry : SessionBoundRegistry
   {
     private readonly HashSet<EntitySetState> modifiedEntitySets = new();
-
-    private bool changesDisabled;
 
     /// <summary>
     /// Count of registered <see cref="EntitySetState"/>.
@@ -44,19 +42,6 @@ namespace Xtensive.Orm.Internals
     /// </summary>
     public void Clear() => modifiedEntitySets.Clear();
 
-    internal Core.Disposable PreventChanges()
-    {
-      changesDisabled = true;
-      return new Core.Disposable((a) => changesDisabled = false);
-    }
-
-    private void EnsureRegistrationsAllowed()
-    {
-      if (changesDisabled) {
-        throw new InvalidOperationException(
-          string.Format(Strings.ExSessionXIsActivelyPersistingChangesNoPersistentChangesAllowed, Session.Guid));
-      }
-    }
 
     /// <summary>
     /// Initializes a new instance of this class.
