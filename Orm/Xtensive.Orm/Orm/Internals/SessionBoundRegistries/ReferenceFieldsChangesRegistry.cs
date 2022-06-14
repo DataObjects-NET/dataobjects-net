@@ -52,18 +52,12 @@ namespace Xtensive.Orm.Internals
     /// Gets all registered items.
     /// </summary>
     /// <returns>All registered items.</returns>
-    public IEnumerable<ReferenceFieldChangeInfo> GetItems()
-    {
-      return changes;
-    }
+    public IEnumerable<ReferenceFieldChangeInfo> GetItems() => changes;
 
     /// <summary>
     /// Removes all registered items.
     /// </summary>
-    public void Clear()
-    {
-      changes.Clear();
-    }
+    public void Clear() => changes.Clear();
 
     private void Register(ReferenceFieldChangeInfo fieldChangeInfo)
     {

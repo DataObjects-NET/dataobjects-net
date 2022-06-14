@@ -7,7 +7,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Orm.Model;
 
@@ -22,21 +21,15 @@ namespace Xtensive.Orm.Internals
 
       public static Identifier Make(EntityState state, AssociationInfo association) => new(state, association);
 
-      public bool Equals(Identifier other)
-      {
-        if (!Association.Equals(other.Association))
-          return false;
-        if (!EntityState.Equals(other.EntityState))
-          return false;
-        return true;
-      }
+      public bool Equals(Identifier other) =>
+        Association.Equals(other.Association) && EntityState.Equals(other.EntityState);
 
       public override bool Equals(object obj) => Equals((Identifier) obj);
 
       public override int GetHashCode()
       {
         unchecked {
-          int hash = 139;
+          var hash = 139;
           hash = hash * 311 + EntityState.GetHashCode();
           hash = hash * 311 + Association.GetHashCode();
           return hash;
@@ -63,14 +56,9 @@ namespace Xtensive.Orm.Internals
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
 
-      if (association.IsPaired) {
-        return Array.Empty<EntityState>();
-      }
-
-      var key = Identifier.Make(target, association);
-      return removedReferences.TryGetValue(key, out var removedMap)
-        ? removedMap
-        : Array.Empty<EntityState>();
+      return association.IsPaired || !removedReferences.TryGetValue(Identifier.Make(target, association), out var removedMap)
+        ? Array.Empty<EntityState>()
+        : removedMap;
     }
 
     public IEnumerable<EntityState> GetAddedReferenceTo(EntityState target, AssociationInfo association)
@@ -78,14 +66,9 @@ namespace Xtensive.Orm.Internals
       ArgumentValidator.EnsureArgumentNotNull(target, "target");
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
 
-      if (association.IsPaired) {
-        return Array.Empty<EntityState>();
-      }
-
-      var key = Identifier.Make(target, association);
-      return addedReferences.TryGetValue(key, out var removedMap)
-        ? removedMap
-        : Array.Empty<EntityState>();
+      return association.IsPaired || !addedReferences.TryGetValue(Identifier.Make(target, association), out var removedMap)
+        ? Array.Empty<EntityState>()
+        : removedMap;
     }
 
     public void Invalidate() => Clear();
@@ -103,12 +86,10 @@ namespace Xtensive.Orm.Internals
       ArgumentValidator.EnsureArgumentNotNull(association, "association");
       ArgumentValidator.EnsureArgumentNotNull(referencingState, "referencingState");
 
-      if (!Session.DisableAutoSaveChanges)
+      if (!Session.DisableAutoSaveChanges || association.IsPaired
+        || (referencedState == null && noLongerReferencedState == null)) {
         return;
-      if (association.IsPaired)
-        return;
-      if (referencedState==null && noLongerReferencedState==null)
-        return;
+      }
 
       if (referencedState!=null && noLongerReferencedState!=null) {
         var oldKey = Identifier.Make(noLongerReferencedState, association);
@@ -156,7 +137,6 @@ namespace Xtensive.Orm.Internals
             _ = removedReferences.Remove(newKey);
           }
         }
-
         return;
       }
       if (addedReferences.TryGetValue(newKey, out var addedRefs)) {
@@ -199,8 +179,9 @@ namespace Xtensive.Orm.Internals
 
     private void OnEntityFieldValueSetCompleted(object sender, EntityFieldValueSetCompletedEventArgs e)
     {
-      if (ShouldSkipRegistration(e))
+      if (ShouldSkipRegistration(e)) {
         return;
+      }
       if (e.Field.IsStructure) {
         HandleStructureValues(e.Entity, e.Field, (Structure) e.OldValue, (Structure) e.NewValue);
       }
@@ -215,7 +196,7 @@ namespace Xtensive.Orm.Internals
         .Union(oldValue.TypeInfo.StructureFieldMapping.Values.Where(f => f.IsEntity));
 
       foreach (var referenceFieldOfStructure in referenceFields) {
-        var realField = owner.TypeInfo.Fields[BuildNameOfEntityField(fieldOfOwner, referenceFieldOfStructure)];
+        var realField = owner.TypeInfo.Fields[BuildNameEntityFieldName(fieldOfOwner, referenceFieldOfStructure)];
         if (realField.Associations.Count > 1) {
           continue;
         }
@@ -233,35 +214,18 @@ namespace Xtensive.Orm.Internals
       RegisterChange(newValue?.State, owner.State, oldValue?.State, association);
     }
 
-    private bool ShouldSkipRegistration(EntityFieldValueSetCompletedEventArgs e)
-    {
-      if (!Session.DisableAutoSaveChanges)
-        return true;
-      if (Session.IsPersisting)
-        return true;
-      if (e.Exception!=null)
-        return true;
-      if (!e.Field.IsEntity && !e.Field.IsStructure)
-        return true;
-      if (e.Field.IsEntity && e.Field.Associations.First().IsPaired)
-        return true;
-      if (e.NewValue==null && e.OldValue==null)
-        return true;
-      return false;
-    }
+    private bool ShouldSkipRegistration(EntityFieldValueSetCompletedEventArgs e) =>
+      !Session.DisableAutoSaveChanges || Session.IsPersisting
+        || e.Exception != null
+        || (!e.Field.IsEntity && !e.Field.IsStructure)
+        || (e.Field.IsEntity && e.Field.Associations.First().IsPaired)
+        || (e.NewValue == null && e.OldValue == null);
+    
 
-    private bool ShouldSkipRegistration(EntitySetItemActionCompletedEventArgs e)
-    {
-      if (!Session.DisableAutoSaveChanges)
-        return true;
-      if (Session.IsPersisting)
-        return true;
-      if (e.Exception!=null)
-        return true;
-      if (e.Field.Associations.First().IsPaired)
-        return true;
-      return false;
-    }
+    private bool ShouldSkipRegistration(EntitySetItemActionCompletedEventArgs e) =>
+      !Session.DisableAutoSaveChanges || Session.IsPersisting
+        || e.Exception != null
+        || e.Field.Associations.First().IsPaired;
 
     private EntityState GetStructureFieldValue(FieldInfo fieldOfStructure, Structure structure)
     {
@@ -273,7 +237,7 @@ namespace Xtensive.Orm.Internals
       return entity?.State;
     }
 
-    private string BuildNameOfEntityField(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure) =>
+    private string BuildNameEntityFieldName(FieldInfo fieldOfOwner, FieldInfo referenceFieldOfStructure) =>
       $"{fieldOfOwner.Name}.{referenceFieldOfStructure.Name}";
 
 

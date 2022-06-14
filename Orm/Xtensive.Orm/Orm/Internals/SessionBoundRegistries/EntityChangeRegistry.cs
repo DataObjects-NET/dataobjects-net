@@ -6,7 +6,6 @@
 
 using System;
 using System.Collections.Generic;
-using Xtensive.Collections;
 
 
 namespace Xtensive.Orm.Internals
@@ -24,7 +23,7 @@ namespace Xtensive.Orm.Internals
     /// <summary>
     /// Gets the number of registered entities.
     /// </summary>
-    public int Count { get { return count; } }
+    public int Count => count;
 
     /// <summary>
     /// Registers the specified item.
@@ -69,8 +68,9 @@ namespace Xtensive.Orm.Internals
     /// <returns>The sequence of items with specified state.</returns>
     public IEnumerable<EntityState> GetItems(PersistenceState state)
     {
-      foreach (var item in GetContainer(state))
+      foreach (var item in GetContainer(state)) {
         yield return item;
+      }
     }
 
     /// <summary>
