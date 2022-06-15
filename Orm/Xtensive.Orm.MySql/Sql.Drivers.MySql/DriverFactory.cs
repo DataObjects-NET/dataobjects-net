@@ -123,8 +123,7 @@ namespace Xtensive.Sql.Drivers.MySql
         5 when version.Minor == 5 => new v5_5.Driver(coreServerInfo),
         5 when version.Minor == 6 => new v5_6.Driver(coreServerInfo),
         5 when version.Minor == 7 => new v5_7.Driver(coreServerInfo),
-        6 => throw new NotSupportedException(),
-        7 => throw new NotSupportedException(),
+        6 or 7 => throw new NotSupportedException(string.Format(Strings.ExVersionXOfMySQLIsNotSupported, version)),
         8 => new v8_0.Driver(coreServerInfo),
         _ => new v8_0.Driver(coreServerInfo)
       };

@@ -19,7 +19,7 @@ namespace Xtensive.Sql.Drivers.MySql.Resources {
     // class via a tool like ResGen or Visual Studio.
     // To add or remove a member, edit your .ResX file then rerun ResGen
     // with the /str option, or rebuild your VS project.
-    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "15.0.0.0")]
+    [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "16.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     internal class Strings {
@@ -111,6 +111,15 @@ namespace Xtensive.Sql.Drivers.MySql.Resources {
         internal static string ExUserNameRequired {
             get {
                 return ResourceManager.GetString("ExUserNameRequired", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Version {0} of MySQL is not supported..
+        /// </summary>
+        internal static string ExVersionXOfMySQLIsNotSupported {
+            get {
+                return ResourceManager.GetString("ExVersionXOfMySQLIsNotSupported", resourceCulture);
             }
         }
     }
