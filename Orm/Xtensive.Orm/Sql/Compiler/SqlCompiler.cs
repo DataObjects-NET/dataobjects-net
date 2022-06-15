@@ -345,6 +345,18 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
+      if (node.NodeType == SqlNodeType.RawConcat) {
+        AppendSpace();
+        translator.Translate(context, node, NodeSection.Entry);
+        node.Left.AcceptVisitor(this);
+        AppendSpace();
+        translator.Translate(context.Output, node.NodeType);
+        node.Right.AcceptVisitor(this);
+        translator.Translate(context, node, NodeSection.Exit);
+
+        return;
+      }
+
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
         node.Left.AcceptVisitor(this);
@@ -1385,7 +1397,7 @@ namespace Xtensive.Sql.Compiler
         else if (node.Position > 0) {
           _ = context.Output.Append(node.Position.ToString());
         }
-        AppendSpaceIfNecessary();
+        AppendSpace();
         translator.Translate(context, node, NodeSection.Exit);
       }
     }
@@ -1608,7 +1620,9 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
-      AppendTranslated(node, SelectSection.From);
+      AppendSpace();
+      translator.Translate(context, node, SelectSection.From);
+      AppendSpace();
 
       var joinedFrom = node.From as SqlJoinedTable;
       var linearJoinRequired = CheckFeature(QueryFeatures.StrictJoinSyntax) && joinedFrom != null;
@@ -2790,6 +2804,7 @@ namespace Xtensive.Sql.Compiler
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAssignment node, NodeSection section) =>
