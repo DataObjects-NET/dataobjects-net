@@ -1523,6 +1523,10 @@ namespace Xtensive.Orm.Linq
         case 2:
           source = mc.Arguments[1];
           match = mc.Arguments[0];
+          if (source.NodeType == ExpressionType.NewArrayInit
+              && ((NewArrayExpression) source).Expressions.Count < context.Domain.Configuration.MaxNumberOfConditions) {
+            algorithm = IncludeAlgorithm.ComplexCondition;
+          }
           break;
         case 3:
           source = mc.Arguments[2];
