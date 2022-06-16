@@ -14,6 +14,8 @@ using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Internals
@@ -122,10 +124,11 @@ namespace Xtensive.Orm.Internals
       }
 
       var parameterizedQuery = (ParameterizedQuery) scope.ParameterizedQuery;
-      if (parameterizedQuery==null && queryTarget!=null) {
+      if (parameterizedQuery == null && queryTarget != null) {
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
+      cacheable = cacheable && parameterizedQuery != null && !UsesSqlTemporaryDataProvider(parameterizedQuery.DataSource);
       if (cacheable) {
         PutCachedQuery(parameterizedQuery);
       }
@@ -145,6 +148,7 @@ namespace Xtensive.Orm.Internals
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
         var translatedQuery = endpoint.Provider.Translate(result.Expression);
+        cacheable = cacheable && !UsesSqlTemporaryDataProvider(translatedQuery.DataSource);
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
@@ -153,6 +157,9 @@ namespace Xtensive.Orm.Internals
       }
       return parameterizedQuery;
     }
+
+    private static bool UsesSqlTemporaryDataProvider(Provider provider) =>
+      provider is SqlTemporaryDataProvider || provider.Sources.Any(UsesSqlTemporaryDataProvider);
 
     private bool AllocateParameterAndReplacer()
     {
