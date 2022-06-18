@@ -35,6 +35,10 @@ namespace Xtensive.Sql.Compiler
             sb.Append(typeId);      // We assume typeId > 0 here to avoid using .AppendFormat(CultureInfo.InvariantCulture) with boxing
             return;
           }
+          if (typeInfo.IsInterface) {
+            sb.Append(0);
+            return;
+          }
           break;
         case Schema schema:
           sb.Append(schema.GetActualDbName(SchemaMapping));
