@@ -5,6 +5,7 @@
 // Created:    2012.01.27
 
 using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
@@ -20,7 +21,8 @@ namespace Xtensive.Orm.Internals
 {
   internal class CompiledQueryRunner
   {
-    private static readonly Func<FieldInfo, bool> FieldIsSimple = fieldInfo => IsSimpleType(fieldInfo.FieldType);
+    private static readonly Func<FieldInfo, IReadOnlySet<Type>, bool> IsFieldReadyToCache = (fieldInfo, supportedTypes) =>
+      IsTypeCacheable(fieldInfo.FieldType, supportedTypes);
 
     private readonly Domain domain;
     private readonly Session session;
@@ -28,6 +30,7 @@ namespace Xtensive.Orm.Internals
     private readonly object queryKey;
     private readonly object queryTarget;
     private readonly ParameterContext outerContext;
+    private readonly IReadOnlySet<Type> supportedTypes;
 
     private Parameter queryParameter;
     private ExtendedExpressionReplacer queryParameterReplacer;
@@ -200,23 +203,49 @@ namespace Xtensive.Orm.Internals
         return null;
       });
 
+
       return !TypeHelper.IsClosure(closureType)
-        || closureType.GetFields().All(FieldIsSimple);
+        || closureType.GetFields().All(f => IsFieldReadyToCache(f, supportedTypes));
     }
 
-    private static bool IsSimpleType(Type type)
+    private static bool IsTypeCacheable(Type type, IReadOnlySet<Type> supportedTypes)
     {
-      var typeInfo = type.GetTypeInfo();
-      if (typeInfo.IsGenericType) {
-        var genericDef = typeInfo.GetGenericTypeDefinition();
-        return (genericDef == WellKnownTypes.NullableOfT || genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT))
-          && IsSimpleType(typeInfo.GetGenericArguments()[0]);
+      var type1 = type.StripNullable();
+      if (type1.IsGenericType) {
+        // IReadOnlyList<T> implementations + ValueTuple<> with different number of argument types
+        if (type1.IsValueTuple() && type1.GetGenericArguments().All(t => IsTypeCacheable(t, supportedTypes))) {
+          return true;
+        }
+        var genericDef = type1.GetGenericTypeDefinition();
+        return genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT) && IsTypeCacheable(type1.GetGenericArguments()[0], supportedTypes);
       }
-      else if (typeInfo.IsArray) {
-        return IsSimpleType(typeInfo.GetElementType());
+      else if (type1.IsArray) {
+        return IsTypeCacheable(type1.GetElementType(), supportedTypes);
       }
       else {
-        return typeInfo.IsPrimitive || typeInfo.IsEnum || type == WellKnownTypes.String || type == WellKnownTypes.Decimal;
+        // enums are handled by their base type so no need to check them
+        return Type.GetTypeCode(type1) switch {
+          TypeCode.Boolean => true,
+          TypeCode.Byte => true,
+          TypeCode.SByte => true,
+          TypeCode.Int16 => true,
+          TypeCode.UInt16 => true,
+          TypeCode.Int32 => true,
+          TypeCode.UInt32 => true,
+          TypeCode.Int64 => true,
+          TypeCode.UInt64 => true,
+          TypeCode.Single => true,
+          TypeCode.Double => true,
+          TypeCode.Decimal => true,
+          TypeCode.Char => true,
+          TypeCode.String => true,
+          TypeCode.DateTime => true,
+          TypeCode.Object => type1 == WellKnownTypes.Guid
+            || type1 == WellKnownTypes.TimeSpan
+            || type1 == WellKnownTypes.DateTimeOffset
+            || supportedTypes.Contains(type1),
+          _ => false
+        };
       }
     }
 
@@ -245,6 +274,7 @@ namespace Xtensive.Orm.Internals
       this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
+      supportedTypes = domain.StorageProviderInfo.SupportedTypes;
     }
   }
 }
