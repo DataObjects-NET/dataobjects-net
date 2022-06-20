@@ -173,7 +173,7 @@ namespace Xtensive.Orm.Tests.Linq
     protected override void CheckRequirements() => Require.ProviderIsNot(StorageProvider.Sqlite);
 
     [Test]
-    public void CachingClosureWithBoolean()
+    public void BooleanTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -189,7 +189,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithBooleanAsync()
+    public async Task BooleanTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -205,7 +205,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithByte()
+    public void ByteTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithByteAsync()
+    public async Task ByteTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -237,7 +237,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithSByte()
+    public void SByteTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -253,7 +253,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithSByteAsync()
+    public async Task SByteTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -269,7 +269,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithInt16()
+    public void Int16Test()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -285,7 +285,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithInt16Async()
+    public async Task Int16TestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -301,7 +301,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithUInt16()
+    public void UInt16Test()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -317,7 +317,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithUInt16Async()
+    public async Task UInt16TestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -333,7 +333,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithInt32()
+    public void Int32Test()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -349,7 +349,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithInt32Async()
+    public async Task Int32TestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -365,7 +365,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithUInt32()
+    public void UInt32Test()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -381,7 +381,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithUInt32Async()
+    public async Task UInt32TestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -397,7 +397,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithInt64()
+    public void Int64Test()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -413,7 +413,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithInt64Async()
+    public async Task Int64TestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -429,7 +429,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithUInt64()
+    public void UInt64Test()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -445,7 +445,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithUInt64Async()
+    public async Task UInt64TestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -461,7 +461,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithSingle()
+    public void SingleTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -477,7 +477,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithSingleAsync()
+    public async Task SingleTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -493,7 +493,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithDouble()
+    public void DoubleTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -509,7 +509,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithDoubleAsync()
+    public async Task DoubleTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -525,7 +525,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithDecimal()
+    public void DecimalTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -541,7 +541,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithDecimalAsync()
+    public async Task DecimalTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -557,7 +557,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithChar()
+    public void CharTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -573,7 +573,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithCharAsync()
+    public async Task CharTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -589,7 +589,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithString()
+    public void StringTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -601,7 +601,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithStringAsync()
+    public async Task StringTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -613,7 +613,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithDateTime()
+    public void DateTimeTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -629,7 +629,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithDateTimeAsync()
+    public async Task DateTimeAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -645,7 +645,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithTimeSpan()
+    public void TimeSpanTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -661,7 +661,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithTimeSpanAsync()
+    public async Task TimeSpanTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -677,7 +677,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithGuid()
+    public void GuidTest()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -693,7 +693,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithGuidAsync()
+    public async Task GuidTestAsync()
     {
       var countBefore = Domain.QueryCache.Count;
 
@@ -709,7 +709,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public void CachingClosureWithDateTimeOffset()
+    public void DateTimeOffsetTest()
     {
       Require.AllFeaturesSupported(Providers.ProviderFeatures.DateTimeOffset);
 
@@ -727,7 +727,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithDateTimeOffsetAsync()
+    public async Task DateTimeOffsetTestAsync()
     {
       Require.AllFeaturesSupported(Providers.ProviderFeatures.DateTimeOffset);
 
@@ -746,7 +746,7 @@ namespace Xtensive.Orm.Tests.Linq
 
 
     [Test]
-    public void CachingClosureWithPgSqlTypes()
+    public void PgSqlTypesTest()
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
 
@@ -764,7 +764,7 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
-    public async Task CachingClosureWithPgSqlTypesAsync()
+    public async Task PgSqlTypesTestAsync()
     {
       Require.ProviderIs(StorageProvider.PostgreSql);
 
@@ -779,6 +779,30 @@ namespace Xtensive.Orm.Tests.Linq
       await QueryAsync(session, (NpgsqlTypes.NpgsqlPoint?) new NpgsqlTypes.NpgsqlPoint(0, 0));
 
       Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 2));
+    }
+
+    [Test]
+    public void ValueTupleTest()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      Query(session, (1, 1.2f));
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
+    }
+
+    [Test]
+    public async Task ValueTupleTestAsync()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      await using var session = await Domain.OpenSessionAsync();
+      await using var tx = await session.OpenTransactionAsync();
+      await QueryAsync(session, (1, 1.2f));
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
     }
 
     #region General types
@@ -980,6 +1004,12 @@ namespace Xtensive.Orm.Tests.Linq
 
     private async Task QueryAsync(Session session, Guid? value) =>
       _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNGuid == value));
+
+    private void Query(Session session, (int value1, float value2) value) =>
+      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.value1 || e.FFloat == value.value2));
+
+    private async Task QueryAsync(Session session, (int value1, float value2) value) =>
+      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.value1 || e.FFloat == value.value2));
 
     #endregion
 
