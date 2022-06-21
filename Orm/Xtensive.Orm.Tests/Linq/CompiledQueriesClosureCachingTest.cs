@@ -121,6 +121,11 @@ namespace Xtensive.Orm.Tests.Linq.CompiledQueriesClosureCachingTestModel
 
     [Field]
     public TimeSpan? FNTimeSpan { get; set; }
+
+    public AllTypesNeverCreatedEntity(Session session)
+      : base(session)
+    {
+    }
   }
 
   [Serializable]
@@ -135,6 +140,11 @@ namespace Xtensive.Orm.Tests.Linq.CompiledQueriesClosureCachingTestModel
 
     [Field]
     public DateTimeOffset? FNDateTimeOffset { get; set; }
+
+    public DateTimeOffsetNeverCreatedEntity(Session session)
+      : base(session)
+    {
+    }
   }
 
   [Serializable]
@@ -149,6 +159,39 @@ namespace Xtensive.Orm.Tests.Linq.CompiledQueriesClosureCachingTestModel
 
     [Field]
     public NpgsqlTypes.NpgsqlPoint? FNPoint { get; set; }
+
+    public PgSqlTypesNeverCreatedEntity(Session session)
+      : base(session)
+    {
+    }
+  }
+
+  public struct PropsStruct
+  {
+    public int IntField { get; set; }
+
+    public long LongField { get; set; }
+  }
+
+  public struct PropsWrongStruct
+  {
+    public int IntField { get; set; }
+
+    public Tuple<int> TupleField { get; set; }
+  }
+
+  public struct FieldsStruct
+  {
+    public int IntField;
+
+    public long LongField;
+  }
+
+  public struct FieldsWrongStruct
+  {
+    public int IntField;
+
+    public Tuple<int> TupleField;
   }
 }
 
@@ -805,6 +848,38 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
     }
 
+    [Test]
+    public void CustomStructTest()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      Query(session, new PropsStruct() { IntField = 10, LongField = 100 });
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
+
+      Query(session, new FieldsStruct() { IntField = 10, LongField = 100 });
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 2));
+    }
+
+    [Test]
+    public async Task CustomStructTestAsync()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      await using var session = await Domain.OpenSessionAsync();
+      await using var tx = await session.OpenTransactionAsync();
+      await QueryAsync(session, new PropsStruct() { IntField = 10, LongField = 100 });
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
+
+      await QueryAsync(session, new FieldsStruct() { IntField = 10, LongField = 100 });
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 2));
+    }
+
     #region General types
 
     private void Query(Session session, bool value) =>
@@ -1038,6 +1113,19 @@ namespace Xtensive.Orm.Tests.Linq
 
     private async Task QueryAsync(Session session, NpgsqlTypes.NpgsqlPoint? value) =>
       _ = await session.Query.ExecuteAsync(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.FNPoint == value));
+
+
+    private void Query(Session session, PropsStruct value) =>
+      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
+
+    private async Task QueryAsync(Session session, PropsStruct value) =>
+      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
+
+    private void Query(Session session, FieldsStruct value) =>
+      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
+
+    private async Task QueryAsync(Session session, FieldsStruct value) =>
+      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
 
     #endregion
   }
