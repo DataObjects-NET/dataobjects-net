@@ -21,9 +21,6 @@ namespace Xtensive.Orm.Internals
 {
   internal class CompiledQueryRunner
   {
-    private static readonly Func<FieldInfo, IReadOnlySet<Type>, bool> IsFieldReadyToCache = (fieldInfo, supportedTypes) =>
-      IsTypeCacheable(fieldInfo.FieldType, supportedTypes);
-
     private readonly Domain domain;
     private readonly Session session;
     private readonly QueryEndpoint endpoint;
@@ -34,6 +31,7 @@ namespace Xtensive.Orm.Internals
 
     private Parameter queryParameter;
     private ExtendedExpressionReplacer queryParameterReplacer;
+    private Type queryTargetType;
 
     public QueryResult<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
@@ -114,24 +112,24 @@ namespace Xtensive.Orm.Internals
     private ParameterizedQuery GetScalarQuery<TResult>(
       Func<QueryEndpoint, TResult> query, bool executeAsSideEffect, out TResult result)
     {
-      var cacheable = AllocateParameterAndReplacer();
+      AllocateParameterAndReplacer();
 
       var parameterContext = new ParameterContext(outerContext);
       parameterContext.SetValue(queryParameter, queryTarget);
       var scope = new CompiledQueryProcessingScope(
         queryParameter, queryParameterReplacer, parameterContext, executeAsSideEffect);
+
       using (scope.Enter()) {
         result = query.Invoke(endpoint);
       }
 
       var parameterizedQuery = (ParameterizedQuery) scope.ParameterizedQuery;
-      if (parameterizedQuery==null && queryTarget!=null) {
+      if (parameterizedQuery == null && queryTarget != null) {
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
-      if (cacheable) {
-        PutCachedQuery(parameterizedQuery);
-      }
+      PutQueryToCacheIfAllowed(parameterizedQuery);
+
       return parameterizedQuery;
     }
 
@@ -143,7 +141,7 @@ namespace Xtensive.Orm.Internals
         return parameterizedQuery;
       }
 
-      var cacheable = AllocateParameterAndReplacer();
+      AllocateParameterAndReplacer();
       var scope = new CompiledQueryProcessingScope(queryParameter, queryParameterReplacer);
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
@@ -151,21 +149,20 @@ namespace Xtensive.Orm.Internals
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
-      if (cacheable) {
-        PutCachedQuery(parameterizedQuery);
-      }
+      PutQueryToCacheIfAllowed(parameterizedQuery);
+
       return parameterizedQuery;
     }
 
-    private bool AllocateParameterAndReplacer()
+    private void AllocateParameterAndReplacer()
     {
       if (queryTarget == null) {
         queryParameter = null;
         queryParameterReplacer = new ExtendedExpressionReplacer(e => e);
-        return true;
+        return;
       }
 
-      var closureType = queryTarget.GetType();
+      var closureType = queryTargetType = queryTarget.GetType();
       var parameterType = WellKnownOrmTypes.ParameterOfT.CachedMakeGenericType(closureType);
       var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
@@ -202,10 +199,24 @@ namespace Xtensive.Orm.Internals
         }
         return null;
       });
+    }
 
+    private bool IsQueryCacheable()
+    {
+      if (queryTargetType==null) {
+        return true;
+      }
 
-      return !TypeHelper.IsClosure(closureType)
-        || closureType.GetFields().All(f => IsFieldReadyToCache(f, supportedTypes));
+      if (!queryTargetType.IsClosure()) {
+        return true;
+      }
+
+      foreach (var field in queryTargetType.GetFields()) {
+        if (!IsTypeCacheable(field.FieldType, supportedTypes)) {
+          return false;
+        }
+      }
+      return true;
     }
 
     private static bool IsTypeCacheable(Type type, IReadOnlySet<Type> supportedTypes)
@@ -240,10 +251,7 @@ namespace Xtensive.Orm.Internals
           TypeCode.Char => true,
           TypeCode.String => true,
           TypeCode.DateTime => true,
-          TypeCode.Object => type1 == WellKnownTypes.Guid
-            || type1 == WellKnownTypes.TimeSpan
-            || type1 == WellKnownTypes.DateTimeOffset
-            || supportedTypes.Contains(type1),
+          TypeCode.Object => type1.IsValueType,
           _ => false
         };
       }
@@ -252,8 +260,17 @@ namespace Xtensive.Orm.Internals
     private ParameterizedQuery GetCachedQuery() =>
       domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Second : null;
 
-    private void PutCachedQuery(ParameterizedQuery parameterizedQuery) =>
-      domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
+    private void PutQueryToCacheIfAllowed(ParameterizedQuery parameterizedQuery) {
+      if (IsQueryCacheable()) {
+        domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
+      }
+      else {
+        // no .resx used because it is hot path.
+        if (OrmLog.IsLogged(Logging.LogLevel.Info))
+          OrmLog.Info("Query can't be cached because closure type it has references to captures reference" +
+            " type instances. This will lead to long-living objects in memory.");
+      }
+    }
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)
     {
