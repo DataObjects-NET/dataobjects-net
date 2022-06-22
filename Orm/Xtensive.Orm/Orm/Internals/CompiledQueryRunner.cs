@@ -222,15 +222,21 @@ namespace Xtensive.Orm.Internals
     private static bool IsTypeCacheable(Type type, IReadOnlySet<Type> supportedTypes)
     {
       var type1 = type.StripNullable();
-      if (type1.IsGenericType) {
-        // IReadOnlyList<T> implementations + ValueTuple<> with different number of argument types
-        if (type1.IsValueTuple() && type1.GetGenericArguments().All(t => IsTypeCacheable(t, supportedTypes))) {
+      var typeInfo = type1.GetTypeInfo();
+      if (typeInfo.IsGenericType) {
+        // IReadOnlyList<T> implementations + ValueTuple<> with different number of type arguments
+        if (type1.IsValueTuple()) {
+          foreach (var arg in typeInfo.GenericTypeArguments) {
+            if (!IsTypeCacheable(arg, supportedTypes)) {
+              return false;
+            }
+          }
           return true;
         }
-        var genericDef = type1.GetGenericTypeDefinition();
-        return genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT) && IsTypeCacheable(type1.GetGenericArguments()[0], supportedTypes);
+        var genericDef = typeInfo.GetGenericTypeDefinition();
+        return genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT) && IsTypeCacheable(typeInfo.GetGenericArguments()[0], supportedTypes);
       }
-      else if (type1.IsArray) {
+      else if (typeInfo.IsArray) {
         return IsTypeCacheable(type1.GetElementType(), supportedTypes);
       }
       else {
@@ -251,7 +257,7 @@ namespace Xtensive.Orm.Internals
           TypeCode.Char => true,
           TypeCode.String => true,
           TypeCode.DateTime => true,
-          TypeCode.Object => type1.IsValueType,
+          TypeCode.Object => typeInfo.IsValueType,
           _ => false
         };
       }
