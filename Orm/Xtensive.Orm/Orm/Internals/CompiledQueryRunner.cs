@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Internals
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
-      PutQueryToCacheIfAllowed(parameterizedQuery);
+      PutQueryToCacheIfAllowed(parameterizedQuery, scope.CheckIfCacheble);
 
       return parameterizedQuery;
     }
@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Internals
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
-      PutQueryToCacheIfAllowed(parameterizedQuery);
+      PutQueryToCacheIfAllowed(parameterizedQuery, scope.CheckIfCacheble);
 
       return parameterizedQuery;
     }
@@ -266,16 +266,15 @@ namespace Xtensive.Orm.Internals
     private ParameterizedQuery GetCachedQuery() =>
       domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Second : null;
 
-    private void PutQueryToCacheIfAllowed(ParameterizedQuery parameterizedQuery) {
-      if (IsQueryCacheable()) {
-        domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
-      }
-      else {
+    private void PutQueryToCacheIfAllowed(ParameterizedQuery parameterizedQuery, in bool checkIfCacheable) {
+      if (checkIfCacheable && !IsQueryCacheable()) {
         // no .resx used because it is hot path.
         if (OrmLog.IsLogged(Logging.LogLevel.Info))
           OrmLog.Info("Query can't be cached because closure type it has references to captures reference" +
             " type instances. This will lead to long-living objects in memory.");
+        return;
       }
+      domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
     }
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)

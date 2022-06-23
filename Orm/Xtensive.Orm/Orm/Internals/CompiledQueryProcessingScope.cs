@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2020 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -19,6 +19,7 @@ namespace Xtensive.Orm.Internals
     public ExtendedExpressionReplacer QueryParameterReplacer { get; }
     public ParameterContext ParameterContext { get; }
     public bool Execute { get; }
+    public bool CheckIfCacheble { get; set; } = false;
 
     [field: ThreadStatic]
     internal static CompiledQueryProcessingScope Current { get; private set; }

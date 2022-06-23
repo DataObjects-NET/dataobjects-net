@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
@@ -1696,6 +1696,7 @@ namespace Xtensive.Orm.Linq
       if (compiledQueryScope != null) {
         var replacer = compiledQueryScope.QueryParameterReplacer;
         var replace = replacer.Replace(sequence);
+        compiledQueryScope.CheckIfCacheble = true;
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
         collectionGetter = parameter.CachingCompile();
       }
