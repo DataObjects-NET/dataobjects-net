@@ -215,6 +215,109 @@ namespace Xtensive.Orm.Tests.Linq
 
     protected override void CheckRequirements() => Require.ProviderIsNot(StorageProvider.Sqlite);
 
+    public static Tuple<int> StaticField;
+    public Tuple<int> Field;
+
+    public static Tuple<int> StaticProperty { get; set; }
+    public Tuple<int> Property { get; set; }
+
+
+    [Test]
+    public void FieldTest()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      QueryWithField(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore));
+    }
+
+    [Test]
+    public async Task FieldTestAsync()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      await using var session = await Domain.OpenSessionAsync();
+      await using var tx = await session.OpenTransactionAsync();
+      await QueryWithFieldAsync(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore));
+    }
+
+    [Test]
+    public void StaticFieldTest()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      QueryWithStaticField(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
+    }
+
+    [Test]
+    public async Task StaticFieldTestAsync()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      await using var session = await Domain.OpenSessionAsync();
+      await using var tx = await session.OpenTransactionAsync();
+      await QueryWithStaticFieldAsync(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
+    }
+
+    [Test]
+    public void PropertyTest()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      QueryWithProperty(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore));
+    }
+
+    [Test]
+    public async Task PropertyTestAsync()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      await using var session = await Domain.OpenSessionAsync();
+      await using var tx = await session.OpenTransactionAsync();
+      await QueryWithPropertyAsync(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore));
+    }
+
+    [Test]
+    public void StaticPropertyTest()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      QueryWithStaticProperty(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
+    }
+
+    [Test]
+    public async Task StaticPropertyTestAsync()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      await using var session = await Domain.OpenSessionAsync();
+      await using var tx = await session.OpenTransactionAsync();
+      await QueryWithStaticPropertyAsync(session);
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 1));
+    }
+
     [Test]
     public void BooleanTest()
     {
@@ -880,252 +983,665 @@ namespace Xtensive.Orm.Tests.Linq
       Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore + 2));
     }
 
+    [Test]
+    public void UnsupportedTypeTest()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      using var session = Domain.OpenSession();
+      using var tx = session.OpenTransaction();
+      Query(session, new Tuple<int>(1));
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore));
+    }
+
+    [Test]
+    public async Task UnsupportedTypeTestAsync()
+    {
+      var countBefore = Domain.QueryCache.Count;
+
+      await using var session = await Domain.OpenSessionAsync();
+      await using var tx = await session.OpenTransactionAsync();
+      await QueryAsync(session, new Tuple<int>(1));
+
+      Assert.That(Domain.QueryCache.Count, Is.EqualTo(countBefore));
+    }
+
     #region General types
 
-    private void Query(Session session, bool value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FBool == value));
-
-    private async Task QueryAsync(Session session, bool value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FBool == value));
-
-    private void Query(Session session, bool? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNBool == value));
-
-    private async Task QueryAsync(Session session, bool? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNBool == value));
-
-    private void Query(Session session, byte value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FByte == value));
-
-    private async Task QueryAsync(Session session, byte value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FByte == value));
-
-    private void Query(Session session, byte? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNByte == value));
-
-    private async Task QueryAsync(Session session, byte? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNByte == value));
-
-    private void Query(Session session, sbyte value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FSByte == value));
-
-    private async Task QueryAsync(Session session, sbyte value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FSByte == value));
-
-    private void Query(Session session, sbyte? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNSByte == value));
-
-    private async Task QueryAsync(Session session, sbyte? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNSByte == value));
-
-    private void Query(Session session, short value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FShort == value));
-
-    private async Task QueryAsync(Session session, short value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FShort == value));
-
-    private void Query(Session session, short? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNShort == value));
-
-    private async Task QueryAsync(Session session, short? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNShort == value));
-
-    private void Query(Session session, ushort value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FUShort == value));
-
-    private async Task QueryAsync(Session session, ushort value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FUShort == value));
-
-    private void Query(Session session, ushort? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNUShort == value));
-
-    private async Task QueryAsync(Session session, ushort? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNUShort == value));
-
-    private void Query(Session session, int value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value));
-
-    private async Task QueryAsync(Session session, int value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value));
-
-    private void Query(Session session, int? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNInt == value));
-
-    private async Task QueryAsync(Session session, int? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNInt == value));
-
-    private void Query(Session session, uint value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FUInt == value));
-
-    private async Task QueryAsync(Session session, uint value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FUInt == value));
-
-    private void Query(Session session, uint? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNUInt == value));
-
-    private async Task QueryAsync(Session session, uint? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNUInt == value));
-
-    private void Query(Session session, long value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FLong == value));
-
-    private async Task QueryAsync(Session session, long value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FLong == value));
-
-    private void Query(Session session, long? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNLong == value));
-
-    private async Task QueryAsync(Session session, long? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNLong == value));
-
-    private void Query(Session session, ulong value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FULong == value));
-
-    private static async Task QueryAsync(Session session, ulong value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FULong == value));
-
-    private void Query(Session session, ulong? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNULong == value));
-
-    private static async Task QueryAsync(Session session, ulong? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNULong == value));
-
-    private void Query(Session session, float value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FFloat == value));
-
-    private async Task QueryAsync(Session session, float value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FFloat == value));
-
-    private void Query(Session session, float? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNFloat == value));
-
-    private async Task QueryAsync(Session session, float? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNFloat == value));
-
-    private void Query(Session session, double value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FDouble == value));
-
-    private async Task QueryAsync(Session session, double value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FDouble == value));
-
-    private void Query(Session session, double? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNDouble == value));
-
-    private async Task QueryAsync(Session session, double? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNDouble == value));
-
-    private void Query(Session session, decimal value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FDecimal == value));
-
-    private async Task QueryAsync(Session session, decimal value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FDecimal == value));
-
-    private void Query(Session session, decimal? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNDecimal == value));
-
-    private async Task QueryAsync(Session session, decimal? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNDecimal == value));
-
-    private void Query(Session session, char value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FChar == value));
-
-    private async Task QueryAsync(Session session, char value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FChar == value));
-
-    private void Query(Session session, char? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNChar == value));
-
-    private async Task QueryAsync(Session session, char? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNChar == value));
-
-    private void Query(Session session, string value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FString == value));
-
-    private async Task QueryAsync(Session session, string value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FString == value));
-
-    private void Query(Session session, DateTime value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FDateTime == value));
-
-    private async Task QueryAsync(Session session, DateTime value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FDateTime == value));
-
-    private void Query(Session session, DateTime? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNDateTime == value));
-
-    private async Task QueryAsync(Session session, DateTime? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNDateTime == value));
-
-    private void Query(Session session, TimeSpan value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FTimeSpan == value));
-
-    private async Task QueryAsync(Session session, TimeSpan value) =>
-      await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FTimeSpan == value));
-
-    private void Query(Session session, TimeSpan? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNTimeSpan == value));
-
-    private async Task QueryAsync(Session session, TimeSpan? value) =>
-      await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNTimeSpan == value));
-
-    private void Query(Session session, Guid value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FGuid == value));
-
-    private async Task QueryAsync(Session session, Guid value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FGuid == value));
-
-    private void Query(Session session, Guid? value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNGuid == value));
-
-    private async Task QueryAsync(Session session, Guid? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FNGuid == value));
-
-    private void Query(Session session, (int value1, float value2) value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.value1 || e.FFloat == value.value2));
-
-    private async Task QueryAsync(Session session, (int value1, float value2) value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.value1 || e.FFloat == value.value2));
+    private void QueryWithField(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == Field.Item1).ToArray();
+    }
+
+    private async Task QueryWithFieldAsync(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == Field.Item1).ToArray();
+    }
+
+    private void QueryWithStaticField(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == StaticField.Item1).ToArray();
+    }
+
+    private async Task QueryWithStaticFieldAsync(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == StaticField.Item1).ToArray();
+    }
+
+    private void QueryWithProperty(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == Property.Item1).ToArray();
+    }
+
+    private async Task QueryWithPropertyAsync(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == Property.Item1).ToArray();
+    }
+
+    private void QueryWithStaticProperty(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == StaticProperty.Item1).ToArray();
+    }
+
+    private async Task QueryWithStaticPropertyAsync(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == StaticProperty.Item1).ToArray();
+    }
+
+    private void Query(Session session, Tuple<int> value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.Item1).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, Tuple<int> value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.Item1).ToArray();
+    }
+
+    private void Query(Session session, bool value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FBool == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, bool value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FBool == value).ToArray();
+    }
+
+    private void Query(Session session, bool? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNBool == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, bool? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNBool == value).ToArray();
+    }
+
+    private void Query(Session session, byte value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FByte == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, byte value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FByte == value).ToArray();
+    }
+
+    private void Query(Session session, byte? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNByte == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, byte? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNByte == value).ToArray();
+    }
+
+    private void Query(Session session, sbyte value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FSByte == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, sbyte value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FSByte == value).ToArray();
+    }
+
+    private void Query(Session session, sbyte? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNSByte == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, sbyte? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNSByte == value).ToArray();
+    }
+
+    private void Query(Session session, short value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FShort == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, short value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FShort == value).ToArray();
+    }
+
+    private void Query(Session session, short? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNShort == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, short? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNShort == value).ToArray();
+    }
+
+    private void Query(Session session, ushort value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FUShort == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, ushort value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FUShort == value).ToArray();
+    }
+
+    private void Query(Session session, ushort? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNUShort == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, ushort? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNUShort == value).ToArray();
+    }
+
+    private void Query(Session session, int value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, int value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value).ToArray();
+    }
+
+    private void Query(Session session, int? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNInt == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, int? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNInt == value).ToArray();
+    }
+
+    private void Query(Session session, uint value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FUInt == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, uint value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FUInt == value).ToArray();
+    }
+
+    private void Query(Session session, uint? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNUInt == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, uint? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNUInt == value).ToArray();
+    }
+
+    private void Query(Session session, long value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FLong == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, long value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FLong == value).ToArray();
+    }
+
+    private void Query(Session session, long? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNLong == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, long? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNLong == value).ToArray();
+    }
+
+    private void Query(Session session, ulong value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FULong == value).ToArray();
+    }
+
+    private static async Task QueryAsync(Session session, ulong value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FULong == value).ToArray();
+    }
+
+    private void Query(Session session, ulong? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNULong == value).ToArray();
+    }
+
+    private static async Task QueryAsync(Session session, ulong? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNULong == value).ToArray();
+    }
+
+    private void Query(Session session, float value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FFloat == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, float value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FFloat == value).ToArray();
+    }
+
+    private void Query(Session session, float? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNFloat == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, float? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNFloat == value).ToArray();
+    }
+
+    private void Query(Session session, double value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDouble == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, double value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDouble == value).ToArray();
+    }
+
+    private void Query(Session session, double? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDouble == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, double? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDouble == value).ToArray();
+    }
+
+    private void Query(Session session, decimal value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDecimal == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, decimal value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDecimal == value).ToArray();
+    }
+
+    private void Query(Session session, decimal? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDecimal == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, decimal? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDecimal == value).ToArray();
+    }
+
+    private void Query(Session session, char value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FChar == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, char value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FChar == value).ToArray();
+    }
+
+    private void Query(Session session, char? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNChar == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, char? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNChar == value).ToArray();
+    }
+
+    private void Query(Session session, string value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FString == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, string value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FString == value).ToArray();
+    }
+
+    private void Query(Session session, DateTime value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDateTime == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, DateTime value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDateTime == value).ToArray();
+    }
+
+    private void Query(Session session, DateTime? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDateTime == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, DateTime? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDateTime == value).ToArray();
+    }
+
+    private void Query(Session session, TimeSpan value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FTimeSpan == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, TimeSpan value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FTimeSpan == value).ToArray();
+    }
+
+    private void Query(Session session, TimeSpan? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNTimeSpan == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, TimeSpan? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNTimeSpan == value).ToArray();
+    }
+
+    private void Query(Session session, Guid value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FGuid == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, Guid value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FGuid == value).ToArray();
+    }
+
+    private void Query(Session session, Guid? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNGuid == value).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, Guid? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNGuid == value).ToArray();
+    }
+
+    private void Query(Session session, (int value1, float value2) value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.value1 || e.FFloat == value.value2).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, (int value1, float value2) value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.value1 || e.FFloat == value.value2).ToArray();
+    }
+
+    private void Query(Session session, PropsStruct value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.IntField || e.FLong == value.LongField).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, PropsStruct value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.IntField || e.FLong == value.LongField).ToArray();
+    }
+
+    private void Query(Session session, FieldsStruct value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.IntField || e.FLong == value.LongField).ToArray();
+    }
+
+    private async Task QueryAsync(Session session, FieldsStruct value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FInt == value.IntField || e.FLong == value.LongField).ToArray();
+    }
 
     #endregion
 
     #region Provider-specific types
 
-    private void Query(Session session, DateTimeOffset value) =>
-      _ = session.Query.Execute(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.FDateTimeOffset == value));
+    private void Query(Session session, DateTimeOffset value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDateTimeOffset == value).ToArray();
+    }
 
-    private async Task QueryAsync(Session session, DateTimeOffset value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.FDateTimeOffset == value));
+    private async Task QueryAsync(Session session, DateTimeOffset value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FDateTimeOffset == value).ToArray();
+    }
 
-    private void Query(Session session, DateTimeOffset? value) =>
-      _ = session.Query.Execute(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.FNDateTimeOffset == value));
+    private void Query(Session session, DateTimeOffset? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDateTimeOffset == value).ToArray();
+    }
 
-    private async Task QueryAsync(Session session, DateTimeOffset? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.FNDateTimeOffset == value));
+    private async Task QueryAsync(Session session, DateTimeOffset? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<DateTimeOffsetNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNDateTimeOffset == value).ToArray();
+    }
 
-    private void Query(Session session, NpgsqlTypes.NpgsqlPoint value) =>
-      _ = session.Query.Execute(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.FPoint == value));
+    private void Query(Session session, NpgsqlTypes.NpgsqlPoint value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FPoint == value).ToArray();
+    }
 
-    private async Task QueryAsync(Session session, NpgsqlTypes.NpgsqlPoint value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.FPoint == value));
+    private async Task QueryAsync(Session session, NpgsqlTypes.NpgsqlPoint value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FPoint == value).ToArray();
+    }
 
-    private void Query(Session session, NpgsqlTypes.NpgsqlPoint? value) =>
-      _ = session.Query.Execute(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.FNPoint == value));
+    private void Query(Session session, NpgsqlTypes.NpgsqlPoint? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = session.Query.Execute(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNPoint == value).ToArray();
+    }
 
-    private async Task QueryAsync(Session session, NpgsqlTypes.NpgsqlPoint? value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.FNPoint == value));
-
-
-    private void Query(Session session, PropsStruct value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
-
-    private async Task QueryAsync(Session session, PropsStruct value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
-
-    private void Query(Session session, FieldsStruct value) =>
-      _ = session.Query.Execute(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
-
-    private async Task QueryAsync(Session session, FieldsStruct value) =>
-      _ = await session.Query.ExecuteAsync(q => q.All<AllTypesNeverCreatedEntity>().Where(e => e.FInt == value.IntField || e.FLong == value.LongField));
+    private async Task QueryAsync(Session session, NpgsqlTypes.NpgsqlPoint? value)
+    {
+      var ids = new[] { 1, 2 };
+      var items = await session.Query.ExecuteAsync(q => q.All<PgSqlTypesNeverCreatedEntity>().Where(e => e.Id.In(ids)));
+      _ = items.Where(e => e.FNPoint == value).ToArray();
+    }
 
     #endregion
   }
