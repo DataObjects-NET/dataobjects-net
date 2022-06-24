@@ -7,9 +7,9 @@ using System.Linq;
 using System.Threading.Tasks;
 using NUnit.Framework;
 using Xtensive.Orm.Configuration;
-using Xtensive.Orm.Tests.Linq.CompiledQueriesClosureCachingTestModel;
+using Xtensive.Orm.Tests.Linq.ConditionalQueryCachingWithLocalCollectionsTestModel;
 
-namespace Xtensive.Orm.Tests.Linq.CompiledQueriesClosureCachingTestModel
+namespace Xtensive.Orm.Tests.Linq.ConditionalQueryCachingWithLocalCollectionsTestModel
 {
   [Serializable]
   [HierarchyRoot]
@@ -197,7 +197,7 @@ namespace Xtensive.Orm.Tests.Linq.CompiledQueriesClosureCachingTestModel
 
 namespace Xtensive.Orm.Tests.Linq
 {
-  public sealed class CompiledQueriesClosureCachingTest : AutoBuildTest
+  public sealed class ConditionalQueryCachingWithLocalCollectionsTest : AutoBuildTest
   {
     protected override DomainConfiguration BuildConfiguration()
     {
