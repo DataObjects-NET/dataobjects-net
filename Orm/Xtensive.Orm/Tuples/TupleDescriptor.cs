@@ -85,7 +85,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
-      if (ReferenceEquals(other, null))
+      if (other is null)
         return false;
       if (ReferenceEquals(other, this))
         return true;
@@ -116,7 +116,7 @@ namespace Xtensive.Tuples
     {
       if (ReferenceEquals(left, right))
         return true;
-      if (ReferenceEquals(left, null))
+      if (left is null)
         return false;
       return left.Equals(right);
     }

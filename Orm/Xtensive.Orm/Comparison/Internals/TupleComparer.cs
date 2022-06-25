@@ -27,7 +27,7 @@ namespace Xtensive.Comparison
 
     public override int GetHashCode(Tuple obj)
     {
-      return ReferenceEquals(obj, null) 
+      return obj is null
         ? nullHashCode
         : obj.GetHashCode();
     }

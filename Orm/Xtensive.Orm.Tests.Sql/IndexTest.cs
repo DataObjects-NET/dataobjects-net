@@ -70,7 +70,7 @@ namespace Xtensive.Orm.Tests.Sql
       var i2 = t2.Indexes[FilteredIndexName];
       Assert.IsNotNull(i2);
       Assert.AreEqual(2, i2.Columns.Count);
-      Assert.IsTrue(!i2.Where.IsNullReference());
+      Assert.IsTrue(i2.Where is not null);
     }
   }
 }

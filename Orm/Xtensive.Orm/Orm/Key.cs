@@ -154,7 +154,7 @@ namespace Xtensive.Orm
     /// <inheritdoc/>
     public bool Equals(Key other)
     {
-      if (ReferenceEquals(other, null))
+      if (other is null)
         return false;
       if (ReferenceEquals(this, other))
         return true;

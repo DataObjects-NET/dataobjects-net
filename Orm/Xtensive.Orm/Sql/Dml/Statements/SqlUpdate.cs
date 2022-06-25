@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Dml
     public SqlExpression Where {
       get { return where; }
       set {
-        if (!value.IsNullReference() && value.GetType()!=typeof(SqlCursor))
+        if (value is not null && value.GetType()!=typeof(SqlCursor))
           SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }
@@ -80,10 +80,10 @@ namespace Xtensive.Sql.Dml
         clone.From = (SqlQueryRef)from.Clone(context);
       foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
         clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
-      if (!where.IsNullReference())
+          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
+      if (where is not null)
         clone.Where = (SqlExpression)where.Clone(context);
-      if (!limit.IsNullReference())
+      if (limit is not null)
         clone.Limit = (SqlExpression)where.Clone(context);
       if (Hints.Count>0)
         foreach (SqlHint hint in Hints)
