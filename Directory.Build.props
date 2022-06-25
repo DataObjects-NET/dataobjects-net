@@ -40,15 +40,16 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFramework>net5.0</TargetFramework>
+    <TargetFrameworks>net5.0</TargetFrameworks>
+    <TargetFrameworks Condition="'$(DO_TargetFrameworks)' != ''">$(DO_TargetFrameworks)</TargetFrameworks>
     <LangVersion>9.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
     <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
     <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
-    <ArtifactsDir Condition="'$(ArtifactsDir)'==''">$(SolutionDir)_Build\</ArtifactsDir>
+    <ArtifactsDir Condition="'$(ArtifactsDir)' == ''">$(SolutionDir)_Build\</ArtifactsDir>
     <BaseIntermediateOutputPath>$(ArtifactsDir)obj\$(MSBuildProjectName)\</BaseIntermediateOutputPath>
-    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\</IntermediateOutputPath>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)$(Configuration)\$(TargetFramework)\</IntermediateOutputPath>
     <BaseOutputPath>$(ArtifactsDir)bin\$(Configuration)\</BaseOutputPath>
     <BaseOutputPath Condition="$(MSBuildProjectName.Contains('Tests'))
       OR $(MSBuildProjectName) == 'TestCommon'
@@ -56,10 +57,9 @@
     <OutputPath>$(BaseOutputPath)lib\</OutputPath>
     <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
-    <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
+    <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(TargetFramework)\$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
   </PropertyGroup>
-
   <!-- Populate standard properties. -->
   <PropertyGroup>
     <Product>$(DoProductName)</Product>
@@ -74,13 +74,10 @@
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
     <PackageTags>DataObjects.Net ORM BLL Persistence</PackageTags>
     <PackageOutputPath>$(BaseOutputPath)packages\</PackageOutputPath>
-    <RepositoryUrl>https://github.com/DataObjects-NET/dataobjects-net</RepositoryUrl>
+    <RepositoryUrl>https://github.com/servicetitan/dataobjects-net</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
-    <AllowedOutputExtensionsInPackageBuildOutputFolder>$(AllowedOutputExtensionsInPackageBuildOutputFolder);.pdb</AllowedOutputExtensionsInPackageBuildOutputFolder>
     <GeneratePackageOnBuild Condition="$(DoGeneratePackage) == 'true' AND '$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
-    <IncludeSymbols Condition="$(GeneratePackageOnBuild) == 'true'">true</IncludeSymbols>
-    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
     <ContinuousIntegrationBuild>true</ContinuousIntegrationBuild>
   </PropertyGroup>

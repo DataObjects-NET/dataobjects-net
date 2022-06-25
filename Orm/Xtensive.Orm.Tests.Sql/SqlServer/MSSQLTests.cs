@@ -2703,9 +2703,9 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var unitMeasure = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["UnitMeasure"]);
       var insert = SqlDml.Insert(unitMeasure);
-      insert.Values[unitMeasure[0]] = "F2";
-      insert.Values[unitMeasure[1]] = "Square Feet";
-      insert.Values[unitMeasure[2]] = SqlDml.CurrentDate();
+      insert.Values.SetValueByColumn(unitMeasure[0], "F2");
+      insert.Values.SetValueByColumn(unitMeasure[1], "Square Feet");
+      insert.Values.SetValueByColumn(unitMeasure[2], SqlDml.CurrentDate());
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, insert));
     }
@@ -3988,7 +3988,7 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var subcategories = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["ProductSubcategory"], "c");
       var products = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
-      
+
       var innerSelect = SqlDml.Select(products);
       innerSelect.Columns.Add(products.Columns["Name"]);
       innerSelect.Where = products.Columns["ProductSubcategoryID"] == subcategories.Columns["ProductSubcategoryID"];
@@ -4015,14 +4015,14 @@ namespace Xtensive.Orm.Tests.Sql.SqlServer
 
       var products = SqlDml.TableRef(Catalog.Schemas["Production"].Tables["Product"]);
       var specialOfferProduct = SqlDml.TableRef(Catalog.Schemas["Sales"].Tables["SpecialOfferProduct"]);
-      
+
       var select = SqlDml.Select(products);
       select.Columns.Add(products["ProductID"]);
       select.Where = products["ProductID"]==specialOfferProduct["ProductID"];
-      
+
       var delete = SqlDml.Delete(specialOfferProduct);
       delete.Where = SqlDml.Not(SqlDml.Exists(select));
-      
+
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, delete));
     }
 
@@ -4093,7 +4093,7 @@ SELECT EmpSSN AS "Employee Social Security Number "
 FROM EmpTable
 
 SELECT VendorID, [164] AS Emp1, [198] AS Emp2, [223] AS Emp3, [231] AS Emp4, [233] AS Emp5
-FROM 
+FROM
 (SELECT PurchaseOrderID, EmployeeID, VendorID
 FROM Purchasing.PurchaseOrderHeader) p
 PIVOT
@@ -4107,7 +4107,7 @@ ORDER BY VendorID
 DECLARE complex_cursor CURSOR FOR
     SELECT a.EmployeeID
     FROM HumanResources.EmployeePayHistory AS a
-    WHERE RateChangeDate <> 
+    WHERE RateChangeDate <>
          (SELECT MAX(RateChangeDate)
           FROM HumanResources.EmployeePayHistory AS b
           WHERE a.EmployeeID = b.EmployeeID) ;
@@ -4251,7 +4251,7 @@ DECLARE @MyTableVar table(
     NewVacationHours int,
     ModifiedDate datetime);
 UPDATE TOP (10) HumanResources.Employee
-SET VacationHours = VacationHours * 1.25 
+SET VacationHours = VacationHours * 1.25
 OUTPUT INSERTED.EmployeeID,
        DELETED.VacationHours,
        INSERTED.VacationHours,

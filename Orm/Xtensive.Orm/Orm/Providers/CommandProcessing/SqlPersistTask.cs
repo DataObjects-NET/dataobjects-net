@@ -32,6 +32,11 @@ namespace Xtensive.Orm.Providers
     public readonly Tuple Tuple;
 
     /// <summary>
+    /// A tuples that store changed column values for multi-record INSERT
+    /// </summary>
+    public readonly IReadOnlyList<Tuple> Tuples;
+
+    /// <summary>
     /// A tuple that stored original column values.
     /// </summary>
     public readonly Tuple OriginalTuple;
@@ -50,10 +55,16 @@ namespace Xtensive.Orm.Providers
 
     // Constructors
 
-    public SqlPersistTask(PersistRequest request, Tuple tuple)
+    public SqlPersistTask(PersistRequest request, Tuple tuple = null)
     {
       RequestSequence = EnumerableUtils.One(request);
       Tuple = tuple;
+    }
+
+    public SqlPersistTask(PersistRequest request, IReadOnlyList<Tuple> tuples)
+    {
+      RequestSequence = EnumerableUtils.One(request);
+      Tuples = tuples;
     }
 
     public SqlPersistTask(Key key, IEnumerable<PersistRequest> requestSequence, Tuple tuple)

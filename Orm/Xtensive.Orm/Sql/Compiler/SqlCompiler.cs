@@ -6,12 +6,14 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql.Info;
 using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Index = Xtensive.Sql.Model.Index;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -37,13 +39,13 @@ namespace Xtensive.Sql.Compiler
     /// <param name="unit">Instance to compile.</param>
     /// <param name="compilerConfiguration">Configuration for compiler.</param>
     /// <returns></returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration)
+    public SqlCompilationResult Compile(ISqlCompileUnit unit, SqlCompilerConfiguration compilerConfiguration, TypeIdRegistry typeIdRegistry = null)
     {
       ArgumentValidator.EnsureArgumentNotNull(unit, "unit");
       configuration = compilerConfiguration;
       context = new SqlCompilerContext(configuration);
       unit.AcceptVisitor(this);
-      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable);
+      return new SqlCompilationResult(context.Output.Children, context.ParameterNameProvider.NameTable, typeIdRegistry, compilerConfiguration.SchemaMapping);
     }
 
     #region Visitors
@@ -196,6 +198,7 @@ namespace Xtensive.Sql.Compiler
         }
         AppendTranslatedExit(node);
       }
+      AppendTranslated(node, AlterTableSection.Exit);
     }
 
     /// <summary>
@@ -1108,6 +1111,12 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlDropView node) => translator.Translate(context, node);
 
     /// <summary>
+    /// Visits <see cref="SqlTruncateTable"/> statement and translates its parts.
+    /// </summary>
+    /// <param name="node">Statement to visit.</param>
+    public virtual void Visit(SqlTruncateTable node) => translator.Translate(context, node);
+
+    /// <summary>
     /// Visits <see cref="SqlFastFirstRowsHint"/> node and translates its parts.
     /// </summary>
     /// <param name="node">Node to visit.</param>
@@ -1182,7 +1191,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        
+
         if (node.Arguments.Count > 0) {
           using (context.EnterCollectionScope()) {
             var argumentPosition = 0;
@@ -1250,31 +1259,34 @@ namespace Xtensive.Sql.Compiler
         }
 
         AppendTranslated(node, InsertSection.ColumnsEntry);
-        if (node.Values.Keys.Count > 0) {
-          using (context.EnterCollectionScope()) {
-            foreach (var item in node.Values.Keys) {
+        var columns = node.Values.Columns;
+        if (columns.Count > 0)
+          using (context.EnterCollectionScope())
+            foreach (SqlColumn item in columns) {
               AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
               translator.TranslateIdentifier(context.Output, item.Name);
             }
-          }
-        }
-
         AppendTranslated(node, InsertSection.ColumnsExit);
 
-        if (node.Values.Keys.Count == 0 && node.From == null) {
+        if (node.Values.Columns.Count == 0 && node.From == null) {
           AppendTranslated(node, InsertSection.DefaultValues);
         }
         else {
-          if (node.From != null) {
+          if (node.From != null)
             using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableAliasing)) {
               node.From.AcceptVisitor(this);
             }
-          }
           else {
             AppendTranslated(node, InsertSection.ValuesEntry);
-            using (context.EnterCollectionScope()) {
-              foreach (var item in node.Values.Values) {
+            var rowCount = node.Values.ValuesByColumn(columns.First()).Count;
+            for (int i = 0; i < rowCount; i++) {
+              if (i > 0) {
+                AppendTranslated(node, InsertSection.NewRow);
+              }
+              using var _ = context.EnterCollectionScope();
+              foreach (var column in columns) {
                 AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
+                var item = node.Values.ValuesByColumn(column)[i];
                 item.AcceptVisitor(this);
               }
             }

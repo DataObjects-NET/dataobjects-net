@@ -1,4 +1,4 @@
-// Copyright (C) 2020 Xtensive LLC.
+// Copyright (C) 2020-2021 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
@@ -48,11 +48,11 @@ namespace Xtensive.Orm.Internals
 
     public static readonly Type ProjectionExpression = typeof(ProjectionExpression);
 
+    public static readonly Type TypeInfo = typeof(Xtensive.Orm.Model.TypeInfo);
   }
 
   internal static class WellKnownOrmInterfaces
   {
     public static readonly Type Entity = typeof(IEntity);
   }
-
 }

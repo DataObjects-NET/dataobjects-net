@@ -35,7 +35,10 @@ namespace Xtensive.Orm.Providers
 
     private readonly DomainConfiguration configuration;
     private readonly SqlDriver underlyingDriver;
+
     private readonly SqlTranslator translator;
+    public SqlTranslator Translator => translator;
+
     private readonly TypeMappingRegistry allMappings;
     private readonly bool isLoggingEnabled;
     private readonly bool hasSavepoints;
@@ -83,6 +86,7 @@ namespace Xtensive.Orm.Providers
     {
       var options = new SqlCompilerConfiguration {
         DatabaseQualifiedObjects = configuration.IsMultidatabase,
+        ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes,
         CommentLocation = configuration.TagsLocation.ToCommentLocation(),
       };
       return underlyingDriver.Compile(statement, options);
@@ -94,8 +98,9 @@ namespace Xtensive.Orm.Providers
         ? new SqlCompilerConfiguration(nodeConfiguration.GetDatabaseMapping(), nodeConfiguration.GetSchemaMapping())
         : new SqlCompilerConfiguration();
       options.DatabaseQualifiedObjects = configuration.IsMultidatabase;
+      options.ParametrizeSchemaNames = configuration.ShareQueryCacheOverNodes;
       options.CommentLocation = configuration.TagsLocation.ToCommentLocation();
-      return underlyingDriver.Compile(statement, options);
+      return underlyingDriver.Compile(statement, options, nodeConfiguration.TypeIdRegistry);
     }
 
     public DbDataReaderAccessor GetDataReaderAccessor(TupleDescriptor descriptor)
@@ -181,7 +186,7 @@ namespace Xtensive.Orm.Providers
       List<IDbConnectionAccessor> instances;
       Dictionary<Type, Func<IDbConnectionAccessor>> factoriesLocal;
 
-      if (connectionAccessorTypes is IReadOnlyCollection<Type> asCollection) {
+      if(connectionAccessorTypes is IReadOnlyCollection<Type> asCollection) {
         if (asCollection.Count == 0)
           return Array.Empty<IDbConnectionAccessor>();
         instances = new List<IDbConnectionAccessor>(asCollection.Count);
@@ -259,7 +264,7 @@ namespace Xtensive.Orm.Providers
       ProviderInfo providerInfo,
       DomainConfiguration configuration,
       Func<DomainModel> modelProvider,
-      IReadOnlyDictionary<Type, Func<IDbConnectionAccessor>> factoryCache)
+      IReadOnlyDictionary<Type,Func<IDbConnectionAccessor>> factoryCache)
     {
       underlyingDriver = driver;
       ProviderInfo = providerInfo;

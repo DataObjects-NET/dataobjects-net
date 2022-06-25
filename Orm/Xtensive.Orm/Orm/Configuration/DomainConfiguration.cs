@@ -17,44 +17,44 @@ namespace Xtensive.Orm.Configuration
 {
   /// <summary>
   /// The configuration of the <see cref="Domain"/>.
-  /// </summary> 
+  /// </summary>
   [Serializable]
   public class DomainConfiguration : ConfigurationBase
   {
     #region Defaults
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value: 
+    /// Default <see cref="DomainConfiguration.KeyCacheSize"/> value:
     /// <see langword="16*1024" />.
     /// </summary>
     public const int DefaultKeyCacheSize = 16 * 1024;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.KeyGeneratorCacheSize"/> value: 
+    /// Default <see cref="DomainConfiguration.KeyGeneratorCacheSize"/> value:
     /// <see langword="128" />.
     /// </summary>
     public const int DefaultKeyGeneratorCacheSize = 128;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.QueryCacheSize"/> value: 
+    /// Default <see cref="DomainConfiguration.QueryCacheSize"/> value:
     /// <see langword="256" />.
     /// </summary>
     public const int DefaultQueryCacheSize = 256;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.RecordSetMappingCacheSize"/> value: 
+    /// Default <see cref="DomainConfiguration.RecordSetMappingCacheSize"/> value:
     /// <see langword="1024" />.
     /// </summary>
     public const int DefaultRecordSetMappingCacheSize = 1024;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.IncludeSqlInExceptions"/> value: 
+    /// Default <see cref="DomainConfiguration.IncludeSqlInExceptions"/> value:
     /// <see langword="true" />.
     /// </summary>
     public const bool DefaultIncludeSqlInExceptions = true;
 
     /// <summary>
-    /// Default <see cref="DomainConfiguration.BuildInParallel"/> value: 
+    /// Default <see cref="DomainConfiguration.BuildInParallel"/> value:
     /// <see langword="true" />.
     /// </summary>
     public const bool DefaultBuildInParallel = true;
@@ -70,6 +70,12 @@ namespace Xtensive.Orm.Configuration
     /// <see langword="false"/>
     /// </summary>
     public const bool DefaultShareStorageSchemaOverNodes = false;
+
+    /// <summary>
+    /// Default <see cref="ShareQueryCacheOverNodes"/> value:
+    /// <see langword="false"/>
+    /// </summary>
+    public const bool DefaultShareQueryCacheOverNodes = false;
 
     /// <summary>
     /// Default <see cref="EntityVersioningPolicy"/> value;
@@ -108,6 +114,7 @@ namespace Xtensive.Orm.Configuration
     private bool allowCyclicDatabaseDependencies;
     private bool multidatabaseKeys = DefaultMultidatabaseKeys;
     private bool shareStorageSchemaOverNodes = DefaultShareStorageSchemaOverNodes;
+    private bool shareQueryCacheOverNodes = DefaultShareQueryCacheOverNodes;
     private bool ensureConnectionIsAlive = DefaultEnsureConnectionIsAlive;
     private DomainOptions options = DomainOptions.Default;
     private SchemaSyncExceptionFormat schemaSyncExceptionFormat = SchemaSyncExceptionFormat.Default;
@@ -149,7 +156,7 @@ namespace Xtensive.Orm.Configuration
       get { return name; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
         name = value;
       }
@@ -170,7 +177,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInfo; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInfo = value;
       }
     }
@@ -182,7 +189,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return defaultSchema; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultSchema = value;
       }
     }
@@ -195,26 +202,26 @@ namespace Xtensive.Orm.Configuration
     {
       get { return defaultDatabase; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         defaultDatabase = value;
       }
     }
 
     /// <summary>
-    /// Gets or sets a value indicating domain upgrade behavior. 
+    /// Gets or sets a value indicating domain upgrade behavior.
     /// </summary>
     public DomainUpgradeMode UpgradeMode
     {
       get { return upgradeMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         upgradeMode = value;
       }
     }
 
     /// <summary>
-    /// Gets the collection of persistent <see cref="Type"/>s that are about to be 
+    /// Gets the collection of persistent <see cref="Type"/>s that are about to be
     /// registered in the <see cref="Domain"/>.
     /// </summary>
     public DomainTypeRegistry Types
@@ -238,7 +245,7 @@ namespace Xtensive.Orm.Configuration
       get { return namingConvention; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         namingConvention = value;
       }
     }
@@ -252,7 +259,7 @@ namespace Xtensive.Orm.Configuration
       get { return keyCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyCacheSize = value;
       }
@@ -267,7 +274,7 @@ namespace Xtensive.Orm.Configuration
       get { return keyGeneratorCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         keyGeneratorCacheSize = value;
       }
@@ -282,7 +289,7 @@ namespace Xtensive.Orm.Configuration
       get { return queryCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         queryCacheSize = value;
       }
@@ -297,14 +304,14 @@ namespace Xtensive.Orm.Configuration
       get { return recordSetMappingCacheSize; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ArgumentValidator.EnsureArgumentIsGreaterThan(value, 0, "value");
         recordSetMappingCacheSize = value;
       }
     }
 
     /// <summary>
-    /// Gets or sets a value indicating foreign key mode. 
+    /// Gets or sets a value indicating foreign key mode.
     /// Default value is <see cref="Orm.ForeignKeyMode.Default"/>.
     /// </summary>
     public ForeignKeyMode ForeignKeyMode
@@ -312,7 +319,7 @@ namespace Xtensive.Orm.Configuration
       get { return foreignKeyMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         foreignKeyMode = value;
       }
     }
@@ -326,7 +333,7 @@ namespace Xtensive.Orm.Configuration
       get { return fullTextChangeTrackingMode; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         fullTextChangeTrackingMode = value;
       }
     }
@@ -342,7 +349,7 @@ namespace Xtensive.Orm.Configuration
       get { return schemaSyncExceptionFormat; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         schemaSyncExceptionFormat = value;
       }
     }
@@ -356,7 +363,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         sessions = value;
       }
     }
@@ -370,7 +377,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         mappingRules = value;
       }
     }
@@ -384,7 +391,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         databases = value;
       }
     }
@@ -398,7 +405,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         keyGenerators = value;
       }
     }
@@ -406,11 +413,11 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Gets or sets the type of the service container.
     /// </summary>
-    public Type ServiceContainerType 
+    public Type ServiceContainerType
     {
       get { return serviceContainerType; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         serviceContainerType = value;
       }
     }
@@ -424,7 +431,7 @@ namespace Xtensive.Orm.Configuration
       get { return includeSqlInExceptions; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         includeSqlInExceptions = value;
       }
     }
@@ -439,7 +446,7 @@ namespace Xtensive.Orm.Configuration
       get { return allowCyclicDatabaseDependencies; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         allowCyclicDatabaseDependencies = value;
       }
     }
@@ -455,7 +462,7 @@ namespace Xtensive.Orm.Configuration
       get { return forcedServerVersion; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         forcedServerVersion = value;
       }
     }
@@ -469,7 +476,7 @@ namespace Xtensive.Orm.Configuration
       get { return buildInParallel; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         buildInParallel = value;
       }
     }
@@ -482,7 +489,7 @@ namespace Xtensive.Orm.Configuration
       get { return ignoreRules; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ignoreRules = value;
       }
     }
@@ -504,7 +511,7 @@ namespace Xtensive.Orm.Configuration
       get { return collation; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         collation = value;
       }
     }
@@ -519,7 +526,7 @@ namespace Xtensive.Orm.Configuration
       get { return connectionInitializationSql; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         connectionInitializationSql = value;
       }
     }
@@ -535,7 +542,7 @@ namespace Xtensive.Orm.Configuration
       get { return multidatabaseKeys; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         multidatabaseKeys = value;
       }
     }
@@ -548,7 +555,7 @@ namespace Xtensive.Orm.Configuration
       get { return options; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         options = value;
       }
     }
@@ -556,7 +563,7 @@ namespace Xtensive.Orm.Configuration
     /// <summary>
     /// Enables sharing of catalog (or catalogs) of default node over additional nodes.
     /// Such sharing leads to overall decrease in nodes memory consumption.
-    /// <para>NOTICE! When this option is set to <see langword="true"/> 
+    /// <para>NOTICE! When this option is set to <see langword="true"/>
     /// real names of catalogs or schemas of certain <see cref="StorageNode"/> will be calculated on query translation
     /// according to <see cref="NodeConfiguration.DatabaseMapping"/> and <see cref="NodeConfiguration.SchemaMapping"/> of the Storage Node.
     /// </para>
@@ -565,10 +572,19 @@ namespace Xtensive.Orm.Configuration
     {
       get { return shareStorageSchemaOverNodes; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         shareStorageSchemaOverNodes = value;
       }
     }
+
+    public bool ShareQueryCacheOverNodes {
+      get => shareQueryCacheOverNodes;
+      set {
+        this.EnsureNotLocked();
+        shareQueryCacheOverNodes = value;
+      }
+    }
+
 
     /// <summary>
     /// Gets or sets versioning convention.
@@ -577,7 +593,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return versioningConvention; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         versioningConvention = value;
       }
     }
@@ -589,7 +605,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return ensureConnectionIsAlive; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ensureConnectionIsAlive = value;
       }
     }
@@ -601,7 +617,7 @@ namespace Xtensive.Orm.Configuration
     {
       get => tagsLocation;
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         tagsLocation = value;
       }
     }
@@ -617,7 +633,11 @@ namespace Xtensive.Orm.Configuration
     /// </summary>
     public bool IsMultischema { get { return isMultischema ?? GetIsMultischema(); } }
 
-    
+    /// <summary>
+    /// Maximal number of filtering values in an <see cref="IncludeProvider"/>
+    /// which are to be placed inside a resulted SQL command (as boolean predicate).
+    /// </summary>
+    public int MaxNumberOfConditions { get; set; } = 256;
 
     private bool GetIsMultidatabase()
     {
@@ -668,7 +688,7 @@ namespace Xtensive.Orm.Configuration
       if (multischema && string.IsNullOrEmpty(DefaultSchema))
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaShouldBeSpecifiedWhenMultischemaOrMultidatabaseModeIsActive);
-      
+
       if (multidatabase && (string.IsNullOrEmpty(DefaultDatabase) || string.IsNullOrEmpty(DefaultSchema)))
         throw new InvalidOperationException(
           Strings.ExDefaultSchemaAndDefaultDatabaseShouldBeSpecifiedWhenMultidatabaseModeIsActive);
@@ -731,8 +751,9 @@ namespace Xtensive.Orm.Configuration
       keyGenerators = (KeyGeneratorConfigurationCollection) configuration.KeyGenerators.Clone();
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
+      ShareQueryCacheOverNodes = configuration.ShareQueryCacheOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
-      
+
     }
 
     /// <summary>
@@ -869,7 +890,7 @@ namespace Xtensive.Orm.Configuration
     }
 
     /// <summary>
-    ///	Initializes a new instance of this class.
+    /// Initializes a new instance of this class.
     /// </summary>
     /// <param name="provider">The provider.</param>
     /// <param name="connectionString">The connection string.</param>
@@ -888,7 +909,7 @@ namespace Xtensive.Orm.Configuration
     {
       this.connectionInfo = connectionInfo;
     }
-    
+
     /// <summary>
     /// Initializes a new instance of this class.
     /// </summary>

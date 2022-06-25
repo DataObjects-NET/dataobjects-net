@@ -27,8 +27,8 @@ namespace Xtensive.Orm
   public static partial class QueryableExtensions
   {
     /// <summary>
-    /// Tags query with given <paramref name="tag"/> string 
-    /// (inserts string as comment in SQL statement) for 
+    /// Tags query with given <paramref name="tag"/> string
+    /// (inserts string as comment in SQL statement) for
     /// further query identification.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -52,8 +52,8 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Tags query with given <paramref name="tag"/> string 
-    /// (inserts string as comment in SQL statement) for 
+    /// Tags query with given <paramref name="tag"/> string
+    /// (inserts string as comment in SQL statement) for
     /// further query identification.
     /// </summary>
     /// <param name="source">The source sequence.</param>
@@ -352,7 +352,7 @@ namespace Xtensive.Orm
     private static Expression GetSourceExpression<TSource>(IEnumerable<TSource> source)
     {
       var queryable = source as IQueryable<TSource>;
-      if (queryable != null)
+      if (queryable!=null)
         return queryable.Expression;
       return Expression.Constant(source, typeof (IEnumerable<TSource>));
     }

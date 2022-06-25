@@ -7,6 +7,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using NUnit.Framework;
+using Microsoft.Data.SqlClient;
 using Xtensive.Core;
 using Xtensive.Orm.Providers;
 using Xtensive.Orm.Tests.Storage.TransactionsTestModel;

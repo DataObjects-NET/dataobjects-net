@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2009.06.04
 
@@ -12,12 +12,12 @@ namespace Xtensive.Orm
   /// <summary>
   /// Provides data for <see cref="Session"/> transaction-related events.
   /// </summary>
-  public sealed class TransactionEventArgs : EventArgs
+  public readonly struct TransactionEventArgs
   {
     /// <summary>
     /// Gets the transaction.
     /// </summary>
-    public Transaction Transaction { get; private set; }
+    public Transaction Transaction { get; }
 
 
     // Constructors

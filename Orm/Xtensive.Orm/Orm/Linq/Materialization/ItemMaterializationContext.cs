@@ -2,6 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Orm.Internals;
@@ -31,14 +32,16 @@ namespace Xtensive.Orm.Linq.Materialization
 
     public Entity GetEntity(int index) => entities[index];
 
+    public TypeInfo GetTypeInfo(int typeId) => typeId == TypeInfo.NoTypeId ? null : typeIdRegistry[typeId];
+
     public Entity Materialize(int entityIndex, int typeIdIndex, TypeInfo type, Pair<int>[] entityColumns, Tuple tuple)
     {
       var result = entities[entityIndex];
-      if (result != null)
+      if (result!=null)
         return result;
 
       var typeId = EntityDataReader.ExtractTypeId(type, typeIdRegistry, tuple, typeIdIndex, out var accuracy);
-      if (typeId == TypeInfo.NoTypeId)
+      if (typeId==TypeInfo.NoTypeId)
         return null;
 
       var canCache = accuracy==TypeReferenceAccuracy.ExactType;
@@ -53,7 +56,7 @@ namespace Xtensive.Orm.Linq.Materialization
         var keyTuple = materializationInfo.KeyTransform.Apply(TupleTransformType.TransformedTuple, tuple);
         key = KeyFactory.Materialize(Session.Domain, Session.StorageNodeId, materializationInfo.Type, keyTuple, accuracy, canCache, null);
       }
-      if (accuracy == TypeReferenceAccuracy.ExactType) {
+      if (accuracy==TypeReferenceAccuracy.ExactType) {
         var entityTuple = materializationInfo.Transform.Apply(TupleTransformType.Tuple, tuple);
         var entityState = Session.Handler.UpdateState(key, entityTuple);
         result = entityState.Entity;

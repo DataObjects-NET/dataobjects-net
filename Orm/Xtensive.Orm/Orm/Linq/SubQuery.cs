@@ -76,7 +76,8 @@ namespace Xtensive.Orm.Linq
     public SubQuery(ProjectionExpression projectionExpression, TranslatedQuery query, Parameter<Tuple> parameter, Tuple tuple, ItemMaterializationContext context)
 // ReSharper restore MemberCanBeProtected.Global
     {
-      this.provider = context.Session.Query.Provider;
+      var session = context.Session;
+      this.provider = session.Query.Provider;
       var tupleParameterBindings = new Dictionary<Parameter<Tuple>, Tuple>(projectionExpression.TupleParameterBindings);
       var currentTranslatedQuery = query;
 

@@ -57,7 +57,7 @@ namespace Xtensive.Orm
     public event EventHandler Disposing;
 
     /// <summary>
-    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>. 
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>.
     /// </summary>
     /// <seealso cref="Session.Current"/>
     /// <seealso cref="Demand"/>
@@ -69,7 +69,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>, 
+    /// Gets the <see cref="Domain"/> of the current <see cref="Session"/>, or throws <see cref="InvalidOperationException"/>,
     /// if active <see cref="Session"/> is not found.
     /// </summary>
     /// <returns>Current domain.</returns>
@@ -79,7 +79,7 @@ namespace Xtensive.Orm
     {
       return Session.Demand().Domain;
     }
-    
+
     /// <summary>
     /// Gets the domain configuration.
     /// </summary>
@@ -126,7 +126,8 @@ namespace Xtensive.Orm
 
     internal KeyGeneratorRegistry KeyGenerators { get; private set; }
 
-    internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; }
+    internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; } =
+       new ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>>();
 
     internal ICache<object, Pair<object, ParameterizedQuery>> QueryCache { get; private set; }
 
@@ -227,7 +228,7 @@ namespace Xtensive.Orm
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -326,7 +327,7 @@ namespace Xtensive.Orm
       configuration.Lock(true);
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogOpeningSessionX, configuration);
+        OrmLog.Debug(nameof(Strings.LogOpeningSessionX), configuration);
       }
 
       Session session;
@@ -370,7 +371,7 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     public IExtensionCollection Extensions { get; private set; }
-    
+
     #endregion
 
     /// <summary>
@@ -399,7 +400,6 @@ namespace Xtensive.Orm
       GenericKeyFactories = new ConcurrentDictionary<TypeInfo, GenericKeyFactory>();
       EntityDataReader = new EntityDataReader(this);
       KeyGenerators = new KeyGeneratorRegistry();
-      PrefetchFieldDescriptorCache = new ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>>();
       KeyCache = new LruCache<Key, Key>(Configuration.KeyCacheSize, k => k);
       QueryCache = new FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>>(Configuration.QueryCacheSize, k => k.First);
       PrefetchActionMap = new Dictionary<TypeInfo, Action<SessionHandler, IEnumerable<Key>>>();
@@ -427,7 +427,7 @@ namespace Xtensive.Orm
       }
 
       if (isDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogDomainIsDisposing);
+        OrmLog.Debug(nameof(Strings.LogDomainIsDisposing));
       }
 
       NotifyDisposing();

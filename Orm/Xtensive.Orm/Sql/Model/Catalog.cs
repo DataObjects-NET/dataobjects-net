@@ -100,7 +100,7 @@ namespace Xtensive.Sql.Model
         return null;
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (defaultSchema == value)
           return;
         if (value!=null && !schemas.Contains(value))
@@ -164,9 +164,15 @@ namespace Xtensive.Sql.Model
     internal void MakeNamesUnreadable()
     {
       isNamesReadingDenied = true;
-      this.Schemas.ForEach(s => s.MakeNamesUnreadable());
-      this.PartitionFunctions.ForEach(pf => pf.MakeNamesUnreadable());
-      this.PartitionSchemas.ForEach(ps => ps.MakeNamesUnreadable());
+      foreach (var s in this.Schemas) {
+        s.MakeNamesUnreadable();
+      }
+      foreach (var pf in this.PartitionFunctions) {
+        pf.MakeNamesUnreadable();
+      }
+      foreach (var ps in this.PartitionSchemas) {
+        ps.MakeNamesUnreadable();
+      }
     }
 
     internal string GetActualName(IReadOnlyDictionary<string, string> catalogNameMap)
@@ -177,10 +183,7 @@ namespace Xtensive.Sql.Model
         throw new ArgumentNullException("catalogNameMap");
 
       var name = GetNameInternal();
-      string actualName;
-      if (catalogNameMap.TryGetValue(name, out actualName))
-        return actualName;
-      return name;
+      return catalogNameMap.TryGetValue(name, out var actualName) ? actualName : name;
     }
 
     internal string GetActualDbName(IReadOnlyDictionary<string, string> catalogNameMap)
@@ -189,11 +192,9 @@ namespace Xtensive.Sql.Model
         return DbName;
       if (catalogNameMap==null)
         throw new InvalidOperationException("Unable to calculate real name for catalog");
+
       var name = GetDbNameInternal();
-      string actualName;
-      if (catalogNameMap.TryGetValue(name, out actualName))
-        return actualName;
-      return name;
+      return catalogNameMap.TryGetValue(name, out var actualName) ? actualName : name;
     }
 
     // Constructors

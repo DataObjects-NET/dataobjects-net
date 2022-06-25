@@ -35,8 +35,8 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
 
       var upgradeDomainTypes = GetTypes(inheritanceSchema, true);
       var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) ; })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) ; });
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using var _ = await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeDomainTypes); })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using var _ = BuildDomain(DomainUpgradeMode.PerformSafely, upgradeDomainTypes); });
 
       CheckComparisonResult(inheritanceSchema, ex.ComparisonResult);
 

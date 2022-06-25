@@ -94,6 +94,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlAlterTable node, AlterTableSection section)
     {
+      var output = context.Output;
       switch (section) {
         case AlterTableSection.AddColumn:
           _ = context.Output.Append("ADD");
@@ -105,6 +106,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           break;
       }
     }
+
+
 
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SequenceDescriptor descriptor, SequenceDescriptorSection section)
@@ -350,6 +353,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           break;
       }
 
+    /// <inheritdoc/>
+
       static void AppendHint(IOutput output, string hint, ref bool hasHints)
       {
         if (hasHints) {
@@ -363,7 +368,6 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       }
     }
 
-    /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, SqlUpdate node, UpdateSection section)
     {
       switch (section) {
@@ -670,19 +674,19 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     {
       return @"DECLARE @{0} VARCHAR(256)
         SELECT @{0} = {1}.sys.default_constraints.name
-      FROM 
+      FROM
         {1}.sys.all_columns
       INNER JOIN
         {1}.sys.tables
       ON all_columns.object_id = tables.object_id
-      INNER JOIN 
+      INNER JOIN
         {1}.sys.schemas
-      ON tables.schema_id = schemas.schema_id  
+      ON tables.schema_id = schemas.schema_id
       INNER JOIN
         {1}.sys.default_constraints
       ON all_columns.default_object_id = default_constraints.object_id
 
-      WHERE 
+      WHERE
         schemas.name = '{2}'
         AND tables.name = '{3}'
         AND all_columns.name = '{4}'";

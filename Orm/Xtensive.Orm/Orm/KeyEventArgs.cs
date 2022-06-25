@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexis Kochetov
 // Created:    2009.11.19
 
@@ -14,12 +14,12 @@ namespace Xtensive.Orm
   /// Arguments for <see cref="Key"/>-related events.
   /// </summary>
   [Serializable]
-  public sealed class KeyEventArgs : EventArgs
+  public readonly struct KeyEventArgs
   {
     /// <summary>
     /// Gets the key.
     /// </summary>
-    public Key Key { get; private set; }
+    public Key Key { get; }
 
 
     // Constructors

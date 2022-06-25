@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -43,7 +43,7 @@ namespace Xtensive.Orm.Logging.log4net
     }
 
     /// <inheritdoc />
-    public override void Write(LogEventInfo info)
+    public override void Write(in LogEventInfo info)
     {
       target.Logger.Log(target.Logger.GetType(), ConvertLevel(info.Level), info.FormattedMessage, info.Exception);
     }

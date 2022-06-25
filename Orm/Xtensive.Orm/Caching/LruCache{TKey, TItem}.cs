@@ -90,7 +90,7 @@ namespace Xtensive.Caching
       }
       return false;
     }
-    
+
     /// <inheritdoc/>
     public override bool ContainsKey(TKey key)
     {
@@ -231,7 +231,7 @@ namespace Xtensive.Caching
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="sizeExtractor"><see cref="SizeExtractor"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
-    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, 
+    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor,
       Func<TItem, long> sizeExtractor, ICache<TKey, TItem> chainedCache)
     {
       if (maxSize <= 0)

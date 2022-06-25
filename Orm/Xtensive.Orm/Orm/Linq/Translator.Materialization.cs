@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Linq
         using (CreateScope(new TranslatorState(State) { CalculateExpressions = false })) {
           body = Visit(argument);
         }
-        body = body.IsProjection()
+        body = body.StripMarkers().IsProjection()
           ? BuildSubqueryResult((ProjectionExpression) body, argument.Type)
           : ProcessProjectionElement(body);
         arguments.Add(body);

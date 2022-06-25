@@ -83,7 +83,7 @@ namespace Xtensive.Orm.Configuration
     /// <inheritdoc/>
     public override void AddRange(IEnumerable<SessionConfiguration> items)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       foreach (var item in items) {
         Add(item);
       }

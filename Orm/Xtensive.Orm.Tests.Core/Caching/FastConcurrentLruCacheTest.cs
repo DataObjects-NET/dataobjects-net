@@ -17,11 +17,11 @@ namespace Xtensive.Orm.Tests.Core.Caching
   public class FastConcurrentLruCacheTest
   {
     private class BadTestClass : IIdentified<string>, IHasSize
-    {
+      {
       object IIdentified.Identifier => Identifier;
       public string Identifier => null;
       public long Size => 1;
-    }
+      }
 
     private const int TestCacheCapacity = 6; // divides by 3
 
@@ -183,7 +183,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
         }
         if (test != null) {
           globalCache.Remove(test);
-        }
+      }
       }
       cancellationToken.ThrowIfCancellationRequested();
     }

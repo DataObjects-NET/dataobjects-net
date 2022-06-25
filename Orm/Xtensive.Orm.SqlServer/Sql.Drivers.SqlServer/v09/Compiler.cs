@@ -179,9 +179,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return;
         case SqlFunctionType.Substring:
           if (node.Arguments.Count == 2) {
-            node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
             SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
-            node.Arguments.Add(len);
+            node = SqlDml.Substring(node.Arguments[0], node.Arguments[1], len);
             Visit(node);
             return;
           }
@@ -451,6 +450,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     private void TranslateJoinedColumnNames(SqlTableColumnCollection targetColumns)
     {
       var output = context.Output;
+
       var first = true;
       foreach (var column in targetColumns) {
         if (first) {

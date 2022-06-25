@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 using Xtensive.Core;
 using Xtensive.Reflection;
@@ -14,7 +15,7 @@ using Xtensive.Sql.Model;
 using Xtensive.Sql.Ddl;
 using Xtensive.Sql.Dml;
 using Index = Xtensive.Sql.Model.Index;
-using System.Runtime.CompilerServices;
+using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Sql.Compiler
 {
@@ -113,7 +114,7 @@ namespace Xtensive.Sql.Compiler
       switch (section) {
         case NodeSection.Entry:
           Translate(context.Output, node.NodeType);
-          _= output.AppendOpeningPunctuation(node.Distinct ? "(DISTINCT" : "(");
+          _ = output.AppendOpeningPunctuation(node.Distinct ? "(DISTINCT" : "(");
           break;
         case NodeSection.Exit:
           _ = output.AppendClosingPunctuation(")");
@@ -776,7 +777,7 @@ namespace Xtensive.Sql.Compiler
         .Append(pf.BoundaryType == BoundaryType.Left ? "LEFT" : "RIGHT")
         .AppendOpeningPunctuation(" FOR VALUES (");
 
-      var first = true ;
+      var first = true;
       foreach (var value in pf.BoundaryValues) {
         if (first)
           first = false;
@@ -1226,6 +1227,12 @@ namespace Xtensive.Sql.Compiler
       _ = context.Output.Append(node.Cascade ? " CASCADE" : " RESTRICT");
     }
 
+    public virtual void Translate(SqlCompilerContext context, SqlTruncateTable node)
+    {
+      _ = context.Output.Append("TRUNCATE TABLE ");
+      Translate(context, node.Table);
+    }
+
     /// <summary>
     /// Translates <see cref="SqlDropTranslation"/> statement and writes result to to <see cref="SqlCompilerContext.Output"/>.
     /// </summary>
@@ -1257,6 +1264,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="section">Particular section to translate.</param>
     public virtual void Translate(SqlCompilerContext context, SqlFetch node, FetchSection section)
     {
+      var output = context.Output;
       switch (section) {
         case FetchSection.Entry:
           _ = context.Output.Append("FETCH ")
@@ -1393,10 +1401,10 @@ namespace Xtensive.Sql.Compiler
         case InsertSection.Entry:
           _ = output.Append("INSERT INTO");
           break;
-        case InsertSection.ColumnsEntry when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsEntry when node.Values.Columns.Count > 0:
           _ = output.AppendOpeningPunctuation("(");
           break;
-        case InsertSection.ColumnsExit when node.Values.Keys.Count > 0:
+        case InsertSection.ColumnsExit when node.Values.Columns.Count > 0:
           _ = output.Append(")");
           break;
         case InsertSection.From:
@@ -1410,6 +1418,9 @@ namespace Xtensive.Sql.Compiler
           break;
         case InsertSection.DefaultValues:
           _ = output.Append("DEFAULT VALUES");
+          break;
+        case InsertSection.NewRow:
+          _ = output.Append("), (");
           break;
       }
     }
@@ -1514,6 +1525,9 @@ namespace Xtensive.Sql.Compiler
       switch (literalValue) {
         case TimeSpan timeSpan:
           _ = output.Append(SqlHelper.TimeSpanToString(timeSpan, TimeSpanFormatString));
+          break;
+        case TypeInfo typeInfo:
+          output.AppendPlaceholderWithId(typeInfo);
           break;
         case Guid:
         case byte[]:
@@ -1956,12 +1970,25 @@ namespace Xtensive.Sql.Compiler
         && context.HasOptions(SqlCompilerNamingOptions.DatabaseQualifiedObjects);
       var actualizer = context.SqlNodeActualizer;
 
+
+      var setup = EscapeSetup;
+
       if (dbQualified) {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog), actualizer.Actualize(node.Schema), node.GetDbNameInternal());
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema.Catalog));
+        _ = output.AppendLiteral(setup.Delimiter);
+      }
+
+      if (context.ParametrizeSchemaNames) {
+        _ = output.AppendLiteral(setup.Opener);
+        output.AppendPlaceholderWithId(node.Schema);
+        _ = output.AppendLiteral(setup.Closer);
       }
       else {
-        TranslateIdentifier(output, actualizer.Actualize(node.Schema), node.DbName);
+        TranslateIdentifier(output, actualizer.Actualize(node.Schema));
       }
+      _ = output.AppendLiteral(setup.Delimiter);
+
+      TranslateIdentifier(output, dbQualified ? node.GetDbNameInternal() : node.DbName);
     }
 
     /// <summary>
@@ -2356,6 +2383,21 @@ namespace Xtensive.Sql.Compiler
           break;
       }
     }
+
+    protected virtual void TranslateStringChar(IOutput output, char ch)
+    {
+      switch (ch) {
+        case '\0':
+          break;
+        case '\'':
+          output.AppendLiteral("''");
+          break;
+        default:
+          output.AppendLiteral(ch);
+          break;
+      }
+    }
+
 
     /// <summary>
     /// Translates identifier names (one or several) and writes result to <paramref name="output"/>

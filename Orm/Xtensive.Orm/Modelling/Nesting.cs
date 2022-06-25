@@ -81,7 +81,7 @@ namespace Xtensive.Modelling
 
     internal Nesting(Node node)
     {
-      ArgumentValidator.EnsureArgumentIs<IModel>(node, "node");
+      ArgumentValidator.EnsureArgumentIs<IModel>(node);
       Node = node;
       Initialize();
     }

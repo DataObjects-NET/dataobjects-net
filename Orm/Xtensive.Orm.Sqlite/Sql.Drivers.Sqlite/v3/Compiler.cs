@@ -407,7 +407,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
 
     private static SqlExpression DateAddYear(SqlExpression date, SqlExpression years) =>
       SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date, SqlDml.Concat(years, " ", "YEARS"));
-    
+
 
     private static SqlExpression DateAddMonth(SqlExpression date, SqlExpression months) =>
       SqlDml.FunctionCall("STRFTIME", DateTimeFormat, date, SqlDml.Concat(months, " ", "MONTHS"));
@@ -422,7 +422,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static SqlExpression DateGetMilliseconds(SqlExpression date) =>
       CastToLong(SqlDml.FunctionCall("STRFTIME", "%f", date) * MillisecondsPerSecond) -
         CastToLong(SqlDml.FunctionCall("STRFTIME", "%S", date) * MillisecondsPerSecond);
-    
+
 
     private static SqlExpression DateGetTotalSeconds(SqlExpression date) =>
       SqlDml.FunctionCall("STRFTIME", "%s", date);
@@ -430,7 +430,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     private static SqlExpression DateTimeSubtractDateTime(SqlExpression date1, SqlExpression date2) =>
       (((DateGetTotalSeconds(date1) - DateGetTotalSeconds(date2)) * MillisecondsPerSecond)
         + DateGetMilliseconds(date1) - DateGetMilliseconds(date2)) * NanosecondsPerMillisecond;
-    
+
 
     private static SqlExpression ServerOffsetAsString()
     {

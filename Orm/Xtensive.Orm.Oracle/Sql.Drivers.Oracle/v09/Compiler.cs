@@ -187,11 +187,11 @@ namespace Xtensive.Sql.Drivers.Oracle.v09
       _ = context.Output.AppendClosingPunctuation(")");
     }
 
-    public override void Visit(SqlFastFirstRowsHint node) => 
+    public override void Visit(SqlFastFirstRowsHint node) =>
       context.Output.Append(string.Format("FIRST_ROWS({0})", node.Amount));
 
     public override void Visit(SqlNativeHint node) => context.Output.Append(node.HintText);
-    
+
 
     public override void Visit(SqlForceJoinOrderHint node)
     {

@@ -28,7 +28,7 @@ namespace Xtensive.Core
     /// The first value.
     /// </summary>
     public readonly T First;
-    
+
     /// <summary>
     /// The second value.
     /// </summary>

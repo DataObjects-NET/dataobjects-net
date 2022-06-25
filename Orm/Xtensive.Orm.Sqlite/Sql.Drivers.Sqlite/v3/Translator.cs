@@ -424,6 +424,7 @@ namespace Xtensive.Sql.Drivers.Sqlite.v3
     /// <inheritdoc/>
     public override void Translate(SqlCompilerContext context, TableColumn column, TableColumnSection section)
     {
+      var output = context.Output;
       switch (section) {
         case TableColumnSection.Type:
           if (column.SequenceDescriptor == null) {

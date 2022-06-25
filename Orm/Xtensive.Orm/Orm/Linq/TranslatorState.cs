@@ -133,7 +133,7 @@ namespace Xtensive.Orm.Linq
     public TranslatorState(in TranslatorState currentState)
     {
       this = currentState;
-    }      
+    }
   }
 }
 

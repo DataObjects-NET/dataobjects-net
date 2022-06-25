@@ -17,7 +17,6 @@ using Xtensive.Orm.Internals;
 using Xtensive.Orm.Rse;
 using Xtensive.Reflection;
 using Xtensive.Tuples;
-using TypeInfo = Xtensive.Orm.Model.TypeInfo;
 
 namespace Xtensive.Orm.Linq
 {
@@ -26,7 +25,7 @@ namespace Xtensive.Orm.Linq
 #pragma warning disable 612,618
     public static class Query
     {
-      private static readonly MethodInfo[] FreetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.FreeText)).ToArray();      
+      private static readonly MethodInfo[] FreetextMethods = typeof(Orm.Query).GetMethods().Where(m => m.Name == nameof(Orm.Query.FreeText)).ToArray();
       private static readonly (MethodInfo Method, Type[] ParameterTypes)[] containsTableMethods = typeof(Orm.Query).GetMethods()
           .Where(m => m.Name == nameof(Orm.Query.ContainsTable))
           .Select(m => (Method: m, ParameterTypes: m.GetParameterTypes())).ToArray();
@@ -82,19 +81,19 @@ namespace Xtensive.Orm.Linq
       private static readonly MethodInfo[] SingleOrDefaultMethods = typeof(Orm.QueryEndpoint).GetMethods().Where(m => m.Name == nameof(Orm.QueryEndpoint.SingleOrDefault) && m.IsGenericMethod).ToArray();
 
       public static readonly MethodInfo All = typeof(Orm.QueryEndpoint).GetMethod(nameof(Orm.QueryEndpoint.All), Array.Empty<Type>());
-      
+
       public static readonly MethodInfo FreeTextString = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == WellKnownTypes.String);
-      
+
       public static readonly MethodInfo FreeTextStringTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == WellKnownTypes.String && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
-      
+
       public static readonly MethodInfo FreeTextExpression = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 1 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>));
-      
+
       public static readonly MethodInfo FreeTextExpressionTopNByRank = FreetextMethods
           .Single(ft => ft.GetParameters().Length == 2 && ft.GetParameterTypes()[0] == typeof(Expression<Func<string>>) && ft.GetParameterTypes()[1] == WellKnownTypes.Int32);
-      
+
       public static readonly MethodInfo ContainsTableExpr = containsTableMethods
           .Single(g => g.ParameterTypes.Length == 1 && g.ParameterTypes[0] == typeof(Expression<Func<ConditionEndpoint, IOperand>>)).Method;
 
@@ -211,7 +210,7 @@ namespace Xtensive.Orm.Linq
     public static readonly PropertyInfo TypeId = WellKnownOrmInterfaces.Entity.GetProperty(WellKnown.TypeIdFieldName);
 
     // ApplyParameter
-    public static readonly PropertyInfo ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetProperty("Value");
+    public static readonly PropertyInfo ApplyParameterValue = WellKnownOrmTypes.ApplyParameter.GetProperty(nameof(ApplyParameter.Value));
 
     // Parameter<Tuple>
     public static readonly PropertyInfo ParameterOfTupleValue = WellKnownOrmTypes.ParameterOfTuple.GetProperty("Value", typeof(Tuples.Tuple));
@@ -221,7 +220,7 @@ namespace Xtensive.Orm.Linq
 
     // Record
     public static readonly MethodInfo RecordKey = typeof(Record).GetMethods()
-        .Single(methodInfo => methodInfo.Name == "GetKey" && methodInfo.GetParameters().Length == 1);
+        .Single(methodInfo => methodInfo.Name == nameof(Record.GetKey) && methodInfo.GetParameters().Length == 1);
 
     // Structure
     public static readonly MethodInfo CreateStructure = typeof(Internals.Activator)
@@ -239,7 +238,7 @@ namespace Xtensive.Orm.Linq
           && methodInfo.GetParameters().Length == 2);
 
     // Session
-    public static readonly PropertyInfo SessionNodeId = typeof(Session).GetProperty("StorageNodeId");
+    public static readonly PropertyInfo SessionNodeId = typeof(Session).GetProperty(nameof(Session.StorageNodeId));
 
     private static MethodInfo GetMethod(Type type, string name, int numberOfGenericArgument, int numberOfArguments)
     {

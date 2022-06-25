@@ -33,7 +33,7 @@ namespace Xtensive.Orm.Upgrade
 
     private readonly NameBuilder nameBuilder;
     private readonly MappingResolver resolver;
-
+    
     private readonly StorageModel extractedStorageModel;
     private readonly StoredDomainModel extractedModel;
     private readonly StoredDomainModel currentModel;
@@ -229,11 +229,13 @@ namespace Xtensive.Orm.Upgrade
       HashSet<StoredTypeInfo> conflictsByTable, bool isMovedToAnotherHierarchy)
     {
       if (!isMovedToAnotherHierarchy) {
-        removedTypes.ForEach((rType) =>
-          GenerateCleanupByForeignKeyHints(rType, GetCleanupInfo(rType, conflictsByTable, isMovedToAnotherHierarchy)));
+        foreach (var rType in removedTypes) {
+          GenerateCleanupByForeignKeyHints(rType, GetCleanupInfo(rType, conflictsByTable, isMovedToAnotherHierarchy));
+        }
       }
-      removedTypes.ForEach(type =>
-          GenerateCleanupByPrimaryKeyHints(type, GetCleanupInfo(type, conflictsByTable, isMovedToAnotherHierarchy)));
+      foreach (var type in removedTypes) {
+          GenerateCleanupByPrimaryKeyHints(type, GetCleanupInfo(type, conflictsByTable, isMovedToAnotherHierarchy));
+      }
     }
 
     private void GenerateCleanupByPrimaryKeyHints(StoredTypeInfo removedType, CleanupInfo cleanupInfo)
@@ -350,8 +352,9 @@ namespace Xtensive.Orm.Upgrade
     private void GenerateCleanupByForeignKeyHints(StoredTypeInfo removedType, CleanupInfo cleanupInfo)
     {
       var removedTypeAndAncestors = new HashSet<StoredTypeInfo>(removedType.AllAncestors.Length + 1);
-      removedType.AllAncestors.Append(removedType).ForEach(t => removedTypeAndAncestors.Add(t));
-
+      foreach (var t in removedType.AllAncestors.Append(removedType)) {
+        removedTypeAndAncestors.Add(t);
+      }
 
       var descendantsToHash = (cleanupInfo & CleanupInfo.ConflictByTable) != 0
         ? removedType.AllDescendants
@@ -378,7 +381,7 @@ namespace Xtensive.Orm.Upgrade
       foreach (var pair in affectedAssociations) {
         var association = pair.association;
         var requiresInverseCleanup = pair.requiresInverseCleanup;
-        if (association.ConnectorType == null) {
+        if (association.ConnectorType==null) {
           // This is regular reference
           var field = association.ReferencingField;
           var declaringType = field.DeclaringType;
@@ -406,21 +409,21 @@ namespace Xtensive.Orm.Upgrade
       bool requiresInverseCleanup)
     {
       var field = association.ReferencingField;
-      var candidates = extractedModel.Types
-        .Where(t => !t.IsInterface
-          && t.Fields.Any(f => f.IsInterfaceImplementation
-            && f.Name.Equals(field.Name, StringComparison.Ordinal)
-            && f.ValueType.Equals(field.ValueType, StringComparison.Ordinal)))
-        .ToList();
-      foreach (var candidate in candidates) {
-        var inheritanceSchema = candidate.Hierarchy.InheritanceSchema;
-        GenerateClearReferenceHints(
-          removedType,
-          GetAffectedMappedTypesAsArray(candidate, inheritanceSchema == InheritanceSchema.ConcreteTable),
-          association,
-          requiresInverseCleanup);
-      }
-    }
+              var candidates = extractedModel.Types
+                .Where(t => !t.IsInterface
+                  && t.Fields.Any(f => f.IsInterfaceImplementation
+                    && f.Name.Equals(field.Name, StringComparison.Ordinal)
+                    && f.ValueType.Equals(field.ValueType, StringComparison.Ordinal)))
+                .ToList();
+              foreach (var candidate in candidates) {
+                  var inheritanceSchema = candidate.Hierarchy.InheritanceSchema;
+                  GenerateClearReferenceHints(
+                    removedType,
+                    GetAffectedMappedTypesAsArray(candidate, inheritanceSchema==InheritanceSchema.ConcreteTable),
+                    association,
+                    requiresInverseCleanup);
+              }
+          }
 
     private void ClearDirectAssociation(StoredTypeInfo removedType,
       StoredTypeInfo declaringType,
@@ -429,16 +432,16 @@ namespace Xtensive.Orm.Upgrade
       bool useRemovedType,
       CleanupInfo cleanupInfo)
     {
-      var inheritanceSchema = declaringType.Hierarchy.InheritanceSchema;
+            var inheritanceSchema = declaringType.Hierarchy.InheritanceSchema;
       if ((cleanupInfo & CleanupInfo.ConflictByTable) == 0) {
         var includeInheritors = inheritanceSchema == InheritanceSchema.ConcreteTable;
-        GenerateClearReferenceHints(
-          removedType,
+            GenerateClearReferenceHints(
+              removedType,
           GetAffectedMappedTypesAsArray(declaringType, includeInheritors),
-          association,
-          requiresInverseCleanup);
-      }
-      else {
+              association,
+              requiresInverseCleanup);
+          }
+        else {
         if ((cleanupInfo & CleanupInfo.ConflictByTable) != 0 && (cleanupInfo & CleanupInfo.RootOfConflict) == 0)
           return;
         var type = useRemovedType
@@ -472,10 +475,10 @@ namespace Xtensive.Orm.Upgrade
         deleteInfo |= DataDeletionInfo.TableMovement;
 
       if ((deleteInfo & DataDeletionInfo.TableMovement) == 0) {
-        GenerateClearReferenceHints(
-        removedType,
-        new[] { association.ConnectorType },
-        association,
+          GenerateClearReferenceHints(
+            removedType,
+            new [] {association.ConnectorType},
+            association,
         requiresInverseCleanup,
         deleteInfo);
       }
@@ -568,13 +571,19 @@ namespace Xtensive.Orm.Upgrade
     private void CalculateAffectedTablesAndColumns(NativeTypeClassifier<UpgradeHint> hints)
     {
       if (hints.GetItemCount<RemoveTypeHint>() > 0) {
-        hints.GetItems<RemoveTypeHint>().ForEach(UpdateAffectedTables);
+        foreach (var hint in hints.GetItems<RemoveTypeHint>()) {
+          UpdateAffectedTables(hint);
+        }
       }
       if (hints.GetItemCount<RemoveFieldHint>() > 0) {
-        hints.GetItems<RemoveFieldHint>().ForEach(UpdateAffectedColumns);
+        foreach (var hint in hints.GetItems<RemoveFieldHint>()) {
+          UpdateAffectedColumns(hint);
+        }
       }
       if (hints.GetItemCount<ChangeFieldTypeHint>() > 0) {
-        hints.GetItems<ChangeFieldTypeHint>().ForEach(UpdateAffectedColumns);
+        foreach (var hint in hints.GetItems<ChangeFieldTypeHint>()) {
+          UpdateAffectedColumns(hint);
+        }
       }
     }
 
@@ -698,7 +707,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
       }
 
-      UpgradeLog.Warning(Strings.ExTableXIsNotFound, nodeName);
+      UpgradeLog.Warning(nameof(Strings.ExTableXIsNotFound), nodeName);
       return false;
     }
 
@@ -713,7 +722,7 @@ namespace Xtensive.Orm.Upgrade
         return true;
       }
 
-      UpgradeLog.Warning(Strings.ExColumnXIsNotFoundInTableY, actualFieldName, nodeName);
+      UpgradeLog.Warning(nameof(Strings.ExColumnXIsNotFoundInTableY), actualFieldName, nodeName);
       return false;
     }
 

@@ -42,8 +42,6 @@ namespace Xtensive.Orm.Linq
 
     public DomainModel Model { get; }
 
-    public TypeIdRegistry TypeIdRegistry { get; }
-
     public IMemberCompilerProvider<Expression> CustomCompilerProvider { get; }
 
     public Translator Translator { get; }
@@ -81,8 +79,8 @@ namespace Xtensive.Orm.Linq
       ApplyParameter parameter;
       if (!applyParameters.TryGetValue(provider, out parameter)) {
         parameter = new ApplyParameter(provider.GetType().GetShortName());
-        // parameter = new ApplyParameter(provider.ToString()); 
-        // ENABLE ONLY FOR DEBUGGING! 
+        // parameter = new ApplyParameter(provider.ToString());
+        // ENABLE ONLY FOR DEBUGGING!
         // May lead TO entity.ToString() calls, while ToString can be overriden.
         applyParameters.Add(provider, parameter);
       }
@@ -168,7 +166,6 @@ namespace Xtensive.Orm.Linq
       columnAliasGenerator = AliasGenerator.Create(new[] {"c01umn"});
       CustomCompilerProvider = Domain.Handler.GetMemberCompilerProvider<Expression>();
       Model = Domain.Model;
-      TypeIdRegistry = session.StorageNode.TypeIdRegistry;
       ProviderInfo = Domain.Handlers.ProviderInfo;
       Translator = new Translator(this, compiledQueryScope);
       ParameterExtractor = new ParameterExtractor(Evaluator);

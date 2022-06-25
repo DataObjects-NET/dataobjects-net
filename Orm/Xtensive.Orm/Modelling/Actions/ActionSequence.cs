@@ -42,7 +42,7 @@ namespace Xtensive.Modelling.Actions
     public void Add(NodeAction action)
     {
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       // Only locked actions can be added
       var ca = action as PropertyChangeAction;
       if (ca!=null && actions.Count!=0) {
@@ -56,7 +56,7 @@ namespace Xtensive.Modelling.Actions
           actions.RemoveAt(lastIndex);
         }
       }
-      action.Lock(true); 
+      action.Lock(true);
       actions.Add(action);
     }
 

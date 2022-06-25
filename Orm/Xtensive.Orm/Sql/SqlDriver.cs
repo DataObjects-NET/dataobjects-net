@@ -9,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Xtensive.Core;
 using Xtensive.Orm;
+using Xtensive.Orm.Model;
 using Xtensive.Reflection;
 using Xtensive.Sql.Compiler;
 using Xtensive.Sql.Info;
@@ -60,7 +61,7 @@ namespace Xtensive.Sql
     public SqlCompilationResult Compile(ISqlCompileUnit statement)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
-      return CreateCompiler().Compile(statement, new SqlCompilerConfiguration());
+      return CreateCompiler().Compile(statement, new SqlCompilerConfiguration(), null);
     }
 
     /// <summary>
@@ -68,13 +69,14 @@ namespace Xtensive.Sql
     /// </summary>
     /// <param name="statement">The Sql.Dom statement.</param>
     /// <param name="configuration">The options of compilation.</param>
+    /// <param name="typeIdRegistry">TypeId registry.</param>
     /// <returns>Result of compilation.</returns>
-    public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerConfiguration configuration)
+    public SqlCompilationResult Compile(ISqlCompileUnit statement, SqlCompilerConfiguration configuration, TypeIdRegistry typeIdRegistry = null)
     {
       ArgumentValidator.EnsureArgumentNotNull(statement, nameof(statement));
       ArgumentValidator.EnsureArgumentNotNull(configuration, nameof(configuration));
       ValidateCompilerConfiguration(configuration);
-      return CreateCompiler().Compile(statement, configuration);
+      return CreateCompiler().Compile(statement, configuration, typeIdRegistry);
     }
 
     /// <summary>

@@ -554,7 +554,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         subquery.Columns.Add(1);
         var columns = originalQuery.Columns;
         SqlExpression where = null;
-        for (var i = 0; i < columns.Count; i++) {
+        for (int i = 0, count = columns.Count; i < count; i++) {
           if (i == 0) {
             where = columns[i] == row[i];
           }
@@ -710,7 +710,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
         subQuery.Columns.Add(8);
         var columns = originalQuery.Columns;
         SqlExpression where = null;
-        for (var i = 0; i < columns.Count; i++) {
+        for (int i = 0, count = columns.Count; i < count; i++) {
           //if row[i] would be NULL then c3 would result in true,
           if (row[i].NodeType != SqlNodeType.Null) {
             var c3 = SqlDml.Case();

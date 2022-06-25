@@ -69,7 +69,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
   [TestFixture]
   public class LruCacheTest
   {
-    private LruCache<string, TestClass, TestClass> globalCache;
+    private ICache<string, TestClass> globalCache;
     private Random random = RandomManager.CreateRandom((int)DateTime.Now.Ticks);
     
     class BadTestClass: 
@@ -132,7 +132,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void AddRemoveTest()
     {
-      var cache = new LruCache<string, TestClass, TestClass>(
+      ICache<string, TestClass> cache = new LruCache<string, TestClass, TestClass>(
         100,
         value => value.Text);
 
@@ -174,7 +174,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void RemoveDenyTest1()
     {
-      var cache =
+      ICache<string, TestClass> cache =
         new LruCache<string, TestClass, TestClass>(
           100,
           value => value.Text);
@@ -194,7 +194,7 @@ namespace Xtensive.Orm.Tests.Core.Caching
     [Test]
     public void RemoveDenyTest3()
     {
-      var cache =
+      ICache<string, BadTestClass> cache =
         new LruCache<string, BadTestClass, BadTestClass>(
           100,
           value => value.Identifier);

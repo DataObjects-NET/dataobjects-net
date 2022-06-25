@@ -1,9 +1,10 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.11.12
 
+using System;
 using Xtensive.Core;
 
 using Xtensive.Tuples;
@@ -38,14 +39,24 @@ namespace Xtensive.Orm.Providers
     public string DropStatement { get; set; }
 
     /// <summary>
+    /// Gets or sets the persist request used to store batched data in temporary table.
+    /// </summary>
+    public Lazy<PersistRequest> LazyLevel1BatchStoreRequest { get; set; }
+
+    /// <summary>
+    /// Gets or sets the persist request used to store batched data in temporary table.
+    /// </summary>
+    public Lazy<PersistRequest> LazyLevel2BatchStoreRequest { get; set; }
+
+    /// <summary>
     /// Gets or sets the persist request used to store data in temporary table.
     /// </summary>
-    public PersistRequest StoreRequest { get; set; }
+    public Lazy<PersistRequest> LazyStoreRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the clear reqest used to delete all data from temporary table.
     /// </summary>
-    public PersistRequest ClearRequest { get; set; }
+    public Lazy<PersistRequest> ClearRequest { get; set; }
 
     /// <summary>
     /// Gets or sets the query statement associated with this table descriptor.

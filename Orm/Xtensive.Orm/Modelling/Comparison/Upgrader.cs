@@ -155,20 +155,21 @@ namespace Xtensive.Modelling.Comparison
           ProcessStage(UpgradeStage.Cleanup, actions);
 
           var validationHints = new HintSet(CurrentModel, TargetModel);
-          Hints.OfType<IgnoreHint>()
-            .Where(h => CurrentModel.Resolve(h.Path, false) != null && SourceModel.Resolve(h.Path, false) != null)
-            .ForEach(validationHints.Add);
+          foreach (var x in Hints.OfType<IgnoreHint>()
+              .Where(h => CurrentModel.Resolve(h.Path, false) != null && SourceModel.Resolve(h.Path, false) != null)) {
+              validationHints.Add(x);
+          }
           var diff = comparer.Compare(CurrentModel, TargetModel, validationHints);
           if (diff != null) {
-            CoreLog.InfoRegion(Strings.LogAutomaticUpgradeSequenceValidation);
-            CoreLog.Info(Strings.LogValidationFailed);
-            CoreLog.Info(Strings.LogItemFormat, Strings.Difference);
+            CoreLog.InfoRegion(nameof(Strings.LogAutomaticUpgradeSequenceValidation));
+            CoreLog.Info(nameof(Strings.LogValidationFailed));
+            CoreLog.Info(nameof(Strings.LogItemFormat), Strings.Difference);
             CoreLog.Info("{0}", diff);
             CoreLog.Info(Strings.LogItemFormat + "\r\n{1}", Strings.UpgradeSequence,
               new ActionSequence() { actions });
-            CoreLog.Info(Strings.LogItemFormat, Strings.ExpectedTargetModel);
+            CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ExpectedTargetModel);
             TargetModel.Dump();
-            CoreLog.Info(Strings.LogItemFormat, Strings.ActualTargetModel);
+            CoreLog.Info(nameof(Strings.LogItemFormat), Strings.ActualTargetModel);
             CurrentModel.Dump();
             throw new InvalidOperationException(Strings.ExUpgradeSequenceValidationFailure);
           }
@@ -290,15 +291,15 @@ namespace Xtensive.Modelling.Comparison
       switch (Stage) {
         case UpgradeStage.CleanupData:
           if (difference.IsDataChanged) {
-            Hints.GetHints<UpdateDataHint>(difference.Source)
-              .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
-              .ForEach(hint => AddAction(UpgradeActionType.Regular,
-                new DataAction {DataHint = hint}));
-            Hints.GetHints<DeleteDataHint>(difference.Source)
-              .Where(hint => !hint.IsPostCopyCleanup)
-              .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
-              .ForEach(hint => AddAction(UpgradeActionType.Regular,
-                new DataAction {DataHint = hint}));
+            foreach (var hint in Hints.GetHints<UpdateDataHint>(difference.Source)
+                .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)) {
+              AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint});
+            }
+            foreach (var hint in Hints.GetHints<DeleteDataHint>(difference.Source)
+                .Where(hint => !hint.IsPostCopyCleanup)
+                .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)) {
+              AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint});
+            }
           }
 
           break;
@@ -331,19 +332,19 @@ namespace Xtensive.Modelling.Comparison
             });
           break;
         case UpgradeStage.CopyData:
-          Hints.GetHints<CopyDataHint>(difference.Source)
-            .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
-            .ForEach(hint => AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint}));
+          foreach (var hint in Hints.GetHints<CopyDataHint>(difference.Source)
+              .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)) {
+            AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint});
+          }
           break;
         case UpgradeStage.PostCopyData:
           if (difference.IsDataChanged) {
-            Hints.GetHints<DeleteDataHint>(difference.Source)
-              .Where(hint => hint.IsPostCopyCleanup)
-              .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)
-              .ForEach(hint => AddAction(UpgradeActionType.Regular,
-                new DataAction {DataHint = hint}));
+            foreach (var hint in Hints.GetHints<DeleteDataHint>(difference.Source)
+                .Where(hint => hint.IsPostCopyCleanup)
+                .Where(hint => sc.Compare(hint.SourceTablePath, difference.Source.Path) == 0)) {
+              AddAction(UpgradeActionType.Regular, new DataAction {DataHint = hint});
+            }
           }
-
           break;
         case UpgradeStage.Upgrade:
           if (target == null) {
@@ -720,10 +721,11 @@ namespace Xtensive.Modelling.Comparison
       }
       else if (actionType == UpgradeActionType.Rename) {
         var parentDifference = Context.Difference.Parent;
-        EnumerableUtils.Unfold(Context, c => c.Parent)
-          .Where(c => c.Parent.Difference == parentDifference)
-          .Take(1)
-          .ForEach(c => c.Renames.Add(action));
+        foreach (var c in EnumerableUtils.Unfold(Context, c => c.Parent)
+            .Where(c => c.Parent.Difference == parentDifference)
+            .Take(1)) {
+          c.Renames.Add(action);
+        }
       }
       else {
         foreach (var ctx in EnumerableUtils.Unfold(Context, c => c.Parent)) {

@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Model
     {
       get { return dataTable; }
       protected set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (dataTable != value) {
           ChangeDataTable(value);
         }
@@ -46,7 +46,7 @@ namespace Xtensive.Sql.Model
     /// <param name="value">The collection owner.</param>
     void IPairedNode<DataTable>.UpdatePairedProperty(string property, DataTable value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       dataTable = value;
     }
 

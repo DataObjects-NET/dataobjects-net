@@ -116,6 +116,7 @@ namespace Xtensive.Core
     /// <typeparam name="T">Type of the sequence item.</typeparam>
     /// <param name="items">The sequence to apply the <paramref name="action"/> to.</param>
     /// <param name="action">The action to apply.</param>
+    [Obsolete("Use foreach statement")]
     public static void ForEach<T>(this IEnumerable<T> items, Action<T> action)
     {
       foreach (var item in items)
@@ -482,6 +483,31 @@ namespace Xtensive.Core
     {
       return source.Batch(firstFastCount, defaultInitialBatchSize, defaultMaximalBatchSize);
     }
+
+#if !NET6_0_OR_GREATER
+        internal static IEnumerable<T[]> Chunk<T>(this IEnumerable<T> enumerable, int chunkSize)
+        {
+            using var enumerator = enumerable.GetEnumerator();
+            while (enumerator.MoveNext()) {
+                var chunk = new T[chunkSize];
+                chunk[0] = enumerator.Current;
+
+                var i = 1;
+                for (; i < chunk.Length && enumerator.MoveNext(); i++) {
+                    chunk[i] = enumerator.Current;
+                }
+
+                if (i == chunk.Length) {
+                    yield return chunk;
+                }
+                else {
+                    Array.Resize(ref chunk, i);
+                    yield return chunk;
+                    yield break;
+                }
+            }
+        }
+#endif
 
     /// <summary>
     /// Invokes specified delegates before and after the enumeration of each batch.

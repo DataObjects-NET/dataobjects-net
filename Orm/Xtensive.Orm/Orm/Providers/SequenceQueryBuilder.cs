@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
+// Copyright (C) 2012 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Denis Krjuchkov
@@ -104,7 +104,7 @@ namespace Xtensive.Orm.Providers
 
       if (!hasInsertDefaultValues) {
         var fakeColumn = GetColumn(table, WellKnown.GeneratorFakeColumnName);
-        insert.Values[tableRef[fakeColumn.Name]] = SqlDml.Null;
+        insert.Values.SetValueByColumn(tableRef[fakeColumn.Name], SqlDml.Null);
       }
 
       var result = SqlDml.Batch();

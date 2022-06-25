@@ -20,7 +20,7 @@ namespace Xtensive.Orm.Rse
     private readonly ColumnInfoRef columnInfo;
     /// <summary>
     /// Gets the reference that describes a column.
-    /// </summary>    
+    /// </summary>
     public ref readonly ColumnInfoRef ColumnInfoRef => ref columnInfo;
 
     /// <inheritdoc/>

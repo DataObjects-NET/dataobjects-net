@@ -2576,4 +2576,7 @@ Error: {1}</value>
   <data name="ExUnsupportedDistinctBy" xml:space="preserve">
     <value>IQueryable.DistinctBy() extension is not supported. Use '.AsEnumerable().DistinctBy()' instead.</value>
   </data>
+  <data name="ApplyingChangesToMetadata" xml:space="preserve">
+    <value>Applying changes to Metadata-related types for MySQL</value>
+  </data>
 </root>

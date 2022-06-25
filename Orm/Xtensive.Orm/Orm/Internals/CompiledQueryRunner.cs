@@ -14,6 +14,8 @@ using Xtensive.Caching;
 using Xtensive.Core;
 using Xtensive.Orm.Linq;
 using Xtensive.Orm.Linq.Expressions.Visitors;
+using Xtensive.Orm.Providers;
+using Xtensive.Orm.Rse.Providers;
 using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Internals
@@ -122,10 +124,11 @@ namespace Xtensive.Orm.Internals
       }
 
       var parameterizedQuery = (ParameterizedQuery) scope.ParameterizedQuery;
-      if (parameterizedQuery==null && queryTarget!=null) {
+      if (parameterizedQuery == null && queryTarget != null) {
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
+      cacheable = cacheable && parameterizedQuery != null && !UsesSqlTemporaryDataProvider(parameterizedQuery.DataSource);
       if (cacheable) {
         PutCachedQuery(parameterizedQuery);
       }
@@ -145,6 +148,7 @@ namespace Xtensive.Orm.Internals
       using (scope.Enter()) {
         var result = query.Invoke(endpoint);
         var translatedQuery = endpoint.Provider.Translate(result.Expression);
+        cacheable = cacheable && !UsesSqlTemporaryDataProvider(translatedQuery.DataSource);
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
@@ -153,6 +157,9 @@ namespace Xtensive.Orm.Internals
       }
       return parameterizedQuery;
     }
+
+    private static bool UsesSqlTemporaryDataProvider(Provider provider) =>
+      provider is SqlTemporaryDataProvider || provider.Sources.Any(UsesSqlTemporaryDataProvider);
 
     private bool AllocateParameterAndReplacer()
     {
@@ -169,31 +176,31 @@ namespace Xtensive.Orm.Internals
       queryParameterReplacer = new ExtendedExpressionReplacer(expression => {
         if (expression.NodeType == ExpressionType.Constant) {
           if ((expression as ConstantExpression).Value == null) {
-            return null;
+          return null;
+        }
+        if (expression.Type.IsClosure()) {
+          if (expression.Type==closureType) {
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
-          if (expression.Type.IsClosure()) {
-            if (expression.Type == closureType) {
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
-            }
             else {
-              throw new NotSupportedException(string.Format(
-                Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
-            }
+          throw new NotSupportedException(string.Format(
+            Strings.ExExpressionDefinedOutsideOfCachingQueryClosure, expression));
+        }
           }
 
-          if (closureType.DeclaringType == null) {
+        if (closureType.DeclaringType==null) {
             if (expression.Type.IsAssignableFrom(closureType))
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
           }
-          else {
+        else {
             if (expression.Type.IsAssignableFrom(closureType))
-              return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
+            return Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo);
             if (expression.Type.IsAssignableFrom(closureType.DeclaringType)) {
-              var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
+            var memberInfo = closureType.TryGetFieldInfoFromClosure(expression.Type);
               if (memberInfo != null)
-                return Expression.MakeMemberAccess(
-                  Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
-                  memberInfo);
+              return Expression.MakeMemberAccess(
+                Expression.MakeMemberAccess(Expression.Constant(queryParameter, parameterType), valueMemberInfo),
+                memberInfo);
             }
           }
         }
@@ -242,9 +249,12 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
+
+      this.queryKey = domain.Configuration.ShareQueryCacheOverNodes
+        ? queryKey
+        : new Pair<object, string>(queryKey, session.StorageNodeId);
     }
   }
 }

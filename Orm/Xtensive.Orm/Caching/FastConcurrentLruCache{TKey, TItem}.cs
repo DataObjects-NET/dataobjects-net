@@ -18,13 +18,16 @@ namespace Xtensive.Caching
   public class FastConcurrentLruCache<TKey, TItem> :
     CacheBase<TKey, TItem>
   {
-    private FastConcurrentLru<TKey, TItem> realCache;
+    private readonly FastConcurrentLru<TKey, TItem> realCache;
 
     /// <inheritdoc/>
     public override int Count => realCache.Count;
 
     /// <inheritdoc/>
     public long MaxSize { get; private set; }
+
+    /// <inheritdoc/>
+    public override void Clear() => realCache.Clear();
 
     /// <inheritdoc/>
     public override bool TryGetItem(TKey key, bool markAsHit, out TItem item) => realCache.TryGet(key, out item);
@@ -52,10 +55,6 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public override void RemoveKey(TKey key, bool removeCompletely) => realCache.TryRemove(key);
 
-    /// <inheritdoc/>
-    public override void Clear() => realCache.Clear();
-
-    /// <inheritdoc/>
     /// <exception cref="NotImplementedException"/>
     public override IEnumerator<TItem> GetEnumerator() => throw new NotImplementedException();
 

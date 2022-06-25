@@ -46,9 +46,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlBetween>(expression, "expression");
-      SqlBetween replacingExpression = expression as SqlBetween;
+      SqlBetween replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlBetween>(expression);
       NodeType = replacingExpression.NodeType;
       left = replacingExpression.Left;
       right = replacingExpression.Right;

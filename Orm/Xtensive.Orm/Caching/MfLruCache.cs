@@ -166,7 +166,7 @@ namespace Xtensive.Caching
         ItemRemoved(key);
       }
       cached = new CachedItem(item) {
-        HitTime = time, 
+        HitTime = time,
         HitCount = 1
       };
       items[key] = cached;
@@ -232,12 +232,12 @@ namespace Xtensive.Caching
           hits[i]  = cached.HitCount;
           i++;
         }
-        
+
         // Selection
         Func<int, int, int> reversedIntComparer = (l, r) => r - l;
         int minTime = times.Select(reversedIntComparer, lruCapacity);
         int minHits = hits.Select(reversedIntComparer, mfuCapacity);
-        
+
         // Filtering
         var newItems = new Dictionary<TKey, CachedItem>();
         foreach (var pair in items) {
@@ -388,7 +388,7 @@ namespace Xtensive.Caching
     /// <param name="mfuCapacity">The <see cref="MfuCapacity"/> property value.</param>
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
-    public MfLruCache(int lruCapacity, int mfuCapacity, 
+    public MfLruCache(int lruCapacity, int mfuCapacity,
       Converter<TItem, TKey> keyExtractor, ICache<TKey, TItem> chainedCache)
       : this(lruCapacity, mfuCapacity, DefaultEfficiencyFactor, keyExtractor, chainedCache)
     {

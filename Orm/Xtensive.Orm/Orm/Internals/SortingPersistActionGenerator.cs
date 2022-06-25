@@ -161,7 +161,7 @@ namespace Xtensive.Orm.Internals
           new Edge<AssociationInfo>(ownerNode, targetNode, association).Attach();
         }
       }
-      //In some cases, 
+      //In some cases,
       List<Edge<AssociationInfo>> notBreakedEdges = new List<Edge<AssociationInfo>>();
 
       //This predicate filter edges where source node value can't be null reference

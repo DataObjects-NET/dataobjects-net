@@ -13,6 +13,8 @@ using ServiceRegistrationKey = System.ValueTuple<System.Type, bool>;
 
 namespace Xtensive.IoC
 {
+  using ServiceRegistrationKey = ValueTuple<Type, bool>;
+
   /// <summary>
   /// Describes single service mapping entry for <see cref="ServiceContainer"/>.
   /// </summary>
@@ -81,7 +83,7 @@ namespace Xtensive.IoC
     private static Lazy<ServiceRegistration[]> ServiceRegistrationsExtractorImpl(ServiceRegistrationKey key) =>
       new Lazy<ServiceRegistration[]>(() => {
         (var type, var defaultOnly) = key;
-        ArgumentValidator.EnsureArgumentNotNull(type, "type");
+        ArgumentValidator.EnsureArgumentNotNull(type, nameof(type));
         if (type.IsAbstract) {
           return Array.Empty<ServiceRegistration>();
         }

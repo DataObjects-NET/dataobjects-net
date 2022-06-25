@@ -36,7 +36,7 @@ namespace Xtensive.Orm.Model
     /// <exception cref="ArgumentException">Item was not found.</exception>
     public TypeInfo this[Type key] => TryGetValue(key, out var result)
       ? result
-      : throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetShortName()));
+      : throw new KeyNotFoundException(string.Format(Strings.TypeXIsNotRegistered, key.GetFullName()));
 
     /// <summary>
     /// An indexer that provides access to collection items by their <see cref="TypeInfo.TypeId"/>.
@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Model
     /// Finds the type by its full name.
     /// </summary>
     /// <param name="fullName">The full name of the type to find.</param>
-    /// <returns>Found type, if any; 
+    /// <returns>Found type, if any;
     /// <see langword="null" />, if there is no type with specified full name.</returns>
     public TypeInfo Find(string fullName)
     {
@@ -184,7 +184,7 @@ namespace Xtensive.Orm.Model
     /// Finds the ancestor of the specified <paramref name="item"/>.
     /// </summary>
     /// <param name="item">The type to search ancestor for.</param>
-    /// <returns><see cref="TypeInfo"/> instance that is ancestor of specified <paramref name="item"/> or 
+    /// <returns><see cref="TypeInfo"/> instance that is ancestor of specified <paramref name="item"/> or
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="item"/> is <see langword="null"/>.</exception>
     public TypeInfo FindAncestor(TypeInfo item)
@@ -326,7 +326,7 @@ namespace Xtensive.Orm.Model
     /// Finds the ancestor of the specified <paramref name="type"/>.
     /// </summary>
     /// <param name="type">The type to search ancestor for.</param>
-    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or 
+    /// <returns><see name="TypeDef"/> instance that is ancestor of specified <paramref name="type"/> or
     /// <see langword="null"/> if the ancestor is not found in this collection.</returns>
     /// <exception cref="ArgumentNullException">When <paramref name="type"/> is <see langword="null"/>.</exception>
     private TypeInfo FindAncestor(Type type)
@@ -381,7 +381,7 @@ namespace Xtensive.Orm.Model
     /// <param name="descendant">The descendant.</param>
     public void RegisterInheritance(TypeInfo ancestor, TypeInfo descendant)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       if (ancestor.IsInterface) {
         HashSet<TypeInfo> interfaces;
@@ -409,7 +409,7 @@ namespace Xtensive.Orm.Model
     /// <param name="implementor">The implementor.</param>
     public void RegisterImplementation(TypeInfo @interface, TypeInfo implementor)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       HashSet<TypeInfo> interfaces;
       if (!interfaceTable.TryGetValue(implementor, out interfaces)) {
@@ -434,7 +434,7 @@ namespace Xtensive.Orm.Model
 
 
     // Constructors
-    
+
     /// <inheritdoc/>
     public TypeInfoCollection(Node owner, string name)
       : base(owner, name)

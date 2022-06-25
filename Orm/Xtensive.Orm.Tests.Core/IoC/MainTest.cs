@@ -96,7 +96,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
   public class MainTest : HasConfigurationAccessTest
   {
     [Test]
-    public void DefaultSectionContainerTest() 
+    public void DefaultSectionContainerTest()
     {
       var defaultSectionContainer = ServiceContainer.Create(Configuration);
       var ps = defaultSectionContainer.Get<IPrintService>();
@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Tests.Core.IoC
 
     [Test]
     public void CustomContainerTest()
-    { 
+    {
       var container = ServiceContainer.Create(Configuration, "second");
 
       var ps = container.Get<IPrintService>();

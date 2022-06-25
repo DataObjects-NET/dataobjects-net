@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -29,30 +29,33 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Creates region. Within the region, all messages are indented.
     /// </summary>
-    /// <param name="message">Message, which writes to beginning of region and end of region.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
+    /// <param name="messageId">Message, which writes to beginning of region and end of region.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
-    public IDisposable DebugRegion(string message, params object[] parameters)
+    public IndentManager.IndentScope DebugRegion(string messageId, params object[] parameters)
     {
-      ArgumentValidator.EnsureArgumentNotNull(message, "message");
+      ArgumentValidator.EnsureArgumentNotNull(messageId, "message");
       if (!IsLogged(LogLevel.Debug))
         return IndentManager.IncreaseIndent();
+      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture);
       var title = parameters!=null ? string.Format(message, parameters) : message;
-      Debug(string.Format(Strings.LogRegionBegin, title));
-      return IndentManager.IncreaseIndent(() => Debug(string.Format(Strings.LogRegionEnd, title)));
+      var titleParams = new object[] { title };
+      Debug(nameof(Strings.LogRegionBegin), titleParams);
+      return IndentManager.IncreaseIndent(() => Debug(nameof(Strings.LogRegionEnd), titleParams));
     }
 
     /// <summary>
     /// Creates region. Within the region, all messages are indented.
     /// </summary>
-    /// <param name="message">Message, which writes to beginning of region and end of region.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
+    /// <param name="messageId">Message ID, which writes to beginning of region and end of region.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
-    public IDisposable InfoRegion(string message, params object[] parameters)
+    public IndentManager.IndentScope InfoRegion(string messageId, params object[] parameters)
     {
-      ArgumentValidator.EnsureArgumentNotNull(message, "message");
+      ArgumentValidator.EnsureArgumentNotNull(messageId, "message");
       if (!IsLogged(LogLevel.Info))
         return IndentManager.IncreaseIndent();
+      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture);
       var title = parameters!=null ? string.Format(message, parameters) : message;
       Info(string.Format(Strings.LogRegionBegin, title));
       return IndentManager.IncreaseIndent(() => Info(string.Format(Strings.LogRegionEnd, title)));
@@ -61,46 +64,38 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Writes debug message.
     /// </summary>
-    /// <param name="message">Message to write to.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
+    /// <param name="messageId">Message to write to.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Debug(string message, object[] parameters = null, Exception exception = null)
-    {
-      Write(new LogEventInfo(Name, LogLevel.Debug, message, parameters, exception));
-    }
+    public virtual void Debug(string messageId, object[] parameters = null, Exception exception = null) =>
+      Write(LogLevel.Debug, messageId, parameters, exception);
 
     /// <summary>
     /// Writes information message.
     /// </summary>
-    /// <param name="message">Message to write to.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
+    /// <param name="messageId">Message to write to.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Info(string message, object[] parameters = null, Exception exception = null)
-    {
-      Write(new LogEventInfo(Name, LogLevel.Info, message, parameters, exception));
-    }
+    public virtual void Info(string messageId, object[] parameters = null, Exception exception = null) =>
+      Write(LogLevel.Info, messageId, parameters, exception);
 
     /// <summary>
     /// Writes warning message.
     /// </summary>
-    /// <param name="message">Message to write to.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
+    /// <param name="messageId">Message to write to.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Warning(string message, object[] parameters = null, Exception exception = null)
-    {
-      Write(new LogEventInfo(Name, LogLevel.Warning, message, parameters, exception));
-    }
+    public virtual void Warning(string messageId, object[] parameters = null, Exception exception = null) =>
+      Write(LogLevel.Warning, messageId, parameters, exception);
 
     /// <summary>
     /// Writes error message.
     /// </summary>
-    /// <param name="message">Message to write to.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
+    /// <param name="messageId">Message to write to.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void Error(string message, object[] parameters = null, Exception exception = null)
-    {
-      Write(new LogEventInfo(Name, LogLevel.Error, message, parameters, exception));
-    }
+    public virtual void Error(string messageId, object[] parameters = null, Exception exception = null) =>
+      Write(LogLevel.Error, messageId, parameters, exception);
 
     /// <summary>
     /// Writes fatal error message.
@@ -108,16 +103,20 @@ namespace Xtensive.Orm.Logging
     /// <param name="message">Message to write to.</param>
     /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
-    public virtual void FatalError(string message, object[] parameters = null, Exception exception = null)
+    public virtual void FatalError(string messageId, object[] parameters = null, Exception exception = null) =>
+      Write(LogLevel.FatalError, messageId, parameters, exception);
+
+    private void Write(LogLevel logLevel, string messageId, object[] parameters, Exception exception)
     {
-      Write(new LogEventInfo(Name, LogLevel.FatalError, message, parameters, exception));
+      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
+      Write(new LogEventInfo(Name, logLevel, message, parameters, exception));
     }
 
     /// <summary>
     /// Writes log message.
     /// </summary>
     /// <param name="info">Log event information.</param>
-    public abstract void Write(LogEventInfo info);
+    public abstract void Write(in LogEventInfo info);
 
     /// <summary>
     /// Creates instance of this class.

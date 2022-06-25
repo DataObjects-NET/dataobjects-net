@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Compiler
       compiler.VisitNodes(nodes);
       return compiler.result.ToString();
     }
-    
+
     #region NodeVisitor members
 
     public override void Visit(TextNode node)
@@ -47,10 +47,7 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(PlaceholderNode node)
     {
-      string value;
-      if (!configuration.PlaceholderValues.TryGetValue(node.Id, out value))
-        throw new InvalidOperationException(string.Format(Strings.ExValueForPlaceholderXIsNotSet, node.Id));
-      result.Append(value);
+      configuration.AppendPlaceholderValue(result, node);
     }
 
     public override void Visit(CycleItemNode node)

@@ -8,6 +8,7 @@ using System.Linq;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Sql.Dml;
+using Xtensive.Orm.Internals;
 
 namespace Xtensive.Sql
 {
@@ -32,7 +33,8 @@ namespace Xtensive.Sql
         WellKnownTypes.DateTimeOffset,
         WellKnownTypes.TimeSpan,
         WellKnownTypes.ByteArray,
-        WellKnownTypes.Guid
+        WellKnownTypes.Guid,
+        WellKnownOrmTypes.TypeInfo
     };
 
     public static void EnsureAreSqlRowArguments(IEnumerable<SqlExpression> nodes)
@@ -83,7 +85,7 @@ namespace Xtensive.Sql
 
     public static bool IsBooleanExpression(SqlExpression node)
     {
-      if (node==null)
+      if (node == null)
         return true;
       switch (node.NodeType) {
         case SqlNodeType.And:
@@ -121,7 +123,7 @@ namespace Xtensive.Sql
         case SqlNodeType.DynamicFilter:
           return true;
         case SqlNodeType.Cast:
-          return ((SqlCast) node).Type.Type==SqlType.Boolean;
+          return ((SqlCast) node).Type.Type == SqlType.Boolean;
         case SqlNodeType.Literal:
           return (node is SqlLiteral<bool>);
         case SqlNodeType.Variant:
@@ -134,7 +136,7 @@ namespace Xtensive.Sql
 
     public static bool IsArithmeticExpression(SqlExpression node)
     {
-      if (node==null) {
+      if (node == null) {
         return true;
       }
 
@@ -187,7 +189,7 @@ namespace Xtensive.Sql
 
     public static bool IsCharacterExpression(SqlExpression node)
     {
-      if (node==null)
+      if (node == null)
         return true;
       if (node is SqlBinary)
         return true; // Allow easy operation for SQLite
@@ -211,7 +213,7 @@ namespace Xtensive.Sql
         case SqlNodeType.Metadata:
           return true;
         case SqlNodeType.Variant:
-          var variant = (SqlVariant)node;
+          var variant = (SqlVariant) node;
           return IsCharacterExpression(variant.Main) && IsCharacterExpression(variant.Alternative);
         default:
           return false;
@@ -221,14 +223,14 @@ namespace Xtensive.Sql
     public static bool IsLimitOffsetArgument(SqlExpression node)
     {
       switch (node.NodeType) {
-      case SqlNodeType.Literal:
-      case SqlNodeType.Placeholder:
-        return true;
-      case SqlNodeType.Variant:
-        var variant = (SqlVariant) node;
-        return IsLimitOffsetArgument(variant.Main) && IsLimitOffsetArgument(variant.Alternative);
-      default:
-        return false;
+        case SqlNodeType.Literal:
+        case SqlNodeType.Placeholder:
+          return true;
+        case SqlNodeType.Variant:
+          var variant = (SqlVariant) node;
+          return IsLimitOffsetArgument(variant.Main) && IsLimitOffsetArgument(variant.Alternative);
+        default:
+          return false;
       }
     }
 

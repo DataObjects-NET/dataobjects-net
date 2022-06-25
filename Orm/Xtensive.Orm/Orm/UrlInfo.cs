@@ -24,8 +24,8 @@ namespace Xtensive.Orm
   /// </summary>
   /// <remarks>
   /// <para>
-  /// The common URL format that would be converted 
-  /// to the <see cref="UrlInfo"/> can be represented 
+  /// The common URL format that would be converted
+  /// to the <see cref="UrlInfo"/> can be represented
   /// in the BNF form as following:
   /// <code lang="BNF" outline="true">
   /// url ::= protocol://[user[:password]@]host[:port]/resource[?parameters]
@@ -36,14 +36,14 @@ namespace Xtensive.Orm
   /// port ::= digits
   /// resource ::= name
   /// parameters ::= parameter[&amp;parameter]
-  /// 
+  ///
   /// hostname ::= name[.hostname]
   /// hostnum ::= digits.digits.digits.digits
-  /// 
+  ///
   /// parameter ::= name=[name]
-  /// 
+  ///
   /// name ::= alpanumx[name]
-  /// 
+  ///
   /// digits ::= digit[digits]
   /// alphanumx ::= alphanum | escape | $ | - | _ | . | + | ! | * | " | ' | ( | ) | , | ; | # | space
   /// alphanum ::= alpha | digit
@@ -70,7 +70,7 @@ namespace Xtensive.Orm
   [Serializable]
   [DebuggerDisplay("{url}")]
   [TypeConverter(typeof(UrlInfoConverter))]
-  public class UrlInfo : 
+  public class UrlInfo :
     IEquatable<UrlInfo>,
     IComparable<UrlInfo>,
     ISerializable
@@ -82,7 +82,7 @@ namespace Xtensive.Orm
           @"(?'host'[^:/]*)" +
           @"(:(?'port'\d+))?" +
           @"/(?'resource'[^?]*)?" +
-          @"(\?(?'params'.*))?", 
+          @"(\?(?'params'.*))?",
           RegexOptions.Compiled|RegexOptions.Singleline);
 
     private string url = string.Empty;

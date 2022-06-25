@@ -37,9 +37,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlNextValue>(expression, "expression");
-      SqlNextValue replacingExpression = expression as SqlNextValue;
+      SqlNextValue replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlNextValue>(expression);
       sequence = replacingExpression.Sequence;
       increment = replacingExpression.Increment;
     }

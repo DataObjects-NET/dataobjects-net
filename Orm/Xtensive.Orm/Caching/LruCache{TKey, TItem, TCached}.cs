@@ -238,7 +238,7 @@ namespace Xtensive.Caching
     /// <param name="keyExtractor"><see cref="ICache{TKey, TItem}.KeyExtractor"/> property value.</param>
     /// <param name="cacheConverter"><see cref="CacheConverter"/> property value.</param>
     /// <param name="chainedCache"><see cref="ChainedCache"/> property value.</param>
-    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor, 
+    public LruCache(long maxSize, Converter<TItem, TKey> keyExtractor,
       Biconverter<TItem, TCached> cacheConverter, ICache<TKey, TItem> chainedCache)
     {
       if (maxSize <= 0)

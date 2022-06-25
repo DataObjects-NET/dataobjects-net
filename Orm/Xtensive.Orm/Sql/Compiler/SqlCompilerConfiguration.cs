@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2009.07.15
 
@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using JetBrains.Annotations;
 using Xtensive.Core;
+using Xtensive.Orm.Model;
 using Xtensive.Sql.Info;
 
 namespace Xtensive.Sql.Compiler
@@ -28,6 +29,12 @@ namespace Xtensive.Sql.Compiler
     /// server supports <see cref="QueryFeatures.MultidatabaseQueries"/>.
     /// </summary>
     public bool DatabaseQualifiedObjects { get; set; }
+
+    /// <summary>
+    /// Insert Placeholder nodes instead of real schema names
+    /// Allows to share compiled query over multiple schemas.
+    /// </summary>
+    public bool ParametrizeSchemaNames { get; set; }
 
     /// <summary>
     /// Gets or sets comment location.
@@ -53,6 +60,7 @@ namespace Xtensive.Sql.Compiler
       return new SqlCompilerConfiguration {
         ParameterNamePrefix = ParameterNamePrefix,
         DatabaseQualifiedObjects = DatabaseQualifiedObjects,
+        ParametrizeSchemaNames = ParametrizeSchemaNames,
       };
     }
 
@@ -62,12 +70,12 @@ namespace Xtensive.Sql.Compiler
       DatabaseMapping = null;
     }
 
-    public SqlCompilerConfiguration([NotNull]IDictionary<string, string> databaseMapping, [NotNull]IDictionary<string, string> schemaMapping)
+    public SqlCompilerConfiguration([NotNull]IReadOnlyDictionary<string, string> databaseMapping, [NotNull] IReadOnlyDictionary<string, string> schemaMapping)
     {
       ArgumentValidator.EnsureArgumentNotNull(databaseMapping, "databaseMapping");
       ArgumentValidator.EnsureArgumentNotNull(schemaMapping, "schemaMapping");
-      DatabaseMapping = new ReadOnlyDictionary<string, string>(databaseMapping);
-      SchemaMapping = new ReadOnlyDictionary<string, string>(schemaMapping);
+      DatabaseMapping = databaseMapping;
+      SchemaMapping = schemaMapping;
     }
   }
 }

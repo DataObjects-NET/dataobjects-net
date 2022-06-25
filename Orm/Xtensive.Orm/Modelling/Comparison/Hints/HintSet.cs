@@ -84,7 +84,7 @@ namespace Xtensive.Modelling.Comparison.Hints
 
           var nodeHintMap = GetNodeHints(node);
           var hintType = hint.GetType();
-
+          
           if (nodeHintMap.TryGetValue(hintType, out var hintOrList)) {
             if (hintOrList is List<Hint> list) {
               list.Add(hint);
@@ -139,7 +139,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// </summary>
     /// <param name="node">The node to check.</param>
     /// <returns>
-    /// <see langword="true"/> if the specified node has associated hints;
+    /// <see langword="true"/> if the specified node has associated hints; 
     /// otherwise, <see langword="false"/>.
     /// </returns>
     public bool HasHints(Node node) => GetNodeHints(node).Count > 0;
@@ -192,7 +192,7 @@ namespace Xtensive.Modelling.Comparison.Hints
     /// <inheritdoc/>
     public override string ToString()
     {
-      return string.Join(Environment.NewLine,
+      return string.Join(Environment.NewLine, 
         list.Select(hint => hint.ToString()).ToArray());
     }
 

@@ -128,7 +128,7 @@ namespace Xtensive.Orm.Providers
               parameter))
             .Alias("a")
             .Join(
-              index.GetQuery(), 
+              index.GetQuery(),
               association.Reversed.OwnerField.MappingInfo
                 .GetItems()
                 .Select((l,r) => new Pair<int>(l,r))

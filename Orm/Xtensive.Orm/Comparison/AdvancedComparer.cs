@@ -112,7 +112,7 @@ namespace Xtensive.Comparison
     /// Wraps this instance with the <see cref="CastingComparer{T,TTarget}"/>.
     /// </summary>
     /// <typeparam name="TTarget">The type to provide the comparer for (by wrapping this comparer).</typeparam>
-    public AdvancedComparer<TTarget> Cast<TTarget>() 
+    public AdvancedComparer<TTarget> Cast<TTarget>()
     {
       if (typeof(TTarget)==typeof(T))
         return this as AdvancedComparer<TTarget>;

@@ -263,7 +263,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     }
 
     public override void Visit(SqlExtract node)
-    {   
+    {
       switch (node.DateTimeOffsetPart) {
         case SqlDateTimeOffsetPart.Date:
           DateTimeOffsetExtractDate(node.Operand).AcceptVisitor(this);
@@ -293,7 +293,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
 
     protected SqlExpression DateTimeOffsetToUtcDateTime(SqlExpression timeStamp) =>
       GetDateTimeInTimeZone(timeStamp, TimeSpan.Zero);
-    
+
     protected SqlExpression DateTimeOffsetToLocalDateTime(SqlExpression timestamp) =>
       SqlDml.Cast(timestamp, SqlType.DateTime);
 

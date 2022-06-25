@@ -57,7 +57,7 @@ namespace Xtensive.Sql.Model
     {
       get { return catalog; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (catalog != value)
           ChangeCatalog(value);
       }
@@ -78,7 +78,7 @@ namespace Xtensive.Sql.Model
     /// <param name="value">The collection owner.</param>
     void IPairedNode<Catalog>.UpdatePairedProperty(string property, Catalog value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       catalog = value;
     }
 
