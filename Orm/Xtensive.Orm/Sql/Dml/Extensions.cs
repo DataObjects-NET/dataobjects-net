@@ -14,21 +14,6 @@ namespace Xtensive.Sql.Dml
   public static class Extensions
   {
     /// <summary>
-    /// Determines whether the specified expression is a null reference.
-    /// Use this method instead of comparison with null,
-    /// because equality operator is overloaded for <see cref="SqlExpression"/>
-    /// to yield equality comparison expression.
-    /// </summary>
-    /// <param name="expression">The expression to check.</param>
-    /// <returns>
-    /// <see langword="true"/> if argument is a null reference; otherwise, <see langword="false"/>.
-    /// </returns>
-    public static bool IsNullReference(this SqlExpression expression)
-    {
-      return ReferenceEquals(expression, null);
-    }
-
-    /// <summary>
     /// Checks whether <paramref name="available"/> contains all flags of given <paramref name="required"/>.
     /// </summary>
     /// <param name="available">All flags.</param>

@@ -452,7 +452,7 @@ namespace Xtensive.Orm.Upgrade
 
     private void DropDefaultConstraint(TableColumn column, UpgradeActionSequenceBuilder commandOutput)
     {
-      if (column.DefaultValue.IsNullReference())
+      if (column.DefaultValue is null)
         return;
       var table = column.Table;
       var constraint = table.TableConstraints.OfType<DefaultConstraint>().FirstOrDefault(c => c.Column==column);

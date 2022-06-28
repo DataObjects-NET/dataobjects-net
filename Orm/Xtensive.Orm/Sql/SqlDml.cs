@@ -853,7 +853,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+      if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression));
     }
@@ -863,7 +863,7 @@ namespace Xtensive.Sql
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
       ArgumentValidator.EnsureArgumentNotNull(right, "right");
-      if (!expression.IsNullReference() && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
+      if (expression is not null && (joinType == SqlJoinType.CrossApply || joinType == SqlJoinType.LeftOuterApply))
         throw new ArgumentException(Strings.ExJoinExpressionShouldBeNullForCrossApplyAndOuterApply, "expression");
       return new SqlJoinedTable(new SqlJoinExpression(joinType, left, right, expression), leftColumns, rightColumns);
     }
@@ -1156,7 +1156,7 @@ namespace Xtensive.Sql
 
     public static SqlFunctionCall Rand(SqlExpression seed)
     {
-      if (!seed.IsNullReference()) {
+      if (seed is not null) {
         SqlValidator.EnsureIsArithmeticExpression(seed);
         return new SqlFunctionCall(SqlFunctionType.Rand, seed);
       }

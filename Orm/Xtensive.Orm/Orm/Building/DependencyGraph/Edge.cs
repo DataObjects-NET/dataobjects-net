@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Building.DependencyGraph
     /// <inheritdoc/>
     public bool Equals(Edge<TValue> obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

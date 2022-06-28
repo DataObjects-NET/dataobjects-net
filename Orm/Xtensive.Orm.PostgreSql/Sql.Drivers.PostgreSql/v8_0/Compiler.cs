@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Drivers.PostgreSql.v8_0
     public override void Visit(SqlBinary node)
     {
       var right = node.Right as SqlArray;
-      if (!right.IsNullReference() && (node.NodeType is SqlNodeType.In or SqlNodeType.NotIn)) {
+      if (right is not null && (node.NodeType is SqlNodeType.In or SqlNodeType.NotIn)) {
         var row = SqlDml.Row(right.GetValues().Select(value => SqlDml.Literal(value)).ToArray());
         base.Visit(node.NodeType == SqlNodeType.In ? SqlDml.In(node.Left, row) : SqlDml.NotIn(node.Left, row));
       }

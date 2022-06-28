@@ -68,7 +68,7 @@ namespace Xtensive.Sql.Dml
         ? clone
         : context.NodeMapping[this] = new SqlLike((SqlExpression) expression.Clone(context),
             (SqlExpression) pattern.Clone(context),
-            escape.IsNullReference() ? null : (SqlExpression) escape.Clone(context), not);
+            escape is null ? null : (SqlExpression) escape.Clone(context), not);
 
     internal SqlLike(SqlExpression expression, SqlExpression pattern, SqlExpression escape, bool not) : base (SqlNodeType.Like)
     {

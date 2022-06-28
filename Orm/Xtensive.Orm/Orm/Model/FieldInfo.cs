@@ -716,7 +716,7 @@ namespace Xtensive.Orm.Model
     /// <inheritdoc/>
     public bool Equals(FieldInfo obj)
     {
-      if (ReferenceEquals(null, obj))
+      if (obj is null)
         return false;
       if (ReferenceEquals(this, obj))
         return true;

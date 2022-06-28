@@ -31,7 +31,7 @@ namespace Xtensive.Sql.Dml
         ? clone
         : context.NodeMapping[this] = new SqlRound(
             (SqlExpression) Argument.Clone(context),
-            Length.IsNullReference() ? null : (SqlExpression) Length.Clone(context),
+            Length is null ? null : (SqlExpression) Length.Clone(context),
             Type, Mode);
 
     public override void AcceptVisitor(ISqlVisitor visitor)

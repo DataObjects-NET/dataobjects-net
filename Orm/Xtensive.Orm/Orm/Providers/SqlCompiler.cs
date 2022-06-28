@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Providers
 
       var sourceSelect = source.Request.Statement;
       SqlSelect query;
-      if (!sourceSelect.Limit.IsNullReference() || !sourceSelect.Offset.IsNullReference()) {
+      if (sourceSelect.Limit is not null || sourceSelect.Offset is not null) {
         var queryRef = SqlDml.QueryRef(sourceSelect);
         query = SqlDml.Select(queryRef);
         query.Columns.AddRange(queryRef.Columns);

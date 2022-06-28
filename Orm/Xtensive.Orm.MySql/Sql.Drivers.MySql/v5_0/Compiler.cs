@@ -189,12 +189,12 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     /// <inheritdoc/>
     protected override void VisitSelectLimitOffset(SqlSelect node)
     {
-      if (!node.Limit.IsNullReference()) {
+      if (node.Limit is not null) {
         AppendTranslated(node, SelectSection.Limit);
         node.Limit.AcceptVisitor(this);
       }
-      if (!node.Offset.IsNullReference()) {
-        if (node.Limit.IsNullReference()) {
+      if (node.Offset is not null) {
+        if (node.Limit is null) {
           AppendTranslated(node, SelectSection.Limit);
           _ = context.Output.Append(" 18446744073709551615 "); // magic number from http://dev.mysql.com/doc/refman/5.0/en/select.html
         }

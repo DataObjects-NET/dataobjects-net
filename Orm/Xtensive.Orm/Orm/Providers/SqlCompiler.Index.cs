@@ -171,7 +171,7 @@ namespace Xtensive.Orm.Providers
           SqlExpression joinExpression = null;
           for (int i = 0; i < keyColumnCount; i++) {
             var binary = (table.Columns[i]==rootTable.Columns[i]);
-            if (joinExpression.IsNullReference())
+            if (joinExpression is null)
               joinExpression = binary;
             else
               joinExpression &= binary;

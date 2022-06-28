@@ -1443,7 +1443,7 @@ namespace Xtensive.Sql.Compiler
           _ = output.Append("(");
           break;
         case JoinSection.Specification:
-          var isNatural = node.Expression.IsNullReference()
+          var isNatural = node.Expression is null
             && node.JoinType != SqlJoinType.CrossJoin
             && node.JoinType != SqlJoinType.UnionJoin;
           if (isNatural) {

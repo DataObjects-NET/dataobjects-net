@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Dml
 
             if (column is SqlColumnRef columnRef) {
               stubColumn = columnRef.SqlColumn as SqlColumnStub;
-              if (!ReferenceEquals(null, stubColumn)) {
+              if (stubColumn is not null) {
                 column = stubColumn.Column;
               }
             }
