@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Dml
           p => {
             var list = new List<SqlExpression>(p.Value.Count);
             foreach (var value in p.Value) {
-              list.Add(value.IsNullReference() ? null : (SqlExpression) value.Clone(context));
+              list.Add(value is null ? null : (SqlExpression) value.Clone(context));
             }
             return list;
           }
