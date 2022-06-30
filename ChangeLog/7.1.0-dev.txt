@@ -77,6 +77,7 @@
 [main] RecordSetHeader constructors changed IEnumerable<T> paremters to IReadOnlyList<T>
 [main] ColumnGroupCollection no longer takes IEnumerable<T> as parameter of constructor
 [main] ColumnCollection no longer takes IEnumerable<T> as parameter of constructor, only constructor with IReadOnlyList<T> is available now
+[main] Fixed issue when Execute/CreateDelayedQuery APIs query cache caused long-living objects
 [firebird] Add support for Firebird 4
 [sqlserver] Microsoft.Data.SqlClient is updated to verson 4.0.0
 [mysql] Add support for MySQL 5.7 and 8.0
