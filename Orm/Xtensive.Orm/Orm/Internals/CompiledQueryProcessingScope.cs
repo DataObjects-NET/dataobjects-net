@@ -19,7 +19,6 @@ namespace Xtensive.Orm.Internals
     public ExtendedExpressionReplacer QueryParameterReplacer { get; }
     public ParameterContext ParameterContext { get; }
     public bool Execute { get; }
-    public bool CheckIfCacheble { get; set; } = false;
 
     [field: ThreadStatic]
     internal static CompiledQueryProcessingScope Current { get; private set; }

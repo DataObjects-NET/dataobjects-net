@@ -27,11 +27,9 @@ namespace Xtensive.Orm.Internals
     private readonly object queryKey;
     private readonly object queryTarget;
     private readonly ParameterContext outerContext;
-    private readonly IReadOnlySet<Type> supportedTypes;
 
     private Parameter queryParameter;
     private ExtendedExpressionReplacer queryParameterReplacer;
-    private Type queryTargetType;
 
     public QueryResult<TElement> ExecuteCompiled<TElement>(Func<QueryEndpoint, IQueryable<TElement>> query)
     {
@@ -128,7 +126,7 @@ namespace Xtensive.Orm.Internals
         throw new NotSupportedException(Strings.ExNonLinqCallsAreNotSupportedWithinQueryExecuteDelayed);
       }
 
-      PutQueryToCacheIfAllowed(parameterizedQuery, scope.CheckIfCacheble);
+      PutQueryToCache(parameterizedQuery);
 
       return parameterizedQuery;
     }
@@ -149,7 +147,7 @@ namespace Xtensive.Orm.Internals
         parameterizedQuery = (ParameterizedQuery) translatedQuery;
       }
 
-      PutQueryToCacheIfAllowed(parameterizedQuery, scope.CheckIfCacheble);
+      PutQueryToCache(parameterizedQuery);
 
       return parameterizedQuery;
     }
@@ -162,7 +160,7 @@ namespace Xtensive.Orm.Internals
         return;
       }
 
-      var closureType = queryTargetType = queryTarget.GetType();
+      var closureType = queryTarget.GetType();
       var parameterType = WellKnownOrmTypes.ParameterOfT.CachedMakeGenericType(closureType);
       var valueMemberInfo = parameterType.GetProperty(nameof(Parameter<object>.Value), closureType);
       queryParameter = (Parameter) System.Activator.CreateInstance(parameterType, "pClosure");
@@ -201,81 +199,11 @@ namespace Xtensive.Orm.Internals
       });
     }
 
-    private bool IsQueryCacheable()
-    {
-      if (queryTargetType==null) {
-        return true;
-      }
-
-      if (!queryTargetType.IsClosure()) {
-        return true;
-      }
-
-      foreach (var field in queryTargetType.GetFields()) {
-        if (!IsTypeCacheable(field.FieldType, supportedTypes)) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    private static bool IsTypeCacheable(Type type, IReadOnlySet<Type> supportedTypes)
-    {
-      var type1 = type.StripNullable();
-      var typeInfo = type1.GetTypeInfo();
-      if (typeInfo.IsGenericType) {
-        // IReadOnlyList<T> implementations + ValueTuple<> with different number of type arguments
-        if (type1.IsValueTuple()) {
-          foreach (var arg in typeInfo.GenericTypeArguments) {
-            if (!IsTypeCacheable(arg, supportedTypes)) {
-              return false;
-            }
-          }
-          return true;
-        }
-        var genericDef = typeInfo.GetGenericTypeDefinition();
-        return genericDef.IsAssignableTo(WellKnownTypes.IReadOnlyListOfT) && IsTypeCacheable(typeInfo.GetGenericArguments()[0], supportedTypes);
-      }
-      else if (typeInfo.IsArray) {
-        return IsTypeCacheable(type1.GetElementType(), supportedTypes);
-      }
-      else {
-        // enums are handled by their base type so no need to check them
-        return Type.GetTypeCode(type1) switch {
-          TypeCode.Boolean => true,
-          TypeCode.Byte => true,
-          TypeCode.SByte => true,
-          TypeCode.Int16 => true,
-          TypeCode.UInt16 => true,
-          TypeCode.Int32 => true,
-          TypeCode.UInt32 => true,
-          TypeCode.Int64 => true,
-          TypeCode.UInt64 => true,
-          TypeCode.Single => true,
-          TypeCode.Double => true,
-          TypeCode.Decimal => true,
-          TypeCode.Char => true,
-          TypeCode.String => true,
-          TypeCode.DateTime => true,
-          TypeCode.Object => typeInfo.IsValueType,
-          _ => false
-        };
-      }
-    }
-
     private ParameterizedQuery GetCachedQuery() =>
       domain.QueryCache.TryGetItem(queryKey, true, out var item) ? item.Second : null;
 
-    private void PutQueryToCacheIfAllowed(ParameterizedQuery parameterizedQuery, in bool checkIfCacheable) {
-      if (checkIfCacheable && !IsQueryCacheable()) {
-        // no .resx used because it is hot path.
-        if (OrmLog.IsLogged(Logging.LogLevel.Info))
-          OrmLog.Info("Query can't be cached because closure type it has references to captures reference" +
-            " type instances. This will lead to long-living objects in memory.");
-        return;
-      }
+    private void PutQueryToCache(ParameterizedQuery parameterizedQuery) =>
       domain.QueryCache.Add(new Pair<object, ParameterizedQuery>(queryKey, parameterizedQuery));
-    }
 
     private ParameterContext CreateParameterContext(ParameterizedQuery query)
     {
@@ -296,7 +224,6 @@ namespace Xtensive.Orm.Internals
       this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
-      supportedTypes = domain.StorageProviderInfo.SupportedTypes;
     }
   }
 }

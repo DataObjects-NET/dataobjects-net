@@ -1696,7 +1696,6 @@ namespace Xtensive.Orm.Linq
       if (compiledQueryScope != null) {
         var replacer = compiledQueryScope.QueryParameterReplacer;
         var replace = replacer.Replace(sequence);
-        compiledQueryScope.CheckIfCacheble = true;
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
         collectionGetter = parameter.CachingCompile();
       }

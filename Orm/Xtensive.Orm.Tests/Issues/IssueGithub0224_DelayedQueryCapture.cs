@@ -98,7 +98,6 @@ namespace Xtensive.Orm.Tests.Issues
     [Test]
     public void DelayedQueryWithIncludeTest()
     {
-      var cachedItems = Domain.QueryCache.Count;
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var item = new Item() { Tag = 10 };
@@ -107,13 +106,11 @@ namespace Xtensive.Orm.Tests.Issues
       }
       TestHelper.CollectGarbage(true);
       Assert.AreEqual(0, OtherService1.InstanceCount);
-      Assert.That(Domain.QueryCache.Count, Is.EqualTo(cachedItems));
     }
 
     [Test]
     public void DelayedQueryWithContainsTest()
     {
-      var cachedItems = Domain.QueryCache.Count;
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var item = new Item() { Tag = 10 };
@@ -123,13 +120,11 @@ namespace Xtensive.Orm.Tests.Issues
 
       TestHelper.CollectGarbage(true);
       Assert.AreEqual(0, OtherService2.InstanceCount);
-      Assert.That(Domain.QueryCache.Count, Is.EqualTo(cachedItems));
     }
 
     [Test]
     public void DelayedQueryWithEqualityTest()
     {
-      var cachedItems = Domain.QueryCache.Count;
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var item = new Item() { Tag = 10 };
@@ -139,7 +134,6 @@ namespace Xtensive.Orm.Tests.Issues
 
       TestHelper.CollectGarbage(true);
       Assert.AreEqual(0, OtherService3.InstanceCount);
-      Assert.That(Domain.QueryCache.Count, Is.EqualTo(cachedItems + 1));
     }
 
     private void DelayedQueryWithEquality(Session session)
