@@ -2546,8 +2546,8 @@ namespace Xtensive.Sql.Compiler
                 _ = output.Append(" VALUES (");
                 var firstValue = true;
                 foreach (var v in p.Values) {
-                  if (first)
-                    first = false;
+                  if (firstValue)
+                    firstValue = false;
                   else
                     _ = output.Append(RowItemDelimiter);
 
