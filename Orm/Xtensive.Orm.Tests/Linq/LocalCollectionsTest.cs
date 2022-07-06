@@ -889,7 +889,7 @@ namespace Xtensive.Orm.Tests.Linq
       var localItems = GetLocalItems(100);
       var queryable = Session.Query.Store(localItems);
       var result = (await Session.Query.All<Invoice>()
-        .Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)).AsAsync()).ToList();
+        .Where(invoice => invoice.Commission > queryable.Max(poco => poco.Value2)).ExecuteAsync()).ToList();
       var expected = Invoices
         .Where(invoice => invoice.Commission > localItems.Max(poco => poco.Value2));
 

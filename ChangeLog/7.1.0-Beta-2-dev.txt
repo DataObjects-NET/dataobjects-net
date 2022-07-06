@@ -1,0 +1,2 @@
+[main] BitFaster.Caching package reference is updated to 1.0.7
+[main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6

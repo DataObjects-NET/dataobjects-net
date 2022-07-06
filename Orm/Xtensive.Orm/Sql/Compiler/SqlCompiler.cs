@@ -830,6 +830,7 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="node">The <see cref="SqlCreateTable"/> constrains belong to</param>
     /// <param name="constraints">List of constraints.</param>
+    /// <param name="hasItems">Flag indicating that constraint list should start with <see cref="SqlTranslator.ColumnDelimiter"/></param>
     /// <returns>Flag that tells whether there were constraints.</returns>
     protected virtual bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
@@ -852,6 +853,7 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="node">The <see cref="SqlCreateTable"/> the columns belong to.</param>
     /// <param name="columns">List of columns.</param>
+    /// <param name="hasItems">Flag indicating that constraint list should start with <see cref="SqlTranslator.ColumnDelimiter"/></param>
     /// <returns>Flag that tells whether there were columns.</returns>
     protected virtual bool VisitCreateTableColumns(SqlCreateTable node, IEnumerable<TableColumn> columns, bool hasItems)
     {
