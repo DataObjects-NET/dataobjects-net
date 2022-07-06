@@ -97,13 +97,14 @@ namespace Xtensive.Reflection
           attributes = poe.GetAttributes(attributeType).ToList();
         }
         if ((options & AttributeSearchOptions.InheritFromBase) != 0
-            && (options & AttributeSearchOptions.InheritFromAllBase) == 0
+            && (options & AttributeSearchOptions.InheritRecursively) == 0
             && member.GetBaseMember() is MemberInfo bm) {
           attributes.AddRange(GetAttributes(bm, attributeType, options));
+          return attributes;
         }
       }
 
-      if ((options & AttributeSearchOptions.InheritFromAllBase) != 0
+      if ((options & AttributeSearchOptions.InheritFromAllBase) == AttributeSearchOptions.InheritFromAllBase
           && member.DeclaringType != WellKnownTypes.Object
           && member.GetBaseMember() is MemberInfo bm2) {
         attributes.AddRange(GetAttributes(bm2, attributeType, options));
