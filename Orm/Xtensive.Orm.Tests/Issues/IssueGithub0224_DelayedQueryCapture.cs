@@ -13,6 +13,7 @@ using NUnit.Framework;
 using Xtensive.Caching;
 using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Tests.Issues.IssueGithub0224_DelayedQueryCapture_Model;
+
 namespace Xtensive.Orm.Tests.Issues
 {
   namespace IssueGithub0224_DelayedQueryCapture_Model
@@ -139,8 +140,6 @@ namespace Xtensive.Orm.Tests.Issues
     public class SomeConfig
     {
       public int Id { get; set; }
-
-      public bool HideItems { get; set; }
 
       public static volatile int InstanceCount;
 
