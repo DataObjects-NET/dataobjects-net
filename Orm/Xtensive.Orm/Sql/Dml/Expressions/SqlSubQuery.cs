@@ -33,10 +33,10 @@ namespace Xtensive.Sql.Dml
       query = replacingExpression.Query;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlSubQuery Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
+        return (SqlSubQuery)value;
       }
 
       SqlSubQuery clone;

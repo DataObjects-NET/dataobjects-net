@@ -75,16 +75,16 @@ namespace Xtensive.Sql.Dml
 
       var clone = new SqlUpdate();
       if (update!=null)
-        clone.Update = (SqlTableRef)Update.Clone(context);
+        clone.Update = Update.Clone(context);
       if (from!=null)
         clone.From = (SqlQueryRef)from.Clone(context);
       foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
         clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(context)] =
-          p.Value.IsNullReference() ? null : (SqlExpression) p.Value.Clone(context);
+          p.Value?.Clone(context);
       if (!where.IsNullReference())
-        clone.Where = (SqlExpression)where.Clone(context);
+        clone.Where = where.Clone(context);
       if (!limit.IsNullReference())
-        clone.Limit = (SqlExpression)where.Clone(context);
+        clone.Limit = where.Clone(context);
       if (Hints.Count>0)
         foreach (SqlHint hint in Hints)
           clone.Hints.Add((SqlHint)hint.Clone(context));

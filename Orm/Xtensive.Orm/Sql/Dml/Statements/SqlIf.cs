@@ -56,12 +56,11 @@ namespace Xtensive.Sql.Dml
       }
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlIf((SqlExpression) condition.Clone(context),
+    internal override SqlIf Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlIf(condition.Clone(context),
             (SqlStatement) trueStatement.Clone(context),
-            falseStatement == null ? null : (SqlStatement) falseStatement.Clone(context));
+            falseStatement == null ? null : (SqlStatement) falseStatement.Clone(context)));
 
     internal SqlIf(SqlExpression condition, SqlStatement trueStatement, SqlStatement falseStatement)
       : base(SqlNodeType.Conditional)

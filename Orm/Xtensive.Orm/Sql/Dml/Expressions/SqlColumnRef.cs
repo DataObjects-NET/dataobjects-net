@@ -25,12 +25,11 @@ namespace Xtensive.Sql.Dml
       SqlColumn = ((SqlColumnRef) expression).SqlColumn;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlColumnRef(
-            SqlTable!=null ? (SqlTable) SqlTable.Clone(context) : null,
-            (SqlColumn) SqlColumn.Clone(context), Name);
+    internal override SqlColumnRef Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlColumnRef(
+            SqlTable?.Clone(context),
+            (SqlColumn) SqlColumn.Clone(context), Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

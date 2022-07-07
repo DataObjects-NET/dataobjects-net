@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Dml
   {
     public object Id { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlPlaceholder(Id);
+    internal override SqlPlaceholder Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlPlaceholder(Id));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

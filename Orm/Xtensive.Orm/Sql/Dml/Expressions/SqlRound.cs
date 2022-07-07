@@ -27,13 +27,12 @@ namespace Xtensive.Sql.Dml
       Mode = replacingExpression.Mode;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlRound(
-            (SqlExpression) Argument.Clone(context),
-            Length.IsNullReference() ? null : (SqlExpression) Length.Clone(context),
-            Type, Mode);
+    internal override SqlRound Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlRound(
+            Argument.Clone(context),
+            Length.IsNullReference() ? null : Length.Clone(context),
+            Type, Mode));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

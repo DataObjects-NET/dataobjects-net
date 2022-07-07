@@ -25,10 +25,10 @@ namespace Xtensive.Sql.Dml
       Text = replacingExpression.Text;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlComment Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.TryGetValue(this, out var node))
-        return node;
+        return (SqlComment)node;
 
       var clone = new SqlComment(Text);
       context.NodeMapping[this] = clone;

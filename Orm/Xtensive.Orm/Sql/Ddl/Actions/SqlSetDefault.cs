@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Ddl
     internal override object Clone(SqlNodeCloneContext context) =>
       context.NodeMapping.TryGetValue(this, out var clone)
         ? clone
-        : context.NodeMapping[this] = new SqlSetDefault((SqlExpression) DefaultValue.Clone(context), Column);
+        : context.NodeMapping[this] = new SqlSetDefault(DefaultValue.Clone(context), Column);
 
     internal SqlSetDefault(SqlExpression defaultValue, TableColumn column)
     {

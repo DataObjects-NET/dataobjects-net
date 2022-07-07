@@ -13,12 +13,11 @@ namespace Xtensive.Sql.Dml
   {
     public SqlColumn Column { get; set; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlColumnStub(
-            SqlTable != null ? (SqlTable) SqlTable.Clone(context) : null, 
-            Column);
+    internal override SqlColumnStub Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlColumnStub(
+            SqlTable?.Clone(context), 
+            Column));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {}

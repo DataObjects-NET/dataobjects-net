@@ -44,10 +44,9 @@ namespace Xtensive.Sql.Dml
       name = replacingExpression.Name;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlVariable(name, type);
+    internal override SqlVariable Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlVariable(name, type));
 
     internal SqlVariable(string name, SqlValueType type)
       : base(SqlNodeType.Variable)

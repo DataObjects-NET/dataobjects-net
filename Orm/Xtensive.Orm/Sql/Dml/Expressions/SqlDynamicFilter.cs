@@ -15,14 +15,14 @@ namespace Xtensive.Sql.Dml
 
     public List<SqlExpression> Expressions { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlDynamicFilter Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
+        return (SqlDynamicFilter)value;
       }
       var clone = new SqlDynamicFilter(Id);
       foreach (var expression in Expressions) {
-        clone.Expressions.Add((SqlExpression) expression.Clone(context));
+        clone.Expressions.Add(expression.Clone(context));
       }
 
       context.NodeMapping[this] = clone;

@@ -67,12 +67,12 @@ namespace Xtensive.Sql.Dml
       }
 
       SqlDelete clone = new SqlDelete();
-      if (Delete!=null)
-        clone.Delete = (SqlTableRef)Delete.Clone(context);
+      if (Delete != null)
+        clone.Delete = Delete.Clone(context);
       if (from!=null)
         clone.From = (SqlQueryRef)from.Clone(context);
       if (!where.IsNullReference())
-        clone.Where = (SqlExpression) where.Clone(context);
+        clone.Where = where.Clone(context);
 
       if (Hints.Count>0)
         foreach (SqlHint hint in Hints)

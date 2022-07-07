@@ -105,19 +105,19 @@ namespace Xtensive.Sql.Dml
         cases.Add(pair);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlCase Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.TryGetValue(this, out var v)) {
-        return v;
+        return (SqlCase)v;
       }
 
-      var clone = new SqlCase(value.IsNullReference() ? null : (SqlExpression) value.Clone(context));
+      var clone = new SqlCase(value.IsNullReference() ? null : value.Clone(context));
 
       if (!@else.IsNullReference())
-        clone.Else = (SqlExpression) @else.Clone(context);
+        clone.Else = @else.Clone(context);
 
       foreach (KeyValuePair<SqlExpression, SqlExpression> pair in cases)
-        clone[(SqlExpression) pair.Key.Clone(context)] = (SqlExpression) pair.Value.Clone(context);
+        clone[pair.Key.Clone(context)] = pair.Value.Clone(context);
 
       context.NodeMapping[this] = clone;
       return clone;

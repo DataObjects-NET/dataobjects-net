@@ -65,12 +65,11 @@ namespace Xtensive.Sql.Dml
       not = replacingExpression.Not;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlLike((SqlExpression) expression.Clone(context),
-            (SqlExpression) pattern.Clone(context),
-            escape.IsNullReference() ? null : (SqlExpression) escape.Clone(context), not);
+    internal override SqlLike Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlLike(expression.Clone(context),
+            pattern.Clone(context),
+            escape?.Clone(context), not));
 
     internal SqlLike(SqlExpression expression, SqlExpression pattern, SqlExpression escape, bool not) : base (SqlNodeType.Like)
     {

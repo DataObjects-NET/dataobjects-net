@@ -12,10 +12,10 @@ namespace Xtensive.Sql.Dml
   {
     public SqlOrderCollection OrderBy { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlRowNumber Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
+        return (SqlRowNumber)value;
       }
       var clone = new SqlRowNumber();
       foreach (SqlOrder so in OrderBy)

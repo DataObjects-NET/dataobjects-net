@@ -199,7 +199,7 @@ namespace Xtensive.Sql.Dml
         return value;
       }
 
-      SqlSelect clone = new SqlSelect(from==null ? null : (SqlTable) from.Clone(context));
+      SqlSelect clone = new SqlSelect(from==null ? null : from.Clone(context));
 
       foreach (SqlColumn c in columns)
         clone.Columns.Add((SqlColumn)c.Clone(context));
@@ -207,17 +207,17 @@ namespace Xtensive.Sql.Dml
         foreach (SqlColumn c in groupBy)
           clone.GroupBy.Add((SqlColumn)c.Clone(context));
       if (!where.IsNullReference())
-        clone.Where = (SqlExpression)where.Clone(context);
+        clone.Where = where.Clone(context);
       if (!having.IsNullReference())
-        clone.Having = (SqlExpression)having.Clone(context);
+        clone.Having = having.Clone(context);
       if (orderBy != null)
         foreach (SqlOrder so in orderBy)
-          clone.OrderBy.Add((SqlOrder)so.Clone(context));
+          clone.OrderBy.Add(so.Clone(context));
       clone.Distinct = distinct;
       clone.Limit = Limit;
       clone.Offset = Offset;
       clone.Lock = Lock;
-      clone.Comment = (SqlComment) Comment?.Clone(context);
+      clone.Comment = Comment?.Clone(context);
 
       if (Hints.Count > 0)
         foreach (SqlHint hint in Hints)

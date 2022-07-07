@@ -55,10 +55,9 @@ namespace Xtensive.Sql.Dml
       expression = replacingExpression.Expression;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlBetween(NodeType, (SqlExpression)expression.Clone(context), (SqlExpression)left.Clone(context), (SqlExpression)right.Clone(context));
+    internal override SqlBetween Clone(SqlNodeCloneContext context) =>
+      context.TryGet(this) ?? context.Add(this,
+        new SqlBetween(NodeType, expression.Clone(context), left.Clone(context), right.Clone(context)));
 
     internal SqlBetween(SqlNodeType nodeType, SqlExpression expression, SqlExpression left, SqlExpression right)
       : base(nodeType)

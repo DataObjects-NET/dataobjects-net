@@ -22,10 +22,10 @@ namespace Xtensive.Sql.Dml
       base.ReplaceWith(expression);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlTableColumn Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
+        return (SqlTableColumn)value;
       }
 
       var table = SqlTable;

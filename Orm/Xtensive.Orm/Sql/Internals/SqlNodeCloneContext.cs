@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System.Collections.Generic;
 
@@ -8,12 +8,17 @@ namespace Xtensive.Sql
 {
   internal class SqlNodeCloneContext
   {
-    private Dictionary<SqlNode, SqlNode> nodeMapping = new Dictionary<SqlNode, SqlNode>();
+    public Dictionary<SqlNode, SqlNode> NodeMapping { get; } = new();
 
-    public Dictionary<SqlNode, SqlNode> NodeMapping {
-      get {
-        return nodeMapping;
-      }
+    public T TryGet<T>(T node) where T : SqlNode =>
+      NodeMapping.TryGetValue(node, out var clone)
+        ? (T) clone
+        : null;
+
+    public T Add<T>(T node, T clone) where T : SqlNode 
+    {
+      NodeMapping[node] = clone;
+      return clone;
     }
   }
 }

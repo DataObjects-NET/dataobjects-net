@@ -49,7 +49,7 @@ namespace Xtensive.Sql.Dml
         return value;
       }
       
-      SqlWhile clone = new SqlWhile((SqlExpression)condition.Clone(context));
+      SqlWhile clone = new SqlWhile(condition.Clone(context));
       if (statement!=null)
         clone.Statement = (SqlStatement) statement.Clone(context);
       context.NodeMapping[this] = clone;
