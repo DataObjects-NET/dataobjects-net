@@ -75,14 +75,13 @@ namespace Xtensive.Reflection
         t => ExtractAttributes(t, out var count).ToArray(count)
       );
 
-    private static Attribute[] GetAttributes(this MemberInfo member, Type attributeType)
+    private static IEnumerable<Attribute> GetAttributes(this MemberInfo member, Type attributeType, out int count)
     {
       var attrObjects = member.GetCustomAttributes(attributeType, false);
-      var attrs = new Attribute[attrObjects.Length];
-      for (int i = attrObjects.Length; i-- > 0;) {
-        attrs[i] = (Attribute) attrObjects[i];
-      }
-      return attrs;
+      count = attrObjects.Length;
+      return (count == 0)
+        ? Array.Empty<Attribute>()
+        : attrObjects.Cast<Attribute>();
     }
 
     private static IEnumerable<Attribute> ExtractAttributes((MemberInfo member, Type attributeType, AttributeSearchOptions options) t, out int count)
@@ -95,7 +94,7 @@ namespace Xtensive.Reflection
       if (options == AttributeSearchOptions.InheritNone) {
         return (customAttributesRaw.Length == 0)
           ? Array.Empty<Attribute>()
-          : customAttributesRaw.Cast<Attribute>();// no new collection
+          : customAttributesRaw.Cast<Attribute>();
       }
 
       IEnumerable<Attribute> attributes;
@@ -104,8 +103,8 @@ namespace Xtensive.Reflection
         if ((options & AttributeSearchOptions.InheritFromPropertyOrEvent) != 0
             && member is MethodInfo m
             && ((MemberInfo) m.GetProperty() ?? m.GetEvent()) is MemberInfo poe) {
-          var poeAttributes = poe.GetAttributes(attributeType);
-          count = poeAttributes.Length;
+          var poeAttributes = poe.GetAttributes(attributeType, out var count1);
+          count = count1;
           attributes = poeAttributes;
         }
         if ((options & AttributeSearchOptions.InheritFromBase) != 0
