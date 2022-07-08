@@ -77,9 +77,9 @@ namespace Xtensive.Sql.Dml
         foreach (KeyValuePair<ISqlLValue, SqlExpression> p in t.values)
           clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(c)] =
             p.Value?.Clone(c);
-        if (!t.where.IsNullReference())
+        if (t.where is not null)
           clone.Where = t.where.Clone(c);
-        if (!t.limit.IsNullReference())
+        if (t.limit is not null)
           clone.Limit = t.where.Clone(c);
         if (t.Hints.Count > 0)
           foreach (SqlHint hint in t.Hints)

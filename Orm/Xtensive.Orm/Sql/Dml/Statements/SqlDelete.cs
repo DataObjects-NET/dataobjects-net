@@ -67,7 +67,7 @@ namespace Xtensive.Sql.Dml
           clone.Delete = t.Delete.Clone(c);
         if (t.from != null)
           clone.From = (SqlQueryRef) t.from.Clone(c);
-        if (!t.where.IsNullReference())
+        if (t.where is not null)
           clone.Where = t.where.Clone(c);
 
         if (t.Hints.Count > 0)
