@@ -28,11 +28,11 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlRound Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
+      context.GetOrAdd(this, static (t, c) =>
         new SqlRound(
-            Argument.Clone(context),
-            Length.IsNullReference() ? null : Length.Clone(context),
-            Type, Mode));
+            t.Argument.Clone(c),
+            t.Length?.Clone(c),
+            t.Type, t.Mode));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -92,10 +92,10 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlBinary Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlBinary(NodeType,
-            Left.Clone(context),
-            Right.Clone(context)));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlBinary(t.NodeType,
+            t.Left.Clone(c),
+            t.Right.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

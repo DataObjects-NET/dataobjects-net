@@ -30,8 +30,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlUserColumn Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlUserColumn(expression.Clone(context)));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlUserColumn(t.expression.Clone(c)));
 
     // Constructor
 

@@ -35,8 +35,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlLiteral<T> Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlLiteral<T>(Value));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlLiteral<T>(t.Value));
 
     // Constructor
 

@@ -26,8 +26,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlVariant Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlVariant(Id, Main.Clone(context), Alternative.Clone(context)));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlVariant(t.Id, t.Main.Clone(c), t.Alternative.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -11,8 +11,8 @@ namespace Xtensive.Sql.Dml
     public SqlExpression Expression { get; private set; }
 
     internal override SqlFragment Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlFragment(Expression.Clone(context)));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlFragment(t.Expression.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

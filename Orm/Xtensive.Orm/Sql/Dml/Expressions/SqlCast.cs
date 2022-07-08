@@ -23,8 +23,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlCast Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlCast(Operand.Clone(context), Type));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlCast(t.Operand.Clone(c), t.Type));
     
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

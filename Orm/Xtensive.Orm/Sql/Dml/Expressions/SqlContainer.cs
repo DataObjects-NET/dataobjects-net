@@ -30,8 +30,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlContainer Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlContainer(Value));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlContainer(t.Value));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

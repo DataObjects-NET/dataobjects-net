@@ -19,8 +19,8 @@ namespace Xtensive.Sql.Dml
     public IEnumerable<SqlTable> Tables { get { return tables; } }
 
     internal override SqlForceJoinOrderHint Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlForceJoinOrderHint(tables?.Select(table => (SqlTable) table.Clone()).ToArray()));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlForceJoinOrderHint(t.tables?.Select(table => (SqlTable) table.Clone()).ToArray()));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

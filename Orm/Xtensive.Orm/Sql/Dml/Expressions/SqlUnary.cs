@@ -29,8 +29,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlUnary Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlUnary(NodeType, Operand.Clone(context)));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlUnary(t.NodeType, t.Operand.Clone(c)));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

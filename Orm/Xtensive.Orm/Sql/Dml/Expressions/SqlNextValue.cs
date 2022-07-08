@@ -45,8 +45,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlNextValue Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlNextValue(sequence, increment));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlNextValue(t.sequence, t.increment));
 
     internal SqlNextValue(Sequence sequence) : base(SqlNodeType.NextValue)
     {

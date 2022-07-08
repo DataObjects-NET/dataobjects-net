@@ -193,10 +193,10 @@ namespace Xtensive.Sql.Dml
       get { return !Offset.IsNullReference(); }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlSelect Clone(SqlNodeCloneContext context)
     {
       if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
+        return (SqlSelect)value;
       }
 
       SqlSelect clone = new SqlSelect(from==null ? null : from.Clone(context));

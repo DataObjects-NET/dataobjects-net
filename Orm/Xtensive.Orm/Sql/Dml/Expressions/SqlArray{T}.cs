@@ -44,8 +44,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlArray Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlArray<T>((T[]) Values.Clone()));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlArray<T>((T[]) t.Values.Clone()));
 
 
     // Constructors

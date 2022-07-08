@@ -57,10 +57,10 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlIf Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlIf(condition.Clone(context),
-            (SqlStatement) trueStatement.Clone(context),
-            falseStatement == null ? null : (SqlStatement) falseStatement.Clone(context)));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlIf(t.condition.Clone(c),
+            (SqlStatement) t.trueStatement.Clone(c),
+            t.falseStatement == null ? null : (SqlStatement) t.falseStatement.Clone(c)));
 
     internal SqlIf(SqlExpression condition, SqlStatement trueStatement, SqlStatement falseStatement)
       : base(SqlNodeType.Conditional)

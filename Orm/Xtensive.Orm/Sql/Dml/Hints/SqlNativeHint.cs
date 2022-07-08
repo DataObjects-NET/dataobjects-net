@@ -16,8 +16,8 @@ namespace Xtensive.Sql.Dml
     public string HintText { get; private set; }
 
     internal override SqlNativeHint Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlNativeHint(HintText));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlNativeHint(t.HintText));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

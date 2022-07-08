@@ -16,8 +16,8 @@ namespace Xtensive.Sql.Dml
     public int Amount { get; private set; }
 
     internal override SqlFastFirstRowsHint Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlFastFirstRowsHint(Amount));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlFastFirstRowsHint(t.Amount));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

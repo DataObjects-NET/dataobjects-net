@@ -56,8 +56,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlBetween Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlBetween(NodeType, expression.Clone(context), left.Clone(context), right.Clone(context)));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlBetween(t.NodeType, t.expression.Clone(c), t.left.Clone(c), t.right.Clone(c)));
 
     internal SqlBetween(SqlNodeType nodeType, SqlExpression expression, SqlExpression left, SqlExpression right)
       : base(nodeType)

@@ -26,10 +26,10 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlColumnRef Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
+      context.GetOrAdd(this, static (t, c) =>
         new SqlColumnRef(
-            SqlTable?.Clone(context),
-            (SqlColumn) SqlColumn.Clone(context), Name));
+            t.SqlTable?.Clone(c),
+            (SqlColumn) t.SqlColumn.Clone(c), t.Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

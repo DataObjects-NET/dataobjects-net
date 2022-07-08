@@ -26,8 +26,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlMetadata Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlMetadata(Expression.Clone(context), Value));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlMetadata(t.Expression.Clone(c), t.Value));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

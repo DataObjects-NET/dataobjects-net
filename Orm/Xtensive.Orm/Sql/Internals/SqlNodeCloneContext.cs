@@ -2,6 +2,7 @@
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 
+using System;
 using System.Collections.Generic;
 
 namespace Xtensive.Sql
@@ -16,10 +17,14 @@ namespace Xtensive.Sql
         ? (T) clone
         : null;
 
-    public T Add<T>(T node, T clone) where T : SqlNode 
+    public T GetOrAdd<T>(T node, Func<T, SqlNodeCloneContext, T> factory) where T : SqlNode
     {
-      NodeMapping[node] = clone;
-      return clone;
+      if (NodeMapping.TryGetValue(node, out var clone)) {
+        return (T)clone;
+      }
+      var result = factory(node, this);
+      NodeMapping[node] = result;
+      return result;
     }
 
     public SqlNodeCloneContext(bool _)

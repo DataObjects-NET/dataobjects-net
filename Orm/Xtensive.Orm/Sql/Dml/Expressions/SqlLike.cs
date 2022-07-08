@@ -66,10 +66,10 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlLike Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlLike(expression.Clone(context),
-            pattern.Clone(context),
-            escape?.Clone(context), not));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlLike(t.expression.Clone(c),
+            t.pattern.Clone(c),
+            t.escape?.Clone(c), t.not));
 
     internal SqlLike(SqlExpression expression, SqlExpression pattern, SqlExpression escape, bool not) : base (SqlNodeType.Like)
     {

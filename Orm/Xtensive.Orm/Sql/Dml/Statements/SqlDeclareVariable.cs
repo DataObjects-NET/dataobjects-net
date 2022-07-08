@@ -21,8 +21,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlDeclareVariable Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlDeclareVariable(variable));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlDeclareVariable(t.variable));
 
     internal SqlDeclareVariable(SqlVariable variable)
       : base(SqlNodeType.DeclareVariable)

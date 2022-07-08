@@ -28,9 +28,9 @@ namespace Xtensive.Sql.Dml
     public SqlColumnCollection AliasedColumns { get; private set; }
 
     internal override SqlJoinedTable Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlJoinedTable((SqlJoinExpression) joinExpression.Clone(context)) {
-            AliasedColumns = new SqlColumnCollection(new List<SqlColumn>(AliasedColumns))
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlJoinedTable(t.joinExpression.Clone(c)) {
+            AliasedColumns = new SqlColumnCollection(new List<SqlColumn>(t.AliasedColumns))
           });
 
     public override void AcceptVisitor(ISqlVisitor visitor)

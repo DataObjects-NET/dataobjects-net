@@ -24,8 +24,8 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlNative Clone(SqlNodeCloneContext context) =>
-      context.TryGet(this) ?? context.Add(this,
-        new SqlNative(Value));
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlNative(t.Value));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
