@@ -6,9 +6,10 @@ using System.Collections.Generic;
 
 namespace Xtensive.Sql
 {
-  internal class SqlNodeCloneContext
+  internal readonly struct SqlNodeCloneContext
   {
-    public Dictionary<SqlNode, SqlNode> NodeMapping { get; } = new();
+    private readonly Dictionary<SqlNode, SqlNode> nodeMapping;
+    public Dictionary<SqlNode, SqlNode> NodeMapping => nodeMapping;
 
     public T TryGet<T>(T node) where T : SqlNode =>
       NodeMapping.TryGetValue(node, out var clone)
@@ -19,6 +20,11 @@ namespace Xtensive.Sql
     {
       NodeMapping[node] = clone;
       return clone;
+    }
+
+    public SqlNodeCloneContext(bool _)
+    {
+      nodeMapping = new();
     }
   }
 }
