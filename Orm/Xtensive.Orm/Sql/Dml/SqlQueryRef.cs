@@ -23,11 +23,10 @@ namespace Xtensive.Sql.Dml
     }
 
     internal override SqlQueryRef Clone(SqlNodeCloneContext context) =>
-      (SqlQueryRef) (context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = query is SqlSelect ss
-          ? new SqlQueryRef((SqlSelect) ss.Clone(context), Name)
-          : new SqlQueryRef((SqlQueryExpression) ((SqlQueryExpression) query).Clone(context), Name));
+      context.GetOrAdd(this, static (t, c) =>
+        t.query is SqlSelect ss
+          ? new SqlQueryRef(ss.Clone(c), t.Name)
+          : new SqlQueryRef(((SqlQueryExpression) t.query).Clone(c), t.Name));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

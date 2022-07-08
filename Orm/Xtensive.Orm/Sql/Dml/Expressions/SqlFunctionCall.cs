@@ -33,18 +33,13 @@ namespace Xtensive.Sql.Dml
         Arguments.Add(argument);
     }
 
-    internal override SqlFunctionCall Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return (SqlFunctionCall)value;
-      }
-
-      var clone = new SqlFunctionCall(FunctionType);
-      for (int i = 0, l = Arguments.Count; i < l; i++)
-        clone.Arguments.Add(Arguments[i].Clone(context));
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override SqlFunctionCall Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlFunctionCall(t.FunctionType);
+        for (int i = 0, l = t.Arguments.Count; i < l; i++)
+          clone.Arguments.Add(t.Arguments[i].Clone(c));
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

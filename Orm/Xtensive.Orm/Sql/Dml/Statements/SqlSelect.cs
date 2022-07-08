@@ -193,40 +193,34 @@ namespace Xtensive.Sql.Dml
       get { return !Offset.IsNullReference(); }
     }
 
-    internal override SqlSelect Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return (SqlSelect)value;
-      }
+    internal override SqlSelect Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        SqlSelect clone = new SqlSelect(t.from==null ? null : t.from.Clone(c));
 
-      SqlSelect clone = new SqlSelect(from==null ? null : from.Clone(context));
+        foreach (SqlColumn column in t.columns)
+          clone.Columns.Add((SqlColumn)column.Clone(c));
+        if (t.groupBy != null)
+          foreach (SqlColumn column in t.groupBy)
+            clone.GroupBy.Add((SqlColumn)column.Clone(c));
+        if (t.where is not null)
+          clone.Where = t.where.Clone(c);
+        if (t.having is not null)
+          clone.Having = t.having.Clone(c);
+        if (t.orderBy != null)
+          foreach (SqlOrder so in t.orderBy)
+            clone.OrderBy.Add(so.Clone(c));
+        clone.Distinct = t.distinct;
+        clone.Limit = t.Limit;
+        clone.Offset = t.Offset;
+        clone.Lock = t.Lock;
+        clone.Comment = t.Comment?.Clone(c);
 
-      foreach (SqlColumn c in columns)
-        clone.Columns.Add((SqlColumn)c.Clone(context));
-      if (groupBy != null)
-        foreach (SqlColumn c in groupBy)
-          clone.GroupBy.Add((SqlColumn)c.Clone(context));
-      if (!where.IsNullReference())
-        clone.Where = where.Clone(context);
-      if (!having.IsNullReference())
-        clone.Having = having.Clone(context);
-      if (orderBy != null)
-        foreach (SqlOrder so in orderBy)
-          clone.OrderBy.Add(so.Clone(context));
-      clone.Distinct = distinct;
-      clone.Limit = Limit;
-      clone.Offset = Offset;
-      clone.Lock = Lock;
-      clone.Comment = Comment?.Clone(context);
+        if (t.Hints.Count > 0)
+          foreach (SqlHint hint in t.Hints)
+            clone.Hints.Add((SqlHint)hint.Clone(c));
 
-      if (Hints.Count > 0)
-        foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
-
-      context.NodeMapping[this] = clone;
-
-      return clone;
-    }
+        return clone;
+      });
 
     /// <summary>
     /// Makes a shallow clone of the instance.

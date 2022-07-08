@@ -31,11 +31,10 @@ namespace Xtensive.Sql.Dml
     public bool Ascending { get; private set; }
 
     internal override SqlOrder Clone(SqlNodeCloneContext context) =>
-      (SqlOrder) (context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = (Expression.IsNullReference()
-            ? new SqlOrder(Position, Ascending)
-            : new SqlOrder(Expression.Clone(context), Ascending)));
+      context.GetOrAdd(this, static (t, c) =>
+        t.Expression is null
+            ? new SqlOrder(t.Position, t.Ascending)
+            : new SqlOrder(t.Expression.Clone(c), t.Ascending));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {
