@@ -1,4 +1,8 @@
-﻿using System;
+// Copyright (C) 2003-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
+
+using System;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
@@ -11,17 +15,17 @@ namespace Xtensive.Orm
   /// Events args for <see cref="SessionEventAccessor.DbCommandExecuting"/>
   /// and <see cref="SessionEventAccessor.DbCommandExecuted"/>.
   /// </summary>
-  public class DbCommandEventArgs : EventArgs
+  public readonly struct DbCommandEventArgs
   {
     /// <summary>
     /// Gets executed command.
     /// </summary>
-    public DbCommand Command { get; private set; }
+    public DbCommand Command { get; }
 
     /// <summary>
     /// Gets exception, thrown during command execution. <see langword="null" /> if command executed successfully.
     /// </summary>
-    public Exception Exception { get; private set; }
+    public Exception Exception { get; }
 
     /// <summary>
     /// Initializes a new instance of this class.
