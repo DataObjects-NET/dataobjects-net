@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Nick Svetlov
@@ -42,46 +42,41 @@ namespace Xtensive.Reflection
       }
     }
 
-    private const string invokeMethodName = "Invoke";
-
-    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> constructorInfoByTypes =
-      new ConcurrentDictionary<(Type, Type[]), ConstructorInfo>(new TypesEqualityComparer());
+    private const string InvokeMethodName = "Invoke";
 
     private static readonly object EmitLock = new object();
     private static readonly int NullableTypeMetadataToken = WellKnownTypes.NullableOfT.MetadataToken;
-    private static readonly Module NullableTypeModule = WellKnownTypes.NullableOfT.Module;
+    private static readonly int ValueTuple1 = typeof(ValueTuple<>).MetadataToken;
+    private static readonly int ValueTuple8 = typeof(ValueTuple<,,,,,,,>).MetadataToken;
+    private static readonly Module SystemCoreLibModule = WellKnownTypes.NullableOfT.Module;
     private static readonly Type CompilerGeneratedAttributeType = typeof(CompilerGeneratedAttribute);
     private static readonly string TypeHelperNamespace = typeof(TypeHelper).Namespace;
 
-    private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces =
-      new ConcurrentDictionary<Type, Type[]>();
+    private static readonly ConcurrentDictionary<(Type, Type[]), ConstructorInfo> ConstructorInfoByTypes =
+      new(new TypesEqualityComparer());
 
-    private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles =
-      new ConcurrentDictionary<Type, Type[]>();
+    private static readonly ConcurrentDictionary<Type, Type[]> OrderedInterfaces = new();
 
-    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps =
-      new ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping>();
+    private static readonly ConcurrentDictionary<Type, Type[]> OrderedCompatibles = new();
 
-    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 =
-      new ConcurrentDictionary<(MethodInfo, Type), MethodInfo>();
+    private static readonly ConcurrentDictionary<Pair<Type, Type>, InterfaceMapping> interfaceMaps = new();
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type), MethodInfo> GenericMethodInstances1 = new();
+
+    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> GenericMethodInstances2 = new();
+
+    private static readonly ConcurrentDictionary<(Type, Type), Type> GenericTypeInstances1 = new();
+
+    private static readonly ConcurrentDictionary<(Type, Type, Type), Type> GenericTypeInstances2 = new();
 
     private static readonly Func<(MethodInfo genericDefinition, Type typeArgument), MethodInfo> GenericMethodFactory1 =
       key => key.genericDefinition.MakeGenericMethod(key.typeArgument);
 
-    private static readonly ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo> GenericMethodInstances2 =
-      new ConcurrentDictionary<(MethodInfo, Type, Type), MethodInfo>();
-
     private static readonly Func<(MethodInfo genericDefinition, Type typeArgument1, Type typeArgument2), MethodInfo> GenericMethodFactory2 =
       key => key.genericDefinition.MakeGenericMethod(key.typeArgument1, key.typeArgument2);
 
-    private static readonly ConcurrentDictionary<(Type, Type), Type> GenericTypeInstances1 =
-      new ConcurrentDictionary<(Type, Type), Type>();
-
     private static readonly Func<(Type genericDefinition, Type typeArgument), Type> GenericTypeFactory1 = key =>
       key.genericDefinition.MakeGenericType(key.typeArgument);
-
-    private static readonly ConcurrentDictionary<(Type, Type, Type), Type> GenericTypeInstances2 =
-      new ConcurrentDictionary<(Type, Type, Type), Type>();
 
     private static readonly Func<(Type genericDefinition, Type typeArgument1, Type typeArgument2), Type> GenericTypeFactory2 = key =>
       key.genericDefinition.MakeGenericType(key.typeArgument1, key.typeArgument2);
@@ -646,7 +641,7 @@ namespace Xtensive.Reflection
       GetSingleConstructor(type, arguments.Select(a => a?.GetType()).ToArray());
 
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
-      constructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
       (var type, var argumentTypes) = t;
@@ -899,7 +894,7 @@ namespace Xtensive.Reflection
     /// <returns><see langword="True"/> if type is nullable type;
     /// otherwise, <see langword="false"/>.</returns>
     public static bool IsNullable(this Type type) =>
-      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && ReferenceEquals(type.Module, NullableTypeModule);
+      (type.MetadataToken ^ NullableTypeMetadataToken) == 0 && ReferenceEquals(type.Module, SystemCoreLibModule);
 
     /// <summary>
     /// Indicates whether <typeparamref name="T"/> type is a <see cref="Nullable{T}"/> type.
@@ -931,7 +926,7 @@ namespace Xtensive.Reflection
     /// </summary>
     /// <param name="delegateType">Type of the delegate to get the "Invoke" method of.</param>
     /// <returns><see cref="MethodInfo"/> object describing the delegate "Invoke" method.</returns>
-    public static MethodInfo GetInvokeMethod(this Type delegateType) => delegateType.GetMethod(invokeMethodName);
+    public static MethodInfo GetInvokeMethod(this Type delegateType) => delegateType.GetMethod(InvokeMethodName);
 
 
     /// <summary>
@@ -1165,6 +1160,20 @@ namespace Xtensive.Reflection
         default:
           return false;
       }
+    }
+
+    /// <summary>
+    /// Determines whether <paramref name="type"/> is generic form of <see cref="ValueTuple"/>
+    /// </summary>
+    /// <param name="type"></param>
+    /// <returns></returns>
+    internal static bool IsValueTuple(this Type type)
+    {
+      // this stands on the theory that tokens for all generic versions of ValueTuple
+      // go one after another.
+      var currentToken = type.MetadataToken;
+      return ((currentToken >= ValueTuple1) && currentToken <= ValueTuple8)
+        && ReferenceEquals(type.Module, SystemCoreLibModule);
     }
 
     #region Private \ internal methods

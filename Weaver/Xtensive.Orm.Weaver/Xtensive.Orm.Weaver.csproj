@@ -5,7 +5,7 @@
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>$(OrmKeyFile)</AssemblyOriginatorKeyFile>
-    <OutputPath>$(BaseOutputPath)tools\weaver\</OutputPath>
+    <OutputPath>$(BaseOutputPath)tools\weaver\$(TargetFramework)\</OutputPath>
     <RollForward>Major</RollForward>
   </PropertyGroup>
   <ItemGroup>

@@ -19,7 +19,7 @@ namespace Xtensive.Orm
     /// <summary>
     /// Gets the entity remove reason.
     /// </summary>
-    public EntityRemoveReason Reason { get; private set; }
+    public EntityRemoveReason Reason { get; }
 
     // Constructors
     public EntityRemovingEventArgs(Entity entity, EntityRemoveReason reason)

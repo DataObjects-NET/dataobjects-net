@@ -1,50 +1,42 @@
-[main] ThreadSafeCache is removed
+[main] ThreadSafeCache, ThreadSafeDictionary, ThreadSafeList collections are removed
 [main] INamedValueCollection and its the only implementer NamedValueCollection are removed
 [main] ICollectionChangeNotifier, CollectionChangeNotifierEventArgs are removed
-[main] ArrayUtils class is removed
-[main] ISet<T> interface is removed and all usages are replaced with .Net ISet<T>
-[main] Set<T>, SetSlim<T>, ReadOnlySet<T> collections and abstract SetBase are removed
-[main] ReadOnlyList<T> is removed
-[main] ReadOnlyCollection<T>
-[main] ReadOnlyDictionary<TKey, TValue> is removed
-[main] ThreadSafeDictionary is removed
-[main] ThreadSafeList struct is removed
-[main] TypeClassifier collection is removed
-[main] LazyDictionary is removed
-[main] FlagRegistry is removed
-[main] EnumerableUtils<T> is removed
-[main] DifferentialDictionary and DifferentialDictionaryDifference are removed
+[main] ArrayUtils and EnumerableUtils<T> are removed
+[main] ISet<T> interface is removed and all usages are replaced with System.Collections.Generic.ISet<T>
+[main] Set<T>, SetSlim<T>, ReadOnlySet<T> collections and abstract SetBase class are removed
+[main] ReadOnlyList<T>, ReadOnlyCollection<T>, ReadOnlyDictionary<TKey, TValue> collections are removed
+[main] ThreadSafeCached type is removed
+[main] Triplet<T> and Triplet<TFirst,TSecond,TThird> are removed
+[main] TypeClassifier, LazyDictionary and FlagRegistry collections are removed
+[main] DifferentialDictionary and DifferentialDictionaryDifference types are removed
 [main] CollectionBase<T> is removed
 [main] StringExtensions.Join() methods are removed
 [main] CollectionExtensions.ReverseList() method is removed
-[main] ThreadSafeCached type is removed
-[main] Triplet<T> and Triplet<TFirst,TSecond,TThird> are removed
 [main] SqlTranslator/SqlCompiler APIs were significantly changed in order to improve memory usage and perfromance
 [main] Introduced IQueryable<T>.Tag() extensions allowing to add tags to result SQL statement
 [main] Introduced Session.Tag() method for being able to tag queries within returned TagScope
-[main] Domain.TagsEnabled is introduced as faster alternative to DomainConfiguration.TagLocation!=TagLocation.Nowhere check
-[main] ReadOnlyHashSet<T> now implements .Net ISet and IReadOnlySet instead of removed ISet and IReadOnly
+[main] Domain.TagsEnabled is introduced as easier alternative to DomainConfiguration.TagLocation!=TagLocation.Nowhere check
 [main] NativeTypeClassifier collection now inherits ClassifiedCollection directly
-[main] FlagCollection.Keys return type has changed from removed ReadOnlyList<T> to .Net IReadOnlyList<T>
+[main] FlagCollection.Keys no returns .Net IReadOnlyList<TKey>
 [main] CollectionBaseSlim<T> no longer implements IList<T> and ICollection but implements ICollection<T> and IReadOnlyList<T>
 [main] AggregateException.Exceptions property changed its return type to IReadOnlyList<Exception>
 [main] AggregateException constuctors get array of exceptions instead of IEnumerable<Exception>
 [main] CopyDataHint.CopiedColumns property changed its return type to IReadOnlyList<Pair<string>>
-[main] DateHint.Identitites property changed its return type to IReadOnlyList<IdentityPair>
-[main] UpdateDataHint.UpdateParameter property changed its return type to IReadOnlyList<Pair<string, object>>
+[main] DateHint.Identitites property changed return type to IReadOnlyList<IdentityPair>
+[main] UpdateDataHint.UpdateParameter property changed return type to IReadOnlyList<Pair<string, object>>
 [main] IUpgrader methods now return IReadOnlyList<NodeAction>
-[main] PropertyAccessorDictionary has changed API due to change its base type and interfaces
+[main] PropertyAccessorDictionary has changed API due to change of the base type and interfaces
 [main] FullTextIndexDefCollection changed its base type to CollectionBaseSlim<FullTextIndexDef>
-[main] HierarchyDefCollection changed its base type to CollectionBaseSlim<HierarchyDef>
+[main] HierarchyDefCollection base type changed to CollectionBaseSlim<HierarchyDef>
 [main] HierarchyDefCollection and TypeDefCollection changed events set due to change of base type
 [main] SessionConfiguration collection API changed due to changes in base type CollectionBaseSlim<T>
-[main] IGenerationTerm.Terms changed its return type to IReadOnlyList<string>
-[main] IProximityTerm.Terms changed its return type to IReadOnlyList<IProximityOperand>
+[main] IGenerationTerm.Terms property changed return type to IReadOnlyList<string>
+[main] IProximityTerm.Terms property changed its return type to IReadOnlyList<IProximityOperand>
 [main] IOperation properties (PrecedingOperations, FollowingOperations, UndoOperations, IdentifiedEntities) changed return type
-[main] HierarchyInfo.Types changed its return type to IReadOnlyList<TypeInfo>
-[main] IndexInfo.Columns changed its return type to IReadOnlyList<ColumnInfo>
+[main] HierarchyInfo.Types property changed return type to IReadOnlyList<TypeInfo>
+[main] IndexInfo.Columns property return type changed to IReadOnlyList<ColumnInfo>
 [main] KeyInfo's Fields and Columns properties changed to ReadOnlyList<FieldInfo> and IReadOnlyList<ColumnInfo> respectively
-[main] TypeIndexInfoCollection.RealPrimaryIndexes property changed its return type to IReadOnlyList<IndexInfo>
+[main] TypeIndexInfoCollection.RealPrimaryIndexes property return type changed to IReadOnlyList<IndexInfo>
 [main] TypeIndexInfoCollection.GetIndexesContainingAllData() method changed its return type to IReadOnlyList<IndexInfo>
 [main] TypeInfo members that returned IList<T> changed return type to IReadOnlyList<TypeInfo>
 [main] PersistRequestBuilderContext.AffectedIndexes changed return type to IReadOnlyList<IndexInfo>
@@ -58,24 +50,26 @@
 [main] RemoveFieldHint.AffectedColumns changed return type to IReadOnlyList<string>
 [main] RemoveTypeHint.AffectedTables changed return type to IReadOnlyList<string>
 [main] SchemaComparisonResult.UnsafeActions changed return type to IReadOnlyList<NodeAction>
-[main] UpgradeContext.Hints changed return type to ISet<UpgradeHint>
 [main] UpgradeContext.Modules changed return type to IReadOnlyList<IModule>
 [main] UpgradeContext.OrderedUpgradeHandlers changed return type to IReadOnlyList<IUpgradeHandler>
 [main] UpgradeContext.UpgradeHandlers changed return type to IReadOnlyDictionary<Assembly, IUpgradeHandler>
-[main] UpgradeHandler.AddUpgradeHints() and .AddAutoHints() now take ISet<T> from .Net instead of ORM's ISet<T>
-[main] KeyMapping.Map changed type to IReadOnlyDictionary<Key, Key>
-[main] InterfaceMapping's properties of ReadOnlyList<T> type changed the type to IReadOnlyList<T>
+[main] KeyMapping.Map property changed type to .Net IReadOnlyDictionary<Key, Key>
+[main] InterfaceMapping's properties of ReadOnlyList<T> type changed the type to .Net IReadOnlyList<T>
 [main] Node's IncomingConnections and OutgoingConnections properties changed types to IReadOnlyList<NodeConnection<TNodeItem, TConnectionItem>>
 [main] CompositePreCompiler.Items became readonly field and changed its type to IReadOnlyList<IPreCompiler>
-[main] SqlCompilerConfiguration's SchemaMapping and DatabaseMapping changed return types to IReadOnlyDictionary<string, string>
-[main] TypeMappingRegistry.Mappings and .ReverseMappings changed return types to IReadOnlyDictionary<TKey, TValue>
+[main] SqlCompilerConfiguration's SchemaMapping and DatabaseMapping properties changed return types to IReadOnlyDictionary<string, string>
+[main] TypeMappingRegistry.Mappings and ReverseMappings properties changed return types to IReadOnlyDictionary<TKey, TValue>
 [main] Xtensive.Orm.Services.QueryTranslationResult became read-only structure
 [main] Query and ParameterBindings properties of Xtensive.Orm.Services.QueryTranslationResult changed their types and became read-only
-[main] SqlTranslator.BuildBatch method changed its parameter from string[] to IReadOnlyList<string>
+[main] SqlTranslator.BuildBatch() method changed its parameter from string[] to IReadOnlyList<string>
 [main] TypeReference, QueryRequest QueryParameterBinding types became read-only structures
 [main] TypeInfoRef, ColumnInfoRef, ColumnGroup and ComparisonRule types became read-only structures
 [main] RecordSetHeader constructors changed IEnumerable<T> paremters to IReadOnlyList<T>
 [main] ColumnGroupCollection no longer takes IEnumerable<T> as parameter of constructor
 [main] ColumnCollection no longer takes IEnumerable<T> as parameter of constructor, only constructor with IReadOnlyList<T> is available now
-[firebird] Add support for Firebird 4
+[main] Overall perfromance improved
+[main] Fixed issue when Execute/CreateDelayedQuery APIs query cache caused long-living objects
+[firebird] Added support for Firebird 4
 [sqlserver] Microsoft.Data.SqlClient is updated to verson 4.0.0
+[mysql] Added support for MySQL 5.7 and 8.0
+[mysql] Updated version of Google.Protobuf package

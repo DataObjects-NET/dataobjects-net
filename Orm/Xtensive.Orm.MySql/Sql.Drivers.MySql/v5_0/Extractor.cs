@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2011-2020 Xtensive LLC.
+// Copyright (C) 2011-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
@@ -400,7 +400,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       var schemaName = reader.GetString(0);
       var schema = catalog.Schemas[schemaName];
       var tableName = reader.GetString(1);
-      schema.CreateTable(tableName);
+      _ = schema.CreateTable(tableName);
     }
 
     // ---- ReadTableColumnData
@@ -451,8 +451,8 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
 
       // AutoIncrement
-      if (ReadAutoIncrement(reader, 13)) {
-        column.SequenceDescriptor = new SequenceDescriptor(column, ReadInt(reader, 14), 1);
+      if (ReadIfAutoIncrement(reader, 13)) {
+        column.SequenceDescriptor = new SequenceDescriptor(column, ReadAutoIncrementValue(reader, 14), 1);
       }
 
       //Column number.
@@ -468,12 +468,9 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       var schema = catalog.Schemas[reader.GetString(0)];
       var view = reader.GetString(1);
       var definition = ReadStringOrNull(reader, 2);
-      if (string.IsNullOrEmpty(definition)) {
-        schema.CreateView(view);
-      }
-      else {
-        schema.CreateView(view, SqlDml.Native(definition));
-      }
+      _ = string.IsNullOrEmpty(definition)
+        ? schema.CreateView(view)
+        : schema.CreateView(view, SqlDml.Native(definition));
     }
 
     //---- ReadViewColumnData
@@ -490,7 +487,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         state.Owner = schema.Views[reader.GetString(1)];
       }
 
-      state.Owner.CreateColumn(reader.GetString(2));
+      _ = state.Owner.CreateColumn(reader.GetString(2));
       state.LastColumnIndex = columnIndex;
     }
 
@@ -512,7 +509,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
         var schema = state.Catalog.Schemas[reader.GetString(0)];
         state.Table = schema.Tables[reader.GetString(1)];
         if (IsFullTextIndex(reader, 4)) {
-          state.Table.CreateFullTextIndex(reader.GetString(2));
+          _ = state.Table.CreateFullTextIndex(reader.GetString(2));
         }
         else {
           state.Index = state.Table.CreateIndex(reader.GetString(2));
@@ -521,7 +518,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
       }
 
       var column = state.Table.TableColumns[reader.GetString(6)];
-      state.Index.CreateIndexColumn(column);
+      _ = state.Index.CreateIndexColumn(column);
 
       state.LastColumnIndex = columnIndex;
     }
@@ -710,47 +707,21 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
     private static bool ReadBool(IDataRecord row, int index)
     {
       var value = row.GetString(index);
-      switch (value) {
-        case "Y":
-        case "YES":
-        case "ENABLED":
-        case "UNIQUE":
-          return true;
-        case "N":
-        case "NO":
-        case "DISABLED":
-        case "NONUNIQUE":
-          return false;
-        default:
-          throw new ArgumentOutOfRangeException(string.Format(Strings.ExInvalidBooleanStringX, value));
-      }
+      return value switch {
+        "Y" or "YES" or "ENABLED" or "UNIQUE" => true,
+        "N" or "NO" or "DISABLED" or "NONUNIQUE" => false,
+        _ => throw new ArgumentOutOfRangeException(string.Format(Strings.ExInvalidBooleanStringX, value)),
+      };
     }
 
-    private static bool IsFullTextIndex(IDataRecord row, int index)
-    {
-      var value = ReadStringOrNull(row, index);
-      if (!string.IsNullOrEmpty(value)) {
-        value = value.ToUpperInvariant();
-        return value == "FULLTEXT";
-      }
-      return false;
-    }
+    private static bool IsFullTextIndex(IDataRecord row, int index) =>
+      ReadStringOrNull(row, index).Equals("FULLTEXT", StringComparison.OrdinalIgnoreCase);
 
-    private static bool ReadAutoIncrement(IDataRecord row, int index)
-    {
-      var value = ReadStringOrNull(row, index);
-      if (!string.IsNullOrEmpty(value)) {
-        value = value.ToUpperInvariant();
-        return value == "AUTO_INCREMENT";
-      }
-      return false;
-    }
+    private static bool ReadIfAutoIncrement(IDataRecord row, int index) =>
+      ReadStringOrNull(row, index).Equals("AUTO_INCREMENT", StringComparison.OrdinalIgnoreCase);
 
-    private static long ReadLong(IDataRecord row, int index)
-    {
-      var value = row.GetDecimal(index);
-      return value > long.MaxValue ? long.MaxValue : (long) value;
-    }
+    private static int ReadAutoIncrementValue(IDataRecord row, int index) =>
+      row.IsDBNull(index) ? 1 : ReadInt(row, index);
 
     private static int ReadInt(IDataRecord row, int index)
     {
