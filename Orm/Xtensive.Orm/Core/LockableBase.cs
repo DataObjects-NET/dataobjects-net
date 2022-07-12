@@ -23,7 +23,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
     /// </summary>
-    /// <exception cref="InstanceIsLockedException">Specified instance is locked.</exception>
+    /// <exception cref="InstanceIsLockedException">The instance is locked.</exception>
     public void EnsureNotLocked()
     {
       if (IsLocked) {
@@ -31,15 +31,13 @@ namespace Xtensive.Core
       }
     }
 
-
     /// <inheritdoc/>
     public void Lock() => Lock(true);
 
     /// <inheritdoc/>
-    public virtual void Lock(bool recursive) =>
-      IsLocked = true;
+    public virtual void Lock(bool recursive) => IsLocked = true;
 
-    
+
 
     // Constructors
 
