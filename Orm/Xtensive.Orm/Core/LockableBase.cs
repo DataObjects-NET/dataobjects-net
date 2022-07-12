@@ -36,8 +36,7 @@ namespace Xtensive.Core
     public void Lock() => Lock(true);
 
     /// <inheritdoc/>
-    public virtual void Lock(bool recursive) =>
-      IsLocked = true;
+    public virtual void Lock(bool recursive) => IsLocked = true;
 
     
 
