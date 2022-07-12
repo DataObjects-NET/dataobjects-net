@@ -132,6 +132,10 @@ namespace Xtensive.Orm.Model
     }
 
     private HashSet<TypeInfo> implementors;
+
+    /// <summary>
+    /// Gets the direct implementors of this instance.
+    /// </summary>
     public IReadOnlySet<TypeInfo> Implementors => implementors ?? EmptyTypes;
 
     private IReadOnlyList<TypeInfo> recursiveImplementors;
@@ -156,6 +160,18 @@ namespace Xtensive.Orm.Model
         return recursiveImplementors;
       }
     }
+
+    [Obsolete("Use Implementors/RecursiveImplementors properties instead")]
+    public IEnumerable<TypeInfo> GetImplementors(bool recursive = false) => recursive ? RecursiveImplementors : Implementors;
+
+    [Obsolete("Use Interfaces/RecursiveInterfaces properties instead")]
+    public IEnumerable<TypeInfo> GetInterfaces(bool recursive = false) => recursive ? RecursiveInterfaces : Interfaces;
+
+    [Obsolete("Use Descendants/RecursiveDescendants properties instead")]
+    public IEnumerable<TypeInfo> GetDescendants(bool recursive) => recursive ? RecursiveDescendants : Descendants;
+
+    [Obsolete("Use Ancestors property instead")]
+    public IReadOnlyList<TypeInfo> GetAncestors() => Ancestors;
 
     private IReadOnlySet<TypeInfo> typeWithAncestorsAndInterfaces;
     public IReadOnlySet<TypeInfo> TypeWithAncestorsAndInterfaces
