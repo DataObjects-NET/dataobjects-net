@@ -48,7 +48,7 @@ namespace Xtensive.Orm.Model
 
     public void Add(FieldInfo interfaceField, FieldInfo typeField)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       map.Add(interfaceField, typeField);
       if (reversedMap.TryGetValue(typeField, out var interfaceFields)) {
         interfaceFields.Add(interfaceField);
@@ -59,7 +59,7 @@ namespace Xtensive.Orm.Model
 
     public void Override(FieldInfo interfaceField, FieldInfo typeField)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       var oldTypeField = map[interfaceField];
       var interfaceFields = reversedMap[oldTypeField];
       map[interfaceField] = typeField;
