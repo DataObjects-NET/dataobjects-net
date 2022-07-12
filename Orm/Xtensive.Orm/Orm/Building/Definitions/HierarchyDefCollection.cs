@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2023 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -12,7 +12,7 @@ using Xtensive.Collections;
 
 namespace Xtensive.Orm.Building.Definitions
 {
-  public sealed class HierarchyDefCollectionChangedEventArgs: EventArgs
+  public readonly struct HierarchyDefCollectionChangedEventArgs
   {
     public HierarchyDef Item { get; }
 

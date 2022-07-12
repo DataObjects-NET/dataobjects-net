@@ -1,0 +1,7 @@
+[main] Some EventArgs inheritors that were sealed classes transformed to read-only structures
+[main] DbCommandEventArgs became read-only structure
+[main] BitFaster.Caching package reference is updated to 1.0.7
+[main] No error caused by ambiguity due to new IQueryable extension methods of .Net 6
+[reprocessing] DomainBuildErrorEventArgs (not sealed) became read-only structure
+[reprocessing] ExecuteErrorEventArgs (not sealed) became read-only structure
+[tracking] TrackingCompletedEventArgs (sealed) became read-only structure

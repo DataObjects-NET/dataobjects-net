@@ -1,6 +1,6 @@
-﻿// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Malisa Ncube
 // Created:    2011.02.25
 
@@ -20,7 +20,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
                     t.table_name, 
                     t.table_type
                 FROM information_schema.tables t
-                WHERE t.table_schema {SCHEMA_FILTER}";
+                WHERE t.table_schema {SCHEMA_FILTER} AND t.table_type = 'BASE TABLE' ";
     }
 
     protected string GetExtractTableColumnsQuery()
@@ -46,6 +46,7 @@ namespace Xtensive.Sql.Drivers.MySql.v5_0
                 WHERE c.table_schema {SCHEMA_FILTER}
                 AND t.table_schema {SCHEMA_FILTER}
                 AND c.table_name {TABLE_FILTER}
+                AND t.table_type = 'BASE TABLE'
                 ORDER BY 
                     c.table_schema, 
                     c.table_name, 
