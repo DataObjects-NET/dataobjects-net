@@ -23,7 +23,7 @@ namespace Xtensive.Core
     /// <summary>
     /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
     /// </summary>
-    /// <exception cref="InstanceIsLockedException">Specified instance is locked.</exception>
+    /// <exception cref="InstanceIsLockedException">The instance is locked.</exception>
     public void EnsureNotLocked()
     {
       if (IsLocked) {
