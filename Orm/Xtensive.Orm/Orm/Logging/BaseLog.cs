@@ -90,8 +90,8 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Writes error message.
     /// </summary>
-    /// <param name="messageId">Message to write to.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
+    /// <param name="messageId">Identifier of message in resources that should be written to log or message itself.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/> (resource string or message itself).</param>
     /// <param name="exception">Exception, which must be written.</param>
     public virtual void Error(string messageId, object[] parameters = null, Exception exception = null) =>
       Write(LogLevel.Error, messageId, parameters, exception);
