@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets or sets the FROM clause expression.
     /// </summary>
-    public SqlTable From 
+    public SqlTable From
     {
       get { return from;}
       set { from = value; }
@@ -60,27 +60,22 @@ namespace Xtensive.Sql.Dml
       set { limit = value; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
+    internal override SqlDelete Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        SqlDelete clone = new SqlDelete();
+        if (t.Delete != null)
+          clone.Delete = t.Delete.Clone(c);
+        if (t.from != null)
+          clone.From = (SqlQueryRef) t.from.Clone(c);
+        if (t.where is not null)
+          clone.Where = t.where.Clone(c);
 
-      SqlDelete clone = new SqlDelete();
-      if (Delete!=null)
-        clone.Delete = (SqlTableRef)Delete.Clone(context);
-      if (from!=null)
-        clone.From = (SqlQueryRef)from.Clone(context);
-      if (where is not null)
-        clone.Where = (SqlExpression) where.Clone(context);
+        if (t.Hints.Count > 0)
+          foreach (SqlHint hint in t.Hints)
+            clone.Hints.Add((SqlHint) hint.Clone(c));
 
-      if (Hints.Count>0)
-        foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     // Constructor
 

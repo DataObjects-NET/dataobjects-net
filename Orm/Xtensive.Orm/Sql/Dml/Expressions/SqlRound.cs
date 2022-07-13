@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dml
     public SqlExpression Length { get; private set; }
     public TypeCode Type { get; private set; }
     public MidpointRounding Mode { get; private set; }
-    
+
     public override void ReplaceWith(SqlExpression expression)
     {
       var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRound>(expression);
@@ -26,13 +26,12 @@ namespace Xtensive.Sql.Dml
       Mode = replacingExpression.Mode;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlRound(
-            (SqlExpression) Argument.Clone(context),
-            Length is null ? null : (SqlExpression) Length.Clone(context),
-            Type, Mode);
+    internal override SqlRound Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlRound(
+            t.Argument.Clone(c),
+            t.Length?.Clone(c),
+            t.Type, t.Mode));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

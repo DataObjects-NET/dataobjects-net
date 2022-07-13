@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Tests.Sql
     public void SqlExpressionCloneTest()
     {
       SqlExpression e = SqlDml.Literal(1);
-      SqlExpression eClone = (SqlExpression) e.Clone();
+      SqlExpression eClone = e.Clone();
       Assert.AreNotEqual(e, eClone);
       Assert.AreEqual(e.NodeType, eClone.NodeType);
     }

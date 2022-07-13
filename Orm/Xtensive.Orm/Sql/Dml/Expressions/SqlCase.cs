@@ -72,7 +72,7 @@ namespace Xtensive.Sql.Dml
         KeyValuePair<SqlExpression, SqlExpression> @case = new KeyValuePair<SqlExpression, SqlExpression>(key, value);
         if (index >= 0)
           cases[index] = @case;
-        else 
+        else
           cases.Add(@case);
       }
     }
@@ -103,23 +103,18 @@ namespace Xtensive.Sql.Dml
         cases.Add(pair);
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var v)) {
-        return v;
-      }
+    internal override SqlCase Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlCase(t.value?.Clone(c));
 
-      var clone = new SqlCase(value is null ? null : (SqlExpression) value.Clone(context));
+        if (t.@else is not null)
+          clone.Else = t.@else.Clone(c);
 
-      if (@else is not null)
-        clone.Else = (SqlExpression) @else.Clone(context);
+        foreach (KeyValuePair<SqlExpression, SqlExpression> pair in t.cases)
+          clone[pair.Key.Clone(c)] = pair.Value.Clone(c);
 
-      foreach (KeyValuePair<SqlExpression, SqlExpression> pair in cases)
-        clone[(SqlExpression) pair.Key.Clone(context)] = (SqlExpression) pair.Value.Clone(context);
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

@@ -12,15 +12,15 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlRow: SqlExpressionList
   {
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlRow Clone(SqlNodeCloneContext context)
     {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
+      if (context.TryGet(this) is SqlRow value) {
         return value;
       }
 
       var expressionsClone = new List<SqlExpression>(expressions.Count);
       foreach (var e in expressions)
-        expressionsClone.Add((SqlExpression) e.Clone(context));
+        expressionsClone.Add(e.Clone(context));
 
       var clone = new SqlRow(expressionsClone);
       return clone;
