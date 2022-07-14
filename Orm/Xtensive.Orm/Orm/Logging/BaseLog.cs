@@ -29,7 +29,8 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Creates region. Within the region, all messages are indented.
     /// </summary>
-    /// <param name="messageId">Identifier of message in resources that should be written at the begging and at the end of the region or message itself.</param>
+    /// <param name="messageId">Identifier of the message in resources that should be written at the begging and at the end of the region or message itself.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/> (resource string or message itself).</param>
     /// <returns><see cref="IDisposable"/> object. Region will closed by disposing of this object.</returns>
     public IndentManager.IndentScope DebugRegion(string messageId, params object[] parameters)
     {
