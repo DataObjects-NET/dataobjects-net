@@ -635,12 +635,6 @@ namespace Xtensive.Orm.Model
     /// <summary>
     /// Gets a value indicating whether field is dynamically defined.
     /// </summary>
-    [Obsolete("Use IsDynamicallyDefined property")]
-    public bool IsDynalicallyDefined => IsDynamicallyDefined;
-
-    /// <summary>
-    /// Gets a value indicating whether field is dynamically defined.
-    /// </summary>
     public bool IsDynamicallyDefined => UnderlyingProperty == null;
 
     private void GetColumns(ColumnInfoCollection result)
