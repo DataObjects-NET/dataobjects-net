@@ -80,7 +80,7 @@ namespace Xtensive.Orm.Services
       Session.EntityChangeRegistry.GetItems(persistenceState);
 
     internal IEnumerable<EntityState> GetChangedEntitiesInternal(PersistenceState persistenceState) =>
-      Session.EntityChangeRegistry.GetItems(persistenceState);
+      Session.EntityChangeRegistry.GetContainer(persistenceState);
 
     // Constructors
 
