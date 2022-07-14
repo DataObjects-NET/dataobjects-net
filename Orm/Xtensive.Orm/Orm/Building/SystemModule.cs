@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Building
 
     private static void ApplyModelFixesForMySql(DomainModelDef model)
     {
-      BuildLog.Info(nameof(Strings.ApplyingChangesToMetadata));
+      BuildLog.Info(nameof(Strings.LogApplyModelFixesForMySql));
 
       // Fixing length of Assembly.Name field
       TypeDef type = model.Types.TryGetValue(typeof (Assembly));
