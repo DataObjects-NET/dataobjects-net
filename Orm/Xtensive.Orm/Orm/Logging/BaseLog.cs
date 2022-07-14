@@ -99,8 +99,8 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Writes fatal error message.
     /// </summary>
-    /// <param name="message">Message to write to.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="message"/>.</param>
+    /// <param name="messageId">Identifier of message in resources that should be written to log or message itself.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
     /// <param name="exception">Exception, which must be written.</param>
     public virtual void FatalError(string messageId, object[] parameters = null, Exception exception = null) =>
       Write(LogLevel.FatalError, messageId, parameters, exception);
