@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Logging
         if (disposed)
           return;
         disposed = true;
-        CurrentIndentValueAsync.Value = oldIndent;
+        CurrentIndentLengthAsync.Value = oldIndent;
         endAction?.Invoke();
       }
 
@@ -37,14 +37,14 @@ namespace Xtensive.Orm.Logging
       }
     }
 
-    private const int SingleIndent = 2;
+    private const int SingleIndentLength = 2;
     
-    private static readonly AsyncLocal<int> CurrentIndentValueAsync = new();
+    private static readonly AsyncLocal<int> CurrentIndentLengthAsync = new();
 
     /// <summary>
     /// Gets indentation for current thread.
     /// </summary>
-    public static int CurrentIdent => CurrentIndentValueAsync.Value;
+    public static int CurrentIndentLength => CurrentIndentLengthAsync.Value;
 
     /// <summary>
     /// Increases indentation for current thread.
@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Logging
     /// <returns>Indentation scope.</returns>
     public static IndentScope IncreaseIndent(Action endAction = null)
     {
-      var oldIndent = CurrentIndentValueAsync.Value;
-      CurrentIndentValueAsync.Value = oldIndent + SingleIndent;
+      var oldIndent = CurrentIndentLengthAsync.Value;
+      CurrentIndentLengthAsync.Value = oldIndent + SingleIndentLength;
       return new IndentScope(oldIndent, endAction);
     }
   }

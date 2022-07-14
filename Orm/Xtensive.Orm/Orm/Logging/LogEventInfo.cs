@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Logging
     {
       if (string.IsNullOrEmpty(message))
         return message;
-      var indent = IndentManager.CurrentIdent;
+      var indent = IndentManager.CurrentIndentLength;
       return indent > 0 ? new string(' ', indent) + message : message;
     }
 
