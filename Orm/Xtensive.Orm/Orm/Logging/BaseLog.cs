@@ -63,8 +63,8 @@ namespace Xtensive.Orm.Logging
     /// <summary>
     /// Writes debug message.
     /// </summary>
-    /// <param name="messageId">Message to write to.</param>
-    /// <param name="parameters">Values of parameters in <paramref name="messageId"/>.</param>
+    /// <param name="messageId">Identifier of the message in resources that should be written at the begging and at the end of the region or message itself.</param>
+    /// <param name="parameters">Values of parameters in <paramref name="messageId"/> (resource string or message itself).</param>
     /// <param name="exception">Exception, which must be written.</param>
     public virtual void Debug(string messageId, object[] parameters = null, Exception exception = null) =>
       Write(LogLevel.Debug, messageId, parameters, exception);
