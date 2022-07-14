@@ -292,33 +292,6 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <returns>A task which runs query.</returns>
-    [Obsolete("Use ExecuteAsync(IQueryable<T>) method instead.")]
-    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source) =>
-      await ExecuteAsync(source, CancellationToken.None).ConfigureAwait(false);
-
-    /// <summary>
-    /// Runs query to database asynchronously  and returns completed task for other <see cref="IQueryable{T}"/>.
-    /// </summary>
-    /// <remarks>Multiple active operations in the same session instance are not supported. Use
-    /// <see langword="await"/> to ensure that all asynchronous operations have completed before calling
-    /// another method in this session.</remarks>
-    /// <typeparam name="T">Type of elements in sequence.</typeparam>
-    /// <param name="source">Query to run asynchronous.</param>
-    /// <param name="token">Token to cancel operation.</param>
-    /// <returns>A task which runs query.</returns>
-    [Obsolete("Use ExecuteAsync(IQueryable<T>, CancellationToken) method instead.")]
-    public static async Task<IEnumerable<T>> AsAsync<T>(this IQueryable<T> source, CancellationToken token) =>
-      await ExecuteAsync(source, token).ConfigureAwait(false);
-
-    /// <summary>
     /// Runs query to database asynchronously and returns completed task for other <see cref="IQueryable{T}"/>.
     /// </summary>
     /// <remarks>Multiple active operations in the same session instance are not supported. Use
