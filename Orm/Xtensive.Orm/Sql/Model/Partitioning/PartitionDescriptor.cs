@@ -60,7 +60,7 @@ namespace Xtensive.Sql.Model
     {
       get { return owner; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         IPartitionable old = owner;
         owner = value;
         if (old!=null && old.PartitionDescriptor==this)
@@ -79,7 +79,7 @@ namespace Xtensive.Sql.Model
       get { return column; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         column = value;
       }
     }
@@ -93,7 +93,7 @@ namespace Xtensive.Sql.Model
       get { return partitionAmount; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         partitionAmount = value;
       }
     }
@@ -116,7 +116,7 @@ namespace Xtensive.Sql.Model
       get { return partitionMethod; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         partitionMethod = value;
       }
     }
@@ -130,7 +130,7 @@ namespace Xtensive.Sql.Model
       get { return partitionSchema; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         partitionSchema = value;
       }
     }

@@ -165,7 +165,7 @@ namespace Xtensive.Modelling
     /// <inheritdoc/>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       var copy = list.ToArray();
       for (int i = copy.Length - 1; i >= 0; i--)
         copy[i].Remove();
@@ -220,7 +220,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Add(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (node.Index!=list.Count)
         throw Exceptions.InternalError("Wrong NodeCollection.Add arguments: node.Index!=list.Count!", CoreLog.Instance);
       string name = node.Name;
@@ -245,7 +245,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void Remove(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       int count1 = list.Count;
       int count2 = nameIndex.Count;
       int index = node.Index;
@@ -267,7 +267,7 @@ namespace Xtensive.Modelling
 
     internal void Move(Node node, int newIndex)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       int count = list.Count;
       int oldIndex = node.Index;
       try {
@@ -297,7 +297,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void RemoveName(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       string name = node.Name;
       if (nameIndex[name]!=node)
         throw Exceptions.InternalError("Wrong NodeCollection.RemoveName arguments: nameIndex[node.Name]!=node!", CoreLog.Instance);
@@ -307,7 +307,7 @@ namespace Xtensive.Modelling
     /// <exception cref="InvalidOperationException">Internal error.</exception>
     internal void AddName(Node node)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (!nameIndex.TryAdd(node.Name, node)) {
         throw Exceptions.InternalError("Wrong NodeCollection.AddName arguments: nameIndex[node.Name]!=null!", CoreLog.Instance);
       }

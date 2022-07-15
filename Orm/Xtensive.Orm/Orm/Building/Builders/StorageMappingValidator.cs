@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Building.Builders
 
     public static void Run(BuildingContext context)
     {
-      using (BuildLog.InfoRegion(Strings.LogValidatingMappingConfiguration)) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogValidatingMappingConfiguration))) {
         new StorageMappingValidator(context).ValidateAll();
       }
     }

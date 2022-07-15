@@ -92,7 +92,7 @@ namespace Xtensive.Sql.Model
       get { return where; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         where = value;
       }
     }
@@ -106,7 +106,7 @@ namespace Xtensive.Sql.Model
       get { return isUnique; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isUnique = value;
       }
     }
@@ -137,7 +137,7 @@ namespace Xtensive.Sql.Model
       get { return isBitmap; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isBitmap = value;
       }
     }
@@ -154,7 +154,7 @@ namespace Xtensive.Sql.Model
       get { return isClustered; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isClustered = value;
       }
     }
@@ -168,7 +168,7 @@ namespace Xtensive.Sql.Model
       get { return fillFactor; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         fillFactor = value;
       }
     }
@@ -183,7 +183,7 @@ namespace Xtensive.Sql.Model
       get { return filegroup; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filegroup = value;
       }
     }
@@ -196,7 +196,7 @@ namespace Xtensive.Sql.Model
     {
       get { return partitionDescriptor; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         PartitionDescriptor old = partitionDescriptor;
         partitionDescriptor = value;
         if (old!=null && old.Owner==this)

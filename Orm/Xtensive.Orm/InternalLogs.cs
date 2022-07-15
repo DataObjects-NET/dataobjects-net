@@ -18,24 +18,18 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
-    {
-      return instance.DebugRegion(format, args);
-    }
+    public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args) =>
+      instance.DebugRegion(messageId, args);
 
-    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
-    }
+    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args) =>
+      instance.InfoRegion(messageId, args);
 
-    public static void Debug(string format, params object[] args)
-    {
-      instance.Debug(format, args);
-    }
+    public static void Debug(string messageId, params object[] args) =>
+      instance.Debug(messageId, args);
 
-    public static Exception Debug(Exception exception, string format, params object[] args)
+    public static Exception Debug(Exception exception, string messageId, params object[] args)
     {
-      instance.Debug(format, args, exception);
+      instance.Debug(messageId, args, exception);
       return exception;
     }
 
@@ -45,14 +39,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Info(string format, params object[] args)
-    {
-      instance.Info(format, args);
-    }
+    public static void Info(string messageId, params object[] args) =>
+      instance.Info(messageId, args);
 
-    public static Exception Info(Exception exception, string format, params object[] args)
+    public static Exception Info(Exception exception, string messageId, params object[] args)
     {
-      instance.Info(format, args, exception);
+      instance.Info(messageId, args, exception);
       return exception;
     }
 
@@ -62,14 +54,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
-      instance.Warning(format, args);
-    }
+    public static void Warning(string messageId, params object[] args) =>
+      instance.Warning(messageId, args);
 
-    public static Exception Warning(Exception exception, string format, params object[] args)
+    public static Exception Warning(Exception exception, string messageId, params object[] args)
     {
-      instance.Warning(format, args, exception);
+      instance.Warning(messageId, args, exception);
       return exception;
     }
 
@@ -79,14 +69,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Error(string format, params object[] args)
-    {
-      instance.Error(format, args);
-    }
+    public static void Error(string messageId, params object[] args) =>
+      instance.Error(messageId, args);
 
-    public static Exception Error(Exception exception, string format, params object[] args)
+    public static Exception Error(Exception exception, string messageId, params object[] args)
     {
-      instance.Error(format, args, exception);
+      instance.Error(messageId, args, exception);
       return exception;
     }
 
@@ -96,14 +84,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void FatalError(string format, params object[] args)
-    {
-      instance.FatalError(format, args);
-    }
+    public static void FatalError(string messageId, params object[] args) =>
+      instance.FatalError(messageId, args);
 
-    public static Exception FatalError(Exception exception, string format, params object[] args)
+    public static Exception FatalError(Exception exception, string messageId, params object[] args)
     {
-      instance.FatalError(format, args, exception);
+      instance.FatalError(messageId, args, exception);
       return exception;
     }
 
@@ -134,24 +120,18 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
-    {
-      return instance.DebugRegion(format, args);
-    }
+    public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args) =>
+      instance.DebugRegion(messageId, args);
 
-    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
-    }
+    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args) =>
+      instance.InfoRegion(messageId, args);
 
-    public static void Debug(string format, params object[] args)
-    {
-      instance.Debug(format, args);
-    }
+    public static void Debug(string messageId, params object[] args) =>
+      instance.Debug(messageId, args);
 
-    public static Exception Debug(Exception exception, string format, params object[] args)
+    public static Exception Debug(Exception exception, string messageId, params object[] args)
     {
-      instance.Debug(format, args, exception);
+      instance.Debug(messageId, args, exception);
       return exception;
     }
 
@@ -161,14 +141,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Info(string format, params object[] args)
-    {
-      instance.Info(format, args);
-    }
+    public static void Info(string messageId, params object[] args) =>
+      instance.Info(messageId, args);
 
-    public static Exception Info(Exception exception, string format, params object[] args)
+    public static Exception Info(Exception exception, string messageId, params object[] args)
     {
-      instance.Info(format, args, exception);
+      instance.Info(messageId, args, exception);
       return exception;
     }
 
@@ -178,14 +156,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
-      instance.Warning(format, args);
-    }
+    public static void Warning(string messageId, params object[] args) =>
+      instance.Warning(messageId, args);
 
-    public static Exception Warning(Exception exception, string format, params object[] args)
+    public static Exception Warning(Exception exception, string messageId, params object[] args)
     {
-      instance.Warning(format, args, exception);
+      instance.Warning(messageId, args, exception);
       return exception;
     }
 
@@ -250,20 +226,14 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
-    {
-      return instance.DebugRegion(format, args);
-    }
+    public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args) =>
+      instance.DebugRegion(messageId, args);
 
-    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
-    }
+    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args) =>
+      instance.InfoRegion(messageId, args);
 
-    public static void Debug(string format, params object[] args)
-    {
-      instance.Debug(format, args);
-    }
+    public static void Debug(string messageId, params object[] args) =>
+      instance.Debug(messageId, args);
 
     public static Exception Debug(Exception exception, string format, params object[] args)
     {
@@ -277,15 +247,12 @@ namespace Xtensive
       return exception;
     }
 
-    [Conditional("DO_TRACE")]
-    public static void Info(string format, params object[] args)
-    {
-      instance.Info(format, args);
-    }
+    public static void Info(string messageId, params object[] args) =>
+      instance.Info(messageId, args);
 
-    public static Exception Info(Exception exception, string format, params object[] args)
+    public static Exception Info(Exception exception, string messageId, params object[] args)
     {
-      instance.Info(format, args, exception);
+      instance.Info(messageId, args, exception);
       return exception;
     }
 
@@ -295,14 +262,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
-      instance.Warning(format, args);
-    }
+    public static void Warning(string messageId, params object[] args) =>
+      instance.Warning(messageId, args);
 
-    public static Exception Warning(Exception exception, string format, params object[] args)
+    public static Exception Warning(Exception exception, string messageId, params object[] args)
     {
-      instance.Warning(format, args, exception);
+      instance.Warning(messageId, args, exception);
       return exception;
     }
 
@@ -312,14 +277,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Error(string format, params object[] args)
-    {
-      instance.Error(format, args);
-    }
+    public static void Error(string messageId, params object[] args) =>
+      instance.Error(messageId, args);
 
-    public static Exception Error(Exception exception, string format, params object[] args)
+    public static Exception Error(Exception exception, string messageId, params object[] args)
     {
-      instance.Error(format, args, exception);
+      instance.Error(messageId, args, exception);
       return exception;
     }
 
@@ -329,14 +292,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void FatalError(string format, params object[] args)
-    {
-      instance.FatalError(format, args);
-    }
+    public static void FatalError(string messageId, params object[] args) =>
+      instance.FatalError(messageId, args);
 
-    public static Exception FatalError(Exception exception, string format, params object[] args)
+    public static Exception FatalError(Exception exception, string messageId, params object[] args)
     {
-      instance.FatalError(format, args, exception);
+      instance.FatalError(messageId, args, exception);
       return exception;
     }
 
@@ -367,24 +328,18 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
-    {
-      return instance.DebugRegion(format, args);
-    }
+    public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args) =>
+      instance.DebugRegion(messageId, args);
 
-    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
-    }
+    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args) =>
+      instance.InfoRegion(messageId, args);
 
-    public static void Debug(string format, params object[] args)
-    {
-      instance.Debug(format, args);
-    }
+    public static void Debug(string messageId, params object[] args) =>
+      instance.Debug(messageId, args);
 
-    public static Exception Debug(Exception exception, string format, params object[] args)
+    public static Exception Debug(Exception exception, string messageId, params object[] args)
     {
-      instance.Debug(format, args, exception);
+      instance.Debug(messageId, args, exception);
       return exception;
     }
 
@@ -394,14 +349,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Info(string format, params object[] args)
-    {
-      instance.Info(format, args);
-    }
+    public static void Info(string messageId, params object[] args) =>
+      instance.Info(messageId, args);
 
-    public static Exception Info(Exception exception, string format, params object[] args)
+    public static Exception Info(Exception exception, string messageId, params object[] args)
     {
-      instance.Info(format, args, exception);
+      instance.Info(messageId, args, exception);
       return exception;
     }
 
@@ -411,14 +364,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
-      instance.Warning(format, args);
-    }
+    public static void Warning(string messageId, params object[] args) =>
+      instance.Warning(messageId, args);
 
-    public static Exception Warning(Exception exception, string format, params object[] args)
+    public static Exception Warning(Exception exception, string messageId, params object[] args)
     {
-      instance.Warning(format, args, exception);
+      instance.Warning(messageId, args, exception);
       return exception;
     }
 
@@ -428,14 +379,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Error(string format, params object[] args)
-    {
-      instance.Error(format, args);
-    }
+    public static void Error(string messageId, params object[] args) =>
+      instance.Error(messageId, args);
 
-    public static Exception Error(Exception exception, string format, params object[] args)
+    public static Exception Error(Exception exception, string messageId, params object[] args)
     {
-      instance.Error(format, args, exception);
+      instance.Error(messageId, args, exception);
       return exception;
     }
 
@@ -445,14 +394,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void FatalError(string format, params object[] args)
-    {
-      instance.FatalError(format, args);
-    }
+    public static void FatalError(string messageId, params object[] args) =>
+      instance.FatalError(messageId, args);
 
-    public static Exception FatalError(Exception exception, string format, params object[] args)
+    public static Exception FatalError(Exception exception, string messageId, params object[] args)
     {
-      instance.FatalError(format, args, exception);
+      instance.FatalError(messageId, args, exception);
       return exception;
     }
 
@@ -483,24 +430,18 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IndentManager.IndentScope DebugRegion(string format, params object[] args)
-    {
-      return instance.DebugRegion(format, args);
-    }
+    public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args) =>
+      instance.DebugRegion(messageId, args);
 
-    public static IndentManager.IndentScope InfoRegion(string format, params object[] args)
-    {
-      return instance.InfoRegion(format, args);
-    }
+    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args) =>
+      instance.InfoRegion(messageId, args);
 
-    public static void Debug(string format, params object[] args)
-    {
-      instance.Debug(format, args);
-    }
+    public static void Debug(string messageId, params object[] args) =>
+      instance.Debug(messageId, args);
 
-    public static Exception Debug(Exception exception, string format, params object[] args)
+    public static Exception Debug(Exception exception, string messageId, params object[] args)
     {
-      instance.Debug(format, args, exception);
+      instance.Debug(messageId, args, exception);
       return exception;
     }
 
@@ -510,14 +451,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Info(string format, params object[] args)
-    {
-      instance.Info(format, args);
-    }
+    public static void Info(string messageId, params object[] args) =>
+      instance.Info(messageId, args);
 
-    public static Exception Info(Exception exception, string format, params object[] args)
+    public static Exception Info(Exception exception, string messageId, params object[] args)
     {
-      instance.Info(format, args, exception);
+      instance.Info(messageId, args, exception);
       return exception;
     }
 
@@ -527,14 +466,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Warning(string format, params object[] args)
-    {
-      instance.Warning(format, args);
-    }
+    public static void Warning(string messageId, params object[] args) =>
+      instance.Warning(messageId, args);
 
-    public static Exception Warning(Exception exception, string format, params object[] args)
+    public static Exception Warning(Exception exception, string messageId, params object[] args)
     {
-      instance.Warning(format, args, exception);
+      instance.Warning(messageId, args, exception);
       return exception;
     }
 
@@ -544,14 +481,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Error(string format, params object[] args)
-    {
-      instance.Error(format, args);
-    }
+    public static void Error(string messageId, params object[] args) =>
+      instance.Error(messageId, args);
 
-    public static Exception Error(Exception exception, string format, params object[] args)
+    public static Exception Error(Exception exception, string messageId, params object[] args)
     {
-      instance.Error(format, args, exception);
+      instance.Error(messageId, args, exception);
       return exception;
     }
 
@@ -599,18 +534,18 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IndentManager.IndentScope DebugRegion(string format, params object[] args) =>
-      instance.DebugRegion(format, args);
+    public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args) =>
+      instance.DebugRegion(messageId, args);
 
-    public static IndentManager.IndentScope InfoRegion(string format, params object[] args) =>
-      instance.InfoRegion(format, args);
+    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args) =>
+      instance.InfoRegion(messageId, args);
 
-    public static void Debug(string format, params object[] args) =>
-      instance.Debug(format, args);
+    public static void Debug(string messageId, params object[] args) =>
+      instance.Debug(messageId, args);
 
-    public static Exception Debug(Exception exception, string format, params object[] args)
+    public static Exception Debug(Exception exception, string messageId, params object[] args)
     {
-      instance.Debug(format, args, exception);
+      instance.Debug(messageId, args, exception);
       return exception;
     }
 
@@ -620,12 +555,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Info(string format, params object[] args) =>
-      instance.Info(format, args);
+    public static void Info(string messageId, params object[] args) =>
+      instance.Info(messageId, args);
 
-    public static Exception Info(Exception exception, string format, params object[] args)
+    public static Exception Info(Exception exception, string messageId, params object[] args)
     {
-      instance.Info(format, args, exception);
+      instance.Info(messageId, args, exception);
       return exception;
     }
 
@@ -650,14 +585,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void Error(string format, params object[] args)
-    {
-      instance.Error(format, args);
-    }
+    public static void Error(string messageId, params object[] args) =>
+      instance.Error(messageId, args);
 
-    public static Exception Error(Exception exception, string format, params object[] args)
+    public static Exception Error(Exception exception, string messageId, params object[] args)
     {
-      instance.Error(format, args, exception);
+      instance.Error(messageId, args, exception);
       return exception;
     }
 
@@ -667,14 +600,12 @@ namespace Xtensive
       return exception;
     }
 
-    public static void FatalError(string format, params object[] args)
-    {
-      instance.FatalError(format, args);
-    }
+    public static void FatalError(string messageId, params object[] args) =>
+      instance.FatalError(messageId, args);
 
-    public static Exception FatalError(Exception exception, string format, params object[] args)
+    public static Exception FatalError(Exception exception, string messageId, params object[] args)
     {
-      instance.FatalError(format, args, exception);
+      instance.FatalError(messageId, args, exception);
       return exception;
     }
 

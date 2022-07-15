@@ -49,7 +49,7 @@ namespace Xtensive.Orm.Building.Definitions
     {
       get => Attributes.HasFlag(TypeAttributes.Abstract);
       internal set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         Attributes = value
           ? Attributes | TypeAttributes.Abstract
           : Attributes & ~TypeAttributes.Abstract;

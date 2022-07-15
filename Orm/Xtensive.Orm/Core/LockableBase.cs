@@ -16,23 +16,28 @@ namespace Xtensive.Core
   [Serializable]
   public abstract class LockableBase: ILockable
   {
+
     /// <inheritdoc/>
     public bool IsLocked { [DebuggerStepThrough] get; private set; }
 
-    /// <inheritdoc/>
-    public void Lock() => Lock(true);
-
-    /// <inheritdoc/>
-    public virtual void Lock(bool recursive) =>
-      IsLocked = true;
-
-    // Copy of LockableExtensions.EnsureNotLocked() for efficiency (no null checking)
-    protected void EnsureNotLocked()
+    /// <summary>
+    /// Ensures the object is not locked (see <see cref="ILockable.Lock()"/>) yet.
+    /// </summary>
+    /// <exception cref="InstanceIsLockedException">The instance is locked.</exception>
+    public void EnsureNotLocked()
     {
       if (IsLocked) {
         throw new InstanceIsLockedException(Strings.ExInstanceIsLocked);
       }
     }
+
+    /// <inheritdoc/>
+    public void Lock() => Lock(true);
+
+    /// <inheritdoc/>
+    public virtual void Lock(bool recursive) => IsLocked = true;
+
+
 
     // Constructors
 
@@ -40,7 +45,9 @@ namespace Xtensive.Core
     /// Initializes new instance of this type.
     /// </summary>
     /// <param name="isLocked">Initial <see cref="IsLocked"/> property value.</param>
-    protected LockableBase(bool isLocked = false) =>
+    protected LockableBase(bool isLocked)
+    {
       IsLocked = isLocked;
+    }
   }
 }

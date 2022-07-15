@@ -47,7 +47,7 @@ namespace Xtensive.Sql.Model
     {
       get { return checkOptions; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         checkOptions = value;
       }
     }
@@ -61,7 +61,7 @@ namespace Xtensive.Sql.Model
       get { return definition; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         definition = value;
       }
     }

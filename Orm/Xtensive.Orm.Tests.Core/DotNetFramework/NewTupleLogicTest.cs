@@ -150,7 +150,7 @@ namespace Xtensive.Orm.Tests.Core.DotNetFramework
         TestTupleAccess(new NonBoxingTuple(), count);
       }
       else {
-        using (TestLog.InfoRegion("With boxing")) {
+        using(TestLog.InfoRegion("With boxing")) {
           TestTupleAccess(new BoxingTuple(), count);
         }
         using (TestLog.InfoRegion("Without boxing")) {

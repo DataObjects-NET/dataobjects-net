@@ -217,7 +217,7 @@ namespace Xtensive.Modelling
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
       }
 
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (newParent == Parent && newName == Name && newIndex == Index) {
         return;
       }
@@ -778,7 +778,7 @@ namespace Xtensive.Modelling
         throw new InvalidOperationException(Strings.ExInvalidNodeState);
       }
 
-      this.EnsureNotLocked();
+      EnsureNotLocked();
     }
 
     #endregion

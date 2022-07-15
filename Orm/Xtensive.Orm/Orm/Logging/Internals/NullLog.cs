@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Logging
     {
     }
 
-    public override void Write(LogEventInfo info)
+    public override void Write(in LogEventInfo info)
     {
     }
 

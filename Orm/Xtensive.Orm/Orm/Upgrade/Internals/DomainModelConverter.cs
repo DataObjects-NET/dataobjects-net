@@ -263,7 +263,7 @@ namespace Xtensive.Orm.Upgrade
     protected override IPathNode VisitFullTextIndexInfo(FullTextIndexInfo fullTextIndex)
     {
       if (!providerInfo.Supports(ProviderFeatures.FullText)) {
-        UpgradeLog.Warning(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX, fullTextIndex.Name);
+        UpgradeLog.Warning(nameof(Strings.LogFullTextIndexesAreNotSupportedByCurrentStorageIgnoringIndexX), fullTextIndex.Name);
         return null;
       }
 
@@ -278,7 +278,7 @@ namespace Xtensive.Orm.Upgrade
             typeColumn = table.Columns[fullTextColumn.TypeColumn.Name].Name;
         }
         else
-          UpgradeLog.Warning(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX, fullTextColumn.Column.Name);
+          UpgradeLog.Warning(nameof(Strings.LogSpecificationOfTypeColumnForFulltextColumnIsNotSupportedByCurrentStorageIgnoringTypeColumnSpecificationForColumnX), fullTextColumn.Column.Name);
         new FullTextColumnRef(ftIndex, column, fullTextColumn.Configuration, typeColumn);
       }
       

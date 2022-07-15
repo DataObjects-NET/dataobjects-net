@@ -219,7 +219,7 @@ namespace Xtensive.Orm.Model
     /// <param name="descendant">The descendant.</param>
     public void RegisterInheritance(TypeInfo ancestor, TypeInfo descendant)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       if (ancestor.IsInterface) {
         descendant.AddInterface(ancestor);
@@ -238,7 +238,7 @@ namespace Xtensive.Orm.Model
     /// <param name="implementor">The implementor.</param>
     public void RegisterImplementation(TypeInfo @interface, TypeInfo implementor)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       implementor.AddInterface(@interface);
       @interface.AddImplementor(implementor);

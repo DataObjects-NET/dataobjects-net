@@ -31,7 +31,7 @@ namespace Xtensive.Modelling.Actions
     public string Parent {
       get { return parent; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         parent = value;
       }
     }
@@ -42,7 +42,7 @@ namespace Xtensive.Modelling.Actions
     public string Name {
       get { return name; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         name = value;
       }
     }
@@ -53,7 +53,7 @@ namespace Xtensive.Modelling.Actions
     public int? Index {
       get { return index; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         index = value;
       }
     }
@@ -65,7 +65,7 @@ namespace Xtensive.Modelling.Actions
     public string NewPath {
       get { return newPath; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         newPath = value;
       }
     }

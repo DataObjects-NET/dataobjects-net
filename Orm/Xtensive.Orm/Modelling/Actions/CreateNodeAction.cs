@@ -32,7 +32,7 @@ namespace Xtensive.Modelling.Actions
       get { return type; }
       set {
         ArgumentValidator.EnsureArgumentNotNull(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         type = value;
       }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Modelling.Actions
       get { return name; }
       set {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         name = value;
       }
     }
@@ -56,7 +56,7 @@ namespace Xtensive.Modelling.Actions
     public int? Index {
       get { return index; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         index = value;
       }
     }
@@ -71,7 +71,7 @@ namespace Xtensive.Modelling.Actions
         return parameters==null ? null : (object[]) parameters.Clone();
       }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         parameters = value;
       }
     }
