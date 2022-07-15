@@ -621,7 +621,7 @@ namespace Xtensive.Orm
 
       try {
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXDisposing, this);
+          OrmLog.Debug(nameof(Strings.LogSessionXDisposing), this);
         }
 
         SystemEvents.NotifyDisposing();

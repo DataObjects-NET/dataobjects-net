@@ -73,7 +73,7 @@ namespace Xtensive.Orm.Building.Builders
         return typeDef;
       }
 
-      using (BuildLog.InfoRegion(Strings.LogDefiningX, type.GetFullName())) {
+      using (BuildLog.InfoRegion(nameof(Strings.LogDefiningX), type.GetFullName())) {
         typeDef = DefineType(type);
         if (modelDef.Types.Contains(typeDef.Name)) {
           throw new DomainBuilderException(string.Format(Strings.ExTypeWithNameXIsAlreadyDefined, typeDef.Name));
@@ -95,7 +95,7 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         if (hierarchyDef != null) {
-          BuildLog.Info(Strings.LogHierarchyX, typeDef.Name);
+          BuildLog.Info(nameof(Strings.LogHierarchyX), typeDef.Name);
           modelDef.Hierarchies.Add(hierarchyDef);
         }
 
@@ -160,7 +160,7 @@ namespace Xtensive.Orm.Building.Builders
         // Declared & inherited fields must be processed for hierarchy root
         if (hierarchyDef != null) {
           typeDef.Fields.Add(field);
-          BuildLog.Info(Strings.LogFieldX, field.Name);
+          BuildLog.Info(nameof(Strings.LogFieldX), field.Name);
 
           var keyAttributes = propertyInfo.GetAttribute<KeyAttribute>(AttributeSearchOptions.InheritAll);
           if (keyAttributes != null) {
@@ -170,7 +170,7 @@ namespace Xtensive.Orm.Building.Builders
         // Only declared properties must be processed in other cases
         else if (propertyInfo.DeclaringType == propertyInfo.ReflectedType) {
           typeDef.Fields.Add(field);
-          BuildLog.Info(Strings.LogFieldX, field.Name);
+          BuildLog.Info(nameof(Strings.LogFieldX), field.Name);
         }
 
         // Checking whether property type is registered in model
@@ -204,7 +204,7 @@ namespace Xtensive.Orm.Building.Builders
         }
 
         typeDef.Indexes.Add(index);
-        BuildLog.Info(Strings.LogIndexX, index.Name);
+        BuildLog.Info(nameof(Strings.LogIndexX), index.Name);
       }
 
       //process indexes which inherited from base classes
@@ -224,7 +224,7 @@ namespace Xtensive.Orm.Building.Builders
 
         index.IsInherited = true;
         typeDef.Indexes.Add(index);
-        BuildLog.Info(Strings.LogIndexX, index.Name);
+        BuildLog.Info(nameof(Strings.LogIndexX), index.Name);
       }
     }
 

@@ -292,7 +292,7 @@ namespace Xtensive.Orm
         EntityState state;
         if (!session.LookupStateInCache(key, out state)) {
           if (session.IsDebugEventLoggingEnabled) {
-            OrmLog.Debug(Strings.LogSessionXResolvingKeyYExactTypeIsZ, session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
+            OrmLog.Debug(nameof(Strings.LogSessionXResolvingKeyYExactTypeIsZ), session, key, key.HasExactType ? Strings.Known : Strings.Unknown);
           }
 
           state = session.Handler.FetchEntityState(key);

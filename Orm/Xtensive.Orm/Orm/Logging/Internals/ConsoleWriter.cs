@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2013 Xtensive LLC.
+// Copyright (C) 2013 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alexey Kulakov
@@ -11,7 +11,7 @@ namespace Xtensive.Orm.Logging
   internal sealed class ConsoleWriter : LogWriter
   {
     /// <inheritdoc/>
-    public override void Write(LogEventInfo logEvent)
+    public override void Write(in LogEventInfo logEvent)
     {
       Console.Out.WriteLine(logEvent);
     }
