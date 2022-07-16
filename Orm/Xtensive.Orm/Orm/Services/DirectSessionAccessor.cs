@@ -77,10 +77,11 @@ namespace Xtensive.Orm.Services
     /// <param name="persistenceState">Type of entity change.</param>
     /// <returns><see cref="EntityState"/>s with the specified <paramref name="persistenceState"/>.</returns>
     public IEnumerable<EntityState> GetChangedEntities(PersistenceState persistenceState) =>
+#if DO_SAFE_COLLECTION_WRAPPER
       Session.EntityChangeRegistry.GetItems(persistenceState);
-
-    internal IEnumerable<EntityState> GetChangedEntitiesInternal(PersistenceState persistenceState) =>
+#else
       Session.EntityChangeRegistry.GetContainer(persistenceState);
+#endif
 
     // Constructors
 
