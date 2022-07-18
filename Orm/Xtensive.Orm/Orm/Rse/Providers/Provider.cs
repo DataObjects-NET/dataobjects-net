@@ -1,10 +1,11 @@
-// Copyright (C) 2008-2020 Xtensive LLC.
+// Copyright (C) 2008-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kochetov
 // Created:    2008.07.03
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Text;
 using Xtensive.Core;
@@ -23,28 +24,18 @@ namespace Xtensive.Orm.Rse.Providers
     private const string ToString_Parameters = " ({0})";
     private const int    ToString_IndentSize = 2;
 
-    private Provider[] sources;
     private RecordSetHeader header;
 
     /// <summary>
     /// Gets <see cref="ProviderType"/> of the current instance.
     /// </summary>
-    public ProviderType Type { get; private set; }
+    public ProviderType Type { get; }
 
     /// <summary>
     /// Gets or sets the source providers 
     /// "consumed" by this provider to produce results of current provider.
     /// </summary>
-    public Provider[] Sources {
-      [DebuggerStepThrough]
-      get { return sources; }
-      [DebuggerStepThrough]
-      private set {
-        if (sources!=null)
-          throw Exceptions.AlreadyInitialized("Sources");
-        sources = value;
-      }
-    }
+    public IReadOnlyList<Provider> Sources { [DebuggerStepThrough] get; }
 
     /// <summary>
     /// Gets or sets the header of the record sequence this provide produces.
@@ -136,7 +127,7 @@ namespace Xtensive.Orm.Rse.Providers
     /// </summary>
     /// <param name="type">The type of the provider.</param>
     /// <param name="sources"><see cref="Sources"/> property value.</param>
-    protected Provider(ProviderType type, params Provider[] sources)
+    protected Provider(ProviderType type, IReadOnlyList<Provider> sources)
     {
       Type = type;
       Sources = sources;

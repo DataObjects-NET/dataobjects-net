@@ -187,7 +187,7 @@ namespace Xtensive.Orm.Linq
       // ReSharper disable ConditionIsAlwaysTrueOrFalse
       // ReSharper disable HeuristicUnreachableCode
       if (expression.Constructor == null) {
-        return new ParameterInfo[0];
+        return Array.Empty<ParameterInfo>();
       }
       // ReSharper restore ConditionIsAlwaysTrueOrFalse
       // ReSharper restore HeuristicUnreachableCode

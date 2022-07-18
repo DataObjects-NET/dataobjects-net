@@ -102,7 +102,7 @@ namespace Xtensive.Orm.Providers
     /// <param name="provider">The provider.</param>
     /// <param name="permanentReference">The permanent reference.</param>
     public SqlProvider(SqlProvider provider, SqlTable permanentReference)
-      : base(provider.Origin, provider.Sources.Cast<ExecutableProvider>().ToArray())
+      : base(provider.Origin, provider.Sources.Cast<ExecutableProvider>().ToArray(provider.Sources.Count))
     {
       this.permanentReference = permanentReference;
       handlers = provider.handlers;
