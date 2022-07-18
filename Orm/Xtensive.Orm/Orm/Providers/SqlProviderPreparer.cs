@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2012 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2012-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2012.01.29
 
+using System;
 using Xtensive.Core;
 using Xtensive.Orm.Rse;
 using Xtensive.Orm.Rse.Compilation;
@@ -25,7 +26,7 @@ namespace Xtensive.Orm.Providers
       request.Prepare();
       // Optional part - remove all underlying providers to save memory.
       return request.CheckOptions(QueryRequestOptions.AllowOptimization)
-        ? new SqlProvider(handlers, request, sqlProvider.Origin.MakeVoid(), new ExecutableProvider[0])
+        ? new SqlProvider(handlers, request, sqlProvider.Origin.MakeVoid(), Array.Empty<ExecutableProvider>())
         : rootProvider;
     }
 
