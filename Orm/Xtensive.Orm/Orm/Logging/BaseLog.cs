@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Logging
       ArgumentValidator.EnsureArgumentNotNull(messageId, "message");
       if (!IsLogged(LogLevel.Debug))
         return IndentManager.IncreaseIndent();
-      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture);
+      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
       var title = parameters!=null ? string.Format(message, parameters) : message;
       var titleParams = new object[] { title };
       Debug(nameof(Strings.LogRegionBegin), titleParams);
@@ -63,7 +63,7 @@ namespace Xtensive.Orm.Logging
       ArgumentValidator.EnsureArgumentNotNull(messageId, "message");
       if (!IsLogged(LogLevel.Info))
         return IndentManager.IncreaseIndent();
-      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture);
+      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
       var title = parameters!=null ? string.Format(message, parameters) : message;
       Info(string.Format(Strings.LogRegionBegin, title));
       return IndentManager.IncreaseIndent(() => Info(string.Format(Strings.LogRegionEnd, title)));
@@ -135,7 +135,9 @@ namespace Xtensive.Orm.Logging
 
     private void Write(LogLevel logLevel, string messageId, object[] parameters, Exception exception)
     {
-      var message = Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
+      var message = string.IsNullOrEmpty(messageId)
+        ? null
+        : Strings.ResourceManager.GetString(messageId, Strings.Culture) ?? messageId;
       Write(new LogEventInfo(Name, logLevel, message, parameters, exception));
     }
 
