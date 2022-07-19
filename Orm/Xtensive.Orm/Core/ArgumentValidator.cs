@@ -91,6 +91,7 @@ namespace Xtensive.Core
     /// <param name="value">Value to compare check.</param>
     /// <param name="parameterName">Name of the method parameter.</param>
     /// <typeparam name="T">The expected type of value.</typeparam>
+    /// <returns><paramref name="value" /> parameter casted to type <typeparamref name="T" /></returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public static T EnsureArgumentIs<T>(object value,
       [InvokerParameterName, CallerArgumentExpression("value")] string parameterName = null)
