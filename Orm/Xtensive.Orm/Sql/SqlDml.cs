@@ -742,10 +742,8 @@ namespace Xtensive.Sql
       return new SqlUserFunctionCall(name, expressions);
     }
 
-    public static SqlUserFunctionCall FunctionCall(string name)
-    {
-      return FunctionCall(name, System.Array.Empty<SqlExpression>());
-    }
+    public static SqlUserFunctionCall FunctionCall(string name) =>
+      new SqlUserFunctionCall(name, System.Array.Empty<SqlExpression>());
 
     public static SqlFunctionCall CurrentUser()
     {
