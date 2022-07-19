@@ -433,7 +433,7 @@ namespace Xtensive.Modelling
       }
 
       // Validating parent model
-      ArgumentValidator.EnsureArgumentIs<Node>(newParent);
+      _ = ArgumentValidator.EnsureArgumentIs<Node>(newParent);
       var model = Model;
       if (model != null) {
         var newModel = newParent.Model;
