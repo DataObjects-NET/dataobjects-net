@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dml
     /// <inheritdoc/>
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlSubQuery replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression);
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression);
       query = replacingExpression.Query;
     }
 
