@@ -161,10 +161,10 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return;
         case SqlFunctionType.Round:
           // Round should always be called with 2 arguments
-          if (node.Arguments.Count == 1) {
+          if (arguments.Count == 1) {
             Visit(SqlDml.FunctionCall(
               translator.TranslateToString(SqlFunctionType.Round),
-              node.Arguments[0],
+              arguments[0],
               SqlDml.Literal(0)));
             return;
           }
@@ -174,31 +174,31 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           // It's stupid, isn't it?
           Visit(SqlDml.FunctionCall(
             translator.TranslateToString(SqlFunctionType.Round),
-            node.Arguments[0],
+            arguments[0],
             SqlDml.Literal(0),
             SqlDml.Literal(1)));
           return;
         case SqlFunctionType.Substring:
-          if (node.Arguments.Count == 2) {
-            node = SqlDml.Substring(node.Arguments[0], node.Arguments[1]);
-            SqlExpression len = SqlDml.CharLength(node.Arguments[0]);
-            node.Arguments.Add(len);
+          if (arguments.Count == 2) {
+            node = SqlDml.Substring(node.Arguments[0], arguments[1]);
+            SqlExpression len = SqlDml.CharLength(arguments[0]);
+            arguments.Add(len);
             Visit(node);
             return;
           }
           break;
         case SqlFunctionType.IntervalToMilliseconds:
-          Visit(CastToLong(node.Arguments[0]) / NanosecondsPerMillisecond);
+          Visit(CastToLong(arguments[0]) / NanosecondsPerMillisecond);
           return;
         case SqlFunctionType.IntervalConstruct:
         case SqlFunctionType.IntervalToNanoseconds:
-          Visit(CastToLong(node.Arguments[0]));
+          Visit(CastToLong(arguments[0]));
           return;
         case SqlFunctionType.DateTimeAddMonths:
-          Visit(DateAddMonth(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddMonth(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeAddYears:
-          Visit(DateAddYear(node.Arguments[0], node.Arguments[1]));
+          Visit(DateAddYear(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateOnlyAddDays:
           Visit(DateAddDay(arguments[0], arguments[1]));
@@ -210,16 +210,16 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           Visit(DateAddMinute(arguments[0], arguments[1]));
           return;
         case SqlFunctionType.DateTimeTruncate:
-          DateTimeTruncate(node.Arguments[0]).AcceptVisitor(this);
+          DateTimeTruncate(arguments[0]).AcceptVisitor(this);
           return;
         case SqlFunctionType.DateTimeConstruct:
           Visit(DateAddDay(DateAddMonth(DateAddYear(SqlDml.Literal(new DateTime(2001, 1, 1)),
-            node.Arguments[0] - 2001),
-            node.Arguments[1] - 1),
-            node.Arguments[2] - 1));
+            arguments[0] - 2001),
+            arguments[1] - 1),
+            arguments[2] - 1));
           return;
         case SqlFunctionType.DateTimeToStringIso:
-          Visit(DateTimeToStringIso(node.Arguments[0]));
+          Visit(DateTimeToStringIso(arguments[0]));
           return;
       }
 
