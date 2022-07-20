@@ -42,7 +42,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v10
 #else
       types.DateTime = DataTypeInfo.Range(SqlType.DateTime, common | index,
         new ValueRange<DateTime>(new DateTime(1, 1, 1), new DateTime(9999, 12, 31)),
-        "datetime2", "datetime", "date", "time", "smalldatetime");
+        "datetime2", "datetime", "smalldatetime", "date", "time");
 #endif
 
       types.VarBinaryMax = DataTypeInfo.Regular(SqlType.VarBinaryMax, common, "varbinary(max)", "image");
