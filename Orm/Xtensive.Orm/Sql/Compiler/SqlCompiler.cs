@@ -2577,6 +2577,13 @@ namespace Xtensive.Sql.Compiler
     protected void AppendTranslatedExit(SqlDelete node) =>
       translator.Translate(context, node, DeleteSection.Exit);
 
+    protected void AppendTranslated(SqlTruncateTable node)
+    {
+      AppendSpaceIfNecessary();
+      translator.Translate(context, node);
+      AppendSpaceIfNecessary();
+    }
+
     protected void AppendTranslated(SqlFetch node, FetchSection section)
     {
       AppendSpaceIfNecessary();

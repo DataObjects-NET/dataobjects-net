@@ -303,8 +303,18 @@ namespace Xtensive.Orm.Providers
       }
 
       var columnType = columns[index].Type;
-      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation) && columnType == WellKnownTypes.DateTime) {
-        return SqlDml.Cast(expression, SqlType.DateTime);
+      if (providerInfo.Supports(ProviderFeatures.DateTimeEmulation)) {
+        if (columnType == WellKnownTypes.DateTime) {
+          return SqlDml.Cast(expression, SqlType.DateTime);
+        }
+#if DO_DATEONLY
+        if (columnType == WellKnownTypes.DateOnly) {
+          return SqlDml.Cast(expression, SqlType.Date);
+        }
+        if (columnType == WellKnownTypes.TimeOnly) {
+          return SqlDml.Cast(expression, SqlType.Time);
+        }
+#endif
       }
 
       if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation) && columnType == WellKnownTypes.DateTimeOffset) {
@@ -328,6 +338,22 @@ namespace Xtensive.Orm.Providers
           if (columnPair.Second.Type == WellKnownTypes.DateTime) {
             rightExpression = SqlDml.Cast(rightExpression, SqlType.DateTime);
           }
+
+#if DO_DATEONLY
+          if (columnPair.First.Type == WellKnownTypes.DateOnly) {
+            leftExpression = SqlDml.Cast(leftExpression, SqlType.Date);
+          }
+          else if (columnPair.First.Type == WellKnownTypes.TimeOnly) {
+            leftExpression = SqlDml.Cast(leftExpression, SqlType.Time);
+          }
+
+          if (columnPair.Second.Type == WellKnownTypes.DateOnly) {
+            rightExpression = SqlDml.Cast(rightExpression, SqlType.Date);
+          }
+          else if (columnPair.Second.Type == WellKnownTypes.TimeOnly) {
+            rightExpression = SqlDml.Cast(rightExpression, SqlType.Time);
+          }
+#endif
         }
 
         if (providerInfo.Supports(ProviderFeatures.DateTimeOffsetEmulation)) {

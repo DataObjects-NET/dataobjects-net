@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
@@ -18,6 +18,10 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.DateTimes
     public void DistinctByDateTimeTest()
     {
       ExecuteInsideSession(() => DistinctPrivate<DateTimeEntity, DateTime>(c => c.DateTime));
+#if DO_DATEONLY
+      ExecuteInsideSession(() => DistinctPrivate<DateTimeEntity, DateOnly>(c => c.DateOnly));
+      ExecuteInsideSession(() => DistinctPrivate<DateTimeEntity, TimeOnly>(c => c.TimeOnly));
+#endif
     }
 
     [Test]

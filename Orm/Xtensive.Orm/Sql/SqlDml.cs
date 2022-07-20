@@ -564,6 +564,29 @@ namespace Xtensive.Sql
       return new SqlFunctionCall(SqlFunctionType.DateTimeConstruct, year, month, day);
     }
 
+#if DO_DATEONLY
+    public static SqlFunctionCall DateOnlyConstruct(SqlExpression year, SqlExpression month, SqlExpression day)
+    {
+      ArgumentNullException.ThrowIfNull(year);
+      ArgumentNullException.ThrowIfNull(month);
+      ArgumentNullException.ThrowIfNull(day);
+      SqlValidator.EnsureIsArithmeticExpression(year);
+      SqlValidator.EnsureIsArithmeticExpression(month);
+      SqlValidator.EnsureIsArithmeticExpression(day);
+      return new SqlFunctionCall(SqlFunctionType.DateOnlyConstruct, year, month, day);
+    }
+
+    public static SqlFunctionCall TimeOnlyConstruct(SqlExpression hours,
+      SqlExpression minutes,
+      SqlExpression seconds,
+      SqlExpression milliseconds)
+    {
+      var m = milliseconds + 1000L * (seconds + 60L * (minutes + 60L * hours));
+      var ticks = 10_000 * m;
+      return new SqlFunctionCall(SqlFunctionType.TimeOnlyConstruct, ticks);
+    }
+#endif
+
     public static SqlBinary DateTimePlusInterval(SqlExpression left, SqlExpression right)
     {
       ArgumentValidator.EnsureArgumentNotNull(left, "left");
@@ -597,6 +620,27 @@ namespace Xtensive.Sql
       ArgumentValidator.EnsureArgumentNotNull(source, "source");
       ArgumentValidator.EnsureArgumentNotNull(months, "months");
       return new SqlFunctionCall(SqlFunctionType.DateTimeAddMonths, source, months);
+    }
+
+    public static SqlFunctionCall DateOnlyAddDays(SqlExpression source, SqlExpression days)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(days, "days");
+      return new SqlFunctionCall(SqlFunctionType.DateOnlyAddDays, source, days);
+    }
+
+    public static SqlFunctionCall TimeOnlyAddHours(SqlExpression source, SqlExpression hours)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(hours, "hours");
+      return new SqlFunctionCall(SqlFunctionType.TimeOnlyAddHours, source, hours);
+    }
+
+    public static SqlFunctionCall TimeOnlyAddMinutes(SqlExpression source, SqlExpression minutes)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(source, "source");
+      ArgumentValidator.EnsureArgumentNotNull(minutes, "minutes");
+      return new SqlFunctionCall(SqlFunctionType.TimeOnlyAddMinutes, source, minutes);
     }
 
     public static SqlFunctionCall DateTimeToStringIso(SqlExpression expression)

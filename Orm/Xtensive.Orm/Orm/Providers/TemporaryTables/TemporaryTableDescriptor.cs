@@ -22,7 +22,7 @@ namespace Xtensive.Orm.Providers
     /// Gets the unique name of this temporary table.
     /// </summary>
     public string Name { get; private set; }
-    
+
     /// <summary>
     /// Gets or sets the tuple descriptor associated with this table descriptor.
     /// </summary>

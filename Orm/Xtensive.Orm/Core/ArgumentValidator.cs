@@ -33,7 +33,7 @@ namespace Xtensive.Core
         throw new ArgumentNullException(parameterName);
       }
     }
-    
+
     /// <summary>
     /// Ensures argument (<paramref name="value"/>) is not
     /// <see langoword="null"/>.
@@ -88,7 +88,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/> 
+    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/>
     /// and of <typeparamref name="T"/> type.
     /// </summary>
     /// <param name="value">Value to compare check.</param>
@@ -106,7 +106,7 @@ namespace Xtensive.Core
     }
 
     /// <summary>
-    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/> 
+    /// Ensures argument (<paramref name="value"/>) is not <see langword="null"/>
     /// and of <paramref name="type"/> type.
     /// </summary>
     /// <param name="value">Value to compare check.</param>
@@ -120,7 +120,7 @@ namespace Xtensive.Core
         throw new ArgumentException(string.Format(Strings.ExInvalidArgumentType, type), parameterName);
       }
     }
-    
+
     /// <summary>
     /// Ensures argument (<paramref name="value"/>) is either <see langword="null"/>,
     /// or of <typeparamref name="T"/> type.

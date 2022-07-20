@@ -56,9 +56,12 @@ namespace Xtensive.Orm.Linq
 
     public static bool IsNewExpressionSupportedByStorage(this Expression expression) =>
       expression.NodeType == ExpressionType.New
-      && (expression.Type == WellKnownTypes.TimeSpan
-        || expression.Type == WellKnownTypes.DateTime
-        || expression.Type == WellKnownTypes.DateTimeOffset);
+      && expression.Type switch { var t =>
+        t == WellKnownTypes.TimeSpan || t == WellKnownTypes.DateTime || t == WellKnownTypes.DateTimeOffset
+#if DO_DATEONLY
+          || t == WellKnownTypes.DateOnly || t == WellKnownTypes.TimeOnly
+#endif
+      };
 
     public static bool IsQuery(this Expression expression) =>
       expression.Type.IsOfGenericInterface(WellKnownInterfaces.QueryableOfT);

@@ -4,6 +4,8 @@
 // Created by: Alexey Kulakov
 // Created:    2017.04.05
 
+using System;
+
 namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 {
   namespace Part1
@@ -16,6 +18,14 @@ namespace Xtensive.Orm.Tests.Storage.SchemaSharing.EntityManipulation.Model
 
       [Field]
       public string Text { get; set; }
+
+#if DO_DATEONLY
+      [Field]
+      public DateOnly DateOnly { get; set; }
+
+      [Field]
+      public TimeOnly TimeOnly { get; set; }
+#endif
 
       [Field]
       public string DatabaseName { get; set; }

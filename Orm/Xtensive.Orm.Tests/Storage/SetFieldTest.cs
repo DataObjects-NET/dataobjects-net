@@ -25,6 +25,11 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     [Field]
     public DateTime Date { get; set; }
 
+#if DO_DATEONLY
+    [Field]
+    public DateOnly DateOnly { get; set; }
+#endif
+
     [Field]
     public Direction? NullableDirection { get; set; }
 
@@ -57,19 +62,24 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
         };
 
         var book = new Book();
-        AssertIsCalled   (() => { book.Title = "A"; });
+        AssertIsCalled(() => { book.Title = "A"; });
         AssertIsNotCalled(() => { book.Title = "A"; });
-        AssertIsCalled   (() => { book.Date = new DateTime(1,2,3); });
-        AssertIsNotCalled(() => { book.Date = new DateTime(1,2,3); });
-        
-        var image = new byte[] {1, 2, 3};
-        AssertIsCalled   (() => { book.Image = image; });
-        AssertIsCalled   (() => { book.Image = image; });
+        AssertIsCalled(() => { book.Date = new DateTime(1, 2, 3); });
+        AssertIsNotCalled(() => { book.Date = new DateTime(1, 2, 3); });
+
+#if DO_DATEONLY
+        AssertIsCalled(() => { book.DateOnly = new DateOnly(1, 2, 3); });
+        AssertIsNotCalled(() => { book.DateOnly = new DateOnly(1, 2, 3); });
+#endif
+
+        var image = new byte[] { 1, 2, 3 };
+        AssertIsCalled(() => { book.Image = image; });
+        AssertIsCalled(() => { book.Image = image; });
 
         AssertIsNotCalled(() => { book.Pair = null; });
-        AssertIsCalled   (() => { book.Pair = book; });
+        AssertIsCalled(() => { book.Pair = book; });
         AssertIsNotCalled(() => { book.Pair = book; });
-        AssertIsCalled   (() => { book.Pair = null; });
+        AssertIsCalled(() => { book.Pair = null; });
         AssertIsNotCalled(() => { book.Pair = null; });
       }
     }
@@ -89,7 +99,7 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     {
       int oldCallCount = fieldSetCallCount;
       action.Invoke();
-      if (fieldSetCallCount==oldCallCount)
+      if (fieldSetCallCount == oldCallCount)
         Assert.Fail("Expected event didn't occur.");
     }
 
@@ -97,7 +107,7 @@ namespace Xtensive.Orm.Tests.Storage.SetFieldTest
     {
       int oldCallCount = fieldSetCallCount;
       action.Invoke();
-      if (fieldSetCallCount!=oldCallCount)
+      if (fieldSetCallCount != oldCallCount)
         Assert.Fail("Event occurred, although it shouldn't.");
     }
   }

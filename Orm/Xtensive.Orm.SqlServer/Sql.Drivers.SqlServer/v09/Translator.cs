@@ -20,6 +20,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
   internal class Translator : SqlTranslator
   {
     public override string DateTimeFormatString => @"'cast ('\'yyyy\-MM\-ddTHH\:mm\:ss\.fff\'' as datetime)'";
+    public override string DateOnlyFormatString => @"'cast ('\'yyyy\-MM\-dd\'' as date)'";
+    public override string TimeOnlyFormatString => @"'cast ('\'HH\:mm\:ss\.fff\'' as time)'";
     public override string TimeSpanFormatString => string.Empty;
 
     public override void Initialize()
@@ -571,6 +573,13 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         case long v:
           _ = output.Append($"CAST({v} as BIGINT)");
           break;
+#if DO_DATEONLY
+        case DateOnly dateOnly:
+          var dateOnlyRange = (ValueRange<DateTime>) Driver.ServerInfo.DataTypes.DateTime.ValueRange;
+          var newDateOnly = ValueRangeValidator.Correct(dateOnly.ToDateTime(TimeOnly.MinValue), dateOnlyRange).Date;
+          output.Append(newDateOnly.ToString(DateOnlyFormatString, DateTimeFormat));
+          break;
+#endif
         default:
           base.Translate(context, literalValue);
           break;

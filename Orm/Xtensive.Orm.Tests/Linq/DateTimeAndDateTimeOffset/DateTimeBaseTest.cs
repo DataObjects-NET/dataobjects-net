@@ -25,6 +25,16 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
     protected static readonly DateTime SecondMillisecondDateTime = SecondDateTime.AddMilliseconds(987);
     protected static readonly DateTime WrongMillisecondDateTime = WrongDateTime.AddMilliseconds(654);
 
+#if DO_DATEONLY
+    protected static readonly DateOnly FirstDateOnly = DateOnly.FromDateTime(FirstDateTime);
+    protected static readonly DateOnly NullableDateOnly = DateOnly.FromDateTime(SecondDateTime);
+    protected static readonly DateOnly WrongDateOnly = DateOnly.FromDateTime(WrongDateTime);
+
+    protected static readonly TimeOnly FirstTimeOnly = TimeOnly.FromDateTime(FirstDateTime);
+    protected static readonly TimeOnly SecondTimeOnly = TimeOnly.FromDateTime(SecondDateTime);
+    protected static readonly TimeOnly WrongTimeOnly = TimeOnly.FromDateTime(WrongDateTime);
+#endif
+
     protected override void RegisterTypes(DomainConfiguration configuration)
     {
       configuration.Types.Register(typeof (SingleDateTimeEntity));
@@ -38,31 +48,36 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset
       new SingleDateTimeEntity {
         DateTime = FirstDateTime,
         MillisecondDateTime = FirstMillisecondDateTime,
+#if DO_DATEONLY
+        DateOnly = DateOnly.FromDateTime(FirstDateTime),
+        NullableDateOnly = DateOnly.FromDateTime(NullableDateTime),
+        TimeOnly = FirstTimeOnly,
+#endif
         NullableDateTime = NullableDateTime
       };
 
-      new DateTimeEntity { DateTime = FirstDateTime };
-      new DateTimeEntity { DateTime = FirstDateTime };
-      new DateTimeEntity { DateTime = FirstDateTime.Date };
-      new DateTimeEntity { DateTime = SecondDateTime };
-      new DateTimeEntity { DateTime = SecondDateTime.Date };
-      new DateTimeEntity { DateTime = new DateTime(FirstDateTime.Year, FirstDateTime.Month, FirstDateTime.Day, FirstDateTime.Hour, FirstDateTime.Minute, 0) };
-      new DateTimeEntity { DateTime = new DateTime(FirstDateTime.Ticks, DateTimeKind.Local) };
-      new DateTimeEntity { DateTime = FirstDateTime.Add(new TimeSpan(987, 23, 34, 45)) };
-      new DateTimeEntity { DateTime = FirstDateTime.AddYears(1) };
-      new DateTimeEntity { DateTime = FirstDateTime.AddYears(-2) };
-      new DateTimeEntity { DateTime = FirstDateTime.AddMonths(44) };
-      new DateTimeEntity { DateTime = FirstDateTime.AddMonths(-55) };
-      new DateTimeEntity { DateTime = SecondDateTime.AddHours(5) };
-      new DateTimeEntity { DateTime = SecondDateTime.AddHours(-15) };
-      new DateTimeEntity { DateTime = SecondDateTime.AddMinutes(59) };
-      new DateTimeEntity { DateTime = SecondDateTime.AddMinutes(-49) };
-      new DateTimeEntity { DateTime = SecondDateTime.AddSeconds(57) };
-      new DateTimeEntity { DateTime = SecondDateTime.AddSeconds(-5) };
+      new DateTimeEntity(FirstDateTime);
+      new DateTimeEntity(FirstDateTime);
+      new DateTimeEntity(FirstDateTime.Date);
+      new DateTimeEntity(SecondDateTime);
+      new DateTimeEntity(SecondDateTime.Date);
+      new DateTimeEntity(new DateTime(FirstDateTime.Year, FirstDateTime.Month, FirstDateTime.Day, FirstDateTime.Hour, FirstDateTime.Minute, 0));
+      new DateTimeEntity(new DateTime(FirstDateTime.Ticks, DateTimeKind.Local));
+      new DateTimeEntity(FirstDateTime.Add(new TimeSpan(987, 23, 34, 45)));
+      new DateTimeEntity(FirstDateTime.AddYears(1));
+      new DateTimeEntity(FirstDateTime.AddYears(-2));
+      new DateTimeEntity(FirstDateTime.AddMonths(44));
+      new DateTimeEntity(FirstDateTime.AddMonths(-55));
+      new DateTimeEntity(SecondDateTime.AddHours(5));
+      new DateTimeEntity(SecondDateTime.AddHours(-15));
+      new DateTimeEntity(SecondDateTime.AddMinutes(59));
+      new DateTimeEntity(SecondDateTime.AddMinutes(-49));
+      new DateTimeEntity(SecondDateTime.AddSeconds(57));
+      new DateTimeEntity(SecondDateTime.AddSeconds(-5));
 
       var dateTime = FirstDateTime.AddYears(10);
       for (var i = 0; i < 60; ++i)
-        new DateTimeEntity { DateTime = dateTime.AddSeconds(i) };
+        new DateTimeEntity(dateTime.AddSeconds(i));
 
       new MillisecondDateTimeEntity { DateTime = FirstMillisecondDateTime };
       new MillisecondDateTimeEntity { DateTime = FirstMillisecondDateTime };

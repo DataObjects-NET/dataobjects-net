@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2016 Xtensive LLC.
+// Copyright (C) 2016 Xtensive LLC.
 // All rights reserved.
 // For conditions of distribution and use, see license.
 // Created by: Alex Groznov
@@ -22,6 +22,17 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 
     [Field]
     public DateTime? NullableDateTime { get; set; }
+
+#if DO_DATEONLY
+    [Field]
+    public DateOnly DateOnly { get; set; }
+
+    [Field]
+    public DateOnly? NullableDateOnly { get; set; }
+
+    [Field]
+    public TimeOnly TimeOnly { get; set; }
+#endif
   }
 
   [HierarchyRoot]
@@ -48,6 +59,23 @@ namespace Xtensive.Orm.Tests.Linq.DateTimeAndDateTimeOffset.Model
 
     [Field]
     public DateTime DateTime { get; set; }
+
+#if DO_DATEONLY
+    [Field]
+    public DateOnly DateOnly { get; set; }
+
+    [Field]
+    public TimeOnly TimeOnly { get; set; }
+#endif
+
+    public DateTimeEntity(DateTime dateTime)
+    {
+      DateTime = dateTime;
+#if DO_DATEONLY
+      DateOnly = DateOnly.FromDateTime(dateTime);
+      TimeOnly = TimeOnly.FromDateTime(dateTime);
+#endif
+    }
   }
 
   [HierarchyRoot]

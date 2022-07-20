@@ -39,10 +39,7 @@ namespace Xtensive.Sql.Compiler
 
     public override void Visit(VariantNode node)
     {
-      if (configuration.AlternativeBranches.Contains(node.Id))
-        VisitNodes(node.Alternative);
-      else
-        VisitNodes(node.Main);
+      VisitNodes(configuration.AlternativeBranches.Contains(node.Id) ? node.Alternative : node.Main);
     }
 
     public override void Visit(PlaceholderNode node)
