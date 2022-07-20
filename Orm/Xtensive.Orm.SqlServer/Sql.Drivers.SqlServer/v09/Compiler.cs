@@ -153,7 +153,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var arguments = node.Arguments;
       switch (node.FunctionType) {
         case SqlFunctionType.CharLength:
-          (SqlDml.FunctionCall("DATALENGTH", node.Arguments) / 2).AcceptVisitor(this);
+          (SqlDml.FunctionCall("DATALENGTH", arguments) / 2).AcceptVisitor(this);
           return;
         case SqlFunctionType.PadLeft:
         case SqlFunctionType.PadRight:
