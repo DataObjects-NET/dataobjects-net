@@ -306,7 +306,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       if (canonicalMember is PropertyInfo sourceProperty) {
         canonicalMember = sourceProperty.GetGetMethod();
         // GetGetMethod returns null in case of non public getter.
-        if (canonicalMember==null) {
+        if (canonicalMember is null) {
           return default;
         }
       }
