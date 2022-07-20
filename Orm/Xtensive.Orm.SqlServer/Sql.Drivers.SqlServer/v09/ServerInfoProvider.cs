@@ -255,8 +255,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
         "datetime", "smalldatetime");
 
 #if DO_DATEONLY
-      types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index,new ValueRange<DateOnly>(new DateOnly(1, 1, 1), new DateOnly(9999, 12, 31)), "date");
-      types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index,new ValueRange<TimeOnly>(TimeOnly.MinValue, TimeOnly.MaxValue), "time");
+      types.DateOnly = DataTypeInfo.Range(SqlType.Date, common | index, new ValueRange<DateOnly>(new DateOnly(1, 1, 1), new DateOnly(9999, 12, 31)), "date");
+      types.TimeOnly = DataTypeInfo.Range(SqlType.Time, common | index, new ValueRange<TimeOnly>(TimeOnly.MinValue, TimeOnly.MaxValue), "time");
 #endif
 
       types.Char = DataTypeInfo.Stream(SqlType.Char, common | index, 4000, "nchar", "char");
