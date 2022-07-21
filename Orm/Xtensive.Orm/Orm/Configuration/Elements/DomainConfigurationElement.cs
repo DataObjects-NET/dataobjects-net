@@ -51,6 +51,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string VersioningConventionElementName = "versioningConvention";
     private const string EnsureConnectionIsAliveElementName = "ensureConnectionIsAlive";
     private const string TagsLocationElementName = "tagsLocation";
+    private const string TaggingBehaviorElementName = "taggingBehavior";
 
 
     /// <inheritdoc/>
@@ -100,7 +101,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.Types" copy="true"/>
     /// </summary>
     [ConfigurationProperty(TypesElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<TypeRegistrationElement>), AddItemName = "add")]
+    [ConfigurationCollection(typeof(ConfigurationCollection<TypeRegistrationElement>), AddItemName = "add")]
     public ConfigurationCollection<TypeRegistrationElement> Types
     {
       get { return (ConfigurationCollection<TypeRegistrationElement>) base[TypesElementName]; }
@@ -214,7 +215,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.Sessions" copy="true"/>
     /// </summary>
     [ConfigurationProperty(SessionsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
+    [ConfigurationCollection(typeof(ConfigurationCollection<SessionConfigurationElement>), AddItemName = "session")]
     public ConfigurationCollection<SessionConfigurationElement> Sessions
     {
       get { return (ConfigurationCollection<SessionConfigurationElement>) this[SessionsElementName]; }
@@ -224,7 +225,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.MappingRules" copy="true"/>
     /// </summary>
     [ConfigurationProperty(MappingRulesElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<MappingRuleElement>), AddItemName = "rule")]
+    [ConfigurationCollection(typeof(ConfigurationCollection<MappingRuleElement>), AddItemName = "rule")]
     public ConfigurationCollection<MappingRuleElement> MappingRules
     {
       get { return (ConfigurationCollection<MappingRuleElement>) this[MappingRulesElementName]; }
@@ -234,7 +235,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.Databases" copy="true"/>
     /// </summary>
     [ConfigurationProperty(DatabasesElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "database")]
+    [ConfigurationCollection(typeof(ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "database")]
     public ConfigurationCollection<DatabaseConfigurationElement> Databases
     {
       get { return (ConfigurationCollection<DatabaseConfigurationElement>) this[DatabasesElementName]; }
@@ -244,7 +245,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.KeyGenerators" copy="true"/>
     /// </summary>
     [ConfigurationProperty(KeyGeneratorsElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "keyGenerator")]
+    [ConfigurationCollection(typeof(ConfigurationCollection<DatabaseConfigurationElement>), AddItemName = "keyGenerator")]
     public ConfigurationCollection<KeyGeneratorConfigurationElement> KeyGenerators
     {
       get { return (ConfigurationCollection<KeyGeneratorConfigurationElement>) this[KeyGeneratorsElementName]; }
@@ -256,7 +257,7 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(ServiceContainerTypeElementName, DefaultValue = null)]
     public string ServiceContainerType
     {
-      get { return (string)this[ServiceContainerTypeElementName]; }
+      get { return (string) this[ServiceContainerTypeElementName]; }
       set { this[ServiceContainerTypeElementName] = value; }
     }
 
@@ -336,7 +337,7 @@ namespace Xtensive.Orm.Configuration.Elements
     /// <see cref="DomainConfiguration.IgnoreRules" copy="true"/>
     /// </summary>
     [ConfigurationProperty(IgnoreRulesElementName, IsDefaultCollection = false)]
-    [ConfigurationCollection(typeof (ConfigurationCollection<IgnoreRuleElement>), AddItemName = "rule")]
+    [ConfigurationCollection(typeof(ConfigurationCollection<IgnoreRuleElement>), AddItemName = "rule")]
     public ConfigurationCollection<IgnoreRuleElement> IgnoreRules
     {
       get { return (ConfigurationCollection<IgnoreRuleElement>) this[IgnoreRulesElementName]; }
@@ -379,7 +380,7 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(VersioningConventionElementName)]
     public VersioningConventionElement VersioningConvention
     {
-      get { return (VersioningConventionElement)this[VersioningConventionElementName]; }
+      get { return (VersioningConventionElement) this[VersioningConventionElementName]; }
       set { this[VersioningConventionElementName] = value; }
     }
 
@@ -389,7 +390,7 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(EnsureConnectionIsAliveElementName, DefaultValue = true)]
     public bool EnsureConnectionIsAlive
     {
-      get { return (bool)this[EnsureConnectionIsAliveElementName]; }
+      get { return (bool) this[EnsureConnectionIsAliveElementName]; }
       set { this[EnsureConnectionIsAliveElementName] = value; }
     }
 
@@ -401,6 +402,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get => (string) this[TagsLocationElementName];
       set => this[TagsLocationElementName] = value;
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.TaggingBehavior" copy="true"/>.
+    /// </summary>
+    [ConfigurationProperty(TaggingBehaviorElementName, DefaultValue = "Default")]
+    public string TaggingBehavior
+    {
+      get => (string) this[TaggingBehaviorElementName];
+      set => this[TaggingBehaviorElementName] = value;
     }
 
     /// <summary>
@@ -437,6 +448,7 @@ namespace Xtensive.Orm.Configuration.Elements
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
         VersioningConvention = VersioningConvention.ToNative(),
         TagsLocation = (TagsLocation) Enum.Parse(typeof(TagsLocation), TagsLocation, true),
+        TaggingBehavior = (TaggingBehavior) Enum.Parse(typeof(TaggingBehavior), TaggingBehavior, true)
       };
 
       foreach (var element in Types)
@@ -457,7 +469,7 @@ namespace Xtensive.Orm.Configuration.Elements
 
     private static T ParseEnum<T>(string value)
     {
-      return (T) Enum.Parse(typeof (T), value, true);
+      return (T) Enum.Parse(typeof(T), value, true);
     }
   }
 }

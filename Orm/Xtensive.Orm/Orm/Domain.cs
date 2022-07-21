@@ -371,6 +371,7 @@ namespace Xtensive.Orm
 
     /// <inheritdoc/>
     public IExtensionCollection Extensions { get; private set; }
+    public TaggingBehavior TaggingBehavior { get; internal set; }
 
     #endregion
 
@@ -408,6 +409,7 @@ namespace Xtensive.Orm
       SingleConnection = singleConnection;
       StorageNodeManager = new StorageNodeManager(Handlers);
       TagsEnabled = configuration.TagsLocation != TagsLocation.Nowhere;
+      TaggingBehavior = configuration.TaggingBehavior;
       isDebugEventLoggingEnabled = OrmLog.IsLogged(LogLevel.Debug); // Just to cache this value
     }
 

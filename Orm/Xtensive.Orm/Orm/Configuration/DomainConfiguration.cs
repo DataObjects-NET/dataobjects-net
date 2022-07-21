@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Elements;
 using Xtensive.Orm.Internals;
-using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
+using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration
 {
@@ -124,6 +124,7 @@ namespace Xtensive.Orm.Configuration
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
     private VersioningConvention versioningConvention = new VersioningConvention();
     private TagsLocation tagsLocation = TagsLocation.Default;
+    private TaggingBehavior taggingBehavior = TaggingBehavior.LastTagOverrides;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -622,6 +623,15 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    public TaggingBehavior TaggingBehavior
+    {
+      get => taggingBehavior;
+      set {
+        EnsureNotLocked();
+        taggingBehavior = value;
+      }
+    }
+
 
     /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
@@ -753,7 +763,7 @@ namespace Xtensive.Orm.Configuration
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
       ShareQueryCacheOverNodes = configuration.ShareQueryCacheOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
-
+      taggingBehavior = configuration.taggingBehavior;
     }
 
     /// <summary>
