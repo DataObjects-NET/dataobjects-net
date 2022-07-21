@@ -149,7 +149,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public bool Equals(EntitySetTask other)
     {
-      if (ReferenceEquals(null, other)) {
+      if (other is null) {
         return false;
       }
       if (ReferenceEquals(this, other)) {
