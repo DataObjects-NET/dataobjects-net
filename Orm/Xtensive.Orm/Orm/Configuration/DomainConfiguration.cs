@@ -11,7 +11,7 @@ using JetBrains.Annotations;
 using Xtensive.Core;
 using Xtensive.Orm.Configuration.Elements;
 using Xtensive.Orm.Internals;
-using ConfigurationSection = Xtensive.Orm.Configuration.Elements.ConfigurationSection;
+using ConfigurationSection=Xtensive.Orm.Configuration.Elements.ConfigurationSection;
 
 namespace Xtensive.Orm.Configuration
 {

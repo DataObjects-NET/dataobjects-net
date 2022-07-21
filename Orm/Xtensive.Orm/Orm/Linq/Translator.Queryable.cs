@@ -393,20 +393,20 @@ namespace Xtensive.Orm.Linq
       var targetProjectionType = WellKnownInterfaces.QueryableOfT.CachedMakeGenericType(targetType);
       return new ProjectionExpression(targetProjectionType, targetItemProjector, projection.TupleParameterBindings,
         projection.ResultAccessMethod);
-      //      if (targetType.IsSubclassOf(sourceType)) {
-      //        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
-      //        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
-      //        offset = recordSet.Header.Columns.Count;
-      //        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
-      //        var keyPairs = keySegment
-      //          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
-      //          .ToArray();
-      //        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
-      //      }
-      //      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
-      //      entityExpression.Remap()
-      //      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
-      //      return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
+//      if (targetType.IsSubclassOf(sourceType)) {
+//        var joinedIndex = context.Model.Types[targetType].Indexes.PrimaryIndex;
+//        var joinedRs = IndexProvider.Get(joinedIndex).Result.Alias(context.GetNextAlias());
+//        offset = recordSet.Header.Columns.Count;
+//        var keySegment = visitedSource.ItemProjector.GetColumns(ColumnExtractionModes.TreatEntityAsKey);
+//        var keyPairs = keySegment
+//          .Select((leftIndex, rightIndex) => new Pair<int>(leftIndex, rightIndex))
+//          .ToArray();
+//        recordSet = recordSet.Join(joinedRs, JoinAlgorithm.Default, keyPairs);
+//      }
+//      var entityExpression = EntityExpression.Create(context.Model.Types[targetType], offset, false);
+//      entityExpression.Remap()
+//      var itemProjectorExpression = new ItemProjectorExpression(entityExpression, recordSet, context);
+//      return new ProjectionExpression(sourceType, itemProjectorExpression, visitedSource.TupleParameterBindings);
     }
 
 
@@ -481,7 +481,7 @@ namespace Xtensive.Orm.Linq
       ProjectionExpression projection;
       using (CreateScope(new TranslatorState(State) {
         RequestCalculateExpressions = State.RequestCalculateExpressions || !isRoot && context.ProviderInfo.SupportedTypes.Contains(method.ReturnType)
-      })) {
+          })) {
         projection = predicate != null ? VisitWhere(source, predicate) : VisitSequence(source);
       }
 

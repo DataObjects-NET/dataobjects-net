@@ -191,6 +191,7 @@ namespace Xtensive.Orm.Tests.Linq
     public void LatestTagWins()
     {
       var session = Session.Demand();
+
       using (var tagScope = session.Tag("sessionTag"))
       using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
         var query = session.Query.All<Book>()
