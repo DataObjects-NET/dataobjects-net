@@ -1362,8 +1362,8 @@ namespace Xtensive.Orm.Linq
       var calculateExpressions = State.RequestCalculateExpressions || State.RequestCalculateExpressionsOnce;
       using (CreateScope(new TranslatorState(State) {
         CalculateExpressions = calculateExpressions,
-           RequestCalculateExpressionsOnce = false
-         })) {
+            RequestCalculateExpressionsOnce = false
+          })) {
         return BuildProjection(le);
       }
     }
@@ -1459,8 +1459,8 @@ namespace Xtensive.Orm.Linq
         TypeOfEntityStoredInKey = source.IsLocalCollection(context) && IsKeyCollection(source.Type)
               ? LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body)
               : State.TypeOfEntityStoredInKey,
-           IncludeAlgorithm = IncludeAlgorithm.Auto
-         })) {
+            IncludeAlgorithm = IncludeAlgorithm.Auto
+          })) {
         visitedSource = VisitSequence(source);
       }
 
