@@ -324,7 +324,7 @@ namespace Xtensive.Orm.Linq
 
       var currentIndex = 0;
       var indexes = new List<int>(targetTypeInfo.Indexes.PrimaryIndex.Columns.Count);
-      foreach (var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
+      foreach(var indexColumn in targetTypeInfo.Indexes.PrimaryIndex.Columns) {
         if (targetTypeInfo.Columns.Contains(indexColumn)) {
           indexes.Add(currentIndex);
         }
@@ -1285,9 +1285,9 @@ namespace Xtensive.Orm.Linq
           .ToArray(State.OuterParameters.Length + State.Parameters.Length + collectionSelector.Parameters.Count + 1);
         using (CreateScope(new TranslatorState(State) {
           OuterParameters = outerParameters,
-          Parameters = Array.Empty<ParameterExpression>(),
-          RequestCalculateExpressionsOnce = true
-        })) {
+              Parameters = Array.Empty<ParameterExpression>(),
+              RequestCalculateExpressionsOnce = true
+            })) {
           var visitedCollectionSelector = Visit(collectionSelector.Body);
 
           if (visitedCollectionSelector.StripMarkers().IsGroupingExpression()) {
@@ -1362,8 +1362,8 @@ namespace Xtensive.Orm.Linq
       var calculateExpressions = State.RequestCalculateExpressions || State.RequestCalculateExpressionsOnce;
       using (CreateScope(new TranslatorState(State) {
         CalculateExpressions = calculateExpressions,
-        RequestCalculateExpressionsOnce = false
-      })) {
+           RequestCalculateExpressionsOnce = false
+         })) {
         return BuildProjection(le);
       }
     }
@@ -1459,8 +1459,8 @@ namespace Xtensive.Orm.Linq
         TypeOfEntityStoredInKey = source.IsLocalCollection(context) && IsKeyCollection(source.Type)
               ? LocalCollectionKeyTypeExtractor.Extract((BinaryExpression) predicate.Body)
               : State.TypeOfEntityStoredInKey,
-        IncludeAlgorithm = IncludeAlgorithm.Auto
-      })) {
+           IncludeAlgorithm = IncludeAlgorithm.Auto
+         })) {
         visitedSource = VisitSequence(source);
       }
 
@@ -1705,7 +1705,7 @@ namespace Xtensive.Orm.Linq
     private ProjectionExpression VisitLocalCollectionSequence<TItem>(Expression sequence)
     {
       Func<ParameterContext, IEnumerable<TItem>> collectionGetter;
-      if (compiledQueryScope != null) {
+      if (compiledQueryScope!=null) {
         var replacer = compiledQueryScope.QueryParameterReplacer;
         var replace = replacer.Replace(sequence);
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(replace);
@@ -1715,7 +1715,7 @@ namespace Xtensive.Orm.Linq
         var parameter = ParameterAccessorFactory.CreateAccessorExpression<IEnumerable<TItem>>(sequence);
         collectionGetter = parameter.CachingCompile();
       }
-      return CreateLocalCollectionProjectionExpression(typeof(TItem), collectionGetter, this, sequence);
+      return CreateLocalCollectionProjectionExpression(typeof (TItem), collectionGetter, this, sequence);
     }
 
     private Expression VisitContainsAny(Expression setA, Expression setB, bool isRoot, Type elementType)

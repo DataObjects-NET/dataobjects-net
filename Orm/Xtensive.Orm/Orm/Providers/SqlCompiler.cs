@@ -330,7 +330,7 @@ namespace Xtensive.Orm.Providers
     protected override SqlProvider VisitTag(TagProvider provider)
     {
       var compiledSource = Compile(provider.Source);
-      
+
       var query = ExtractSqlSelect(provider, compiledSource);
       query.Comment = SqlComment.Join(query.Comment, new SqlComment(provider.Tag));
       
