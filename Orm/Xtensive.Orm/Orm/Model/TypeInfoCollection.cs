@@ -381,7 +381,7 @@ namespace Xtensive.Orm.Model
     /// <param name="descendant">The descendant.</param>
     public void RegisterInheritance(TypeInfo ancestor, TypeInfo descendant)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       if (ancestor.IsInterface) {
         HashSet<TypeInfo> interfaces;
@@ -409,7 +409,7 @@ namespace Xtensive.Orm.Model
     /// <param name="implementor">The implementor.</param>
     public void RegisterImplementation(TypeInfo @interface, TypeInfo implementor)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       HashSet<TypeInfo> interfaces;
       if (!interfaceTable.TryGetValue(implementor, out interfaces)) {

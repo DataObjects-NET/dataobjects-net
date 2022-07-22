@@ -44,6 +44,6 @@ namespace Xtensive.Reflection
     /// <summary>
     /// All inheritance options.
     /// </summary>
-    InheritAll = 7,
+    InheritAll = InheritFromBase | InheritRecursively | InheritFromPropertyOrEvent,
   }
 }

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2021 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -13,7 +13,7 @@ using Xtensive.Reflection;
 
 namespace Xtensive.Orm.Building.Definitions
 {
-  public sealed class TypeDefCollectionChangedEventArgs: EventArgs
+  public readonly struct TypeDefCollectionChangedEventArgs
   {
     public TypeDef Item { get; }
 
@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Building.Definitions
     }
   }
 
-  public sealed class TypeDefCollectionClearedEventArgs: EventArgs {}
+  public readonly struct TypeDefCollectionClearedEventArgs {}
 
   /// <summary>
   /// A collection of <see cref="TypeDef"/> items.
@@ -129,7 +129,7 @@ namespace Xtensive.Orm.Building.Definitions
     /// <inheritdoc/>
     public override void AddRange(IEnumerable<TypeDef> items)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       foreach (var item in items) {
         Add(item);
       }

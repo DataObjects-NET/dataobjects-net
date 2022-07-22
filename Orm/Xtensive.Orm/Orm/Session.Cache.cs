@@ -34,7 +34,7 @@ namespace Xtensive.Orm
     internal void Invalidate()
     {
       if (IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXInvalidate, this);
+        OrmLog.Debug(nameof(Strings.LogSessionXInvalidate), this);
       }
 
       ClearChangeRegistry();
@@ -75,7 +75,7 @@ namespace Xtensive.Orm
           Invalidate();
         }
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXRemappingEntityKeys, this);
+          OrmLog.Debug(nameof(Strings.LogSessionXRemappingEntityKeys), this);
         }
 
         foreach (var entityState in EntityChangeRegistry.GetItems(PersistenceState.New)) {
@@ -133,7 +133,7 @@ namespace Xtensive.Orm
       EntityStateCache.Add(result);
 
       if (IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+        OrmLog.Debug(nameof(Strings.LogSessionXCachingY), this, result);
       }
     }
 
@@ -179,7 +179,7 @@ namespace Xtensive.Orm
       }
 
       if (IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+        OrmLog.Debug(nameof(Strings.LogSessionXCachingY), this, result);
       }
 
       return result;
@@ -230,7 +230,7 @@ namespace Xtensive.Orm
         result.Update(tuple);
         result.IsStale = isStale;
         if (IsDebugEventLoggingEnabled) {
-          OrmLog.Debug(Strings.LogSessionXUpdatingCacheY, this, result);
+          OrmLog.Debug(nameof(Strings.LogSessionXUpdatingCacheY), this, result);
         }
       }
       return result;
@@ -266,7 +266,7 @@ namespace Xtensive.Orm
       };
       EntityStateCache.Add(result);
       if (IsDebugEventLoggingEnabled) {
-        OrmLog.Debug(Strings.LogSessionXCachingY, this, result);
+        OrmLog.Debug(nameof(Strings.LogSessionXCachingY), this, result);
       }
 
       return result;

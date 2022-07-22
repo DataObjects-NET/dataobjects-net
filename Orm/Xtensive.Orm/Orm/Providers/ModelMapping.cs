@@ -30,7 +30,7 @@ namespace Xtensive.Orm.Providers
       get { return temporaryTableDatabase; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         temporaryTableDatabase = value;
       }
     }
@@ -40,7 +40,7 @@ namespace Xtensive.Orm.Providers
       get { return temporaryTableSchema; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         temporaryTableSchema = value;
       }
     }
@@ -50,7 +50,7 @@ namespace Xtensive.Orm.Providers
       get { return temporaryTableCollation; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         temporaryTableCollation = value;
       }
     }
@@ -77,13 +77,13 @@ namespace Xtensive.Orm.Providers
 
     public void Register(TypeInfo typeInfo, Table table)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       tableMap[typeInfo] = table;
     }
 
     public void Register(SequenceInfo sequenceInfo, SchemaNode sequence)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       sequenceMap[sequenceInfo] = sequence;
     }
 

@@ -20,23 +20,23 @@ namespace Xtensive
       return instance.IsLogged(type);
     }
 
-    public static IDisposable DebugRegion(string format, params object[] args)
+    public static IndentManager.IndentScope DebugRegion(string messageId, params object[] args)
     {
       return instance.DebugRegion(format, args);
     }
 
-    public static IDisposable InfoRegion(string format, params object[] args)
+    public static IndentManager.IndentScope InfoRegion(string messageId, params object[] args)
     {
       return instance.InfoRegion(format, args);
     }
 
 <# foreach (var level in logLevels) { #>
-    public static void <#= level #>(string format, params object[] args)
+    public static void <#= level #>(string messageId, params object[] args)
     {
       instance.<#= level #>(format, args);
     }
 
-    public static Exception <#= level #>(Exception exception, string format, params object[] args)
+    public static Exception <#= level #>(Exception exception, string messageId, params object[] args)
     {
       instance.<#= level #>(format, args, exception);
       return exception;

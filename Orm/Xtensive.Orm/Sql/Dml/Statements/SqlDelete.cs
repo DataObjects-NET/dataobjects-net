@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Dml
         return where;
       }
       set {
-        if (!value.IsNullReference() && value.GetType()!=typeof(SqlCursor))
+        if (value is not null && value.GetType()!=typeof(SqlCursor))
           SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }

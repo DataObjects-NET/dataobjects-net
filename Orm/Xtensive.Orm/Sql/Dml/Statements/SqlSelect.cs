@@ -81,7 +81,7 @@ namespace Xtensive.Sql.Dml
       get { return where; }
       set
       {
-        if (!value.IsNullReference())
+        if (value is not null)
           SqlValidator.EnsureIsBooleanExpression(value);
         where = value;
       }
@@ -110,7 +110,7 @@ namespace Xtensive.Sql.Dml
       get { return having; }
       set
       {
-        if (!value.IsNullReference())
+        if (value is not null)
           SqlValidator.EnsureIsBooleanExpression(value);
         having = value;
       }
@@ -158,7 +158,7 @@ namespace Xtensive.Sql.Dml
     {
       get { return limit; }
       set {
-        if (!value.IsNullReference())
+        if (value is not null)
           SqlValidator.EnsureIsLimitOffsetArgument(value);
         limit = value;
       }
@@ -171,7 +171,7 @@ namespace Xtensive.Sql.Dml
     {
       get { return offset; }
       set {
-        if (!value.IsNullReference())
+        if (value is not null)
           SqlValidator.EnsureIsLimitOffsetArgument(value);
         offset = value;
       }
@@ -180,18 +180,12 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets value indicating if <see cref="Limit"/> is specified.
     /// </summary>
-    public bool HasLimit
-    {
-      get { return !Limit.IsNullReference(); }
-    }
+    public bool HasLimit => Limit is not null;
 
     /// <summary>
     /// Gets value indicating if <see cref="Offset"/> is specified.
     /// </summary>
-    public bool HasOffset
-    {
-      get { return !Offset.IsNullReference(); }
-    }
+    public bool HasOffset => Offset is not null;
 
     internal override SqlSelect Clone(SqlNodeCloneContext context) =>
       context.GetOrAdd(this, static (t, c) => {
@@ -227,7 +221,7 @@ namespace Xtensive.Sql.Dml
     /// </summary>
     public SqlSelect ShallowClone()
     {
-      var result = ReferenceEquals(From, null) 
+      var result = From is null
         ? SqlDml.Select() 
         : SqlDml.Select(From);
       result.Columns.AddRange(Columns);
