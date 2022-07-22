@@ -124,7 +124,7 @@ namespace Xtensive.Orm.Configuration
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
     private VersioningConvention versioningConvention = new VersioningConvention();
     private TagsLocation tagsLocation = TagsLocation.Default;
-    private TaggingBehavior taggingBehavior = TaggingBehavior.LastTagOverrides;
+    private TaggingBehavior taggingBehavior = TaggingBehavior.Default;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
