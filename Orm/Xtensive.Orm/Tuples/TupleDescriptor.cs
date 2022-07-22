@@ -86,10 +86,11 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public bool Equals(TupleDescriptor other)
     {
-      if (FieldTypes == null) {
-        return other.FieldTypes == null;
-      }
-      if (other.FieldTypes == null || FieldCount != other.FieldCount) {
+      if (other is null)
+        return false;
+      if (ReferenceEquals(other, this))
+        return true;
+      if (FieldCount!=other.FieldCount)
         return false;
       }
 
@@ -115,7 +116,6 @@ namespace Xtensive.Tuples
     }
 
     public static bool operator ==(in TupleDescriptor left, in TupleDescriptor right) => left.Equals(right);
-
     public static bool operator !=(in TupleDescriptor left, in TupleDescriptor right) => !(left == right);
 
     #endregion

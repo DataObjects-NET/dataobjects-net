@@ -223,7 +223,7 @@ namespace Xtensive.Tuples
     /// <inheritdoc/>
     public virtual bool Equals(Tuple other)
     {
-      if (ReferenceEquals(other, null))
+      if (other is null)
         return false;
       if (ReferenceEquals(other, this))
         return true;

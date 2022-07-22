@@ -175,7 +175,7 @@ namespace Xtensive.Orm.Providers
           context.VersionParameterBindings.Add(column, binding);
         }
         var filteredColumn = filteredTable[column.Name];
-        if (filteredColumn.IsNullReference()) {
+        if (filteredColumn is null) {
           continue;
         }
         var filterValue = binding.ParameterReference;
@@ -201,7 +201,7 @@ namespace Xtensive.Orm.Providers
     {
       foreach (var column in context.Type.GetVersionColumns()) {
         var columnExpression = filteredTable[column.Name];
-        if (columnExpression.IsNullReference()) {
+        if (columnExpression is null) {
           continue;
         }
         var index = GetFieldIndex(context.Type, column);

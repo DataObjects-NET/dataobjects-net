@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Providers
       private readonly TemporaryTableDescriptor temporaryTableDescriptor;
 
       public bool Equals(RowFilterParameter other) =>
-        !ReferenceEquals(null, other)
+        other is not null
         && (ReferenceEquals(this, other) || ReferenceEquals(temporaryTableDescriptor, other.temporaryTableDescriptor));
 
       public override bool Equals(object obj) =>

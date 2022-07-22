@@ -142,14 +142,14 @@ namespace Xtensive.Orm.BulkOperations
         var s = (SqlSelect) select.Clone();
         foreach (var column in columns) {
           var ex = SqlDml.Equals(s.From.Columns[column.Name], table.Columns[column.Name]);
-          s.Where = s.Where.IsNullReference() ? ex : SqlDml.And(s.Where, ex);
+          s.Where = s.Where is null ? ex : SqlDml.And(s.Where, ex);
         }
         var existingColumns = s.Columns.ToChainedBuffer();
         s.Columns.Clear();
         var columnToAdd = existingColumns.First(c => c.Name.Equals(columnInfo.Name, StringComparison.Ordinal));
         s.Columns.Add(columnToAdd);
         var @in = SqlDml.In(SqlDml.TableColumn(table, columnInfo.Name), s);
-        where = where.IsNullReference() ? @in : SqlDml.And(where, @in);
+        where = where is null ? @in : SqlDml.And(where, @in);
         columns.Add(columnInfo);
       }
 

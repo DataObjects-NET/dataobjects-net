@@ -164,7 +164,7 @@ namespace Xtensive.Orm.Providers
     {
       // handle x.CompareTo(y) > 0 and similar comparisons
       var result = TryTranslateCompareExpression(expression);
-      if (!result.IsNullReference()) {
+      if (result is not null) {
         return result;
       }
 
@@ -245,7 +245,7 @@ namespace Xtensive.Orm.Providers
 
       // handle special cases
       result = TryTranslateBinaryExpressionSpecialCases(expression, left, right);
-      if (!result.IsNullReference()) {
+      if (result is not null) {
         return result;
       }
 
@@ -333,7 +333,7 @@ namespace Xtensive.Orm.Providers
         ? booleanExpressionConverter.BooleanToInt(check)
         : check;
       var varCheck = boolCheck as SqlVariant;
-      if (!varCheck.IsNullReference())
+      if (varCheck is not null)
         return SqlDml.Variant(varCheck.Id, ifFalse, ifTrue);
       if (fixBooleanExpressions && IsBooleanExpression(expression)) {
         var c = SqlDml.Case();
@@ -494,7 +494,7 @@ namespace Xtensive.Orm.Providers
         booleanExpressionConverter = new BooleanExpressionConverter(driver);
       if (lambda.Parameters.Count!=sourceColumns.Length)
         throw Exceptions.InternalError(Strings.ExParametersCountIsNotSameAsSourceColumnListsCount, OrmLog.Instance);
-      if (sourceColumns.Any(list => list.Any(c => c.IsNullReference())))
+      if (sourceColumns.Any(list => list.Any(c => c is null)))
         throw Exceptions.InternalError(Strings.ExSourceColumnListContainsNullValues, OrmLog.Instance);
       sourceMapping = new Dictionary<ParameterExpression, IReadOnlyList<SqlExpression>>();
     }
