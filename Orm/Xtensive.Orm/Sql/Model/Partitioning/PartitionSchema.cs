@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Model
     {
       get { return partitionFunction; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (partitionFunction == value)
           return;
         if (value!=null && Catalog!=null && !Catalog.PartitionFunctions.Contains(value))

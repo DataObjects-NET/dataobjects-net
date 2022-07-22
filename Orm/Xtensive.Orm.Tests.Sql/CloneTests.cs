@@ -379,7 +379,7 @@ namespace Xtensive.Orm.Tests.Sql
         Assert.AreNotEqual(s.From, sClone.From);
         Assert.AreEqual(s.From.NodeType, sClone.From.NodeType);
       }
-      if (!s.Having.IsNullReference()) {
+      if (s.Having is not null) {
         Assert.AreNotEqual(s.Having, sClone.Having);
         Assert.AreEqual(s.Having.NodeType, sClone.Having.NodeType);
       }
@@ -432,7 +432,7 @@ namespace Xtensive.Orm.Tests.Sql
       for (int i = 0, l = s.OrderBy.Count; i < l; i++) {
         Assert.AreNotEqual(s.OrderBy[i], sClone.OrderBy[i]);
         Assert.AreEqual(s.OrderBy[i].Ascending, sClone.OrderBy[i].Ascending);
-        if (s.OrderBy[i].Expression.IsNullReference())
+        if (s.OrderBy[i].Expression is null)
           Assert.AreEqual(s.OrderBy[i].Expression, sClone.OrderBy[i].Expression);
         else
           Assert.AreNotEqual(s.OrderBy[i].Expression, sClone.OrderBy[i].Expression);
@@ -551,7 +551,7 @@ namespace Xtensive.Orm.Tests.Sql
       Assert.AreNotEqual(d.Delete, dClone.Delete);
       Assert.AreEqual(d.NodeType, dClone.NodeType);
       Assert.AreEqual(d.Hints.Count, dClone.Hints.Count);
-      if (!d.Where.IsNullReference()) {
+      if (d.Where is not null) {
         Assert.AreNotEqual(d.Where, dClone.Where);
         Assert.AreEqual(d.Where.NodeType, dClone.Where.NodeType);
       }

@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2007-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Yakunin
 // Created:    2007.12.17
 
@@ -14,6 +14,7 @@ using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Reflection;
 using Xtensive.Orm.Tests;
+using System.Linq;
 
 namespace Xtensive.Orm.Tests.Core.Reflection
 {
@@ -479,6 +480,48 @@ namespace Xtensive.Orm.Tests.Core.Reflection
 
       Assert.IsFalse(TypeHelper.IsNullable<int>());
       Assert.IsFalse(TypeHelper.IsNullable<string>());
+    }
+
+    [Test]
+    public void IsValueTupleTest()
+    {
+      var tupleTypes = new[] {
+        typeof (ValueTuple<int>),
+        typeof (ValueTuple<int, int>),
+        typeof (ValueTuple<int, int, int>),
+        typeof (ValueTuple<int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int, int, int>),
+        typeof (ValueTuple<int, int, int, int, int, int, int, int>)
+      };
+
+      var otherTypes = new[] {
+        typeof (string),
+        typeof (char),
+        typeof (bool),
+        typeof (DateTime),
+        typeof (TimeSpan),
+        typeof (Guid),
+        typeof (TypeCode),
+        typeof (byte[]),
+        typeof (Key),
+        this.GetType()
+      };
+
+      var startingToken = tupleTypes[0].MetadataToken;
+
+      Assert.That(
+        tupleTypes.Select(t => t.MetadataToken - startingToken).SequenceEqual(Enumerable.Range(0, tupleTypes.Length)),
+        Is.True);
+
+      foreach (var type in tupleTypes) {
+        Assert.IsTrue(type.IsValueTuple());
+      }
+
+      foreach (var type in otherTypes) {
+        Assert.IsFalse(type.IsValueTuple());
+      }
     }
   }
 }

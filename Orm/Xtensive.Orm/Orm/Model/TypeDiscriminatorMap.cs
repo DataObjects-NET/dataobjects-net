@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Model
       get { return field; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (field != null)
           throw new InvalidOperationException(Strings.ExTypeDiscriminatorFieldIsAlreadySet);
         field = value;
@@ -70,14 +70,14 @@ namespace Xtensive.Orm.Model
 
     public void RegisterTypeMapping(TypeInfo type, object typeDiscriminatorValue)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       map.Add(typeDiscriminatorValue, type);
       reversedMap.Add(type, typeDiscriminatorValue);
     }
 
     public void RegisterDefaultType(TypeInfo type)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       if (@default != null)
         throw new InvalidOperationException(Strings.ExDefaultTypeIsAlreadyRegistered);
 

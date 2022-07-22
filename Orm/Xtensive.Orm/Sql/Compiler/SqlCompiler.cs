@@ -324,7 +324,7 @@ namespace Xtensive.Sql.Compiler
       if (node.NodeType is SqlNodeType.In or SqlNodeType.NotIn) {
         var row = node.Right as SqlRow;
         var array = node.Right as SqlArray;
-        var isEmptyIn = (!row.IsNullReference() && row.Count == 0) || (!array.IsNullReference() && array.Length == 0);
+        var isEmptyIn = (row is not null && row.Count == 0) || (array is not null && array.Length == 0);
         if (isEmptyIn) {
           SqlDml.Literal(node.NodeType == SqlNodeType.NotIn).AcceptVisitor(this);
           return;
@@ -342,6 +342,18 @@ namespace Xtensive.Sql.Compiler
           }
           AppendTranslatedExit(node);
         }
+        return;
+      }
+
+      if (node.NodeType == SqlNodeType.RawConcat) {
+        AppendSpace();
+        translator.Translate(context, node, NodeSection.Entry);
+        node.Left.AcceptVisitor(this);
+        AppendSpace();
+        translator.Translate(context.Output, node.NodeType);
+        node.Right.AcceptVisitor(this);
+        translator.Translate(context, node, NodeSection.Exit);
+
         return;
       }
 
@@ -369,7 +381,7 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
 
-        if (!node.Value.IsNullReference()) {
+        if (node.Value is not null) {
           AppendTranslated(node, CaseSection.Value);
           node.Value.AcceptVisitor(this);
         }
@@ -384,7 +396,7 @@ namespace Xtensive.Sql.Compiler
           }
         }
 
-        if (!node.Else.IsNullReference()) {
+        if (node.Else is not null) {
           AppendTranslated(node, CaseSection.Else);
           node.Else.AcceptVisitor(this);
         }
@@ -533,7 +545,7 @@ namespace Xtensive.Sql.Compiler
 
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        if (!node.Domain.DefaultValue.IsNullReference()) {
+        if (node.Domain.DefaultValue is not null) {
           AppendTranslated(node, CreateDomainSection.DomainDefaultValue);
           node.Domain.DefaultValue.AcceptVisitor(this);
         }
@@ -589,7 +601,7 @@ namespace Xtensive.Sql.Compiler
 
       AppendTranslated(node, CreateIndexSection.StorageOptions);
 
-      if (!node.Index.Where.IsNullReference() && CheckFeature(IndexFeatures.Filtered)) {
+      if (node.Index.Where is not null && CheckFeature(IndexFeatures.Filtered)) {
         AppendSpaceIfNecessary();
         translator.Translate(context, node, CreateIndexSection.Where);
         AppendSpace();
@@ -607,7 +619,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="item">Column to visit.</param>
     public virtual void Visit(SqlCreateIndex node, IndexColumn item)
     {
-      if (!item.Expression.IsNullReference() && CheckFeature(IndexFeatures.Expressions)) {
+      if (item.Expression is not null && CheckFeature(IndexFeatures.Expressions)) {
         using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
           item.Expression.AcceptVisitor(this);
         }
@@ -815,6 +827,7 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="node">The <see cref="SqlCreateTable"/> constrains belong to</param>
     /// <param name="constraints">List of constraints.</param>
+    /// <param name="hasItems">Flag indicating that constraint list should start with <see cref="SqlTranslator.ColumnDelimiter"/></param>
     /// <returns>Flag that tells whether there were constraints.</returns>
     protected virtual bool VisitCreateTableConstraints(SqlCreateTable node, IEnumerable<TableConstraint> constraints, bool hasItems)
     {
@@ -837,13 +850,14 @@ namespace Xtensive.Sql.Compiler
     /// </summary>
     /// <param name="node">The <see cref="SqlCreateTable"/> the columns belong to.</param>
     /// <param name="columns">List of columns.</param>
+    /// <param name="hasItems">Flag indicating that constraint list should start with <see cref="SqlTranslator.ColumnDelimiter"/></param>
     /// <returns>Flag that tells whether there were columns.</returns>
     protected virtual bool VisitCreateTableColumns(SqlCreateTable node, IEnumerable<TableColumn> columns, bool hasItems)
     {
       using (context.EnterCollectionScope()) {
         foreach (var column in columns) {
           // Skipping computed columns
-          if (!column.Expression.IsNullReference() && !CheckFeature(ColumnFeatures.Computed)) {
+          if (column.Expression is not null && !CheckFeature(ColumnFeatures.Computed)) {
             continue;
           }
           if (hasItems) {
@@ -879,7 +893,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        if (!node.View.Definition.IsNullReference()) {
+        if (node.View.Definition is not null) {
           node.View.Definition.AcceptVisitor(this);
         }
         AppendTranslatedExit(node);
@@ -991,7 +1005,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitDeleteWhere(SqlDelete node)
     {
-      if (!node.Where.IsNullReference()) {
+      if (node.Where is not null) {
         AppendTranslated(node, DeleteSection.Where);
         node.Where.AcceptVisitor(this);
       }
@@ -1003,7 +1017,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitDeleteLimit(SqlDelete node)
     {
-      if (!node.Limit.IsNullReference()) {
+      if (node.Limit is not null) {
         if (!CheckFeature(QueryFeatures.DeleteLimit)) {
           throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToDelete);
         }
@@ -1141,7 +1155,7 @@ namespace Xtensive.Sql.Compiler
     {
       using (context.EnterScope(node)) {
         AppendTranslatedEntry(node);
-        if (!node.RowCount.IsNullReference()) {
+        if (node.RowCount is not null) {
           node.RowCount.AcceptVisitor(this);
         }
         AppendTranslated(node, FetchSection.Targets);
@@ -1303,7 +1317,7 @@ namespace Xtensive.Sql.Compiler
         }
         AppendTranslated(node, JoinSection.Specification);
         node.Right.AcceptVisitor(this);
-        if (!node.Expression.IsNullReference()) {
+        if (node.Expression is not null) {
           AppendTranslated(node, JoinSection.Condition);
           node.Expression.AcceptVisitor(this);
         }
@@ -1331,7 +1345,7 @@ namespace Xtensive.Sql.Compiler
         node.Expression.AcceptVisitor(this);
         AppendTranslated(node, LikeSection.Like);
         node.Pattern.AcceptVisitor(this);
-        if (!node.Escape.IsNullReference()) {
+        if (node.Escape is not null) {
           AppendTranslated(node, LikeSection.Escape);
           node.Escape.AcceptVisitor(this);
         }
@@ -1392,13 +1406,13 @@ namespace Xtensive.Sql.Compiler
       using (context.EnterScope(node)) {
         AppendSpaceIfNecessary();
         translator.Translate(context, node, NodeSection.Entry);
-        if (!node.Expression.IsNullReference()) {
+        if (node.Expression is not null) {
           node.Expression.AcceptVisitor(this);
         }
         else if (node.Position > 0) {
           _ = context.Output.Append(node.Position.ToString());
         }
-        AppendSpaceIfNecessary();
+        AppendSpace();
         translator.Translate(context, node, NodeSection.Exit);
       }
     }
@@ -1508,10 +1522,10 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(SqlRound node)
     {
       var result = node.Mode switch {
-        MidpointRounding.ToEven => node.Length.IsNullReference()
+        MidpointRounding.ToEven => node.Length is null
           ? SqlHelper.BankersRound(node.Argument)
           : SqlHelper.BankersRound(node.Argument, node.Length),
-        MidpointRounding.AwayFromZero => node.Length.IsNullReference()
+        MidpointRounding.AwayFromZero => node.Length is null
           ? SqlHelper.RegularRound(node.Argument)
           : SqlHelper.RegularRound(node.Argument, node.Length),
         _ => throw new ArgumentOutOfRangeException(),
@@ -1593,12 +1607,12 @@ namespace Xtensive.Sql.Compiler
           }
 
           var cr = item as SqlColumnRef;
-          if (!cr.IsNullReference() && cr.SqlColumn is SqlColumnStub) {
+          if (cr is not null && cr.SqlColumn is SqlColumnStub) {
             continue;
           }
 
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
-          if (!cr.IsNullReference()) {
+          if (cr is not null) {
             AppendSpaceIfNecessary();
             cr.SqlColumn.AcceptVisitor(this);
             translator.Translate(context, cr, ColumnSection.AliasDeclaration);
@@ -1621,7 +1635,9 @@ namespace Xtensive.Sql.Compiler
         return;
       }
 
-      AppendTranslated(node, SelectSection.From);
+      AppendSpace();
+      translator.Translate(context, node, SelectSection.From);
+      AppendSpace();
 
       var joinedFrom = node.From as SqlJoinedTable;
       var linearJoinRequired = CheckFeature(QueryFeatures.StrictJoinSyntax) && joinedFrom != null;
@@ -1643,7 +1659,7 @@ namespace Xtensive.Sql.Compiler
 
         AppendTranslated(join, JoinSection.Specification);
         table.AcceptVisitor(this);
-        if (!condition.IsNullReference()) {
+        if (condition is not null) {
           AppendTranslated(join, JoinSection.Condition);
           condition.AcceptVisitor(this);
         }
@@ -1658,7 +1674,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitSelectWhere(SqlSelect node)
     {
-      if (node.Where.IsNullReference()) {
+      if (node.Where is null) {
         return;
       }
 
@@ -1683,7 +1699,7 @@ namespace Xtensive.Sql.Compiler
         foreach (var item in node.GroupBy) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var cr = item as SqlColumnRef;
-          if (!cr.IsNullReference()) {
+          if (cr is not null) {
             cr.SqlColumn.AcceptVisitor(this);
           }
           else {
@@ -1691,7 +1707,7 @@ namespace Xtensive.Sql.Compiler
           }
         }
       }
-      if (node.Having.IsNullReference()) {
+      if (node.Having is null) {
         return;
       }
       // having
@@ -1726,12 +1742,12 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitSelectLimitOffset(SqlSelect node)
     {
-      if (!node.Limit.IsNullReference()) {
+      if (node.Limit is not null) {
         AppendTranslated(node, SelectSection.Limit);
         node.Limit.AcceptVisitor(this);
         AppendTranslated(node, SelectSection.LimitEnd);
       }
-      if (!node.Offset.IsNullReference()) {
+      if (node.Offset is not null) {
         AppendTranslated(node, SelectSection.Offset);
         node.Offset.AcceptVisitor(this);
         AppendTranslated(node, SelectSection.OffsetEnd);
@@ -1892,7 +1908,7 @@ namespace Xtensive.Sql.Compiler
         foreach (var item in node.Values.Keys) {
           AppendCollectionDelimiterIfNecessary(AppendColumnDelimiter);
           var tc = item as SqlTableColumn;
-          if (!tc.IsNullReference() && tc.SqlTable != node.Update)
+          if (tc is not null && tc.SqlTable != node.Update)
             throw new SqlCompilerException(string.Format(Strings.ExUnboundColumn, tc.Name));
           translator.TranslateIdentifier(context.Output, tc.Name);
           AppendTranslated(SqlNodeType.Equals);
@@ -1920,7 +1936,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitUpdateWhere(SqlUpdate node)
     {
-      if (!node.Where.IsNullReference()) {
+      if (node.Where is not null) {
         AppendTranslated(node, UpdateSection.Where);
         node.Where.AcceptVisitor(this);
       }
@@ -1932,7 +1948,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Statement to visit.</param>
     protected virtual void VisitUpdateLimit(SqlUpdate node)
     {
-      if (!node.Limit.IsNullReference()) {
+      if (node.Limit is not null) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit)) {
           throw new NotSupportedException(Strings.ExStorageIsNotSupportedLimitationOfRowCountToUpdate);
         }
@@ -2036,7 +2052,7 @@ namespace Xtensive.Sql.Compiler
     public virtual void Visit(TableColumn column)
     {
       AppendTranslated(column, TableColumnSection.Entry);
-      if (column.Expression.IsNullReference()) {
+      if (column.Expression is null) {
         if (column.Domain == null) {
           ArgumentValidator.EnsureArgumentNotNull(column.DataType, "DataType");
         }
@@ -2046,7 +2062,7 @@ namespace Xtensive.Sql.Compiler
       if (column.Collation != null) {
         AppendTranslated(column, TableColumnSection.Collate);
       }
-      if (!column.DefaultValue.IsNullReference()) {
+      if (column.DefaultValue is not null) {
         AppendTranslated(column, TableColumnSection.DefaultValue);
         column.DefaultValue.AcceptVisitor(this);
       }
@@ -2059,7 +2075,7 @@ namespace Xtensive.Sql.Compiler
         AppendTranslated(column.SequenceDescriptor, SequenceDescriptorSection.IsCyclic);
         AppendTranslated(column, TableColumnSection.GeneratedExit);
       }
-      else if (!column.Expression.IsNullReference()) {
+      else if (column.Expression is not null) {
         AppendTranslated(column, TableColumnSection.GenerationExpressionEntry);
         using (context.EnterScope(context.NamingOptions & ~SqlCompilerNamingOptions.TableQualifiedColumns)) {
           column.Expression.AcceptVisitor(this);
@@ -2107,7 +2123,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Expression to visit.</param>
     protected virtual void VisitCommentIfBefore(SqlComment node)
     {
-      if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.BeforeStatement) {
+      if (node is null || configuration.CommentLocation != SqlCommentLocation.BeforeStatement) {
         return;
       }
 
@@ -2121,7 +2137,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Expression to visit.</param>
     protected virtual void VisitCommentIfWithin(SqlComment node)
     {
-      if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.WithinStatement) {
+      if (node is null || configuration.CommentLocation != SqlCommentLocation.WithinStatement) {
         return;
       }
       AppendSpaceIfNecessary();
@@ -2135,7 +2151,7 @@ namespace Xtensive.Sql.Compiler
     /// <param name="node">Expression to visit.</param>
     protected virtual void VisitCommentIfAfter(SqlComment node)
     {
-      if (node.IsNullReference() || configuration.CommentLocation != SqlCommentLocation.AfterStatement) {
+      if (node is null || configuration.CommentLocation != SqlCommentLocation.AfterStatement) {
         return;
       }
       _ = context.Output.AppendNewLine(translator.NewLine);
@@ -2803,6 +2819,7 @@ namespace Xtensive.Sql.Compiler
     {
       AppendSpaceIfNecessary();
       translator.Translate(context, node);
+      AppendSpaceIfNecessary();
     }
 
     protected void AppendTranslated(SqlAssignment node, NodeSection section) =>

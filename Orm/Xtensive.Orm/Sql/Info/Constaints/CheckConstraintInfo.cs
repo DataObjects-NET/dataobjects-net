@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Info
     public CheckConstraintFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }
@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Info
     public int MaxExpressionLength {
       get { return maxExpressionLength; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxExpressionLength = value;
       }
     }

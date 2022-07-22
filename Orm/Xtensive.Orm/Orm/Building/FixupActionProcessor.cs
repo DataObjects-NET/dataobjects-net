@@ -27,9 +27,9 @@ namespace Xtensive.Orm.Building
 
     private void ProcessAll()
     {
-      using (BuildLog.InfoRegion(Strings.LogProcessingFixupActions))
+      using (BuildLog.InfoRegion(nameof(Strings.LogProcessingFixupActions)))
         while (context.ModelInspectionResult.Actions.TryDequeue(out var action)) {
-          BuildLog.Info(string.Format(Strings.LogExecutingActionX, action));
+          BuildLog.Info(nameof(Strings.LogExecutingActionX), action);
           action.Run(this);
         }
     }

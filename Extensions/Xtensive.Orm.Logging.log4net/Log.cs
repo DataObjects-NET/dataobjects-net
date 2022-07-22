@@ -1,4 +1,4 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
@@ -16,25 +16,7 @@ namespace Xtensive.Orm.Logging.log4net
   /// </summary>
   public class Log : BaseLog
   {
-    private log4netLog target;
-
-    private Level ConvertLevel(LogLevel level)
-    {
-      switch (level) {
-      case LogLevel.Debug:
-        return Level.Debug;
-      case LogLevel.Info:
-        return Level.Info;
-      case LogLevel.Warning:
-        return Level.Warn;
-      case LogLevel.Error:
-        return Level.Error;
-      case LogLevel.FatalError:
-        return Level.Fatal;
-      default:
-        return Level.Info;
-      }
-    }
+    private readonly log4netLog target;
 
     /// <inheritdoc />
     public override bool IsLogged(LogLevel level)
@@ -43,9 +25,27 @@ namespace Xtensive.Orm.Logging.log4net
     }
 
     /// <inheritdoc />
-    public override void Write(LogEventInfo info)
+    public override void Write(in LogEventInfo info)
     {
       target.Logger.Log(target.Logger.GetType(), ConvertLevel(info.Level), info.FormattedMessage, info.Exception);
+    }
+
+    private Level ConvertLevel(in LogLevel level)
+    {
+      switch (level) {
+        case LogLevel.Debug:
+          return Level.Debug;
+        case LogLevel.Info:
+          return Level.Info;
+        case LogLevel.Warning:
+          return Level.Warn;
+        case LogLevel.Error:
+          return Level.Error;
+        case LogLevel.FatalError:
+          return Level.Fatal;
+        default:
+          return Level.Info;
+      }
     }
 
     /// <summary>
@@ -57,6 +57,7 @@ namespace Xtensive.Orm.Logging.log4net
     public Log(Assembly repositoryAssembly, string name)
     {
       target = log4netLogManager.GetLogger(repositoryAssembly, name);
+
     }
   }
 }

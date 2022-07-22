@@ -1446,7 +1446,7 @@ namespace Xtensive.Sql.Compiler
           _ = output.Append("(");
           break;
         case JoinSection.Specification:
-          var isNatural = node.Expression.IsNullReference()
+          var isNatural = node.Expression is null
             && node.JoinType != SqlJoinType.CrossJoin
             && node.JoinType != SqlJoinType.UnionJoin;
           if (isNatural) {
@@ -2560,8 +2560,8 @@ namespace Xtensive.Sql.Compiler
                 _ = output.Append(" VALUES (");
                 var firstValue = true;
                 foreach (var v in p.Values) {
-                  if (first)
-                    first = false;
+                  if (firstValue)
+                    firstValue = false;
                   else
                     _ = output.Append(RowItemDelimiter);
 

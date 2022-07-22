@@ -367,7 +367,7 @@ namespace Xtensive.Orm.Building.Builders
       context.Validator.ValidateName(mappingName, rule);
 
       if (Comparer.Equals(node.MappingName, mappingName)) {
-        BuildLog.Warning(Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically,
+        BuildLog.Warning(nameof(Strings.ExplicitMappingNameSettingIsRedundantTheSameNameXWillBeGeneratedAutomatically),
           node.MappingName);
       }
       else {

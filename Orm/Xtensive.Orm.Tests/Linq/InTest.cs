@@ -52,10 +52,10 @@ namespace Xtensive.Orm.Tests.Linq
       var list = new List<string> { "Michelle", "Jack" };
       var query1 = (await (from c in Session.Query.All<Customer>()
                    where !c.FirstName.In(list)
-                   select c.Invoices).AsAsync()).ToList();
+                   select c.Invoices).ExecuteAsync()).ToList();
       var query2 = (await (from c in Session.Query.All<Customer>()
                    where !c.FirstName.In("Michelle", "Jack")
-                   select c.Invoices).AsAsync()).ToList();
+                   select c.Invoices).ExecuteAsync()).ToList();
       var expected1 = from c in Customers
                       where !list.Contains(c.FirstName)
                       select c.Invoices;
@@ -115,10 +115,10 @@ namespace Xtensive.Orm.Tests.Linq
         list2.AddRange(list1);
       var query1 = (await (from invoice in Session.Query.All<Invoice>()
                    where (invoice.Commission).In(list1)
-                   select invoice).AsAsync()).ToList();
+                   select invoice).ExecuteAsync()).ToList();
       var query2 = (await (from invoice in Session.Query.All<Invoice>()
                    where (invoice.Commission).In(list2)
-                   select invoice).AsAsync()).ToList();
+                   select invoice).ExecuteAsync()).ToList();
       var expected = from invoice in Invoices
                      where (invoice.Commission).In(list1)
                      select invoice;
@@ -151,7 +151,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = new List<int> { 5, 18, 41 };
       var query = (await (from invoice in Session.Query.All<Invoice>()
                   where !((int) invoice.Commission).In(list)
-                  select invoice).AsAsync()).ToList();
+                  select invoice).ExecuteAsync()).ToList();
       var expected = from invoice in Invoices
                      where !((int) invoice.Commission).In(list)
                      select invoice;
@@ -181,7 +181,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = new List<int> { 276192, 349492, 232463 };
       var query = (await (from track in Session.Query.All<Track>()
                   where track.Milliseconds.In(list)
-                  select track).AsAsync()).ToList();
+                  select track).ExecuteAsync()).ToList();
       var expected = from track in Tracks
                      where track.Milliseconds.In(list)
                      select track;
@@ -236,7 +236,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = new List<decimal> { 7, 22, 46 };
       var query = (await (from invoice in Session.Query.All<Invoice>()
                   where !((decimal) invoice.InvoiceId).In(list)
-                  select invoice).AsAsync()).ToList();
+                  select invoice).ExecuteAsync()).ToList();
       var expected = from invoice in Invoices
                      where !((decimal) invoice.InvoiceId).In(list)
                      select invoice;
@@ -266,7 +266,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = Session.Query.All<Customer>().Take(5).ToList();
       var query = (await (from c in Session.Query.All<Customer>()
                   where !c.In(list)
-                  select c.Invoices).AsAsync()).ToList();
+                  select c.Invoices).ExecuteAsync()).ToList();
       var expected = from c in Customers
                      where !c.In(list)
                      select c.Invoices;
@@ -296,7 +296,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = Session.Query.All<Customer>().Take(5).Select(c => c.Address).ToList();
       var query = (await (from c in Session.Query.All<Customer>()
                   where !c.Address.In(list)
-                  select c.Invoices).AsAsync()).ToList();
+                  select c.Invoices).ExecuteAsync()).ToList();
       var expected = from c in Customers
                      where !c.Address.In(list)
                      select c.Invoices;
@@ -316,7 +316,7 @@ namespace Xtensive.Orm.Tests.Linq
     [Test]
     public async Task StructSimpleContainsAsyncTest()
     {
-      var list = (await Session.Query.All<Customer>().Take(5).Select(c => c.Address).AsAsync()).ToList();
+      var list = (await Session.Query.All<Customer>().Take(5).Select(c => c.Address).ExecuteAsync()).ToList();
       var query = Session.Query.All<Customer>().Select(c => c.Address).Where(c => c.In(list));
       QueryDumper.Dump(query);
     }
@@ -339,7 +339,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = (await Session.Query.All<Customer>()
         .Where(c => new { c.FirstName }.In(list))
         .Select(c => c.Invoices)
-        .AsAsync()).ToList();
+        .ExecuteAsync()).ToList();
       var expected = Customers.Where(c => new { c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -364,7 +364,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = (await Session.Query.All<Customer>()
         .Where(c => new { Id1 = c.FirstName, Id2 = c.FirstName }.In(list))
         .Select(c => c.Invoices)
-        .AsAsync()).ToList();
+        .ExecuteAsync()).ToList();
       var expected = Customers.Where(c => new { Id1 = c.FirstName, Id2 = c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -398,7 +398,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Take(10);
       var query = (await (from invoice in Session.Query.All<Invoice>()
                   where !invoice.Commission.In(list)
-                  select invoice).AsAsync()).ToList();
+                  select invoice).ExecuteAsync()).ToList();
       var expected = from invoice in Invoices
                      where !invoice.Commission.In(list)
                      select invoice;
@@ -428,7 +428,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = Session.Query.All<Customer>().Take(5);
       var query = (await (from c in Session.Query.All<Customer>()
                   where !c.In(list)
-                  select c.Invoices).AsAsync()).ToList();
+                  select c.Invoices).ExecuteAsync()).ToList();
       var expected = from c in Customers
                      where !c.In(list)
                      select c.Invoices;
@@ -462,7 +462,7 @@ namespace Xtensive.Orm.Tests.Linq
         .Select(c => c.Address);
       var query = (await (from c in Session.Query.All<Customer>()
                   where !c.Address.In(list)
-                  select c.Invoices).AsAsync()).ToList();
+                  select c.Invoices).ExecuteAsync()).ToList();
       var expected = from c in Customers
                      where !c.Address.In(list)
                      select c.Invoices;
@@ -489,7 +489,7 @@ namespace Xtensive.Orm.Tests.Linq
       var query = (await Session.Query.All<Customer>()
         .Where(c => new { c.FirstName }.In(list))
         .Select(c => c.Invoices)
-        .AsAsync()).ToList();
+        .ExecuteAsync()).ToList();
       var expected = Customers.Where(c => new { c.FirstName }.In(list)).Select(c => c.Invoices);
       Assert.That(query, Is.Not.Empty);
       Assert.AreEqual(0, expected.Except(query).Count());
@@ -527,7 +527,7 @@ namespace Xtensive.Orm.Tests.Linq
       var list = new List<int> { 276192, 349492, 232463 };
       var query = (await (from track in Session.Query.All<Track>()
                   where track.Milliseconds.In(includeAlgorithm, list)
-                  select track).AsAsync()).ToList();
+                  select track).ExecuteAsync()).ToList();
       var expected = from track in Tracks
                      where track.Milliseconds.In(includeAlgorithm, list)
                      select track;
@@ -557,7 +557,7 @@ namespace Xtensive.Orm.Tests.Linq
       var includeAlgorithm = IncludeAlgorithm.TemporaryTable;
       var query = (await (from track in Session.Query.All<Track>()
                   where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
-                  select track).AsAsync()).ToList();
+                  select track).ExecuteAsync()).ToList();
       var expected = from track in Tracks
                      where track.Milliseconds.In(includeAlgorithm, 276192, 349492, 232463)
                      select track;

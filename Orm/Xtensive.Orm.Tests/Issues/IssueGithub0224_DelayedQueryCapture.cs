@@ -19,7 +19,7 @@ namespace Xtensive.Orm.Tests.Issues
   namespace IssueGithub0224_DelayedQueryCapture_Model
   {
     [HierarchyRoot]
-    class Item : Entity
+    public class Item : Entity
     {
       [Field, Key]
       public int Id { get; private set; }
@@ -32,54 +32,156 @@ namespace Xtensive.Orm.Tests.Issues
   [Serializable]
   public class IssueGithub0224_DelayedQueryCapture : AutoBuildTest
   {
-    public class OtherService
+
+    #region Services
+
+    public class OtherService1
     {
       public static volatile int InstanceCount;
 
       public int N;
 
-      public OtherService()
+      public OtherService1()
       {
-        Interlocked.Increment(ref InstanceCount);
+        _ = Interlocked.Increment(ref InstanceCount);
       }
 
-      ~OtherService()
+      ~OtherService1()
       {
-        Interlocked.Decrement(ref InstanceCount);
+        _ = Interlocked.Decrement(ref InstanceCount);
       }
     }
 
+    public class OtherService2
+    {
+      public static volatile int InstanceCount;
+
+      public int N;
+
+      public OtherService2()
+      {
+        _ = Interlocked.Increment(ref InstanceCount);
+      }
+
+      ~OtherService2()
+      {
+        _ = Interlocked.Decrement(ref InstanceCount);
+      }
+    }
+
+    public class OtherService3
+    {
+      public static volatile int InstanceCount;
+
+      public int N;
+
+      public OtherService3()
+      {
+        _ = Interlocked.Increment(ref InstanceCount);
+      }
+
+      ~OtherService3()
+      {
+        _ = Interlocked.Decrement(ref InstanceCount);
+      }
+    }
+
+    #endregion
 
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
-      config.Types.Register(typeof(Item).Assembly, typeof(Item).Namespace);
+      config.Types.Register(typeof(Item));
       return config;
     }
 
     [Test]
-    public void DelayedQueryCapture()
+    public void DelayedQueryWithIncludeTest()
     {
       using (var session = Domain.OpenSession())
       using (var t = session.OpenTransaction()) {
         var item = new Item() { Tag = 10 };
-        DelayedQuery(session);
+        DelayedQueryWithInclude(session);
         t.Complete();
       }
-      GC.Collect();
-      Thread.Sleep(1000);
-      GC.Collect();
-      Assert.AreEqual(0, OtherService.InstanceCount);
+      TestHelper.CollectGarbage(true);
+      Assert.AreEqual(0, OtherService1.InstanceCount);
     }
 
-    private void DelayedQuery(Session session)
+    [Test]
+    public void DelayedQueryWithContainsTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item = new Item() { Tag = 10 };
+        DelayedQueryWithContains(session);
+        t.Complete();
+      }
+
+      TestHelper.CollectGarbage(true);
+      Assert.AreEqual(0, OtherService2.InstanceCount);
+    }
+
+    [Test]
+    public void DelayedQueryWithEqualityTest()
+    {
+      using (var session = Domain.OpenSession())
+      using (var t = session.OpenTransaction()) {
+        var item = new Item() { Tag = 10 };
+        DelayedQueryWithEquality(session);
+        t.Complete();
+      }
+
+      TestHelper.CollectGarbage(true);
+      Assert.AreEqual(0, OtherService3.InstanceCount);
+    }
+
+    private void DelayedQueryWithEquality(Session session)
+    {
+      var id = 1;
+      var otherService = new OtherService3();
+
+      var items = session.Query.CreateDelayedQuery("ABC", q =>
+                from t in q.All<Item>()
+                where t.Id == id
+                select t).ToArray();
+
+      var bb1 = items
+          .Select(a => new {
+            a.Id,
+            A = new {
+              B = otherService.N == a.Id
+            },
+          });
+    }
+
+    private void DelayedQueryWithInclude(Session session)
     {
       var ids = new[] { 1, 2 };
-      var otherService = new OtherService();
+      var otherService = new OtherService1();
 
       var items = session.Query.CreateDelayedQuery(q =>
                 from t in q.All<Item>()
                 where t.Id.In(ids)
+                select t).ToArray();
+
+      var bb1 = items
+          .Select(a => new {
+            a.Id,
+            A = new {
+              B = otherService.N == a.Id
+            },
+          });
+    }
+
+    private void DelayedQueryWithContains(Session session)
+    {
+      var ids = new[] { 1, 2 };
+      var otherService = new OtherService2();
+
+      var items = session.Query.CreateDelayedQuery(q =>
+                from t in q.All<Item>()
+                where ids.Contains(t.Id)
                 select t).ToArray();
 
       var bb1 = items

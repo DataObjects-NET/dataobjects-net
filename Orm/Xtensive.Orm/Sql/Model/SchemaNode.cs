@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Model
     {
       get { return schema; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (schema != value)
           ChangeSchema(value);
       }
@@ -43,7 +43,7 @@ namespace Xtensive.Sql.Model
     /// <param name="value">The collection owner.</param>
     void IPairedNode<Schema>.UpdatePairedProperty(string property, Schema value)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       schema = value;
     }
 
