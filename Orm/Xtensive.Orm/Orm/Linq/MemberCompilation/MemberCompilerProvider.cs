@@ -67,7 +67,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public void RegisterCompilers(Type compilerContainer, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerContainer, "compilerContainer");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       if (compilerContainer.IsGenericType)
         throw new InvalidOperationException(string.Format(
@@ -88,7 +88,7 @@ namespace Xtensive.Orm.Linq.MemberCompilation
     public void RegisterCompilers(IEnumerable<KeyValuePair<MemberInfo, Func<MemberInfo, T, T[], T>>> compilerDefinitions, ConflictHandlingMethod conflictHandlingMethod)
     {
       ArgumentValidator.EnsureArgumentNotNull(compilerDefinitions, "compilerDefinitions");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       var newItems = compilerDefinitions.Select(item => (item.Key, (Delegate) item.Value));
       UpdateRegistry(newItems, conflictHandlingMethod);

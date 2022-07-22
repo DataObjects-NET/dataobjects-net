@@ -75,7 +75,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <inheritdoc/>
     protected override void VisitUpdateLimit(SqlUpdate node)
     {
-      if (!node.Limit.IsNullReference()) {
+      if (node.Limit is not null) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.UpdateLimit)) {
           throw new NotSupportedException(Strings.ExStorageDoesNotSupportLimitationOfRowCountToUpdate);
         }
@@ -104,7 +104,7 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
     /// <inheritdoc/>
     protected override void VisitDeleteLimit(SqlDelete node)
     {
-      if (!node.Limit.IsNullReference()) {
+      if (node.Limit is not null) {
         if (!Driver.ServerInfo.Query.Features.Supports(QueryFeatures.DeleteLimit)) {
           throw new NotSupportedException(Strings.ExStorageDoesNotSupportLimitationOfRowCountToDelete);
         }
@@ -180,9 +180,8 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
           return;
         case SqlFunctionType.Substring:
           if (arguments.Count == 2) {
-            node = SqlDml.Substring(node.Arguments[0], arguments[1]);
             SqlExpression len = SqlDml.CharLength(arguments[0]);
-            arguments.Add(len);
+            node = SqlDml.Substring(arguments[0], arguments[1], len);
             Visit(node);
             return;
           }
@@ -297,12 +296,12 @@ namespace Xtensive.Sql.Drivers.SqlServer.v09
       var shouldCastToDecimal = node.Type==TypeCode.Decimal;
       switch (node.Mode) {
         case MidpointRounding.ToEven:
-          result = node.Length.IsNullReference()
+          result = node.Length is null
             ? BankersRound(node.Argument, shouldCastToDecimal)
             : BankersRound(node.Argument, node.Length, shouldCastToDecimal);
           break;
         case MidpointRounding.AwayFromZero:
-          result = node.Length.IsNullReference()
+          result = node.Length is null
             ? RegularRound(node.Argument, shouldCastToDecimal)
             : RegularRound(node.Argument, node.Length, shouldCastToDecimal);
           break;

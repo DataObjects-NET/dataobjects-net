@@ -29,7 +29,7 @@ namespace Xtensive.Sql.Model
     {
       get { return owner; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ISequenceable old = owner;
         owner = value;
         if (old!=null && old.SequenceDescriptor==this)
@@ -50,7 +50,7 @@ namespace Xtensive.Sql.Model
       get { return startValue; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         startValue = value;
       }
     }
@@ -66,7 +66,7 @@ namespace Xtensive.Sql.Model
     {
       get { return increment; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         if (value.HasValue && value.Value == 0)
           throw new ArgumentException(Strings.ExIncrementMustNotBeZero);
         increment = value;
@@ -83,7 +83,7 @@ namespace Xtensive.Sql.Model
     {
       get { return maxValue; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxValue = value;
       }
     }
@@ -99,7 +99,7 @@ namespace Xtensive.Sql.Model
       get { return minValue; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         minValue = value;
       }
     }
@@ -112,7 +112,7 @@ namespace Xtensive.Sql.Model
       get { return lastValue; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         lastValue = value;
       }
     }
@@ -126,7 +126,7 @@ namespace Xtensive.Sql.Model
       get { return isCyclic; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         isCyclic = value;
       }
     }

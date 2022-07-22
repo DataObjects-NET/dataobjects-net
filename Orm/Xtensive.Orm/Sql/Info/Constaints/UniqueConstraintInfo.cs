@@ -22,7 +22,7 @@ namespace Xtensive.Sql.Info
     public UniqueConstraintFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }

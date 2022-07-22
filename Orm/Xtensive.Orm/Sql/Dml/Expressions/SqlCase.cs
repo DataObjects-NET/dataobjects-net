@@ -95,9 +95,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlCase>(expression, "expression");
-      SqlCase replacingExpression = expression as SqlCase;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCase>(expression);
       value = replacingExpression.Value;
       @else = replacingExpression.Else;
       cases.Clear();
@@ -111,9 +109,9 @@ namespace Xtensive.Sql.Dml
         return v;
       }
 
-      var clone = new SqlCase(value.IsNullReference() ? null : (SqlExpression) value.Clone(context));
+      var clone = new SqlCase(value is null ? null : (SqlExpression) value.Clone(context));
 
-      if (!@else.IsNullReference())
+      if (@else is not null)
         clone.Else = (SqlExpression) @else.Clone(context);
 
       foreach (KeyValuePair<SqlExpression, SqlExpression> pair in cases)

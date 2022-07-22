@@ -56,9 +56,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlLike>(expression, "expression");
-      SqlLike replacingExpression = expression as SqlLike;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlLike>(expression);
       this.expression = replacingExpression.expression;
       pattern = replacingExpression.Pattern;
       escape = replacingExpression.Escape;
@@ -70,7 +68,7 @@ namespace Xtensive.Sql.Dml
         ? clone
         : context.NodeMapping[this] = new SqlLike((SqlExpression) expression.Clone(context),
             (SqlExpression) pattern.Clone(context),
-            escape.IsNullReference() ? null : (SqlExpression) escape.Clone(context), not);
+            escape is null ? null : (SqlExpression) escape.Clone(context), not);
 
     internal SqlLike(SqlExpression expression, SqlExpression pattern, SqlExpression escape, bool not) : base (SqlNodeType.Like)
     {

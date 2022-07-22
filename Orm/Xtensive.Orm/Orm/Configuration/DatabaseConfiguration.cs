@@ -29,7 +29,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentNotNullOrEmpty(value, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         name = value;
       }
     }
@@ -44,7 +44,7 @@ namespace Xtensive.Orm.Configuration
       get { return realName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         realName = value;
       }
     }
@@ -60,7 +60,7 @@ namespace Xtensive.Orm.Configuration
       set
       {
         ArgumentValidator.EnsureArgumentIsGreaterThanOrEqual(value, TypeInfo.MinTypeId, "value");
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         minTypeId = value;
       }
     }

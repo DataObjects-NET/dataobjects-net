@@ -77,7 +77,7 @@ namespace Xtensive.Collections
     /// <inheritdoc/>
     public virtual void Add(TItem item)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       items.Add(item);
     }
 
@@ -88,21 +88,21 @@ namespace Xtensive.Collections
     /// <exception cref="T:System.ArgumentNullException">collection is null.</exception>
     public virtual void AddRange(IEnumerable<TItem> collection)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       items.AddRange(collection);
     }
 
     /// <inheritdoc/>
     public virtual bool Remove(TItem item)
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       return items.Remove(item);
     }
 
     /// <inheritdoc/>
     public virtual void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       items.Clear();
     }
 
