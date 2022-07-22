@@ -1,10 +1,11 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2021 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using Xtensive.Core;
 
 namespace Xtensive.Sql.Dml
@@ -12,48 +13,35 @@ namespace Xtensive.Sql.Dml
   [Serializable]
   public class SqlUserFunctionCall : SqlFunctionCall
   {
-    private string name;
-
     /// <summary>
     /// Gets the function name.
     /// </summary>
-    public string Name {
-      get {
-        return name;
-      }
-    }
+    public string Name { get; private set; }
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlUserFunctionCall>(expression, "expression");
-      SqlUserFunctionCall replacingExpression = expression as SqlUserFunctionCall;
-      name = replacingExpression.Name;
-      Arguments.Clear();
-      foreach (SqlExpression argument in replacingExpression.Arguments)
-        Arguments.Add(argument);
+      SqlUserFunctionCall replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlUserFunctionCall>(expression);
+      Name = replacingExpression.Name;
+      Arguments = replacingExpression.Arguments;
     }
 
     internal override SqlUserFunctionCall Clone(SqlNodeCloneContext context) =>
-      context.GetOrAdd(this, static (t, c) => {
-        SqlUserFunctionCall clone = new SqlUserFunctionCall(t.name);
-        for (int i = 0, l = t.Arguments.Count; i < l; i++)
-          clone.Arguments.Add(t.Arguments[i].Clone(c));
-        return clone;
-      });
+      context.GetOrAdd(this, static (t, c) =>
+        SqlUserFunctionCall clone = new SqlUserFunctionCall(t.name, , Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
+      );
 
     internal SqlUserFunctionCall(string name, IEnumerable<SqlExpression> arguments)
       : base(SqlFunctionType.UserDefined, arguments)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      this.name = name;
+      Name = name;
     }
 
     internal SqlUserFunctionCall(string name, params SqlExpression[] arguments)
       : base(SqlFunctionType.UserDefined, arguments)
     {
       ArgumentValidator.EnsureArgumentNotNullOrEmpty(name, "name");
-      this.name = name;
+      Name = name;
     }
 
     public override void AcceptVisitor(ISqlVisitor visitor)

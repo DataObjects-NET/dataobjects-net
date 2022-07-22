@@ -19,8 +19,7 @@ namespace Xtensive.Sql.Dml
     
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentIs<SqlRound>(expression, "expression");
-      var replacingExpression = (SqlRound) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRound>(expression);
       Argument = replacingExpression.Argument;
       Length = replacingExpression.Length;
       Type = replacingExpression.Type;

@@ -20,9 +20,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlColumnRef>(expression, "expression");
-      SqlColumn = ((SqlColumnRef) expression).SqlColumn;
+      SqlColumn = ArgumentValidator.EnsureArgumentIs<SqlColumnRef>(expression).SqlColumn;
     }
 
     internal override SqlColumnRef Clone(SqlNodeCloneContext context) =>

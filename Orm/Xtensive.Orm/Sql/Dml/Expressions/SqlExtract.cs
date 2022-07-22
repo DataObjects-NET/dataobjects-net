@@ -20,9 +20,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlExtract>(expression, "expression");
-      var replacingExpression = (SqlExtract) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlExtract>(expression);
       DateTimePart = replacingExpression.DateTimePart;
       DateTimeOffsetPart = replacingExpression.DateTimeOffsetPart;
       IntervalPart = replacingExpression.IntervalPart;
