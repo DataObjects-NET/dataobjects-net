@@ -18,7 +18,7 @@ namespace Xtensive.Sql.Dml
         return value;
       }
 
-      var expressionsClone = new Collection<SqlExpression>();
+      var expressionsClone = new List<SqlExpression>(expressions.Count);
       foreach (var e in expressions)
         expressionsClone.Add((SqlExpression) e.Clone(context));
 
@@ -29,9 +29,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlRow>(expression, "expression");
-      var replacingExpression = (SqlRow) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRow>(expression);
       expressions.Clear();
       foreach (SqlExpression e in replacingExpression)
         expressions.Add(e);
