@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2009-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexander Nikolaev
 // Created:    2009.11.26
 
@@ -28,6 +28,7 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
     private Random randomProvider;
     private bool isSettingUp;
     private readonly List<Key> entitySetCache = new List<Key>();
+
     protected override DomainConfiguration BuildConfiguration()
     {
       var config = base.BuildConfiguration();
@@ -265,8 +266,9 @@ namespace Xtensive.Orm.Tests.Storage.Randomized
 
     private static int GetSeed()
     {
-      var bytes = new byte[sizeof (int)];
-      var seedProvider = new RNGCryptoServiceProvider();
+      var bytes = new byte[sizeof(int)];
+
+      using var seedProvider = RandomNumberGenerator.Create();
       seedProvider.GetNonZeroBytes(bytes);
       return BitConverter.ToInt32(bytes, 0);
     }

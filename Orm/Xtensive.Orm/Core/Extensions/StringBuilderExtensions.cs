@@ -1,6 +1,6 @@
-// Copyright (C) 2003-2010 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2008-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alex Kofman
 // Created:    2008.07.30
 
@@ -81,7 +81,27 @@ namespace Xtensive.Core
 
       const string lowerHexChars = "0123456789abcdef";
       foreach (var item in values) {
-        builder.Append(lowerHexChars[item >> 4])
+        _ = builder.Append(lowerHexChars[item >> 4])
+          .Append(lowerHexChars[item & 0xF]);
+      }
+      return builder;
+    }
+
+    /// <summary>
+    /// Appends the specified <see cref="byte"/> array in hexidecimal representation in lower case.
+    /// These bytes are written from left to right, high part of byte is written first.
+    /// For example {1,2,10} will be appended as 01020a.
+    /// </summary>
+    /// <param name="builder">The builder.</param>
+    /// <param name="values">The values.</param>
+    /// <returns>Original <paramref name="builder"/>.</returns>
+    public static StringBuilder AppendHexArray(this StringBuilder builder, in ReadOnlySpan<byte> values)
+    {
+      ArgumentValidator.EnsureArgumentNotNull(builder, "builder");
+
+      const string lowerHexChars = "0123456789abcdef";
+      foreach (var item in values) {
+        _ = builder.Append(lowerHexChars[item >> 4])
           .Append(lowerHexChars[item & 0xF]);
       }
       return builder;

@@ -1,6 +1,6 @@
-// Copyright (C) 2011 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2011-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
 // Created:    2011.06.10
 
@@ -31,14 +31,7 @@ namespace Xtensive.Orm.Security.Cryptography
     /// Gets the salt.
     /// </summary>
     /// <returns>The salt.</returns>
-    protected byte[] GetSalt()
-    {
-      var salt = new byte[SaltSize];
-      using (var rng = new RNGCryptoServiceProvider()) {
-        rng.GetBytes(salt);
-        return salt;
-      }
-    }
+    protected byte[] GetSalt() => RandomNumberGenerator.GetBytes(SaltSize);
 
     /// <summary>
     /// Computes the hash.
