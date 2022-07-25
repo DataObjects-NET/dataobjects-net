@@ -26,10 +26,8 @@ namespace Xtensive.Core
     /// <returns>
     /// A reference to the <paramref name="builder"/> after append operation has completed.
     /// </returns>
-    public static StringBuilder AppendIndented(this StringBuilder builder, int indent, string value)
-    {
-      return builder.AppendIndented(indent, value, true);
-    }
+    public static StringBuilder AppendIndented(this StringBuilder builder, int indent, string value) =>
+      builder.AppendIndented(indent, value, true);
 
     /// <summary>
     /// Appends the specified <see cref="string"/> indented by specified count of spaces.
@@ -43,24 +41,26 @@ namespace Xtensive.Core
     /// </returns>
     public static StringBuilder AppendIndented(this StringBuilder builder, int indent, string value, bool indentFirstLine)
     {
-      string indentString = new string(IndentChar, indent);
+      var indentString = new string(IndentChar, indent);
+      var lines = value.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
 
-      string[] lines = value.Split(new[] {Environment.NewLine}, StringSplitOptions.None);
+      for (var i = 0; i < lines.Length; i++) {
+        var line = lines[i];
 
-      for (int i = 0; i < lines.Length; i++) {       
-        string line = lines[i];        
-
-        bool isLast = i==lines.Length-1;
-        if (isLast && line.Trim() == string.Empty)
+        var isLast = i == lines.Length - 1;
+        if (isLast && line.Trim() == string.Empty) {
           break;
-        
-        if (i!=0 || indentFirstLine)
-          builder.Append(indentString);
+        }
 
-        builder.Append(line);
+        if (i != 0 || indentFirstLine) {
+          _ = builder.Append(indentString);
+        }
 
-        if (!isLast)
-          builder.AppendLine();
+        _ = builder.Append(line);
+
+        if (!isLast) {
+          _ = builder.AppendLine();
+        }
       }
 
       return builder;

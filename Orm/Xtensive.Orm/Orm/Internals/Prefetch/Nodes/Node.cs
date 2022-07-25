@@ -49,12 +49,12 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     private void AppendDescription(StringBuilder output, int indent)
     {
-      output.AppendIndented(indent, GetDescription());
-      output.AppendLine();
-      var hasNestedNodes = this as IHasNestedNodes;
-      if (hasNestedNodes!=null)
-        foreach (var node in hasNestedNodes.NestedNodes)
+      _ = output.AppendIndented(indent, GetDescription()).AppendLine();
+      if (this is IHasNestedNodes hasNestedNodes) {
+        foreach (var node in hasNestedNodes.NestedNodes) {
           node.AppendDescription(output, indent + 2);
+        }
+      }
     }
 
     protected virtual string GetDescription()
