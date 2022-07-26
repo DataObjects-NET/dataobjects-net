@@ -16,8 +16,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlAggregate node)
     {
-      if (node.Expression is not null)
-        Visit(node.Expression);
+      VisitNullable(node.Expression);
     }
 
     public void Visit(SqlAlterDomain node)
@@ -48,8 +47,7 @@ namespace Xtensive.Orm.Providers
     {
       if (node.Left!=null)
         Visit(node.Left);
-      if (node.Right is not null)
-        Visit(node.Right);
+      VisitNullable(node.Right);
     }
 
     public void Visit(SqlBatch node)
@@ -58,20 +56,15 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlBetween node)
     {
-      if (node.Left is not null)
-        Visit(node.Left);
-      if (node.Right is not null)
-        Visit(node.Right);
-      if (!node.Expression)
-        Visit(node.Expression);
+      VisitNullable(node.Left);
+      VisitNullable(node.Right);
+      VisitNullable(node.Expression);
     }
 
     public void Visit(SqlBinary node)
     {
-      if (node.Left is not null)
-        Visit(node.Left);
-      if (node.Right is not null)
-        Visit(node.Right);
+      VisitNullable(node.Left);
+      VisitNullable(node.Right);
     }
 
     public void Visit(SqlBreak node)
@@ -80,16 +73,13 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlCase node)
     {
-      if (node.Value is not null)
-        Visit(node.Value);
-      if (node.Else is not null)
-        Visit(node.Else);
+      VisitNullable(node.Value);
+      VisitNullable(node.Else);
     }
 
     public void Visit(SqlCast node)
     {
-      if (node.Operand is not null)
-        Visit(node.Operand);
+      VisitNullable(node.Operand);
     }
 
     public void Visit(SqlCloseCursor node)
@@ -98,14 +88,12 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlCollate node)
     {
-      if (node.Operand is not null)
-        Visit(node.Operand);
+      VisitNullable(node.Operand);
     }
 
     public void Visit(SqlColumnRef node)
     {
-      if (node.SqlColumn is not null)
-        Visit(node.SqlColumn);
+      VisitNullable(node.SqlColumn);
     }
 
     public void Visit(SqlConcat node)
@@ -198,8 +186,7 @@ namespace Xtensive.Orm.Providers
     {
       if (node.Delete!=null)
         Visit(node.Delete);
-      if (node.Where is not null)
-        Visit(node.Where);
+      VisitNullable(node.Where);
     }
 
     public void Visit(SqlDropAssertion node)
@@ -264,8 +251,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlExtract node)
     {
-      if (node.Operand is not null)
-        Visit(node.Operand);
+      VisitNullable(node.Operand);
     }
 
     public void Visit(SqlFastFirstRowsHint node)
@@ -308,8 +294,7 @@ namespace Xtensive.Orm.Providers
         Visit(node.True);
       if (node.False!=null)
         Visit(node.False);
-      if (node.Condition is not null)
-        Visit(node.Condition);
+      VisitNullable(node.Condition);
     }
 
     public void Visit(SqlInsert node)
@@ -327,11 +312,10 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlJoinExpression node)
     {
-      if (node.Expression is not null)
-        Visit(node.Expression);
-      if (node.Left!=null)
+      VisitNullable(node.Expression);
+      if (node.Left != null)
         Visit(node.Left);
-      if (node.Right!=null)
+      if (node.Right != null)
         Visit(node.Right);
     }
 
@@ -341,12 +325,9 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlLike node)
     {
-      if (node.Expression is not null)
-        Visit(node.Expression);
-      if (node.Escape is not null)
-        Visit(node.Escape);
-      if (node.Pattern is not null)
-        Visit(node.Pattern);
+      VisitNullable(node.Expression);
+      VisitNullable(node.Escape);
+      VisitNullable(node.Pattern);
     }
 
     public void Visit(SqlLiteral node)
@@ -355,8 +336,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlMatch node)
     {
-      if (node.Value is not null)
-        Visit(node.Value);
+      VisitNullable(node.Value);
       if (node.SubQuery is not null)
         Visit(node.SubQuery);
     }
@@ -383,8 +363,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlOrder node)
     {
-      if (node.Expression is not null)
-        Visit(node.Expression);
+      VisitNullable(node.Expression);
     }
 
     public void Visit(SqlParameterRef node)
@@ -393,10 +372,8 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlRound node)
     {
-      if (node.Argument is not null)
-        Visit(node.Argument);
-      if (node.Length is not null)
-        Visit(node.Length);
+      VisitNullable(node.Argument);
+      VisitNullable(node.Length);
     }
 
     public void Visit(SqlQueryExpression node)
@@ -447,8 +424,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlTrim node)
     {
-      if (node.Expression is not null)
-        Visit(node.Expression);
+      VisitNullable(node.Expression);
     }
 
     public void Visit(SqlSelect node)
@@ -459,16 +435,12 @@ namespace Xtensive.Orm.Providers
         Visit(column);
       foreach (var column in node.OrderBy)
         Visit(column);
-      if (node.From!=null)
+      if (node.From != null)
         Visit(node.From);
-      if (node.Having is not null)
-        Visit(node.Having);
-      if (node.Limit is not null)
-        Visit(node.Limit);
-      if (node.Offset is not null)
-        Visit(node.Offset);
-      if (node.Where is not null)
-        Visit(node.Where);
+      VisitNullable(node.Having);
+      VisitNullable(node.Limit);
+      VisitNullable(node.Offset);
+      VisitNullable(node.Where);
       foreach (var hint in node.Hints)
         Visit(hint);
 
@@ -503,8 +475,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlUnary node)
     {
-      if (node.Operand is not null)
-        Visit(node.Operand);
+      VisitNullable(node.Operand);
     }
 
     public void Visit(SqlMetadata node)
@@ -518,8 +489,7 @@ namespace Xtensive.Orm.Providers
         Visit(node.From);
       if (node.Update!=null)
         Visit(node.Update);
-      if (node.Where is not null)
-        Visit(node.Where);
+      VisitNullable(node.Where);
       foreach (var value in node.Values.Values)
         Visit(value);
       foreach (var hint in node.Hints)
@@ -528,8 +498,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlUserColumn node)
     {
-      if (node.Expression is not null)
-        Visit(node.Expression);
+      VisitNullable(node.Expression);
     }
 
     public void Visit(SqlUserFunctionCall node)
@@ -552,8 +521,7 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlWhile node)
     {
-      if (node.Condition is not null)
-        Visit(node.Condition);
+      VisitNullable(node.Condition);
       if (node.Statement!=null)
         Visit(node.Statement);
     }
@@ -566,6 +534,13 @@ namespace Xtensive.Orm.Providers
     {
       if (visitedExpressions.Add(sqlExpression)) {
         sqlExpression.AcceptVisitor(this);
+      }
+    }
+
+    public void VisitNullable(SqlExpression sqlExpression)
+    {
+      if (sqlExpression is not null) {
+        Visit(sqlExpression);
       }
     }
 

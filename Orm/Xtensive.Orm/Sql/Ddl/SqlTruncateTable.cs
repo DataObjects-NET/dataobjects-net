@@ -12,10 +12,9 @@ namespace Xtensive.Sql.Ddl
   {
     public Table Table { get; }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlTruncateTable(Table);
+    internal override SqlTruncateTable Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlTruncateTable(t.Table));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

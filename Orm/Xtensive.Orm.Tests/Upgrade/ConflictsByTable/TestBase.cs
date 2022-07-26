@@ -34,9 +34,9 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
       BuildAndPopulateDomain(initDomainTypes, DomainUpgradeMode.Recreate);
 
       var upgradeDomainTypes = GetTypes(inheritanceSchema, true);
-      var ex = (asyncBuild)
-        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using var _ = await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeDomainTypes); })
-        : Assert.Throws<SchemaSynchronizationException>(() => { using var _ = BuildDomain(DomainUpgradeMode.PerformSafely, upgradeDomainTypes); });
+      var ex = asyncBuild
+        ? Assert.ThrowsAsync<SchemaSynchronizationException>(async () => { using (await BuildDomainAsync(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) { } })
+        : Assert.Throws<SchemaSynchronizationException>(() => { using (BuildDomain(DomainUpgradeMode.PerformSafely, upgradeDomainTypes)) { } });
 
       CheckComparisonResult(inheritanceSchema, ex.ComparisonResult);
 
@@ -154,7 +154,7 @@ namespace Xtensive.Orm.Tests.Upgrade.ConflictsByTable
         ValidateDataExists(inheritanceSchema, session);
       }
     }
-    
+
 
     protected abstract void CheckSingleTableComparisonResult(SchemaComparisonResult comparisonResult);
     protected abstract void CheckConcreteTableComparisonResult(SchemaComparisonResult comparisonResult);

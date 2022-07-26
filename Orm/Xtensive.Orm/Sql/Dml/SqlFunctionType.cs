@@ -64,6 +64,9 @@ namespace Xtensive.Sql.Dml
     DateTimeConstruct,
     DateTimeAddYears,
     DateTimeAddMonths,
+    DateOnlyAddDays,
+    TimeOnlyAddHours,
+    TimeOnlyAddMinutes,
     DateTimeTruncate,
     DateTimeToStringIso,
     IntervalConstruct,
@@ -80,6 +83,11 @@ namespace Xtensive.Sql.Dml
     DateTimeOffsetToLocalTime, 
     DateTimeOffsetToUtcTime,
     DateTimeToDateTimeOffset,
+
+#if DO_DATEONLY
+    DateOnlyConstruct,
+    TimeOnlyConstruct,
+#endif
 
     // .NET like rounding functions
 

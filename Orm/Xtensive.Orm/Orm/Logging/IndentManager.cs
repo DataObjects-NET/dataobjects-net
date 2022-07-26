@@ -1,4 +1,4 @@
-// Copyright (C) 2013-2023 Xtensive LLC.
+// Copyright (C) 2013-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Logging
         if (disposed)
           return;
         disposed = true;
-        CurrentIndentValueAsync.Value = oldIndent;
+        CurrentIndentLengthAsync.Value = oldIndent;
         endAction?.Invoke();
       }
 
@@ -37,14 +37,14 @@ namespace Xtensive.Orm.Logging
       }
     }
 
-    private const int SingleIndent = 2;
-    
-    private static readonly AsyncLocal<int> CurrentIndentValueAsync = new();
+    private const int SingleIndentLength = 2;
+
+    private static readonly AsyncLocal<int> CurrentIndentLengthAsync = new();
 
     /// <summary>
     /// Gets indentation for current thread.
     /// </summary>
-    public static int CurrentIdent => CurrentIndentValueAsync.Value;
+    public static int CurrentIndentLength => CurrentIndentLengthAsync.Value;
 
     /// <summary>
     /// Increases indentation for current thread.
@@ -52,8 +52,8 @@ namespace Xtensive.Orm.Logging
     /// <returns>Indentation scope.</returns>
     public static IndentScope IncreaseIndent(Action endAction = null)
     {
-      var oldIndent = CurrentIndentValueAsync.Value;
-      CurrentIndentValueAsync.Value = oldIndent + SingleIndent;
+      var oldIndent = CurrentIndentLengthAsync.Value;
+      CurrentIndentLengthAsync.Value = oldIndent + SingleIndentLength;
       return new IndentScope(oldIndent, endAction);
     }
   }

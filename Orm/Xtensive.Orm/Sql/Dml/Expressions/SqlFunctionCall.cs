@@ -46,13 +46,9 @@ namespace Xtensive.Sql.Dml
       Arguments = replacingExpression.Arguments;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (!context.NodeMapping.TryGetValue(this, out var clone)) {
-        context.NodeMapping[this] = clone= new SqlFunctionCall(FunctionType, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
-      }
-      return clone;
-    }
+    internal override SqlFunctionCall Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlFunctionCall(t.FunctionType, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 
     public override void AcceptVisitor(ISqlVisitor visitor) => visitor.Visit(this);
 

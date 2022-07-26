@@ -40,18 +40,6 @@ namespace Xtensive.Orm.Tests.Storage.Multinode
     }
 
     [Test]
-    public void DoubleSelectNodeTest()
-    {
-      //Delete this test when obolete method will be removed
-      var selectedNode = Domain.StorageNodeManager.GetNode(TestNodeId2);
-      using (var session = selectedNode.OpenSession()) {
-#pragma warning disable CS0618 // Type or member is obsolete
-        AssertEx.Throws<InvalidOperationException>(() => session.SelectStorageNode(TestNodeId3));
-#pragma warning restore CS0618 // Type or member is obsolete
-      }
-    }
-
-    [Test]
     public void KeyNodeIdAssignTest()
     {
       Assert.That(testAppleKey.NodeId, Is.EqualTo(TestNodeId2));

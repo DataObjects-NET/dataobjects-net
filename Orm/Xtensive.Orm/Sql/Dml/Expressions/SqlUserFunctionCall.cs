@@ -25,13 +25,9 @@ namespace Xtensive.Sql.Dml
       Arguments = replacingExpression.Arguments;
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (!context.NodeMapping.TryGetValue(this, out var clone)) {
-        context.NodeMapping[this] = clone = new SqlUserFunctionCall(Name, Arguments.Select(o => (SqlExpression) o.Clone(context)).ToArray(Arguments.Count));
-      }
-      return clone;
-    }
+    internal override SqlUserFunctionCall Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlUserFunctionCall(t.Name, t.Arguments.Select(o => o.Clone(c)).ToArray(t.Arguments.Count)));
 
     internal SqlUserFunctionCall(string name, IEnumerable<SqlExpression> arguments)
       : base(SqlFunctionType.UserDefined, arguments)

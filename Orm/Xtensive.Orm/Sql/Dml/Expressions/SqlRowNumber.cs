@@ -12,17 +12,13 @@ namespace Xtensive.Sql.Dml
   {
     public SqlOrderCollection OrderBy { get; private set; }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
-      var clone = new SqlRowNumber();
-      foreach (SqlOrder so in OrderBy)
-        clone.OrderBy.Add((SqlOrder) so.Clone(context));
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+    internal override SqlRowNumber Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlRowNumber();
+        foreach (SqlOrder so in t.OrderBy)
+          clone.OrderBy.Add(so.Clone(c));
+        return clone;
+      });
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

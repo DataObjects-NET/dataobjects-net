@@ -16,7 +16,7 @@ namespace Xtensive.Sql.Dml
       ArgumentValidator.EnsureArgumentIs<SqlNull>(expression);
     }
     
-    internal override object Clone(SqlNodeCloneContext context)
+    internal override SqlNull Clone(SqlNodeCloneContext context)
     {
       return this;
     }

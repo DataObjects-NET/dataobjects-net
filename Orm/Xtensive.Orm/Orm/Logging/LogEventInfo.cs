@@ -1,6 +1,6 @@
-// Copyright (C) 2013 Xtensive LLC.
-// All rights reserved.
-// For conditions of distribution and use, see license.
+// Copyright (C) 2013-2022 Xtensive LLC.
+// This code is distributed under MIT license terms.
+// See the License.txt file in the project root for more information.
 // Created by: Alexey Kulakov
 // Created:    2013.09.27
 
@@ -39,12 +39,16 @@ namespace Xtensive.Orm.Logging
     public override string ToString()
     {
       var builder = new StringBuilder();
-      builder.AppendFormat("{0} | {1} | {2} ",
+      _ = builder.AppendFormat("{0} | {1} | {2} ",
         SystemClock.Now.ToString("yyyy-MM-dd HH:mm:ss.ffff", CultureInfo.InvariantCulture), Level, Source);
-      if (FormattedMessage!=null)
-        builder.AppendFormat("| {0} ", FormattedMessage);
-      if (Exception!=null)
-        builder.AppendFormat("| {0}", Exception);
+      if (FormattedMessage!=null) {
+        _ = builder.Append($"| {FormattedMessage} ");
+      }
+
+      if (Exception!=null) {
+        _ = builder.Append($"| {Exception}");
+      }
+
       return builder.ToString();
     }
 
@@ -67,7 +71,7 @@ namespace Xtensive.Orm.Logging
     {
       if (string.IsNullOrEmpty(message))
         return message;
-      var indent = IndentManager.CurrentIdent;
+      var indent = IndentManager.CurrentIndentLength;
       return indent > 0 ? new string(' ', indent) + message : message;
     }
 

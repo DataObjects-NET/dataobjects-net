@@ -40,8 +40,9 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <TargetFrameworks>net5.0</TargetFrameworks>
-    <TargetFrameworks Condition="'$(DO_TargetFrameworks)' != ''">$(DO_TargetFrameworks)</TargetFrameworks>
+    <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks> <!-- the property -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks> <!-- env var -->
+    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net6.0</TargetFrameworks> <!-- fallback to default -->
     <LangVersion>9.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
@@ -93,4 +94,12 @@
   </ItemGroup>
 
   <Import Condition="Exists('User.Directory.Build.props')" Project="User.Directory.Build.props" />
+
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);TRACE</DefineConstants>
+    <DefineConstants Condition="'$(Configuration)'=='Debug'">$(DefineConstants);DEBUG</DefineConstants>
+
+    <!-- setting env var or property 'DO_DATEONLY=false' disables DO_DATEONLY feature -->
+    <DefineConstants Condition="$(TargetFramework)=='net6.0' AND '$(DO_DATEONLY)'!='false'">$(DefineConstants);DO_DATEONLY</DefineConstants>
+  </PropertyGroup>
 </Project>

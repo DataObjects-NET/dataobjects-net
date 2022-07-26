@@ -27,10 +27,9 @@ namespace Xtensive.Sql.Dml
       Value = replacingExpression.Value;
     }
 
-    internal override object Clone(SqlNodeCloneContext context) =>
-      context.NodeMapping.TryGetValue(this, out var clone)
-        ? clone
-        : context.NodeMapping[this] = new SqlContainer(Value);
+    internal override SqlContainer Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) =>
+        new SqlContainer(t.Value));
 
     public override void AcceptVisitor(ISqlVisitor visitor)
     {

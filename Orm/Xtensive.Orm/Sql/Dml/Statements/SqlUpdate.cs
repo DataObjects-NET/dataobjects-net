@@ -52,7 +52,7 @@ namespace Xtensive.Sql.Dml
     /// <summary>
     /// Gets or sets the FROM clause expression.
     /// </summary>
-    public SqlTable From 
+    public SqlTable From
     {
       get { return from;}
       set { from = value; }
@@ -67,31 +67,26 @@ namespace Xtensive.Sql.Dml
       set { limit = value; }
     }
 
-    internal override object Clone(SqlNodeCloneContext context)
-    {
-      if (context.NodeMapping.TryGetValue(this, out var value)) {
-        return value;
-      }
+    internal override SqlUpdate Clone(SqlNodeCloneContext context) =>
+      context.GetOrAdd(this, static (t, c) => {
+        var clone = new SqlUpdate();
+        if (t.update != null)
+          clone.Update = t.Update.Clone(c);
+        if (t.from != null)
+          clone.From = (SqlQueryRef) t.from.Clone(c);
+        foreach (KeyValuePair<ISqlLValue, SqlExpression> p in t.values)
+          clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(c)] =
+            p.Value?.Clone(c);
+        if (t.where is not null)
+          clone.Where = t.where.Clone(c);
+        if (t.limit is not null)
+          clone.Limit = t.where.Clone(c);
+        if (t.Hints.Count > 0)
+          foreach (SqlHint hint in t.Hints)
+            clone.Hints.Add((SqlHint) hint.Clone(c));
 
-      var clone = new SqlUpdate();
-      if (update!=null)
-        clone.Update = (SqlTableRef)Update.Clone(context);
-      if (from!=null)
-        clone.From = (SqlQueryRef)from.Clone(context);
-      foreach (KeyValuePair<ISqlLValue, SqlExpression> p in values)
-        clone.Values[(ISqlLValue) ((SqlExpression) p.Key).Clone(context)] =
-          p.Value is null ? null : (SqlExpression) p.Value.Clone(context);
-      if (where is not null)
-        clone.Where = (SqlExpression)where.Clone(context);
-      if (limit is not null)
-        clone.Limit = (SqlExpression)where.Clone(context);
-      if (Hints.Count>0)
-        foreach (SqlHint hint in Hints)
-          clone.Hints.Add((SqlHint)hint.Clone(context));
-
-      context.NodeMapping[this] = clone;
-      return clone;
-    }
+        return clone;
+      });
 
     // Constructor
 

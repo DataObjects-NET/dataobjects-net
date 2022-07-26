@@ -475,18 +475,6 @@ namespace Xtensive.Orm
     #endregion
 
     /// <summary>
-    /// Selects storage node identifier by <paramref name="nodeId"/>.
-    /// </summary>
-    /// <param name="nodeId">Node identifier.</param>
-    [Obsolete("Use StorageNode instances to open a session to them instead")]
-    public void SelectStorageNode([NotNull] string nodeId)
-    {
-      ArgumentValidator.EnsureArgumentNotNull(nodeId, "nodeId");
-      var node = Handlers.StorageNodeRegistry.Get(nodeId);
-      SetStorageNode(node);
-    }
-
-    /// <summary>
     /// Temporary overrides <see cref="CommandTimeout"/>.
     /// </summary>
     /// <param name="newTimeout">New <see cref="CommandTimeout"/> value.</param>
