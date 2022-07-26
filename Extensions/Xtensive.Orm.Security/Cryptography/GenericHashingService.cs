@@ -31,7 +31,14 @@ namespace Xtensive.Orm.Security.Cryptography
     /// Gets the salt.
     /// </summary>
     /// <returns>The salt.</returns>
-    protected byte[] GetSalt() => RandomNumberGenerator.GetBytes(SaltSize);
+    protected byte[] GetSalt()
+    {
+      var salt = new byte[SaltSize];
+      using (var rng = RandomNumberGenerator.Create()) {
+        rng.GetBytes(salt);
+        return salt;
+      }
+    }
 
     /// <summary>
     /// Computes the hash.
