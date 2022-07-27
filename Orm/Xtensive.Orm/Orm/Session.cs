@@ -597,7 +597,14 @@ namespace Xtensive.Orm
       SystemQuery = Query = new QueryEndpoint(new QueryProvider(this));
     }
 
-    public TagScope Tag(string tag) => new TagScope(tags ??= new List<string>(), tag);
+    public TagScope Tag(string tag)
+    {
+      tags = tags == null || Domain.Configuration.TaggingBehavior == TaggingBehavior.LastTagOverrides
+        ? new List<string>(1)
+        : tags;
+
+      return new TagScope(tags, tag);
+    }
 
     // IDisposable implementation
 
