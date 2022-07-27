@@ -600,7 +600,7 @@ namespace Xtensive.Orm
     public TagScope Tag(string tag)
     {
       tags = tags == null || Domain.Configuration.TaggingBehavior == TaggingBehavior.LastTagOverrides
-        ? new List<string>()
+        ? new List<string>(1)
         : tags;
 
       return new TagScope(tags, tag);
