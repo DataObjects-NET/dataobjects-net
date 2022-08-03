@@ -51,6 +51,7 @@ namespace Xtensive.Orm.Configuration.Elements
     private const string VersioningConventionElementName = "versioningConvention";
     private const string EnsureConnectionIsAliveElementName = "ensureConnectionIsAlive";
     private const string TagsLocationElementName = "tagsLocation";
+    private const string TaggingBehaviorElementName = "taggingBehavior";
 
 
     /// <inheritdoc/>
@@ -379,7 +380,7 @@ namespace Xtensive.Orm.Configuration.Elements
     [ConfigurationProperty(VersioningConventionElementName)]
     public VersioningConventionElement VersioningConvention
     {
-      get { return (VersioningConventionElement)this[VersioningConventionElementName]; }
+      get { return (VersioningConventionElement) this[VersioningConventionElementName]; }
       set { this[VersioningConventionElementName] = value; }
     }
 
@@ -401,6 +402,16 @@ namespace Xtensive.Orm.Configuration.Elements
     {
       get => (string) this[TagsLocationElementName];
       set => this[TagsLocationElementName] = value;
+    }
+
+    /// <summary>
+    /// <see cref="DomainConfiguration.TaggingBehavior" copy="true"/>.
+    /// </summary>
+    [ConfigurationProperty(TaggingBehaviorElementName, DefaultValue = "Default")]
+    public string TaggingBehavior
+    {
+      get => (string) this[TaggingBehaviorElementName];
+      set => this[TaggingBehaviorElementName] = value;
     }
 
     /// <summary>
@@ -437,6 +448,7 @@ namespace Xtensive.Orm.Configuration.Elements
         FullTextChangeTrackingMode = ParseEnum<FullTextChangeTrackingMode>(FullTextChangeTrackingMode),
         VersioningConvention = VersioningConvention.ToNative(),
         TagsLocation = (TagsLocation) Enum.Parse(typeof(TagsLocation), TagsLocation, true),
+        TaggingBehavior = (TaggingBehavior) Enum.Parse(typeof(TaggingBehavior), TaggingBehavior, true)
       };
 
       foreach (var element in Types)

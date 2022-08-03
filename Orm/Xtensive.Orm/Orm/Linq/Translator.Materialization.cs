@@ -11,6 +11,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Materialization;
@@ -44,7 +45,7 @@ namespace Xtensive.Orm.Linq
       IEnumerable<Parameter<Tuple>> tupleParameterBindings)
     {
       var result = projection;
-      if (context.SessionTags != null)
+      if (context.SessionTags != null && (taggingBehavior == TaggingBehavior.Default || !isAlreadyTagged))
         result = ApplySessionTags(result, context.SessionTags);
       var newItemProjector = result.ItemProjector.EnsureEntityIsJoined();
       result = result.Apply(newItemProjector);
@@ -211,6 +212,7 @@ namespace Xtensive.Orm.Linq
       this.compiledQueryScope = compiledQueryScope;
       this.context = context;
       tagsEnabled = context.Domain.TagsEnabled;
+      taggingBehavior = context.Domain.TaggingBehavior;
     }
   }
 }

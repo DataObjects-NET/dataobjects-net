@@ -117,6 +117,7 @@ namespace Xtensive.Orm.Configuration
     private IgnoreRuleCollection ignoreRules = new IgnoreRuleCollection();
     private VersioningConvention versioningConvention = new VersioningConvention();
     private TagsLocation tagsLocation = TagsLocation.Default;
+    private TaggingBehavior taggingBehavior = TaggingBehavior.LastTagOverrides;
 
     private bool? isMultidatabase;
     private bool? isMultischema;
@@ -606,6 +607,15 @@ namespace Xtensive.Orm.Configuration
       }
     }
 
+    public TaggingBehavior TaggingBehavior
+    {
+      get => taggingBehavior;
+      set {
+        EnsureNotLocked();
+        taggingBehavior = value;
+      }
+    }
+
 
     /// <summary>
     /// Gets a value indicating whether this configuration is multi-database.
@@ -732,7 +742,7 @@ namespace Xtensive.Orm.Configuration
       ignoreRules = (IgnoreRuleCollection) configuration.IgnoreRules.Clone();
       shareStorageSchemaOverNodes = configuration.ShareStorageSchemaOverNodes;
       versioningConvention = (VersioningConvention) configuration.VersioningConvention.Clone();
-      
+      taggingBehavior = configuration.taggingBehavior;
     }
 
     /// <summary>

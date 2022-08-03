@@ -12,6 +12,7 @@ using System.Reflection;
 using Xtensive.Collections;
 using Xtensive.Core;
 using Xtensive.Linq;
+using Xtensive.Orm.Configuration;
 using Xtensive.Orm.Internals;
 using Xtensive.Orm.Linq.Expressions;
 using Xtensive.Orm.Linq.Expressions.Visitors;
@@ -32,6 +33,9 @@ namespace Xtensive.Orm.Linq
 
     private readonly TranslatorContext context;
     private readonly bool tagsEnabled;
+    private readonly TaggingBehavior taggingBehavior;
+
+    private bool isAlreadyTagged;
 
     internal TranslatorState State { get; private set; } = TranslatorState.InitState;
 
@@ -271,6 +275,9 @@ namespace Xtensive.Orm.Linq
     private Expression VisitTag(MethodCallExpression expression)
     {
       var source = expression.Arguments[0];
+      bool needToTag = tagsEnabled && (taggingBehavior == TaggingBehavior.Default || !isAlreadyTagged);
+      isAlreadyTagged = true;
+
       var tag = (string) ((ConstantExpression) expression.Arguments[1]).Value;
       var visitedSourceRaw = Visit(source);
 
@@ -285,7 +292,7 @@ namespace Xtensive.Orm.Linq
         visitedSource = (ProjectionExpression) visitedSourceRaw;
       }
 
-      var newDataSource = (tagsEnabled)
+      var newDataSource = needToTag
         ? visitedSource.ItemProjector.DataSource.Tag(tag)
         : visitedSource.ItemProjector.DataSource;
       var newItemProjector = new ItemProjectorExpression(

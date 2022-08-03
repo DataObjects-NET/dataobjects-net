@@ -209,6 +209,53 @@ namespace Xtensive.Orm.Tests.Linq
     }
 
     [Test]
+    public void LatestTagOverrides()
+    {
+      var config = Domain.Configuration.Clone();
+      config.TaggingBehavior = TaggingBehavior.LastTagOverrides;
+
+      using (var domain = Domain.Build(config))
+      using (var session = domain.OpenSession())
+      using (var tagScope = session.Tag("sessionTag"))
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New)) {
+        var query = session.Query.All<Book>()
+          .Tag("firstTag")
+          .OrderBy(x => x.Id)
+          .Tag("secondTag");
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*secondTag*/"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
+    [Test]
+    public void LatestSessionTagOverrides()
+    {
+      var config = Domain.Configuration.Clone();
+      config.TaggingBehavior = TaggingBehavior.LastTagOverrides;
+
+      using (var domain = Domain.Build(config))
+      using (var session = domain.OpenSession())
+      using (var _ = session.Tag("firstSessionTag"))
+      using (var innerTx = session.OpenTransaction(TransactionOpenMode.New))
+      using (var __ = session.Tag("secondSessionTag")) {
+        var query = session.Query.All<Book>()
+        .OrderBy(x => x.Id);
+
+        var queryFormatter = session.Services.Demand<QueryFormatter>();
+        var queryString = queryFormatter.ToSqlString(query);
+        Console.WriteLine(queryString);
+
+        Assert.IsTrue(CursorCutter(queryString).StartsWith("/*secondSessionTag*/"));
+        Assert.DoesNotThrow(() => query.Run());
+      }
+    }
+
+    [Test]
     [TestCase("simpleTag", TestName = "OneLineTag")]
     [TestCase("A long time ago in a galaxy far,\t\rfar away...", TestName = "MultilineTag")]
     public void SingleTag(string tagText)
