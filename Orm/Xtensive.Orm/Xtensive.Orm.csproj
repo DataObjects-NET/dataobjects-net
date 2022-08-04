@@ -123,9 +123,9 @@
 
   <Target Name="IncludeWeaverFiles">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\**">
+      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\$(TargetFramework)\**">
         <Pack>true</Pack>
-        <PackagePath>tools\weaver\</PackagePath>
+        <PackagePath>tools\weaver\$(TargetFramework)</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>
