@@ -46,7 +46,7 @@ namespace Xtensive.Orm.Model
     public IndexInfo FindFirst(IndexAttributes indexAttributes)
     {
       var result = Find(indexAttributes);
-      if (result.Count!=0) {
+      if (result.Any()) {
         var enumerator = result.GetEnumerator();
         enumerator.MoveNext();
         return enumerator.Current;

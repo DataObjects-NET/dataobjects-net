@@ -222,7 +222,7 @@ namespace Xtensive.Orm.Building.Builders
             }
           }
           if (refField.IsInherited) {
-            var ancestor = typeInfo.GetAncestor();
+            var ancestor = typeInfo.Ancestor;
             var field = ancestor.Fields[refField.Name];
             inheritedAssociations.AddRange(field.Associations);
             parentIsPaired |= context.PairedAssociations.Any(pa => field.Associations.Contains(pa.First));
@@ -477,8 +477,8 @@ namespace Xtensive.Orm.Building.Builders
     private void RegiserReferences(Dictionary<TypeInfo, int> referenceRegistrator, params TypeInfo[] typesToRegisterReferences)
     {
       foreach (var type in typesToRegisterReferences) {
-        var typeImplementors = type.GetImplementors();
-        var descendantTypes = type.GetDescendants(true);
+        var typeImplementors = type.Implementors;
+        var descendantTypes = type.RecursiveDescendants;
         if (typeImplementors.Any())
         {
           foreach (var implementor in typeImplementors)

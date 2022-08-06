@@ -42,8 +42,8 @@ namespace Xtensive.Orm.Tests.Storage.Prefetch
       var state = session.EntityStateCache[key, true];
       var realType = state.Key.TypeInfo;
       Assert.IsTrue(realType.Equals(type) 
-        || realType.GetAncestors().Contains(type) 
-        || (type.IsInterface && realType.GetInterfaces(true).Contains(type)));
+        || realType.Ancestors.Contains(type) 
+        || (type.IsInterface && realType.RecursiveInterfaces.Contains(type)));
       var tuple = state.Tuple;
       Assert.IsNotNull(tuple);
       foreach (var field in type.Fields) {

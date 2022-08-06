@@ -24,8 +24,8 @@ namespace Xtensive.Orm.Building.Builders
 
       var root = type.Hierarchy.Root;
       var typeDef = context.ModelDef.Types[type.UnderlyingType];
-      var ancestors = type.GetAncestors().ToList();
-      var interfaces = type.GetInterfaces();
+      var ancestors = type.Ancestors;
+      var interfaces = type.Interfaces;
       
       // Building declared indexes both secondary and primary (for root of the hierarchy only)
       foreach (var indexDescriptor in typeDef.Indexes) {
@@ -42,7 +42,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Building primary index for non root entities
-      var parent = type.GetAncestor();
+      var parent = type.Ancestor;
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, false);
@@ -80,14 +80,14 @@ namespace Xtensive.Orm.Building.Builders
         }
 
       // Build indexes for descendants
-      foreach (var descendant in type.GetDescendants())
+      foreach (var descendant in type.Descendants)
         BuildClassTableIndexes(descendant);
 
       // Import inherited indexes
       var primaryIndex = type.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
       if (untypedIndexes.Contains(primaryIndex) && primaryIndex.ReflectedType == root)
         primaryIndex = type.Indexes.Single(i => i.DeclaringIndex == primaryIndex.DeclaringIndex && i.IsTyped);
-      var filterByTypes = type.GetDescendants(true).Append(type).ToList();
+      var filterByTypes = type.RecursiveDescendants.Append(type).ToList();
 
       // Build virtual primary index
       if (ancestors.Count > 0) {

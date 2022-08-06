@@ -41,7 +41,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Building primary index for non root entities
-      var parent = type.GetAncestor();
+      var parent = type.Ancestor;
       if (parent != null) {
         var parentPrimaryIndex = parent.Indexes.FindFirst(IndexAttributes.Primary | IndexAttributes.Real);
         var inheritedIndex = BuildInheritedIndex(type, parentPrimaryIndex, type.IsAbstract);
@@ -53,7 +53,7 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Building inherited from interfaces indexes
-      foreach (var @interface in type.GetInterfaces(true)) {
+      foreach (var @interface in type.RecursiveInterfaces) {
         foreach (var parentIndex in @interface.Indexes.Find(IndexAttributes.Primary, MatchType.None)) {
           if (parentIndex.DeclaringIndex != parentIndex) 
             continue;
@@ -75,11 +75,11 @@ namespace Xtensive.Orm.Building.Builders
       }
 
       // Build indexes for descendants
-      foreach (var descendant in type.GetDescendants())
+      foreach (var descendant in type.Descendants)
         BuildConcreteTableIndexes(descendant);
 
-      var ancestors = type.GetAncestors().ToList();
-      var descendants = type.GetDescendants(true).ToList();
+      var ancestors = type.Ancestors;
+      var descendants = type.RecursiveDescendants;
 
       // Build primary virtual union index
       if (descendants.Count > 0) {

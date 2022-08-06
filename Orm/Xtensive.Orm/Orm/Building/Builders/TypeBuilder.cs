@@ -134,7 +134,7 @@ namespace Xtensive.Orm.Building.Builders
     public void BuildFields(TypeDef typeDef, TypeInfo typeInfo)
     {
       if (typeInfo.IsInterface) {
-        var sourceFields = typeInfo.GetInterfaces()
+        var sourceFields = typeInfo.Interfaces
           .SelectMany(i => i.Fields)
           .Where(f => !f.IsPrimaryKey && f.Parent == null);
         foreach (var srcField in sourceFields) {
@@ -144,7 +144,7 @@ namespace Xtensive.Orm.Building.Builders
         }
       }
       else {
-        var ancestor = typeInfo.GetAncestor();
+        var ancestor = typeInfo.Ancestor;
         if (ancestor != null) {
           foreach (var srcField in ancestor.Fields.Where(f => !f.IsPrimaryKey && f.Parent == null)) {
             if (typeDef.Fields.TryGetValue(srcField.Name, out var fieldDef)) {
@@ -186,7 +186,7 @@ namespace Xtensive.Orm.Building.Builders
       typeInfo.Columns.AddRange(typeInfo.Fields.Where(f => f.Column != null).Select(f => f.Column));
 
       if (typeInfo.IsEntity && !IsAuxiliaryType(typeInfo)) {
-        foreach (var @interface in typeInfo.GetInterfaces()) {
+        foreach (var @interface in typeInfo.Interfaces) {
           BuildFieldMap(@interface, typeInfo);
         }
       }
