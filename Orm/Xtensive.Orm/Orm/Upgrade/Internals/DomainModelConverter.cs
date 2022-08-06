@@ -116,7 +116,7 @@ namespace Xtensive.Orm.Upgrade
         if (type.Hierarchy==null || type.Hierarchy.InheritanceSchema==InheritanceSchema.ConcreteTable)
           continue;
         if (type.Indexes.PrimaryIndex.IsVirtual) {
-          Dictionary<TypeInfo, int> typeOrder = type.GetAncestors()
+          Dictionary<TypeInfo, int> typeOrder = type.Ancestors
             .Append(type)
             .Select((t, i) => (Type: t, Index: i))
             .ToDictionary(a => a.Type, a => a.Index);
@@ -218,7 +218,7 @@ namespace Xtensive.Orm.Upgrade
         if (!IsValidForeignKeyTarget(association.TargetType))
           return null;
         if (association.OwnerType.IsInterface) {
-          foreach (var implementorType in association.OwnerType.GetImplementors().SelectMany(GetForeignKeyOwners)) {
+          foreach (var implementorType in association.OwnerType.Implementors.SelectMany(GetForeignKeyOwners)) {
             var implementorField = implementorType.FieldMap[association.OwnerField];
             ProcessDirectAssociation(implementorType, implementorField, association.TargetType);
           }
@@ -506,7 +506,7 @@ namespace Xtensive.Orm.Upgrade
         yield break;
       yield return type;
       if (type.Hierarchy.InheritanceSchema == InheritanceSchema.ConcreteTable)
-        foreach (var descendant in type.GetDescendants(true).Where(descendant => descendant.Indexes.PrimaryIndex != null))
+        foreach (var descendant in type.RecursiveDescendants.Where(descendant => descendant.Indexes.PrimaryIndex != null))
           yield return descendant;
     }
 

@@ -24,7 +24,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     /// <param name="criteria">The criteria.</param>
     /// <returns>A sequence of found objects.</returns>
-    public ICollection<IndexInfo> Find(IndexAttributes criteria)
+    public IEnumerable<IndexInfo> Find(IndexAttributes criteria)
     {
       return Find(criteria, MatchType.Full);
     }
@@ -35,7 +35,7 @@ namespace Xtensive.Orm.Model
     /// <param name="criteria">The criteria.</param>
     /// <param name="matchType">Type of the match.</param>
     /// <returns>A sequence of found objects.</returns>
-    public ICollection<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
+    public IEnumerable<IndexInfo> Find(IndexAttributes criteria, MatchType matchType)
     {
       if (criteria == IndexAttributes.None)
         return Array.Empty<IndexInfo>();

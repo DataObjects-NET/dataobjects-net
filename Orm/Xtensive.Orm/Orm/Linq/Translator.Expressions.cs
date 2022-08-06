@@ -62,8 +62,8 @@ namespace Xtensive.Orm.Linq
           && WellKnownOrmInterfaces.Entity.IsAssignableFrom(operandType)) {
         TypeInfo type = context.Model.Types[operandType];
 
-        var typeInfos = type.GetDescendants(true).ToHashSet();
-        typeInfos.UnionWith(type.GetImplementors(true));
+        var typeInfos = type.RecursiveDescendants.ToHashSet();
+        typeInfos.UnionWith(type.RecursiveImplementors);
         typeInfos.Add(type);
         Expression memberExpression = Expression.MakeMemberAccess(expression, WellKnownMembers.TypeId);
 
@@ -1645,7 +1645,7 @@ namespace Xtensive.Orm.Linq
     {
       var @interface = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var implementors = context.Model.Types[@interface].GetImplementors(true);
+      var implementors = context.Model.Types[@interface].RecursiveImplementors;
       var fields = implementors
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public))
         .Concat(implementors
@@ -1659,7 +1659,7 @@ namespace Xtensive.Orm.Linq
     {
       var ancestor = ma.Expression.Type;
       var property = (PropertyInfo)ma.Member;
-      var descendants = context.Model.Types[ancestor].GetDescendants(true);
+      var descendants = context.Model.Types[ancestor].RecursiveDescendants;
       var fields = descendants
         .Select(im => im.UnderlyingType.GetProperty(property.Name, BindingFlags.Instance|BindingFlags.Public|BindingFlags.NonPublic))
         .Where(f => f != null);

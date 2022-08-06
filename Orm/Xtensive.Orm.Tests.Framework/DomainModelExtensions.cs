@@ -81,7 +81,7 @@ namespace Xtensive.Orm.Tests
 
     public static void DumpAncestor(this TypeInfo target, int indent)
     {
-      TypeInfo ancestor = target.GetAncestor();
+      TypeInfo ancestor = target.Ancestor;
       if (ancestor!=null)
         WriteLine(indent + 1, "Ancestor: " + ancestor.Name);
       else {
@@ -92,8 +92,8 @@ namespace Xtensive.Orm.Tests
     public static void DumpDescendants(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Descendants:");
-      HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.GetDescendants());
-      foreach (TypeInfo descendant in target.GetDescendants(true)) {
+      HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.Descendants);
+      foreach (TypeInfo descendant in target.RecursiveDescendants) {
         if (direct.Contains(descendant))
           WriteLine(indent + 1, descendant.Name + " (direct)");
         else
@@ -104,8 +104,8 @@ namespace Xtensive.Orm.Tests
     public static void DumpInterfaces(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Interfaces:");
-      HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.GetInterfaces());
-      foreach (TypeInfo @interface in target.GetInterfaces(true)) {
+      var direct = target.Interfaces;
+      foreach (TypeInfo @interface in target.RecursiveInterfaces) {
         if (direct.Contains(@interface))
           WriteLine(indent + 1, @interface.Name + " (direct)");
         else
@@ -116,8 +116,8 @@ namespace Xtensive.Orm.Tests
     public static void DumpImplementors(this TypeInfo target, int indent)
     {
       WriteLine(indent, "Implementors:");
-      HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.GetImplementors());
-      foreach (TypeInfo implementor in target.GetImplementors(true)) {
+      HashSet<TypeInfo> direct = new HashSet<TypeInfo>(target.Implementors);
+      foreach (TypeInfo implementor in target.RecursiveImplementors) {
         if (direct.Contains(implementor))
           WriteLine(indent + 1, implementor.Name + " (direct)");
         else
@@ -163,10 +163,10 @@ namespace Xtensive.Orm.Tests
       if (target.IsEntity) {
         WriteLine(indent, "Hierarchy: " + target.Hierarchy.Root.Name);
         if (target.Hierarchy.Root!=target)
-          WriteLine(indent, "Ancestor: " + target.GetAncestor().Name);
+          WriteLine(indent, "Ancestor: " + target.Ancestor.Name);
       }
       else if (target.IsInterface) {
-        WriteLine(indent, "Implementors: " + target.GetImplementors().Select(t => t.Name).ToCommaDelimitedString());
+        WriteLine(indent, "Implementors: " + target.Implementors.Select(t => t.Name).ToCommaDelimitedString());
       }
 
       target.DumpMappingName(indent);
