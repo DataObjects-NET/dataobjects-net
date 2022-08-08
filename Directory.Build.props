@@ -33,6 +33,10 @@
     <DoGeneratePackage Condition="$(MSBuildProjectName) == 'TestCommon'">false</DoGeneratePackage>
     <DoGeneratePackage Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">false</DoGeneratePackage>
 
+    <!-- BuildingInsideVisualStudio is also true in Rider -->
+    <DoIsIdeBuild>false</DoIsIdeBuild>
+    <DoIsIdeBuild Condition="$(BuildingInsideVisualStudio) == 'true'">true</DoIsIdeBuild>
+
     <!-- Disable "BinaryFormatter is obsolete" warnings for test projects -->
     <NoWarn Condition="$(MSBuildProjectName.Contains('Tests')) == 'true'">$(NoWarn);SYSLIB0011</NoWarn>
   </PropertyGroup>
