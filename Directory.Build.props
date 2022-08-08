@@ -78,7 +78,7 @@
       OR $(MSBuildProjectName) == 'TestCommon'
       OR $(MSBuildProjectName) == 'Xtensive.Orm.Manual'">$(ArtifactsDir)tests\$(Configuration)\</BaseOutputPath>
     <OutputPath>$(BaseOutputPath)lib\</OutputPath>
-    <MSBuildProjectExtensionsPath>$(BaseIntermediateOutputPath)</MSBuildProjectExtensionsPath>
+    <MSBuildProjectExtensionsPath>$(IntermediateOutputPath)</MSBuildProjectExtensionsPath>
     <ProjectAssetsFile>$(MSBuildProjectExtensionsPath)project.assets.json</ProjectAssetsFile>
     <ProjectAssetsCacheFile>$(MSBuildProjectExtensionsPath)$(TargetFramework)\$(MSBuildProjectName).assets.cache</ProjectAssetsCacheFile>
     <OrmKeyFile>$(SolutionDir)Orm\Orm.snk</OrmKeyFile>
