@@ -64,12 +64,6 @@
   <PropertyGroup>
     <NoLogo>true</NoLogo>
     <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
-    <!--
-    <Configuration Condition="$(Configuration) == ''">Debug</Configuration>
-    <TargetFrameworks>$(TargetFrameworks)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">$(DO_TargetFrameworks)</TargetFrameworks>
-    <TargetFrameworks Condition="'$(TargetFrameworks)'==''">net6.0;net5.0</TargetFrameworks>
-    -->
     <LangVersion>9.0</LangVersion>
     <SolutionDir Condition="$(SolutionDir) == ''">$([MSBuild]::EnsureTrailingSlash(
       $([MSBuild]::GetDirectoryNameOfFileAbove('$(MSBuildThisFileDirectory)', 'Orm.sln'))))</SolutionDir>
