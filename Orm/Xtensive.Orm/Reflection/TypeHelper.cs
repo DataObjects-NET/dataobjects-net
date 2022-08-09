@@ -19,6 +19,7 @@ using System.Linq;
 using Xtensive.Core;
 
 using Xtensive.Sorting;
+using JetBrains.Annotations;
 
 namespace Xtensive.Reflection
 {
@@ -619,7 +620,7 @@ namespace Xtensive.Reflection
           argumentTypes[i] = o.GetType();
         }
 
-        var constructor = type.GetConstructor(bindingFlags, argumentTypes);
+        var constructor = type.GetConstructorEx(bindingFlags, argumentTypes);
         return constructor == null ? null : constructor.Invoke(arguments);
       }
       catch (Exception) {
@@ -637,10 +638,40 @@ namespace Xtensive.Reflection
     /// Appropriate constructor, if a single match is found;
     /// otherwise, <see langword="null"/>.
     /// </returns>
+    [Obsolete, CanBeNull]
     public static ConstructorInfo GetConstructor(this Type type, object[] arguments) =>
-      GetSingleConstructor(type, arguments.Select(a => a?.GetType()).ToArray());
+      GetSingleConstructorOrDefault(type, arguments.Select(a => a?.GetType()).ToArray());
 
+    /// <summary>
+    /// Gets the public constructor of type <paramref name="type"/>
+    /// accepting specified <paramref name="argumentTypes"/>.
+    /// </summary>
+    /// <param name="type">The type to get the constructor for.</param>
+    /// <param name="argumentTypes">The arguments.</param>
+    /// <returns>
+    /// Appropriate constructor, if a single match is found;
+    /// otherwise throws <see cref="InvalidOperationException"/>.
+    /// </returns>
+    /// <exception cref="InvalidOperationException">
+    /// The <paramref name="type"/> has no constructors suitable for <paramref name="argumentTypes"/>
+    /// -or- more than one such constructor.
+    /// </exception>
     public static ConstructorInfo GetSingleConstructor(this Type type, Type[] argumentTypes) =>
+      ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor)
+        ?? throw new InvalidOperationException(Strings.ExGivenTypeHasNoOrMoreThanOneCtorWithGivenParameters);
+
+    /// <summary>
+    /// Gets the public constructor of type <paramref name="type"/>
+    /// accepting specified <paramref name="argumentTypes"/>.
+    /// </summary>
+    /// <param name="type">The type to get the constructor for.</param>
+    /// <param name="argumentTypes">The arguments.</param>
+    /// <returns>
+    /// Appropriate constructor, if a single match is found;
+    /// otherwise, <see langword="null"/>.
+    /// </returns>
+    [CanBeNull]
+    public static ConstructorInfo GetSingleConstructorOrDefault(this Type type, Type[] argumentTypes) =>
       ConstructorInfoByTypes.GetOrAdd((type, argumentTypes), ConstructorExtractor);
 
     private static readonly Func<(Type, Type[]), ConstructorInfo> ConstructorExtractor = t => {
@@ -690,7 +721,16 @@ namespace Xtensive.Reflection
     /// Interfaces will be ordered from the very base ones to ancestors.
     /// </summary>
     /// <param name="type">The type to get the interfaces of.</param>
+    [Obsolete("Use GetInterfacesOrderByInheritance instead")]
     public static Type[] GetInterfaces(this Type type) =>
+      OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
+
+    /// <summary>
+    /// Gets the interfaces of the specified type.
+    /// Interfaces will be ordered from the very base ones to ancestors.
+    /// </summary>
+    /// <param name="type">The type to get the interfaces of.</param>
+    public static Type[] GetInterfacesOrderByInheritance(this Type type) =>
       OrderedInterfaces.GetOrAdd(type, t => t.GetInterfaces().OrderByInheritance().ToArray());
 
     /// <summary>
@@ -728,7 +768,7 @@ namespace Xtensive.Reflection
 
       var declaringType = type.DeclaringType;
       if (declaringType == null) {
-        return type.GetFullNameBase();
+        return type.InnerGetTypeName(useShortForm: false);
       }
 
       if (declaringType.IsGenericTypeDefinition) {
@@ -739,65 +779,7 @@ namespace Xtensive.Reflection
               .ToArray());
       }
 
-      return $"{declaringType.GetFullName()}+{type.GetFullNameBase()}";
-    }
-
-    private static string GetFullNameBase(this Type type)
-    {
-      var result = type.DeclaringType != null // Is nested
-        ? type.Name
-        : type.Namespace + "." + type.Name;
-      var arrayBracketPosition = result.IndexOf('[');
-      if (arrayBracketPosition > 0) {
-        result = result.Substring(0, arrayBracketPosition);
-      }
-
-      var arguments = type.GetGenericArguments();
-      if (arguments.Length > 0) {
-        if (type.DeclaringType != null) {
-          arguments = arguments
-            .Skip(type.DeclaringType.GetGenericArguments().Length)
-            .ToArray();
-        }
-
-        var sb = new StringBuilder();
-        sb.Append(TrimGenericSuffix(result));
-        sb.Append('<');
-        char? comma = default;
-        foreach (var argument in arguments) {
-          if (comma.HasValue) {
-            sb.Append(comma.Value);
-          }
-
-          if (!type.IsGenericTypeDefinition) {
-            sb.Append(GetFullNameBase(argument));
-          }
-
-          comma = ',';
-        }
-
-        sb.Append('>');
-        result = sb.ToString();
-      }
-
-      if (type.IsArray) {
-        var sb = new StringBuilder(result);
-        var elementType = type;
-        while (elementType?.IsArray == true) {
-          sb.Append('[');
-          var commaCount = elementType.GetArrayRank() - 1;
-          for (var i = 0; i < commaCount; i++) {
-            sb.Append(',');
-          }
-
-          sb.Append(']');
-          elementType = elementType.GetElementType();
-        }
-
-        result = sb.ToString();
-      }
-
-      return result;
+      return $"{declaringType.GetFullName()}+{type.InnerGetTypeName(useShortForm: false)}";
     }
 
     /// <summary>
@@ -817,7 +799,7 @@ namespace Xtensive.Reflection
 
       var declaringType = type.DeclaringType;
       if (declaringType == null) {
-        return type.GetShortNameBase();
+        return type.InnerGetTypeName(useShortForm: true);
       }
 
       if (declaringType.IsGenericTypeDefinition) {
@@ -828,12 +810,17 @@ namespace Xtensive.Reflection
               .ToArray());
       }
 
-      return $"{declaringType.GetShortName()}+{type.GetShortNameBase()}";
+      return $"{declaringType.GetShortName()}+{type.InnerGetTypeName(useShortForm: true)}";
     }
 
-    private static string GetShortNameBase(this Type type)
+    private static string InnerGetTypeName(this Type type, bool useShortForm)
     {
-      var result = type.Name;
+      var result = useShortForm
+        ? type.Name
+        : type.DeclaringType != null // Is nested
+          ? type.Name
+          : type.Namespace + "." + type.Name;
+
       var arrayBracketPosition = result.IndexOf('[');
       if (arrayBracketPosition > 0) {
         result = result.Substring(0, arrayBracketPosition);
@@ -847,23 +834,21 @@ namespace Xtensive.Reflection
             .ToArray();
         }
 
-        var sb = new StringBuilder();
-        sb.Append(TrimGenericSuffix(result));
-        sb.Append('<');
+        var sb = new StringBuilder().Append(TrimGenericSuffix(result)).Append('<');
         char? comma = default;
         foreach (var argument in arguments) {
           if (comma.HasValue) {
-            sb.Append(comma.Value);
+            _ = sb.Append(comma.Value);
           }
 
           if (!type.IsGenericTypeDefinition) {
-            sb.Append(GetShortNameBase(argument));
+            _ = sb.Append(InnerGetTypeName(argument, useShortForm));
           }
 
           comma = ',';
         }
 
-        sb.Append('>');
+        _ = sb.Append('>');
         result = sb.ToString();
       }
 
@@ -871,19 +856,16 @@ namespace Xtensive.Reflection
         var sb = new StringBuilder(result);
         var elementType = type;
         while (elementType?.IsArray == true) {
-          sb.Append('[');
+          _ = sb.Append('[');
           var commaCount = elementType.GetArrayRank() - 1;
           for (var i = 0; i < commaCount; i++) {
-            sb.Append(',');
+            _ = sb.Append(',');
           }
-
-          sb.Append(']');
+          _ = sb.Append(']');
           elementType = elementType.GetElementType();
         }
-
         result = sb.ToString();
       }
-
       return result;
     }
 

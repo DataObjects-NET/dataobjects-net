@@ -3,6 +3,7 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <AssemblySearchPaths>$(AssemblySearchPaths);{GAC}</AssemblySearchPaths>
     <IsPackable>false</IsPackable>
+    <Configurations>Debug;Release;Debug-NET5;Release-NET5;Debug-NET6;Release-NET6;</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
