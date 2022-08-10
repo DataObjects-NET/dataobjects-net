@@ -16,6 +16,11 @@
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
   </PropertyGroup>
+  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
+    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeWeaverFiles</TargetsForTfmSpecificContentInPackage>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>portable</DebugType>
+  </PropertyGroup>
   <ItemGroup Label="Build order">
     <ProjectReference Include="$(SolutionDir)Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj" ReferenceOutputAssembly="false">
       <SkipGetTargetFrameworkProperties>true</SkipGetTargetFrameworkProperties>
