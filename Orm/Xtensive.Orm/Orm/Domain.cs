@@ -128,7 +128,7 @@ namespace Xtensive.Orm
 
     internal ConcurrentDictionary<TypeInfo, IReadOnlyList<PrefetchFieldDescriptor>> PrefetchFieldDescriptorCache { get; }
 
-    internal ICache<object, Pair<object, ParameterizedQuery>> QueryCache { get; private set; }
+    internal FastConcurrentLruCache<object, Pair<object, ParameterizedQuery>> QueryCache { get; }
 
     internal ICache<Key, Key> KeyCache { get; private set; }
 

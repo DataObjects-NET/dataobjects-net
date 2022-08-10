@@ -221,7 +221,7 @@ namespace Xtensive.Orm.Internals
       domain = session.Domain;
 
       this.endpoint = endpoint;
-      this.queryKey = new Pair<object, string>(queryKey, session.StorageNodeId);
+      this.queryKey = (queryKey, session.StorageNodeId);
       this.queryTarget = queryTarget;
       this.outerContext = outerContext;
     }
