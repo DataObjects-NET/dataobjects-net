@@ -1,9 +1,10 @@
-﻿// Copyright (C) 2014-2020 Xtensive LLC.
+// Copyright (C) 2014-2020 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Denis Krjuchkov
 // Created:    2014.03.13
 
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -51,6 +52,10 @@ namespace Xtensive.Orm
     /// <returns>True if node was removed, otherwise false.</returns>
     public bool RemoveNode([NotNull] string nodeId)
     {
+      var queryCache = handlers.Domain.QueryCache;
+      foreach (var key in queryCache.Keys.Where(k => k is (object _, string keyNodeId) && keyNodeId == nodeId).ToList()) {
+        queryCache.RemoveKey(key);
+      }
       return handlers.StorageNodeRegistry.Remove(nodeId);
     }
 

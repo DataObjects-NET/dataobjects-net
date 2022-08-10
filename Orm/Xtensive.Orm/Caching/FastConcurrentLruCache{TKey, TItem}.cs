@@ -26,6 +26,8 @@ namespace Xtensive.Caching
     /// <inheritdoc/>
     public long MaxSize { get; private set; }
 
+    public IEnumerable<TKey> Keys => realCache.Keys;
+
     /// <inheritdoc/>
     public override void Clear() => realCache.Clear();
 

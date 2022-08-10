@@ -228,7 +228,7 @@ namespace Xtensive.Orm.Internals
 
       this.queryKey = domain.Configuration.ShareQueryCacheOverNodes
         ? queryKey
-        : new Pair<object, string>(queryKey, session.StorageNodeId);
+        : (queryKey, session.StorageNodeId);
     }
   }
 }
