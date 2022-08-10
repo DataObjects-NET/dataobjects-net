@@ -56,7 +56,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlLike replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlLike>(expression);
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlLike>(expression);
       this.expression = replacingExpression.expression;
       pattern = replacingExpression.Pattern;
       escape = replacingExpression.Escape;

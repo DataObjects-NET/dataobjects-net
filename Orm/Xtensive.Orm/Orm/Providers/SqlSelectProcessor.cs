@@ -307,7 +307,7 @@ namespace Xtensive.Orm.Providers
       }
       foreach (var value in node.Values.Columns.SelectMany(column => node.Values.ValuesByColumn(column))) {
         Visit(value);
-      }        
+      }
     }
 
     public void Visit(SqlJoinExpression node)
@@ -458,7 +458,7 @@ namespace Xtensive.Orm.Providers
         rootSelect.Comment = SqlComment.Join(rootSelect.Comment, node.Comment);
         node.Comment = null;
       }
-      
+
       var addOrderBy = hasPaging
         && node.OrderBy.Count==0
         && providerInfo.Supports(ProviderFeatures.PagingRequiresOrderBy);
@@ -574,9 +574,9 @@ namespace Xtensive.Orm.Providers
 
     public void Visit(SqlComment comment)
     {
-      
+
     }
-    
+
     public static void Process(SqlSelect select, ProviderInfo providerInfo)
     {
       ArgumentValidator.EnsureArgumentNotNull(select, "select");

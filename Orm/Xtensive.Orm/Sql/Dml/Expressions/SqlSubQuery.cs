@@ -27,7 +27,7 @@ namespace Xtensive.Sql.Dml
     /// <inheritdoc/>
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlSubQuery replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression);
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlSubQuery>(expression);
       query = replacingExpression.Query;
     }
 
@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Dml
         SqlQueryExpression expression = t.query as SqlQueryExpression;
         if (select != null)
           clone = new SqlSubQuery(select.Clone(c));
-        else 
+        else
           clone = new SqlSubQuery(expression.Clone(c));
         return clone;
       });

@@ -36,7 +36,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlCollate replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCollate>(expression);
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlCollate>(expression);
       operand = replacingExpression.Operand;
       collation = replacingExpression.Collation;
     }

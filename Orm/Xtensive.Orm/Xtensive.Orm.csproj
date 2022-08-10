@@ -2,6 +2,7 @@
   <PropertyGroup>
     <IsPackable>true</IsPackable>
     <DocumentationFile>$(OutputPath)$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <Configurations>Debug;Release;Debug-NET5;Release-NET5;Debug-NET6;Release-NET6;</Configurations>
   </PropertyGroup>
   <PropertyGroup>
     <RootNamespace>Xtensive</RootNamespace>
@@ -14,11 +15,6 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <WarningLevel>4</WarningLevel>
     <NoWarn>1591</NoWarn>
-  </PropertyGroup>
-  <PropertyGroup Label="Release" Condition="'$(Configuration)'=='Release'">
-    <TargetsForTfmSpecificContentInPackage>$(TargetsForTfmSpecificContentInPackage);IncludeWeaverFiles</TargetsForTfmSpecificContentInPackage>
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
   </PropertyGroup>
   <ItemGroup Label="Build order">
     <ProjectReference Include="$(SolutionDir)Weaver\Xtensive.Orm.Weaver\Xtensive.Orm.Weaver.csproj" ReferenceOutputAssembly="false">
@@ -100,9 +96,9 @@
 
   <Target Name="IncludeWeaverFiles">
     <ItemGroup>
-      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\**">
+      <TfmSpecificPackageFile Include="$(BaseOutputPath)tools\weaver\$(TargetFramework)\**">
         <Pack>true</Pack>
-        <PackagePath>tools\weaver\</PackagePath>
+        <PackagePath>tools\weaver\$(TargetFramework)</PackagePath>
       </TfmSpecificPackageFile>
     </ItemGroup>
   </Target>

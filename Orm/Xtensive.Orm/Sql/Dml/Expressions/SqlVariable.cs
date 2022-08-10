@@ -17,7 +17,7 @@ namespace Xtensive.Sql.Dml
     /// Gets the name.
     /// </summary>
     /// <value>The name.</value>
-    public string Name 
+    public string Name
     {
       get { return name;}
     }
@@ -26,7 +26,7 @@ namespace Xtensive.Sql.Dml
     /// Gets the type.
     /// </summary>
     /// <value>The type.</value>
-    public SqlValueType Type 
+    public SqlValueType Type
     {
       get { return type; }
     }
@@ -38,7 +38,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlVariable replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlVariable>(expression);
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlVariable>(expression);
       name = replacingExpression.Name;
     }
 

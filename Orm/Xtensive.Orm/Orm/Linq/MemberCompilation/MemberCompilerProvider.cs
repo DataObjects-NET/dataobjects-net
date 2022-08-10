@@ -236,14 +236,14 @@ namespace Xtensive.Orm.Linq.MemberCompilation
       
       if (!specialCase) {
         if (isCtor)
-          targetMember = targetType.GetConstructor(bindingFlags, parameterTypes);
+          targetMember = targetType.GetConstructorEx(bindingFlags, parameterTypes);
         else if (isField)
           targetMember = targetType.GetField(memberName, bindingFlags);
         else {
           // method / property getter / property setter
           var genericArgumentNames = isGenericMethod ? new string[attribute.NumberOfGenericArguments] : null;
           targetMember = targetType
-            .GetMethod(memberName, bindingFlags, genericArgumentNames, parameterTypes);
+            .GetMethodEx(memberName, bindingFlags, genericArgumentNames, parameterTypes);
         }
       }
 

@@ -242,7 +242,7 @@ namespace Xtensive.Orm.Linq
 
     private static MethodInfo GetMethod(Type type, string name, int numberOfGenericArgument, int numberOfArguments)
     {
-      var method = type.GetMethod(name,
+      var method = type.GetMethodEx(name,
         BindingFlags.Public | BindingFlags.Static,
         new string[numberOfGenericArgument],
         new object[numberOfArguments]);

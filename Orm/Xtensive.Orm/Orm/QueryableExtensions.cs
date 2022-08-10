@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2021 Xtensive LLC.
+// Copyright (C) 2009-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Alexey Gamzov
@@ -89,7 +89,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Version of <see cref="Queryable.Take{TSource}"/>, where <paramref name="count"/> is specified as
+    /// Version of <see cref="Queryable.Take{TSource}(IQueryable{TSource}, int)"/>, where <paramref name="count"/> is specified as
     /// <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -137,7 +137,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Version of <see cref="Queryable.ElementAt{TSource}"/>, where <paramref name="index"/> is specified as
+    /// Version of <see cref="Queryable.ElementAt{TSource}(IQueryable{TSource}, int)"/>, where <paramref name="index"/> is specified as
     /// <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>
@@ -161,7 +161,7 @@ namespace Xtensive.Orm
     }
 
     /// <summary>
-    /// Version of <see cref="Queryable.ElementAtOrDefault{TSource}"/>, where <paramref name="index"/> is specified as
+    /// Version of <see cref="Queryable.ElementAtOrDefault{TSource}(IQueryable{TSource}, int)"/>, where <paramref name="index"/> is specified as
     /// <see cref="Expression"/>.
     /// </summary>
     /// <typeparam name="TSource">The type of the source element.</typeparam>

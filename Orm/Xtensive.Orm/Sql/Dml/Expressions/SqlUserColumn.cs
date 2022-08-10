@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      SqlUserColumn replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlUserColumn>(expression);
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlUserColumn>(expression);
       this.expression = replacingExpression.Expression;
     }
 

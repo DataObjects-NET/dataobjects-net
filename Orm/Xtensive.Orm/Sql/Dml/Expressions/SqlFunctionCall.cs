@@ -11,27 +11,6 @@ using Xtensive.Core;
 namespace Xtensive.Sql.Dml
 {
   [Serializable]
-  public abstract class SqlFunctionCallBase : SqlExpression
-  {
-    /// <summary>
-    /// Gets the expressions.
-    /// </summary>
-    public IReadOnlyList<SqlExpression> Arguments { get; protected set; }
-
-    internal SqlFunctionCallBase(SqlNodeType nodeType, IEnumerable<SqlExpression> arguments)
-      : base(nodeType)
-    {
-      Arguments = arguments.ToList();
-    }
-
-    internal SqlFunctionCallBase(SqlNodeType nodeType, SqlExpression[] arguments)
-      : base(nodeType)
-    {
-      Arguments = arguments ?? Array.Empty<SqlExpression>();
-    }
-  }
-
-  [Serializable]
   public class SqlFunctionCall : SqlFunctionCallBase
   {
     /// <summary>
