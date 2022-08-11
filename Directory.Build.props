@@ -131,6 +131,6 @@
     <DefineConstants Condition="'$(Configuration)'=='Debug'">$(DefineConstants);DEBUG</DefineConstants>
 
     <!-- setting env var or property 'DO_DATEONLY=false' disables DO_DATEONLY feature -->
-    <DefineConstants Condition="$(TargetFramework)=='net6.0' AND '$(DO_DATEONLY)'!='false'">$(DefineConstants);DO_DATEONLY</DefineConstants>
+    <DefineConstants Condition="$(TargetFramework)!='net5.0' AND '$(DO_DATEONLY)'!='false'">$(DefineConstants);DO_DATEONLY</DefineConstants>
   </PropertyGroup>
 </Project>
