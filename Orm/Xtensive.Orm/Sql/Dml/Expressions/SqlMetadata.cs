@@ -17,9 +17,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, nameof(expression));
-      ArgumentValidator.EnsureArgumentIs<SqlMetadata>(expression, nameof(expression));
-      var source = (SqlMetadata) expression;
+      var source = ArgumentValidator.EnsureArgumentIs<SqlMetadata>(expression);
       NodeType = source.NodeType;
       Expression = source.Expression;
       Value = source.Value;

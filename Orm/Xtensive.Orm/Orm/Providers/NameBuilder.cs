@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2020 Xtensive LLC.
+// Copyright (C) 2007-2022 Xtensive LLC.
 // This code is distributed under MIT license terms.
 // See the License.txt file in the project root for more information.
 // Created by: Dmitri Maximov
@@ -586,10 +586,12 @@ namespace Xtensive.Orm.Providers
     /// <returns>Computed hash.</returns>
     private static string GetHash(string name)
     {
-      using (var hashAlgorithm = MD5.Create()) {
-        byte[] hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
+#pragma warning disable SYSLIB0021 // Type or member is obsolete
+      using (var hashAlgorithm = new MD5CryptoServiceProvider()) {
+        var hash = hashAlgorithm.ComputeHash(Encoding.UTF8.GetBytes(name));
         return $"H{hash[0]:x2}{hash[1]:x2}{hash[2]:x2}{hash[3]:x2}";
       }
+#pragma warning restore SYSLIB0021 // Type or member is obsolete
     }
 
     private static string FormatKeyGeneratorName(string database, string name)

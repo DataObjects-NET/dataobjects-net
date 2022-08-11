@@ -20,16 +20,14 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlColumnRef>(expression, "expression");
-      SqlColumn = ((SqlColumnRef) expression).SqlColumn;
+      SqlColumn = ArgumentValidator.EnsureArgumentIs<SqlColumnRef>(expression).SqlColumn;
     }
 
     internal override object Clone(SqlNodeCloneContext context) =>
       context.NodeMapping.TryGetValue(this, out var clone)
         ? clone
         : context.NodeMapping[this] = new SqlColumnRef(
-            SqlTable!=null ? (SqlTable) SqlTable.Clone(context) : null,
+            SqlTable != null ? (SqlTable) SqlTable.Clone(context) : null,
             (SqlColumn) SqlColumn.Clone(context), Name);
 
     public override void AcceptVisitor(ISqlVisitor visitor)
