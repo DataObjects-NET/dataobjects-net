@@ -3,13 +3,15 @@
 DataObjects.Net is a persistence and object-relational mapping framework for the Microsoft .NET. It allows developers to define persistent objects as well as business logic directly in C#, Visual Basic or F#. The persistent objects can be retrieved by LINQ queries. Persistent data can be stored in SQL Servers. In contrast to many other ORM frameworks the database model is generated and maintained automatically.
 
 Supported databases:
-- MS SQL Server 2008 R2, 2012, 2014, 2016, 2017, 2019
+- MS SQL Server 2012, 2014, 2016, 2017, 2019
 - MS Azure SQL Database
 - Oracle 10g, 11g
-- PostgreSQL 8.3, 8.4, 9.0, 9.1, 9.2, 10, 11
-- MySQL 5.5, 5.6
-- Firebird 2.5
+- PostgreSQL 9.x, 10, 11, 12, 13
+- MySQL 5.6, 5.7, 8.0
+- Firebird 2.5, 4.0
 - Sqlite 3
+
+NOTE that MS SQL Server 2008 R2, PostgreSQL v8.3, v8.4, and MySQL v5.5 were removed from supported versions list because they're too old and reached End-Of-Live status. Drivers for these versions still exist within libraries and we will try to keep them working but no guarantee given.
 
 ### Installation
 

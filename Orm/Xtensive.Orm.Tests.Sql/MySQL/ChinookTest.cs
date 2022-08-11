@@ -957,5 +957,262 @@ namespace Xtensive.Orm.Tests.Sql.MySQL
 
       Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
     }
+
+    [Test]
+    public void Test053()
+    {
+      Require.ProviderVersionAtLeast(new Version(8, 0));
+
+      var nativeSql =
+        "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 LIMIT 10)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 LIMIT 10)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 100 and AlbumId < 200 LIMIT 10)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 20 and AlbumId < 300 LIMIT 10)) `a`;";
+
+      var albums = SqlDml.TableRef(schema.Tables["album"]);
+
+      var s1 = SqlDml.Select(albums);
+      s1.Columns.Add(albums.Columns["ArtistId"]);
+      s1.Where = albums.Columns["AlbumId"] >= 0 && albums.Columns["AlbumId"] < 50;
+      s1.Limit = 10;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s2 = SqlDml.Select(albums);
+      s2.Columns.Add(albums.Columns["ArtistId"]);
+      s2.Where = albums.Columns["AlbumId"] >= 50 && albums.Columns["AlbumId"] < 100;
+      s2.Limit = 10;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s3 = SqlDml.Select(albums);
+      s3.Columns.Add(albums.Columns["ArtistId"]);
+      s3.Where = albums.Columns["AlbumId"] >= 100 && albums.Columns["AlbumId"] < 200;
+      s3.Limit = 10;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s4 = SqlDml.Select(albums);
+      s4.Columns.Add(albums.Columns["ArtistId"]);
+      s4.Where = albums.Columns["AlbumId"] >= 200 && albums.Columns["AlbumId"] < 300;
+      s4.Limit = 10;
+
+      var qr = SqlDml.QueryRef(s1.Union(s2).Union(s3.Union(s4)), "a");
+      var select = SqlDml.Select(qr);
+      select.Columns.Add(qr["ArtistId"]);
+
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+    }
+
+    [Test]
+    public void Test054()
+    {
+      Require.ProviderVersionAtLeast(new Version(8, 0));
+
+      var nativeSql =
+        "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 LIMIT 10 OFFSET 10)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 LIMIT 10 OFFSET 10)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 100 and AlbumId < 200 LIMIT 10 OFFSET 10)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 20 and AlbumId < 300 LIMIT 10 OFFSET 10)) `a`;";
+
+      var albums = SqlDml.TableRef(schema.Tables["album"]);
+
+      var s1 = SqlDml.Select(albums);
+      s1.Columns.Add(albums.Columns["ArtistId"]);
+      s1.Where = albums.Columns["AlbumId"] >= 0 && albums.Columns["AlbumId"] < 50;
+      s1.Limit = 10;
+      s1.Offset = 10;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s2 = SqlDml.Select(albums);
+      s2.Columns.Add(albums.Columns["ArtistId"]);
+      s2.Where = albums.Columns["AlbumId"] >= 50 && albums.Columns["AlbumId"] < 100;
+      s2.Limit = 10;
+      s2.Offset = 10;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s3 = SqlDml.Select(albums);
+      s3.Columns.Add(albums.Columns["ArtistId"]);
+      s3.Where = albums.Columns["AlbumId"] >= 100 && albums.Columns["AlbumId"] < 200;
+      s3.Limit = 10;
+      s3.Offset = 10;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s4 = SqlDml.Select(albums);
+      s4.Columns.Add(albums.Columns["ArtistId"]);
+      s4.Where = albums.Columns["AlbumId"] >= 200 && albums.Columns["AlbumId"] < 300;
+      s4.Limit = 10;
+      s4.Offset = 10;
+
+      var qr = SqlDml.QueryRef(s1.Union(s2).Union(s3.Union(s4)), "a");
+      var select = SqlDml.Select(qr);
+      select.Columns.Add(qr["ArtistId"]);
+
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+    }
+
+    [Test]
+    public void Test055()
+    {
+      Require.ProviderVersionAtLeast(new Version(8, 0));
+
+      var nativeSql =
+        "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 FOR SHARE)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 FOR SHARE)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 100 and AlbumId < 200 FOR SHARE)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 20 and AlbumId < 300 FOR SHARE)) `a`;";
+
+      var albums = SqlDml.TableRef(schema.Tables["album"]);
+
+      var s1 = SqlDml.Select(albums);
+      s1.Columns.Add(albums.Columns["ArtistId"]);
+      s1.Where = albums.Columns["AlbumId"] >= 0 && albums.Columns["AlbumId"] < 50;
+      s1.Lock = SqlLockType.Shared;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s2 = SqlDml.Select(albums);
+      s2.Columns.Add(albums.Columns["ArtistId"]);
+      s2.Where = albums.Columns["AlbumId"] >= 50 && albums.Columns["AlbumId"] < 100;
+      s2.Lock = SqlLockType.Shared;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s3 = SqlDml.Select(albums);
+      s3.Columns.Add(albums.Columns["ArtistId"]);
+      s3.Where = albums.Columns["AlbumId"] >= 100 && albums.Columns["AlbumId"] < 200;
+      s3.Lock = SqlLockType.Shared;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s4 = SqlDml.Select(albums);
+      s4.Columns.Add(albums.Columns["ArtistId"]);
+      s4.Where = albums.Columns["AlbumId"] >= 200 && albums.Columns["AlbumId"] < 300;
+      s4.Lock = SqlLockType.Shared;
+
+      var qr = SqlDml.QueryRef(s1.Union(s2).Union(s3.Union(s4)), "a");
+      var select = SqlDml.Select(qr);
+      select.Columns.Add(qr["ArtistId"]);
+
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+    }
+
+    [Test]
+    public void Test056()
+    {
+      Require.ProviderVersionAtLeast(new Version(8, 0));
+
+      var nativeSql =
+        "SELECT `a`.`ArtistId` FROM ((SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 ORDER BY ArtistId)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 ORDER BY ArtistId)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 100 and AlbumId < 200 ORDER BY ArtistId)"
+        + " UNION (SELECT ArtistId FROM dotest.album where AlbumId >= 20 and AlbumId < 300 ORDER BY ArtistId)) `a`;";
+
+      var albums = SqlDml.TableRef(schema.Tables["album"]);
+
+      var s1 = SqlDml.Select(albums);
+      s1.Columns.Add(albums.Columns["ArtistId"]);
+      s1.Where = albums.Columns["AlbumId"] >= 0 && albums.Columns["AlbumId"] < 50;
+      s1.OrderBy.Add(albums.Columns["ArtistId"]);
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s2 = SqlDml.Select(albums);
+      s2.Columns.Add(albums.Columns["ArtistId"]);
+      s2.Where = albums.Columns["AlbumId"] >= 50 && albums.Columns["AlbumId"] < 100;
+      s2.OrderBy.Add(albums.Columns["ArtistId"]);
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s3 = SqlDml.Select(albums);
+      s3.Columns.Add(albums.Columns["ArtistId"]);
+      s3.Where = albums.Columns["AlbumId"] >= 100 && albums.Columns["AlbumId"] < 200;
+      s3.OrderBy.Add(albums.Columns["ArtistId"]);
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s4 = SqlDml.Select(albums);
+      s4.Columns.Add(albums.Columns["ArtistId"]);
+      s4.Where = albums.Columns["AlbumId"] >= 200 && albums.Columns["AlbumId"] < 300;
+      s4.OrderBy.Add(albums.Columns["ArtistId"]);
+
+      var qr = SqlDml.QueryRef(s1.Union(s2).Union(s3.Union(s4)), "a");
+      var select = SqlDml.Select(qr);
+      select.Columns.Add(qr["ArtistId"]);
+
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+    }
+
+
+    [Test]
+    public void Test057()
+    {
+      Require.ProviderVersionAtLeast(new Version(8, 0));
+
+      var nativeSql =
+        "SELECT `a`.`ArtistId` FROM (SELECT ArtistId FROM dotest.album where AlbumId >= 0 and AlbumId < 50 GROUP BY ArtistId"
+        + " UNION SELECT ArtistId FROM dotest.album where AlbumId >= 50 and AlbumId < 100 GROUP BY ArtistId"
+        + " UNION SELECT ArtistId FROM dotest.album where AlbumId >= 100 and AlbumId < 200 GROUP BY ArtistId"
+        + " UNION SELECT ArtistId FROM dotest.album where AlbumId >= 20 and AlbumId < 300 GROUP BY ArtistId) `a`;";
+
+      var albums = SqlDml.TableRef(schema.Tables["album"]);
+
+      var s1 = SqlDml.Select(albums);
+      s1.Columns.Add(albums.Columns["ArtistId"]);
+      s1.Where = albums.Columns["AlbumId"] >= 0 && albums.Columns["AlbumId"] < 50;
+      s1.GroupBy.Add(albums.Columns["ArtistId"]);
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s2 = SqlDml.Select(albums);
+      s2.Columns.Add(albums.Columns["ArtistId"]);
+      s2.Where = albums.Columns["AlbumId"] >= 50 && albums.Columns["AlbumId"] < 100;
+      s2.GroupBy.Add(albums.Columns["ArtistId"]);
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s3 = SqlDml.Select(albums);
+      s3.Columns.Add(albums.Columns["ArtistId"]);
+      s3.Where = albums.Columns["AlbumId"] >= 100 && albums.Columns["AlbumId"] < 200;
+      s3.GroupBy.Add(albums.Columns["ArtistId"]);
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s4 = SqlDml.Select(albums);
+      s4.Columns.Add(albums.Columns["ArtistId"]);
+      s4.Where = albums.Columns["AlbumId"] >= 200 && albums.Columns["AlbumId"] < 300;
+      s4.GroupBy.Add(albums.Columns["ArtistId"]);
+
+      var qr = SqlDml.QueryRef(s1.Union(s2).Union(s3.Union(s4)), "a");
+      var select = SqlDml.Select(qr);
+      select.Columns.Add(qr["ArtistId"]);
+
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+    }
+
+    [Test]
+    public void Test058()
+    {
+      var nativeSql =
+        "SELECT `a`.`AlbumId` FROM (SELECT AlbumId FROM dotest.album where AlbumId >= 0 and AlbumId < 50"
+        + " UNION SELECT AlbumId FROM dotest.album where AlbumId >= 50 and AlbumId< 100"
+        + " UNION SELECT AlbumId FROM dotest.album where AlbumId >= 100 and AlbumId< 200"
+        + " UNION SELECT AlbumId FROM dotest.album where AlbumId >= 20 and AlbumId< 300) `a`;";
+
+      var albums = SqlDml.TableRef(schema.Tables["album"]);
+
+      var s1 = SqlDml.Select(albums);
+      s1.Columns.Add(albums.Columns["AlbumId"]);
+      s1.Where = albums.Columns["AlbumId"] >= 0 && albums.Columns["AlbumId"] < 50;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s2 = SqlDml.Select(albums);
+      s2.Columns.Add(albums.Columns["AlbumId"]);
+      s2.Where = albums.Columns["AlbumId"] >= 50 && albums.Columns["AlbumId"] < 100;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s3 = SqlDml.Select(albums);
+      s3.Columns.Add(albums.Columns["AlbumId"]);
+      s3.Where = albums.Columns["AlbumId"] >= 100 && albums.Columns["AlbumId"] < 200;
+
+      albums = SqlDml.TableRef(schema.Tables["album"]);
+      var s4 = SqlDml.Select(albums);
+      s4.Columns.Add(albums.Columns["AlbumId"]);
+      s4.Where = albums.Columns["AlbumId"] >= 200 && albums.Columns["AlbumId"] < 300;
+
+      var qr = SqlDml.QueryRef(s1.Union(s2).Union(s3.Union(s4)), "a");
+      var select = SqlDml.Select(qr);
+      select.Columns.Add(qr["AlbumId"]);
+
+      Assert.IsTrue(CompareExecuteNonQuery(nativeSql, select));
+    }
   }
 }

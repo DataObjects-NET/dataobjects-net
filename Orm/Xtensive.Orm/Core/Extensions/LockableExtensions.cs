@@ -4,6 +4,8 @@
 // Created by: Alex Yakunin
 // Created:    2008.07.04
 
+using System;
+
 namespace Xtensive.Core
 {
   /// <summary>
@@ -16,6 +18,7 @@ namespace Xtensive.Core
     /// </summary>
     /// <param name="lockable">Lockable object to check.</param>
     /// <exception cref="InstanceIsLockedException">Specified instance is locked.</exception>
+    [Obsolete("Use LockableBase.EnsureNotLocked method instead.")]
     public static void EnsureNotLocked(this ILockable lockable)
     {
       ArgumentValidator.EnsureArgumentNotNull(lockable, "lockable");

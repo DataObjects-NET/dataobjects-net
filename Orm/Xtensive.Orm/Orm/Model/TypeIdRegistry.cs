@@ -97,7 +97,7 @@ namespace Xtensive.Orm.Model
     /// </summary>
     public void Clear()
     {
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       mapping.Clear();
       reverseMapping.Clear();
@@ -112,7 +112,7 @@ namespace Xtensive.Orm.Model
     public void Register(int typeId, TypeInfo type)
     {
       ArgumentValidator.EnsureArgumentNotNull(type, "type");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
 
       mapping[type] = typeId;
       reverseMapping[typeId] = type;

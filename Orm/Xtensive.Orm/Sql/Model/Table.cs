@@ -117,7 +117,7 @@ namespace Xtensive.Sql.Model
       get { return partitionDescriptor; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         PartitionDescriptor old = partitionDescriptor;
         partitionDescriptor = value;
         if (old != null && old.Owner == this)
@@ -137,7 +137,7 @@ namespace Xtensive.Sql.Model
       get { return filegroup; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filegroup = value;
       }
     }

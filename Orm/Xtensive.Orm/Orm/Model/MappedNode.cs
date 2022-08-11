@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Model
       get { return mappingName; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         ValidateName(value);
         mappingName = value;
       }

@@ -100,10 +100,10 @@ namespace Xtensive.Orm.Tests.Sql.Sqlite
     {
       SqlLiteral<int> l = SqlDml.Literal(1);
       bool passed = false;
-      if (!l.IsNullReference())
+      if (l is not null)
         passed = true;
       Assert.IsTrue(passed);
-      if (l.IsNullReference())
+      if (l is null)
         passed = false;
       Assert.IsTrue(passed);
     }

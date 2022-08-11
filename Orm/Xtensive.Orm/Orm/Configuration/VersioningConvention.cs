@@ -25,7 +25,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return entityVersioningPolicy; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         entityVersioningPolicy = value;
       }
     }
@@ -37,7 +37,7 @@ namespace Xtensive.Orm.Configuration
     {
       get { return denyEntitySetOwnerVersionChange; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         denyEntitySetOwnerVersionChange = value;
       }
     }

@@ -27,7 +27,7 @@ namespace Xtensive.Modelling.Actions
     public string Comment {
       get { return comment; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         comment = value;
       }
     }
@@ -46,7 +46,7 @@ namespace Xtensive.Modelling.Actions
     public void Add(NodeAction action)
     {
       ArgumentValidator.EnsureArgumentNotNull(action, "action");
-      this.EnsureNotLocked();
+      EnsureNotLocked();
       // Only locked actions can be added
       var ca = action as PropertyChangeAction;
       if (ca!=null && actions.Count!=0) {

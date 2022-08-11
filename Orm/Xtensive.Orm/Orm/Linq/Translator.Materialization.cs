@@ -23,7 +23,7 @@ namespace Xtensive.Orm.Linq
 {
   internal sealed partial class Translator
   {
-    private static readonly MethodInfo VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethod(nameof(VisitLocalCollectionSequence),
+    private static readonly MethodInfo VisitLocalCollectionSequenceMethod = typeof(Translator).GetMethodEx(nameof(VisitLocalCollectionSequence),
         BindingFlags.NonPublic | BindingFlags.Instance,
         new[] { "TItem" },
         new object[] { WellKnownTypes.Expression });

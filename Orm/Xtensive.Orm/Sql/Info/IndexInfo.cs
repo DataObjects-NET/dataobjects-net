@@ -23,7 +23,7 @@ namespace Xtensive.Sql.Info
     public int MaxLength {
       get { return maxLength; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxLength = value;
       }
     }
@@ -34,7 +34,7 @@ namespace Xtensive.Sql.Info
     public int MaxNumberOfColumns {
       get { return maxNumberOfColumns; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         maxNumberOfColumns = value;
       }
     }
@@ -45,7 +45,7 @@ namespace Xtensive.Sql.Info
     public PartitionMethods PartitionMethods {
       get { return partitionMethods; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         partitionMethods = value;
       }
     }
@@ -57,7 +57,7 @@ namespace Xtensive.Sql.Info
     public IndexFeatures Features {
       get { return features; }
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         features = value;
       }
     }

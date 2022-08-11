@@ -372,7 +372,7 @@ namespace Xtensive.Reflection
       string[] genericArgumentNames = new string[genericArgumentTypes.Length]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
 
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags,
+      MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;
@@ -422,7 +422,7 @@ namespace Xtensive.Reflection
       string[] genericArgumentNames = new string[1]; // Actual names doesn't matter
       Type[] parameterTypes = delegateType.GetInvokeMethod().GetParameterTypes();
 
-      MethodInfo methodInfo = MethodHelper.GetMethod(type, methodName, bindingFlags,
+      MethodInfo methodInfo = MethodHelper.GetMethodEx(type, methodName, bindingFlags,
         genericArgumentNames, parameterTypes);
       if (methodInfo==null)
         return null;

@@ -125,7 +125,7 @@ namespace Xtensive.Orm.Internals.Prefetch
 
     public bool Equals(EntityGroupTask other)
     {
-      if (ReferenceEquals(null, other)) {
+      if (other is null) {
         return false;
       }
 

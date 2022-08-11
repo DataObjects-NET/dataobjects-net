@@ -29,9 +29,13 @@ namespace Xtensive.Reflection
     /// </summary>
     InheritFromBase = 1,
     /// <summary>
+    /// Attributes inherit recursively.
+    /// </summary>
+    InheritRecursively = 2,
+    /// <summary>
     /// Attributes from all the bases should be inherited.
     /// </summary>
-    InheritFromAllBase = 3,
+    InheritFromAllBase = InheritFromBase | InheritRecursively,
     /// <summary>
     /// If no attributes are found on the specified method,
     /// attributes from the property or event it belongs to should be inherited.
@@ -40,6 +44,6 @@ namespace Xtensive.Reflection
     /// <summary>
     /// All inheritance options.
     /// </summary>
-    InheritAll = 7,
+    InheritAll = InheritFromBase | InheritRecursively | InheritFromPropertyOrEvent,
   }
 }

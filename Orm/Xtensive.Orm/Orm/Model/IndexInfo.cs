@@ -54,7 +54,7 @@ namespace Xtensive.Orm.Model
       get { return shortName; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         shortName = value;
       }
     }
@@ -64,7 +64,7 @@ namespace Xtensive.Orm.Model
       get { return fillFactor; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         fillFactor = value;
       }
     }
@@ -74,7 +74,7 @@ namespace Xtensive.Orm.Model
       get { return columnGroup; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         columnGroup = value;
       }
     }
@@ -178,7 +178,7 @@ namespace Xtensive.Orm.Model
       get { return filterByTypes; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filterByTypes = value;
       }
     }
@@ -191,7 +191,7 @@ namespace Xtensive.Orm.Model
       get { return filterExpression; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filterExpression = value;
       }
     }
@@ -206,7 +206,7 @@ namespace Xtensive.Orm.Model
       get { return filter; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         filter = value;
       }
     }
@@ -219,7 +219,7 @@ namespace Xtensive.Orm.Model
       get { return selectColumns; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         selectColumns = value;
       }
     }
@@ -229,7 +229,7 @@ namespace Xtensive.Orm.Model
       get { return valueColumnsMap; }
       set
       {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         valueColumnsMap = value;
       }
     }
@@ -279,7 +279,7 @@ namespace Xtensive.Orm.Model
       get { return attributes; }
       [DebuggerStepThrough]
       set {
-        this.EnsureNotLocked();
+        EnsureNotLocked();
         attributes = value;
       }
     }

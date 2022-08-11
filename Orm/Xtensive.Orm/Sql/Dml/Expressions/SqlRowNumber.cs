@@ -31,9 +31,7 @@ namespace Xtensive.Sql.Dml
 
     public override void ReplaceWith(SqlExpression expression)
     {
-      ArgumentValidator.EnsureArgumentNotNull(expression, "expression");
-      ArgumentValidator.EnsureArgumentIs<SqlRowNumber>(expression, "expression");
-      var replacingExpression = (SqlRowNumber) expression;
+      var replacingExpression = ArgumentValidator.EnsureArgumentIs<SqlRowNumber>(expression);
       OrderBy.Clear();
       foreach (var item in replacingExpression.OrderBy)
         OrderBy.Add(item);
